@@ -1496,6 +1496,106 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
  margin yok (önceki sürümde -40px panel "Köprüyü Gör" düğmesini kapatıyordu). */
 .fit-band-panel>*{background-color:#1e1b14 !important;border-color:rgba(255,255,255,.14) !important;box-shadow:0 22px 54px rgba(16,14,9,.30) !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
 
+
+/* =====================================================================
+ ANA SAYFA HERO'SU TAM EKRAN — KURAL İSTİSNASI (2026-08-11)
+
+ "Banner yüksekliği ekran yüksekliğinin yarısını geçmez" kuralı YALNIZ
+ ana sayfa hero'su için geçersizdir. Gerekçe: ana sayfanın işi ürünü tek
+ bakışta anlatmak; hero açılışta ekranın tamamını kaplar, kullanıcı önce
+ yalnız hero'yu görür. Kapsam `body[data-fit-hero="1"]` ile SADECE
+ dadafit-hub-v1'e bağlıdır — diğer 33 sayfada kural aynen yürürlüktedir.
+ ⚠ Sonraki oturum: bu blok bilerek konuldu, banner ölçümünde ana sayfayı
+ ihlal sanıp geri alma.
+
+ · Yükseklik: 100dvh (adres çubuğu açılıp kapanınca zıplamaz), 100vh yedek.
+ · İçerik dikey ortalı; üst dolgu sabit header yüksekliğini karşılar,
+ içerik header'ın altına girmez.
+ · Enerji Defteri kartı HER genişlikte bandın içinde (JS: relocateBandPanel).
+ · Dar ekranda tipografi kademeli daralır; hiçbir kalem gizlenmez.
+ ===================================================================== */
+body[data-fit-hero="1"] .df-top{
+  min-height:100vh;                      /* yedek: dvh bilmeyen tarayıcı */
+  min-height:100dvh;                     /* dinamik görüntü alanı */
+  justify-content:center !important;
+  padding-top:112px !important;          /* sabit header (112px) karşılanır */
+  padding-bottom:28px !important;
+  margin-top:0 !important;
+}
+/* video kırpılarak kaplar, oran korunur (object-fit zaten cover; burada kilitli) */
+body[data-fit-hero="1"] .df-hero-media{position:absolute;inset:0}
+body[data-fit-hero="1"] .df-hero-media video{
+  width:100%;height:100%;object-fit:cover;object-position:center 28%;
+  background-attachment:scroll;          /* mobilde sabit arkaplan YOK */
+}
+body[data-fit-hero="1"] .df-top .df-hero{padding:0 !important;align-items:center}
+
+@media (max-width:1024px){
+  body[data-fit-hero="1"] .df-top{padding-top:112px !important;padding-bottom:14px !important}
+  body[data-fit-hero="1"] .df-top .df-hero{gap:20px !important}
+  body[data-fit-hero="1"] .df-hmain h1{font-size:31px !important;margin:8px 0 8px !important}
+  body[data-fit-hero="1"] .df-hmain .lead{font-size:14.5px !important;line-height:1.5 !important}
+  body[data-fit-hero="1"] .df-hcta{margin-top:14px !important}
+  body[data-fit-hero="1"] .df-htrust{margin-top:12px !important;gap:10px 16px !important}
+}
+@media (max-width:768px){
+  body[data-fit-hero="1"] .df-top .df-hero{gap:16px !important}
+  body[data-fit-hero="1"] .df-hmain h1{font-size:28px !important}
+  body[data-fit-hero="1"] .df-hmain .lead{font-size:14px !important}
+}
+@media (max-width:640px){
+  body[data-fit-hero="1"] .df-top{
+    padding-top:70px !important;         /* mobil kabuk 62px + nefes */
+    /* ALT KABUK PAYI: mobil alt bar (fixed, 64px) + DadaMentor mini paneli ekranın
+ alt ~154px'ini kaplıyor. Hero tam ekran olduğu ve SAYFA KAYDIRILMADIĞI için
+ bu şeridin arkasında kalan içerik kalıcı olarak görünmez olur — bu yüzden
+ hero içeriği şeridin ÜSTÜNDE bitirilir. (Diğer sayfalarda içerik kaydığı
+ için böyle bir pay gerekmiyor.) */
+    padding-bottom:146px !important;
+  }
+  body[data-fit-hero="1"] .df-top .df-crumb{margin-top:0 !important;margin-bottom:0 !important}
+  body[data-fit-hero="1"] .df-top .df-hero{gap:10px !important}
+  /* eyebrow tek satırda kalsın (iki satıra sarınca 18px yiyordu) */
+  body[data-fit-hero="1"] .df-hmain .eyebrow{font-size:10.5px !important;letter-spacing:.1em !important}
+  body[data-fit-hero="1"] .df-hmain h1{font-size:23px !important;margin:5px 0 5px !important}
+  body[data-fit-hero="1"] .df-hmain .lead{font-size:12.8px !important;line-height:1.35 !important}
+  body[data-fit-hero="1"] .df-hcta{margin-top:9px !important;gap:6px !important}
+  /* üç düğme AYNI yükseklikte ve dokunulabilir olsun: <button> ile <a>'nın
+ satır yüksekliği farklı hesaplanıyordu (34px ↔ 41px), min-height ile eşitlendi */
+  body[data-fit-hero="1"] .df-hcta .btn{
+    padding:0 16px !important;font-size:13.5px !important;
+    min-height:42px;line-height:1.2 !important;
+  }
+  /* güven satırı dar ekranda DİKEY dizilir — gizlenmez */
+  body[data-fit-hero="1"] .df-htrust{
+    margin-top:8px !important;flex-direction:column;align-items:flex-start;gap:4px !important;
+  }
+  body[data-fit-hero="1"] .df-htrust span{font-size:12px !important}
+  /* Enerji Defteri kartı bandın içinde kalır; alt kabuk payı açılabilsin diye
+ yalnız ÖLÇEK küçülür — hiçbir satır, sayı ya da not çıkarılmaz. */
+  body[data-fit-hero="1"] .df-ledger{padding:8px 11px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-head{margin-bottom:3px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-head h3{font-size:13px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-row{margin-bottom:3px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-rowtop{margin-bottom:2px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-tag{font-size:10px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-val{font-size:16px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-val small{font-size:9.5px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-bar{height:4px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-net{padding:7px 9px !important;gap:8px !important;margin-top:4px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-net b{font-size:12px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-net div{line-height:1.28 !important;font-size:11px !important}
+  body[data-fit-hero="1"] .df-ledger .dl-net i{font-size:12px !important}
+}
+/* çok kısa ekran (yatay telefon, küçük dizüstü): taşmadansa daha da daralt */
+@media (max-height:680px) and (min-width:641px){
+  body[data-fit-hero="1"] .df-hmain h1{font-size:30px !important;margin:6px 0 6px !important}
+  body[data-fit-hero="1"] .df-hmain .lead{font-size:14px !important}
+  body[data-fit-hero="1"] .df-top .df-hero{gap:22px !important}
+}
+/* hareket azaltma tercihinde hero videosu durur (kabuk zaten display:none veriyor) */
+html.reduce-motion body[data-fit-hero="1"] .df-hero-media video{display:none !important}
+
 /* ---- kullanıcı tercihi: hareketi azalt (sistem tercihinden BAĞIMSIZ anahtar) ---- */
 html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{
   animation-duration:.01ms !important;animation-iteration-count:1 !important;

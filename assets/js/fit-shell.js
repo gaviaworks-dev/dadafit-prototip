@@ -1585,6 +1585,21 @@ setTimeout(function(){
   var panel = wrap.firstElementChild;
   if(!panel) return;
 
+  /* Ana sayfa hero'su TAM EKRAN olduğu için (bkz. fit-shell.css "ANA SAYFA HERO'SU
+ TAM EKRAN" bloğu) Enerji Defteri kartı HER genişlikte bandın içinde kalır —
+ banddan çıkarma yalnız banner kuralına tabi diğer sayfalar için geçerlidir. */
+  /* panel taşındığında boşalan sarmalayıcı yer kaplamasın — içinde boşluk metin
+ düğümü kaldığı için CSS :empty tutmuyor, JS ile kapatılır. */
+  function sarmalayiciyiGuncelle(){
+    wrap.style.display = wrap.querySelector('*') ? '' : 'none';
+  }
+
+  if(document.body.getAttribute('data-fit-hero') === '1'){
+    if(panel.parentNode !== grid) grid.appendChild(panel);
+    sarmalayiciyiGuncelle();
+    return;
+  }
+
   var mq = window.matchMedia('(min-width:641px)');
   function place(){
     if(mq.matches){
@@ -1592,6 +1607,7 @@ setTimeout(function(){
     }else{
       if(panel.parentNode !== wrap) wrap.appendChild(panel);
     }
+    sarmalayiciyiGuncelle();
   }
   place();
   if(mq.addEventListener) mq.addEventListener('change', place);

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antrenör Ol — DadaMutfak Onaylı Antrenör Başvurusu | DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ ANTRENÖR OL — DadaFit Onaylı Antrenör başvuru/onboarding sayfası
+ Chrome (token+topbar+header+drawer+bottom-nav+footer+modal+JS) antrenörler
+ dizininden BİREBİR taşındı (DadaFit recolor: --tomato → #009d4f).
+ İskelet referansı Şef Ol (hero band + form-card + sticky bölüm-nav + süreç),
+ antrenör onboarding'ine uyarlandı: sertifika yükle → inceleme → onaylı rozet.
+ Mega menü/chrome KİLİTLİ.
+ ===================================================================== */
+
+.sec-head{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;
+  align-items:center;margin-bottom:34px;
+}
+.sec-head>div:first-child{display:contents}
+.sec-head .eyebrow{grid-row:1;grid-column:1/-1;justify-self:start;margin-bottom:14px}
+.sec-head h2{grid-row:2;grid-column:1}
+.sec-head .lead{grid-row:3;grid-column:1/-1;margin-top:10px;color:var(--muted);font-weight:500;font-size:15.5px;max-width:560px}
+
+/* ===================== MOBİL (≤640px) ===================== */
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .topbar{display:none}
+  .header{top:0}
+  .h-top>.wrap{height:62px;gap:10px}
+  .brand img{height:32px}
+  .head-actions{gap:6px}
+  .btn-login{display:none}
+  body.is-auth .head-add,body.is-auth .head-bell,body.is-auth .acct-wrap{display:none}
+  .icon-btn{width:44px;height:44px;font-size:15px}
+  .below-header{padding-top:62px}
+  html{scroll-padding-top:62px}
+  .sec{padding:44px 0}
+  .sec-head h2{font-size:24px}
+  .chip{font-size:12px;padding:7px 12px;white-space:nowrap}
+  .feedback-tab{display:none}
+  .footer.orange{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+  .foot-grid{grid-template-columns:1fr;gap:30px}
+  .foot-legal{justify-content:center;text-align:center}
+  .foot-bottom{flex-direction:column;gap:14px;text-align:center}
+  .bottom-nav{display:flex}
+  .cookie-banner{
+    width:calc(100% - 24px);padding:15px 16px;
+    bottom:calc(92px + env(safe-area-inset-bottom,0px));
+  }
+  .cookie-inner{flex-direction:column;align-items:stretch;gap:13px}
+  .cookie-text{align-items:flex-start}
+  .cookie-actions{gap:9px}
+  .cookie-actions button{flex:1;padding:12px 8px;font-size:12.5px}
+}
+
+/* =====================================================================
+ SAYFA CSS — ANTRENÖR OL (başvuru / onboarding)
+ İskelet Şef Ol'dan (hero band + form-card + sticky bölüm-nav + süreç),
+ DadaFit yeşiline ve antrenör onboarding'ine uyarlandı.
+ ===================================================================== */
+:root{
+  --fit:#009d4f;          /* DadaFit aksanı (Pantone 7482 C) */
+  --fit-deep:#007a3d;     /* hover / gradient ucu */
+  --fit-tint:#eaf6ef;     /* yumuşak yeşil yıkama */
+  --fit-line:#d8ebe0;     /* yeşil-nötr hairline */
+  --fit-bright:#34c47e;   /* koyu zeminde okunur aksan metni */
+  --fit-dark:#211E16;     /* vurgu/hero zemini */
+}
+/* sticky fix (Şef Ol mirası): overflow-x:clip yatay taşmayı kapatır AMA
+ overflow-y'yi visible bırakır → body scroll-container olmaz, sağ ray gerçekten yapışır. */
+html,body{overflow-x:clip}
+
+/* ---- HERO: koyu band + breadcrumb + başlık + CTA (df-hero-media deseni) ---- */
+/* BANNER KURALI: header ofseti padding yerine margin — bant kendi yuksekliginde olculur */
+.ol-top{
+  position:relative;overflow:hidden;margin-top:112px;padding-top:36px;
+  /* desatüre METİNSİZ kadın-ağırlıklı görsel + 90deg koyu gradient + yeşil glow */
+  background:
+    radial-gradient(820px 380px at 86% 10%,rgba(0,157,79,.22),transparent 60%),
+    linear-gradient(90deg,rgba(28,25,18,.95) 0%,rgba(29,26,20,.82) 48%,rgba(27,25,19,.74) 100%),
+    linear-gradient(180deg,rgba(33,30,22,0) 56%,rgba(22,20,14,.66) 100%),
+    url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16') center 28%/cover no-repeat,
+    #1b1913;
+}
+.ol-top .wrap{position:relative;z-index:2}
+.rd-crumb{display:flex;align-items:center;flex-wrap:wrap;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.58)}
+.rd-crumb a{color:rgba(255,255,255,.58);transition:color .2s var(--ease)}
+.rd-crumb a:hover{color:#fff}
+.rd-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
+.rd-crumb .cur{color:var(--fit-bright)}
+.ol-intro{padding:18px 0 44px}
+.ol-intro .eyebrow{color:var(--fit-bright)}
+.ol-intro .eyebrow::before{background:var(--fit-bright)}
+.ol-intro h1{color:#fff;font-size:40px;letter-spacing:-.03em;margin:14px 0 12px;max-width:680px;text-shadow:0 2px 24px rgba(0,0,0,.28)}
+.ol-intro h1 .accent{color:var(--fit-bright)}
+.ol-intro .lead{font-size:16px;color:rgba(255,255,255,.82);font-weight:500;max-width:600px;line-height:1.65;text-shadow:0 1px 14px rgba(0,0,0,.3)}
+.ol-hero-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:26px}
+.ol-hero-acts .btn-fit{padding:15px 28px;font-size:15px;box-shadow:0 10px 26px rgba(0,106,53,.4)}
+.ol-hero-acts .btn-ghost-d{
+  display:inline-flex;align-items:center;gap:9px;font-family:inherit;font-weight:700;font-size:14.5px;
+  color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.24);
+  border-radius:var(--radius-md);padding:14px 22px;cursor:pointer;transition:.2s var(--ease);
+}
+.ol-hero-acts .btn-ghost-d:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+/* hero alt: onaylı rozet/görünürlük/eşleştirme küçük güven şeridi */
+.ol-bene{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.ol-bene .b{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-md);padding:11px 16px}
+.ol-bene .b i{width:36px;height:36px;border-radius:var(--radius-md);background:rgba(0,157,79,.26);color:#fff;display:grid;place-items:center;font-size:15px;flex:none}
+.ol-bene .b b{font-size:13.5px;color:#fff;display:block;line-height:1.2}
+.ol-bene .b span{font-size:11.5px;color:rgba(255,255,255,.66);font-weight:500}
+
+/* ---- SÜREÇ: 1-2-3-4 yatay adım bandı (gerçek sıra) ---- */
+.proc-sec{padding:46px 0 12px;background:var(--bg-cream)}
+.proc-sec .ph{text-align:center;margin-bottom:30px}
+.proc-sec .ph .eyebrow{color:var(--fit-deep);justify-content:center}
+.proc-sec .ph .eyebrow::before{background:var(--fit)}
+.proc-sec .ph h2{font-size:28px;margin-top:14px}
+.proc-sec .ph p{font-size:14.5px;color:var(--muted);font-weight:500;max-width:560px;margin:9px auto 0;line-height:1.6}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:flow}
+.flow-step{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:24px 22px 22px}
+/* gerçek sıra → numara load-bearing (sertifika→inceleme→onay→yayında) */
+.flow-step .fn{counter-increment:flow;width:34px;height:34px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:14px;font-weight:800;margin-bottom:14px}
+.flow-step .fn::before{content:counter(flow,decimal-leading-zero)}
+.flow-step .fic{position:absolute;top:24px;right:22px;color:var(--fit-line);font-size:24px}
+.flow-step h3{font-size:16px;margin-bottom:7px}
+.flow-step p{font-size:13px;color:var(--muted);font-weight:500;line-height:1.55}
+/* adımlar arası bağ oku (≥760) */
+.flow-step:not(:last-child)::after{content:"\f061";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;top:38px;right:-13px;font-size:13px;color:var(--fit);z-index:2;background:var(--bg-cream);width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
+
+/* ---- YERLEŞİM: form + sticky ray ---- */
+.ol-sec{padding:36px 0 70px;background:var(--bg-cream)}
+.ol-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:28px;align-items:start}
+.ol-main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.ol-formcards{display:flex;flex-direction:column;gap:16px}
+
+/* ---- FORM KARTI + FK ALAN KİTİ ---- */
+.form-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:24px 26px;scroll-margin-top:128px}
+.fc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.fc-head h2{font-size:20px;display:flex;align-items:center;gap:11px}
+.fc-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.fc-step{flex:none;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:6px 11px;border-radius:var(--radius-sm);white-space:nowrap}
+.fk-field{margin-bottom:18px}
+.fk-field:last-child{margin-bottom:0}
+.fk-label{display:flex;align-items:baseline;gap:7px;font-size:14px;font-weight:700;color:var(--slate);margin-bottom:9px}
+.fk-label .req{color:var(--fit-deep);font-weight:700}
+.fk-label .opt{font-size:11.5px;color:var(--muted);font-weight:500}
+.fk-label .fk-count{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+.fk-input,.fk-select,.fk-textarea{
+  width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:13px 15px;outline:none;transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.fk-input::placeholder,.fk-textarea::placeholder{color:#a7a7a7}
+.fk-input:focus,.fk-select:focus,.fk-textarea:focus{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.12)}
+.fk-textarea{min-height:120px;resize:vertical;line-height:1.6}
+.fk-select{
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;padding-right:40px;
+}
+.fk-select:invalid{color:#a7a7a7}
+.fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
+.fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
+.fk-grid{display:grid;gap:14px 18px;align-items:start}
+.fk-grid .fk-field{margin-bottom:0}
+.fk-grid.c2{grid-template-columns:1fr 1fr}
+.fk-grid+.fk-grid{margin-top:14px}
+.fk-grid+.fk-field,.fk-field+.fk-grid{margin-top:18px}
+
+/* ---- UP YÜKLEME KİTİ (sertifika) ---- */
+.up-zone{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;width:100%;
+  border:1.5px dashed rgba(0,157,79,.45);background:var(--fit-tint);color:var(--fit-deep);
+  border-radius:var(--radius-lg);padding:24px 18px;text-align:center;cursor:pointer;
+  font-family:inherit;transition:.2s var(--ease);
+}
+.up-zone i{font-size:26px}
+.up-zone b{font-size:14.5px;font-weight:700}
+.up-zone small{font-size:12px;font-weight:500;color:var(--slate-2)}
+.up-zone:hover{background:#dcf0e4;border-color:var(--fit)}
+.up-done{display:flex;align-items:center;gap:11px;background:rgba(0,157,79,.08);border:1px solid rgba(0,157,79,.3);border-radius:var(--radius-md);padding:12px 15px;margin-top:10px;font-size:13px;font-weight:600;color:var(--fit-deep)}
+.up-done i.fa-file-shield{color:var(--fit-deep);font-size:16px}
+.up-done .ok-pill{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--fit-deep)}
+.up-done .x{color:var(--muted);cursor:pointer;font-size:13px;background:none;border:none;padding:0 0 0 8px}
+.up-done .x:hover{color:var(--fit-deep)}
+
+/* ---- uzmanlık çoklu seçim çip'leri (radius-sm) ---- */
+.uz-grid{display:flex;flex-wrap:wrap;gap:9px}
+.uz-pick{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:9px 14px;cursor:pointer;transition:.18s var(--ease)}
+.uz-pick i{font-size:11px;opacity:0;width:0;transition:.18s}
+.uz-pick:hover{border-color:var(--fit);color:var(--fit-deep)}
+.uz-pick.on{border-color:var(--fit);background:var(--fit-tint);color:var(--fit-deep)}
+.uz-pick.on i{opacity:1;width:11px}
+
+/* ---- çalışma şekli kartları (online / yüz yüze / hibrit) ---- */
+.gor-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.gor-opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px 16px;border:1px solid var(--line);border-radius:var(--radius-md);cursor:pointer;transition:.18s var(--ease)}
+.gor-opt input{position:absolute;opacity:0;pointer-events:none}
+.gor-opt .gi{flex:none;width:42px;height:42px;border-radius:var(--radius-md);background:var(--bg);color:var(--slate-2);display:grid;place-items:center;font-size:16px;transition:.18s}
+.gor-opt .gt b{font-size:14px;color:var(--slate);display:block}
+.gor-opt .gt span{font-size:12px;color:var(--muted);font-weight:500;line-height:1.4}
+.gor-opt .gck{position:absolute;top:14px;right:14px;flex:none;width:22px;height:22px;border-radius:var(--radius-sm);border:1.5px solid #d8d8d8;display:grid;place-items:center;transition:.18s}
+.gor-opt .gck::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;font-size:10px;color:#fff;transform:scale(0);transition:.15s}
+.gor-opt:hover{border-color:var(--fit)}
+.gor-opt input:checked~.gck{background:var(--fit);border-color:var(--fit)}
+.gor-opt input:checked~.gck::after{transform:scale(1)}
+.gor-opt:has(input:checked){border-color:rgba(0,157,79,.5);background:rgba(0,157,79,.06)}
+.gor-opt:has(input:checked) .gi{background:rgba(0,157,79,.13);color:var(--fit-deep)}
+
+/* ---- KVKK / onay ---- */
+.ol-consents{display:flex;flex-direction:column;gap:13px}
+.ol-consents .fb-kvkk{margin:0}
+.captcha-note{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);font-weight:500;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.captcha-note i{color:var(--fit-deep);font-size:13px}
+.ol-submit{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:6px}
+.ol-submit .sub-note{font-size:12.5px;color:var(--muted);font-weight:500;max-width:300px}
+.ol-submit .btn{padding:15px 30px;font-size:15px}
+
+/* "diploma no gerekmez" güven notu (form üstü) */
+.cert-note{display:flex;align-items:flex-start;gap:12px;background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-md);padding:13px 16px}
+.cert-note i{flex:none;width:34px;height:34px;border-radius:var(--radius-md);background:#fff;color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.cert-note p{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.55}
+.cert-note b{color:var(--fit-deep);font-weight:700}
+
+/* ---- yan ray: bölüm-nav + süreç + neden DadaFit ---- */
+.ol-side{position:sticky;top:130px;display:flex;flex-direction:column;gap:18px}
+.tips-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:22px}
+.sn-head,.proc-head{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sn-head i,.proc-head i{color:var(--fit-deep);font-size:12px}
+.sn-head{margin-bottom:12px}
+.sn-nav{display:flex;flex-direction:column;gap:2px}
+.sn-item{position:relative;display:flex;align-items:center;gap:12px;padding:8px 10px 8px 8px;border-radius:var(--radius-md);text-decoration:none;cursor:pointer;transition:background .18s var(--ease)}
+.sn-item .sn-n{flex:none;width:26px;height:26px;border-radius:var(--radius-circle);background:var(--bg-cream);color:var(--slate-2);border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;z-index:2;transition:background .18s var(--ease),color .18s var(--ease),border-color .18s var(--ease),box-shadow .18s var(--ease)}
+.sn-item:not(:last-child)::before{content:"";position:absolute;left:20px;top:30px;height:calc(100% - 22px);width:2px;background:var(--line);transition:background .2s var(--ease)}
+.sn-item .sn-t{font-size:13.5px;font-weight:600;color:var(--slate);line-height:1.25}
+.sn-item .sn-go{margin-left:auto;font-size:11px;color:var(--fit-deep);opacity:0;transform:translateX(-4px);transition:opacity .18s var(--ease),transform .18s var(--ease)}
+.sn-item:hover{background:var(--bg-cream)}
+.sn-item:hover .sn-n{border-color:var(--fit);color:var(--fit-deep)}
+.sn-item:hover .sn-go{opacity:.9;transform:translateX(0)}
+.sn-item.is-done .sn-n{background:var(--fit);color:#fff;border-color:var(--fit)}
+.sn-item.is-done::before{background:var(--fit)}
+.sn-item.is-active{background:var(--fit-tint)}
+.sn-item.is-active .sn-n{background:var(--fit);color:#fff;border-color:var(--fit);box-shadow:0 0 0 4px rgba(0,157,79,.16)}
+.sn-item.is-active .sn-t{color:var(--fit-deep);font-weight:700}
+.sn-item.is-active .sn-go{opacity:1;transform:translateX(0)}
+.tips-div{height:1px;background:var(--line);margin:16px 0 14px}
+.proc-head{margin-bottom:12px}
+.proc-steps{display:flex;flex-direction:column}
+.proc-step{display:flex;gap:12px;position:relative;padding-bottom:13px}
+.proc-step:last-child{padding-bottom:0}
+.proc-step .pn{flex:none;width:20px;height:20px;border-radius:var(--radius-circle);background:var(--bg-cream);color:var(--muted);display:grid;place-items:center;font-size:10.5px;font-weight:700;z-index:2}
+.proc-step:not(:last-child)::before{content:"";position:absolute;left:9.5px;top:23px;bottom:3px;width:1.5px;background:var(--line)}
+.proc-step b{font-size:12.5px;color:var(--slate-2);display:block;margin-bottom:2px;font-weight:700}
+.proc-step span{font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.45}
+.note-card{background:linear-gradient(160deg,var(--fit-deep),var(--fit));color:#fff;border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:22px}
+.note-card h4{color:#fff;font-size:15px;display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.note-card ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.note-card li{display:flex;gap:10px;font-size:13px;font-weight:500;line-height:1.45;color:rgba(255,255,255,.94)}
+.note-card li i{flex:none;margin-top:3px;font-size:12px;color:rgba(255,255,255,.82)}
+
+/* ---- başarı durumu ---- */
+.ol-success{display:none;text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:60px 30px}
+.ol-success.show{display:block;animation:fadeUp .35s var(--ease)}
+.ol-success .ok{width:74px;height:74px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:30px;margin:0 auto 20px}
+.ol-success h2{font-size:26px;margin-bottom:10px}
+.ol-success p{font-size:15px;color:var(--muted);font-weight:500;max-width:460px;margin:0 auto 26px;line-height:1.65}
+.ol-success .os-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:26px}
+.ol-success .os-steps span{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--slate-2);background:var(--bg-cream);border:1px solid var(--line);padding:9px 14px;border-radius:var(--radius-sm)}
+.ol-success .os-steps i{color:var(--fit-deep)}
+
+/* ---- SSS mini akordeon ---- */
+.faq-sec{padding:0 0 74px;background:var(--bg-cream)}
+.faq-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:30px 30px 18px}
+.faq-card .fh{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.faq-card .fh .fi{flex:none;width:48px;height:48px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:20px}
+.faq-card .fh .eyebrow{color:var(--fit-deep)}
+.faq-card .fh .eyebrow::before{background:var(--fit)}
+.faq-card .fh h2{font-size:22px;margin-bottom:5px;margin-top:6px}
+.faq-card .fh p{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.55;max-width:560px}
+.faq-item{border-top:1px solid var(--line)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;font-family:inherit;font-size:15px;font-weight:700;color:var(--slate);background:none;border:none;text-align:left;padding:18px 2px;cursor:pointer}
+.faq-q i{flex:none;font-size:13px;color:var(--fit-deep);transition:transform .25s var(--ease)}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .28s var(--ease)}
+.faq-item.open .faq-a{max-height:240px}
+.faq-a p{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.65;padding:0 2px 18px;max-width:760px}
+.faq-a a{color:var(--fit-deep);font-weight:700}
+
+/* ===================== SAYFA RESPONSIVE ===================== */
+@media (max-width:1024px){
+  .ol-top{padding-top:140px}
+  .ol-intro h1{font-size:33px}
+  .flow{grid-template-columns:1fr 1fr;gap:16px}
+  .flow-step:not(:last-child)::after{display:none}
+  .ol-layout{grid-template-columns:1fr}
+  .ol-side{position:static;flex-direction:row;flex-wrap:wrap}
+  .ol-side>*{flex:1 1 300px}
+}
+@media (max-width:760px){
+  .gor-grid{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .ol-top{padding-top:84px}
+  .ol-intro{padding:14px 0 32px}
+  .ol-intro h1{font-size:27px}
+  .ol-intro .lead{font-size:14.5px}
+  .ol-hero-acts{gap:10px}
+  .ol-hero-acts .btn-fit,.ol-hero-acts .btn-ghost-d{width:100%}
+  .proc-sec{padding:36px 0 6px}
+  .proc-sec .ph h2{font-size:22px}
+  .flow{grid-template-columns:1fr;gap:12px}
+  .ol-sec{padding:24px 0 50px}
+  .form-card{padding:20px 18px;scroll-margin-top:78px}
+  .fk-grid.c2{grid-template-columns:1fr}
+  .gor-grid{grid-template-columns:1fr}
+  .ol-side{flex-direction:column}
+  .ol-submit{flex-direction:column;align-items:stretch}
+  .ol-submit .btn{width:100%}
+  .faq-card{padding:24px 20px 12px}
+  .faq-card .fh h2{font-size:19px}
+}
+
+/* ---- avatar satırı (profil fotoğrafı) ---- */
+.ava-row{display:flex;align-items:center;gap:16px}
+.ava-prev{flex:none;width:72px;height:72px;border-radius:var(--radius-circle);background-size:cover;background-position:center;border:2px solid var(--line)}
+.ava-meta{min-width:0}
+.up-mini{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:13px;font-weight:700;color:var(--fit-deep);background:var(--fit-tint);border:1px solid rgba(0,157,79,.25);border-radius:var(--radius-md);padding:9px 14px;cursor:pointer;transition:.18s var(--ease)}
+.up-mini:hover{background:var(--fit);color:#fff;border-color:var(--fit)}
+.ava-meta small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:7px;line-height:1.4}
+
+/* ---- sosyal medya satırları (ikon + input) ---- */
+.soc-grid{display:flex;flex-direction:column;gap:11px}
+.soc-row{display:flex;align-items:stretch;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.soc-row:focus-within{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.12)}
+.soc-row .si{flex:none;width:50px;display:grid;place-items:center;font-size:17px;color:#fff;background:var(--slate)}
+.soc-row.ig .si{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.soc-row.yt .si{background:#FF0000}
+.soc-row.web .si{background:var(--fit)}
+.soc-row input{flex:1;min-width:0;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);padding:13px 15px;outline:none}
+.soc-row input::placeholder{color:#a7a7a7}
+@media (max-width:640px){.ava-prev{width:60px;height:60px}}
+
+/* ---- btn-fit (DadaFit primary) ---- */
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+</style>
+<style>
+/* ============ KABUK: topbar sosyal + brand-switch band + DadaMentor FAB (hub'dan BİREBİR) ============ */
+
+</style>
+<style>
+/* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
+
+</style>
+</head>
+<body data-brand="fit" data-fit-page="antrenor-ol-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== HERO: koyu band + breadcrumb + başlık + CTA ===== -->
+<section class="ol-top">
+  <div class="wrap">
+    <nav class="rd-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="antrenorler-v1.html">Antrenörler</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Antrenör Ol</span>
+    </nav>
+    <div class="ol-intro">
+      <span class="eyebrow"><i class="fa-solid fa-id-badge"></i> Antrenör Başvurusu</span>
+      <h1>DadaMutfak <span class="accent">Onaylı</span> Antrenör ol, danışanlarınla buluş</h1>
+      <p class="lead">Alanında sertifikalı bir antrenörsen aramıza katıl. Sertifikanı yükle, ekibimiz incelesin, "DadaMutfak Onaylı" rozetini al — danışanlar seni DadaFit üzerinden bulup çalışmaya başlasın.</p>
+      <div class="ol-hero-acts">
+        <a class="btn btn-fit" href="#basvuru"><i class="fa-solid fa-id-badge"></i> Başvuruya Başla</a>
+        <a class="btn-ghost-d" href="#surec"><i class="fa-solid fa-route"></i> Nasıl çalışır?</a>
+      </div>
+      <div class="ol-bene">
+        <div class="b"><i class="fa-solid fa-shield-check"></i><div><b>Onaylı rozet</b><span>Profilinde güven işareti</span></div></div>
+        <div class="b"><i class="fa-solid fa-eye"></i><div><b>Görünürlük</b><span>Antrenör dizininde yer al</span></div></div>
+        <div class="b"><i class="fa-solid fa-handshake"></i><div><b>Danışan eşleştirme</b><span>Sana uygun danışanlar</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SÜREÇ: 1-2-3-4 yatay adım bandı ===== -->
+<section class="proc-sec" id="surec">
+  <div class="wrap">
+    <div class="ph">
+      <span class="eyebrow"><i class="fa-solid fa-route"></i> Nasıl Çalışır</span>
+      <h2>Başvurudan onaylı profile dört adım</h2>
+      <p>Süreç açık ve hızlı: belgeni yükle, ekibimiz tek tek incelesin, onaylı rozetini al ve danışan almaya başla.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="fn"></span>
+        <i class="fa-solid fa-file-arrow-up fic"></i>
+        <h3>Sertifikanı yükle</h3>
+        <p>Başvuru formunu doldur, geçerli antrenörlük sertifikanı ekle. Diploma numarası gerekmez.</p>
+      </div>
+      <div class="flow-step">
+        <span class="fn"></span>
+        <i class="fa-solid fa-magnifying-glass fic"></i>
+        <h3>Ekibimiz inceler</h3>
+        <p>Her başvuru elle değerlendirilir; sertifikanın geçerliliği kontrol edilir (2–3 iş günü).</p>
+      </div>
+      <div class="flow-step">
+        <span class="fn"></span>
+        <i class="fa-solid fa-shield-check fic"></i>
+        <h3>Onaylı rozetini al</h3>
+        <p>Onaylanınca "DadaMutfak Onaylı" rozeti profiline işlenir — danışanlar için güven işareti.</p>
+      </div>
+      <div class="flow-step">
+        <span class="fn"></span>
+        <i class="fa-solid fa-rocket fic"></i>
+        <h3>Yayında, danışan al</h3>
+        <p>Profilin antrenör dizininde yayınlanır; uygun danışanlarla eşleşip çalışmaya başlarsın.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BAŞVURU: form + sticky ray ===== -->
+<section class="ol-sec" id="basvuru">
+  <div class="wrap">
+    <div class="ol-layout">
+
+      <!-- ---- FORM (mockup: örnek değerlerle DOLU) ---- -->
+      <div class="ol-main">
+      <form class="ol-formcards" id="olForm" novalidate>
+
+        <!-- 1. Kişisel -->
+        <div class="form-card" id="adim-1">
+          <div class="fc-head">
+            <h2><i class="fa-solid fa-user"></i> Kişisel Bilgiler</h2>
+            <span class="fc-step">1 / 4</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Profil Fotoğrafı <span class="req">*</span></label>
+            <div class="ava-row">
+              <span class="ava-prev" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></span>
+              <div class="ava-meta">
+                <button type="button" class="up-mini"><i class="fa-solid fa-camera"></i> Fotoğrafı değiştir</button>
+                <small>Net, profesyonel bir fotoğraf — kare kesilir, profilinde görünür.</small>
+              </div>
+            </div>
+          </div>
+          <div class="fk-grid c2">
+            <div class="fk-field"><label class="fk-label">Ad <span class="req">*</span></label><input type="text" class="fk-input" value="Selin" required /></div>
+            <div class="fk-field"><label class="fk-label">Soyad <span class="req">*</span></label><input type="text" class="fk-input" value="Aksoy" required /></div>
+          </div>
+          <div class="fk-grid c2">
+            <div class="fk-field"><label class="fk-label">E-posta <span class="req">*</span></label><input type="email" class="fk-input" value="selin.aksoy@eposta.com" required /></div>
+            <div class="fk-field"><label class="fk-label">Telefon <span class="req">*</span></label><input type="tel" class="fk-input" value="0(532) 214 88 09" required /></div>
+          </div>
+          <div class="fk-grid c2">
+            <div class="fk-field"><label class="fk-label">Şehir <span class="req">*</span></label>
+              <select class="fk-select" required><option value="" disabled>Şehir seç</option><option selected>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Bursa</option><option>Antalya</option><option>Diğer</option></select>
+            </div>
+            <div class="fk-field"><label class="fk-label">Kullanıcı adı <span class="opt">(profil adresin)</span></label><input type="text" class="fk-input" value="@selinaksoyfit" /></div>
+          </div>
+        </div>
+
+        <!-- 2. Uzmanlık & Çalışma Şekli -->
+        <div class="form-card" id="adim-2">
+          <div class="fc-head">
+            <h2><i class="fa-solid fa-dumbbell"></i> Uzmanlık &amp; Çalışma Şekli</h2>
+            <span class="fc-step">2 / 4</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Uzmanlık Alanların <span class="req">*</span> <span class="fk-count"><span id="uzCount">3</span> seçildi</span></label>
+            <div class="uz-grid" id="uzGrid">
+              <button class="uz-pick on" type="button"><i class="fa-solid fa-check"></i> Güç &amp; Kondisyon</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Mobilite &amp; Pilates</button>
+              <button class="uz-pick on" type="button"><i class="fa-solid fa-check"></i> Evde Antrenman</button>
+              <button class="uz-pick on" type="button"><i class="fa-solid fa-check"></i> Kilo Yönetimi</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Başlangıç</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Postür &amp; Esneklik</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Koşu &amp; Dayanıklılık</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Doğum Sonrası</button>
+              <button class="uz-pick" type="button"><i class="fa-solid fa-check"></i> Yaşlı / Düşük Tempo</button>
+            </div>
+            <div class="fk-help"><i class="fa-solid fa-circle-info"></i><span>En fazla 5 alan seç — antrenör profilinde etiket olarak görünür, danışan eşleştirmesinde kullanılır.</span></div>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Çalışma Şeklin <span class="req">*</span></label>
+            <div class="gor-grid">
+              <label class="gor-opt"><input type="checkbox" checked /><span class="gi"><i class="fa-solid fa-video"></i></span><span class="gt"><b>Online</b><span>Görüntülü seans, uzaktan plan</span></span><span class="gck"></span></label>
+              <label class="gor-opt"><input type="checkbox" /><span class="gi"><i class="fa-solid fa-people-group"></i></span><span class="gt"><b>Yüz yüze</b><span>Stüdyo ya da açık alan</span></span><span class="gck"></span></label>
+              <label class="gor-opt"><input type="checkbox" checked /><span class="gi"><i class="fa-solid fa-arrows-left-right"></i></span><span class="gt"><b>Hibrit</b><span>Online + yüz yüze karma</span></span><span class="gck"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Sertifika & Deneyim -->
+        <div class="form-card" id="adim-3">
+          <div class="fc-head">
+            <h2><i class="fa-solid fa-certificate"></i> Sertifika &amp; Deneyim</h2>
+            <span class="fc-step">3 / 4</span>
+          </div>
+          <div class="cert-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <p><b>Diploma numarası gerekmez</b> — geçerli bir antrenörlük/eğitmenlik sertifikası yeterli. Belgeni yükle, ekibimiz geçerliliğini kontrol etsin.</p>
+          </div>
+          <div class="fk-field" style="margin-top:18px">
+            <label class="fk-label">Antrenörlük Sertifikan <span class="req">*</span></label>
+            <button type="button" class="up-zone"><i class="fa-solid fa-file-arrow-up"></i><b>Sertifikanı yükle</b><small>Antrenörlük / eğitmenlik belgen — PDF, JPG · birden fazla olabilir</small></button>
+            <div class="up-done"><i class="fa-solid fa-file-shield"></i> antrenorluk-sertifikasi.pdf <span class="ok-pill"><i class="fa-solid fa-clock"></i> İncelenecek</span> <button class="x" type="button" aria-label="Kaldır"><i class="fa-solid fa-xmark"></i></button></div>
+          </div>
+          <div class="fk-grid c2">
+            <div class="fk-field"><label class="fk-label">Deneyim (yıl) <span class="req">*</span></label><input type="number" class="fk-input" value="6" min="0" max="50" required /></div>
+            <div class="fk-field"><label class="fk-label">Sertifika veren kurum <span class="opt">(opsiyonel)</span></label><input type="text" class="fk-input" value="ACSM · Pilates Mat sertifikası" /></div>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Çalıştığın stüdyo / kulüpler <span class="opt">(opsiyonel)</span></label>
+            <input type="text" class="fk-input" value="MoveLab Stüdyo (bağımsız antrenör), 2 yıl grup dersleri" />
+          </div>
+        </div>
+
+        <!-- 4. Tanıtım -->
+        <div class="form-card" id="adim-4">
+          <div class="fc-head">
+            <h2><i class="fa-solid fa-share-nodes"></i> Tanıtım &amp; Sosyal Medya</h2>
+            <span class="fc-step">4 / 4</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Kısa Bio <span class="req">*</span> <span class="fk-count"><span id="bioCount">196</span>/600</span></label>
+            <textarea class="fk-textarea" id="bioText" maxlength="600" required>6 yıldır evde ve stüdyoda çalışıyorum; en güçlü olduğum alan başlangıç seviyesi danışanları güvenli, sürdürülebilir bir rutine oturtmak. Beden-pozitif, baskısız bir yaklaşımla çalışır; herkesin kendi temposunu önemserim.</textarea>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label">Sosyal Medya Hesapların <span class="opt">(opsiyonel ama önerilir)</span></label>
+            <div class="soc-grid">
+              <div class="soc-row ig"><span class="si"><i class="fa-brands fa-instagram"></i></span><input type="text" value="@selinaksoyfit" placeholder="Instagram kullanıcı adın" /></div>
+              <div class="soc-row yt"><span class="si"><i class="fa-brands fa-youtube"></i></span><input type="text" value="youtube.com/@selinaksoyfit" placeholder="YouTube kanalın" /></div>
+              <div class="soc-row web"><span class="si"><i class="fa-solid fa-globe"></i></span><input type="text" value="" placeholder="Web sitesi / blog (opsiyonel)" /></div>
+            </div>
+            <div class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Antrenman içeriği ürettiğin hesaplar başvurunu hızlandırır — profilinde bağlantı olarak gösterilir.</span></div>
+          </div>
+
+          <div class="ol-consents">
+            <label class="fb-kvkk">
+              <input type="checkbox" checked required />
+              <span>Yüklediğim sertifikanın gerçek ve bana ait olduğunu, geçerliliğinin kontrol edilebileceğini onaylıyorum.</span>
+            </label>
+            <label class="fb-kvkk">
+              <input type="checkbox" checked required />
+              <span><a href="yasal-v1.html?metin=sozlesme">Antrenör Sözleşmesi</a>, <a href="yasal-v1.html?metin=aydinlatma">Aydınlatma Metni</a> ve <a href="yasal-v1.html?metin=kvkk">KVKK Metni</a>&apos;ni okudum, onaylıyorum.</span>
+            </label>
+          </div>
+          <div class="captcha-note"><i class="fa-solid fa-shield-halved"></i> Bu form reCAPTCHA ile korunmaktadır — Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--fit-deep);font-weight:700">Gizlilik Politikası</a> ve <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="color:var(--fit-deep);font-weight:700">Kullanım Şartları</a> geçerlidir.</div>
+
+          <div class="ol-submit">
+            <span class="sub-note">Başvurun genellikle <b>2–3 iş günü</b> içinde değerlendirilir.</span>
+            <button class="btn btn-fit" id="olSubmit" type="submit"><i class="fa-solid fa-paper-plane"></i> Başvuruyu Gönder</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- başarı durumu -->
+      <div class="ol-success" id="olSuccess">
+        <span class="ok"><i class="fa-solid fa-check"></i></span>
+        <h2>Başvurun alındı 🎉</h2>
+        <p>Teşekkürler Selin! Ekibimiz sertifikanı ve başvurunu inceleyecek. Onaylanınca "DadaMutfak Onaylı" rozetini alır, antrenör dizininde yayına girersin.</p>
+        <div class="os-steps">
+          <span><i class="fa-solid fa-check"></i> Başvuru alındı</span>
+          <span><i class="fa-solid fa-magnifying-glass"></i> Sertifika incelemesi</span>
+          <span><i class="fa-solid fa-shield-check"></i> Onaylı rozet</span>
+          <span><i class="fa-solid fa-rocket"></i> Dizinde yayında</span>
+        </div>
+        <a href="antrenorler-v1.html" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Antrenörlere Dön</a>
+      </div>
+      </div><!-- /.ol-main -->
+
+      <!-- ---- YAN RAY ---- -->
+      <aside class="ol-side">
+        <div class="tips-card">
+          <!-- ZONE 1: interaktif FORM BÖLÜMÜ nav'ı -->
+          <div class="sn-head"><i class="fa-solid fa-list-check"></i> Bölümler</div>
+          <nav class="sn-nav" aria-label="Form bölümleri" id="snNav">
+            <a class="sn-item" href="#adim-1"><span class="sn-n">1</span><span class="sn-t">Kişisel Bilgiler</span><i class="fa-solid fa-arrow-right sn-go"></i></a>
+            <a class="sn-item" href="#adim-2"><span class="sn-n">2</span><span class="sn-t">Uzmanlık &amp; Çalışma Şekli</span><i class="fa-solid fa-arrow-right sn-go"></i></a>
+            <a class="sn-item" href="#adim-3"><span class="sn-n">3</span><span class="sn-t">Sertifika &amp; Deneyim</span><i class="fa-solid fa-arrow-right sn-go"></i></a>
+            <a class="sn-item" href="#adim-4"><span class="sn-n">4</span><span class="sn-t">Tanıtım &amp; Sosyal Medya</span><i class="fa-solid fa-arrow-right sn-go"></i></a>
+          </nav>
+          <div class="tips-div"></div>
+          <!-- ZONE 2: PASİF süreç bilgisi -->
+          <div class="proc-head"><i class="fa-solid fa-route"></i> Başvuru Süreci</div>
+          <div class="proc-steps">
+            <div class="proc-step"><span class="pn">1</span><div><b>Sertifikanı yükle</b><span>Formu doldur, belgeni ekle.</span></div></div>
+            <div class="proc-step"><span class="pn">2</span><div><b>İnceleme</b><span>Ekibimiz tek tek değerlendirir (2–3 iş günü).</span></div></div>
+            <div class="proc-step"><span class="pn">3</span><div><b>Onaylı rozet</b><span>Profiline "DadaMutfak Onaylı" işlenir.</span></div></div>
+            <div class="proc-step"><span class="pn">4</span><div><b>Yayında</b><span>Dizinde görün, danışan almaya başla.</span></div></div>
+          </div>
+        </div>
+        <div class="note-card">
+          <h4><i class="fa-solid fa-heart"></i> Neden DadaFit?</h4>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> "DadaMutfak Onaylı" rozeti — danışan için güven işareti</li>
+            <li><i class="fa-solid fa-check"></i> Antrenör dizininde görünürlük, profil bağlantısı</li>
+            <li><i class="fa-solid fa-check"></i> Sana uygun danışanlarla eşleştirme</li>
+            <li><i class="fa-solid fa-check"></i> Beslenme tarafında diyetisyenlerle ortak çalışabilme</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== SSS MİNİ AKORDEON ===== -->
+<section class="faq-sec">
+  <div class="wrap">
+    <div class="faq-card">
+      <div class="fh">
+        <span class="fi"><i class="fa-solid fa-circle-question"></i></span>
+        <div>
+          <span class="eyebrow"><i class="fa-solid fa-comments"></i> Sık Sorulanlar</span>
+          <h2>Başvurmadan önce merak edilenler</h2>
+          <p>Aklındakine yanıt bulamazsan <a href="iletisim-v1.html">bize ulaş</a> — başvuru ekibimiz yardımcı olur.</p>
+        </div>
+      </div>
+
+      <div class="faq-item open">
+        <button class="faq-q" type="button">Başvurmak için diploma gerekiyor mu?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Hayır. Diploma numarası ya da resmi unvan gerekmez — geçerli bir antrenörlük veya eğitmenlik sertifikası yeterli. Önemli olan belgenin gerçek ve doğrulanabilir olması.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Onay ne kadar sürer?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Başvurular genellikle 2–3 iş günü içinde değerlendirilir. Her başvuru elle incelendiği için yoğun dönemlerde birkaç gün uzayabilir; sonucu e-posta ile bildiririz.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Online çalışmak zorunda mıyım?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Hayır. Çalışma şeklini sen belirlersin: yalnız online, yalnız yüz yüze ya da hibrit. Seçimin profilinde görünür ve danışan eşleştirmesinde kullanılır.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Başvurum reddedilirse ne olur?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Belgeler eksik ya da okunaksızsa nedenini açıklayıp düzeltmen için geri yazarız — düzeltip yeniden başvurabilirsin. Amacımız geçerli her antrenörün rahatça katılması.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Ücret alıyor musunuz?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Başvuru ve onaylı profil oluşturmak ücretsizdir. Danışanlarınla çalışma koşullarını sen belirlersin; ticari detaylar onay sonrası antrenör panelinde netleşir.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== SAYFA JS — ANTRENÖR OL ===== */
+// uzmanlık çoklu seçim (maks 5) + sayaç
+(function(){
+  var grid=document.getElementById('uzGrid');
+  if(!grid)return;
+  var countEl=document.getElementById('uzCount');
+  var MAX=5;
+  function sync(){if(countEl)countEl.textContent=grid.querySelectorAll('.uz-pick.on').length;}
+  grid.querySelectorAll('.uz-pick').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(!b.classList.contains('on')&&grid.querySelectorAll('.uz-pick.on').length>=MAX)return;
+      b.classList.toggle('on');sync();
+    });
+  });
+  sync();
+})();
+
+// bio sayacı
+(function(){
+  var ta=document.getElementById('bioText');
+  var c=document.getElementById('bioCount');
+  if(!ta||!c)return;
+  ta.addEventListener('input',function(){c.textContent=ta.value.length;});
+})();
+
+// form gönder → başarı durumu
+(function(){
+  var form=document.getElementById('olForm');
+  var success=document.getElementById('olSuccess');
+  if(!form||!success)return;
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    form.style.display='none';
+    success.classList.add('show');
+    window.scrollTo({top:success.getBoundingClientRect().top+window.scrollY-130,behavior:'smooth'});
+  });
+})();
+
+// yan ray "Bölümler" — aktif bölüm takibi (scroll-spy)
+(function(){
+  var steps=Array.prototype.slice.call(document.querySelectorAll('.sn-nav .sn-item'));
+  if(!steps.length)return;
+  var targets=steps.map(function(s){var h=s.getAttribute('href');return h?document.querySelector(h):null;});
+  function setActive(i){steps.forEach(function(s,k){s.classList.toggle('is-active',k===i);s.classList.toggle('is-done',k<i);});}
+  function onScroll(){
+    var y=window.scrollY+150,idx=0;
+    targets.forEach(function(t,k){if(t&&t.offsetTop<=y)idx=k;});
+    setActive(idx);
+  }
+  steps.forEach(function(s){s.addEventListener('click',function(){/* smooth scroll CSS ile */});});
+  onScroll();window.addEventListener('scroll',onScroll,{passive:true});
+})();
+
+// SSS akordeon
+(function(){
+  document.querySelectorAll('.faq-q').forEach(function(q){
+    q.addEventListener('click',function(){
+      var item=q.parentElement;
+      var wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){o.classList.remove('open')});
+      if(!wasOpen)item.classList.add('open');
+    });
+  });
+})();
+</script>
+
+
+<!-- DADAFIT-ACTIVE-NAV — aktif nav item boş-tık feedback'i (aria-current + self smooth-scroll) -->
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DadaFit — Arama | DadaMutfak</title>
+<link rel="shortcut icon" type="image/x-icon"
+      href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ _SHELL.HTML — KANONİK İSKELET (anasayfa-portal-v3a.html'den BİREBİR)
+ Token + tipografi + utilities + topbar + header + mega menü (KİLİTLİ)
+ + footer + drawer/bottom-nav + çerez/görüş modal + ortak JS.
+ Yeni sayfa = bu dosyanın kopyası; SAYFA İÇERİĞİ bloğu doldurulur,
+ sayfa-spesifik CSS "SAYFA CSS" işaretinin altına eklenir.
+ Header varsayılan KATI; hero'lu sayfa ?hdr=hero benzeri davranış için
+ JS'teki heroMode bayrağını açar.
+ ===================================================================== */
+
+/* ============ GERÇEK SİTE FONTU: Gilroy-Medium — TEK YÜZ (eski site DNA'sı) ============
+ Eski site (main.css): @font-face myBrandFont = Gilroy-Medium.ttf, universal reset ile
+ başlık/gövde/buton dahil HER eleman bu tek yüzle render olur; 600/700 bold'lar
+ tarayıcının sentetik bold'udur. Light/ExtraBold dosyaları klasörde var ama
+ eski site CSS'i hiç yüklemez — bu yüzden burada da yalnız Medium yüklenir. */
+
+   
+    
+
+            
+
+ 
+
+/* sayfa genel: yeşil eyebrow (fit bölümleri) */
+.sec-fit .eyebrow{color:var(--fit-deep)}
+.sec-fit .eyebrow::before{background:var(--fit)}
+/* ----- Sayfa-içi hareket/program arama (DadaFit yeşili) ----- */
+.df-search{margin:0 0 22px;display:flex;align-items:center;gap:12px;max-width:560px;background:var(--paper);border:1px solid var(--fit-line);border-radius:var(--radius-md);padding:0 16px;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.df-search:focus-within{border-color:var(--fit);box-shadow:0 0 0 3px var(--fit-tint)}
+.df-search>i{color:var(--fit-deep);font-size:15px}
+.df-search input{flex:1;border:none;background:transparent;font-family:inherit;font-weight:500;font-size:15px;color:var(--slate);padding:14px 0;outline:none}
+.df-search input::placeholder{color:#a7a7a7;font-weight:500}
+.df-search .dfs-clear{flex:none;width:28px;height:28px;border:none;background:transparent;color:var(--muted);font-size:14px;cursor:pointer;border-radius:var(--radius-circle);display:none;place-items:center;transition:.16s var(--ease)}
+.df-search .dfs-clear:hover{background:var(--fit-tint);color:var(--fit-deep)}
+.df-search.has-q .dfs-clear{display:grid}
+.df-scount{margin:0 0 22px;font-size:13.5px;font-weight:500;color:var(--muted);display:none}
+.df-scount.show{display:block}
+.df-scount b{color:var(--fit-deep);font-weight:700}
+/* arama aktifken kart/bölüm süzme + dekoratif filtre/kategori gizle */
+.hub-card.dfs-hide{display:none}
+.df-searchable.dfs-sec-hide{display:none}
+body.df-searching .df-searchable .sec-tools{visibility:hidden}
+body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcards{display:none}
+.df-noresult{display:none;padding:46px 20px 4px;text-align:center;color:var(--muted)}
+.df-noresult.show{display:block}
+.df-noresult i{font-size:32px;color:var(--fit);opacity:.62;margin-bottom:13px;display:block}
+.df-noresult b{display:block;font-size:18px;color:var(--slate);margin-bottom:5px}
+.df-noresult span{font-size:14px}
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+
+/* ============ 1 · HERO — koyu band, yeşil aksan, sağda Enerji Defteri ============ */
+/* hero zemini: gerçek video (autoplay/muted/loop) + koyu #211E16 overlay.
+ Video .df-hero-media içinde absolute; overlay'lar ::after ile video ÜSTÜNDE;
+ içerik .wrap z-index:2 ile en üstte. Poster = foto (video gelene kadar). */
+.df-top{position:relative;overflow:hidden;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:112px;padding-bottom:30px;background:linear-gradient(180deg,#211E16,#1b1913)}
+.df-hero-media{position:absolute;inset:0;z-index:0;background:#1b1913}
+.df-hero-media video{width:100%;height:100%;object-fit:cover;object-position:center 28%;filter:saturate(.68) contrast(1.02);display:block}
+.df-hero-media::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(820px 360px at 84% 14%,rgba(0,157,79,.20),transparent 62%),
+  linear-gradient(90deg,rgba(33,30,22,.93) 0%,rgba(29,26,20,.80) 46%,rgba(27,25,19,.56) 100%),
+  linear-gradient(180deg,rgba(33,30,22,0) 56%,rgba(24,22,16,.9) 100%);}
+.df-top .wrap{position:relative;z-index:2}
+/* ince üst nefes + breadcrumb */
+.df-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:#a99;margin-top:16px}
+.df-crumb a{color:#b8afa3;transition:.2s}
+.df-crumb a:hover{color:var(--fit-bright)}
+.df-crumb i{font-size:9px;color:rgba(255,255,255,.32)}
+.df-crumb b{color:#fff;font-weight:700}
+.df-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:54px;align-items:center;padding:30px 0 56px}
+.df-hmain{min-width:0}
+.df-hmain .eyebrow{color:var(--fit-bright)}
+.df-hmain .eyebrow::before{background:var(--fit)}
+.df-hmain h1{color:#fff;font-size:46px;line-height:1.08;letter-spacing:-.03em;margin:16px 0 14px}
+.df-hmain h1 .accent{color:var(--fit-bright)}
+.df-hmain .lead{color:#d9d2c8;font-weight:500;font-size:16px;max-width:520px;line-height:1.6}
+.df-hcta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.df-hcta .btn{padding:14px 24px}
+.df-hcta .btn-line{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.26)}
+.df-hcta .btn-line:hover{border-color:#fff;background:rgba(255,255,255,.07);transform:translateY(-2px)}
+.df-htrust{display:flex;align-items:center;gap:18px;margin-top:24px;flex-wrap:wrap}
+.df-htrust span{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#b7b0a6}
+.df-htrust i{color:var(--fit-bright);font-size:13px}
+
+/* --- SIGNATURE: Enerji Defteri (al↔harca; iki ayrı bağlam, desatüre, etiket baskın) --- */
+.df-ledger{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-xl);
+  padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.34);backdrop-filter:blur(6px);
+}
+.dl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.dl-head h3{color:#fff;font-size:16.5px;letter-spacing:-.01em}
+.dl-head .dl-date{font-size:11.5px;font-weight:700;color:#cbb;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:5px 11px;border-radius:var(--radius-sm);letter-spacing:.02em}
+.dl-row{padding:14px 0}
+.dl-row+.dl-row{border-top:1px solid rgba(255,255,255,.08)}
+.dl-rowtop{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dl-tag{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.dl-tag i{width:24px;height:24px;border-radius:var(--radius-sm);display:grid;place-items:center;font-size:12px}
+.dl-row.in .dl-tag{color:#f0b3a4}
+.dl-row.in .dl-tag i{background:rgba(225,72,39,.16);color:#ef7d63}
+.dl-row.out .dl-tag{color:#7fd6a8}
+.dl-row.out .dl-tag i{background:rgba(0,157,79,.18);color:#3fd089}
+.dl-val{margin-left:auto;font-size:21px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.dl-val small{font-size:11px;font-weight:600;color:#9a9389;margin-left:4px}
+.dl-bar{height:9px;border-radius:var(--radius-pill);background:rgba(255,255,255,.07);overflow:hidden}
+.dl-fill{height:100%;border-radius:var(--radius-pill)}
+.dl-row.in .dl-fill{background:linear-gradient(90deg,rgba(225,72,39,.42),rgba(225,72,39,.62))}
+.dl-row.out .dl-fill{background:linear-gradient(90deg,rgba(0,157,79,.55),rgba(0,157,79,.85))}
+.dl-net{display:flex;align-items:center;gap:12px;margin-top:18px;padding:14px 16px;border-radius:var(--radius-lg);background:rgba(0,157,79,.12);border:1px solid rgba(0,157,79,.28)}
+.dl-net i{flex:none;width:34px;height:34px;border-radius:var(--radius-md);background:rgba(0,157,79,.22);color:#3fd089;display:grid;place-items:center;font-size:14px}
+.dl-net b{display:block;font-size:13.5px;color:#fff;font-weight:700}
+.dl-net span{display:block;font-size:12px;color:#aeb8af;font-weight:500;margin-top:1px}
+
+/* ============ 2 · KÖPRÜ (kalp) — beyaz bölüm + tek koyu feature kart ============ */
+.df-bridge-card{
+  position:relative;overflow:hidden;border-radius:var(--radius-xl);padding:44px;
+  background:
+    radial-gradient(620px 280px at 88% 10%,rgba(0,157,79,.22),transparent 58%),
+    linear-gradient(110deg,rgba(33,30,22,.97) 42%,rgba(33,30,22,.74) 100%),
+    linear-gradient(180deg,rgba(33,30,22,.6),rgba(27,25,19,.85)),
+    url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14');
+  background-size:cover;background-position:right center;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;
+}
+.df-bc-main .eyebrow{color:var(--fit-bright)}
+.df-bc-main .eyebrow::before{background:var(--fit)}
+.df-bc-main h2{color:#fff;font-size:30px;letter-spacing:-.02em;margin:14px 0 12px}
+.df-bc-main p{color:#cfc8be;font-weight:500;font-size:15px;line-height:1.65;max-width:440px;margin-bottom:24px}
+.df-bc-steps{display:flex;flex-direction:column;gap:12px}
+.df-bc-step{display:flex;align-items:center;gap:14px}
+.df-bc-step .n{flex:none;width:34px;height:34px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;color:var(--fit-bright);font-size:13px}
+.df-bc-step b{font-size:14px;color:#fff;font-weight:700;display:block}
+.df-bc-step span{font-size:12.5px;color:#a9a297;font-weight:500}
+/* sağ taraf: yemek↔hareket köprü çağrısı (tomato CTA = yemek ucu) */
+.df-bc-side{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:22px}
+.df-bc-side .sd-q{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.df-bc-side .sd-q i{color:#ef7d63}
+.df-bc-side .sd-d{font-size:13px;color:#b3aca2;font-weight:500;line-height:1.6;margin-bottom:18px}
+.df-bc-side .btn{width:100%}
+.df-bc-side .btn-food{background:var(--food);color:#fff}
+.df-bc-side .btn-food:hover{background:#c93d20;transform:translateY(-2px)}
+.df-bc-side .sd-alt{display:block;text-align:center;margin-top:12px;font-size:13px;font-weight:700;color:var(--fit-bright)}
+.df-bc-side .sd-alt:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* ============ 3 · EGZERSİZ KÜTÜPHANESİ — filtre + örnek kartlar ============ */
+.df-filterbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:24px}
+.df-filterbar .lbl{font-size:13px;font-weight:600;color:var(--muted);margin-right:4px}
+.df-fchip{font-size:13px;font-weight:600;color:var(--slate);background:var(--paper);border:1px solid var(--line);padding:9px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:.18s var(--ease)}
+.df-fchip:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.df-fchip.on{border-color:var(--fit);color:#fff;background:var(--fit)}
+/* filtre kategori kısayolları — calc-card dili, ikon tile (fotosuz) */
+.df-fcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:34px}
+.df-fcard{display:flex;align-items:center;gap:14px;padding:18px;background:var(--paper);border:1px solid var(--fit-line);border-radius:var(--radius-lg);cursor:pointer;transition:.25s var(--ease)}
+.df-fcard:hover{transform:translateY(-4px);border-color:var(--fit);box-shadow:var(--sh-md)}
+.df-fcard .fc-ico{flex:none;width:50px;height:50px;border-radius:var(--radius-lg);background:var(--fit-tint);display:grid;place-items:center;color:var(--fit-deep);font-size:21px}
+.df-fcard h4{font-size:16px;margin-bottom:2px}
+.df-fcard p{font-size:12.5px;color:var(--muted);font-weight:500}
+.df-fcard .go{margin-left:auto;color:var(--fit-deep);font-size:13px;transition:.2s var(--ease)}
+.df-fcard:hover .go{transform:translateX(3px)}
+
+/* HUB KARTLARI (egzersiz + program) — saglik hub-card dili, yeşil aksan */
+.hub-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.hub-grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hub-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.3s var(--ease)}
+.hub-card:hover{transform:translateY(-6px);border-color:#dcdcdc;box-shadow:var(--sh-md)}
+.hub-media{position:relative;height:168px;background-size:cover;background-position:center}
+.hub-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 50%,rgba(20,18,12,.55))}
+/* fotosuz ikon-tile varyant (egzersiz fallback) */
+.hub-media.icon{display:grid;place-items:center;background:linear-gradient(160deg,#f1f7f3,#e6f3ec)}
+.hub-media.icon::after{display:none}
+.hub-media.icon i{font-size:46px;color:var(--fit);opacity:.85}
+.hub-cat{position:absolute;top:12px;left:12px;z-index:2;background:rgba(255,255,255,.94);color:var(--slate);font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);letter-spacing:.02em}
+.hub-cat.fit{background:var(--fit);color:#fff}
+.hub-tags{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;gap:6px;flex-wrap:wrap}
+.hub-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm);backdrop-filter:blur(4px)}
+.hub-pro{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#8a6410;background:linear-gradient(180deg,#fbe6b4,#f3d178);border:1px solid #e0bc63;padding:5px 10px;border-radius:var(--radius-sm)}
+.hub-body{padding:18px;display:flex;flex-direction:column;flex:1}
+.hub-body h4{font-size:16.5px;margin-bottom:8px;letter-spacing:-.01em}
+.hub-card:hover .hub-body h4{color:var(--fit-deep)}
+.hub-body p{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.55}
+.hub-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px;margin-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);font-weight:500}
+.hub-foot .go{display:inline-flex;align-items:center;gap:7px;color:var(--fit-deep);font-weight:700}
+.hub-card:hover .hub-foot .go i{transform:translateX(3px)}
+.hub-foot .go i{transition:.2s var(--ease)}
+
+/* ============ 5 · CHALLENGE — koyu panel (diet-panel dili, yeşil) ============ */
+.df-chal{
+  position:relative;overflow:hidden;border-radius:var(--radius-xl);padding:46px;color:#fff;
+  background:
+    radial-gradient(560px 300px at 90% 0%,rgba(0,157,79,.26),transparent 60%),
+    linear-gradient(110deg,rgba(33,30,22,.96) 46%,rgba(33,30,22,.64) 100%),
+    linear-gradient(180deg,rgba(33,30,22,.5),rgba(27,25,19,.86)),
+    url('https://images.unsplash.com/photo-1487956382158-bb926046304a?w=1280&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14');
+  background-size:cover;background-position:right center;
+  display:grid;grid-template-columns:1fr .9fr;gap:48px;align-items:center;
+}
+.df-chal .eyebrow{color:var(--fit-bright)}
+.df-chal .eyebrow::before{background:var(--fit)}
+.df-chal h2{color:#fff;font-size:30px;letter-spacing:-.02em;margin:14px 0 12px}
+.df-chal p{color:#cfc8be;font-weight:500;font-size:15px;line-height:1.65;max-width:430px;margin-bottom:24px}
+.df-chal-meta{display:flex;gap:28px;margin-bottom:26px}
+.df-chal-meta .cm b{display:block;font-size:23px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;line-height:1.1}
+.df-chal-meta .cm span{font-size:12px;color:#a9a297;font-weight:500}
+.df-chal .btn-fit{box-shadow:0 10px 26px rgba(0,157,79,.32)}
+/* sağ: 30 gün rozet ızgarası (rozet/XP bağı) */
+.df-days{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:22px}
+.df-days .dd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-size:12.5px;font-weight:600;color:#b3aca2}
+.df-days .dd-top b{color:var(--fit-bright);font-weight:700}
+.df-daygrid{display:grid;grid-template-columns:repeat(10,1fr);gap:7px}
+.df-day{aspect-ratio:1;border-radius:var(--radius-sm);background:rgba(255,255,255,.07);display:grid;place-items:center;font-size:10px;font-weight:700;color:#857e74}
+.df-day.done{background:var(--fit);color:#fff}
+.df-day.today{background:rgba(0,157,79,.2);color:#fff;border:1.5px solid var(--fit-bright)}
+
+/* ============ 6 · TDEE KÖPRÜ KARTI — kcal-bands + bridge satırları ============ */
+.df-tdee{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:32px;color:#fff;border:none;border-radius:var(--radius-xl);padding:40px;box-shadow:var(--sh-md);
+  background:
+    radial-gradient(560px 260px at 92% 6%,rgba(0,157,79,.26),transparent 60%),
+    linear-gradient(110deg,rgba(33,30,22,.96) 44%,rgba(33,30,22,.66) 100%),
+    linear-gradient(180deg,rgba(33,30,22,.5),rgba(27,25,19,.86)),
+    url('https://images.unsplash.com/photo-1502224562085-639556652f33?w=1280&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14');
+  background-size:cover;background-position:right center}
+.df-tdee>div{position:relative;z-index:2}
+.df-tdee-l h3{font-size:22px;letter-spacing:-.02em;margin:12px 0 10px}
+.df-tdee-l p{font-size:14px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:18px;max-width:380px}
+.res-num{font-size:46px;font-weight:700;color:var(--slate);font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
+.res-num small{font-size:15px;font-weight:600;color:var(--muted);margin-left:6px}
+.res-cap{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--fit-deep);background:var(--fit-tint);padding:7px 13px;border-radius:var(--radius-sm);margin-top:14px}
+.kcal-bands{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.kb{padding:14px 12px;border:1px solid var(--line);border-radius:var(--radius-md);text-align:center;background:var(--bg-white);transition:.2s var(--ease)}
+.kb i{font-size:14px;color:var(--muted)}
+.kb b{display:block;font-size:18px;font-weight:700;color:var(--slate);font-variant-numeric:tabular-nums;margin:5px 0 2px}
+.kb b small{font-size:10px;font-weight:600;color:var(--muted);margin-left:2px}
+.kb span{font-size:11px;color:var(--muted);font-weight:600}
+.kb.on{border-color:var(--fit);background:var(--fit-tint)}
+.kb.on i,.kb.on span{color:var(--fit-deep)}
+.df-tdee-r{display:flex;flex-direction:column;gap:12px;justify-content:center}
+.df-burnadd{display:flex;align-items:center;gap:13px;padding:15px 16px;border:1px dashed var(--fit-line);border-radius:var(--radius-md);background:var(--fit-tint)}
+.df-burnadd i{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:#fff;color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.df-burnadd b{display:block;font-size:14px;color:var(--slate);font-weight:700}
+.df-burnadd span{display:block;font-size:12px;color:var(--slate-2);font-weight:500;margin-top:1px}
+.bridge{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg-white);transition:.2s var(--ease)}
+.bridge:hover{border-color:var(--fit);transform:translateX(3px)}
+.br-ico{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.br-txt{flex:1;min-width:0}
+.br-txt b{display:block;font-size:14px;color:var(--slate);font-weight:700}
+.br-txt span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.br-go{flex:none;color:var(--fit-deep);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.bridge:hover .br-go i{transform:translateX(3px)}
+.br-go i{transition:.2s var(--ease)}
+
+/* ============ 7 · ANTRENÖR teaser (P1) — sertifika rozeti ============ */
+.df-coach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.df-coach{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px;transition:.25s var(--ease)}
+.df-coach:hover{border-color:var(--fit-line);box-shadow:var(--sh-md);transform:translateY(-4px)}
+.df-coach-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.df-coach-av{flex:none;width:56px;height:56px;border-radius:var(--radius-circle);background-size:cover;background-position:center;border:2px solid var(--fit-line)}
+.df-coach-top b{display:block;font-size:16px;color:var(--slate);font-weight:700}
+.df-coach-top span{display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:1px}
+.df-cert{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--fit-deep);background:var(--fit-tint);border:1px solid var(--fit-line);padding:6px 11px;border-radius:var(--radius-sm);align-self:flex-start;margin-bottom:13px}
+.df-coach-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.df-coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:5px 11px;border-radius:var(--radius-sm)}
+.df-coach .btn{margin-top:auto}
+.df-coach-join{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-lg);padding:22px 26px;margin-top:4px}
+.df-coach-join b{font-size:16px;color:var(--slate)}
+.df-coach-join p{font-size:13px;color:var(--slate-2);font-weight:500;margin-top:2px}
+
+/* ============ 8 · PRO-GATE teaser — free vs Pro (pro-v1 dili) ============ */
+.df-pro-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.demo-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--sh-sm)}
+.dc-tag{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:var(--radius-sm);margin-bottom:14px}
+.dc-tag.free{background:var(--fit-tint);color:var(--fit-deep)}
+.dc-tag.paid{background:var(--tomato-tint);color:var(--tomato)}
+.demo-card h3{font-size:17px;color:var(--slate);margin-bottom:6px}
+.demo-card>p{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:18px}
+.demo-list{display:flex;flex-direction:column;gap:10px}
+.free-row{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--fit-line);border-radius:var(--radius-md);background:var(--bg-white)}
+.free-row i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.free-row b{display:block;font-size:14px;color:var(--slate);font-weight:700}
+.free-row span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.locked-row{display:flex;align-items:center;gap:14px;padding:14px 15px;border:1px dashed #d8cfc6;border-radius:var(--radius-md);background:linear-gradient(180deg,#fff,#fdf8f5);cursor:pointer;transition:.2s var(--ease);width:100%;text-align:left;font:inherit}
+.locked-row:hover{border-color:var(--tomato);box-shadow:var(--sh-sm)}
+.locked-ico{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--tomato-tint);color:var(--tomato);display:grid;place-items:center;font-size:15px}
+.locked-body{flex:1;min-width:0}
+.locked-body b{display:block;font-size:14px;color:var(--slate);font-weight:700}
+.locked-body span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.pro-pill{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#8a6410;background:linear-gradient(180deg,#fbe6b4,#f3d178);border:1px solid #e0bc63;padding:5px 10px;border-radius:var(--radius-sm)}
+.demo-note{font-size:12px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:14px;display:flex;gap:8px}
+.demo-note i{margin-top:2px;flex:none;color:var(--fit-deep)}
+
+/* ============ 9 · KAPANIŞ CTA — ince koyu bookend ============ */
+.df-cta{
+  position:relative;overflow:hidden;text-align:center;color:#fff;
+  background:
+    radial-gradient(640px 300px at 50% 0%,rgba(0,157,79,.30),transparent 62%),
+    linear-gradient(180deg,rgba(33,30,22,.86) 0%,rgba(29,26,20,.9) 55%,rgba(24,22,16,.95) 100%),
+    url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14');
+  background-size:cover;background-position:center 35%;
+}
+.df-cta>.wrap{position:relative;z-index:2}
+.df-cta .eyebrow{color:var(--fit-bright);justify-content:center}
+.df-cta .eyebrow::before{background:var(--fit)}
+.df-cta h2{color:#fff;font-size:30px;letter-spacing:-.02em;margin:14px 0 12px}
+.df-cta p{color:#cfc8be;font-weight:500;font-size:15px;max-width:480px;margin:0 auto 24px;line-height:1.6}
+.df-cta-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.df-cta-acts .btn-line{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.26)}
+.df-cta-acts .btn-line:hover{border-color:#fff;background:rgba(255,255,255,.07);transform:translateY(-2px)}
+
+/* ---- PRO-GATE modal (pro-v1 F1 — ücretli kilit) ---- */
+
+/* ============ İMZA DİLİ YAYILIMI — full görsel + yeşil gradient + cam panel ============ */
+
+/* --- TDEE köprü kartı: imza koyu-yeşil-görsel-cam varyantı (gunluk-kalori bağı) --- */
+.df-tdee .eyebrow{color:var(--fit-bright)}
+.df-tdee .eyebrow::before{background:var(--fit)}
+.df-tdee .res-num{color:#fff}
+.df-tdee .res-num small{color:#b9c2ba}
+.df-tdee .res-cap{background:rgba(0,157,79,.20);color:#7fd6a8}
+.df-tdee .kb{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.df-tdee .kb b{color:#fff}
+.df-tdee .kb i,.df-tdee .kb b small,.df-tdee .kb span{color:#c7cfc8}
+.df-tdee .kb.on{background:rgba(0,157,79,.20);border-color:var(--fit)}
+.df-tdee .kb.on i,.df-tdee .kb.on span{color:#7fd6a8}
+.df-tdee .df-burnadd{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)}
+.df-tdee .df-burnadd i{background:rgba(0,157,79,.22);color:#7fd6a8}
+.df-tdee .df-burnadd b{color:#fff}
+.df-tdee .df-burnadd span{color:#b9c2ba}
+.df-tdee .bridge{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.df-tdee .bridge:hover{border-color:var(--fit-bright);transform:translateX(3px)}
+.df-tdee .br-ico{background:rgba(0,157,79,.22);color:#7fd6a8}
+.df-tdee .br-txt b{color:#fff}
+.df-tdee .br-txt span{color:#b9c2ba}
+.df-tdee .br-go{color:#7fd6a8}
+
+/* --- "Hedefin ne?" hedef seçici — full görsel kartlar + yeşil gradient --- */
+.df-goals{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.df-goal{position:relative;display:flex;align-items:flex-end;min-height:290px;border-radius:var(--radius-lg);overflow:hidden;background-size:cover;background-position:center;cursor:pointer;transition:.3s var(--ease)}
+.df-goal::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,.12) 28%,rgba(0,82,42,.6) 70%,rgba(0,58,30,.86));transition:.3s var(--ease)}
+.df-goal:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+.df-goal:hover::after{background:linear-gradient(180deg,rgba(33,30,22,.12) 18%,rgba(0,118,60,.62) 64%,rgba(0,86,44,.92))}
+.df-goal-in{position:relative;z-index:2;padding:22px;width:100%}
+.df-goal .gl-ico{width:44px;height:44px;border-radius:var(--radius-md);background:rgba(0,157,79,.92);display:grid;place-items:center;color:#fff;font-size:18px;margin-bottom:13px}
+.df-goal h4{color:#fff;font-size:19px;letter-spacing:-.01em;margin-bottom:4px}
+.df-goal p{color:rgba(255,255,255,.84);font-size:12.5px;font-weight:500;line-height:1.45}
+.df-goal .gl-go{display:inline-flex;align-items:center;gap:7px;margin-top:13px;font-size:12.5px;font-weight:700;color:#7fe7af}
+.df-goal .gl-go i{transition:.2s var(--ease)}
+.df-goal:hover .gl-go i{transform:translateX(3px)}
+
+/* --- Beslenme × Hareket combo — spor görseli + yeşil gradient + cam yemek paneli --- */
+.df-combo{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.df-combo-card{position:relative;overflow:hidden;border-radius:var(--radius-lg);min-height:310px;display:flex;flex-direction:column;justify-content:flex-end;background-size:cover;background-position:center;cursor:pointer;transition:.3s var(--ease)}
+.df-combo-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,.08) 16%,rgba(0,72,37,.72) 62%,rgba(0,54,28,.93))}
+.df-combo-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+.dc-pair{position:absolute;top:16px;left:16px;z-index:2;display:flex;align-items:center;gap:7px}
+.dc-pair span{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:rgba(20,18,12,.55);backdrop-filter:blur(4px);padding:6px 10px;border-radius:var(--radius-sm)}
+.dc-pair .plus{background:var(--fit);width:22px;height:22px;justify-content:center;padding:0;border-radius:var(--radius-circle);font-size:9px}
+.df-combo-in{position:relative;z-index:2;padding:22px}
+.df-combo-in h4{color:#fff;font-size:18px;margin-bottom:6px;letter-spacing:-.01em}
+.df-combo-in p{color:rgba(255,255,255,.84);font-size:12.5px;font-weight:500;line-height:1.5;margin-bottom:14px}
+.df-combo-meal{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-md);padding:10px 12px}
+.df-combo-meal .cm-thumb{width:44px;height:44px;border-radius:var(--radius-sm);background-size:cover;background-position:center;flex:none}
+.df-combo-meal .cm-tx{min-width:0}
+.df-combo-meal b{font-size:13px;color:#fff;font-weight:700;display:block;line-height:1.2}
+.df-combo-meal span{font-size:11px;color:rgba(255,255,255,.78);font-weight:500}
+.df-combo-meal .cm-go{margin-left:auto;color:#7fe7af;font-size:13px;flex:none}
+
+/* --- Kadın sporu / döngüne uyumlu — full görsel kapsayıcı band --- */
+.df-women{position:relative;overflow:hidden;border-radius:var(--radius-xl);min-height:400px;display:flex;align-items:center;
+  background:
+    linear-gradient(100deg,rgba(33,30,22,.95) 36%,rgba(20,52,34,.62) 78%,rgba(0,70,38,.4) 100%),
+    url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1500&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12');
+  background-size:cover;background-position:center}
+.df-women-in{position:relative;z-index:2;max-width:560px;padding:50px}
+.df-women .eyebrow{color:var(--fit-bright)}
+.df-women .eyebrow::before{background:var(--fit)}
+.df-women h2{color:#fff;font-size:31px;letter-spacing:-.02em;margin:14px 0 12px}
+.df-women p{color:#dfe6e0;font-weight:500;font-size:15px;line-height:1.65;margin-bottom:22px}
+.df-women-tags{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+.df-women-tags span{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#eafaf1;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);padding:9px 14px;border-radius:var(--radius-sm)}
+.df-women-tags i{color:#7fe7af}
+
+/* ============ ESTETİK RAFİNE — gölge/lift tutarlılığı + premium his ============ */
+.hub-card{box-shadow:var(--sh-sm)}
+.hub-card:hover{box-shadow:var(--sh-lg)}
+.df-fcard,.df-coach,.demo-card{box-shadow:var(--sh-sm)}
+.df-fcard:hover,.df-coach:hover{box-shadow:var(--sh-lg)}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1024px){
+  .df-hero{grid-template-columns:1fr;gap:30px;padding-bottom:40px}
+  .df-bridge-card,.df-chal,.df-tdee{grid-template-columns:1fr;gap:28px;padding:32px}
+  .hub-grid{grid-template-columns:1fr 1fr}
+  .df-fcards,.df-coach-grid{grid-template-columns:1fr 1fr}
+  .df-pro-grid{grid-template-columns:1fr}
+  .df-goals{grid-template-columns:1fr 1fr}
+  .df-combo{grid-template-columns:1fr 1fr}
+  .df-women{min-height:340px}
+  .df-women-in{padding:36px;max-width:none}
+}
+@media (max-width:640px){
+  .df-goals,.df-combo{grid-template-columns:1fr}
+  .df-goal{min-height:200px}
+  .df-women h2{font-size:23px}
+  .df-women-in{padding:28px}
+  .df-top{padding-top:74px;min-height:100vh;min-height:100svh}
+  .df-hero{padding:18px 0 34px}
+  .df-hmain h1{font-size:30px}
+  .df-hmain .lead{font-size:14.5px}
+  .df-ledger,.df-bridge-card,.df-chal,.df-tdee{padding:24px}
+  .df-bc-main h2,.df-chal h2,.df-cta h2{font-size:23px}
+  .hub-grid,.hub-grid.cols3,.df-fcards,.df-coach-grid{grid-template-columns:1fr}
+  .df-daygrid{grid-template-columns:repeat(10,1fr)}
+  .df-chal-meta{gap:20px}
+  .res-num{font-size:38px}
+  .df-filterbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+  .df-filterbar::-webkit-scrollbar{display:none}
+  .df-fchip{flex:none;white-space:nowrap}
+}
+
+</style>
+<style>
+/* w3-nav-sweep */
+
+</style>
+<style>
+/* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
+
+</style>
+<style>
+/* ============ DADAFİT ARAMA (arama-fit) — anatomi arama-v1'den, tümü var(--fit)/var(--tomato) ============
+ Fit shell'inde --tomato = #009d4f → motor yapısal olarak yeşil; hiçbir Gastro hue'su yok. */
+
+/* ---- arama hero (koyu Fit bandı + fitness görseli) — solid header altında ---- */
+/* BANNER KURALI: header ofseti margin'e alindi, dikey nefes kisaltildi */
+.fs-top{position:relative;margin-top:112px;padding:34px 0 40px;background-image:linear-gradient(180deg,rgba(18,30,22,.92) 0%,rgba(27,42,32,.80) 52%,rgba(20,26,20,.88) 100%),url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16&high=8&vib=3');background-size:cover;background-position:center;overflow:hidden}
+.fs-top::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 460px at 16% -10%,rgba(0,157,79,.30),transparent 60%);pointer-events:none;z-index:1}
+.fs-top::after{content:"";position:absolute;right:-120px;bottom:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(52,196,126,.22),transparent 70%);pointer-events:none;z-index:1}
+.fs-top .wrap{position:relative;z-index:2}
+.fs-top .eyebrow{color:var(--fit-bright)}
+.fs-top h1{font-size:33px;letter-spacing:-.02em;color:#fff;margin:10px 0 12px;text-shadow:0 2px 22px rgba(0,0,0,.28)}
+.fs-top h1 .accent{color:var(--fit-bright)}
+.fs-lead{font-size:15.5px;font-weight:500;color:#d7e6dd;max-width:600px;line-height:1.6;margin-bottom:26px}
+/* arama kutusu */
+.fs-box{position:relative;background:var(--paper);border:1px solid var(--fit-line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;max-width:680px}
+.fs-row{display:flex;gap:8px;padding:6px}
+.fs-input{flex:1;display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:0 18px}
+.fs-input i{color:var(--fit-deep)}
+.fs-input input{flex:1;min-width:0;border:none;background:transparent;font-family:inherit;font-weight:500;font-size:15.5px;color:var(--slate);padding:16px 0;outline:none}
+.fs-input input::placeholder{color:#a7a7a7;font-weight:500}
+.fs-row .btn{flex:none;padding:0 26px}
+.fs-sum{margin-top:18px;font-size:14.5px;color:#cfe0d6;font-weight:500}
+.fs-sum b{color:#fff;font-weight:700}
+.fs-sum .q{color:var(--fit-bright);font-weight:700}
+
+/* ---- autocomplete dropdown ---- */
+.fs-ac{position:absolute;left:6px;right:6px;top:calc(100% - 4px);z-index:60;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-lg);padding:8px;max-height:min(440px,72vh);overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease),transform .18s var(--ease),visibility .18s;scrollbar-width:thin;scrollbar-color:#d9d9d9 transparent}
+.fs-ac::-webkit-scrollbar{width:8px}
+.fs-ac::-webkit-scrollbar-thumb{background:#dcdcdc;border-radius:var(--radius-pill);border:2px solid var(--paper)}
+.fs-box.ac-open .fs-ac{opacity:1;visibility:visible;transform:translateY(0)}
+.fs-ac .ac-grp{display:flex;align-items:center;gap:8px;padding:11px 12px 6px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fs-ac .ac-grp i{font-size:11px;color:var(--fit)}
+.fs-ac .ac-grp .ac-clear{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;padding:2px 4px;border-radius:var(--radius-sm)}
+.fs-ac .ac-grp .ac-clear:hover{color:var(--fit)}
+.fs-ac .ac-opt{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;transition:background .14s var(--ease)}
+.fs-ac .ac-opt .ac-ico{flex:none;width:38px;height:38px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;color:var(--slate-2);font-size:15px;background-size:cover;background-position:center;overflow:hidden}
+.fs-ac .ac-opt .ac-main{min-width:0;flex:1}
+.fs-ac .ac-opt .ac-ttl{display:block;font-size:14.5px;font-weight:600;color:var(--slate);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-ac .ac-opt .ac-ttl mark{background:none;color:var(--fit);font-weight:700;padding:0}
+.fs-ac .ac-opt .ac-sub{display:block;margin-top:1px;font-size:12px;font-weight:500;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-ac .ac-opt .ac-badge{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:var(--radius-pill);background:var(--fit-tint);color:var(--fit-deep);border:1px solid var(--fit-line)}
+.fs-ac .ac-opt .ac-badge i{font-size:9.5px}
+.fs-ac .ac-opt:hover,.fs-ac .ac-opt.is-active{background:var(--fit-tint)}
+.fs-ac .ac-opt:hover .ac-ttl,.fs-ac .ac-opt.is-active .ac-ttl{color:var(--fit-deep)}
+.fs-ac .ac-query .ac-ico{background:var(--fit);border-color:var(--fit);color:#fff}
+.fs-ac .ac-none{padding:18px 14px;text-align:center;font-size:13.5px;color:var(--muted);font-weight:500}
+
+/* ---- sekme barı ---- */
+.fs-tabbar{position:sticky;top:112px;z-index:40;background:rgba(255,255,255,.93);-webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);border-bottom:1px solid var(--line);padding:12px 0}
+.fs-tabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px;overflow-x:auto;scrollbar-width:none}
+.fs-tabs::-webkit-scrollbar{display:none}
+.fs-tabs .dt{font-family:inherit;font-weight:700;font-size:13px;color:var(--muted);background:transparent;border:none;border-radius:var(--radius-sm);padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s var(--ease);white-space:nowrap;flex:none}
+.fs-tabs .dt:hover{color:var(--fit-deep)}
+.fs-tabs .dt.active{background:var(--fit);color:#fff}
+.fs-tabs .dt .cnt{font-size:11px;font-weight:700;opacity:.6}
+
+/* ---- sonuç bölgesi ---- */
+.fs-results{padding:34px 0 60px;background:var(--bg-cream)}
+.fs-pane{animation:fadeUp .35s var(--ease)}
+.fs-pane[hidden]{display:none}
+.fs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.fs-grid.is-coach{grid-template-columns:repeat(5,1fr);gap:18px}
+.fs-cnt-note{font-size:13.5px;color:var(--muted);font-weight:500;margin:0 0 20px}
+.fs-cnt-note b{color:var(--fit-deep);font-weight:700}
+
+/* ---- sonuç kartı (POOL-driven, tek şablon) ---- */
+.fs-media{position:relative;height:158px;background-size:cover;background-position:center}
+.fs-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 55%,rgba(20,18,12,.34))}
+.fs-badge{position:absolute;top:11px;left:11px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 11px;border-radius:var(--radius-pill);background:rgba(255,255,255,.95);color:var(--fit-deep)}
+.fs-badge i{font-size:10px}
+.fs-tile{height:120px;display:grid;place-items:center;background:var(--fit-tint);color:var(--fit);font-size:34px;position:relative}
+.fs-tile .fs-badge{background:#fff;box-shadow:var(--sh-sm)}
+.fs-cbody{padding:15px 16px 17px;display:flex;flex-direction:column;flex:1}
+.fs-cbody h4{font-size:16px;letter-spacing:-.01em;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .2s var(--ease)}
+.fs-card:hover .fs-cbody h4{color:var(--fit-deep)}
+.fs-cbody p{font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fs-cgo{margin-top:auto;padding-top:13px;font-size:12.5px;font-weight:700;color:var(--fit-deep);display:inline-flex;align-items:center;gap:7px}
+.fs-cgo i{font-size:10px;transition:transform .2s var(--ease)}
+.fs-card:hover .fs-cgo i{transform:translateX(3px)}
+/* antrenör varyantı — yuvarlak avatar, ortalı */
+.fs-card.is-coach{align-items:center;text-align:center;padding:20px 14px 18px}
+.fs-card.is-coach .fs-av{width:92px;height:92px;border-radius:50%;background-size:cover;background-position:center;border:3px solid #fff;box-shadow:var(--sh-sm);transition:.25s var(--ease)}
+.fs-card.is-coach:hover .fs-av{border-color:var(--fit);transform:translateY(-3px)}
+.fs-card.is-coach h4{margin-top:13px;font-size:15.5px}
+.fs-card.is-coach p{-webkit-line-clamp:1}
+.fs-card.is-coach .fs-cbody{padding:0;align-items:center;flex:none}
+.fs-card.is-coach .fs-badge{position:static;margin-top:9px;background:var(--fit-tint);color:var(--fit-deep)}
+
+/* ---- boş durum ---- */
+.fs-empty{display:none;text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:70px 30px;margin-top:8px}
+.fs-empty.show{display:block;animation:fadeUp .35s var(--ease)}
+.fs-empty-ico{width:74px;height:74px;border-radius:var(--radius-lg);background:var(--fit-tint);color:var(--fit);display:grid;place-items:center;font-size:29px;margin:0 auto 20px}
+.fs-empty h3{font-size:22px;margin-bottom:9px}
+.fs-empty p{font-size:14.5px;color:var(--muted);font-weight:500;max-width:420px;margin:0 auto 22px;line-height:1.6}
+
+/* ---- popüler & son aramalar ---- */
+.fs-pop{padding:52px 0 68px;background:var(--bg-white)}
+.fs-pop-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:start}
+.fs-pop h3{font-size:18px;display:inline-flex;align-items:center;gap:10px;margin-bottom:18px}
+.fs-pop h3 i{color:var(--fit);font-size:15px}
+.fs-chips{display:flex;flex-wrap:wrap;gap:10px}
+.fs-chips .chip{font-family:inherit;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-pill);padding:9px 16px;cursor:pointer;transition:.18s var(--ease)}
+.fs-chips .chip:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.fs-recent{display:flex;flex-direction:column}
+.fs-rrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px;font-weight:500;color:var(--slate-2);cursor:pointer;transition:.18s var(--ease)}
+.fs-rrow:last-child{border-bottom:none}
+.fs-rrow>i:first-child{color:var(--muted);font-size:13px;flex:none;width:18px;text-align:center}
+.fs-rrow .term{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-rrow .go{margin-left:auto;flex:none;font-size:11px;color:#c7c7c7;transition:.18s var(--ease)}
+.fs-rrow:hover{color:var(--fit-deep)}
+.fs-rrow:hover .go{color:var(--fit);transform:translateX(3px)}
+
+.is-off{display:none!important}
+.sr-vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+@media (max-width:1024px){
+  .fs-grid{grid-template-columns:1fr 1fr}
+  .fs-grid.is-coach{grid-template-columns:repeat(3,1fr)}
+  .fs-pop-grid{grid-template-columns:1fr;gap:34px}
+}
+@media (max-width:640px){
+  .fs-top{padding:104px 0 40px}
+  .fs-top h1{font-size:25px}
+  .fs-tabbar{top:62px}
+  .fs-grid,.fs-grid.is-coach{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
+  .fs-grid::-webkit-scrollbar{display:none}
+  .fs-grid>*{flex:none;width:74vw;max-width:280px;scroll-snap-align:start}
+  .fs-grid.is-coach>*{width:52vw;max-width:200px}
+}
+</style>
+</head>
+<body data-brand="fit" data-fit-page="arama-fit-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+<!-- SAYFA İÇERİĞİ — DADAFİT ARAMA (arama-fit) -->
+
+<!-- ===== ARAMA HERO ===== -->
+<section class="fs-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Arama</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-bolt"></i> DadaFit · Arama</span>
+    <h1 id="fsTitle">DadaFit'te <span class="accent">ara</span></h1>
+    <p class="fs-lead" id="fsLead">Egzersiz, program, hareket rehberi veya antrenör — tek kutudan tüm DadaFit içeriğinde ara.</p>
+    <form class="fs-box" id="fsForm" role="search" autocomplete="off">
+      <div class="fs-row">
+        <div class="fs-input">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="fsInput" type="text" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="fsAcList" aria-haspopup="listbox" placeholder="Egzersiz, program veya antrenör ara…" aria-label="DadaFit içeriğinde ara" />
+        </div>
+        <button class="btn btn-fit" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Ara</button>
+      </div>
+      <div class="fs-ac" id="fsAc"><div class="fs-ac-list" id="fsAcList" role="listbox" aria-label="Arama önerileri"></div></div>
+      <span class="sr-vh" id="fsAcStatus" role="status" aria-live="polite"></span>
+    </form>
+    <p class="fs-sum" id="fsSum"></p>
+  </div>
+</section>
+
+<!-- ===== SEKME BARI (5 sekme) ===== -->
+<div class="fs-tabbar" id="fsTabbar">
+  <div class="wrap">
+    <div class="fs-tabs" role="tablist" aria-label="İçerik türü">
+      <button class="dt active" type="button" role="tab" data-tab="tumu">Tümü <span class="cnt" data-cnt="tumu"></span></button>
+      <button class="dt" type="button" role="tab" data-tab="egzersiz">Egzersizler <span class="cnt" data-cnt="egzersiz"></span></button>
+      <button class="dt" type="button" role="tab" data-tab="program">Programlar <span class="cnt" data-cnt="program"></span></button>
+      <button class="dt" type="button" role="tab" data-tab="rehber">Rehber <span class="cnt" data-cnt="rehber"></span></button>
+      <button class="dt" type="button" role="tab" data-tab="antrenor">Antrenörler <span class="cnt" data-cnt="antrenor"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SONUÇLAR (POOL-driven, JS render) ===== -->
+<section class="fs-results" id="fsResults">
+  <div class="wrap">
+    <p class="fs-cnt-note" id="fsCntNote"></p>
+    <div class="fs-pane" data-pane="tumu"></div>
+    <div class="fs-pane" data-pane="egzersiz" hidden></div>
+    <div class="fs-pane" data-pane="program" hidden></div>
+    <div class="fs-pane" data-pane="rehber" hidden></div>
+    <div class="fs-pane" data-pane="antrenor" hidden></div>
+    <div class="fs-empty" id="fsEmpty">
+      <div class="fs-empty-ico"><i class="fa-solid fa-magnifying-glass"></i></div>
+      <h3>&ldquo;<span id="fsEmptyQ"></span>&rdquo; için sonuç yok</h3>
+      <p>Farklı bir kelime dene — egzersiz adı, kas grubu, program ya da antrenör.</p>
+      <div class="fs-chips" id="fsEmptyChips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== POPÜLER + SON ARAMALAR (autocomplete varsayılan kaynağı) ===== -->
+<section class="fs-pop" id="fsPop">
+  <div class="wrap">
+    <div class="fs-pop-grid">
+      <div>
+        <h3><i class="fa-solid fa-fire"></i> Popüler aramalar</h3>
+        <div class="fs-chips" id="fsPopChips">
+          <button class="chip" type="button" data-q="plank">plank</button>
+          <button class="chip" type="button" data-q="HIIT">HIIT</button>
+          <button class="chip" type="button" data-q="esneklik">esneklik</button>
+          <button class="chip" type="button" data-q="yeni başlayan">yeni başlayan</button>
+          <button class="chip" type="button" data-q="squat">squat</button>
+          <button class="chip" type="button" data-q="masa başı">masa başı</button>
+          <button class="chip" type="button" data-q="dambıl">dambıl</button>
+          <button class="chip" type="button" data-q="mobilite">mobilite</button>
+        </div>
+      </div>
+      <div id="fsRecentCol" style="display:none">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Son aramaların</h3>
+        <div class="fs-recent" id="fsRecent"><!-- localStorage dm_fit_recent'ten JS ile dolar; boşsa kolon gizli --></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== SAYFA JS — sayfa-spesifik script BU İŞARETİN ALTINA eklenir ===== */
+
+/* ===== DADAFIT HUB — sayfa JS ===== */
+// filtre çipi tek seçim (teaser)
+document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(x){x.classList.remove('on')});
+    c.classList.add('on');
+  });
+});
+// PRO-GATE — data-pro-gate taşıyan kilitli satırlar açar (giriş durumdan bağımsız teaser)
+(function(){
+  var gate=document.getElementById('proGate');
+  var overlay=document.getElementById('pgOverlay');
+  if(!gate)return;
+  function open(title,desc){
+    if(title)document.getElementById('pgTitle').textContent=title;
+    if(desc)document.getElementById('pgDesc').textContent=desc;
+    gate.classList.add('show');overlay.classList.add('show');document.body.style.overflow='hidden';
+  }
+  function close(){gate.classList.remove('show');overlay.classList.remove('show');document.body.style.overflow='';}
+  document.getElementById('pgClose').addEventListener('click',close);
+  overlay.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&gate.classList.contains('show'))close();});
+  document.querySelectorAll('[data-pro-gate]').forEach(function(t){
+    t.addEventListener('click',function(e){
+      e.preventDefault();
+      open(t.getAttribute('data-pro-title'),t.getAttribute('data-pro-desc'));
+    });
+  });
+  if(location.search.indexOf('pg=1')>-1){open();}
+})();
+</script>
+
+<script>
+/* ===== DadaFit ARAMA (arama-fit) — POOL-driven motor · anatomi arama-v1'den, DadaFit yeşili ===== */
+(function(){
+  var IMG='?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12';
+  function u(id){return 'https://images.unsplash.com/photo-'+id+IMG;}
+
+  /* ---- POOL: yalnız GERÇEK DadaFit içeriği (uydurma yok) ---- */
+  var POOL=[
+    /* Egzersizler (12) → egzersiz-kutuphane */
+    {type:'egzersiz',t:'Squat (Çömelme)',sub:'Alt vücut · bacak & kalça',href:'egzersiz-kutuphane-v1.html',img:u('1574680096145-d05b474e2155')},
+    {type:'egzersiz',t:'Plank (Şınav Duruşu)',sub:'Karın & core · denge',href:'egzersiz-kutuphane-v1.html',img:u('1566241142559-40e1dab266c6')},
+    {type:'egzersiz',t:'Dambıl Kürek Çekme',sub:'Sırt · dambıl',href:'egzersiz-kutuphane-v1.html',img:u('1532384748853-8f54a8f476e2')},
+    {type:'egzersiz',t:'Şınav (Push-up)',sub:'Göğüs, omuz, triceps',href:'egzersiz-kutuphane-v1.html',img:u('1598971639058-fab3c3109a00')},
+    {type:'egzersiz',t:'Hamle (Lunge)',sub:'Alt vücut · tek bacak',href:'egzersiz-kutuphane-v1.html',img:u('1434608519344-49d77a699e1d')},
+    {type:'egzersiz',t:'Dambıl Omuz Press',sub:'Omuz · dambıl',href:'egzersiz-kutuphane-v1.html',img:u('1581009146145-b5ef050c2e1e')},
+    {type:'egzersiz',t:'Dambıl Biceps Curl',sub:'Kol · dambıl',href:'egzersiz-kutuphane-v1.html',img:u('1517344884509-a0c97ec11bcc')},
+    {type:'egzersiz',t:'Dead Bug (Ölü Böcek)',sub:'Karın & core · stabilite',href:'egzersiz-kutuphane-v1.html',img:u('1518611012118-696072aa579a')},
+    {type:'egzersiz',t:'Kettlebell Swing',sub:'Tüm vücut · kettlebell',href:'egzersiz-kutuphane-v1.html',img:u('1603287681836-b174ce5074c2')},
+    {type:'egzersiz',t:'Bant Çekme (Band Row)',sub:'Sırt · direnç bandı',href:'egzersiz-kutuphane-v1.html',img:u('1549060279-7e168fcee0c2')},
+    {type:'egzersiz',t:'Köprü (Glute Bridge)',sub:'Kalça · vücut ağırlığı',href:'egzersiz-kutuphane-v1.html',img:u('1571019614242-c5c5dee9f50b')},
+    {type:'egzersiz',t:'Bant Yana Açma',sub:'Omuz · direnç bandı',href:'egzersiz-kutuphane-v1.html',img:u('1599901860904-17e6ed7083a0')},
+    /* Programlar (9) → program-liste */
+    {type:'program',t:'8 Haftalık Güç Temeli',sub:'8 hafta · güç',href:'program-liste-v1.html',img:u('1541534741688-6078c6bfb5c5')},
+    {type:'program',t:'Evde HIIT',sub:'Ev · yüksek tempo',href:'program-liste-v1.html',img:u('1599058917212-d750089bc07e')},
+    {type:'program',t:'Yeni Başlayan 4 Hafta',sub:'4 hafta · başlangıç',href:'program-liste-v1.html',img:u('1518310383802-640c2de311b2')},
+    {type:'program',t:'Mobilite & Esneklik',sub:'Mobilite · esneklik',href:'program-liste-v1.html',img:u('1545205597-3d9d02c29597')},
+    {type:'program',t:'Düşük Tempo Kondisyon',sub:'Kondisyon · düşük tempo',href:'program-liste-v1.html',img:u('1486218119243-13883505764c')},
+    {type:'program',t:'Dik Duruş Programı',sub:'Postür · duruş',href:'program-liste-v1.html',img:u('1571019613454-1cb2f99b2d8b')},
+    {type:'program',t:'Yağ Yakım Devresi',sub:'Devre · yağ yakım',href:'program-liste-v1.html',img:u('1502904550040-7534597429ae')},
+    {type:'program',t:'Koşuya Hazırlık 12 Hafta',sub:'12 hafta · koşu',href:'program-liste-v1.html',img:u('1476480862126-209bfaa8edc8')},
+    {type:'program',t:'İleri Güç & Hacim',sub:'İleri · güç & hacim',href:'program-liste-v1.html',img:u('1583454110551-21f2fa2afe61')},
+    /* Hareket Rehberi (8) → her kategori KENDİ sayfası */
+    {type:'rehber',t:'Yeni Başlayanlar İçin Hareket',sub:'İlk 7 gün, evde başlangıç, günde 10 dakika',href:'hareket-yeni-baslayanlar-v1.html',ico:'fa-seedling'},
+    {type:'rehber',t:'Doğru Form Rehberi',sub:'Doğru ve güvenli yapılış, sık hatalar',href:'hareket-dogru-form-v1.html',ico:'fa-circle-check'},
+    {type:'rehber',t:'Süreye Göre Hareketler',sub:'5, 10, 15, 20, 30 dakikalık programlar',href:'hareket-sureye-gore-v1.html',ico:'fa-clock'},
+    {type:'rehber',t:'Hedefe Göre Hareket',sub:'Aktif olmak, güçlenmek, esneklik, kondisyon',href:'hareket-hedefe-gore-v1.html',ico:'fa-bullseye'},
+    {type:'rehber',t:'Bölgeye Göre Egzersizler',sub:'Karın, bacak, kalça, sırt, kol, omuz',href:'hareket-bolgeye-gore-v1.html',ico:'fa-person'},
+    {type:'rehber',t:'Masa Başı Hareketleri',sub:'Uzun süre oturanlar için mini esnemeler',href:'hareket-masa-basi-v1.html',ico:'fa-chair'},
+    {type:'rehber',t:'Isınma, Soğuma ve Esneme',sub:'Sabah esnemesi, akşam rahatlama, esneme rutini',href:'hareket-isinma-soguma-v1.html',ico:'fa-spa'},
+    {type:'rehber',t:'Hareket Sözlüğü',sub:'HIIT, set-tekrar, core, mobilite, kardiyo terimleri',href:'hareket-sozluk-v1.html',ico:'fa-book-open'},
+    /* Antrenörler (8) → antrenorler dizini (per-kişi sayfa yok → dizine) */
+    {type:'antrenor',t:'Selin Aksoy',sub:'Güç & Kondisyon · Evde Antrenman',href:'antrenorler-v1.html',img:u('1518310383802-640c2de311b2')},
+    {type:'antrenor',t:'Derya Yıldız',sub:'Mobilite & Pilates · Postür',href:'antrenorler-v1.html',img:u('1544367567-0f2fcb009e0b')},
+    {type:'antrenor',t:'Ayşe Kaplan',sub:'Kilo Yönetimi · Başlangıç',href:'antrenorler-v1.html',img:u('1506126613408-eca07ce68773')},
+    {type:'antrenor',t:'Merve Tan',sub:'Güç & Kondisyon · Kilo Yönetimi',href:'antrenorler-v1.html',img:u('1571019613454-1cb2f99b2d8b')},
+    {type:'antrenor',t:'Zeynep Arı',sub:'Koşu & Dayanıklılık · Başlangıç',href:'antrenorler-v1.html',img:u('1538805060514-97d9cc17730c')},
+    {type:'antrenor',t:'Burak Demir',sub:'Güç & Kondisyon · Dayanıklılık',href:'antrenorler-v1.html',img:u('1567013127542-490d757e51fc')},
+    {type:'antrenor',t:'Elif Şahin',sub:'Mobilite & Pilates · Esneklik',href:'antrenorler-v1.html',img:u('1518611012118-696072aa579a')},
+    {type:'antrenor',t:'Naz Erdem',sub:'Evde Antrenman · Başlangıç',href:'antrenorler-v1.html',img:u('1541534741688-6078c6bfb5c5')},
+    /* Araçlar (2) — yalnız Tümü'de */
+    {type:'arac',t:'Enerji Defteri',sub:'Beslenme & hareket dengesi · günlük defter',href:'enerji-defteri-v1.html',ico:'fa-bolt'},
+    {type:'arac',t:'Challenge',sub:'30 günde hareket alışkanlığı · aylık challenge',href:'challenge-v1.html',ico:'fa-fire'}
+  ];
+
+  var TYPE={
+    egzersiz:{lbl:'Egzersiz',ico:'fa-dumbbell'},
+    program:{lbl:'Program',ico:'fa-calendar-week'},
+    rehber:{lbl:'Rehber',ico:'fa-book-open'},
+    antrenor:{lbl:'Antrenör',ico:'fa-user'},
+    arac:{lbl:'Araç',ico:'fa-bolt'}
+  };
+  var TABS=['tumu','egzersiz','program','rehber','antrenor'];
+
+  var trMap={'ı':'i','İ':'i','I':'i','Ş':'s','ş':'s','Ğ':'g','ğ':'g','Ü':'u','ü':'u','Ö':'o','ö':'o','Ç':'c','ç':'c','â':'a','î':'i','û':'u'};
+  function norm(s){return (s||'').replace(/[ıİIŞşĞğÜüÖöÇçâîû]/g,function(m){return trMap[m]||m;}).toLowerCase().replace(/\s+/g,' ').trim();}
+  function esc(s){return (s||'').replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
+  function hi(text,qn){
+    if(!qn)return esc(text);
+    var tn=norm(text),i=tn.indexOf(qn);
+    if(i<0)return esc(text);
+    return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+qn.length))+'</mark>'+esc(text.slice(i+qn.length));
+  }
+  function tmeta(t){return TYPE[t]||{lbl:'',ico:'fa-magnifying-glass'};}
+
+  /* ---- sonuç kartı (POOL-driven) ---- */
+  function card(r){
+    var m=tmeta(r.type);
+    var badge='<span class="fs-badge"><i class="fa-solid '+m.ico+'"></i> '+m.lbl+'</span>';
+    if(r.type==='antrenor'){
+      return '<a class="fs-card is-coach" href="'+r.href+'">'
+        +'<div class="fs-av" style="background-image:url(\''+r.img+'\')"></div>'
+        +'<div class="fs-cbody"><h4>'+esc(r.t)+'</h4><p>'+esc(r.sub)+'</p></div>'+badge+'</a>';
+    }
+    var head=r.img
+      ? '<div class="fs-media" style="background-image:url(\''+r.img+'\')">'+badge+'</div>'
+      : '<div class="fs-tile"><i class="fa-solid '+(r.ico||m.ico)+'"></i>'+badge+'</div>';
+    return '<a class="fs-card" href="'+r.href+'">'+head
+      +'<div class="fs-cbody"><h4>'+esc(r.t)+'</h4><p>'+esc(r.sub)+'</p>'
+      +'<span class="fs-cgo">İncele <i class="fa-solid fa-arrow-right"></i></span></div></a>';
+  }
+
+  var panes={}, cnts={};
+  TABS.forEach(function(n){
+    panes[n]=document.querySelector('.fs-pane[data-pane="'+n+'"]');
+    cnts[n]=document.querySelector('.cnt[data-cnt="'+n+'"]');
+  });
+  var tabbar=document.getElementById('fsTabbar');
+  var note=document.getElementById('fsCntNote');
+  var emptyEl=document.getElementById('fsEmpty');
+  var popEl=document.getElementById('fsPop');
+
+  /* ---- sonuçları POOL'dan üret ---- */
+  function renderResults(q){
+    var qn=q?norm(q):'';
+    var matched=qn?POOL.filter(function(r){return norm(r.t).indexOf(qn)>=0||norm(r.sub).indexOf(qn)>=0;}):POOL.slice();
+    var by={tumu:matched,egzersiz:[],program:[],rehber:[],antrenor:[]};
+    matched.forEach(function(r){if(by[r.type])by[r.type].push(r);});
+    TABS.forEach(function(n){
+      var arr=by[n];
+      if(cnts[n])cnts[n].textContent=arr.length;
+      if(!panes[n])return;
+      if(arr.length){
+        panes[n].innerHTML='<div class="fs-grid'+(n==='antrenor'?' is-coach':'')+'">'+arr.map(card).join('')+'</div>';
+      }else{
+        panes[n].innerHTML='<p class="fs-cnt-note" style="margin:6px 0 0">Bu türde eşleşme yok.</p>';
+      }
+    });
+    return matched.length;
+  }
+
+  /* ---- sekme geçişi ---- */
+  var tabEls=document.querySelectorAll('#fsTabbar .dt');
+  function activate(name){
+    tabEls.forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===name);});
+    TABS.forEach(function(n){if(panes[n])panes[n].hidden=n!==name;});
+  }
+  tabEls.forEach(function(t){
+    t.addEventListener('click',function(){
+      var name=t.getAttribute('data-tab');
+      activate(name);
+      var uu=new URLSearchParams(location.search);
+      if(name==='tumu')uu.delete('tab');else uu.set('tab',name);
+      history.replaceState(null,'',location.pathname+(uu.toString()?'?'+uu.toString():''));
+    });
+  });
+
+  var input=document.getElementById('fsInput');
+  var titleEl=document.getElementById('fsTitle');
+  var leadEl=document.getElementById('fsLead');
+  var sum=document.getElementById('fsSum');
+
+  /* ---- SON ARAMALAR: gerçek localStorage geçmişi (uydurma YOK; boşsa sadece Popüler) ---- */
+  var RKEY='dm_fit_recent';
+  function readRecentLS(){try{var r=JSON.parse(localStorage.getItem(RKEY)||'[]');return Array.isArray(r)?r.filter(function(x){return x&&x.q;}):[];}catch(e){return [];}}
+  function writeRecent(qq){
+    qq=(qq||'').trim();if(!qq)return;
+    try{
+      var arr=readRecentLS().filter(function(x){return norm(x.q)!==norm(qq);});
+      arr.unshift({q:qq,t:Date.now()});
+      localStorage.setItem(RKEY,JSON.stringify(arr.slice(0,6)));
+    }catch(e){}
+  }
+  function relTime(t){var d=Date.now()-(t||0),day=86400000;if(d<3600000)return 'az önce';if(d<day)return 'bugün';if(d<2*day)return 'dün';return Math.floor(d/day)+' gün önce';}
+  function renderRecent(){
+    var col=document.getElementById('fsRecentCol'),boxr=document.getElementById('fsRecent');
+    if(!boxr)return;
+    var arr=readRecentLS();
+    if(!arr.length){if(col)col.style.display='none';boxr.innerHTML='';return;}
+    if(col)col.style.display='';
+    boxr.innerHTML=arr.map(function(r){
+      return '<div class="fs-rrow" data-q="'+esc(r.q)+'"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span class="term">'+esc(r.q)+'</span><span class="cnt">'+relTime(r.t)+'</span><i class="fa-solid fa-arrow-right go" aria-hidden="true"></i></div>';
+    }).join('');
+  }
+  renderRecent();
+
+  /* ---- durum makinesi ---- */
+  var p=new URLSearchParams(location.search);
+  var q=p.get('q');
+  var tab=p.get('tab')||'tumu';
+  if(q){
+    input.value=q;
+    var total=renderResults(q);
+    if(total>0){
+      titleEl.innerHTML='&ldquo;<span class="q"></span>&rdquo; için sonuçlar';
+      titleEl.querySelector('.q').textContent=q;
+      leadEl.classList.add('is-off');
+      sum.innerHTML='<b>'+total+' sonuç</b> bulundu · <span class="q">'+esc(q)+'</span> için.';
+      note.innerHTML='Aradığın: <b>'+esc(q)+'</b> — türlere göz atmak için sekmeleri kullan.';
+      popEl.classList.add('is-off');
+      activate(tab);
+    }else{
+      titleEl.innerHTML='&ldquo;<span class="q"></span>&rdquo; için sonuç yok';
+      titleEl.querySelector('.q').textContent=q;
+      leadEl.classList.add('is-off');
+      sum.innerHTML='<b>0 sonuç</b> — yazımı kontrol et ya da önerilere göz at.';
+      tabbar.classList.add('is-off');
+      note.classList.add('is-off');
+      TABS.forEach(function(n){if(panes[n])panes[n].hidden=true;});
+      document.getElementById('fsEmptyQ').textContent=q;
+      /* boş durum popüler çipleri */
+      var ec=document.getElementById('fsEmptyChips');
+      document.querySelectorAll('#fsPopChips .chip').forEach(function(c){
+        var b=document.createElement('button');b.type='button';b.className='chip';
+        b.setAttribute('data-q',c.getAttribute('data-q'));b.textContent=c.textContent;
+        ec.appendChild(b);
+      });
+      emptyEl.classList.add('show');
+    }
+    document.title='DadaFit — Arama: '+q;
+  }else{
+    /* arama-first (Gastro paritesi): sorgu yokken kart yok — popüler + son aramalar */
+    sum.innerHTML='<span style="color:#cfe0d6">Egzersiz, program, hareket rehberi ya da antrenör — aramak için yukarıya yaz.</span>';
+    tabbar.classList.add('is-off');
+    document.getElementById('fsResults').classList.add('is-off');
+    note.classList.add('is-off');
+    document.title='DadaFit — Arama';
+  }
+
+  /* =====================================================================
+ AUTOCOMPLETE (combobox) — debounce + klavye + ARIA · aynı POOL
+ ===================================================================== */
+  (function(){
+    var box=document.getElementById('fsForm');
+    var ac=document.getElementById('fsAc');
+    var list=document.getElementById('fsAcList');
+    var status=document.getElementById('fsAcStatus');
+    if(!box||!ac||!list||!input)return;
+
+    function readPopular(){var out=[];document.querySelectorAll('#fsPop #fsPopChips .chip[data-q]').forEach(function(c){out.push(c.getAttribute('data-q'));});return out.slice(0,8);}
+    function readRecent(){return readRecentLS().map(function(r){return r.q;});}   /* localStorage geçmişi (DOM değil) */
+
+    var items=[],active=-1;
+    function render(groups){
+      items=[];active=-1;
+      var html='';
+      groups.forEach(function(g){
+        if(!g.rows.length)return;
+        html+='<div class="ac-grp" aria-hidden="true"><i class="fa-solid '+g.icon+'"></i>'+esc(g.label);
+        if(g.clear)html+='<button type="button" class="ac-clear" data-clear="1">Temizle</button>';
+        html+='</div>';
+        g.rows.forEach(function(r){
+          var idx=items.length;items.push(r);
+          var m=tmeta(r.type);
+          var icoStyle=r.img?' style="background-image:url(\''+r.img+'\');border-color:transparent"':'';
+          var icoInner=r.img?'':'<i class="fa-solid '+(r.icon||r.ico||m.ico)+'"></i>';
+          var badge=(r.type&&TYPE[r.type])?'<span class="ac-badge"><i class="fa-solid '+m.ico+'"></i>'+m.lbl+'</span>':'';
+          var sub=r.sub?'<span class="ac-sub">'+esc(r.sub)+'</span>':'';
+          html+='<div class="ac-opt'+(r.cls||'')+'" role="option" id="fs-opt-'+idx+'" data-type="'+(r.type||'q')+'" data-idx="'+idx+'" aria-selected="false">'
+              +'<span class="ac-ico"'+icoStyle+'>'+icoInner+'</span>'
+              +'<span class="ac-main"><span class="ac-ttl">'+(r.html||esc(r.t))+'</span>'+sub+'</span>'+badge+'</div>';
+        });
+      });
+      if(!groups.some(function(g){return g.rows.length;})){
+        html='<div class="ac-none">Eşleşen öneri yok — yazmaya devam et ya da <b>Enter</b> ile ara.</div>';
+      }
+      list.innerHTML=html;
+    }
+    function buildQuery(qq){
+      var qn=norm(qq);
+      var matched=POOL.filter(function(r){return norm(r.t).indexOf(qn)>=0||(r.sub&&norm(r.sub).indexOf(qn)>=0);});
+      matched.sort(function(a,b){var as=norm(a.t).indexOf(qn)===0?0:1,bs=norm(b.t).indexOf(qn)===0?0:1;return as-bs;});
+      matched=matched.slice(0,7).map(function(r){return {type:r.type,t:r.t,html:hi(r.t,qn),sub:r.sub,img:r.img,ico:r.ico,href:r.href,q:r.t};});
+      var rows=[{type:'q',cls:' ac-query',icon:'fa-magnifying-glass',t:qq,html:'<b>'+esc(qq)+'</b> için ara',sub:'Tüm sonuçları gör',q:qq}];
+      render([{label:'Arama',icon:'fa-magnifying-glass',rows:rows},{label:'Öneriler',icon:'fa-wand-magic-sparkles',rows:matched}]);
+    }
+    function buildDefault(){
+      var recent=readRecent().map(function(qq){return {type:'q',icon:'fa-clock-rotate-left',t:qq,q:qq};});
+      var pop=readPopular().map(function(qq){return {type:'q',icon:'fa-fire',t:qq,q:qq};});
+      render([{label:'Son aramalar',icon:'fa-clock-rotate-left',clear:recent.length>0,rows:recent},{label:'Popüler öneriler',icon:'fa-fire',rows:pop}]);
+    }
+    function announce(){status.textContent=items.length?(items.length+' öneri listelendi.'):'Öneri yok.';}
+    function open(){box.classList.add('ac-open');input.setAttribute('aria-expanded','true');announce();}
+    function close(){box.classList.remove('ac-open');input.setAttribute('aria-expanded','false');input.setAttribute('aria-activedescendant','');setActive(-1);}
+    function isOpen(){return box.classList.contains('ac-open');}
+    function setActive(i){
+      var opts=list.querySelectorAll('.ac-opt');
+      if(active>=0&&opts[active]){opts[active].classList.remove('is-active');opts[active].setAttribute('aria-selected','false');}
+      active=i;
+      if(i>=0&&opts[i]){opts[i].classList.add('is-active');opts[i].setAttribute('aria-selected','true');input.setAttribute('aria-activedescendant',opts[i].id);opts[i].scrollIntoView({block:'nearest'});}
+      else{input.setAttribute('aria-activedescendant','');}
+    }
+    function go(qq){location.href='arama-fit-v1.html'+(qq?'?q='+encodeURIComponent(qq):'');}
+    function choose(i){var r=items[i];if(!r)return;var qq=r.q||r.t;writeRecent(qq);if(r.href){location.href=r.href;return;}go(qq);}
+    var deb;
+    function onInput(){clearTimeout(deb);deb=setTimeout(function(){var v=input.value.trim();if(v.length>=1)buildQuery(v);else buildDefault();open();},150);}
+    input.addEventListener('input',onInput);
+    input.addEventListener('focus',function(){var v=input.value.trim();if(v.length>=1)buildQuery(v);else buildDefault();open();});
+    input.addEventListener('keydown',function(e){
+      var n=items.length;
+      if(e.key==='ArrowDown'){e.preventDefault();if(!isOpen()){onInput();return;}if(n)setActive((active+1)%n);}
+      else if(e.key==='ArrowUp'){e.preventDefault();if(n)setActive(active<=0?n-1:active-1);}
+      else if(e.key==='Enter'){if(isOpen()&&active>=0){e.preventDefault();choose(active);}}
+      else if(e.key==='Escape'){if(isOpen()){e.preventDefault();close();}}
+      else if(e.key==='Home'){if(isOpen()&&n){e.preventDefault();setActive(0);}}
+      else if(e.key==='End'){if(isOpen()&&n){e.preventDefault();setActive(n-1);}}
+    });
+    list.addEventListener('mousemove',function(e){var opt=e.target.closest('.ac-opt');if(!opt)return;var i=+opt.getAttribute('data-idx');if(i!==active)setActive(i);});
+    list.addEventListener('mousedown',function(e){
+      if(e.target.closest('[data-clear]')){e.preventDefault();try{localStorage.removeItem(RKEY);}catch(e2){}renderRecent();buildDefault();return;}
+      var opt=e.target.closest('.ac-opt');if(!opt)return;e.preventDefault();choose(+opt.getAttribute('data-idx'));
+    });
+    document.addEventListener('mousedown',function(e){if(!box.contains(e.target))close();});
+
+    var dp=new URLSearchParams(location.search);
+    if(dp.get('demo')==='1'||location.hash==='#demo'){var dq=dp.get('q');if(dq){input.value=dq;buildQuery(dq);}else buildDefault();open();var di=parseInt(dp.get('ai'),10);if(!isNaN(di))setActive(di);}
+  })();
+
+  /* form gönderimi + çip / son arama köprüleri */
+  document.getElementById('fsForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=input.value.trim();
+    if(v)writeRecent(v);
+    location.href='arama-fit-v1.html'+(v?'?q='+encodeURIComponent(v):'');
+  });
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('[data-q]');
+    if(c&&!c.closest('.ac-opt')){var dq=c.getAttribute('data-q');writeRecent(dq);location.href='arama-fit-v1.html?q='+encodeURIComponent(dq);}
+  });
+})();
+</script>
+<!-- DADAFIT-ACTIVE-NAV — aktif nav item boş-tık feedback'i (aria-current + self smooth-scroll) -->
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antrenörler — DadaMutfak Onaylı Antrenörler | DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ ANTRENÖR DİZİNİ — DadaFit Onaylı Antrenörler dizin/filtre sayfası
+ Chrome (token+topbar+header+drawer+bottom-nav+footer+modal+JS) hub'dan
+ BİREBİR taşındı (dadafit-hub-v1.html). DadaFit recolor: --tomato → #009d4f.
+ İskelet referansı egzersiz-kutuphane (sticky filtre + full-görsel kart),
+ antrenör dizinine uyarlandı. Mega menü/chrome KİLİTLİ.
+ ===================================================================== */
+
+/* =====================================================================
+ SAYFA CSS — ANTRENÖR DİZİNİ
+ İskelet egzersiz-kütüphane'den (sticky filtre rayı + full-görsel kart),
+ antrenör dizinine uyarlandı: portre kart, Onaylı rozet, Antrenör Ol CTA.
+ ===================================================================== */
+:root{
+  --fit:#009d4f;          /* DadaFit aksanı (Pantone 7482 C) */
+  --fit-deep:#007a3d;     /* hover / gradient ucu */
+  --fit-tint:#eaf6ef;     /* yumuşak yeşil yıkama */
+  --fit-line:#d8ebe0;     /* yeşil-nötr hairline */
+  --fit-bright:#34c47e;   /* koyu zeminde okunur aksan metni */
+  --fit-dark:#211E16;     /* vurgu/hero zemini */
+}
+.sec-fit .eyebrow{color:var(--fit-deep)}
+.sec-fit .eyebrow::before{background:var(--fit)}
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+
+/* ---- ÜST PANEL: koyu band + breadcrumb + başlık + arama (signature carry-over) ---- */
+.lib-top{
+  position:relative;overflow:hidden;margin-top:112px;
+  /* hub df-hero-media deseni: desatüre METİNSİZ görsel + koyu gradient overlay (metin solda okunur, görsel sağda belirir) */
+  background:
+    radial-gradient(820px 360px at 84% 14%,rgba(0,157,79,.20),transparent 62%),
+    linear-gradient(90deg,rgba(33,30,22,.94) 0%,rgba(29,26,20,.82) 46%,rgba(27,25,19,.74) 100%),
+    linear-gradient(180deg,rgba(33,30,22,0) 58%,rgba(24,22,16,.62) 100%),
+    url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16') center 30%/cover no-repeat,
+    #1b1913;
+  padding:40px 0 38px;
+}
+.lib-top .wrap{position:relative;z-index:2}
+.lib-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:18px}
+.lib-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
+.lib-crumb a:hover{color:#fff}
+.lib-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
+.lib-crumb a i.fa-house{font-size:13px;color:var(--fit-bright)}
+.lib-crumb a:hover i.fa-house{color:#fff}
+.lib-crumb .cur{color:var(--fit-bright)}
+.lib-top .eyebrow{color:var(--fit-bright)}
+.lib-top .eyebrow::before{background:var(--fit-bright)}
+.lib-top h1{color:#fff;font-size:39px;letter-spacing:-.02em;margin:14px 0 10px;max-width:680px}
+.lib-top .lib-sub{color:rgba(255,255,255,.78);font-size:15.5px;font-weight:500;max-width:560px;line-height:1.55}
+/* arama input — cam panel */
+.lib-search{
+  display:flex;align-items:center;gap:12px;margin-top:24px;max-width:520px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border-radius:var(--radius-md);padding:4px 4px 4px 18px;
+  transition:border-color .2s var(--ease),background .2s var(--ease);
+}
+.lib-search:focus-within{border-color:var(--fit-bright);background:rgba(255,255,255,.14)}
+.lib-search i{color:rgba(255,255,255,.62);font-size:15px;flex:none}
+.lib-search input{
+  flex:1;min-width:0;background:none;border:none;outline:none;
+  font-family:inherit;font-size:14.5px;font-weight:500;color:#fff;padding:11px 0;
+}
+.lib-search input::placeholder{color:rgba(255,255,255,.5)}
+.lib-search button{
+  flex:none;font-family:inherit;font-size:13.5px;font-weight:700;color:#fff;
+  background:var(--fit);border:none;border-radius:var(--radius-sm);padding:0 18px;height:42px;cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.lib-search button:hover{background:var(--fit-deep)}
+/* üst panel hızlı istatistik şeridi */
+.lib-stats{display:flex;align-items:center;gap:26px;margin-top:24px;flex-wrap:wrap}
+.lib-stat{display:flex;align-items:baseline;gap:8px}
+.lib-stat b{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.lib-stat span{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.62)}
+
+/* ---- FİLTRE RAYI (sticky) — df-fchip dili ---- */
+.lib-body{padding:32px 0 74px;background:var(--bg-white)}
+.lib-filters{
+  position:sticky;top:112px;z-index:40;
+  background:rgba(255,255,255,.92);
+  -webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:18px 20px 16px;margin-bottom:28px;box-shadow:var(--sh-sm);
+}
+.fgroup{display:flex;align-items:center;flex-wrap:nowrap;gap:9px;padding:7px 0;overflow-x:auto;scrollbar-width:thin}
+.fgroup::-webkit-scrollbar{height:5px}
+.fgroup::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.fgroup::-webkit-scrollbar-track{background:transparent}
+.fgroup+.fgroup{border-top:1px solid var(--line);margin-top:3px;padding-top:13px}
+.fgroup .lbl{
+  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);min-width:96px;flex:none;
+  position:sticky;left:0;background:#fff;z-index:2;padding-right:6px;
+}
+.df-fchip{flex:none;white-space:nowrap;font-size:13px;font-weight:600;color:var(--slate);background:var(--paper);border:1px solid var(--line);padding:9px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:.18s var(--ease);display:inline-flex;align-items:center;gap:7px}
+.df-fchip i{font-size:12px;opacity:.8}
+.df-fchip:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.df-fchip.on{border-color:var(--fit);color:#fff;background:var(--fit)}
+.df-fchip.on i{opacity:1}
+/* filtre rayı alt aksiyonu — temizle */
+.fclear{
+  margin-left:auto;font-size:12.5px;font-weight:700;color:var(--muted);
+  background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 6px;transition:color .2s var(--ease);
+}
+.fclear:hover{color:var(--fit-deep)}
+
+/* ---- SONUÇ ÇUBUĞU: sayı + sıralama ---- */
+.lib-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.lib-count{font-size:14px;font-weight:600;color:var(--slate-2)}
+.lib-count b{color:var(--slate);font-weight:800}
+.lib-sort{display:flex;align-items:center;gap:8px}
+.lib-sort .lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+.sort-seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px}
+.sort-seg button{
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate-2);
+  background:none;border:none;border-radius:var(--radius-sm);padding:8px 15px;cursor:pointer;
+  transition:.18s var(--ease);
+}
+.sort-seg button:hover{color:var(--fit-deep)}
+.sort-seg button.on{background:var(--fit);color:#fff}
+
+/* ---- ANTRENÖR KART GRID'İ — full-görsel portre kart (hub df-coach + ex-card dili) ---- */
+.lib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.coach-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.3s var(--ease);box-shadow:var(--sh-sm)}
+.coach-card:hover{transform:translateY(-6px);border-color:#dcdcdc;box-shadow:var(--sh-lg)}
+.coach-card:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+/* full-görsel portre — div+bg cover center (img YOK) */
+.coach-media{position:relative;height:268px;background-size:cover;background-position:center top}
+.coach-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 40%,rgba(18,16,11,.72))}
+/* DadaMutfak Onaylı rozeti (sol üst) — yeşil, cam */
+.coach-verify{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:var(--fit);color:#fff;font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,106,53,.34)}
+.coach-verify i{font-size:11.5px}
+/* uygunluk durumu (sağ üst) */
+.coach-status{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
+.coach-status .dot{width:7px;height:7px;border-radius:50%;background:var(--fit);display:block}
+.coach-status.busy{color:var(--slate-2)}
+.coach-status.busy .dot{background:#c4c8c4}
+/* görsel altı: isim + uzmanlık (overlay) */
+.coach-id{position:absolute;left:16px;bottom:14px;right:16px;z-index:2}
+.coach-id b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.coach-id span{display:block;color:rgba(255,255,255,.82);font-size:12.5px;font-weight:600;margin-top:3px}
+.coach-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1}
+/* etiket pill'leri */
+.coach-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm)}
+/* mini istatistik şeridi */
+.coach-meta{display:flex;align-items:center;gap:16px;font-size:12.5px;color:var(--muted);font-weight:500;margin-bottom:14px}
+.coach-meta .m{display:inline-flex;align-items:center;gap:6px}
+.coach-meta .m i{color:var(--fit-deep);font-size:12px}
+.coach-meta .m b{color:var(--slate);font-weight:800}
+.coach-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.coach-foot .price{font-size:12.5px;color:var(--muted);font-weight:500}
+.coach-foot .price b{color:var(--slate);font-weight:800;font-size:14px}
+.coach-foot .go{display:inline-flex;align-items:center;gap:7px;color:var(--fit-deep);font-weight:700;font-size:13.5px}
+.coach-foot .go i{transition:transform .2s var(--ease)}
+.coach-card:hover .coach-foot .go i{transform:translateX(3px)}
+
+/* ---- ANTRENÖR OL CTA PANELİ (diyetisyen-ol / hub join pattern) ---- */
+.coach-join{
+  position:relative;overflow:hidden;margin-top:46px;border-radius:var(--radius-xl);
+  background:
+    radial-gradient(620px 280px at 88% 0%,rgba(0,157,79,.30),transparent 64%),
+    linear-gradient(120deg,#211E16 0%,#1c1a13 52%,#143021 100%);
+  color:#fff;padding:42px 46px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:center;
+}
+.coach-join .cj-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--fit-bright);margin-bottom:13px}
+.coach-join h2{color:#fff;font-size:27px;letter-spacing:-.02em;margin-bottom:11px;max-width:560px}
+.coach-join p{color:rgba(255,255,255,.82);font-size:14.5px;font-weight:500;line-height:1.55;max-width:540px;margin-bottom:18px}
+.cj-steps{display:flex;flex-wrap:wrap;gap:10px 22px}
+.cj-step{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.9)}
+.cj-step .n{width:24px;height:24px;border-radius:50%;background:rgba(0,157,79,.22);border:1px solid rgba(52,196,126,.5);color:var(--fit-bright);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.coach-join .cj-act{display:flex;flex-direction:column;gap:11px;align-items:flex-start;min-width:210px}
+.coach-join .cj-act .btn{width:100%}
+.coach-join .cj-note{font-size:12px;color:rgba(255,255,255,.62);font-weight:500;display:inline-flex;align-items:center;gap:7px}
+.coach-join .cj-note i{color:var(--fit-bright)}
+
+/* ---- DAHA FAZLA YÜKLE ---- */
+.lib-more{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:40px}
+.lib-more .btn-more{
+  display:inline-flex;align-items:center;gap:10px;font-family:inherit;font-size:14.5px;font-weight:700;
+  color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px 30px;cursor:pointer;transition:.22s var(--ease);
+}
+.lib-more .btn-more:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
+.lib-more .btn-more i{color:var(--fit)}
+.lib-more .more-note{font-size:12.5px;font-weight:500;color:var(--muted)}
+
+/* boş durum (filtre eşleşmezse) */
+.lib-empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:54px 20px}
+.lib-empty.show{display:flex}
+.lib-empty .ico{width:62px;height:62px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:24px;margin-bottom:16px}
+.lib-empty h3{font-size:18px;margin-bottom:7px}
+.lib-empty p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:340px;margin-bottom:18px}
+
+/* ===================== SAYFA RESPONSIVE ===================== */
+@media (max-width:1024px){
+  .lib-top{margin-top:112px}
+  .lib-filters{top:112px}
+  .lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lib-top h1{font-size:33px}
+  .fgroup .lbl{min-width:88px}
+  .coach-join{grid-template-columns:1fr;gap:24px;padding:36px 32px}
+  .coach-join .cj-act{min-width:0;width:100%;max-width:320px}
+}
+@media (max-width:760px){
+  .lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .lib-top{margin-top:62px;padding:30px 0 30px}
+  .lib-top h1{font-size:27px}
+  .lib-top .lib-sub{font-size:14px}
+  .lib-search{max-width:none}
+  .lib-stats{gap:18px;margin-top:20px}
+  .lib-stat b{font-size:18px}
+  .lib-body{padding:22px 0 64px}
+  /* sticky filtre bar mobilde tek satır yatay kaydır */
+  .lib-filters{top:62px;padding:14px 14px 12px}
+  .fgroup{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:5px}
+  .fgroup::-webkit-scrollbar{display:none}
+  .fgroup .lbl{position:sticky;left:0;background:rgba(255,255,255,.96);min-width:auto;padding-right:6px;z-index:1}
+  .df-fchip{flex:none;white-space:nowrap}
+  .fclear{flex:none}
+  .lib-bar{margin-bottom:18px}
+  .lib-sort{width:100%;justify-content:space-between}
+  .sort-seg button{padding:8px 12px;font-size:12.5px}
+  .lib-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .coach-media{height:208px}
+  .coach-id b{font-size:16px}
+  .coach-body{padding:13px 14px 15px}
+  .coach-join{padding:30px 22px;margin-top:36px}
+  .coach-join h2{font-size:22px}
+}
+@media (max-width:400px){
+  .lib-grid{grid-template-columns:1fr}
+  .coach-media{height:300px}
+}
+
+/* ============ ADIM 3 — KABUK: brand-switch band (Fit, .bs-fit aktif) ============ */
+/* NOT: .bs-gastro --bs-c LİTERAL #E14827 — bu sayfada --tomato YEŞİL'e swap'lı (Fit aksanı),
+ var(--tomato) kullanılsaydı Gastro pill'i yeşil render olurdu. Diğer markalar page-bağımsız token. */
+
+</style>
+<style>
+/* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
+
+</style>
+</head>
+<body data-brand="fit" data-fit-page="antrenorler-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== ÜST PANEL: koyu band + breadcrumb + arama ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Antrenörler</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-user-check"></i> Antrenör Bul</span>
+    <h1>DadaMutfak Onaylı Antrenörler</h1>
+    <p class="lib-sub">Alanında sertifikalı, platform tarafından onaylanmış antrenörlerle çalış. Uzmanlık, çalışma şekli ve seviyene göre filtrele — sana uygun olanı seç.</p>
+    <form class="lib-search" id="libSearch" role="search" onsubmit="return false">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="libSearchInput" placeholder="Antrenör ara — isim ya da uzmanlık…" aria-label="Antrenör ara" />
+      <button type="submit">Ara</button>
+    </form>
+    <div class="lib-stats">
+      <div class="lib-stat"><b>40+</b><span>onaylı antrenör</span></div>
+      <div class="lib-stat"><b>7</b><span>uzmanlık alanı</span></div>
+      <div class="lib-stat"><b>100%</b><span>sertifika kontrolü</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SANA UYGUN ANTRENÖRÜ BUL — eşleştirme (belge §10.1) ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white);padding-bottom:0">
+  <div class="wrap">
+    <div class="fp-card">
+      <div class="fp-head">
+        <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Sana uygun antrenörü bul</h3>
+        <button class="fp-act fp-actbtn" type="button" id="mtReset"><i class="fa-solid fa-rotate-left"></i> Sıfırla</button>
+      </div>
+      <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-bottom:14px">Üç soru: neye ihtiyacın var, nasıl çalışmak istiyorsun, hangi seviyedesin? Yanıtlarına göre dizini süzeriz — eşleşme bir öneridir, karar senindir.</p>
+      <div class="fgroup" data-group="uzmanlik" role="group" aria-label="İhtiyacın">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px">İhtiyacın</span>
+        <button class="df-fchip on" type="button" data-val="all">Fark etmez</button>
+        <button class="df-fchip" type="button" data-val="guc"><i class="fa-solid fa-dumbbell"></i> Güç</button>
+        <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite</button>
+        <button class="df-fchip" type="button" data-val="kondisyon"><i class="fa-solid fa-heart-pulse"></i> Kondisyon</button>
+        <button class="df-fchip" type="button" data-val="rehab"><i class="fa-solid fa-notes-medical"></i> Ağrı / sakatlık sonrası</button>
+      </div>
+      <div class="fgroup" data-group="calisma" role="group" aria-label="Çalışma şekli">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px">Nasıl</span>
+        <button class="df-fchip on" type="button" data-val="all">Fark etmez</button>
+        <button class="df-fchip" type="button" data-val="online"><i class="fa-solid fa-video"></i> Online</button>
+        <button class="df-fchip" type="button" data-val="yuzyuze"><i class="fa-solid fa-location-dot"></i> Yüz yüze</button>
+        <button class="df-fchip" type="button" data-val="hibrit"><i class="fa-solid fa-shuffle"></i> Hibrit</button>
+      </div>
+      <div class="fgroup" data-group="seviye" role="group" aria-label="Seviyen">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px">Seviyen</span>
+        <button class="df-fchip on" type="button" data-val="all">Fark etmez</button>
+        <button class="df-fchip" type="button" data-val="yeni">Yeni başlayan</button>
+        <button class="df-fchip" type="button" data-val="orta">Düzenli hareket eden</button>
+        <button class="df-fchip" type="button" data-val="ileri">İleri</button>
+      </div>
+      <div class="hr-note" style="margin-top:18px">
+        <i class="fa-solid fa-circle-info"></i>
+        <p>"Ağrı / sakatlık sonrası" seçersen sana <b>kişisel egzersiz önerisi üretmeyiz</b>; bu alanda belgesi olan uzmanları öne çıkarır ve önce hekimine danışmanı öneririz. Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== LİSTE GÖVDE: filtre + grid ===== -->
+<section class="lib-body">
+  <div class="wrap">
+
+    <!-- FİLTRE RAYI (sticky) -->
+    <div class="lib-filters" id="libFilters">
+      <div class="fgroup" data-group="uzmanlik" role="group" aria-label="Uzmanlık filtresi">
+        <span class="lbl">Uzmanlık</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="guc"><i class="fa-solid fa-dumbbell"></i> Güç &amp; Kondisyon</button>
+        <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite &amp; Pilates</button>
+        <button class="df-fchip" type="button" data-val="evde"><i class="fa-solid fa-house"></i> Evde Antrenman</button>
+        <button class="df-fchip" type="button" data-val="kilo"><i class="fa-solid fa-scale-balanced"></i> Kilo Yönetimi</button>
+        <button class="df-fchip" type="button" data-val="baslangic"><i class="fa-solid fa-seedling"></i> Başlangıç</button>
+        <button class="df-fchip" type="button" data-val="postur"><i class="fa-solid fa-person"></i> Postür &amp; Esneklik</button>
+        <button class="df-fchip" type="button" data-val="kosu"><i class="fa-solid fa-person-running"></i> Koşu &amp; Dayanıklılık</button>
+      </div>
+      <div class="fgroup" data-group="format" role="group" aria-label="Çalışma şekli filtresi">
+        <span class="lbl">Çalışma Şekli</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="online"><i class="fa-solid fa-video"></i> Online</button>
+        <button class="df-fchip" type="button" data-val="yuzyuze"><i class="fa-solid fa-people-group"></i> Yüz yüze</button>
+        <button class="df-fchip" type="button" data-val="hibrit"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</button>
+      </div>
+      <div class="fgroup" data-group="durum" role="group" aria-label="Uygunluk filtresi">
+        <span class="lbl">Uygunluk</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="acik">Yeni danışan alıyor</button>
+        <button class="df-fchip" type="button" data-val="kadin">Kadın antrenör</button>
+        <button class="fclear" type="button" id="fClear"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
+      </div>
+    </div>
+
+    <!-- SONUÇ ÇUBUĞU -->
+    <div class="lib-bar">
+      <div class="lib-count"><b id="libCount">8</b> antrenör bulundu</div>
+      <div class="lib-sort">
+        <span class="lbl">Sırala</span>
+        <div class="sort-seg" role="group" aria-label="Sıralama">
+          <button class="on" type="button" data-sort="pop">Önerilen</button>
+          <button type="button" data-sort="yeni">Yeni</button>
+          <button type="button" data-sort="az">A-Z</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANTRENÖR GRID -->
+    <div class="lib-grid" id="libGrid">
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=selin-aksoy" data-uzmanlik="guc evde" data-format="online hibrit" data-durum="acik kadin" data-pop="98" data-name="Selin Aksoy">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Selin Aksoy</b><span>Güç &amp; Kondisyon · Evde Antrenman</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Evde antrenman</span><span>Kilo yönetimi</span><span>Başlangıç dostu</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 120 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺450</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=derya-yildiz" data-uzmanlik="mobilite postur baslangic" data-format="online yuzyuze" data-durum="acik kadin" data-pop="95" data-name="Derya Yıldız">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Derya Yıldız</b><span>Mobilite &amp; Pilates · Postür</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Esneklik</span><span>Postür</span><span>Düşük tempo</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>5.0</b> · 86 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺500</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=ayse-kaplan" data-uzmanlik="kilo baslangic evde" data-format="online" data-durum="acik kadin" data-pop="91" data-name="Ayşe Kaplan">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Ayşe Kaplan</b><span>Kilo Yönetimi · Başlangıç</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Sürdürülebilir alışkanlık</span><span>Beden-pozitif</span><span>Evde</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.8</b> · 64 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺400</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=burak-demir" data-uzmanlik="guc kilo" data-format="yuzyuze hibrit" data-durum="kadin" data-pop="86" data-name="Merve Tan">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status busy"><span class="dot"></span> Liste dolu</span>
+          <div class="coach-id"><b>Merve Tan</b><span>Güç &amp; Kondisyon · Kilo Yönetimi</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Kuvvet temeli</span><span>Form odaklı</span><span>Stüdyo</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 142 değerlendirme</span><span class="m"><i class="fa-solid fa-people-group"></i> Yüz yüze</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺550</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=ece-yalcin" data-uzmanlik="kosu baslangic" data-format="online hibrit" data-durum="acik kadin" data-pop="80" data-name="Zeynep Arı">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Zeynep Arı</b><span>Koşu &amp; Dayanıklılık · Başlangıç</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>İlk 5K</span><span>Tempo planı</span><span>Kademeli</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.7</b> · 53 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺380</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=mert-ozkan" data-uzmanlik="guc kosu" data-format="yuzyuze" data-durum="acik" data-pop="76" data-name="Burak Demir">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Burak Demir</b><span>Güç &amp; Kondisyon · Dayanıklılık</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Performans</span><span>Periyotlama</span><span>Stüdyo</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.8</b> · 98 değerlendirme</span><span class="m"><i class="fa-solid fa-people-group"></i> Yüz yüze</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺520</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=deniz-kaya" data-uzmanlik="mobilite postur" data-format="online" data-durum="acik kadin" data-pop="71" data-name="Elif Şahin">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Elif Şahin</b><span>Mobilite &amp; Pilates · Esneklik</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Masa başı dostu</span><span>Nefes &amp; core</span><span>Online</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 77 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺420</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=can-aydin" data-uzmanlik="evde baslangic kilo" data-format="online hibrit" data-durum="acik kadin" data-pop="66" data-name="Naz Erdem">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="coach-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+          <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          <div class="coach-id"><b>Naz Erdem</b><span>Evde Antrenman · Başlangıç</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Ekipmansız</span><span>15 dk rutin</span><span>Yeni başlayan</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.7</b> · 41 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
+          <div class="coach-foot"><span class="price">Seans <b>₺360</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- BOŞ DURUM -->
+    <div class="lib-empty" id="libEmpty">
+      <div class="ico"><i class="fa-solid fa-user-slash"></i></div>
+      <h3>Bu filtreyle antrenör bulamadık</h3>
+      <p>Seçimini gevşetmeyi dene — bir uzmanlık alanı ya da çalışma şeklini çıkarınca daha çok antrenör görünür.</p>
+      <button class="btn btn-fit" type="button" id="emptyReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
+    </div>
+
+    <!-- DAHA FAZLA YÜKLE -->
+    <div class="lib-more" id="libMore">
+      <button class="btn-more" type="button" id="loadMore"><i class="fa-solid fa-circle-down"></i> Daha fazla antrenör yükle</button>
+      <span class="more-note"><b id="moreSeen">8</b> / 40+ antrenör gösteriliyor</span>
+    </div>
+
+    <!-- ===== ANTRENÖR OL CTA ===== -->
+    <div class="coach-join">
+      <div>
+        <span class="cj-eyebrow"><i class="fa-solid fa-id-badge"></i> Antrenör müsün?</span>
+        <h2>Sertifikanı yükle, DadaMutfak Onaylı rozetini al</h2>
+        <p>Alanında sertifikalı antrenörsen aramıza katıl. Profilini oluştur, danışanlarınla DadaFit üzerinden buluş — beslenme tarafında diyetisyenlerle de ortak çalışabilirsin. (Diploma numarası gerekmez — geçerli sertifika yeterli.)</p>
+        <div class="cj-steps">
+          <span class="cj-step"><span class="n">1</span> Sertifikanı yükle</span>
+          <span class="cj-step"><span class="n">2</span> Ekip incelesin</span>
+          <span class="cj-step"><span class="n">3</span> Onaylı rozetini al</span>
+        </div>
+      </div>
+      <div class="cj-act">
+        <a class="btn btn-fit" href="antrenor-ol-v1.html"><i class="fa-solid fa-id-badge"></i> Antrenör Ol</a>
+        <a class="btn btn-ghost" href="antrenor-ol-v1.html" style="background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.24)">Nasıl çalışır?</a>
+        <span class="cj-note"><i class="fa-solid fa-shield-halved"></i> Her başvuru tek tek incelenir</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== SANA UYGUN ANTRENÖRÜ BUL — eşleştirme (belge §10.1) =====
+ Dizinin mevcut filtre verisini (data-uzmanlik / data-format) kullanır;
+ yeni veri alanı üretilmedi. Eşleşme bir ÖNERİDİR, dizini süzer. */
+(function(){
+  var panel=document.querySelector('.fp-card .fgroup[data-group="uzmanlik"]');
+  if(!panel)return;
+  var cards=Array.prototype.slice.call(document.querySelectorAll('.coach-card'));
+  var sel={uzmanlik:'all',calisma:'all',seviye:'all'};
+  var MAP={guc:'guc',mobilite:'mobilite',kondisyon:'kondisyon',rehab:'postur'};
+  var LVL={yeni:'baslangic',orta:'',ileri:''};
+  function apply(){
+    cards.forEach(function(c){
+      var u=(c.getAttribute('data-uzmanlik')||''), fmt=(c.getAttribute('data-format')||'');
+      var ok=true;
+      if(sel.uzmanlik!=='all') ok = ok && u.indexOf(MAP[sel.uzmanlik]||sel.uzmanlik)>-1;
+      if(sel.calisma!=='all')  ok = ok && fmt.indexOf(sel.calisma==='yuzyuze'?'yuzyuze':sel.calisma)>-1;
+      if(sel.seviye==='yeni')  ok = ok && u.indexOf('baslangic')>-1;
+      c.style.display = ok ? '' : 'none';
+    });
+  }
+  document.querySelectorAll('.fp-card .fgroup[data-group]').forEach(function(g){
+    var grp=g.getAttribute('data-group');
+    g.querySelectorAll('.df-fchip').forEach(function(b){
+      b.addEventListener('click',function(){
+        g.querySelectorAll('.df-fchip').forEach(function(x){x.classList.remove('on');});
+        b.classList.add('on');
+        sel[grp]=b.getAttribute('data-val');
+        apply();
+      });
+    });
+  });
+  document.getElementById('mtReset').addEventListener('click',function(){
+    Object.keys(sel).forEach(function(k){sel[k]='all';});
+    document.querySelectorAll('.fp-card .df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
+    apply();
+  });
+})();
+</script>
+<script>
+/* ===== SAYFA JS — ANTRENÖR DİZİNİ ===== */
+(function(){
+  var grid=document.getElementById('libGrid');
+  if(!grid)return;
+  var cards=Array.prototype.slice.call(grid.querySelectorAll('.coach-card'));
+  var filters=document.getElementById('libFilters');
+  var countEl=document.getElementById('libCount');
+  var moreSeen=document.getElementById('moreSeen');
+  var emptyEl=document.getElementById('libEmpty');
+  var moreWrap=document.getElementById('libMore');
+ // aktif seçim: her grup için Set (all = filtre yok)
+  var sel={uzmanlik:new Set(),format:new Set(),durum:new Set()};
+
+  function chipClick(group,btn){
+    var val=btn.getAttribute('data-val');
+    var groupEl=filters.querySelector('.fgroup[data-group="'+group+'"]');
+    if(val==='all'){
+      sel[group].clear();
+      groupEl.querySelectorAll('.df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
+    }else{
+ // çoklu seçim toggle; "Tümü" kapanır
+      if(sel[group].has(val)){sel[group].delete(val);btn.classList.remove('on');}
+      else{sel[group].add(val);btn.classList.add('on');}
+      var allBtn=groupEl.querySelector('.df-fchip[data-val="all"]');
+      if(sel[group].size===0){sel[group].clear();allBtn.classList.add('on');}
+      else{allBtn.classList.remove('on');}
+    }
+    apply();
+  }
+
+ // kart-token bir gruptaki seçimle kesişiyor mu? (kart çoklu etiket taşır → OR)
+  function tokenHit(card,group,attr){
+    if(!sel[group].size)return true;
+    var toks=(card.getAttribute(attr)||'').split(/\s+/);
+    for(var i=0;i<toks.length;i++){if(sel[group].has(toks[i]))return true;}
+    return false;
+  }
+
+  function matches(card){
+    if(!tokenHit(card,'uzmanlik','data-uzmanlik'))return false;
+    if(!tokenHit(card,'format','data-format'))return false;
+    if(!tokenHit(card,'durum','data-durum'))return false;
+    return true;
+  }
+
+  function apply(){
+    var shown=0;
+    cards.forEach(function(card){
+      var ok=matches(card);
+      card.style.display=ok?'':'none';
+      if(ok)shown++;
+    });
+    countEl.textContent=shown;
+    if(moreSeen)moreSeen.textContent=shown;
+    emptyEl.classList.toggle('show',shown===0);
+    if(moreWrap)moreWrap.style.display=shown===0?'none':'';
+  }
+
+  filters.querySelectorAll('.fgroup').forEach(function(g){
+    var group=g.getAttribute('data-group');
+    g.querySelectorAll('.df-fchip').forEach(function(btn){
+      btn.addEventListener('click',function(){chipClick(group,btn);});
+    });
+  });
+
+  function resetAll(){
+    Object.keys(sel).forEach(function(g){sel[g].clear();});
+    filters.querySelectorAll('.fgroup').forEach(function(g){
+      g.querySelectorAll('.df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
+    });
+    apply();
+  }
+  var fClear=document.getElementById('fClear');
+  if(fClear)fClear.addEventListener('click',resetAll);
+  var emptyReset=document.getElementById('emptyReset');
+  if(emptyReset)emptyReset.addEventListener('click',resetAll);
+
+ // sıralama
+  var sortSeg=document.querySelector('.sort-seg');
+  if(sortSeg){
+    sortSeg.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        sortSeg.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+        b.classList.add('on');
+        var mode=b.getAttribute('data-sort');
+        var arr=cards.slice();
+        if(mode==='pop')arr.sort(function(a,c){return (+c.getAttribute('data-pop'))-(+a.getAttribute('data-pop'));});
+        else if(mode==='yeni')arr.reverse();
+        else if(mode==='az')arr.sort(function(a,c){return a.getAttribute('data-name').localeCompare(c.getAttribute('data-name'),'tr');});
+        arr.forEach(function(card){grid.appendChild(card);});
+      });
+    });
+  }
+
+ // arama → kart adına göre süz (üst panel + filtre birlikte)
+  var searchInput=document.getElementById('libSearchInput');
+  if(searchInput){
+    searchInput.addEventListener('input',function(){
+      var q=searchInput.value.trim().toLocaleLowerCase('tr');
+      var shown=0;
+      cards.forEach(function(card){
+        var nameOk=!q || card.getAttribute('data-name').toLocaleLowerCase('tr').indexOf(q)>-1;
+        var ok=matches(card)&&nameOk;
+        card.style.display=ok?'':'none';
+        if(ok)shown++;
+      });
+      countEl.textContent=shown;
+      if(moreSeen)moreSeen.textContent=shown;
+      emptyEl.classList.toggle('show',shown===0);
+      if(moreWrap)moreWrap.style.display=shown===0?'none':'';
+    });
+  }
+
+ // "daha fazla yükle" — mockup: aynı kartları klonlayıp ekler (gerçekte API sayfası)
+  var loadMore=document.getElementById('loadMore');
+  if(loadMore){
+    var loaded=false;
+    loadMore.addEventListener('click',function(){
+      if(loaded){loadMore.parentElement.style.display='none';return;}
+      cards.slice(0,8).forEach(function(card){
+        var clone=card.cloneNode(true);
+        grid.appendChild(clone);
+        cards.push(clone);
+      });
+      loaded=true;
+      apply();
+      loadMore.innerHTML='<i class="fa-solid fa-check"></i> Tüm hareketler yüklendi';
+    });
+  }
+
+  apply();
+})();
+</script>
+
+
+<!-- DADAFIT-ACTIVE-NAV — aktif nav item boş-tık feedback'i (aria-current + self smooth-scroll) -->
+
+
+
+
+
+</body>
+</html>

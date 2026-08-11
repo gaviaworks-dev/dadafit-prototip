@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Selin Aksoy — DadaMutfak Onaylı Antrenör | DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ ANTRENÖR DETAY — DadaFit Onaylı Antrenör public profil sayfası
+ Chrome (token+topbar+header+drawer+bottom-nav+footer+modal+JS) antrenör
+ dizininden (antrenorler-v1.html) BİREBİR taşındı. DadaFit recolor: yeşil.
+ İskelet referansı diyetisyen-profil (hero + sticky tab + sağlık aksanı)
+ antrenör profiline UYARLANDI: koyu+yeşil gradient hero, full-görsel
+ program/antrenör kartı, beden-pozitif danışan yorumları. Aksan SADECE #009d4f.
+ ===================================================================== */
+
+.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:236px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.22s var(--ease);z-index:80}
+
+html,body{overflow-x:clip}
+
+.fb-success .ok{width:62px;height:62px;border-radius:var(--radius-circle);background:#EAF7F0;color:var(--fit-deep);display:grid;place-items:center;font-size:26px;margin:0 auto 16px}
+
+/* crumb-home (dark hero — legible fit-tint house) */
+.cp-crumb .crumb-home i{font-size:12px;color:var(--fit-bright)}
+.cp-crumb .crumb-home:hover i{color:#fff}
+
+/* =====================================================================
+ SAYFA CSS — ANTRENÖR DETAY / PUBLIC PROFİL
+ İskelet diyetisyen-profil'den (hero + sticky tab) UYARLANDI; imza DadaFit
+ dili: koyu+yeşil gradient hero, cam/blur kimlik kartı, full-görsel kart.
+ ===================================================================== */
+:root{
+  --fit:#009d4f;          /* DadaFit aksanı (Pantone 7482 C) */
+  --fit-deep:#007a3d;     /* hover / gradient ucu */
+  --fit-tint:#eaf6ef;     /* yumuşak yeşil yıkama */
+  --fit-line:#d8ebe0;     /* yeşil-nötr hairline */
+  --fit-bright:#34c47e;   /* koyu zeminde okunur aksan metni */
+  --fit-dark:#211E16;     /* vurgu/hero zemini */
+}
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+
+/* ---- RANDEVU MODALI (seans slot seçici) — apt-* deseni, DadaFit yeşili ---- */
+.apt-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:97;opacity:0;visibility:hidden;transition:opacity .25s var(--ease),visibility .25s}
+.apt-overlay.show{opacity:1;visibility:visible}
+.apt-modal{position:fixed;inset:0;z-index:98;display:grid;place-items:center;padding:20px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),visibility .25s}
+.apt-modal.show{opacity:1;visibility:visible;pointer-events:auto}
+.apt-panel{width:min(580px,100%);max-height:calc(100vh - 40px);overflow-y:auto;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--sh-lg);transform:translateY(14px);transition:transform .3s var(--ease)}
+.apt-modal.show .apt-panel{transform:translateY(0)}
+.apt-head{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.apt-av{flex:none;width:46px;height:46px;border-radius:var(--radius-circle);background-size:cover;background-position:center top}
+.apt-head h3{font-size:18px}
+.apt-head p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px;display:inline-flex;align-items:center;gap:6px}
+.apt-head p i{color:var(--fit-deep)}
+.apt-close{margin-left:auto;flex:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
+.apt-close:hover{border-color:var(--fit);color:var(--fit)}
+.apt-body{padding:22px 24px 24px}
+.apt-block+.apt-block{margin-top:22px}
+.apt-lbl{font-size:13px;font-weight:700;color:var(--slate);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.apt-lbl i{color:var(--fit-deep);font-size:12px}
+.apt-svc{display:flex;flex-direction:column;gap:8px}
+.apt-svc label{position:relative;display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:var(--radius-md);cursor:pointer;transition:.18s var(--ease)}
+.apt-svc input{position:absolute;opacity:0;pointer-events:none}
+.apt-svc label:hover{border-color:var(--fit)}
+.apt-svc .rd{flex:none;width:20px;height:20px;border-radius:var(--radius-circle);border:1.5px solid #d8d8d8;display:grid;place-items:center;transition:.18s}
+.apt-svc .rd::after{content:"";width:10px;height:10px;border-radius:var(--radius-circle);background:var(--fit);transform:scale(0);transition:.18s}
+.apt-svc input:checked~.rd{border-color:var(--fit)}
+.apt-svc input:checked~.rd::after{transform:scale(1)}
+.apt-svc input:checked~.si b{color:var(--fit-deep)}
+.apt-svc label:has(input:checked){border-color:var(--fit);background:var(--fit-tint)}
+.apt-svc .si{flex:1;min-width:0}
+.apt-svc .si b{font-size:14px;font-weight:700;color:var(--slate);display:block}
+.apt-svc .si span{font-size:12px;color:var(--muted);font-weight:500}
+.apt-svc .sp{flex:none;font-size:14px;font-weight:700;color:var(--slate)}
+.apt-days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.apt-days::-webkit-scrollbar{display:none}
+.apt-day{flex:none;min-width:66px;text-align:center;padding:11px 8px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);cursor:pointer;font-family:inherit;transition:.18s var(--ease)}
+.apt-day span{display:block;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.apt-day b{display:block;font-size:18px;color:var(--slate);font-weight:700;margin-top:3px}
+.apt-day small{display:block;font-size:10px;color:var(--fit-deep);font-weight:600;margin-top:3px}
+.apt-day:hover{border-color:var(--fit)}
+.apt-day.sel{border-color:var(--fit);background:var(--fit)}
+.apt-day.sel span,.apt-day.sel b,.apt-day.sel small{color:#fff}
+.apt-day.off{opacity:.4;pointer-events:none}
+.apt-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.apt-slot{padding:11px 0;text-align:center;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate);transition:.18s var(--ease)}
+.apt-slot:hover{border-color:var(--fit);color:var(--fit-deep)}
+.apt-slot.sel{border-color:var(--fit);background:var(--fit);color:#fff}
+.apt-slot.off{opacity:.4;pointer-events:none;text-decoration:line-through}
+.apt-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.apt-sum{font-size:12px;color:var(--muted);font-weight:500}
+.apt-sum b{display:block;font-size:15px;color:var(--slate);font-weight:700;margin-top:2px}
+.apt-confirm{flex:none}
+.apt-success{text-align:center;padding:22px 0 10px}
+.apt-success .ok{width:64px;height:64px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:27px;margin:0 auto 16px}
+.apt-success h4{font-size:19px;margin-bottom:8px}
+.apt-success p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:380px;margin:0 auto;line-height:1.6}
+
+/* ---- HERO: koyu+yeşil gradient + desatüre görsel + cam kimlik kartı ---- */
+.cp-top{
+  position:relative;overflow:hidden;margin-top:112px;
+  background:
+    radial-gradient(900px 420px at 86% 8%,rgba(0,157,79,.26),transparent 60%),
+    linear-gradient(90deg,rgba(33,30,22,.94) 0%,rgba(29,26,20,.82) 44%,rgba(27,25,19,.74) 100%),
+    linear-gradient(180deg,rgba(33,30,22,0) 54%,rgba(24,22,16,.66) 100%),
+    url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16') center 26%/cover no-repeat,
+    #1b1913;
+  padding:34px 0 44px;
+}
+.cp-top .wrap{position:relative;z-index:2}
+.cp-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:26px;flex-wrap:wrap}
+.cp-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
+.cp-crumb a:hover{color:#fff}
+.cp-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
+.cp-crumb .cur{color:var(--fit-bright)}
+
+/* kimlik kartı: portre + isim/uzmanlık/rozet + CTA → 3 kolon hizalı */
+.cp-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:30px;align-items:center}
+/* büyük portre (div+bg cover, img YOK) */
+.cp-portre{
+  position:relative;flex:none;width:186px;height:222px;border-radius:var(--radius-xl);
+  background-size:cover;background-position:center top;
+  box-shadow:0 18px 48px rgba(0,0,0,.4);border:3px solid rgba(255,255,255,.14);
+}
+.cp-portre .cp-on{position:absolute;right:13px;bottom:13px;width:18px;height:18px;border-radius:50%;background:var(--fit-bright);border:3px solid #16140e;box-shadow:0 0 0 2px rgba(52,196,126,.4)}
+.cp-id{min-width:0}
+.cp-verify{display:inline-flex;align-items:center;gap:8px;background:var(--fit);color:#fff;font-size:11.5px;font-weight:700;padding:6px 13px;border-radius:var(--radius-sm);letter-spacing:.01em;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,106,53,.4)}
+.cp-verify i{font-size:12px}
+.cp-id h1{color:#fff;font-size:40px;letter-spacing:-.02em;line-height:1.06;margin-bottom:8px}
+.cp-spec{color:rgba(255,255,255,.86);font-size:16px;font-weight:600;margin-bottom:16px}
+.cp-spec i{color:var(--fit-bright);font-size:13px;margin:0 6px}
+/* hero mini-meta: puan · danışan · yanıt */
+.cp-meta{display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap;margin-bottom:18px}
+.cp-meta .m{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.82)}
+.cp-meta .m i{color:var(--fit-bright);font-size:13px}
+.cp-meta .m .star{color:var(--yellow)}
+.cp-meta .m b{color:#fff;font-weight:800}
+.cp-meta .mdiv{width:1px;height:14px;background:rgba(255,255,255,.2)}
+/* hero etiketleri (cam chip) */
+.cp-htags{display:flex;flex-wrap:wrap;gap:8px}
+.cp-htags span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 13px;border-radius:var(--radius-sm)}
+.cp-htags span i{color:var(--fit-bright);font-size:11px}
+/* CTA kolonu — cam panel */
+.cp-cta{
+  flex:none;width:262px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:11px;
+}
+.cp-cta .cta-price{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:5px}
+.cp-cta .cta-price b{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.cp-cta .cta-price span{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.66)}
+.cp-cta .btn{width:100%}
+.cp-cta .btn-msg{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.24)}
+.cp-cta .btn-msg:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
+.cp-cta .cta-note{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:rgba(255,255,255,.66);margin-top:3px}
+.cp-cta .cta-note i{color:var(--fit-bright)}
+.cp-cta .cta-row{display:flex;gap:9px}
+.cp-cta .cta-row .btn{flex:1;padding:12px 10px}
+.cp-mini{flex:none;width:46px;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:var(--radius-md);cursor:pointer;font-size:15px;transition:.2s var(--ease)}
+.cp-mini:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+
+/* ---- STICKY SEKME ÇUBUĞU ---- */
+.cp-body{padding:0 0 74px;background:var(--bg-white)}
+.cp-tabbar{
+  position:sticky;top:112px;z-index:40;background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);
+  border-bottom:1px solid var(--line);margin-bottom:38px;
+}
+.cp-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.cp-tabs::-webkit-scrollbar{display:none}
+.cp-tab{
+  flex:none;position:relative;display:inline-flex;align-items:center;gap:9px;
+  font-family:inherit;font-size:14.5px;font-weight:700;color:var(--slate-2);
+  background:none;border:none;padding:18px 16px;cursor:pointer;white-space:nowrap;transition:color .2s var(--ease);
+}
+.cp-tab i{font-size:13px;color:var(--muted);transition:color .2s var(--ease)}
+.cp-tab .cnt{font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:var(--radius-pill)}
+.cp-tab:hover{color:var(--fit-deep)}
+.cp-tab:hover i{color:var(--fit-deep)}
+.cp-tab.active{color:var(--fit-deep)}
+.cp-tab.active i{color:var(--fit-deep)}
+.cp-tab.active .cnt{color:var(--fit-deep);background:var(--fit-tint)}
+.cp-tab.active::after{content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:3px;background:var(--fit);border-radius:3px 3px 0 0}
+
+.cp-pane{animation:fadeUp .35s var(--ease)}
+
+/* ---- HAKKINDA: ana metin + yan bilgi kartları ---- */
+.ab-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:40px;align-items:start}
+.ab-main h2{font-size:22px;margin-bottom:14px}
+.ab-main h2:not(:first-child){margin-top:34px}
+.ab-main p{font-size:15px;font-weight:500;color:var(--slate-2);line-height:1.7;margin-bottom:14px}
+.ab-spec{margin-top:4px}
+.ab-spec .chip{cursor:default}
+.ab-spec .chip:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+/* "neden farklı" yaklaşım ızgarası */
+.ab-approach{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.ap-item{display:flex;gap:13px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:17px 18px}
+.ap-item i{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.ap-item b{display:block;font-size:14.5px;color:var(--slate);font-weight:800;margin-bottom:3px}
+.ap-item span{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5}
+.ab-side{position:sticky;top:178px;display:flex;flex-direction:column;gap:16px}
+.info-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 22px}
+.info-card h4{display:flex;align-items:center;gap:9px;font-size:15.5px;margin-bottom:16px}
+.info-card h4 i{color:var(--fit-deep);font-size:15px}
+.ic-row{display:flex;gap:13px;padding:11px 0;border-top:1px solid var(--line)}
+.ic-row:first-of-type{border-top:none;padding-top:2px}
+.ic-ico{flex:none;width:34px;height:34px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:14px}
+.ic-row b{display:block;font-size:14px;color:var(--slate);font-weight:700}
+.ic-row span:not(.ic-ico){display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:1px}
+.ic-verify{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--fit-deep);margin-top:5px}
+.ic-verify i{font-size:11px}
+/* uygunluk kutusu — yan kolon vurgu */
+.avail-card{background:linear-gradient(135deg,var(--fit-tint),#f4fbf6);border:1px solid var(--fit-line);border-radius:var(--radius-lg);padding:20px 22px}
+.avail-card h4{display:flex;align-items:center;gap:9px;font-size:15.5px;margin-bottom:6px}
+.avail-card h4 i{color:var(--fit-deep)}
+.avail-card .av-state{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--fit-deep);background:#fff;border:1px solid var(--fit-line);padding:7px 13px;border-radius:var(--radius-pill);margin:8px 0 14px}
+.avail-card .av-state .dot{width:8px;height:8px;border-radius:50%;background:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.18)}
+.av-rows{display:flex;flex-direction:column;gap:10px}
+.av-rows .avr{display:flex;align-items:center;gap:11px;font-size:13.5px;font-weight:600;color:var(--slate-2)}
+.av-rows .avr i{flex:none;width:18px;text-align:center;color:var(--fit-deep);font-size:13px}
+.av-rows .avr b{color:var(--slate);font-weight:700}
+
+/* ---- PROGRAMLAR: full-görsel kart (div+bg cover) ---- */
+.prog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.prog-media{position:relative;height:188px;background-size:cover;background-position:center}
+.prog-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 42%,rgba(18,16,11,.74))}
+.prog-level{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:var(--fit);color:#fff;font-size:11px;font-weight:700;padding:5px 11px;border-radius:var(--radius-sm)}
+.prog-dur{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:5px 11px;border-radius:var(--radius-sm)}
+.prog-dur i{color:var(--fit-deep);font-size:11px}
+.prog-title{position:absolute;left:15px;right:15px;bottom:13px;z-index:2;color:#fff;font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.22}
+.prog-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1}
+.prog-body p{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.55;margin-bottom:14px}
+.prog-feats{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.prog-feats span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm)}
+.prog-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.prog-foot .price{font-size:12.5px;color:var(--muted);font-weight:500}
+.prog-foot .price b{color:var(--slate);font-weight:800;font-size:14.5px}
+.prog-foot .go{display:inline-flex;align-items:center;gap:7px;color:var(--fit-deep);font-weight:700;font-size:13.5px}
+.prog-foot .go i{transition:transform .2s var(--ease)}
+.prog-card:hover .prog-foot .go i{transform:translateX(3px)}
+
+/* ---- YORUMLAR: özet + kapsayıcı yorum kartları ---- */
+.rev-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:34px;align-items:start}
+.rev-summary{position:sticky;top:178px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:24px}
+.rev-score{display:flex;align-items:baseline;gap:8px}
+.rev-score b{font-size:48px;font-weight:800;color:var(--slate);letter-spacing:-.02em;line-height:1}
+.rev-score span{font-size:16px;color:var(--muted);font-weight:600}
+.rev-stars{color:var(--yellow);font-size:15px;margin:8px 0 4px;letter-spacing:2px}
+.rev-count{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:18px}
+.rev-bars{display:flex;flex-direction:column;gap:8px}
+.rev-bar{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--muted)}
+.rev-bar .lbl{width:30px;flex:none;color:var(--slate-2)}
+.rev-bar .track{flex:1;height:7px;background:var(--bg);border-radius:var(--radius-pill);overflow:hidden}
+.rev-bar .fill{height:100%;background:var(--fit);border-radius:var(--radius-pill)}
+.rev-bar .pct{width:34px;flex:none;text-align:right}
+.rev-tagline{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--slate-2);font-weight:500;line-height:1.55}
+.rev-tagline b{color:var(--fit-deep);font-weight:800}
+/* yorum kartları */
+.rev-list{display:flex;flex-direction:column;gap:16px}
+.rev-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 22px}
+.rev-top{display:flex;align-items:center;gap:13px;margin-bottom:13px}
+.rev-ava{flex:none;width:46px;height:46px;border-radius:var(--radius-circle);background-size:cover;background-position:center}
+.rev-who{min-width:0;flex:1}
+.rev-who b{display:block;font-size:14.5px;color:var(--slate);font-weight:700}
+.rev-who span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.rev-when{flex:none;font-size:12px;color:var(--muted);font-weight:500}
+.rev-rate{color:var(--yellow);font-size:13px;letter-spacing:2px;margin-bottom:9px}
+.rev-card p{font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.66}
+.rev-result{display:inline-flex;align-items:center;gap:8px;margin-top:13px;font-size:12px;font-weight:700;color:var(--fit-deep);background:var(--fit-tint);border:1px solid var(--fit-line);padding:6px 12px;border-radius:var(--radius-sm)}
+.rev-result i{font-size:11px}
+.rev-more{display:flex;justify-content:center;margin-top:8px}
+.rev-more .btn-more{display:inline-flex;align-items:center;gap:10px;font-family:inherit;font-size:14px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 26px;cursor:pointer;transition:.2s var(--ease)}
+.rev-more .btn-more:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
+.rev-more .btn-more i{color:var(--fit)}
+
+/* ---- BENZER ANTRENÖRLER ŞERİDİ — full-görsel portre kart ---- */
+.sim-sec{background:var(--bg);padding:54px 0 64px}
+.sim-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.sim-card{position:relative;display:block;border-radius:var(--radius-lg);overflow:hidden;height:280px;cursor:pointer;box-shadow:var(--sh-sm);transition:.3s var(--ease)}
+.sim-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+.sim-card:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.sim-media{position:absolute;inset:0;background-size:cover;background-position:center top}
+.sim-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 38%,rgba(16,14,9,.82))}
+.sim-verify{position:absolute;top:11px;left:11px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:var(--fit);color:#fff;font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:var(--radius-sm)}
+.sim-id{position:absolute;left:15px;right:15px;bottom:14px;z-index:2}
+.sim-id b{display:block;color:#fff;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.sim-id span{display:block;color:rgba(255,255,255,.82);font-size:12px;font-weight:600;margin-top:3px}
+.sim-id .sim-rate{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:12px;font-weight:700;color:#fff}
+.sim-id .sim-rate i{color:var(--yellow);font-size:11px}
+
+/* ---- ALT CTA BANDI (danışan ol) ---- */
+.cp-cta-band{
+  position:relative;overflow:hidden;margin-top:46px;border-radius:var(--radius-xl);
+  background:
+    radial-gradient(620px 280px at 88% 0%,rgba(0,157,79,.30),transparent 64%),
+    linear-gradient(120deg,#211E16 0%,#1c1a13 52%,#143021 100%);
+  color:#fff;padding:42px 46px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:center;
+}
+.cp-cta-band .cb-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--fit-bright);margin-bottom:13px}
+.cp-cta-band h2{color:#fff;font-size:27px;letter-spacing:-.02em;margin-bottom:11px;max-width:560px}
+.cp-cta-band p{color:rgba(255,255,255,.82);font-size:14.5px;font-weight:500;line-height:1.55;max-width:540px;margin-bottom:0}
+.cp-cta-band .cb-act{display:flex;flex-direction:column;gap:11px;align-items:flex-start;min-width:220px}
+.cp-cta-band .cb-act .btn{width:100%}
+.cp-cta-band .cb-act .btn-line{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+.cp-cta-band .cb-act .btn-line:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
+.cp-cta-band .cb-note{font-size:12px;color:rgba(255,255,255,.62);font-weight:500;display:inline-flex;align-items:center;gap:7px}
+.cp-cta-band .cb-note i{color:var(--fit-bright)}
+
+/* ===================== SAYFA RESPONSIVE ===================== */
+@media (max-width:1024px){
+  .cp-top{margin-top:112px}
+  .cp-tabbar{top:112px}
+  .cp-head{grid-template-columns:auto minmax(0,1fr);gap:24px 28px}
+  .cp-cta{grid-column:1/-1;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}
+  .cp-cta .cta-price{flex:1 1 100%;margin-bottom:0}
+  .cp-cta .btn{width:auto;flex:1}
+  .cp-cta .cta-row{flex:1 1 100%}
+  .cp-cta .cta-note{flex:1 1 100%}
+  .ab-grid{grid-template-columns:1fr}
+  .ab-side{position:static}
+  .ab-approach{grid-template-columns:1fr}
+  .prog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rev-layout{grid-template-columns:1fr}
+  .rev-summary{position:static}
+  .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cp-cta-band{grid-template-columns:1fr;gap:24px;padding:36px 32px}
+  .cp-cta-band .cb-act{min-width:0;width:100%;max-width:340px}
+}
+@media (max-width:640px){
+  .cp-top{margin-top:62px;padding:26px 0 34px}
+  .cp-head{grid-template-columns:1fr;justify-items:center;text-align:center;gap:18px}
+  .cp-portre{width:150px;height:182px}
+  .cp-verify{margin:0 auto 13px}
+  .cp-id h1{font-size:29px}
+  .cp-spec{font-size:14.5px}
+  .cp-meta{justify-content:center}
+  .cp-htags{justify-content:center}
+  .cp-cta{flex-direction:column}
+  .cp-cta .cta-price{justify-content:space-between}
+  .cp-cta .btn,.cp-cta .cta-row{width:100%}
+  .cp-tabbar{top:62px}
+  .cp-tab{padding:15px 13px;font-size:13.5px}
+  .cp-body{padding-bottom:60px}
+  .prog-grid{grid-template-columns:1fr}
+  .sim-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .sim-card{height:230px}
+  .rev-summary{padding:20px}
+  .cp-cta-band{padding:30px 22px}
+  .cp-cta-band h2{font-size:22px}
+  .apt-slots{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:400px){
+  .sim-grid{grid-template-columns:1fr}
+  .sim-card{height:280px}
+}
+</style>
+<style>
+/* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
+
+</style>
+</head>
+<body data-brand="fit" data-fit-page="antrenor-detay-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== HERO: KİMLİK KARTI ===== -->
+<section class="cp-top">
+  <div class="wrap">
+    <nav class="cp-crumb rd-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="antrenorler-v1.html">Antrenörler</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur" data-at="ad">Selin Aksoy</span>
+    </nav>
+
+    <div class="cp-head">
+      <div class="cp-portre" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+        <span class="cp-on" title="Şu an müsait"></span>
+      </div>
+      <div class="cp-id">
+        <span class="cp-verify"><i class="fa-solid fa-shield-check"></i> DadaMutfak Onaylı · Sertifikalı</span>
+        <h1 data-at="ad">Selin Aksoy</h1>
+        <p class="cp-spec">Güç &amp; Kondisyon <i class="fa-solid fa-circle"></i> Evde Antrenman</p>
+        <div class="cp-meta">
+          <span class="m"><i class="fa-solid fa-star star"></i> <b>4.9</b> · 120 değerlendirme</span>
+          <span class="mdiv"></span>
+          <span class="m"><i class="fa-solid fa-user-group"></i> <b>180+</b> danışan</span>
+          <span class="mdiv"></span>
+          <span class="m"><i class="fa-solid fa-bolt"></i> Genelde <b>3 saat</b> içinde yanıtlar</span>
+        </div>
+        <div class="cp-htags">
+          <span><i class="fa-solid fa-house"></i> Evde antrenman</span>
+          <span><i class="fa-solid fa-scale-balanced"></i> Kilo yönetimi</span>
+          <span><i class="fa-solid fa-seedling"></i> Başlangıç dostu</span>
+          <span><i class="fa-solid fa-heart"></i> Beden-pozitif</span>
+        </div>
+      </div>
+      <div class="cp-cta">
+        <div class="cta-price"><b>₺450</b><span>seans başı</span></div>
+        <button class="btn btn-fit" id="ctaBook" type="button"><i class="fa-solid fa-calendar-check"></i> Randevu Al</button>
+        <button class="btn btn-msg" id="ctaClient" type="button"><i class="fa-solid fa-user-plus"></i> Danışan Ol</button>
+        <div class="cta-row">
+          <button class="btn btn-msg" id="ctaMsg" type="button"><i class="fa-regular fa-comment"></i> Mesaj Gönder</button>
+          <button class="cp-mini" id="ctaSave" type="button" aria-label="Antrenörü kaydet"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+        <span class="cta-note"><i class="fa-solid fa-circle-check"></i> İlk 15 dk tanışma görüşmesi ücretsiz</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GÖVDE: STICKY SEKME + PANELLER ===== -->
+<section class="cp-body">
+
+  <!-- STICKY SEKME ÇUBUĞU -->
+  <div class="cp-tabbar">
+    <div class="wrap">
+      <div class="cp-tabs" role="tablist" aria-label="Antrenör profili bölümleri">
+        <button class="cp-tab active" type="button" data-tab="hakkinda"><i class="fa-solid fa-user"></i> Hakkında</button>
+        <button class="cp-tab" type="button" data-tab="programlar"><i class="fa-solid fa-dumbbell"></i> Antrenörün Programları <span class="cnt">3</span></button>
+        <button class="cp-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ===== HAKKINDA ===== -->
+    <div class="cp-pane" data-pane="hakkinda">
+      <div class="ab-grid">
+        <div class="ab-main">
+          <h2>Çalışma şeklim</h2>
+          <p>Antrenman, kendini kötü hissettiren bir ceza değil; hayatına oturan bir alışkanlık olmalı. Danışanlarımla önce hedefini, günlük rutinini ve evindeki imkanları konuşuyoruz — pahalı ekipman ya da spor salonu üyeliği şart değil. Sonra haftalık olarak güncellenen, sürdürülebilir ve senin tempona uygun bir plan kuruyoruz.</p>
+          <p>Her bedeni olduğu yerden alıp ileriye taşımaya inanıyorum. İlk görüşmede hareket geçmişini, varsa sakatlıklarını ve neyi keyifle yaptığını dinliyorum; plan oradan şekilleniyor. Tartı tek ölçüt değil — enerji, uyku ve nasıl hissettiğin de takip ettiğimiz şeyler.</p>
+
+          <h2>Uzmanlık alanlarım</h2>
+          <div class="ab-spec chips">
+            <span class="chip">Güç &amp; Kondisyon</span>
+            <span class="chip">Evde Antrenman</span>
+            <span class="chip">Kilo Yönetimi</span>
+            <span class="chip">Başlangıç Seviyesi</span>
+            <span class="chip">Ekipmansız Çalışma</span>
+            <span class="chip">Alışkanlık Kurma</span>
+          </div>
+
+          <h2>Beni farklı kılan</h2>
+          <div class="ab-approach">
+            <div class="ap-item"><i class="fa-solid fa-arrows-rotate"></i><div><b>Haftalık revizyon</b><span>Plan, ilerlemene ve geri bildirimine göre her hafta yeniden ayarlanır.</span></div></div>
+            <div class="ap-item"><i class="fa-solid fa-house"></i><div><b>Evinde çalış</b><span>Salon gerekmez — vücut ağırlığı ve evindeki birkaç eşya yeterli.</span></div></div>
+            <div class="ap-item"><i class="fa-solid fa-comments"></i><div><b>Seans arası destek</b><span>Sorularına mesajla genelde 3 saat içinde dönüş yaparım.</span></div></div>
+            <div class="ap-item"><i class="fa-solid fa-heart"></i><div><b>Beden-pozitif yaklaşım</b><span>Karşılaştırma değil, kendi ilerlemen. Herkesi olduğu yerden kabul ederim.</span></div></div>
+          </div>
+        </div>
+
+        <aside class="ab-side">
+          <div class="avail-card">
+            <h4><i class="fa-solid fa-circle-check"></i> Uygunluk</h4>
+            <span class="av-state"><span class="dot"></span> Yeni danışan alıyor</span>
+            <div class="av-rows">
+              <div class="avr"><i class="fa-solid fa-video"></i> <span><b>Online</b> &amp; hibrit çalışma</span></div>
+              <div class="avr"><i class="fa-solid fa-location-dot"></i> <span>İstanbul · yüz yüze (Kadıköy)</span></div>
+              <div class="avr"><i class="fa-solid fa-clock"></i> <span>Hafta içi 09:00–20:00</span></div>
+              <div class="avr"><i class="fa-solid fa-bolt"></i> <span>Yanıt süresi <b>~3 saat</b></span></div>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <h4><i class="fa-solid fa-certificate"></i> Sertifikalar &amp; Belgeler</h4>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-graduation-cap"></i></span><div><b>Marmara Üniversitesi</b><span>Spor Bilimleri (Lisans)</span></div></div>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-certificate"></i></span><div><b>NASM Kişisel Antrenörlük</b><span>Sertifika · 2017</span></div></div>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-id-card"></i></span><div><b>Sertifika doğrulama</b><span>DadaMutfak ekibi tarafından incelendi</span><span class="ic-verify"><i class="fa-solid fa-circle-check"></i> DadaMutfak Onaylı</span></div></div>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-language"></i></span><div><b>Diller</b><span>Türkçe, İngilizce</span></div></div>
+          </div>
+
+          <div class="info-card">
+            <h4><i class="fa-solid fa-circle-info"></i> Hızlı Bilgi</h4>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-briefcase"></i></span><div><b>Deneyim</b><span>8 yıl antrenörlük</span></div></div>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-user-group"></i></span><div><b>Danışan</b><span>180+ kişiyle çalıştı</span></div></div>
+            <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-utensils"></i></span><div><b>Birlikte çalışma</b><span>Beslenme için DadaMutfak diyetisyenleriyle ortak plan</span></div></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ===== PROGRAMLAR ===== -->
+    <div class="cp-pane" data-pane="programlar" hidden>
+      <div class="sec-head"><div>
+        <span class="eyebrow"><i class="fa-solid fa-dumbbell"></i> Selin'in Programları</span>
+        <h2>Sunduğu programlar &amp; seanslar</h2>
+        <div class="sec-tools"><a class="see-all" href="program-liste-v1.html">Tüm Programlar <i class="fa-solid fa-arrow-right"></i></a></div>
+        <p class="lead">Her program seviyene göre uyarlanır — başlamadan önce ücretsiz tanışma görüşmesinde birlikte karar veririz.</p>
+      </div></div>
+
+      <div class="prog-grid">
+        <a class="prog-card" href="program-detay-v1.html">
+          <div class="prog-media" style="background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+            <span class="prog-level"><i class="fa-solid fa-seedling"></i> Başlangıç</span>
+            <span class="prog-dur"><i class="fa-solid fa-calendar-day"></i> 6 hafta</span>
+            <h3 class="prog-title">Evde İlk Adım: Ekipmansız Güç</h3>
+          </div>
+          <div class="prog-body">
+            <p>Salona gitmeden, evinde vücut ağırlığıyla temel kuvvet ve hareket alışkanlığı kur.</p>
+            <div class="prog-feats"><span>Haftada 3 gün</span><span>20–30 dk</span><span>Ekipmansız</span></div>
+            <div class="prog-foot"><span class="price">Paket <b>₺2.400</b></span><span class="go">Programı Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          </div>
+        </a>
+
+        <a class="prog-card" href="program-detay-v1.html">
+          <div class="prog-media" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+            <span class="prog-level"><i class="fa-solid fa-fire"></i> Orta</span>
+            <span class="prog-dur"><i class="fa-solid fa-calendar-day"></i> 8 hafta</span>
+            <h3 class="prog-title">Sürdürülebilir Kilo Yönetimi</h3>
+          </div>
+          <div class="prog-body">
+            <p>Tempolu kardiyo ile kuvveti dengeleyen, günlük hayata oturan bir hareket düzeni.</p>
+            <div class="prog-feats"><span>Haftada 4 gün</span><span>30–40 dk</span><span>Online takip</span></div>
+            <div class="prog-foot"><span class="price">Paket <b>₺3.200</b></span><span class="go">Programı Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          </div>
+        </a>
+
+        <a class="prog-card" href="program-detay-v1.html">
+          <div class="prog-media" style="background-image:url('https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+            <span class="prog-level"><i class="fa-solid fa-user-check"></i> Birebir</span>
+            <span class="prog-dur"><i class="fa-solid fa-calendar-day"></i> Aylık</span>
+            <h3 class="prog-title">Birebir Online Antrenörlük</h3>
+          </div>
+          <div class="prog-body">
+            <p>Tamamen sana özel plan, haftalık görüntülü seans ve seans arası mesajla sürekli destek.</p>
+            <div class="prog-feats"><span>4 seans / ay</span><span>Kişiye özel</span><span>Sınırsız mesaj</span></div>
+            <div class="prog-foot"><span class="price">Aylık <b>₺4.800</b></span><span class="go">Programı Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== DANIŞAN YORUMLARI ===== -->
+    <div class="cp-pane" data-pane="yorumlar" hidden>
+      <div class="rev-layout">
+        <aside class="rev-summary">
+          <div class="rev-score"><b>4.9</b><span>/ 5</span></div>
+          <div class="rev-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <div class="rev-count">120 danışan değerlendirmesi</div>
+          <div class="rev-bars">
+            <div class="rev-bar"><span class="lbl">5★</span><span class="track"><span class="fill" style="width:88%"></span></span><span class="pct">88%</span></div>
+            <div class="rev-bar"><span class="lbl">4★</span><span class="track"><span class="fill" style="width:9%"></span></span><span class="pct">9%</span></div>
+            <div class="rev-bar"><span class="lbl">3★</span><span class="track"><span class="fill" style="width:2%"></span></span><span class="pct">2%</span></div>
+            <div class="rev-bar"><span class="lbl">2★</span><span class="track"><span class="fill" style="width:1%"></span></span><span class="pct">1%</span></div>
+            <div class="rev-bar"><span class="lbl">1★</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="pct">0%</span></div>
+          </div>
+          <p class="rev-tagline">Danışanların <b>%96'sı</b> Selin'i bir arkadaşına önereceğini söylüyor.</p>
+        </aside>
+
+        <div class="rev-list">
+          <article class="rev-card">
+            <div class="rev-top">
+              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
+              <div class="rev-who"><b>Pınar G.</b><span>4 aydır birlikte çalışıyor</span></div>
+              <span class="rev-when">2 hafta önce</span>
+            </div>
+            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>Spor salonuna adım atmaya çekinen biriydim. Selin her şeyi evimde, kendi tempomda yapabileceğim şekilde kurdu. Hiç yargılanmadığımı hissettim — bu benim için en önemlisiydi.</p>
+            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Düzenli hareket alışkanlığı kurdu</span>
+          </article>
+
+          <article class="rev-card">
+            <div class="rev-top">
+              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
+              <div class="rev-who"><b>Mert A.</b><span>6 aydır birlikte çalışıyor</span></div>
+              <span class="rev-when">1 ay önce</span>
+            </div>
+            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>Masa başı işten dolayı sürekli yorgundum. Plan her hafta yenileniyor, sıkılmama izin vermiyor. Mesaj attığımda hep hızlı dönüyor; kendimi yalnız hissetmedim.</p>
+            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Enerji ve uyku düzeni iyileşti</span>
+          </article>
+
+          <article class="rev-card">
+            <div class="rev-top">
+              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
+              <div class="rev-who"><b>Elif D.</b><span>3 aydır birlikte çalışıyor</span></div>
+              <span class="rev-when">1 ay önce</span>
+            </div>
+            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>Daha önce denediğim her şey beni kötü hissettirip bırakmama neden olmuştu. Selin'in beden-pozitif yaklaşımı sayesinde ilk kez tartı yerine kendime odaklandım. Diyetisyeniyle de beraber çalışması büyük artı.</p>
+            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Beslenme ve hareketi birlikte dengeledi</span>
+          </article>
+
+          <div class="rev-more">
+            <button class="btn-more" type="button" id="revMore"><i class="fa-solid fa-circle-down"></i> Daha fazla yorum göster</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ALT CTA BANDI ===== -->
+    <div class="cp-cta-band">
+      <div>
+        <span class="cb-eyebrow"><i class="fa-solid fa-user-plus"></i> Birlikte başlayalım</span>
+        <h2>Selin ile çalışmaya hazır mısın?</h2>
+        <p>İlk 15 dakikalık tanışma görüşmesi ücretsiz. Hedefini anlat, sana uygun olup olmadığımıza birlikte karar verelim — baskı yok, taahhüt yok.</p>
+      </div>
+      <div class="cb-act">
+        <button class="btn btn-fit" type="button" id="bandClient" data-lg-gate data-lg-title="Danışan olmak için giriş yap" data-lg-desc="Bu antrenörle çalışmaya başlamak ve planını oluşturmak için hesabına giriş yap."><i class="fa-solid fa-user-plus"></i> Danışan Ol</button>
+        <button class="btn btn-line" type="button" id="bandMsg" data-lg-gate data-lg-title="Mesaj göndermek için giriş yap" data-lg-desc="Antrenöre mesaj gönderebilmek için hesabına giriş yap."><i class="fa-regular fa-comment"></i> Mesaj Gönder</button>
+        <span class="cb-note"><i class="fa-solid fa-shield-halved"></i> DadaMutfak Onaylı · sertifikası doğrulandı</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== BENZER ANTRENÖRLER ===== -->
+<section class="sim-sec">
+  <div class="wrap">
+    <div class="sec-head"><div>
+      <span class="eyebrow"><i class="fa-solid fa-users"></i> Benzer Antrenörler</span>
+      <h2>Sana uygun olabilecek diğer antrenörler</h2>
+      <div class="sec-tools"><a class="see-all" href="antrenorler-v1.html">Tüm Antrenörler <i class="fa-solid fa-arrow-right"></i></a></div>
+      <p class="lead">Evde antrenman ve kilo yönetimi alanında çalışan, DadaMutfak onaylı diğer antrenörler.</p>
+    </div></div>
+
+    <div class="sim-grid">
+      <a class="sim-card" href="profil-v1.html?role=antrenor&view=public">
+        <div class="sim-media" style="background-image:url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
+        <span class="sim-verify"><i class="fa-solid fa-shield-check"></i> Onaylı</span>
+        <div class="sim-id"><b>Ayşe Kaplan</b><span>Kilo Yönetimi · Başlangıç</span><span class="sim-rate"><i class="fa-solid fa-star"></i> 4.8 · 64 değerlendirme</span></div>
+      </a>
+      <a class="sim-card" href="profil-v1.html?role=antrenor&view=public">
+        <div class="sim-media" style="background-image:url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
+        <span class="sim-verify"><i class="fa-solid fa-shield-check"></i> Onaylı</span>
+        <div class="sim-id"><b>Naz Erdem</b><span>Evde Antrenman · Başlangıç</span><span class="sim-rate"><i class="fa-solid fa-star"></i> 4.7 · 41 değerlendirme</span></div>
+      </a>
+      <a class="sim-card" href="profil-v1.html?role=antrenor&view=public">
+        <div class="sim-media" style="background-image:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
+        <span class="sim-verify"><i class="fa-solid fa-shield-check"></i> Onaylı</span>
+        <div class="sim-id"><b>Derya Yıldız</b><span>Mobilite &amp; Pilates · Postür</span><span class="sim-rate"><i class="fa-solid fa-star"></i> 5.0 · 86 değerlendirme</span></div>
+      </a>
+      <a class="sim-card" href="profil-v1.html?role=antrenor&view=public">
+        <div class="sim-media" style="background-image:url('https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
+        <span class="sim-verify"><i class="fa-solid fa-shield-check"></i> Onaylı</span>
+        <div class="sim-id"><b>Zeynep Arı</b><span>Koşu &amp; Dayanıklılık · Başlangıç</span><span class="sim-rate"><i class="fa-solid fa-star"></i> 4.7 · 53 değerlendirme</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Public → operatör paneli girişi (envanter: panele public taraftan link YOKTU) -->
+<div class="wrap" style="margin:0 0 28px">
+  <div class="hr-note" style="margin-top:0">
+    <i class="fa-solid fa-id-badge"></i>
+    <p>Bu profil sana mı ait? <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/antrenor-panel-v1.html">Antrenör Paneli'ne git</a> — danışanların, takvimin, randevuların ve kazancın orada. Antrenör olmak istiyorsan <a href="antrenor-ol-v1.html">başvuru formu burada</a>.</p>
+  </div>
+</div>
+
+</main><!-- /.page-main -->
+
+<!-- ===== RANDEVU MODALI (seans slot seçici) ===== -->
+<div class="apt-overlay" id="aptOverlay"></div>
+<div class="apt-modal" id="aptModal" role="dialog" aria-modal="true" aria-label="Randevu Al">
+  <div class="apt-panel">
+    <div class="apt-head">
+      <div class="apt-av" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=300&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
+      <div>
+        <h3>Randevu Al</h3>
+        <p><i class="fa-solid fa-circle-check"></i> Selin Aksoy · DadaFit Onaylı Antrenör</p>
+      </div>
+      <button class="apt-close" id="aptClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="apt-body" id="aptBody">
+      <div class="apt-block">
+        <div class="apt-lbl"><i class="fa-solid fa-dumbbell"></i> Seans türü</div>
+        <div class="apt-svc" id="aptSvc">
+          <label><input type="radio" name="svc" data-price="450" checked /><span class="rd"></span><span class="si"><b>Birebir Seans</b><span>60 dk · görüntülü, kişiye özel</span></span><span class="sp">₺450</span></label>
+          <label><input type="radio" name="svc" data-price="1600" /><span class="rd"></span><span class="si"><b>Aylık Paket</b><span>4 seans / ay · haftalık takip</span></span><span class="sp">₺1.600</span></label>
+          <label><input type="radio" name="svc" data-price="0" /><span class="rd"></span><span class="si"><b>Tanışma Görüşmesi</b><span>15 dk · hedef belirleme</span></span><span class="sp">Ücretsiz</span></label>
+        </div>
+      </div>
+      <div class="apt-block">
+        <div class="apt-lbl"><i class="fa-solid fa-calendar-days"></i> Gün seç</div>
+        <div class="apt-days">
+            <button class="apt-day" type="button" data-day="Sal 17"><span>Sal</span><b>17</b><small>3 slot</small></button>
+            <button class="apt-day sel" type="button" data-day="Çar 18"><span>Çar</span><b>18</b><small>5 slot</small></button>
+            <button class="apt-day" type="button" data-day="Per 19"><span>Per</span><b>19</b><small>2 slot</small></button>
+            <button class="apt-day off" type="button" data-day="Cum 20"><span>Cum</span><b>20</b><small>—</small></button>
+            <button class="apt-day" type="button" data-day="Cmt 21"><span>Cmt</span><b>21</b><small>6 slot</small></button>
+            <button class="apt-day" type="button" data-day="Paz 22"><span>Paz</span><b>22</b><small>4 slot</small></button>
+            <button class="apt-day" type="button" data-day="Pzt 23"><span>Pzt</span><b>23</b><small>5 slot</small></button>
+        </div>
+      </div>
+      <div class="apt-block">
+        <div class="apt-lbl"><i class="fa-solid fa-clock"></i> Saat seç</div>
+        <div class="apt-slots">
+            <button class="apt-slot" type="button" data-slot="07:30">07:30</button>
+            <button class="apt-slot" type="button" data-slot="09:00">09:00</button>
+            <button class="apt-slot off" type="button" data-slot="10:30">10:30</button>
+            <button class="apt-slot" type="button" data-slot="12:00">12:00</button>
+            <button class="apt-slot" type="button" data-slot="13:30">13:30</button>
+            <button class="apt-slot off" type="button" data-slot="15:00">15:00</button>
+            <button class="apt-slot" type="button" data-slot="17:30">17:30</button>
+            <button class="apt-slot" type="button" data-slot="19:00">19:00</button>
+            <button class="apt-slot" type="button" data-slot="20:30">20:30</button>
+        </div>
+      </div>
+      <div class="apt-foot">
+        <div class="apt-sum">Seçilen<b id="aptSum">Birebir Seans · ₺450</b></div>
+        <button class="btn btn-fit apt-confirm" id="aptConfirm" type="button"><i class="fa-solid fa-check"></i> Randevuyu Onayla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== FAZ 4 — antrenör slug + randevu yaşam döngüsü (belge §10.2 · §11 · §13) ===== */
+(function(){
+  var VERI = {
+    'selin-aksoy':{ad:'Selin Aksoy',  unvan:'Egzersiz ve spor bilimleri uzmanı', fiyat:'₺450'},
+    'burak-demir':{ad:'Burak Demir',  unvan:'Kuvvet ve kondisyon antrenörü',     fiyat:'₺520'},
+    'ece-yalcin' :{ad:'Ece Yalçın',   unvan:'Mobilite ve postür uzmanı',          fiyat:'₺400'},
+    'mert-ozkan' :{ad:'Mert Özkan',   unvan:'Yeni başlayan programları',          fiyat:'₺380'},
+    'deniz-kaya' :{ad:'Deniz Kaya',   unvan:'Kadın sağlığı ve hareket',           fiyat:'₺470'},
+    'derya-yildiz':{ad:'Derya Yıldız',unvan:'Mobilite ve postür',                 fiyat:'₺430'},
+    'ayse-kaplan':{ad:'Ayşe Kaplan',  unvan:'Yeni başlayan ve kilo yönetimi',     fiyat:'₺390'},
+    'can-aydin'  :{ad:'Can Aydın',    unvan:'Salon ve kondisyon',                 fiyat:'₺500'}
+  };
+  var slug = new URLSearchParams(location.search).get('slug') || 'selin-aksoy';
+  var A = VERI[slug] || VERI['selin-aksoy'];
+  document.querySelectorAll('[data-at="ad"]').forEach(function(el){ el.textContent = A.ad; });
+  document.title = A.ad + ' — DadaMutfak Onaylı Antrenör · DadaFit | DadaMutfak';
+
+  /* randevu onayı → Fit Planım > Randevularım (belge §11 adım 5–6) */
+  var S = window.FIT_SHELL && window.FIT_SHELL.state;
+  var confirmBtn = document.getElementById('aptConfirm');
+  if(S && confirmBtn){
+    confirmBtn.addEventListener('click', function(){
+      var slot = document.querySelector('.apt-slot.sel');
+      var day  = document.querySelector('.apt-day.sel');
+      if(!slot) return;
+      var svc = document.querySelector('#aptSvc input:checked');
+      var ad  = svc ? svc.closest('label').querySelector('.si b').textContent : 'Seans';
+      var fi  = svc ? svc.closest('label').querySelector('.sp').textContent : A.fiyat;
+      S.randevuAl({antrenor:A.ad, slug:slug, hizmet:ad, fiyat:fi,
+                   tarih:(day? ((day.querySelector('span')||{}).textContent||'').trim()+' '+((day.querySelector('b')||{}).textContent||'').trim() : 'yakın tarih'),
+                   saat: slot.textContent.trim()});
+      var sum = document.getElementById('aptSum');
+      if(sum) sum.textContent = 'Randevu isteğin alındı — Fit Planım › Randevularım';
+    }, true);
+  }
+})();
+</script>
+<script>
+/* ===== SAYFA JS — ANTRENÖR DETAY ===== */
+(function(){
+ // sekme geçişi
+  var tabbar=document.querySelector('.cp-tabbar');
+  if(tabbar){
+    var tabs=Array.prototype.slice.call(tabbar.querySelectorAll('.cp-tab'));
+    var panes=Array.prototype.slice.call(document.querySelectorAll('.cp-pane'));
+    tabs.forEach(function(tab){
+      tab.addEventListener('click',function(){
+        var key=tab.getAttribute('data-tab');
+        tabs.forEach(function(t){t.classList.toggle('active',t===tab);});
+        panes.forEach(function(p){p.hidden=p.getAttribute('data-pane')!==key;});
+ // sticky çubuğun altında kalan paneli görünür hizaya getir
+        var top=tabbar.getBoundingClientRect().bottom;
+        if(top<0||window.scrollY> (document.querySelector('.cp-top').offsetHeight)){
+          window.scrollTo({top:document.querySelector('.cp-body').offsetTop - (window.matchMedia('(max-width:640px)').matches?62:112) - 4,behavior:'smooth'});
+        }
+        if(window.__bnUpdate)window.__bnUpdate();
+      });
+    });
+  }
+
+ // CTA'lar → giriş kapısı (logged-out)
+  function gate(title,desc){
+    if(window.__lgGate){var ok=window.__lgGate(title,desc);return ok;}
+    return false;
+  }
+  [['ctaClient','Danışan olmak için giriş yap','Selin Aksoy ile çalışmaya başlamak için DadaMutfak hesabına giriş yapman gerekiyor.'],
+   ['bandClient','Danışan olmak için giriş yap','Selin Aksoy ile çalışmaya başlamak için DadaMutfak hesabına giriş yapman gerekiyor.'],
+   ['ctaMsg','Mesaj göndermek için giriş yap','Antrenörüne mesaj göndermek için DadaMutfak hesabına giriş yapman gerekiyor.'],
+   ['bandMsg','Mesaj göndermek için giriş yap','Antrenörüne mesaj göndermek için DadaMutfak hesabına giriş yapman gerekiyor.']
+  ].forEach(function(it){
+    var el=document.getElementById(it[0]);
+    if(!el)return;
+    el.addEventListener('click',function(e){
+      if(document.body.classList.contains('is-auth'))return; // giriş yapılmışsa gerçek akış (mockup: pas geç)
+      e.preventDefault();
+      gate(it[1],it[2]);
+    });
+  });
+
+ // kaydet ikonu — toggle (mockup)
+  var save=document.getElementById('ctaSave');
+  if(save){
+    save.addEventListener('click',function(){
+      if(!document.body.classList.contains('is-auth')){
+        gate('Kaydetmek için giriş yap','Bu antrenörü kaydetmek için DadaMutfak hesabına giriş yapman gerekiyor.');
+        return;
+      }
+      var on=save.classList.toggle('on');
+      save.innerHTML=on?'<i class="fa-solid fa-bookmark"></i>':'<i class="fa-regular fa-bookmark"></i>';
+    });
+  }
+
+ // yorum "daha fazla" — mockup: ilk 3 yorumu klonla
+  var revMore=document.getElementById('revMore');
+  if(revMore){
+    var loaded=false;
+    revMore.addEventListener('click',function(){
+      if(loaded){revMore.parentElement.style.display='none';return;}
+      var list=document.querySelector('.rev-list');
+      var cards=list.querySelectorAll('.rev-card');
+      cards.forEach(function(c){list.insertBefore(c.cloneNode(true),revMore.parentElement);});
+      loaded=true;
+      revMore.innerHTML='<i class="fa-solid fa-check"></i> Tüm yorumlar gösteriliyor';
+    });
+  }
+
+  /* ---- RANDEVU MODALI (seans slot seçici) ---- */
+  var aptModal=document.getElementById('aptModal'),aptOv=document.getElementById('aptOverlay');
+  if(aptModal){
+    var aptSum=document.getElementById('aptSum');
+    function svcInfo(){
+      var r=document.querySelector('#aptSvc input:checked');
+      var lbl=r.closest('label').querySelector('.si b').textContent;
+      var price=r.closest('label').querySelector('.sp').textContent;
+      return lbl+' · '+price;
+    }
+    function refreshSum(){aptSum.textContent=svcInfo();}
+    function openApt(){refreshSum();aptModal.classList.add('show');aptOv.classList.add('show');document.body.style.overflow='hidden';if(window.__bnUpdate)window.__bnUpdate();}
+    function closeApt(){aptModal.classList.remove('show');aptOv.classList.remove('show');document.body.style.overflow='';if(window.__bnUpdate)window.__bnUpdate();}
+    var ctaBook=document.getElementById('ctaBook');
+    if(ctaBook)ctaBook.addEventListener('click',openApt);
+    document.getElementById('aptClose').addEventListener('click',closeApt);
+    aptOv.addEventListener('click',closeApt);
+    document.querySelectorAll('#aptSvc input').forEach(function(i){i.addEventListener('change',refreshSum);});
+    document.querySelectorAll('.apt-day').forEach(function(d){
+      d.addEventListener('click',function(){
+        document.querySelectorAll('.apt-day').forEach(function(x){x.classList.remove('sel');});
+        d.classList.add('sel');
+      });
+    });
+    document.querySelectorAll('.apt-slot').forEach(function(sl){
+      sl.addEventListener('click',function(){
+        document.querySelectorAll('.apt-slot').forEach(function(x){x.classList.remove('sel');});
+        sl.classList.add('sel');
+      });
+    });
+    document.getElementById('aptConfirm').addEventListener('click',function(){
+      var slot=document.querySelector('.apt-slot.sel');
+      if(!slot){ // saat seçilmeden onay → kullanıcıyı saat ızgarasına yönlendir
+        var slots=aptModal.querySelector('.apt-slots');
+        if(slots)slots.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+ // logged-out: randevuyu tamamlamak için Danışan Ol ile aynı giriş kapısı
+      if(!document.body.classList.contains('is-auth')){
+        closeApt();
+        gate('Randevuyu tamamlamak için giriş yap','Seçtiğin seans ve saati onaylamak için DadaMutfak hesabına giriş yapman gerekiyor. Randevu seçimin korunur.');
+      }
+    });
+    if(location.search.indexOf('randevu=1')>-1)openApt();
+  }
+})();
+</script>
+
+
+<!-- DADAFIT-ACTIVE-NAV — aktif nav item boş-tık feedback'i (aria-current + self smooth-scroll) -->
+
+
+
+
+
+</body>
+</html>

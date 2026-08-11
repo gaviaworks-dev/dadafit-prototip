@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Challenge Merkezi — DadaFit · Aktif, yaklaşan ve tamamlanan challenge'lar | DadaMutfak</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* SAYFA CSS — CHALLENGE MERKEZİ (belge §8.4)
+ Kabuk/banner/kart/çip/boş durum assets/css/fit-shell.css'te tek kaynakta. */
+.lib-top{--lib-img:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16');--lib-pos:center 30%}
+.cm-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 24px}
+.cm-panel .fgroup .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px}
+.cm-count{margin:22px 0 18px;font-size:14px;font-weight:600;color:var(--muted)}
+.cm-count b{color:var(--slate);font-weight:800}
+.cm-state{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:var(--radius-sm);background:var(--fit);color:#fff}
+.cm-state.wait{background:rgba(255,255,255,.94);color:var(--slate)}
+.cm-state.done{background:rgba(20,18,12,.78);color:#fff}
+.cm-len{position:absolute;top:12px;right:12px;z-index:2;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm)}
+@media (max-width:1024px){ .sec{padding:52px 0} }
+@media (max-width:640px){ .cm-panel{padding:16px} .cm-panel .fgroup .lbl{min-width:100%} .sec{padding:40px 0} }
+</style>
+</head>
+<body data-brand="fit" data-fit-page="challenge-merkezi-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== BANNER + BREADCRUMB ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="programlar-merkezi-v1.html">Programlar</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Challenge Merkezi</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-trophy"></i> Programlar · Challenge</span>
+    <h1>Kısa süreli, birlikte yapılan meydan okumalar</h1>
+    <p class="lib-sub">Challenge ayrı bir ürün değil — süreli bir program türü. Katıldığın challenge Fit Planım'a işlenir, serin ve rozetin orada birikir.</p>
+    <div class="lib-stats">
+      <div class="lib-stat"><b>1</b><span>aktif</span></div>
+      <div class="lib-stat"><b>2</b><span>yaklaşan</span></div>
+      <div class="lib-stat"><b>7–30</b><span>günlük süre</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KATILDIĞIN CHALLENGE (Fit Planım'dan okunur) ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white);padding-bottom:0">
+  <div class="wrap">
+    <div class="fp-card is-dark" id="cmMine" hidden>
+      <div class="fp-head">
+        <h3><i class="fa-solid fa-trophy"></i> Katıldığın challenge</h3>
+        <span class="fp-badge ok" id="cmBadge"><i class="fa-solid fa-play"></i> Devam ediyor</span>
+      </div>
+      <b style="font-size:19px" id="cmName">30 Günde Hareket Alışkanlığı</b>
+      <p style="margin-top:6px" id="cmLine">İlerlemen Fit Planım'a işleniyor.</p>
+      <div class="fp-bar"><span id="cmBar" style="width:3%"></span></div>
+      <div class="fp-meta">
+        <span><b id="cmDay">1</b> / <b id="cmTotal">30</b> gün</span>
+        <span><b id="cmStreak">1</b> gün üst üste</span>
+        <span>Telafi hakkı: <b id="cmGrace">2</b> / 2</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+        <a class="btn btn-primary" id="cmOpen" href="challenge-v1.html"><i class="fa-solid fa-play"></i> Bugünün görevini aç</a>
+        <a class="btn btn-ghost" href="fit-planim-rozetler-v1.html">Fit Planım'da gör</a>
+      </div>
+    </div>
+    <div class="hm-gate-strip" id="cmNone" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:18px 22px">
+      <p style="font-size:14px;font-weight:500;color:var(--slate-2);margin:0;max-width:64ch"><b>Henüz bir challenge'a katılmadın.</b> Aşağıdan birini seç; katıldığın anda ilerlemen Fit Planım'a işlenmeye başlar.</p>
+      <a class="btn btn-primary" href="challenge-v1.html"><i class="fa-solid fa-trophy"></i> Aktif challenge'ı gör</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FİLTRE + LİSTE ===== -->
+<section class="sec sec-fit" style="background:var(--bg-cream)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Tüm challenge'lar</span>
+        <h2>Aktif, yaklaşan ve tamamlanan</h2>
+        <p class="lead">Her challenge'ın süresi, günlük yükü ve rozeti bellidir. Katılım ücretsizdir; istediğin an bırakır, istediğin an geri dönersin.</p>
+        <div class="sec-tools"><a class="see-all" href="programlar-merkezi-v1.html">Programlar Merkezi <i class="fa-solid fa-arrow-right"></i></a></div>
+      </div>
+    </div>
+
+    <div class="cm-panel">
+      <div class="fgroup" data-group="durum" role="group" aria-label="Durum seç">
+        <span class="lbl">Durum</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="aktif"><i class="fa-solid fa-play"></i> Aktif</button>
+        <button class="df-fchip" type="button" data-val="yaklasan"><i class="fa-regular fa-clock"></i> Yaklaşan</button>
+        <button class="df-fchip" type="button" data-val="gecmis"><i class="fa-solid fa-check"></i> Tamamlanan</button>
+      </div>
+      <div class="fgroup" data-group="kategori" role="group" aria-label="Kategori seç">
+        <span class="lbl">Kategori</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="aliskanlik"><i class="fa-solid fa-seedling"></i> Alışkanlık</button>
+        <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite</button>
+        <button class="df-fchip" type="button" data-val="kondisyon"><i class="fa-solid fa-heart-pulse"></i> Kondisyon</button>
+      </div>
+      <div class="fgroup" data-group="sure" role="group" aria-label="Süre seç">
+        <span class="lbl">Süre</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="7">7 gün</button>
+        <button class="df-fchip" type="button" data-val="21">21 gün</button>
+        <button class="df-fchip" type="button" data-val="30">30 gün</button>
+      </div>
+    </div>
+
+    <p class="cm-count"><b id="cmCount">3</b> challenge gösteriliyor</p>
+
+    <div class="hub-grid cols-3" id="cmGrid">
+      <a class="cc-card" href="challenge-v1.html?slug=hareket-aliskanligi" data-durum="aktif" data-kategori="aliskanlik" data-sure="30"
+         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+        <span class="cm-state"><i class="fa-solid fa-play"></i> Aktif</span>
+        <span class="cm-len">30 gün</span>
+        <div style="position:relative;z-index:2;padding:22px">
+          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">30 Günde Hareket Alışkanlığı</b>
+          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Her gün 10–15 dakika. Kaçırdığın gün seriyi sıfırlamaz; ayda iki telafi hakkın var.</p>
+          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Katıl ve başla <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="cc-card" href="challenge-v1.html?slug=sabah-esneme" data-durum="yaklasan" data-kategori="mobilite" data-sure="7"
+         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+        <span class="cm-state wait"><i class="fa-regular fa-clock"></i> Yaklaşan</span>
+        <span class="cm-len">7 gün</span>
+        <div style="position:relative;z-index:2;padding:22px">
+          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">7 Gün Sabah Esneme Ritüeli</b>
+          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Bir haftalık kısa deneme. Güne yumuşak başlamak nasıl bir şeymiş, görmek için.</p>
+          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Hatırlat <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="cc-card is-past" href="challenge-v1.html?slug=adim-adim-yuruyus" data-durum="gecmis" data-kategori="kondisyon" data-sure="21"
+         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14')">
+        <span class="cm-state done"><i class="fa-solid fa-check"></i> Tamamlandı</span>
+        <span class="cm-len">21 gün</span>
+        <div style="position:relative;z-index:2;padding:22px">
+          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">21 Gün Adım Adım Yürüyüş</b>
+          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Her gün biraz daha uzun bir yürüyüş. Ekipman yok, salon yok — sadece dışarısı.</p>
+          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Rozeti gör <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+    </div>
+
+    <div class="lib-empty" id="cmEmpty">
+      <span class="ico"><i class="fa-solid fa-trophy"></i></span>
+      <h3>Bu seçimle challenge bulamadık</h3>
+      <p>Filtreyi gevşetebilir ya da uzun soluklu bir programa göz atabilirsin.</p>
+      <div class="sec-tools">
+        <button class="btn btn-primary" type="button" id="cmReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
+        <a class="btn btn-ghost" href="program-liste-v1.html">Programlara bak</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERİ VE ROZET KURALLARI (belge §15 · §19) ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Kurallar</span>
+        <h2>Seri ve rozet nasıl işliyor?</h2>
+        <p class="lead">Baskı değil denge. Kurallar baştan açık olsun ki kaçırdığın gün sürpriz olmasın.</p>
+      </div>
+    </div>
+    <div class="fp-grid cols-3">
+      <div class="fp-card">
+        <div class="fp-head"><h3><i class="fa-solid fa-fire"></i> Seri</h3></div>
+        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Seri, üst üste görevi tamamladığın gün sayısıdır. <b>Bir gün kaçırmak seriyi sıfırlamaz</b> — ay içinde iki telafi hakkın var. Üçüncü kaçırılan günde seri baştan başlar; challenge devam eder.</p>
+      </div>
+      <div class="fp-card">
+        <div class="fp-head"><h3><i class="fa-solid fa-medal"></i> Rozet</h3></div>
+        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Rozetler kıyas için değil, <b>kendi kilometre taşların</b> için. İlk gün, beş günlük seri ve challenge sonu ayrı rozetlerdir; kazanılan rozet geri alınmaz.</p>
+      </div>
+      <div class="fp-card">
+        <div class="fp-head"><h3><i class="fa-solid fa-users"></i> Katılımcı sayısı</h3></div>
+        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Katılımcı ve tamamlanma sayıları <b>gerçek veriyle</b> üretilir. Kimse kimseyle yarışmıyor; sayı yalnız "yalnız değilsin" demek için var.</p>
+      </div>
+    </div>
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p>Challenge içerikleri <b>genel bilgilendirme amaçlıdır</b>. Bir rahatsızlığın varsa ya da uzun süredir hareketsizsen katılmadan önce <a href="antrenorler-v1.html">bir uzmana danış</a>. Durma kriterleri: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== CHALLENGE MERKEZİ — filtre + katılım durumu ===== */
+(function(){
+  var grid=document.getElementById('cmGrid');
+  var cards=Array.prototype.slice.call(grid.querySelectorAll('.cc-card'));
+  var count=document.getElementById('cmCount'), empty=document.getElementById('cmEmpty');
+  var sel={durum:new Set(),kategori:new Set(),sure:new Set()};
+  function apply(){
+    var n=0;
+    cards.forEach(function(c){
+      var ok=Object.keys(sel).every(function(g){
+        return !sel[g].size || sel[g].has(c.getAttribute('data-'+g));
+      });
+      c.style.display=ok?'':'none'; if(ok)n++;
+    });
+    count.textContent=n;
+    empty.classList.toggle('show',n===0);
+    grid.style.display=n===0?'none':'';
+    var qs=[]; Object.keys(sel).forEach(function(g){ if(sel[g].size)qs.push(g+'='+Array.from(sel[g]).join(',')); });
+    history.replaceState(null,'',location.pathname+(qs.length?'?'+qs.join('&'):''));
+  }
+  document.querySelectorAll('.cm-panel .fgroup[data-group]').forEach(function(g){
+    var group=g.getAttribute('data-group');
+    g.querySelectorAll('.df-fchip').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var val=btn.getAttribute('data-val');
+        if(val==='all'){ sel[group].clear(); g.querySelectorAll('.df-fchip').forEach(function(x){x.classList.toggle('on',x===btn);}); }
+        else{
+          if(sel[group].has(val)){sel[group].delete(val);btn.classList.remove('on');}
+          else{sel[group].add(val);btn.classList.add('on');}
+          var all=g.querySelector('.df-fchip[data-val="all"]');
+          if(all)all.classList.toggle('on',sel[group].size===0);
+        }
+        apply();
+      });
+    });
+  });
+  document.getElementById('cmReset').addEventListener('click',function(){
+    Object.keys(sel).forEach(function(g){sel[g].clear();});
+    document.querySelectorAll('.cm-panel .df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
+    apply();
+  });
+  (function deep(){
+    var p=new URLSearchParams(location.search);
+    Object.keys(sel).forEach(function(g){
+      var raw=p.get(g); if(!raw)return;
+      raw.split(',').forEach(function(v){
+        var b=document.querySelector('.cm-panel .fgroup[data-group="'+g+'"] .df-fchip[data-val="'+v+'"]');
+        if(b){sel[g].add(v);b.classList.add('on');}
+      });
+      var all=document.querySelector('.cm-panel .fgroup[data-group="'+g+'"] .df-fchip[data-val="all"]');
+      if(all&&sel[g].size)all.classList.remove('on');
+    });
+  })();
+  apply();
+
+  /* katıldığın challenge — Fit Planım durumundan okunur */
+  var S=window.FIT_SHELL && window.FIT_SHELL.state;
+  function paintMine(){
+    if(!S)return;
+    var st=S.read().challenge;
+    var mine = st && st.durum!=='birakildi';
+    document.getElementById('cmMine').hidden=!mine;
+    document.getElementById('cmNone').hidden=!!mine;
+    if(!mine)return;
+    document.getElementById('cmName').textContent=st.ad;
+    var b=document.getElementById('cmBadge');
+    b.className='fp-badge '+S.rozet(st.durum);
+    b.innerHTML='<i class="fa-solid fa-circle"></i> '+S.etiket(st.durum);
+    document.getElementById('cmBar').style.width=Math.round(st.gun/st.toplam*100)+'%';
+    document.getElementById('cmDay').textContent=st.gun;
+    document.getElementById('cmTotal').textContent=st.toplam;
+    document.getElementById('cmStreak').textContent=st.seri;
+    document.getElementById('cmGrace').textContent=Math.max(0,2-(st.telafi||0));
+    document.getElementById('cmOpen').setAttribute('href','challenge-v1.html?slug='+st.slug);
+    document.getElementById('cmLine').textContent = st.durum==='tamamlandi'
+      ? 'Tamamladın. Rozetin Fit Planım’da.' : 'İlerlemen Fit Planım’a işleniyor.';
+  }
+  document.addEventListener('fit:state',paintMine);
+  paintMine();
+})();
+</script>
+</body>
+</html>

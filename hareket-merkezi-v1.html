@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hareket Merkezi — DadaFit · Öğren, seç, hareket et | DadaMutfak</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — HAREKET MERKEZİ (belge §7.1)
+ Kabuk, banner, kart, çip, boş durum ve sağlık notu assets/css/fit-shell.css
+ içinde tek kaynakta. Burada yalnız bu sayfaya özgü ölçüler var; yeni sınıf
+ ailesi üretilmedi — kullanılan adların hepsi mevcut DadaFit sayfalarından.
+ ===================================================================== */
+.lib-top{--lib-img:url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16');--lib-pos:center 30%}
+
+/* iki kapı: uygulama ↔ öğrenme ayrımı (kabul kriteri §19) */
+.gate-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.gate[type="button"]{border:1px dashed var(--fit-line);background:var(--fit-tint)}
+.gate[type="button"]:hover{border-style:solid;background:#fff}
+.gate{position:relative;display:flex;flex-direction:column;gap:12px;padding:30px 30px 26px;border-radius:var(--radius-lg);border:1px solid var(--line);background:var(--paper);box-shadow:var(--sh-sm);transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.gate:hover{transform:translateY(-5px);border-color:var(--fit-line);box-shadow:var(--sh-md)}
+.gate .ico{width:52px;height:52px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:21px}
+.gate h3{font-size:21px;letter-spacing:-.01em}
+.gate p{font-size:14.5px;color:var(--muted);font-weight:500;line-height:1.6}
+.gate .go{margin-top:auto;padding-top:16px;display:inline-flex;align-items:center;gap:9px;color:var(--fit-deep);font-weight:700;font-size:14px}
+.gate .go i{transition:.2s var(--ease)}
+.gate:hover .go i{transform:translateX(4px)}
+.gate.is-do{background:linear-gradient(160deg,#0f2f1e,#211E16);border-color:transparent;color:#fff}
+.gate.is-do h3{color:#fff}
+.gate.is-do p{color:rgba(255,255,255,.76)}
+.gate.is-do .ico{background:rgba(0,157,79,.24);color:#3fd089}
+.gate.is-do .go{color:var(--fit-bright)}
+
+/* süre seçici + rutin ızgarası */
+.hm-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 24px}
+.hm-panel .fgroup .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px}
+.rt-min{position:absolute;top:12px;left:12px;z-index:2;background:var(--fit);color:#fff;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:var(--radius-sm)}
+.hm-count{margin:22px 0 18px;font-size:14px;font-weight:600;color:var(--muted)}
+.hm-count b{color:var(--slate);font-weight:800}
+
+/* giriş kapısı şeridi (son baktıkların / kaydettiklerin) */
+.hm-gate-strip{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:18px 22px;margin-bottom:24px}
+.hm-gate-strip p{font-size:14px;font-weight:500;color:var(--slate-2);margin:0;max-width:64ch}
+.hm-gate-strip .acts{display:flex;gap:10px;flex-wrap:wrap}
+
+@media (max-width:1024px){
+  .gate-grid{grid-template-columns:minmax(0,1fr);gap:18px}
+  .sec{padding:52px 0}
+}
+@media (max-width:640px){
+  .gate{padding:24px 22px 22px}
+  .gate h3{font-size:18.5px}
+  .hm-panel{padding:16px}
+  .hm-panel .fgroup .lbl{min-width:100%}
+  .sec{padding:40px 0}
+}
+</style>
+</head>
+<body data-brand="fit" data-fit-page="hareket-merkezi-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== 1 · BANNER + BREADCRUMB (ikisi birlikte — belge §17) ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Hareket Merkezi</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-compass"></i> Hareket</span>
+    <h1>Öğrenmek mi, şimdi hareket etmek mi?</h1>
+    <p class="lib-sub">İkisi de burada başlar. Bir rutin yapmak istiyorsan kütüphaneye, nasıl ve neden diye soruyorsan rehbere geç — arada gidip gelmek serbest.</p>
+    <form class="lib-search" role="search" onsubmit="return false" aria-label="Hareket veya rutin ara">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="hmSearch" placeholder="Hareket veya rutin ara — plank, 10 dakika, masa başı…" aria-label="Hareket veya rutin ara" />
+      <button type="submit">Ara</button>
+    </form>
+    <div class="lib-stats">
+      <div class="lib-stat"><b>140+</b><span>hareket</span></div>
+      <div class="lib-stat"><b>8</b><span>rehber konusu</span></div>
+      <div class="lib-stat"><b>5–30</b><span>dakikalık rutin</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 · İKİ KAPI: uygulama ↔ öğrenme ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-signs-post"></i> Nereden başlarsın</span>
+        <h2>Uygulamak ve öğrenmek ayrı iki kapı</h2>
+        <p class="lead">Kütüphane hareket <b>yaptırır</b>, rehber hareketi <b>anlatır</b>. Hangisine ihtiyacın olduğunu bilmiyorsan aşağıdaki süre seçiciyle başla.</p>
+      </div>
+    </div>
+    <div class="gate-grid">
+      <a class="gate is-do" href="egzersiz-kutuphane-v1.html">
+        <span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
+        <h3>Şimdi bir rutin yap</h3>
+        <p>Kas grubu, ekipman ve seviyeye göre filtrele; her harekette görsel, adım adım anlatım ve set takibi var.</p>
+        <span class="go">Egzersiz Kütüphanesi <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <button class="gate" type="button" data-fit-wizard style="text-align:left;font-family:inherit">
+        <span class="ico"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+        <h3>Hangisi bana uygun bilmiyorum</h3>
+        <p>Altı kısa soru sor, sana bir rutin, bir program ve bir rehber önerelim. Riskli bir durumun varsa uzmana yönlendiririz.</p>
+        <span class="go">Bana Uygun Başlangıcı Bul <i class="fa-solid fa-arrow-right"></i></span>
+      </button>
+      <a class="gate" href="hareket-rehberi-v1.html">
+        <span class="ico"><i class="fa-solid fa-book-open"></i></span>
+        <h3>Önce nasıl ve neden</h3>
+        <p>Doğru form, süre seçimi, ısınma-soğuma, masa başı molaları ve terimler — sekiz konu başlığında okuryazarlık.</p>
+        <span class="go">Hareket Rehberi <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 · BUGÜN KAÇ DAKİKAN VAR? ===== -->
+<section class="sec sec-fit" id="sure" style="background:var(--bg-cream);scroll-margin-top:120px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-stopwatch"></i> Kısa rutinler</span>
+        <h2>Bugün kaç dakikan var?</h2>
+        <p class="lead">Beş dakika da bir şeydir. Süreyi seç, sana uyan rutinleri gör — kaçırdığın gün için telafi yok, bugün için plan var.</p>
+      </div>
+    </div>
+
+    <div class="hm-panel">
+      <div class="fgroup" data-group="sure" role="group" aria-label="Süre seç">
+        <span class="lbl">Süre</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="5"><i class="fa-regular fa-clock"></i> 5 dk</button>
+        <button class="df-fchip" type="button" data-val="10"><i class="fa-regular fa-clock"></i> 10 dk</button>
+        <button class="df-fchip" type="button" data-val="15"><i class="fa-regular fa-clock"></i> 15 dk</button>
+        <button class="df-fchip" type="button" data-val="20"><i class="fa-regular fa-clock"></i> 20 dk</button>
+        <button class="df-fchip" type="button" data-val="30"><i class="fa-regular fa-clock"></i> 30+ dk</button>
+      </div>
+      <div class="fgroup" data-group="hedef" role="group" aria-label="Hedef seç">
+        <span class="lbl">Hedef</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="guc"><i class="fa-solid fa-dumbbell"></i> Güç</button>
+        <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite</button>
+        <button class="df-fchip" type="button" data-val="kondisyon"><i class="fa-solid fa-heart-pulse"></i> Kondisyon</button>
+        <button class="df-fchip" type="button" data-val="postur"><i class="fa-solid fa-person"></i> Postür</button>
+        <button class="df-fchip" type="button" data-val="gunluk"><i class="fa-solid fa-person-walking"></i> Günlük aktivite</button>
+      </div>
+      <div class="fgroup" data-group="ekipman" role="group" aria-label="Ekipman seç">
+        <span class="lbl">Ekipman</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="yok"><i class="fa-solid fa-house"></i> Ekipmansız</button>
+        <button class="df-fchip" type="button" data-val="bant"><i class="fa-solid fa-minus"></i> Bant</button>
+        <button class="df-fchip" type="button" data-val="dambil"><i class="fa-solid fa-dumbbell"></i> Dambıl</button>
+        <button class="df-fchip" type="button" data-val="kettlebell"><i class="fa-solid fa-bell"></i> Kettlebell</button>
+        <button class="df-fchip" type="button" data-val="salon"><i class="fa-solid fa-building"></i> Salon</button>
+      </div>
+    </div>
+
+    <p class="hm-count"><b id="hmCount">8</b> rutin gösteriliyor</p>
+
+    <div class="hub-grid" id="hmGrid">
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=5" data-sure="5" data-hedef="mobilite" data-ekipman="yok" data-name="Sabah 5 dakika">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">5 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-house"></i> Ekipmansız</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Sabah 5 dakika esneme</h4>
+          <p>Boyun, omuz ve kalça için güne yumuşak giriş — yataktan kalkar kalkmaz.</p>
+          <div class="hub-foot"><span>Mobilite</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=10" data-sure="10" data-hedef="gunluk" data-ekipman="yok" data-name="Masa başı molası">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1522898467493-49726bf28798?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">10 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-chair"></i> Masa başı</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Masa başı molası</h4>
+          <p>Oturmaktan yorulan boyun, sırt ve kalça için ayağa kalkmadan da yapılabilen set.</p>
+          <div class="hub-foot"><span>Günlük aktivite</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=10" data-sure="10" data-hedef="postur" data-ekipman="bant" data-name="Postür seti">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">10 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-minus"></i> Bant</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Sırt ve postür seti</h4>
+          <p>Direnç bandıyla sırt aktivasyonu — omuzları geriye alan, eklem dostu hareketler.</p>
+          <div class="hub-foot"><span>Postür</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=15" data-sure="15" data-hedef="kondisyon" data-ekipman="yok" data-name="Ev kondisyon">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">15 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-house"></i> Ekipmansız</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Evde kondisyon devresi</h4>
+          <p>Zıplamasız, komşu dostu tempo. Nefesin açılır, dizler zorlanmaz.</p>
+          <div class="hub-foot"><span>Kondisyon</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=15" data-sure="15" data-hedef="guc" data-ekipman="dambil" data-name="Dambıl temel">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">15 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-dumbbell"></i> Dambıl</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Dambılla temel güç</h4>
+          <p>Tek çift dambılla tüm vücut: itme, çekme, kalça menteşesi ve core.</p>
+          <div class="hub-foot"><span>Güç</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=20" data-sure="20" data-hedef="guc" data-ekipman="kettlebell" data-name="Kettlebell akış">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">20 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-bell"></i> Kettlebell</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Kettlebell akışı</h4>
+          <p>Salınım, guggle squat ve tek kol press — kalça gücü ve nefes bir arada.</p>
+          <div class="hub-foot"><span>Güç</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=20" data-sure="20" data-hedef="mobilite" data-ekipman="yok" data-name="Akşam toparlanma">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">20 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-moon"></i> Akşam</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Akşam toparlanma akışı</h4>
+          <p>Gün sonunda kaslara nefes aldıran esneme ve gevşeme dizisi.</p>
+          <div class="hub-foot"><span>Mobilite</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-kutuphane-v1.html?sure=30" data-sure="30" data-hedef="kondisyon" data-ekipman="salon" data-name="Salon tam vücut">
+        <div class="hub-media" style="background-image:url('https://images.unsplash.com/photo-1534258936925-c58bed479fcb?w=640&q=80&auto=format&fit=crop&exp=7&sat=-14')">
+          <span class="rt-min">30 dk</span>
+          <div class="hub-tags"><span class="hub-tag"><i class="fa-solid fa-building"></i> Salon</span></div>
+        </div>
+        <div class="hub-body">
+          <h4>Salonda tam vücut</h4>
+          <p>Isınma, üç ana hareket ve soğuma — salona yeni gidenler için net bir plan.</p>
+          <div class="hub-foot"><span>Kondisyon</span><span class="go">Rutini aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+    </div>
+
+    <div class="lib-empty" id="hmEmpty">
+      <span class="ico"><i class="fa-solid fa-magnifying-glass"></i></span>
+      <h3>Bu seçimle rutin bulamadık</h3>
+      <p>Filtreyi biraz gevşetirsen daha çok seçenek çıkar. İstersen doğrudan kütüphaneye de geçebilirsin.</p>
+      <div class="sec-tools">
+        <button class="btn btn-primary" type="button" id="hmReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
+        <a class="btn btn-ghost" href="egzersiz-kutuphane-v1.html">Egzersiz Kütüphanesi</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4 · BÖLGEYE GÖRE ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-crosshairs"></i> Bölgeye göre</span>
+        <h2>Neresini çalıştırmak istiyorsun?</h2>
+        <p class="lead">Bölgesel çalışmak yanlış değil; yalnız dengeyi kaçırmamak gerekir. Her bölge seçimi seni kütüphanenin ilgili filtresine götürür.</p>
+        <div class="sec-tools"><a class="see-all" href="hareket-bolgeye-gore-v1.html">Bölgesel çalışma rehberi <i class="fa-solid fa-arrow-right"></i></a></div>
+      </div>
+    </div>
+    <div class="hm-panel">
+      <div class="fgroup" role="group" aria-label="Bölge seç">
+        <span class="lbl">Bölge</span>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-person"></i> Tüm vücut</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=alt-vucut"><i class="fa-solid fa-person-walking"></i> Bacak</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=ust-vucut"><i class="fa-solid fa-dumbbell"></i> Sırt</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=ust-vucut"><i class="fa-solid fa-dumbbell"></i> Göğüs</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=ust-vucut"><i class="fa-solid fa-dumbbell"></i> Omuz</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=ust-vucut"><i class="fa-solid fa-hand-fist"></i> Kol</a>
+        <a class="df-fchip" href="egzersiz-kutuphane-v1.html?bolge=karin"><i class="fa-solid fa-child-reaching"></i> Core</a>
+        <a class="df-fchip" href="hareket-masa-basi-v1.html"><i class="fa-solid fa-chair"></i> Bel &amp; boyun</a>
+      </div>
+    </div>
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p>Buradaki içerikler <b>genel bilgi amaçlıdır</b>, kişisel tıbbi tavsiye değildir. Keskin ağrı, baş dönmesi, göğüs ağrısı ya da nefes darlığı olursa hareketi bırak. Bir rahatsızlığın varsa, gebeysen ya da uzun süredir hareketsizsen başlamadan önce <a href="antrenorler-v1.html">bir uzmana danışman</a> iyi olur. Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5 · YENİ BAŞLAYANLAR İÇİN GÜVENLİ BAŞLANGIÇ + REHBER/SÖZLÜK ===== -->
+<section class="sec sec-fit" style="background:var(--bg-cream)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-seedling"></i> Yeni başlıyorsan</span>
+        <h2>Güvenli bir başlangıç, hızlı bir başlangıçtan iyidir</h2>
+        <p class="lead">İlk yedi gün, on dakikalık başlangıç ve rutine dönüş — nereden tutacağını bilmiyorsan buradan başla.</p>
+      </div>
+    </div>
+    <div class="hub-grid cols-3">
+      <a class="hub-card" href="hareket-yeni-baslayanlar-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-seedling"></i></div>
+        <div class="hub-body">
+          <h4>Yeni Başlayanlar İçin Hareket</h4>
+          <p>İlk 7 gün, günde 10 dakika ve hareketsizlikten aktif rutine geçiş.</p>
+          <div class="hub-foot"><span>Genel bilgi</span><span class="go">Rehberi aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="hareket-rehberi-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-book-open"></i></div>
+        <div class="hub-body">
+          <h4>Hareket Rehberi</h4>
+          <p>Doğru form, süreye göre seçim, ısınma-soğuma ve masa başı molaları — sekiz konu.</p>
+          <div class="hub-foot"><span>8 kategori</span><span class="go">Rehbere git <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="hareket-sozluk-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-spell-check"></i></div>
+        <div class="hub-body">
+          <h4>Hareket Sözlüğü</h4>
+          <p>Set, tekrar, tempo, core, mobilite, HIIT — terimler tek yerde ve sade dille.</p>
+          <div class="hub-foot"><span>Terimler</span><span class="go">Sözlüğü aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6 · SON BAKTIKLARIM VE KAYDETTİKLERİM (ziyaretçide örnek görünüm) ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> Senin izin</span>
+        <h2>Son baktıkların ve kaydettiklerin</h2>
+        <p class="lead">Baktığın hareketler ve kaydettiğin rutinler burada birikir; kaldığın yerden devam edersin.</p>
+      </div>
+    </div>
+
+    <div class="hm-gate-strip" data-lg-only>
+      <p><span class="demo-tag"><i class="fa-solid fa-eye"></i> Örnek</span> &nbsp;Aşağıdaki liste <b>örnek bir görünümdür</b>. Giriş yaptığında burada kendi baktıkların ve kaydettiklerin olur.</p>
+      <div class="acts">
+        <a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a>
+        <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz hesap oluştur</a>
+      </div>
+    </div>
+
+    <div class="hub-grid">
+      <a class="hub-card" href="egzersiz-detay-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-person-running"></i></div>
+        <div class="hub-body">
+          <h4>Goblet Squat</h4>
+          <p>Bacak ve kalça için temel hareket — doğru duruş ve sık yapılan hatalar.</p>
+          <div class="hub-foot"><span>Son baktığın</span><span class="go">Aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="egzersiz-detay-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-person-running"></i></div>
+        <div class="hub-body">
+          <h4>Plank (Şınav Duruşu)</h4>
+          <p>Tüm gövde merkezini çalıştıran izometrik temel — süreyi kademeli artır.</p>
+          <div class="hub-foot"><span>Son baktığın</span><span class="go">Aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="program-detay-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="hub-body">
+          <h4>4 Hafta Ev Antrenmanı</h4>
+          <p>Ekipmansız başlangıç programı — haftada 3 gün, seans başına 25 dakika.</p>
+          <div class="hub-foot"><span>Kaydettiğin</span><span class="go">Aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+      <a class="hub-card" href="hareket-masa-basi-v1.html">
+        <div class="hub-media icon"><i class="fa-solid fa-chair"></i></div>
+        <div class="hub-body">
+          <h4>Masa Başı Hareketleri</h4>
+          <p>Boyun, omuz, sırt ve kalça için günlük molalar — ofiste de yapılır.</p>
+          <div class="hub-foot"><span>Kaydettiğin</span><span class="go">Aç <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- KABUK: alt katman (giris kapisi+footer+DadaMentor+basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== SAYFA JS — HAREKET MERKEZİ ===== */
+(function(){
+  var grid=document.getElementById('hmGrid');
+  if(!grid)return;
+  var cards=Array.prototype.slice.call(grid.querySelectorAll('.hub-card'));
+  var countEl=document.getElementById('hmCount');
+  var emptyEl=document.getElementById('hmEmpty');
+  var search=document.getElementById('hmSearch');
+  var sel={sure:new Set(),hedef:new Set(),ekipman:new Set()};
+
+  function matches(card){
+    var q=search && search.value.trim().toLocaleLowerCase('tr');
+    if(q && card.getAttribute('data-name').toLocaleLowerCase('tr').indexOf(q)<0) return false;
+    return Object.keys(sel).every(function(g){
+      if(!sel[g].size) return true;
+      return sel[g].has(card.getAttribute('data-'+g));
+    });
+  }
+  function apply(){
+    var shown=0;
+    cards.forEach(function(c){
+      var ok=matches(c);
+      c.style.display=ok?'':'none';
+      if(ok)shown++;
+    });
+    countEl.textContent=shown;
+    emptyEl.classList.toggle('show',shown===0);
+    grid.style.display=shown===0?'none':'';
+  }
+  document.querySelectorAll('.hm-panel .fgroup[data-group]').forEach(function(g){
+    var group=g.getAttribute('data-group');
+    g.querySelectorAll('.df-fchip').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var val=btn.getAttribute('data-val');
+        if(val==='all'){
+          sel[group].clear();
+          g.querySelectorAll('.df-fchip').forEach(function(x){x.classList.toggle('on',x===btn);});
+        }else{
+          if(sel[group].has(val)){sel[group].delete(val);btn.classList.remove('on');}
+          else{sel[group].add(val);btn.classList.add('on');}
+          var all=g.querySelector('.df-fchip[data-val="all"]');
+          if(all)all.classList.toggle('on',sel[group].size===0);
+        }
+        apply();
+      });
+    });
+  });
+  function reset(){
+    Object.keys(sel).forEach(function(g){sel[g].clear();});
+    document.querySelectorAll('.hm-panel .fgroup[data-group] .df-fchip').forEach(function(c){
+      c.classList.toggle('on',c.getAttribute('data-val')==='all');
+    });
+    if(search)search.value='';
+    apply();
+  }
+  var rb=document.getElementById('hmReset');
+  if(rb)rb.addEventListener('click',reset);
+  if(search)search.addEventListener('input',apply);
+
+  /* derin bağlantı: #sure ile gelindiğinde bölüm başlığına yumuşak kaydırma
+ (fonts.ready sonrası — yoksa yazı tipi yüklenince hedef kayıyor) */
+  if(location.hash==='#sure'){
+    var go=function(){var el=document.getElementById('sure');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){setTimeout(go,60);});
+    else setTimeout(go,300);
+  }
+  apply();
+})();
+
+/* Ziyaretçi/üye ayrımı: giriş yapılmışsa "örnek görünüm" şeridi kalkar. */
+(function(){
+  if(document.body.classList.contains('is-auth')){
+    document.querySelectorAll('[data-lg-only]').forEach(function(el){el.style.display='none';});
+    document.querySelectorAll('#hmGrid').forEach(function(){});
+  }
+})();
+</script>
+</body>
+</html>

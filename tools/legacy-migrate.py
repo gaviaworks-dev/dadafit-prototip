@@ -87,8 +87,17 @@ def split_css(css):
             elif css_nc[j] == '}': depth -= 1
             j += 1
         body = css[br + 1:j - 1]
-        kind = 'at' if prelude.strip().lstrip().startswith('@') or '@' in prelude.strip()[:1] else 'rule'
-        if prelude.strip().startswith('@'): kind = 'at'
+        # KİND TESPİTİ YORUMSUZ KOPYADAN YAPILIR.
+        # Hata (faz2-iletisim ajanı yakaladı, ölçümle doğrulandı): prelude,
+        # bloktan önceki YORUMU da içeriyor. "startswith('@')" yorumlu bir
+        # @media bloğunu 'rule' sanıyordu; norm_sel yorumu attığı için o blok
+        # shell_selectors'a "@media (max-width:640px)" gibi SAHTE bir seçici
+        # olarak giriyor, filter_css de sayfadaki aynı yapıyı bu sahte
+        # seçiciyle eşleştirip TÜM MEDIA BLOĞUNU düşürüyordu. iletisim-v1'de
+        # yorumu olmayan @media blokları korunmuş, yorumu olan ikisi silinmişti
+        # — ayrım tam olarak yorumdu. Ölçülen sonuç: 8 sahte seçici.
+        prelude_nc = css_nc[i:br]
+        kind = 'at' if prelude_nc.strip().startswith('@') else 'rule'
         out.append((kind, prelude, body, css[i:j]))
         i = j
     return out
@@ -207,7 +216,21 @@ def migrate(name, apply=False, page_key=None):
     mainm = re.search(r'<main class="page-main"[^>]*>', src)
     if not (bm and mainm):
         sys.exit('HATA: <body> veya <main class="page-main"> bulunamadı')
-    last_main_end = src.rindex('</main>') + len('</main>')
+    # ---- <main>'in GERÇEK kapanışını bul --------------------------------
+    # rindex('</main>') KULLANILMAZ: her 12 sayfada lg-gate'in üstündeki
+    # yorum metninin içinde "Markup </main> sonrasında durur" gibi bir cümle
+    # geçiyor ve rindex o YORUMUN içine düşüyor. Sonuç: bölge sınırı yanlış
+    # yerden kesiliyor ve kapanmayan bir HTML yorumu kalıyordu.
+    # Doğrusu: yorumları maskele, <main ...> etiketinden itibaren derinlik say.
+    masked = re.sub(r'<!--.*?-->', lambda m: ' ' * len(m.group(0)), src, flags=re.S)
+    depth, k = 1, mainm.end()
+    while depth > 0:
+        mm = re.compile(r'</?main\b', re.I).search(masked, k)
+        if not mm:
+            sys.exit('HATA: <main class="page-main"> kapanışı bulunamadı')
+        depth += -1 if masked[mm.start():mm.start() + 2] == '</' else 1
+        k = mm.end()
+    last_main_end = masked.find('>', k - 1) + 1
 
     top_region = src[bm.end():mainm.start()]
     bottom_region = src[last_main_end:]
@@ -313,10 +336,42 @@ def migrate(name, apply=False, page_key=None):
     return out
 
 
+def css_from_head(name):
+    """KURTARMA MODU — sayfanın DOĞRU sayfa-özgü CSS'ini git HEAD'deki
+    (göç ÖNCESİ) sürümünden hesaplar ve basar.
+
+    Neden var: aracın ilk sürümünde iki hata vardı (yorumlu @media bloklarının
+    yanlış sınıflandırılması ve </main> sınırının yorum içine düşmesi). O
+    sürümle göç eden sayfalarda sayfa-özgü @media blokları kayboldu. Elle
+    kurtarmak yerine, düzeltilmiş süzgeç HEAD sürümüne uygulanır ve olması
+    gereken CSS buradan alınır — böylece kurtarma da ölçülebilir olur.
+
+      python3 tools/legacy-migrate.py <sayfa> --css-from-head > /tmp/dogru.css
+    """
+    import subprocess
+    path = name if name.endswith('.html') else name + '.html'
+    head = subprocess.run(['git', 'show', f'HEAD:{path}'],
+                          capture_output=True, text=True).stdout
+    if not head:
+        sys.exit(f'HATA: git HEAD:{path} okunamadı')
+    shell_sels = shell_selectors(open('assets/css/fit-shell.css', encoding='utf-8').read())
+    total_d = total_k = 0
+    chunks = []
+    for m in re.finditer(r'<style[^>]*>(.*?)</style>', head, re.S):
+        kept, d, k = filter_css(m.group(1), shell_sels)
+        total_d += d; total_k += k
+        if kept.strip(): chunks.append(kept.strip())
+    sys.stderr.write(f'# {path}: HEAD sürümünden {total_d} kabuk kuralı düştü, '
+                     f'{total_k} sayfa kuralı kaldı\n')
+    print('\n\n'.join(chunks))
+
+
 if __name__ == '__main__':
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     if not args:
         sys.exit(__doc__)
+    if '--css-from-head' in sys.argv:
+        css_from_head(args[0]); sys.exit(0)
     pk = None
     if '--page-key' in sys.argv:
         pk = sys.argv[sys.argv.index('--page-key') + 1]

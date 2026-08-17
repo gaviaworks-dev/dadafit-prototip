@@ -1547,8 +1547,20 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
 }
 .topbar a:focus-visible,.footer a:focus-visible,.lib-top a:focus-visible,
 .fp-top a:focus-visible,.header.at-top .nav a:focus-visible{outline-color:#fff}
-/* klavye ile ana menü: hover'a ek olarak odak zinciriyle de açılır */
-.nav-item:focus-within>.dropdown{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+/* klavye ile ana menü: hover'a ek olarak odak zinciriyle de açılır.
+   DİKKAT — burada `transform:none` YAZILMAZ. Panelin temel konumlandırması
+   left:50% + translateX(-50%) ile ortalamadır (bkz. ".dropdown", ~satır 352);
+   transform'u sıfırlamak translateX(-50%)'i de siler ve panel kendi
+   genişliğinin YARISI kadar sağa zıplar. Ölçüm (2026-08-17, 1440px):
+   Hareket paneli Δx=280px (560/2), Programlar Δx=132.6px (265.2/2) —
+   hover ile açılan panel tıklanınca yer değiştiriyordu.
+   Regresyon testi: tests/dropdown-position.mjs */
+.nav-item:focus-within>.dropdown{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+/* tam genişlik mega panel yatayda ortalanmaz; yalnız dikey giriş ofseti sıfırlanır */
+.nav-item:focus-within>.mega{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
 /* "içeriğe atla" — klavye kullanıcısı kabuk menüsünü atlayabilsin */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:200;background:var(--fit);color:#fff;
   font-weight:700;font-size:14px;padding:12px 18px;border-radius:0 0 var(--radius-md) 0}

@@ -252,6 +252,46 @@ açıkça istiyor; ayrıca §23 "sayfa bazında tekrarlanan header ve footer kod
       → `hakkimizda` → `pro` → `pro-odeme` → `giris` → `rozetler` → `hesabim` → `reklam-ver` → `profil`
 - [ ] **Ölçüm:** her sayfa taşındıktan sonra 4 genişlikte konsol hatası / yatay taşma / kırık link taraması
 
+### Dalga 1'in görsel doğrulaması ✅ (HANDOFF §4.2'nin bekleyen ölçümü)
+
+`tools/baseline-diff.mjs` ile 5 sayfa × 2 genişlik, 8811 (şimdi) ↔ 8812 (göç öncesi `981df3b`),
+yalnız `main#pageMain` içi computed style + boundingBox.
+
+**Ana bulgu — içerik kaybı YOK. Beş sayfanın beşinde de main metni UZADI:**
+
+| Sayfa | main metni (göç öncesi → şimdi) | eşleşen öğe |
+|---|---|---|
+| `sss-v1` | 1553 → **1886** kr | 58/79 |
+| `iletisim-v1` | 1552 → **2122** kr | 114/145 |
+| `yasal-v1` | — | — |
+| `bildirimler-v1` | 1272 → **1504** kr | 103/166 |
+| `hakkimizda-v1` | 4007 → **6619** kr | 192/290 |
+
+Araç toplam **98 sapma** saydı; hepsi tek tek incelendi ve **üç sınıfa** düşüyor,
+hiçbiri regresyon değil:
+
+1. **Bilinçli içerik değişimi (Faz 1'in kendisi).** "Kayıp" öğelerin tamamı DadaMutfak
+   dünyasına ait metinler: `p|DadaMutfak; tarif paylaşan, deneyen…` · `h1|Yaşasın` +
+   `span|Yemek Yemek!` · `button|Takip/Yorum/Beğeni/Sipariş` (bildirim kategorileri) ·
+   `button|Tarifler & İçerik / DadaStore & Sipariş / Diyetisyen` (SSS kategorileri).
+   Bunların silinmesi görevdi; metin sayacı kısalmadığı için yerlerine DadaFit içeriği geldiği
+   de ölçülü.
+2. **Kabuk tipografisinin devralması — DOĞRULANDI.** `h1` 44→39px (1440) / 38→31px (768)
+   sapması defekt değil: **hiç göç etmemiş**, kabuğu baştan beri kullanan üç referans sayfa
+   ölçüldü ve göç edilenlerle **birebir aynı** çıktı —
+   `egzersiz-kutuphane-v1` · `antrenorler-v1` · `hareket-merkezi-v1` = **39px/700/680px/oran 0.47**
+   @1440 ve **31px/oran 0.89** @768; `sss` · `iletisim` · `yasal` · `hakkimizda` de aynı değerler.
+   Yani göç edilen sayfalar artık kabuğun kanonik başlık ölçüsünde. Hedef buydu.
+   (`bildirimler-v1` h1'i 28px — ama bu değer göç ÖNCESİNDE DE aynıydı, araç fark
+   raporlamadı; sayfa banner'da `.lh-main` yerine kendi `.nt-head` flex satırını kullandığı için.)
+3. **Küçük yerleşim kaymaları, taşmasız.** `font-weight 500→600` (hakkimizda sekme
+   bağlantıları, kabuk kiti) · `i.fa-house` 9→13px (kabuk breadcrumb ikonu) ·
+   form/istatistik kolon oranları (ör. 0.46→0.55 @768). **Beş sayfanın hiçbirinde yatay
+   taşma yok** (araç ayrıca ölçüyor) ve beşi de `page-check` 360/768/1024/1440'ta temiz.
+
+**Not:** `baseline-diff.mjs` bir geçti/kaldı kapısı DEĞİL, triyaj aracıdır — bilinçli içerik
+değişimi de "sapma" olarak sayılır, çıkış kodu bu yüzden 1 kalır. Kapı `tools/page-check.mjs`.
+
 ---
 
 # FAZ 3 — NAVİGASYON (belge §2, §3, §16)

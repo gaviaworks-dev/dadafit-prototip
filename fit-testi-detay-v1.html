@@ -31,8 +31,6 @@
 /* sayfa genel: yeşil eyebrow (fit bölümleri) — diğer 24 fit sayfasıyla aynı iki satır */
 .sec-fit .eyebrow{color:var(--fit-deep)}
 .sec-fit .eyebrow::before{background:var(--fit)}
-.btn-fit{background:var(--fit);color:#fff}
-.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
 
 /* ---- İKİ KOLON: sol akış · sağ sabit özet ---- */
 .ft-body{padding:34px 0 0;background:var(--bg-white)}
@@ -675,11 +673,17 @@
   'use strict';
 
   /* ---------------- test içerikleri ---------------- */
+  /* Program tablosu doğrudan program-detay-v1.html slug'ıyla anahtarlanır.
+     Kısa anahtarlar ('ev'/'mobilite'/'guc'/'kondisyon') bilinçli kaldırıldı:
+     'mobilite' hem burada hem TESTS kaydında anahtardı ve dosyadan veri
+     çıkaran naif bir regex ilk eşleşmeye kilitlenip yanlış bloktan okuyordu
+     (kardeş ajanın ölçümünde bir kez oldu). Artık iki anahtar uzayı ayrık
+     ve aradaki dolaylılık da kalktı — bant doğrudan slug'ı taşıyor. */
   var PROG = {
-    'ev':      {ad:'4 Hafta Ev Antrenmanı', slug:'4-hafta-ev-antrenmani'},
-    'mobilite':{ad:'8 Hafta Mobilite Planı', slug:'8-hafta-mobilite'},
-    'guc':     {ad:'12 Hafta Güç Temeli',    slug:'12-hafta-guc-temeli'},
-    'kondisyon':{ad:'8 Hafta Salon Kondisyon', slug:'8-hafta-salon-kondisyon'}
+    '4-hafta-ev-antrenmani':  '4 Hafta Ev Antrenmanı',
+    '8-hafta-mobilite':       '8 Hafta Mobilite Planı',
+    '12-hafta-guc-temeli':    '12 Hafta Güç Temeli',
+    '8-hafta-salon-kondisyon':'8 Hafta Salon Kondisyon'
   };
 
   /* Seviye adları TEK KAYNAK. Site konvansiyonu (program-liste-v1.html:308-310 ve
@@ -724,11 +728,11 @@
       ],
       olcumSoru:'30 saniyede destek almadan kaç kez tam kalkıp oturdun?',
       olcum:[
-        {t:'0–7 tekrar', lv:1, prog:'ev',
+        {t:'0–7 tekrar', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'Bacak dayanıklılığın şu an düşük tempoda çalışmaya uygun. Bu bir eksiklik değil, senin başlangıç noktan — dört hafta sonra aynı testi tekrarladığında farkı kendi sayınla göreceksin.'},
-        {t:'8–12 tekrar', lv:2, prog:'ev',
+        {t:'8–12 tekrar', lv:2, prog:'4-hafta-ev-antrenmani',
          ozet:'Günlük hareketler için yeterli bir bacak dayanıklılığın var. Haftada üç güne yayılmış, ilerlemesi kademeli bir programla rahatça başlayabilirsin.'},
-        {t:'13 tekrar ve üzeri', lv:3, prog:'guc',
+        {t:'13 tekrar ve üzeri', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'Bacak dayanıklılığın iyi düzeyde. Yük ilerlemesi olan bir programa geçebilirsin; formu bozmadan kademeli artırmaya dikkat et.'}
       ]
     },
@@ -761,11 +765,11 @@
       ],
       olcumSoru:'Dizlerini bükmeden öne uzandığında ellerin nereye ulaştı?',
       olcum:[
-        {t:'Dizlerimin üzerinde kaldı', lv:1, prog:'mobilite',
+        {t:'Dizlerimin üzerinde kaldı', lv:1, prog:'8-hafta-mobilite',
          ozet:'Arka zincirin şu an kısıtlı. Bu, günün büyük kısmını oturarak geçiren çoğu kişide görülür ve düzenli çalışmayla değişir; hedefin başkasına yetişmek değil, kendi mesafeni açmak.'},
-        {t:'Baldır / ayak bileği hizasına ulaştı', lv:2, prog:'mobilite',
+        {t:'Baldır / ayak bileği hizasına ulaştı', lv:2, prog:'8-hafta-mobilite',
          ozet:'Günlük hareketler için yeterli bir hareket açıklığın var. Isınmaya kalça ve arka bacak çalışmaları ekleyerek rahatça ilerleyebilirsin.'},
-        {t:'Avuç içim ayak tabanına değdi', lv:3, prog:'guc',
+        {t:'Avuç içim ayak tabanına değdi', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'Hareket açıklığın rahat. Artık mobiliteyi korumaya, kuvvet çalışmasını ise ilerletmeye odaklanabilirsin.'}
       ]
     },
@@ -795,11 +799,11 @@
       ],
       olcumSoru:'Gözlerin açıkken tek ayak üstünde kaç saniye dengede kalabildin? (kısa olan taraf)',
       olcum:[
-        {t:'10 saniyeden az', lv:1, prog:'ev',
+        {t:'10 saniyeden az', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'Denge kontrolün şu an sınırlı. Bu değiştirilebilir bir beceridir: günde birkaç dakikalık, tutunma destekli denge çalışması birkaç haftada belirgin fark yaratır.'},
-        {t:'10–29 saniye', lv:2, prog:'ev',
+        {t:'10–29 saniye', lv:2, prog:'4-hafta-ev-antrenmani',
          ozet:'Günlük hareketler için yeterli bir denge kontrolün var. Programına haftada iki kez kısa denge bloğu ekleyerek süreyi kendi ölçümüne göre uzatabilirsin.'},
-        {t:'30 saniye ve üzeri', lv:3, prog:'guc',
+        {t:'30 saniye ve üzeri', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'Denge kontrolün iyi. Denge çalışmasını koruma amaçlı sürdürüp asıl odağını kuvvet ilerlemesine kaydırabilirsin.'}
       ]
     },
@@ -829,11 +833,11 @@
       ],
       olcumSoru:'Seçtiğin varyasyonda formunu bozmadan kaç tekrar yaptın?',
       olcum:[
-        {t:'0–5 tekrar', lv:1, prog:'ev',
+        {t:'0–5 tekrar', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'İtiş kuvvetin şu an düşük tekrar aralığında. Daha kolay bir varyasyonla çok sayıda kaliteli tekrar yapmak, zor varyasyonla az sayıda bozuk tekrardan hızlı ilerletir.'},
-        {t:'6–14 tekrar', lv:2, prog:'ev',
+        {t:'6–14 tekrar', lv:2, prog:'4-hafta-ev-antrenmani',
          ozet:'Günlük hareketler için yeterli bir itiş kuvvetin var. Haftada iki kuvvet günü ve kademeli varyasyon zorlaştırması ile ilerleyebilirsin.'},
-        {t:'15 tekrar ve üzeri', lv:3, prog:'guc',
+        {t:'15 tekrar ve üzeri', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'İtiş kuvvetin iyi düzeyde. Tekrar sayısını artırmak yerine varyasyonu zorlaştırıp yük ilerlemesi olan bir programa geçmen daha verimli.'}
       ]
     },
@@ -863,11 +867,11 @@
       ],
       olcumSoru:'Üçüncü dakikanın sonunda konuşma testinde neredeydin?',
       olcum:[
-        {t:'Cümle kuramadım, nefesim yetmedi', lv:1, prog:'ev',
+        {t:'Cümle kuramadım, nefesim yetmedi', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'Bugünkü tempo senin için yüksekti. Daha kısa ve daha yavaş yürüyüşlerle başlayıp süreyi haftalık olarak artırmak, tempoyu zorlamaktan daha hızlı sonuç verir.'},
-        {t:'Kısa cümlelerle konuşabildim', lv:2, prog:'guc',
+        {t:'Kısa cümlelerle konuşabildim', lv:2, prog:'12-hafta-guc-temeli',
          ozet:'Tempolu yürüyüş toleransın orta düzeyde. Haftada üç yürüyüşle süreyi kademeli uzatabilir, arada kuvvet günü ekleyebilirsin.'},
-        {t:'Rahatça konuşabildim', lv:3, prog:'kondisyon',
+        {t:'Rahatça konuşabildim', lv:3, prog:'8-hafta-salon-kondisyon',
          ozet:'Bu tempo senin için rahat. Kondisyon çalışmasında süreyi ya da eğimi kademeli artıran bir programa geçebilirsin.'}
       ]
     },
@@ -897,11 +901,11 @@
       ],
       olcumSoru:'Ortalama bir iş gününde kaç saatini oturarak geçiriyorsun?',
       olcum:[
-        {t:'9 saat ve üzeri', lv:1, prog:'ev',
+        {t:'9 saat ve üzeri', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'Gün içindeki hareketsiz bloklar oldukça uzun. Buradaki en etkili adım uzun antrenman değil, saat başı 2–3 dakikalık ayağa kalkma molasıdır; bedeninin bugünkü durumu buna hızlı yanıt verir.'},
-        {t:'6–8 saat', lv:2, prog:'mobilite',
+        {t:'6–8 saat', lv:2, prog:'8-hafta-mobilite',
          ozet:'Oturma süren tipik masa başı aralığında. Molalarını düzenli hale getirip haftaya iki kısa mobilite seansı eklemek yeterli fark yaratır.'},
-        {t:'5 saat ve altı', lv:3, prog:'guc',
+        {t:'5 saat ve altı', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'Gün içi hareket dengen iyi görünüyor. Artık odağını kuvvet ve dayanıklılık çalışmasına kaydırabilirsin.'}
       ]
     },
@@ -931,11 +935,11 @@
       ],
       olcumSoru:'Son dört haftada haftada ortalama kaç gün en az 20 dakika hareket ettin?',
       olcum:[
-        {t:'0–1 gün', lv:1, prog:'ev',
+        {t:'0–1 gün', lv:1, prog:'4-hafta-ev-antrenmani',
          ozet:'Süreklilik henüz kurulmamış. Burada doğru hedef uzun antrenman değil, haftada iki kısa ve kesin gün belirlemektir; süre sonra kendiliğinden uzar.'},
-        {t:'2–3 gün', lv:2, prog:'ev',
+        {t:'2–3 gün', lv:2, prog:'4-hafta-ev-antrenmani',
          ozet:'Alışkanlığın kurulmaya başlamış. Haftalık hareket hedefini bir gün artırmak, seans süresini uzatmaktan daha kalıcı sonuç verir.'},
-        {t:'4 gün ve üzeri', lv:3, prog:'guc',
+        {t:'4 gün ve üzeri', lv:3, prog:'12-hafta-guc-temeli',
          ozet:'Sürekliliğin oturmuş. Artık gün sayısını değil, içeriğin kalitesini ve yük ilerlemesini konuşabiliriz.'}
       ]
     }
@@ -1149,12 +1153,11 @@
     fs.removeAttribute('aria-invalid');
 
     var o = T.olcum[+sel.value];
-    var p = PROG[o.prog];
     el('ftResOzet').textContent = o.ozet;
     el('ftResSeviye').textContent = SEVIYE[o.lv];
     el('ftRes').setAttribute('data-lv', o.lv);
-    el('ftResProgAd').textContent = p.ad;
-    el('ftResProgLink').setAttribute('href','program-detay-v1.html?slug=' + p.slug);
+    el('ftResProgAd').textContent = PROG[o.prog];
+    el('ftResProgLink').setAttribute('href','program-detay-v1.html?slug=' + o.prog);
     el('ftResDetay').setAttribute('href','fit-testi-sonuc-v1.html?test=' + SLUG);
     el('ftSideSeviye').textContent = SEVIYE[o.lv];
     el('ftRes').hidden = false;

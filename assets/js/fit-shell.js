@@ -47,11 +47,15 @@
  bağımsız görünmesi gerekiyor (belge §1). Burada yalnız kardeş ürünlere
  giden kontrollü ekosistem kapıları var.
  ============================================================ */
+/* Kardeş ürünlerin servis kökü. Gerçek adres belirlendiğinde YALNIZ bu satır
+   değişir — sayfalara dokunulmaz (aşağıdaki yeniden yazma katmanı sayesinde). */
+var ECO_BASE = 'https://by4r.github.io/dadamutfak-view/v7-6cu356/';
 var ECO = {
-  gastro:  'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html',
-  diet:    'https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html',
-  gourmet: 'https://by4r.github.io/dadamutfak-view/v7-6cu356/kesfet-v1.html',
-  campus:  'https://by4r.github.io/dadamutfak-view/v7-6cu356/akademi-v1.html'
+  base:    ECO_BASE,
+  gastro:  ECO_BASE + 'anasayfa-portal-v3a.html',
+  diet:    ECO_BASE + 'saglik-hub-v1.html',
+  gourmet: ECO_BASE + 'kesfet-v1.html',
+  campus:  ECO_BASE + 'akademi-v1.html'
 };
 /* DadaFit'in kendi çıkış hedefi — eskiden DadaMutfak portalına gidiyordu. */
 var FIT_LOGOUT = 'dadafit-hub-v1.html?auth=0';
@@ -781,7 +785,48 @@ function unlockScroll(){
   document.body.style.paddingRight = _lockPad;
   _lockPad = '';
 }
+/* ============================================================
+ EKOSİSTEM BAĞLANTILARININ TEK NOKTADAN YÖNETİMİ — belge §14
+ ------------------------------------------------------------
+ Belge: "Doğrudan başka prototiplerin HTML sayfalarına bağımlı bağlantılar
+ oluşturma. Entegrasyonlar yapılandırılabilir servis adresleri üzerinden
+ tasarlanmalıdır."
+
+ Sayfa markup'ında kardeş ürüne giden 37 bağlantı hâlâ eski kökü yazıyor
+ (ölçüldü). 35 dosyayı tek tek düzenlemek yerine kök TEK yerden (ECO_BASE)
+ okunur ve yükleme anında yeniden yazılır: artık markup'taki eski önek bir
+ ADRES değil, "burası ekosistem bağlantısı" işaretidir. Gerçek servis adresi
+ belirlendiğinde yalnız ECO_BASE değişir, hiçbir sayfaya dokunulmaz.
+
+ Bağlantılar ayrıca işaretlenir (data-eco="gastro|diet|gourmet|campus|eko")
+ ki hangi sistemle veri/gezinme paylaşıldığı ölçülebilir ve raporlanabilir
+ olsun — belge §14 "hangi sistemle paylaşıldığı açıkça gösterilmelidir" diyor.
+ ============================================================ */
+(function(){
+  var LEGACY = 'https://by4r.github.io/dadamutfak-view/v7-6cu356/';
+  /* hedef sayfadan hangi kardeş ürün olduğunu çıkar */
+  function which(path){
+    if(/saglik-hub|gunluk-kalori|diyetisyen/.test(path)) return 'diet';
+    if(/kesfet/.test(path))   return 'gourmet';
+    if(/akademi/.test(path))  return 'campus';
+    if(/tarif|anasayfa-portal|ogun|menu/.test(path)) return 'gastro';
+    return 'eko';
+  }
+  var n = 0;
+  document.querySelectorAll('a[href^="'+LEGACY+'"]').forEach(function(a){
+    var path = a.getAttribute('href').slice(LEGACY.length);
+    a.setAttribute('href', ECO_BASE + path);
+    a.setAttribute('data-eco', which(path));
+    /* dış sisteme çıkıyor: yeni sekme + güvenli rel (kullanıcı DadaFit'ten düşmesin) */
+    if(!a.hasAttribute('target')){ a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
+    n++;
+  });
+  window.FIT_SHELL = window.FIT_SHELL || {};
+  window.FIT_SHELL.ecoLinks = n;      /* ölçüm/rapor için: kaç bağlantı yazıldı */
+})();
+
 window.FIT_SHELL = window.FIT_SHELL || {};
+window.FIT_SHELL.eco = ECO;
 window.FIT_SHELL.lockScroll = lockScroll;
 window.FIT_SHELL.unlockScroll = unlockScroll;
 

@@ -1626,6 +1626,28 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
 /* ---------- ≤640 ---------- */
 @media (max-width:640px){
   .lib-top,.kp-top,.chl-hero,.cp-top,.pd-hero,.fs-top,.ol-top{margin-top:62px !important}
+  /* ---- A2'nin over-mode'u ≤640'ta SESSİZCE İPTAL OLUYORDU ----
+     Yukarıdaki satır A2'den ÖNCE yazılmıştı ve `!important` taşıyor; A2'nin
+     `body[data-fit-over="1"] .lib-top{margin-top:0}` kuralını (0,2,0, ama
+     !important'sız) yeniyordu. Sonuç: ≤640'ta banner header'ın ARKASINDAN
+     değil ALTINDAN başlıyor, ama header hâlâ `at-top` (şeffaf) durumda
+     kalıyor ve marka yazısı beyaz boyanıyor → BEYAZ ZEMİNDE BEYAZ LOGO.
+
+     ÖLÇÜM (24 banner sayfasından 4'ü, 7 genişlik):
+       ≥768px → bannerTop=0, yazı[61,89] banner koyu zemini yazının arkasında ✓
+       ≤640px → bannerTop=62, yazı[16,44], marka rgb(255,255,255), arkasında
+                banner YOK — okunmuyor. Hiç göç etmemiş antrenorler-v1 ve
+                egzersiz-kutuphane-v1'de de aynı, yani sayfa değil kabuk kusuru.
+       Hero sayfası (dadafit-hub-v1) her genişlikte DOĞRU — hero y=0'dan
+       başlayıp yazının arkasını kaplıyor, beyaz doğru renk.
+
+     Düzeltme yönü: A2'nin özgün niyetine dönmek. Hemen aşağıdaki satır
+     zaten `padding-top:86px` (yani 62 + 24) diyor — banner'ın 62px'lik
+     header'ın ARKASINDAN başlaması ve kendi 24px payını koruması
+     tasarlanmıştı. Aynı desen `.df-top` için 3 satır aşağıda uygulanmış
+     durumda (hero → margin 0 + padding 70). Burada da onu tamamlıyoruz;
+     over-mode'da OLMAYAN sayfalar 62px margin'ini korur. */
+  body[data-fit-over="1"] .lib-top{margin-top:0 !important}
   /* hub hero'lu: header şeffaf, bant header'ın ARKASINDAN başlar → padding ile ofset */
   body[data-fit-hero="1"] .df-top{margin-top:0 !important;padding-top:70px !important;padding-bottom:16px !important}
   /* diğer .df-top sayfaları (Enerji Defteri): kabuk yüksekliği margin ile karşılanır */

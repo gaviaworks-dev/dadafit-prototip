@@ -19,7 +19,10 @@
 import { chromium } from './_pw.mjs';
 
 const BASE   = process.argv[2] || 'http://localhost:8811';
-const WIDTHS = (process.argv[3] || '1440,1024,390').split(',').map(Number);
+/* 640 varsayılana SONRADAN eklendi: kabuğun ≤640 medya bloğu banner'ın
+   header'ın arkasından mı başlayacağını belirliyor ve beyaz marka yazısının
+   okunurluğu tam bu sınırda dönüyor. Sınırın kendisi ölçülmezse kusur kaçıyor. */
+const WIDTHS = (process.argv[3] || '1440,1024,640,390').split(',').map(Number);
 
 /* banner taşıyan sayfalar (.lib-top) + Planım kabuğu (.fp-top) + tam hero */
 const BANNER = [
@@ -77,7 +80,18 @@ for(const width of WIDTHS){
         planColor:ps ? ps.color : null,
         planVisible: pl ? ps.display !== 'none' : false,
         header: r(h),
-        crumb:  r(cr)
+        crumb:  r(cr),
+        /* ---- marka yazısı okunuyor mu? ----
+           `at-top` durumunda kabuk marka yazısını BEYAZ boyuyor
+           (fit-shell.css: .header.at-top .fit-word b/.ft{color:#fff}).
+           Bu yalnız yazının ARKASINDA koyu banner/hero varsa doğrudur.
+           Banner header'ın arkasından başlamıyorsa beyaz zeminde beyaz
+           yazı kalır ve logo görünmez olur — ölçülen gerçek kusur,
+           ≤640px'te 24 banner sayfasının hepsinde vardı. */
+        word:   r(document.querySelector('.header .fit-word b')),
+        wordColor: (() => { const w = document.querySelector('.header .fit-word b');
+                            return w ? getComputedStyle(w).color : null; })(),
+        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top'))
       };
     });
 
@@ -119,6 +133,24 @@ for(const width of WIDTHS){
       }
       if(top.planColor && !/255,\s*255,\s*255/.test(top.planColor))
         rec(tag, `Planım metni beyaz değil — ${top.planColor}`);
+    }
+
+    /* ---------- 2b · BEYAZ MARKA YAZISI KOYU ZEMİNDE Mİ? ----------
+       Kusur şöyle kaçmıştı: header doğru şekilde `at-top` (şeffaf) oluyor,
+       Planım düğmesi doğru, breadcrumb header'ın altında kalmıyor — üç
+       kontrol de yeşil. Ama ≤640px'te banner header'ın ARKASINDAN değil
+       ALTINDAN başlıyordu (fit-shell.css'teki eski
+       `.lib-top{margin-top:62px !important}` A2'nin margin-top:0'ını
+       yeniyordu), yani beyaz logo beyaz zemine düşüyordu.
+       ÖLÇÜM: 4 sayfa × 7 genişlik → ≥768px'te bannerTop=0 (doğru),
+       ≤640px'te bannerTop=62 / yazı[16,44] (logo görünmez). */
+    if(top.atTop && top.word && /255,\s*255,\s*255/.test(top.wordColor || '')){
+      if(!top.dark){
+        rec(tag, `marka yazısı BEYAZ ama arkasında koyu bant yok — logo görünmez (wordColor=${top.wordColor})`);
+      } else if(!(top.dark.top <= top.word.top && top.dark.bottom >= top.word.bottom)){
+        rec(tag, `marka yazısı BEYAZ ama koyu bant yazının arkasını kaplamıyor — logo görünmez ` +
+                 `(yazı ${top.word.top}–${top.word.bottom}, bant ${top.dark.top}–${top.dark.bottom})`);
+      }
     }
 
     /* ---------- 3 · şeffaf header banner metnini ezmiyor ---------- */

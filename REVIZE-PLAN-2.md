@@ -407,23 +407,43 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
 
 ---
 
-# FAZ 5 — YENİ SAYFALAR (belge §24, §7, §8, §10, §15)
+# FAZ 5 — YENİ SAYFALAR (belge §24, §7, §8, §10, §15) ✅ 10/10
 
-- [ ] `fit-testleri-v1.html` — 7 test kategorisi (belge §8)
-- [ ] `fit-testi-detay-v1.html` — amaç · kimler için · süre · ekipman · güvenlik · adımlar
-- [ ] `fit-testi-sonuc-v1.html` — sonuç özeti · seviye · önerilen program · antrenöre danış
-- [ ] Test öncesi **fiziksel aktivite uygunluk taraması**; riskli cevapta test durur (§8)
-- [ ] `aktivite-gunlugu-v1.html` — adım · aktif süre · yürüyüş/koşu/bisiklet · mesafe · yaklaşık enerji ·
-      manuel ekle/düzenle/sil · kaynak · son senkron (§7)
-- [ ] `bagli-uygulamalar-v1.html` — Apple Health · Health Connect · akıllı saat · manuel;
-      her biri için durum/izin/son senkron/aktarılan veri/bağlantıyı kes (§7)
-- [ ] `video-seanslari-v1.html` — 8 filtre (§10)
-- [ ] `video-seans-detay-v1.html` — bölümler · kaldığın yerden devam · tamamlandı · kaydet · programa ekle
-- [ ] `uyelik-faturalandirma-v1.html` — aktif paket · tarihler · ödeme geçmişi · faturalar · iptal (§15)
-- [ ] `destek-talepleri-v1.html` + `destek-talebi-detay-v1.html`
-- [ ] `index.html` prototip haritası yeni sayfalarla güncellenecek
+Sayfa başına bir ajan, en fazla 6 paralel. Ölçüm: **10 sayfa × 4 genişlik = 40/40 temiz.**
+Ajanların rötuşları commit sonrası geldiği için ölçümler **commit edilen bayt** üzerinde tekrarlandı.
 
----
+- [x] `fit-testleri-v1.html` — 7 test kategorisinin tamamı (belge §8)
+- [x] `fit-testi-detay-v1.html` — amaç · kimler için · süre · ekipman · güvenlik · adımlar (10 alan)
+- [x] `fit-testi-sonuc-v1.html` — sonuç özeti · seviye · önerilen program · antrenöre danış
+- [x] **Test öncesi fiziksel aktivite uygunluk taraması; riskli cevapta test DURUYOR (§8).**
+      Ana oturum ölçtü, ajan raporuna güvenilmedi — 7 soruluk tarama, iki senaryo:
+      hepsi "Hayır" → adımlar açıldı, durdurma gizli · q3 "Evet" → **adımlar kapandı,
+      durdurma göründü** ("Test durduruldu — … uzman desteği").
+- [x] `aktivite-gunlugu-v1.html` — §7'nin 14 kalemi (adım 13 · aktif süre 10 · yürüyüş 13 ·
+      koşu 11 · bisiklet 14 · mesafe 12 · yaklaşık enerji 8 · nabız 17 · manuel 12 ·
+      düzenle 13 · sil 14 · kaynak 25 · senkron 10)
+- [x] `bagli-uygulamalar-v1.html` — 4 seçenek × 5 alan. **İzinler geri alınabilir (§7):**
+      20 anahtar ölçüldü, tıklamada durum false → true.
+- [x] `video-seanslari-v1.html` — §10'un 8 filtresi. **§23 ölçüldü:** `?hedef=guc` URL'ye
+      yazılıyor ve **geri tuşu önceki duruma dönüyor.**
+- [x] `video-seans-detay-v1.html` — §10'un 14 alanı
+- [x] `uyelik-faturalandirma-v1.html` — §15'in 8 alanı + üç kademeli karşılaştırma tablosu
+- [x] `destek-talepleri-v1.html` + `destek-talebi-detay-v1.html` — kapsam bilinçli DAR
+      (`KARARLAR.md` K4: belge bu iki sayfanın alanlarını hiç tanımlamıyor).
+      Durum süzgeci 8 talebi 3 / 2 / 1'e indiriyor, `?durum=` URL'ye yazılıyor.
+- [x] `index.html` prototip haritası güncellendi — **haritadaki 56 hedef, diskteki 56 sayfa,
+      iki yönlü karşılaştırıldı: eksik yok, fazla yok.**
+- [x] **§13 yasak enerji ifadesi taraması: on sayfanın onunda da 0.**
+
+### Faz 5 sırasında ORTAYA ÇIKAN ve merkezî olarak düzeltilen kabuk kusuru
+
+`.btn-fit` kuralı `fit-shell.css`'te **yoktu**, ama kabuğun Pro kapısı
+(`?pg=1`) birincil eylemini `<a class="btn btn-fit">` diye üretiyordu. 27 sayfa kuralı
+kendi `<style>`'ına kopyaladığı için oralarda kazara çalışıyordu; kopyası olmayan
+sayfalarda düğme çıplak `.btn` (şeffaf zemin, koyu metin) olarak render edilip yanındaki
+`.btn-ghost` ile aynı görünüyordu. Ölçüm: `hareket-merkezi-v1` → `rgba(0,0,0,0)`,
+`antrenorler-v1` → `rgb(0,157,79)`. Kural kabuğa taşındı, 36 kopya satır silindi.
+Sonrası: 57 sayfa `?pg=1` ile tarandı, **126 düğme, yanlış zemin 0.**
 
 # FAZ 6 — ANA SAYFA, YÖNLENDİRME, İÇERİK SAYILARI (belge §6, §11, §12)
 

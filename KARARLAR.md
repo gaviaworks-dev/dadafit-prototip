@@ -65,3 +65,24 @@ link verilmedi.
 Faz 5 bittikten sonra bu bağ kurulacak — Faz 3'ün menü/footer bağlama sırasıyla aynı gerekçe.
 
 **Geri almak için:** Faz 5 sonrası `pro-odeme-v1` içine üyelik yönetimi bağlantısı eklenir.
+
+---
+
+## K4 · Destek talebi sayfalarının kapsamı belge dışı, bu yüzden DAR tutuldu
+
+**Belirsizlik:** belge §24 `destek-talepleri-v1.html` ve `destek-talebi-detay-v1.html`
+dosyalarını istiyor, §5 "Destek Taleplerim" modülünü sayıyor — ama **hiçbir yerde bu
+sayfaların alanlarını tanımlamıyor.** Diğer dokuz Faz 5 sayfasının hepsinin ayrıntılı
+alan listesi var; bu ikisinin yok.
+
+**Seçilen:** kapsam dar — talep listesi (durum · konu · tarih · numara) + durum süzgeci +
+yeni talep formu; detayda mesajlaşma dizisi + talep kapatma. Fazlası yok.
+
+**Gerekçe:** belge §21 eklenmeyecek modülleri sayarken "yapay zekâ sohbet asistanı"nı
+açıkça yasaklıyor; destek alanı tam da o yöne kayması kolay bir yüzey. Belge susuyorsa
+**en az varsayım** üreten kurgu seçildi. Zengin bir destek merkezi uydurmak, belgenin
+ayrıntılı yazdığı diğer dokuz sayfayla orantısız bir modül üretirdi.
+
+**Uygulandı:** `tools/FAZ5-SAYFA-SPEC.md`.
+
+**Geri almak için:** kullanıcı destek akışının kapsamını söylerse spec genişletilir.

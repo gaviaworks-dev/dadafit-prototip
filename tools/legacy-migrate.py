@@ -122,7 +122,17 @@ def split_css(css):
 
 
 def shell_selectors(shell_css):
-    """fit-shell.css'in tanımladığı tüm seçiciler (at-rule içleri dahil)."""
+    """fit-shell.css'in tanımladığı tüm seçiciler (at-rule içleri dahil).
+
+    HEM tam liste HEM her virgül parçası ayrı ayrı kaydedilir. Aksi hâlde
+    kayıt ile sorgu asimetrik olur: filter_css eşleştirmeyi PARÇA başına
+    yapıyor, ama burada liste tek bir anahtar olarak saklanırsa kabuğun
+    `.nav-item:hover .dropdown,.nav-item.open .dropdown{…}` gibi yazdığı
+    kurallar hiç eşleşmez ve sayfadaki karşılıkları "kabukta yok" sanılır.
+    Bu asimetri ölçümü şişiriyordu: sss-v1'de 94 "eksik" seçiciden 8'i
+    aslında kabukta liste hâlinde tanımlıydı (.nav-item.open .dropdown,
+    .acct-item.open .acct-menu, .sec-head .eyebrow …).
+    """
     sels = set()
     def walk(css):
         for kind, prelude, body, _full in split_css(css):
@@ -130,7 +140,9 @@ def shell_selectors(shell_css):
                 if _at_group(prelude):
                     walk(body)
             else:
-                sels.add(norm_sel(prelude))
+                sels.add(norm_sel(prelude))          # tam liste
+                for part in sel_parts(prelude):      # + her parça tek tek
+                    sels.add(norm_sel(part))
     walk(shell_css)
     return sels
 

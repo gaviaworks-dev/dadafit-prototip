@@ -4,754 +4,36 @@
 <meta charset="utf-8" />
   <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KVKK Politikası — Yasal Metinler · DadaMutfak</title>
+<title>Yasal Metinler — Kullanım, Üyelik, Gizlilik ve Veri İzinleri · DadaFit</title>
+<meta name="description" content="DadaFit kullanım koşulları, üyelik ve iptal koşulları, gizlilik ve KVKK politikası, çerez politikası, veri ve izin politikası ile platform bilgilendirme metni tek sayfada." />
 <link rel="shortcut icon" type="image/x-icon"
       href="assets/img/favicon.ico" />
 <!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
       integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
       crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
 /* =====================================================================
- _SHELL.HTML — KANONİK İSKELET (anasayfa-portal-v3a.html'den BİREBİR)
- Token + tipografi + utilities + topbar + header + mega menü (KİLİTLİ)
- + footer + drawer/bottom-nav + çerez/görüş modal + ortak JS.
- Yeni sayfa = bu dosyanın kopyası; SAYFA İÇERİĞİ bloğu doldurulur,
- sayfa-spesifik CSS "SAYFA CSS" işaretinin altına eklenir.
- Header varsayılan KATI; hero'lu sayfa ?hdr=hero benzeri davranış için
- JS'teki heroMode bayrağını açar.
+ SAYFAYA ÖZGÜ CSS — yalnız yasal-metin şablonunun kendi yerleşimi.
+ Kabuktan gelenler burada TEKRARLANMAZ: banner (.lib-top) + breadcrumb
+ (.lib-crumb) + .eyebrow + .wrap + tipografi + renk token'ları
+ fit-shell.css'in kanonik kitidir (HANDOFF §1). Eski turuncu kimliğin
+ token tanımı burada YOK; kabuk --tomato'yu DadaFit yeşili #009d4f
+ yapıyor, bu sayfa onu olduğu gibi kullanır — yeniden tanımlamaz.
  ===================================================================== */
 
-/* ============ GERÇEK SİTE FONTU: Gilroy-Medium — TEK YÜZ (eski site DNA'sı) ============
- Eski site (main.css): @font-face myBrandFont = Gilroy-Medium.ttf, universal reset ile
- başlık/gövde/buton dahil HER eleman bu tek yüzle render olur; 600/700 bold'lar
- tarayıcının sentetik bold'udur. Light/ExtraBold dosyaları klasörde var ama
- eski site CSS'i hiç yüklemez — bu yüzden burada da yalnız Medium yüklenir. */
-@font-face{
-  font-family:"Gilroy";
-  src:url("assets/fonts/Gilroy-Medium.ttf") format("truetype");
-  font-weight:500; font-style:normal; font-display:swap;
-}
+/* ---- banner: kanonik .lib-top kiti; sayfa yalnız görselini bildirir.
+ Göçten önceki görsel (restoran masası) eski markanın içeriğiydi; repoda zaten
+ kullanılan bir DadaFit hareket görseliyle değiştirildi — yeni harici bağımlılık yok. ---- */
+.lib-top{--lib-img:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18');--lib-pos:center 30%}
 
-/* ============ KİMLİK TOKEN'LARI (brand-tokens.md) ============ */
-:root{
-  --tomato:#E14827;          /* tek baskın marka rengi */
-  --tomato-dark:#C43D20;     /* hover türevi */
-  --tomato-deep:#A8331A;     /* gradient ucu */
-  --tomato-tint:#FBE9E3;     /* domates fısıltısı zemin */
-  --slate:#211E16;           /* Pantone Process Black C — başlık/koyu metin/panel */
-  --slate-2:#56514a;           /* sıcak muted koyu */
-  --green:#3BB77E;           /* yalnız sağlık bloğu */
-  --green-deep:#2c9963;
-  --yellow:#FAC045;          /* yalnız puan */
-  --muted:#7E7E7E;           /* ikincil metin */
-  --line:#ECECEC;            /* hairline ayraç */
-  --cream:#EFE5D3;           /* sıcak nötr */
-  --cream-2:#F7F1E6;
-  /* kurumsal alternatif renkler (kılavuz) */
-  --c-purple:#b14fc5; --c-mint:#6cca98; --c-green:#009d4f; --c-petrol:#006072;
-  --paper:#ffffff;
-  --bg:#f9f9f9;              /* eski site grisi — sayfa zemini (Revize T3 M12) */
-  --ink:#211E16;
-  /* section zemin ritmi — açık bölüm alternasyonu (gri ↔ beyaz, eski site ekseni) */
-  --bg-white:#ffffff;        /* saf beyaz */
-  --bg-cream:#f9f9f9;        /* eski site section grisi (own.css'teki en yaygın zemin) */
-
-  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-pill:999px; --radius-circle:50%;
-  /* legacy alias → yeni ölçek */
-  --r:var(--radius-lg); --r-sm:var(--radius-sm); --r-lg:var(--radius-xl);
-  --sh-sm:0 1px 2px rgba(33,30,22,.04), 0 2px 6px rgba(33,30,22,.05);
-  --sh-md:0 6px 22px rgba(33,30,22,.09);
-  --sh-lg:0 18px 50px rgba(33,30,22,.16);
-  --ease:cubic-bezier(.22,.61,.36,1);
-  --wrap:1240px;
-}
-
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  font-family:"Gilroy",system-ui,sans-serif;
-  font-weight:500;
-  color:var(--ink);
-  background:var(--bg);
-  line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3,h4{font-weight:700;color:var(--slate);line-height:1.12;letter-spacing:-.02em}
-a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 32px}
-.muted{color:var(--muted);font-weight:500}
-
-/* eyebrow */
-.eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--tomato);
-}
-.eyebrow::before{content:"";width:26px;height:2px;background:currentColor;border-radius:var(--radius-sm)}
-.eyebrow i{font-size:13px}
-
-/* section head */
-.sec{padding:74px 0}
-/* fixed header offseti — sayfanın İLK section'ına bu class verilir
- (topbar 40 + header 72 = 112px · mobil 62px) */
-.below-header{padding-top:112px}
-/* ortak section header grid'i — aksiyon grubu (Tamamını Gör + oklar/tablar) h2 ile
- aynı satırda, açıklama altta tek başına: [eyebrow] / [h2 | tools] / [lead] (Revize T4 M1).
- Sol blok display:contents ile grid'e açılır — DOM aynı, ≤640 pattern'ı ile uyumlu */
-.sec-head,.cat-head,.guide-head{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;
-  align-items:center;margin-bottom:34px;
-}
-.sec-head>div:first-child,.cat-head>div:first-child,.guide-head>div:first-child{display:contents}
-.sec-head .eyebrow,.cat-head .eyebrow,.guide-head .eyebrow{grid-row:1;grid-column:1/-1;justify-self:start;margin-bottom:14px}
-.sec-head h2,.cat-head h2,.guide-head h2{grid-row:2;grid-column:1}
-.sec-head .sec-tools,.sec-head .disc-tools,.cat-head .sec-tools,.guide-head .sec-tools{grid-row:2;grid-column:2;align-self:center}
-.sec-head .lead,.cat-head .lead,.guide-head .lead{grid-row:3;grid-column:1/-1;margin-top:10px;color:var(--muted);font-weight:500;font-size:15.5px;max-width:520px}
-.sec-head h2{font-size:34px}
-.see-all{
-  flex:none;display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:13.5px;
-  color:var(--slate);padding:11px 18px;border:1px solid var(--line);border-radius:var(--radius-md);
-  background:var(--paper);transition:.25s var(--ease);white-space:nowrap;
-}
-.see-all i{font-size:13px;transition:.25s var(--ease)}
-.see-all:hover{border-color:var(--tomato);color:var(--tomato)}
-.see-all:hover i{transform:translateX(3px)}
-
-/* buttons */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:none;
-  padding:14px 26px;border-radius:var(--radius-md);transition:.25s var(--ease);
-}
-.btn-primary{background:var(--tomato);color:#fff}
-.btn-primary:hover{background:var(--tomato-dark);transform:translateY(-2px)}
-.btn-ghost{background:var(--paper);color:var(--slate);border:1px solid var(--line)}
-.btn-ghost:hover{border-color:var(--slate);transform:translateY(-2px)}
-
-/* chips */
-.chips{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
-.chips .lbl{font-size:13px;color:var(--muted);font-weight:500;margin-right:2px}
-.chip{
-  font-size:13px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);
-  padding:8px 15px;border-radius:var(--radius-sm);cursor:pointer;transition:.2s var(--ease);
-}
-.chip:hover{border-color:var(--tomato);color:var(--tomato);background:var(--tomato-tint)}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* ============ TOP UTILITY BAR ============ */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:70;background:var(--ink);color:#e9e2d6;font-size:12.5px;font-weight:500}
-.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:40px}
-.topbar a{display:inline-flex;align-items:center;gap:7px;color:#e9e2d6;transition:.2s}
-.topbar a:hover{color:#fff}
-.topbar .tb-left{display:flex;align-items:center;gap:16px}
-.topbar .tb-left b{font-weight:600;color:#fff}
-.tb-div{width:1px;height:14px;background:rgba(233,226,214,.22);flex:none}
-.topbar .tb-right{display:flex;gap:18px;align-items:center}
-.topbar .tb-soc{display:flex;gap:14px}
-.topbar .tb-soc a:hover{color:var(--yellow)}
-/* dil seçici — üst bant (ince, açık zemin yazı) */
-.tb-lang{position:relative;display:flex;align-items:center}
-.tb-lang::before{content:"";width:1px;height:14px;background:rgba(233,226,214,.22);margin-right:4px}
-.tb-lang-btn{display:inline-flex;align-items:center;gap:7px;background:transparent;border:none;cursor:pointer;color:#e9e2d6;font-family:inherit;font-size:12.5px;font-weight:500;padding:0;transition:color .2s}
-.tb-lang-btn:hover{color:#fff}
-.tb-lang-btn>span{font-weight:600;letter-spacing:.03em}
-.tb-lang-caret{font-size:9px;transition:transform .2s var(--ease)}
-.tb-lang.open .tb-lang-caret{transform:rotate(180deg)}
-.tb-lang-menu{position:absolute;top:calc(100% + 9px);right:0;min-width:148px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-md);padding:6px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .2s var(--ease),transform .2s var(--ease),visibility .2s;z-index:80}
-.tb-lang.open .tb-lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.tb-lang-menu a{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:13px;font-weight:600;padding:9px 11px;border-radius:var(--radius-sm);transition:.18s var(--ease)}
-.tb-lang-menu a span{color:var(--muted);font-weight:500;font-size:12.5px}
-.tb-lang-menu a:hover{background:var(--tomato-tint);color:var(--tomato)}
-.tb-lang-menu a.active,.tb-lang-menu a.active span{color:var(--tomato)}
-
-/* ---- üst bant dünya kapıları: DadaStore + DadaAkademi markalı geçiş (CİLA-2 Faz 5) ---- */
-.topbar .tb-util{color:#cfc7ba}
-.topbar .tb-util:hover{color:#fff}
-.tb-worlds{display:flex;align-items:center;gap:9px}
-.tb-world{display:inline-flex;align-items:center;gap:8px;height:27px;padding:0 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;letter-spacing:.01em;border:1px solid transparent;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease)}
-.tb-world i{font-size:12.5px;transition:color .2s var(--ease)}
-.tb-world .tw-name{line-height:1}
-.tb-world .tw-arr{font-size:9px;opacity:0;max-width:0;margin-left:-8px;overflow:hidden;transform:translateX(-5px);transition:opacity .2s var(--ease),transform .2s var(--ease),max-width .2s var(--ease),margin-left .2s var(--ease)}
-.tb-world:hover .tw-arr{opacity:.92;max-width:16px;margin-left:0;transform:translateX(0)}
-.tb-world .tw-soon{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);background:rgba(233,226,214,.18);color:#e9e2d6;line-height:1}
-/* DadaStore — domates dünyası (sıcak, e-ticaret) */
-.tb-world-store{background:rgba(225,72,39,.18);border-color:rgba(225,72,39,.46);color:#fff}
-.tb-world-store i{color:#ff7d5e}
-.tb-world-store:hover{background:var(--tomato);border-color:var(--tomato);color:#fff}
-.tb-world-store:hover i,.tb-world-store:hover .tw-arr{color:#fff}
-/* DadaAkademi — petrol dünyası (serin, öğrenme) */
-.tb-world-akademi{background:rgba(0,96,114,.30);border-color:rgba(95,203,216,.40);color:#fff}
-.tb-world-akademi i{color:#5fcbd8}
-.tb-world-akademi:hover{background:var(--c-petrol);border-color:var(--c-petrol);color:#fff}
-.tb-world-fit{background:rgba(0,157,79,.22);border-color:rgba(0,157,79,.5);color:#fff}
-.tb-world-fit i{color:#3fd089}
-.tb-world-fit:hover{background:#009d4f;border-color:#009d4f;color:#fff}
-.tb-world-fit:hover i,.tb-world-fit:hover .tw-arr{color:#fff}
-.tb-world-akademi:hover i{color:#fff}
-
-/* ============ HEADER — TEK KAT (marka · ortalanmış nav · aksiyonlar) — Revize T3 M2 ============ */
-.header{
-  position:fixed;top:0;left:0;right:0;z-index:60;
-  top:40px;background:rgba(255,255,255,.94);backdrop-filter:saturate(150%) blur(10px);
-  border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(33,30,22,.05);
-  transition:background .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
-}
-/* hero üstünde: şeffaf + beyaz — yalnız heroMode açık sayfalarda kullanılır (JS) */
-.header.at-top{background:transparent;backdrop-filter:none;border-color:rgba(255,255,255,.14);box-shadow:none}
-.h-top>.wrap{display:flex;align-items:center;gap:22px;height:72px}
-.brand{display:flex;align-items:center;flex:none}
-.brand img{height:40px;width:auto;display:block}
-.brand .logo-white{display:none}
-.header.at-top .brand .logo-color{display:none}
-.header.at-top .brand .logo-white{display:block}
-/* nav, logo ile aksiyonlar arasında ortalanır */
-.nav{display:flex;gap:2px;flex-wrap:nowrap;flex:1;justify-content:center;min-width:0}
-.nav a{
-  position:relative;font-weight:700;font-size:15px;color:var(--slate);white-space:nowrap;
-  padding:9px 12px;border-radius:var(--radius-md);transition:color .2s var(--ease),background .2s var(--ease);
-}
-.nav a .fa-chevron-down{font-size:9px;margin-left:5px;opacity:.5}
-.nav a:hover{color:var(--tomato);background:var(--tomato-tint)}
-.nav a.active{color:var(--tomato)}
-.nav a.active::after{
-  content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;
-  background:var(--tomato);border-radius:var(--radius-sm);
-}
-/* at-top nav beyaz */
-.header.at-top .nav>.nav-item>a{color:#fff}
-.header.at-top .nav>.nav-item>a:hover{background:rgba(255,255,255,.14);color:#fff}
-.header.at-top .nav>.nav-item>a.active{color:#fff}
-.header.at-top .nav>.nav-item>a.active::after{background:#fff}
-.head-actions{margin-left:auto;display:flex;align-items:center;gap:9px;flex:none}
-.icon-btn{
-  width:43px;height:43px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);
-  display:grid;place-items:center;color:var(--slate);font-size:16px;cursor:pointer;transition:.2s var(--ease);position:relative;
-}
-.icon-btn:hover{border-color:var(--tomato);color:var(--tomato)}
-.header.at-top .icon-btn{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.30);color:#fff}
-.header.at-top .icon-btn:hover{background:rgba(255,255,255,.20);border-color:#fff;color:#fff}
-/* minimal giriş butonu — kompakt boy, marka rengi (eski renk kalsın), flat */
-.btn-login{
-  display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:700;font-size:14px;
-  color:#fff;background:var(--tomato);border:1px solid var(--tomato);border-radius:var(--radius-md);
-  height:43px;padding:0 18px;margin-left:3px;cursor:pointer;white-space:nowrap;transition:.2s var(--ease);
-}
-.btn-login i{font-size:14px}
-.btn-login:hover{background:var(--tomato-dark);border-color:var(--tomato-dark)}
-
-/* ===== LOGIN-STATE (cila-2 faz 2) — header logged-in chrome ===== */
-/* varsayılan logged-out: ekle/zil/avatar gizli. body.is-auth → açılır, btn-login gizlenir */
-.head-add,.head-bell,.acct-wrap{display:none}
-body.is-auth .btn-login{display:none}
-body.is-auth .head-add,body.is-auth .acct-wrap{display:flex}
-body.is-auth .head-bell{display:grid}
-/* ekle + hesap menüsü ortak konteyner (header sağ blok dropdown'ı)
- NOT: display BASE'te VERİLMEZ — gizle/göster yalnız .head-add/.acct-wrap kurallarınca
- yönetilir (aksi halde display:flex, üstteki display:none'ı kaynak sırasıyla yener → logged-out sızıntı) */
-.acct-item{position:relative;align-items:center;height:72px}
-.acct-btn{display:inline-flex;align-items:center;gap:7px;height:43px;padding:0 9px 0 5px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);cursor:pointer;font-family:inherit;transition:.2s var(--ease)}
-.acct-btn:hover{border-color:var(--tomato)}
-.acct-ava{width:33px;height:33px;border-radius:var(--radius-circle);background-size:cover;background-position:center;flex:none}
-.acct-caret{font-size:9px;color:var(--muted);transition:transform .2s var(--ease)}
-.acct-item.open .acct-caret{transform:rotate(180deg)}
-/* bildirim zili + sayaç */
-.head-bell{position:relative}
-.hb-badge{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:var(--radius-circle);background:var(--tomato);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
-/* dropdown panel (header sağa hizalı; nav dropdown diliyle aynı) */
-.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:236px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.22s var(--ease);z-index:80}
-.acct-item:hover .acct-menu,.acct-item.open .acct-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.acct-menu::before{content:"";position:absolute;top:-7px;right:24px;width:13px;height:13px;background:#fff;border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
-.acct-menu>a{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:var(--radius-md);font-size:14px;font-weight:500;color:var(--slate);transition:.16s var(--ease)}
-.acct-menu>a i{width:18px;text-align:center;color:var(--tomato);font-size:14px;margin-top:2px}
-.acct-menu>a span{display:block}
-.acct-menu>a small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
-.acct-menu>a:hover{background:var(--tomato-tint);color:var(--tomato);padding-left:16px}
-.acct-menu .acct-logout,.acct-menu .acct-logout i{color:var(--tomato)}
-/* hesap menüsü kimlik başlığı */
-.acct-id{display:flex;align-items:center;gap:11px;padding:8px 11px 12px}
-.acct-id .acct-ava{width:42px;height:42px}
-.acct-id-txt{min-width:0}
-.acct-id-txt b{display:block;font-size:14.5px;color:var(--slate);font-weight:700}
-.acct-id-txt small{display:block;font-size:12px;color:var(--muted);font-weight:500}
-.acct-div{height:1px;background:var(--line);margin:6px 4px}
-.nav-div{height:1px;background:var(--line);margin:5px 4px}
-/* drawer logged-in kimlik satırı (mobil) */
-.drawer-acct{display:none;align-items:center;gap:12px;padding:2px 2px 12px}
-body.is-auth .drawer-acct{display:flex}
-body.is-auth .drawer-login{display:none}
-.drawer-acct .da-ava{width:46px;height:46px;border-radius:var(--radius-circle);background-size:cover;background-position:center;flex:none}
-.drawer-acct .da-info{min-width:0}
-.drawer-acct .da-info b{display:block;font-size:15px;color:var(--slate);font-weight:700}
-.da-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px}
-.da-links a{font-size:12.5px;font-weight:700;color:var(--tomato)}
-.da-links a:not(:last-child)::after{content:"·";margin-left:8px;color:var(--muted);font-weight:500}
-/* ===== /LOGIN-STATE ===== */
-
-/* ===== LG-GATE (cila-2 faz 2) — logged-out mikro-aksiyon giriş kapısı ===== */
-.lg-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:97;opacity:0;visibility:hidden;transition:opacity .25s var(--ease),visibility .25s}
-.lg-overlay.show{opacity:1;visibility:visible}
-.lg-gate{position:fixed;inset:0;z-index:98;display:grid;place-items:center;padding:20px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),visibility .25s}
-.lg-gate.show{opacity:1;visibility:visible;pointer-events:auto}
-.lg-panel{position:relative;width:min(382px,100%);background:#fff;border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:32px 26px 26px;text-align:center;transform:translateY(14px);transition:transform .3s var(--ease)}
-.lg-gate.show .lg-panel{transform:translateY(0)}
-.lg-close{position:absolute;top:13px;right:13px;width:36px;height:36px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
-.lg-close:hover{border-color:var(--tomato);color:var(--tomato)}
-.lg-ico{width:62px;height:62px;border-radius:var(--radius-circle);background:var(--tomato-tint);color:var(--tomato);display:grid;place-items:center;font-size:25px;margin:0 auto 16px}
-.lg-gate h4{font-size:19px;margin-bottom:8px}
-.lg-gate p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:300px;margin:0 auto 22px;line-height:1.55}
-.lg-acts{display:flex;gap:10px}
-.lg-acts .btn{flex:1}
-/* ===== /LG-GATE ===== */
-
-/* ---- NAV DROPDOWNS ---- */
-.nav .nav-item{position:relative}
-/* nav item tek katın tam yüksekliğini doldursun → hover sürekliliği (mega'ya geçişte kopmaz) */
-.h-top .nav-item{display:flex;align-items:center;height:72px}
-.nav .nav-item>a{display:inline-flex;align-items:center}
-.soon{margin-left:7px;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  color:#fff;background:var(--green);padding:3px 7px;border-radius:var(--radius-sm);vertical-align:middle}
-.dropdown{
-  position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(8px);
-  min-width:230px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);
-  padding:10px;opacity:0;visibility:hidden;transition:.22s var(--ease);z-index:80;
-}
-.nav-item:hover .dropdown,.nav-item.open .dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-.dropdown::before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(45deg);
-  width:13px;height:13px;background:#fff;border-left:1px solid var(--line);border-top:1px solid var(--line)}
-.dropdown a{
-  display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:var(--radius-md);font-size:14px;font-weight:500;
-  color:var(--slate);transition:.16s var(--ease);
-}
-.dropdown a i{width:18px;text-align:center;color:var(--tomato);font-size:14px;margin-top:2px}
-.dropdown a small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
-.dropdown a:hover{background:var(--tomato-tint);color:var(--tomato);padding-left:16px}
-.dd-head{padding:8px 13px 4px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.dd-col{display:flex;flex-direction:column}
-
-/* ---- MEGA MENÜ (Tarifler) — header'a bağlı tam genişlik panel — KİLİTLİ ---- */
-.nav-item.has-mega{position:static}            /* containing block = .header (fixed) */
-.mega{
-  position:absolute;left:0;right:0;top:100%;
-  background:#fff;border-top:1px solid var(--line);
-  box-shadow:var(--sh-lg);padding:28px 0 26px;
-  opacity:0;visibility:hidden;transform:translateY(8px);
-  transition:.22s var(--ease);z-index:80;
-}
-.nav-item:hover .mega,.nav-item.open .mega{opacity:1;visibility:visible;transform:translateY(0)}
-.mega-grid{display:grid;grid-template-columns:2.2fr 1fr;gap:22px;align-items:start}
-.mega-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 16px;align-content:start}
-.mega-cats a{
-  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-md);
-  font-size:14.5px;font-weight:500;color:var(--slate);transition:.16s var(--ease);line-height:1.25;
-}
-.mega-cats a i{width:20px;text-align:center;color:var(--tomato);font-size:15px;flex:none}
-.mega-cats a small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
-.mega-cats a:hover{background:var(--tomato-tint);color:var(--tomato)}
-.mega-feat{min-width:0;border-left:1px solid var(--line);padding-left:22px}
-.mf-fig{
-  position:relative;aspect-ratio:16/10;border-radius:var(--radius-md);overflow:hidden;
-  background-size:cover;background-position:center;display:flex;align-items:flex-end;cursor:pointer;
-}
-.mf-fig::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 35%,rgba(15,13,9,.78))}
-.mf-fig .r-chip{position:absolute;top:12px;left:12px;background:var(--tomato);color:#fff;z-index:2}
-.mf-fig h4{position:relative;z-index:2;color:#fff;font-size:17px;padding:16px;line-height:1.25}
-/* "Tüm Tarifler" — kategori grid'inin 13. hücresi, buton dilinde (Revize T3 M1) */
-.mega-cats .mega-cat-all{
-  font-weight:700;color:var(--tomato);
-  background:var(--tomato-tint);border:1px solid rgba(225,72,39,.22);
-}
-.mega-cats .mega-cat-all small{color:var(--tomato);opacity:.75}
-.mega-cats .mega-cat-all .mca-arrow{margin-left:auto;width:auto;font-size:13px;transition:transform .2s var(--ease)}
-.mega-cats .mega-cat-all:hover{background:var(--tomato);color:#fff;border-color:var(--tomato)}
-.mega-cats .mega-cat-all:hover i,.mega-cats .mega-cat-all:hover small{color:#fff;opacity:1}
-.mega-cats .mega-cat-all:hover .mca-arrow{transform:translateX(3px)}
-/* Tarif Bulucu CTA — mega-feat kolonunda (Faz3 #22; finder giriş noktası) */
-.mega-find{display:flex;align-items:center;gap:12px;margin-top:14px;padding:13px 14px;border-radius:var(--radius-md);background:var(--tomato-tint);border:1px solid rgba(225,72,39,.22);transition:.18s var(--ease)}
-.mega-find .mf-ico{flex:none;width:38px;height:38px;border-radius:var(--radius-sm);background:#fff;color:var(--tomato);display:grid;place-items:center;font-size:16px}
-.mega-find .mf-body{flex:1;min-width:0}
-.mega-find .mf-body b{display:block;font-size:14px;font-weight:700;color:var(--tomato);line-height:1.2}
-.mega-find .mf-body small{display:block;font-size:11.5px;color:var(--tomato);opacity:.78;font-weight:500;margin-top:2px}
-.mega-find .mf-arr{flex:none;color:var(--tomato);font-size:13px;transition:transform .2s var(--ease)}
-.mega-find:hover{background:var(--tomato);border-color:var(--tomato)}
-.mega-find:hover .mf-body b,.mega-find:hover .mf-body small,.mega-find:hover .mf-arr{color:#fff;opacity:1}
-.mega-find:hover .mf-arr{transform:translateX(3px)}
-/* mega içindeki r-chip (mf-fig rozeti) için minimal taban */
-.r-chip{background:rgba(255,255,255,.94);color:var(--slate);font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);letter-spacing:.02em}
-
-/* ---- "TÜMÜNÜ GÖR" SLIDER ALTYAPISI (oklar + snap track) ---- */
-.sec-tools{flex:none;display:flex;align-items:center;gap:12px}
-.row-nav{display:flex;gap:8px}
-.row-nav button{width:42px;height:42px;font-size:13px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);cursor:pointer;transition:.2s var(--ease)}
-.row-nav button:hover{background:var(--tomato);border-color:var(--tomato);color:#fff}
-.row-track{
-  display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;
-  scrollbar-width:none;padding:6px 2px 10px;
-}
-.row-track::-webkit-scrollbar{display:none}
-.row-track>*{flex:none;width:274px;scroll-snap-align:start}
-
-/* ---- FOOTER REVEAL (gaviaworks perde efekti) — yalnız desktop/tablet ----
- Footer sayfanın arkasında sabit bekler (z düşük); opak içerik wrapper'ı
- üstünde durur ve sonuna JS ile footer yüksekliği kadar boşluk açılır —
- scroll sonunda içerik kalkar, footer alttan ortaya çıkar. Mobil: statik. */
-@media (min-width:641px){
-  .footer.orange{position:fixed;left:0;right:0;bottom:0;z-index:1}
-  .page-main{position:relative;z-index:2;background:var(--bg)}
-}
-
-/* ============ FOOTER ============ */
-.footer{background:var(--slate);color:#aebcc6;padding:70px 0 0}
-/* kolon ritmi: logo bloğu geniş, 4 link kolonu eşit dağılır → sağ kenara kadar dengeli */
-.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.05fr;gap:44px 28px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.1)}
-.foot-col a{white-space:nowrap}
-.foot-brand img{height:42px;width:auto;margin-bottom:22px}
-.foot-soc{display:flex;gap:11px}
-.foot-soc a{width:42px;height:42px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);display:grid;place-items:center;color:#cdd8e0;font-size:16px;transition:.2s var(--ease)}
-.foot-soc a:hover{background:var(--tomato);color:#fff;transform:translateY(-3px)}
-.foot-col h5{color:#fff;font-size:15px;font-weight:700;margin-bottom:18px}
-.foot-col a{display:block;font-size:14px;font-weight:500;color:#9fb0bc;padding:7px 0;transition:.2s}
-.foot-col a:hover{color:var(--tomato);padding-left:5px}
-/* legal bar — 9 link, ince dikey ayraçlı, wrap'li */
-.foot-legal{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;padding:24px 0 0;font-size:12px;font-weight:500}
-.foot-legal a{white-space:nowrap;transition:.2s}
-.foot-legal .sep{width:1px;height:11px;background:rgba(255,255,255,.28);flex:none}
-.foot-bottom{display:flex;align-items:center;justify-content:space-between;padding:16px 0 26px;font-size:13px;font-weight:500;color:#7e8e9a}
-.foot-bottom a:hover{color:#cdd8e0}
-
-/* ---- ORANGE FOOTER (gaviaworks yapısı) ---- */
-.footer.orange{background:var(--tomato);color:#ffe7df}
-.footer.orange .foot-grid{border-bottom-color:rgba(255,255,255,.18)}
-.footer.orange .foot-soc a{background:rgba(255,255,255,.14);color:#fff}
-.footer.orange .foot-soc a:hover{background:#fff;color:var(--tomato);transform:translateY(-3px)}
-.footer.orange .foot-col h5{color:#fff}
-.footer.orange .foot-col a{color:#ffdccf}
-.footer.orange .foot-col a:hover{color:#fff;padding-left:5px}
-.footer.orange .foot-legal a{color:#ffd0c2}
-.footer.orange .foot-legal a:hover{color:#fff}
-.footer.orange .foot-bottom{color:#ffd0c2}
-.footer.orange .foot-bottom a{color:#ffd0c2}
-.footer.orange .foot-bottom a:hover{color:#fff}
-
-/* =========================================================
- RESPONSIVE TABAN · desktop ≥1025px DEĞİŞMEZ
- tablet 641–1024px · mobil ≤640px
- ========================================================= */
-
-/* yatay taşmayı global engelle */
-html,body{overflow-x:hidden}
-
-/* sürükle-kaydır (mouse) imleci — yatay slider'lar */
-.drag-scroll.dragging{cursor:grabbing;user-select:none;scroll-behavior:auto}
-.drag-scroll.dragging *{pointer-events:none}
-
-/* ---- MOBİL KOMPONENTLER (desktop'ta gizli) ---- */
-.hamburger{display:none}
-.drawer,.drawer-overlay,.bottom-nav{display:none}
-
-/* drawer */
-.drawer-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:95;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
-.drawer-overlay.open{opacity:1;pointer-events:auto}
-.drawer{
-  position:fixed;top:0;right:0;height:100%;width:min(360px,86vw);background:#fff;z-index:96;
-  transform:translateX(100%);transition:transform .32s var(--ease);
-  flex-direction:column;box-shadow:-12px 0 44px rgba(20,18,12,.22);
-}
-.drawer.open{transform:translateX(0)}
-.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex:none}
-.drawer-logo{height:34px;width:auto;display:block}
-.drawer-close{width:42px;height:42px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:18px;cursor:pointer;display:grid;place-items:center}
-.drawer-close:hover{border-color:var(--tomato);color:var(--tomato)}
-.drawer-nav{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.d-item{border-bottom:1px solid var(--line)}
-.d-link{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
-  font-family:inherit;font-weight:700;font-size:16px;color:var(--slate);
-  background:none;border:none;text-align:left;padding:16px 22px;cursor:pointer;
-}
-.d-link .fa-chevron-down{font-size:12px;color:var(--muted);transition:transform .25s var(--ease),color .25s var(--ease)}
-.d-item.open>.d-link .fa-chevron-down{transform:rotate(180deg);color:var(--tomato)}
-.d-link .soon{font-size:9.5px}
-.d-sub{max-height:0;overflow:hidden;transition:max-height .3s var(--ease);background:var(--bg)}
-.d-item.open>.d-sub{max-height:760px}
-.d-sub a{display:flex;align-items:center;gap:11px;padding:13px 22px 13px 36px;font-size:14.5px;font-weight:500;color:var(--slate-2)}
-.d-sub a i{width:18px;text-align:center;color:var(--tomato);font-size:13px}
-.d-sub a:hover{color:var(--tomato);background:var(--tomato-tint)}
-.drawer-foot{padding:18px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:11px;flex:none}
-.drawer-add{display:flex;align-items:center;justify-content:center;gap:9px;font-weight:700;font-size:14.5px;color:var(--slate);padding:13px;border:1px solid var(--line);border-radius:var(--radius-md);transition:.2s var(--ease)}
-.drawer-add:hover{border-color:var(--tomato);color:var(--tomato)}
-/* drawer dünya kapıları (mobilde üst bant gizli — DadaStore/DadaAkademi buradan) — tb-world kimliği */
-.drawer-worlds{display:grid;grid-template-columns:1fr;gap:9px;margin-top:7px}
-.drawer-world{display:flex;align-items:center;gap:9px;min-height:48px;padding:0 15px;border-radius:var(--radius-md);font-size:14px;font-weight:700;letter-spacing:.01em;border:1px solid transparent;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease)}
-.drawer-world i{font-size:13px}
-.drawer-world .dw-name{line-height:1.1}
-.drawer-world .dw-arr{font-size:9px;margin-left:auto;opacity:.7}
-.drawer-world .dw-soon{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);margin-left:auto;line-height:1}
-.dw-store{background:rgba(225,72,39,.10);border-color:rgba(225,72,39,.40);color:var(--tomato)}
-.dw-store i{color:var(--tomato)}
-.dw-store:hover{background:var(--tomato);border-color:var(--tomato);color:#fff}
-.dw-store:hover i,.dw-store:hover .dw-arr{color:#fff}
-.dw-akademi{background:rgba(0,96,114,.10);border-color:rgba(0,96,114,.34);color:var(--c-petrol)}
-.dw-akademi i{color:var(--c-petrol)}
-.dw-akademi .dw-soon{background:rgba(0,96,114,.14);color:var(--c-petrol)}
-.dw-akademi:hover{background:var(--c-petrol);border-color:var(--c-petrol);color:#fff}
-.dw-akademi:hover i{color:#fff}
-.dw-fit{background:rgba(0,157,79,.10);border-color:rgba(0,157,79,.36);color:#007a3d}
-.dw-fit i{color:#007a3d}
-.dw-fit:hover{background:#009d4f;border-color:#009d4f;color:#fff}
-.dw-fit:hover i,.dw-fit:hover .dw-arr{color:#fff}
-.dw-akademi:hover .dw-soon{background:rgba(255,255,255,.20);color:#fff}
-/* drawer dil seçici (mobilde üst bant yok) — aç/kapa liste: N dile ölçeklenir */
-.drawer-lang{display:flex;flex-direction:column;margin-top:3px}
-.drawer-lang-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:none;border:none;font-family:inherit;padding:4px 0;cursor:pointer}
-.drawer-lang-label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted)}
-.drawer-lang-cur{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--slate)}
-.drawer-lang-cur i{font-size:10px;color:var(--muted);transition:transform .25s var(--ease)}
-.drawer-lang.open .drawer-lang-cur i{transform:rotate(180deg)}
-.drawer-lang-list{display:none;flex-direction:column;gap:5px;margin-top:10px;max-height:212px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.drawer-lang.open .drawer-lang-list{display:flex}
-.drawer-lang-list button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;cursor:pointer;transition:.18s var(--ease)}
-.drawer-lang-list button b{font-weight:700;letter-spacing:.03em;width:26px;flex:none}
-.drawer-lang-list button:hover{border-color:var(--tomato);color:var(--tomato)}
-.drawer-lang-list button.active{border-color:rgba(225,72,39,.4);background:var(--tomato-tint);color:var(--tomato)}
-.drawer-lang-list button.active::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;margin-left:auto;font-size:12px}
-
-/* mobil alt navigasyon — Instagram tarzı floating frosted pill */
-.bottom-nav{
-  position:fixed;left:16px;right:16px;z-index:90;
-  bottom:calc(14px + env(safe-area-inset-bottom,0px));
-  justify-content:space-around;align-items:center;gap:4px;
-  padding:6px 8px;border-radius:var(--radius-lg);
-  background:rgba(255,255,255,.55);
-  -webkit-backdrop-filter:blur(30px) saturate(190%);backdrop-filter:blur(30px) saturate(190%);
-  border:none;
-  box-shadow:0 10px 30px rgba(33,30,22,.16),0 2px 8px rgba(33,30,22,.07),inset 0 1px 0 rgba(255,255,255,.6);
-  transition:transform .26s var(--ease);
-}
-.bottom-nav.bn-hidden{transform:translateY(calc(100% + 30px));pointer-events:none}
-.bn-item{
-  flex:none;position:relative;display:grid;place-items:center;
-  width:40px;height:40px;border-radius:var(--radius-lg);
-  color:var(--slate-2);font-size:19px;transition:background .2s var(--ease),color .2s var(--ease),transform .12s var(--ease);
-}
-/* etiketler görsel gizli (icon-only, IG tarzı) — erişilebilirlik için DOM'da kalır */
-.bn-item>span:last-child{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-/* aktif: yarı saydam domates (primary) — glass korunur, radius-lg pill ile uyumlu */
-.bn-item.active{color:var(--tomato);background:rgba(225,72,39,.15)}
-.bn-item:active{transform:scale(.9)}
-/* orta FAB: bar'dan çıkık (raised) — düz domates, token radius, halka yok */
-.bn-center{width:auto;height:auto;background:none;transform:translateY(-14px)}
-.bn-center:active{transform:translateY(-14px) scale(.92)}
-.bn-fab{
-  width:52px;height:52px;border-radius:var(--radius-lg);border:none;color:#fff;
-  background:var(--tomato);
-  display:grid;place-items:center;font-size:19px;
-  box-shadow:0 8px 20px rgba(225,72,39,.5);
-}
-
-/* ===================== GÖRÜŞ BİLDİR (eski site "Öneri ve Şikayet" mirası) =====================
- Eski sitedeki sunum: sağ kenarda 90° döndürülmüş sabit turuncu buton (open-feedback-modal).
- Aynı desen, yeni dile çevrildi. */
-.feedback-tab{
-  position:fixed;top:50%;right:0;z-index:55;
-  transform-origin:100% 0;transform:rotate(90deg) translateX(50%);
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--tomato);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.04em;
-  padding:10px 18px 12px;border-radius:0 0 var(--radius-md) var(--radius-md);
-  white-space:nowrap;
-  transition:background .2s var(--ease),transform .25s var(--ease);
-}
-.feedback-tab i{font-size:13px}
-.feedback-tab:hover{background:var(--tomato-dark);transform:rotate(90deg) translateX(50%) translateY(3px)}
-
-/* görüş bildir modal'ı — eski site akışı (konu seç → form → teşekkür) tek panelde */
-.fb-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:97;opacity:0;visibility:hidden;transition:opacity .25s var(--ease),visibility .25s}
-.fb-overlay.show{opacity:1;visibility:visible}
-.fb-modal{position:fixed;inset:0;z-index:98;display:grid;place-items:center;padding:20px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),visibility .25s}
-.fb-modal.show{opacity:1;visibility:visible;pointer-events:auto}
-.fb-panel{width:min(520px,100%);max-height:calc(100vh - 40px);overflow-y:auto;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--sh-lg);transform:translateY(14px);transition:transform .3s var(--ease)}
-.fb-modal.show .fb-panel{transform:translateY(0)}
-.fb-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px;border-bottom:1px solid var(--line)}
-.fb-head h3{font-size:19px}
-.fb-head p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px}
-.fb-close{flex:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
-.fb-close:hover{border-color:var(--tomato);color:var(--tomato)}
-.fb-body{padding:22px 24px 24px}
-.fb-topics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
-.fb-topic{display:flex;align-items:center;gap:10px;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;transition:.18s var(--ease);text-align:left}
-.fb-topic i{width:18px;text-align:center;color:var(--tomato);font-size:14px;flex:none}
-.fb-topic:hover{border-color:var(--tomato);color:var(--tomato)}
-.fb-topic.active{border-color:rgba(225,72,39,.4);background:var(--tomato-tint);color:var(--tomato);font-weight:700}
-.fb-topic[data-topic="puan"]{grid-column:1/-1;justify-content:center} /* 5. tip (Puan ver öneri) tam satır */
-.fb-field{margin-bottom:11px}
-.fb-field input,.fb-field textarea{width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 15px;outline:none;transition:border-color .2s var(--ease)}
-.fb-field input::placeholder,.fb-field textarea::placeholder{color:#a7a7a7}
-.fb-field input:focus,.fb-field textarea:focus{border-color:var(--tomato)}
-.fb-field textarea{min-height:108px;resize:vertical}
-/* M17 — tipe göre alan setleri */
-.fb-fields{display:none}
-.fb-fields.active{display:block;animation:fadeUp .3s var(--ease)}
-.fb-q{font-size:13.5px;font-weight:700;color:var(--slate);margin-bottom:10px}
-.fb-select{
-  appearance:none;-webkit-appearance:none;width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
-  background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 15px center;
-  border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 40px 13px 15px;outline:none;cursor:pointer;transition:border-color .2s var(--ease);
-}
-.fb-select:focus{border-color:var(--tomato)}
-.fb-select:invalid{color:#a7a7a7}
-.fb-chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px}
-.fb-chiprow .chip.active{border-color:var(--tomato);color:var(--tomato);background:var(--tomato-tint);font-weight:700}
-.fb-emoji{display:flex;gap:8px;margin-bottom:13px}
-.fb-emoji button{
-  flex:1;font-size:25px;line-height:1;padding:13px 0;background:var(--bg);border:1px solid var(--line);
-  border-radius:var(--radius-md);cursor:pointer;filter:grayscale(1);opacity:.65;transition:.18s var(--ease);
-}
-.fb-emoji button:hover{filter:none;opacity:1;border-color:var(--tomato)}
-.fb-emoji button.active{filter:none;opacity:1;border-color:rgba(225,72,39,.4);background:var(--tomato-tint);transform:scale(1.06)}
-.fb-shot{
-  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;font-family:inherit;font-size:13px;font-weight:700;
-  color:var(--muted);background:transparent;border:1.5px dashed #d9d9d9;border-radius:var(--radius-md);padding:13px;margin-bottom:11px;
-  cursor:pointer;transition:.18s var(--ease);
-}
-.fb-shot small{font-weight:500}
-.fb-shot:hover{border-color:var(--tomato);color:var(--tomato)}
-.fb-kvkk{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.5;margin:14px 0 16px;cursor:pointer}
-.fb-kvkk input{margin-top:3px;accent-color:var(--tomato);flex:none}
-.fb-kvkk a{color:var(--tomato);font-weight:700;text-decoration:underline;text-underline-offset:2px}
-.fb-send{width:100%}
-.fb-success{text-align:center;padding:18px 0 10px}
-.fb-success .ok{width:62px;height:62px;border-radius:var(--radius-circle);background:#EAF7F0;color:var(--green);display:grid;place-items:center;font-size:26px;margin:0 auto 16px}
-.fb-success h4{font-size:18px;margin-bottom:7px}
-.fb-success p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:340px;margin:0 auto}
-
-/* ===================== ÇEREZ ONAY BANNER ===================== */
-.cookie-banner{
-  position:fixed;left:0;right:0;bottom:24px;z-index:95;
-  width:min(1180px,calc(100% - 48px));margin:0 auto;
-  background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);
-  box-shadow:var(--sh-lg);padding:16px 20px;
-  transform:translateY(140%);opacity:0;visibility:hidden;
-  transition:transform .42s var(--ease),opacity .35s var(--ease),visibility .42s;
-}
-.cookie-banner.show{transform:translateY(0);opacity:1;visibility:visible}
-.cookie-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
-.cookie-text{display:flex;align-items:center;gap:14px}
-.cookie-ico{flex:none;width:44px;height:44px;border-radius:var(--radius-md);background:var(--tomato-tint);color:var(--tomato);display:grid;place-items:center;font-size:19px}
-.cookie-text p{font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.5;max-width:700px}
-.cookie-text a{color:var(--tomato);font-weight:700;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
-.cookie-text a:hover{color:var(--tomato-dark)}
-.cookie-actions{flex:none;display:flex;align-items:center;gap:10px}
-.btn-cookie-reject,.btn-cookie-accept{font-family:inherit;font-size:13.5px;font-weight:700;border-radius:var(--radius-md);padding:11px 22px;cursor:pointer;transition:.2s var(--ease);white-space:nowrap}
-.btn-cookie-reject{color:var(--slate);background:transparent;border:1px solid var(--line)}
-.btn-cookie-reject:hover{border-color:var(--slate);color:var(--ink)}
-.btn-cookie-accept{color:#fff;background:var(--tomato);border:1px solid var(--tomato)}
-.btn-cookie-accept:hover{background:var(--tomato-dark);border-color:var(--tomato-dark);transform:translateY(-1px)}
-
-/* ===================== TABLET (≤1024px) — chrome katmanı ===================== */
-@media (max-width:1024px){
-  .wrap{padding:0 24px}
-
-  /* yatay menü → hamburger + drawer */
-  .h-top .nav{display:none}
-  .hamburger{display:grid}
-  .drawer{display:flex}
-  .drawer-overlay{display:block}
-
-  /* üst bant sadeleşir — yatay taşma engeli */
-  .topbar .tb-soc,.topbar .tb-div{display:none}
-
-  .foot-grid{grid-template-columns:1fr 1fr;gap:36px 28px}
-  .foot-brand{grid-column:1/-1}
-  .sec-head h2{font-size:30px}
-}
-
-/* ===================== MOBİL (≤640px) — chrome katmanı ===================== */
-@media (max-width:640px){
-  .wrap{padding:0 16px}
-
-  /* üst bant gizli, header en üste (tek kat 62px) */
-  .topbar{display:none}
-  .header{top:0}
-  .h-top>.wrap{height:62px;gap:10px}
-  .brand img{height:32px}
-  .head-actions{gap:6px}
-  .btn-login{display:none}                                   /* giriş → drawer + bottom-nav */
-  /* logged-in header öğeleri mobilde drawer + bottom-nav'a devreder (kaynak sıra ile is-auth'u yener) */
-  body.is-auth .head-add,body.is-auth .head-bell,body.is-auth .acct-wrap{display:none}
-  .icon-btn{width:40px;height:40px;font-size:15px}
-
-  /* fixed header offseti mobilde tek kat */
-  .below-header{padding-top:62px}
-
-  /* bölüm ritmi */
-  .sec{padding:44px 0}
-
-  /* section başlık araçları: oklar h2 satırında, "Tamamını Gör" kompakt metin-link.
- DOM aynı — sol blok + sec-tools display:contents ile grid'e açılır:
- [eyebrow] / [h2 | oklar] / [lead] / [see-all] */
-  .sec-head,.cat-head,.guide-head{
-    display:grid;grid-template-columns:minmax(0,1fr) auto;
-    column-gap:14px;align-items:center;margin-bottom:24px;
-  }
-  .sec-head>div:first-child,.cat-head>div:first-child,.guide-head>div:first-child,
-  .sec-head .sec-tools,.cat-head .sec-tools,.guide-head .sec-tools{display:contents}
-  .sec-head .eyebrow,.cat-head .eyebrow,.guide-head .eyebrow{grid-row:1;grid-column:1/-1}
-  .sec-head h2,.cat-head h2,.guide-head h2{grid-row:2;grid-column:1;font-size:24px}
-  .row-nav,.cat-nav{grid-row:2;grid-column:2;align-self:center}
-  .row-nav button,.cat-nav button{width:38px;height:38px;font-size:12px}
-  .sec-head .lead,.cat-head .lead,.guide-head .lead{grid-row:3;grid-column:1/-1;font-size:14.5px}
-  /* kompakt see-all: buton kabuğu kalkar, metin-link kalır */
-  .see-all{padding:0;border:none;background:transparent;font-size:13.5px;color:var(--tomato)}
-  .sec-tools>.see-all{grid-row:4;grid-column:1/-1;justify-self:start;margin-top:14px}
-
-  .chip{font-size:12px;padding:7px 12px;white-space:nowrap}
-
-  /* görüş bildir etiketi mobilde gizli — bottom-nav + FAB yeterli */
-  .feedback-tab{display:none}
-
-  /* footer — floating pill nav'ı örtmesin */
-  .footer.orange{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
-  .foot-grid{grid-template-columns:1fr;gap:30px}
-  .foot-legal{justify-content:center;text-align:center}
-  .foot-bottom{flex-direction:column;gap:14px;text-align:center}
-
-  /* mobil alt bar aç */
-  .bottom-nav{display:flex}
-
-  /* çerez banner: floating bottom-nav'ın ÜSTÜNDE, alt alta */
-  .cookie-banner{
-    width:calc(100% - 24px);padding:15px 16px;
-    bottom:calc(80px + env(safe-area-inset-bottom,0px));
-  }
-  .cookie-inner{flex-direction:column;align-items:stretch;gap:13px}
-  .cookie-text{align-items:flex-start}
-  .cookie-actions{gap:9px}
-  .cookie-actions button{flex:1;padding:12px 8px;font-size:12.5px}
-}
-
-/* =====================================================================
- SAYFA CSS — sayfa-spesifik stiller BU İŞARETİN ALTINA eklenir.
- Yukarıdaki chrome katmanına DOKUNMA (mega menü KİLİTLİ).
- ===================================================================== */
-
-/* ---- breadcrumb — kaynak: diyetisyen-ol-v1 VERBATIM ---- */
-.rd-crumb{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:18px 0 14px;font-size:13px;font-weight:500;color:var(--muted)}
-.rd-crumb a{color:var(--muted);transition:.18s}
-.rd-crumb a:hover{color:var(--tomato)}
-.rd-crumb i{font-size:9px;color:#c7c7c7}
-.rd-crumb b{color:var(--slate);font-weight:700}
-
-/* ============ YASAL METİNLER — tek şablon (?metin=) ============ */
-
-/* ---- üst bant ---- */
-.lg-top{position:relative;padding-top:128px;background-image:linear-gradient(90deg,rgba(28,25,18,.93),rgba(33,30,22,.72)),url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5');background-size:cover;background-position:center}
-.lg-head{padding:6px 0 30px}
-.lg-head h1{font-size:34px;letter-spacing:-.03em;margin:14px 0 10px}
-.lg-update{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:500}
-.lg-update i{color:var(--tomato);font-size:12px}
+/* ---- "son güncelleme" satırı (koyu banner içinde) ---- */
+.lg-update{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;font-weight:500;color:rgba(255,255,255,.72)}
+.lg-update i{font-size:12px;color:var(--fit-bright)}
+.lg-update b{color:#fff;font-weight:700}
 
 /* ---- yerleşim: sol sticky dizin + sağ uzun-form metin ---- */
 .lg-sec{padding:38px 0 74px;background:var(--bg-cream)}
@@ -782,8 +64,7 @@ html,body{overflow-x:hidden}
 .lg-toc a::before{content:counter(toc)".";flex:none;font-weight:700;color:var(--tomato);font-size:12.5px}
 .lg-toc a:hover{color:var(--tomato)}
 
-/* uzun-form metin — .seo-prose dilinden (kaynak: seo-landing-v1) + liste eki */
-.seo-prose h2{font-size:26px;margin-bottom:14px}
+/* uzun-form metin — .seo-prose dili + liste eki */
 .seo-prose h3{font-size:18px;margin:30px 0 10px;scroll-margin-top:130px}
 .seo-prose p{font-size:15px;color:var(--slate-2);font-weight:500;line-height:1.75;margin-bottom:12px}
 .seo-prose p:last-child{margin-bottom:0}
@@ -798,14 +79,21 @@ html,body{overflow-x:hidden}
 .lg-defs .dr:last-child{border-bottom:none}
 .lg-defs .dr>span{padding:12px 16px;font-size:13.5px;font-weight:700;color:var(--slate);background:var(--bg)}
 .lg-defs .dr>div{padding:12px 16px;font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.6}
+/* sağlık uyarısı — tıbbi tavsiye olmadığı her belgede aynı dille görünür */
+.lg-warn{display:flex;gap:12px;align-items:flex-start;margin:0 0 18px;padding:14px 16px;background:var(--tomato-tint);border:1px solid rgba(0,157,79,.22);border-left:3px solid var(--tomato);border-radius:var(--radius-md)}
+.lg-warn i{flex:none;margin-top:2px;color:var(--tomato-dark);font-size:14px}
+.lg-warn p{font-size:13.5px;line-height:1.6;color:var(--slate-2);font-weight:500;margin:0}
 /* metin sonu bandı */
 .lg-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:32px;padding-top:20px;border-top:1px solid var(--line)}
 .lg-foot .muted{font-size:12.5px}
 .lg-foot .lg-nav{display:flex;gap:9px}
 .lg-foot .lg-nav a{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--slate);border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);padding:10px 15px;transition:.2s var(--ease)}
 .lg-foot .lg-nav a:hover{border-color:var(--tomato);color:var(--tomato)}
+/* demo ibaresi (belge §22) — prototip metinleri gerçek sözleşme değildir */
+.lg-demo{display:inline-flex;align-items:center;gap:7px;margin-bottom:20px;padding:6px 12px;border:1px dashed var(--line);border-radius:999px;background:var(--bg);font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.lg-demo i{font-size:11px}
 
-/* ===== TABLET (≤1024px) ===== */
+/* ===== TABLET (≤1024px) — sol dizin çip satırına döner ===== */
 @media (max-width:1024px){
   .lg-layout{grid-template-columns:1fr}
   .lg-side{position:static;max-height:none;overflow:visible}
@@ -816,468 +104,41 @@ html,body{overflow-x:hidden}
 }
 /* ===== MOBİL (≤640px) ===== */
 @media (max-width:640px){
-  .lg-head h1{font-size:25px}
   .lg-sec{padding:22px 0 50px}
   .lg-main{padding:22px 18px}
   .lg-foot{flex-direction:column;align-items:flex-start}
 }
-
-/* HERO ZENGINLESTIRME (hero-zengin ADIM2) */
-.lg-top .wrap{position:relative}
-.lg-top .rd-crumb,.lg-top .rd-crumb a{color:#c9c3b8}
-.lg-top .rd-crumb a:hover{color:#ff8763}
-.lg-top .rd-crumb i{color:rgba(255,255,255,.4)}
-.lg-top .rd-crumb b{color:#fff}
-.lg-top .eyebrow{color:#ffd9cf}
-.lg-top h1{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.25)}
-.lg-top h1 .accent{color:#ff7a5c}
-.lg-top .lead{color:#e7edf1;text-shadow:0 1px 14px rgba(0,0,0,.3)}
-.lg-top .lg-update{color:#cdd8e0}
-.lg-top .lg-update b{color:#fff!important}
-@media (max-width:640px){.lg-top{padding-top:74px}}
-
-/* saglik-dropdown: scoped health chrome */
-/* diğer dropdown/mega aktif-item (turuncu kanon, underline gizli) */
-.dropdown:not(.dropdown-health) a.active{background:var(--tomato-tint)}
-.dropdown a.active::after,.mega-cats a.active::after{display:none}
-.mega-cats a.active{background:var(--tomato-tint)}
-.d-sub-health a i{color:var(--green)}
-.d-sub-health a:hover{color:var(--green);background:rgba(59,183,126,.10)}
-.nav a[href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html"]:hover{color:var(--green);background:rgba(59,183,126,.10)}
-.header.at-top .nav>.nav-item>a[href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html"]:hover{color:#fff;background:rgba(255,255,255,.14)}
-.dropdown-health a i{color:var(--green)}
-.dropdown-health a:hover{background:rgba(59,183,126,.12);color:var(--green)}
-.dropdown-health a.active{background:rgba(59,183,126,.12);color:var(--green)}
-.dropdown-health a.active i{color:var(--green)}
-.dropdown-health a.active::after{display:none}
-
 </style>
-<style>
-/* w3-nav-sweep */
-.dropdown .dd-group{margin:6px 0 2px;padding:9px 13px 4px;border-top:1px solid var(--line);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.d-sub .d-sub-group{margin-top:6px;padding:10px 22px 4px 36px;border-top:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.acct-menu .acct-pro i{color:#d99812}
-.acct-menu .acct-pro:hover{background:linear-gradient(180deg,rgba(251,230,180,.55),rgba(243,209,120,.32))}
-.acct-menu .acct-pro:hover,.acct-menu .acct-pro:hover i{color:#8a6410}
-/* Pro Menü maddesi — altın PRO pill (acct-pro crown diliyle tutarlı); pro içerik işareti */
-.acct-menu .pm-badge{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a6410;background:linear-gradient(180deg,#fbe6b4,#f3d178);border:1px solid #e0bc63;padding:2px 7px;border-radius:999px}
-.acct-menu .pm-badge i{font-size:9px;color:#b8860b}
-.vid-pro{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#8a6410;background:linear-gradient(180deg,#fbe6b4,#f3d178);border:1px solid #e0bc63;padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:9px}
-.vid-pro i{font-size:9px}
-</style>
+
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
 </head>
-<body data-brand="mutfak">
+<body data-brand="fit" data-fit-page="yasal">
 
-<!-- ===== TOP UTILITY BAR ===== -->
-<div class="topbar">
-  <div class="wrap">
-    <div class="tb-left">
-      <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html"><i class="fa-solid fa-utensils"></i> 48.200+ denenmiş tarif</a>
-      <span class="tb-div"></span>
-      <div class="tb-soc">
-        <a href="#"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#"><i class="fa-brands fa-youtube"></i></a>
-        <a href="#"><i class="fa-brands fa-pinterest"></i></a>
-      </div>
-    </div>
-    <div class="tb-right">
-      <span class="tb-div tb-div-worlds"></span>
-      <div class="tb-worlds">
-        <a class="tb-world tb-world-store" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/dada-shop-v1.html"><i class="fa-solid fa-bag-shopping"></i><span class="tw-name">DadaStore</span><i class="fa-solid fa-arrow-right tw-arr"></i></a>
-        <a class="tb-world tb-world-akademi" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/akademi-v1.html"><i class="fa-solid fa-graduation-cap"></i><span class="tw-name">DadaAkademi</span><span class="tw-soon">Yakında</span></a>
-        <a class="tb-world tb-world-fit" href="dadafit-hub-v1.html"><i class="fa-solid fa-bolt"></i><span class="tw-name">DadaFit</span><i class="fa-solid fa-arrow-right tw-arr"></i></a>
-      </div>
-      
-      <div class="tb-lang" id="tbLang">
-        <button class="tb-lang-btn" id="tbLangBtn" type="button" aria-haspopup="true" aria-expanded="false">
-          <i class="fa-solid fa-globe"></i><span>EN</span><i class="fa-solid fa-chevron-down tb-lang-caret"></i>
-        </button>
-        <div class="tb-lang-menu" id="tbLangMenu" role="menu">
-          <a href="#" role="menuitem" data-lang="tr">TR <span>Türkçe</span></a>
-          <a href="#" role="menuitem" class="active" data-lang="en">EN <span>English</span></a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
 
-<!-- ===== HEADER ===== -->
-<header class="header">
-  <!-- TEK KAT: marka + ortalanmış nav + aksiyonlar (Revize T3 M2) -->
-  <div class="h-top">
-    <div class="wrap">
-      <a class="brand" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html">
-        <img class="logo-color" src="assets/img/logo-official.png" alt="DadaMutfak" />
-        <img class="logo-white" src="assets/img/logo-official-white.png" alt="DadaMutfak" />
-      </a>
-      <nav class="nav">
-        <div class="nav-item has-mega">
-          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html">Tarifler <i class="fa-solid fa-chevron-down"></i></a>
-          <div class="mega">
-            <div class="wrap">
-              <div class="mega-grid">
-                <div class="mega-cats">
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=corba-tarifleri" data-slug="/corba-tarifleri" title="Çorba Tarifleri | Dada Mutfak"><i class="fa-solid fa-bowl-food"></i> <span>Çorba<small>1.240 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kirmizi-et-tarifleri" data-slug="/kirmizi-et-tarifleri" title="Kırmızı Et Tarifleri | Dada Mutfak"><i class="fa-solid fa-bacon"></i> <span>Kırmızı Et<small>1.480 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=beyaz-et-tarifleri" data-slug="/beyaz-et-tarifleri" title="Beyaz Et Tarifleri | Dada Mutfak"><i class="fa-solid fa-drumstick-bite"></i> <span>Beyaz Et<small>1.180 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=tatli-tarifleri" data-slug="/tatli-tarifleri" title="Tatlı Tarifleri | Dada Mutfak"><i class="fa-solid fa-ice-cream"></i> <span>Tatlı<small>2.105 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=hamur-isi-tarifleri" data-slug="/hamur-isi-tarifleri" title="Hamur İşi Tarifleri | Dada Mutfak"><i class="fa-solid fa-bread-slice"></i> <span>Hamur İşi<small>1.560 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kek-tarifleri" data-slug="/kek-tarifleri" title="Kek Tarifleri | Dada Mutfak"><i class="fa-solid fa-stroopwafel"></i> <span>Kek<small>740 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=salata-tarifleri" data-slug="/salata-tarifleri" title="Salata Tarifleri | Dada Mutfak"><i class="fa-solid fa-leaf"></i> <span>Salata<small>980 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kahvaltilik-tarifler" data-slug="/kahvaltilik-tarifler" title="Kahvaltılık Tarifler | Dada Mutfak"><i class="fa-solid fa-egg"></i> <span>Kahvaltılık<small>860 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=zeytinyagli-tarifler" data-slug="/zeytinyagli-tarifler" title="Zeytinyağlı Tarifler | Dada Mutfak"><i class="fa-solid fa-bottle-droplet"></i> <span>Zeytinyağlı<small>520 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=icecek-tarifleri" data-slug="/icecek-tarifleri" title="İçecek Tarifleri | Dada Mutfak"><i class="fa-solid fa-mug-hot"></i> <span>İçecek<small>430 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=vegan-ve-vejetaryen-tarifler" data-slug="/vegan-ve-vejetaryen-tarifler" title="Vegan ve Vejetaryen Tarifler | Dada Mutfak"><i class="fa-solid fa-seedling"></i> <span>Vegan ve Vejetaryen<small>1.120 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=makarna-tarifleri" data-slug="/makarna-tarifleri" title="Makarna Tarifleri | Dada Mutfak"><i class="fa-solid fa-plate-wheat"></i> <span>Makarna<small>670 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=pilav-tarifleri" data-slug="/pilav-tarifleri" title="Pilav Tarifleri | Dada Mutfak"><i class="fa-solid fa-bowl-rice"></i> <span>Pilav<small>410 tarif</small></span></a>
-                  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=meze-aperatif" data-slug="/meze-aperatif" title="Meze &amp; Aperatif | Dada Mutfak"><i class="fa-solid fa-shrimp"></i> <span>Meze &amp; Aperatif<small>540 tarif</small></span></a>
-                  <a class="mega-cat-all" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html"><i class="fa-solid fa-book-open"></i> <span>Tüm Tarifler<small>14.975 tarif</small></span><i class="fa-solid fa-arrow-right mca-arrow"></i></a>
-                </div>
-                <div class="mega-feat">
-                  <div class="mf-fig" style="background-image:url('https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')">
-                    <span class="r-chip"><i class="fa-solid fa-star"></i> Haftanın Tarifi</span>
-                    <h4>Mevsim Meyveli Cheesecake</h4>
-                  </div>
-                  <a class="mega-find" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-bulucu-v1.html">
-                    <span class="mf-ico"><i class="fa-solid fa-basket-shopping"></i></span>
-                    <span class="mf-body"><b>Dolapta Ne Var?</b><small>Dolabındakilerle ne pişersin?</small></span>
-                    <i class="fa-solid fa-arrow-right mf-arr"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="nav-item"><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/bugun-ne-pisirsem-v1.html">Ne Pişirsem?</a></div>
-        <div class="nav-item"><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-bulucu-v1.html">Dolapta Ne Var?</a></div>
-        <div class="nav-item"><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/kesfet-v1.html">Keşfet</a></div>
-        <div class="nav-item">
-          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-sirlari-v1.html">Mutfak Sırları <i class="fa-solid fa-chevron-down"></i></a>
-          <div class="dropdown">
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfaga-giris-v1.html"><i class="fa-solid fa-graduation-cap"></i> <span>Mutfağa Giriş<small>Sıfırdan temel teknikler</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/puf-noktalari-v1.html"><i class="fa-solid fa-lightbulb"></i> <span>Püf Noktaları<small>Şeflerden küçük sırlar</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/ansiklopedi-v1.html"><i class="fa-solid fa-seedling"></i> <span>Mutfak Ansiklopedisi<small>Malzemeleri tanı: faydası, kullanımı</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sozluk-v1.html"><i class="fa-solid fa-book-open"></i> <span>Sözlük<small>Mutfak terimleri</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/olcu-birimleri-v1.html"><i class="fa-solid fa-scale-balanced"></i> <span>Ölçü Birimleri<small>Bardak, kaşık, gram</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sofra-duzeni-v1.html"><i class="fa-solid fa-utensils"></i> <span>Sofra Düzeni<small>Günlük & davet sofra kurulumu</small></span></a>
-          </div>
-        </div>
-        <div class="nav-item">
-          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html">Sağlıklı Yaşam <i class="fa-solid fa-chevron-down"></i></a>
-          <div class="dropdown dropdown-health">
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/diyetisyen-dizin-v1.html"><i class="fa-solid fa-stethoscope"></i> <span>Diyetisyen Ara<small>Uzmanla randevu al</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/hesaplayici-v1.html"><i class="fa-solid fa-calculator"></i> <span>Hesaplayıcılar<small>Kalori, BMI, metabolizma</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-testler-v1.html"><i class="fa-solid fa-clipboard-question"></i> <span>Testler<small>Kendini keşfet, eğlenceli testler</small></span></a>
-            <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/besin-degerleri-v1.html"><i class="fa-solid fa-table-list"></i> <span>Besin Değerleri<small>Kalori, protein, karbonhidrat, yağ</small></span></a>
-          </div>
-        </div>
-      </nav>
-      <div class="head-actions">
-        <button class="icon-btn" aria-label="Ara" onclick="location.href='https://by4r.github.io/dadamutfak-view/v7-6cu356/arama-v1.html?brand=mutfak'"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <button class="btn-login" onclick="location.href='giris-v1.html'"><i class="fa-regular fa-user"></i> Giriş Yap</button>
-        <!-- LOGIN-STATE: Ekle ▾ (logged-in) -->
-        <div class="acct-item head-add">
-          <button class="icon-btn" aria-label="Ekle" aria-haspopup="true"><i class="fa-solid fa-plus"></i></button>
-          <div class="acct-menu">
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-ekle-v1.html"><i class="fa-solid fa-utensils"></i> <span>Tarif Ekle<small>Yeni bir tarif paylaş</small></span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/puf-noktasi-ekle-v1.html"><i class="fa-solid fa-lightbulb"></i> <span>Püf Noktası Ekle<small>Küçük bir mutfak sırrı</small></span></a>
-          </div>
-        </div>
-        <!-- LOGIN-STATE: bildirim zili (logged-in) -->
-        <a class="icon-btn head-bell" href="bildirimler-v1.html" aria-label="Bildirimler"><i class="fa-solid fa-bell"></i><span class="hb-badge">3</span></a>
-        <!-- LOGIN-STATE: hesap avatarı ▾ (logged-in) — persona Elif Şahin -->
-        <div class="acct-item acct-wrap">
-          <button class="acct-btn" aria-label="Hesabım" aria-haspopup="true">
-            <span class="acct-ava" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></span>
-            <i class="fa-solid fa-chevron-down acct-caret"></i>
-          </button>
-          <div class="acct-menu">
-            <div class="acct-id">
-              <span class="acct-ava" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></span>
-              <span class="acct-id-txt"><b>Elif Şahin</b><small>@elifsahin</small></span>
-            </div>
-            <div class="acct-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-defteri-v1.html"><i class="fa-solid fa-book-bookmark"></i> <span>Mutfak Defterim</span></a>
-            <a href="rozetler-v1.html"><i class="fa-solid fa-medal"></i> <span>Rozetlerim</span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-defteri-v1.html?tab=tarifler"><i class="fa-solid fa-utensils"></i> <span>Tariflerim</span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-defteri-v1.html?tab=kaydedilenler"><i class="fa-solid fa-bookmark"></i> <span>Kaydedilenler</span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-defteri-v1.html?tab=menuler"><i class="fa-solid fa-layer-group"></i> <span>Menülerim</span></a>
-            <!-- Pro Menü: mock misafir varsayımı → pro-v1; pro kullanıcıda hedef haftalik-menu-v1.html olur -->
-            <a href="pro-v1.html" class="acct-promenu"><i class="fa-solid fa-calendar-week"></i> <span>Pro Menü</span> <span class="pm-badge"><i class="fa-solid fa-crown"></i> Pro</span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/alisveris-listesi-v1.html"><i class="fa-solid fa-basket-shopping"></i> <span>Alışveriş Listem</span></a>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/rezervasyonlarim-v1.html"><i class="fa-solid fa-calendar-check"></i> <span>Rezervasyonlarım</span></a>
-            <a href="pro-v1.html" class="acct-pro"><i class="fa-solid fa-crown"></i> <span>Pro'ya Yükselt</span></a>
-            <a href="hesabim-v1.html"><i class="fa-solid fa-gear"></i> <span>Ayarlar / Hesabım</span></a>
-            <div class="acct-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0" class="acct-logout"><i class="fa-solid fa-right-from-bracket"></i> <span>Çıkış</span></a>
-          </div>
-        </div>
-        <button class="icon-btn hamburger" id="hamburger" aria-label="Menü"><i class="fa-solid fa-bars"></i></button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- ===== MOBİL DRAWER (≤1024px) ===== -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
-<aside class="drawer" id="drawer" aria-label="Mobil menü">
-  <div class="drawer-head">
-    <img class="drawer-logo" src="assets/img/logo-official.png" alt="DadaMutfak" />
-    <button class="drawer-close" id="drawerClose" aria-label="Menüyü kapat"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <nav class="drawer-nav">
-    <div class="d-item d-has-sub">
-      <button class="d-link">Tarifler <i class="fa-solid fa-chevron-down"></i></button>
-      <div class="d-sub">
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=corba-tarifleri" data-slug="/corba-tarifleri" title="Çorba Tarifleri | Dada Mutfak"><i class="fa-solid fa-bowl-food"></i> Çorba</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kirmizi-et-tarifleri" data-slug="/kirmizi-et-tarifleri" title="Kırmızı Et Tarifleri | Dada Mutfak"><i class="fa-solid fa-bacon"></i> Kırmızı Et</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=beyaz-et-tarifleri" data-slug="/beyaz-et-tarifleri" title="Beyaz Et Tarifleri | Dada Mutfak"><i class="fa-solid fa-drumstick-bite"></i> Beyaz Et</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=tatli-tarifleri" data-slug="/tatli-tarifleri" title="Tatlı Tarifleri | Dada Mutfak"><i class="fa-solid fa-ice-cream"></i> Tatlı</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=hamur-isi-tarifleri" data-slug="/hamur-isi-tarifleri" title="Hamur İşi Tarifleri | Dada Mutfak"><i class="fa-solid fa-bread-slice"></i> Hamur İşi</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kek-tarifleri" data-slug="/kek-tarifleri" title="Kek Tarifleri | Dada Mutfak"><i class="fa-solid fa-stroopwafel"></i> Kek</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=salata-tarifleri" data-slug="/salata-tarifleri" title="Salata Tarifleri | Dada Mutfak"><i class="fa-solid fa-leaf"></i> Salata</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=kahvaltilik-tarifler" data-slug="/kahvaltilik-tarifler" title="Kahvaltılık Tarifler | Dada Mutfak"><i class="fa-solid fa-egg"></i> Kahvaltılık</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=zeytinyagli-tarifler" data-slug="/zeytinyagli-tarifler" title="Zeytinyağlı Tarifler | Dada Mutfak"><i class="fa-solid fa-bottle-droplet"></i> Zeytinyağlı</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=icecek-tarifleri" data-slug="/icecek-tarifleri" title="İçecek Tarifleri | Dada Mutfak"><i class="fa-solid fa-mug-hot"></i> İçecek</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?kategori=vegan-ve-vejetaryen-tarifler" data-slug="/vegan-ve-vejetaryen-tarifler" title="Vegan ve Vejetaryen Tarifler | Dada Mutfak"><i class="fa-solid fa-seedling"></i> Vegan ve Vejetaryen</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html"><i class="fa-solid fa-book-open"></i> Tüm Tarifler</a>
-      </div>
-    </div>
-<div class="d-item"><a class="d-link" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/bugun-ne-pisirsem-v1.html">Ne Pişirsem?</a></div>
-    <div class="d-item"><a class="d-link" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-bulucu-v1.html">Dolapta Ne Var?</a></div>
-    <div class="d-item"><a class="d-link" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/kesfet-v1.html">Keşfet</a></div>
-    <div class="d-item d-has-sub">
-      <button class="d-link">Mutfak Sırları <i class="fa-solid fa-chevron-down"></i></button>
-      <div class="d-sub">
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfaga-giris-v1.html"><i class="fa-solid fa-graduation-cap"></i> Mutfağa Giriş</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/puf-noktalari-v1.html"><i class="fa-solid fa-lightbulb"></i> Püf Noktaları</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/ansiklopedi-v1.html"><i class="fa-solid fa-seedling"></i> Mutfak Ansiklopedisi</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sozluk-v1.html"><i class="fa-solid fa-book-open"></i> Sözlük</a>
-        <div class="nav-div"></div>
-            <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/olcu-birimleri-v1.html"><i class="fa-solid fa-scale-balanced"></i> Ölçü Birimleri</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sofra-duzeni-v1.html"><i class="fa-solid fa-utensils"></i> Sofra Düzeni</a>
-      </div>
-    </div>
-    <div class="d-item d-has-sub">
-      <button class="d-link">Sağlıklı Yaşam <i class="fa-solid fa-chevron-down"></i></button>
-      <div class="d-sub d-sub-health">
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/hesaplayici-v1.html"><i class="fa-solid fa-calculator"></i> Hesaplayıcılar</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-testler-v1.html"><i class="fa-solid fa-clipboard-question"></i> Testler</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/diyetisyen-dizin-v1.html"><i class="fa-solid fa-stethoscope"></i> Diyetisyen Ara</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/besin-degerleri-v1.html"><i class="fa-solid fa-table-list"></i> Besin Değerleri</a>
-      </div>
-    </div>
-  </nav>
-  <div class="drawer-foot">
-    <!-- LOGIN-STATE: logged-out giriş butonu -->
-    <button class="btn btn-primary drawer-login" style="width:100%" onclick="location.href='giris-v1.html'"><i class="fa-regular fa-user"></i> Giriş Yap</button>
-    <!-- LOGIN-STATE: logged-in kimlik satırı (persona Elif Şahin) -->
-    <div class="drawer-acct">
-      <span class="da-ava" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></span>
-      <div class="da-info">
-        <b>Elif Şahin</b>
-        <div class="da-links">
-          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/mutfak-defteri-v1.html">Defterim</a>
-          <a href="bildirimler-v1.html">Bildirimler</a>
-          <a href="hesabim-v1.html">Ayarlar</a>
-          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0">Çıkış</a>
-        </div>
-      </div>
-    </div>
-    <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-ekle-v1.html" class="drawer-add"><i class="fa-solid fa-circle-plus"></i> Tarif Ekle</a>
-    <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/puf-noktasi-ekle-v1.html" class="drawer-add"><i class="fa-solid fa-lightbulb"></i> Püf Noktası Ekle</a>
-    <!-- DÜNYA KAPILARI: mobilde topbar gizli (≤640 display:none) → kapılar buradan erişilir -->
-    <div class="drawer-worlds">
-      <a class="drawer-world dw-store" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/dada-shop-v1.html"><i class="fa-solid fa-bag-shopping"></i><span class="dw-name">DadaStore</span><i class="fa-solid fa-arrow-right dw-arr"></i></a>
-      <a class="drawer-world dw-akademi" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/akademi-v1.html"><i class="fa-solid fa-graduation-cap"></i><span class="dw-name">DadaAkademi</span><span class="dw-soon">Yakında</span></a>
-      <a class="drawer-world dw-fit" href="dadafit-hub-v1.html"><i class="fa-solid fa-bolt"></i><span class="dw-name">DadaFit</span><i class="fa-solid fa-arrow-right dw-arr"></i></a>
-    </div>
-    <div class="drawer-lang" id="drawerLang">
-      <button class="drawer-lang-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-        <span class="drawer-lang-label"><i class="fa-solid fa-globe"></i> Dil</span>
-        <span class="drawer-lang-cur"><span id="drawerLangCur">EN — English</span> <i class="fa-solid fa-chevron-down"></i></span>
-      </button>
-      <div class="drawer-lang-list" role="menu">
-        <button type="button" data-lang="tr" data-name="Türkçe"><b>TR</b> Türkçe</button>
-        <button type="button" class="active" data-lang="en" data-name="English"><b>EN</b> English</button>
-      </div>
-    </div>
-  </div>
-</aside>
-
-<!-- ===== MOBİL BOTTOM NAV (≤640px) ===== -->
-<nav class="bottom-nav" aria-label="Mobil alt navigasyon">
-  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html" class="bn-item"><i class="fa-solid fa-house"></i><span>Ana Sayfa</span></a>
-  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html" class="bn-item"><i class="fa-solid fa-bowl-food"></i><span>Tarifler</span></a>
-  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/bugun-ne-pisirsem-v1.html" class="bn-item bn-center"><span class="bn-fab"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>Ne Pişirsem?</span></a>
-  <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html" class="bn-item"><i class="fa-solid fa-heart-pulse"></i><span>Sağlıklı Yaşam</span></a>
-  <a href="giris-v1.html" id="bnAccount" class="bn-item"><i class="fa-solid fa-user"></i><span>Hesap</span></a>
-</nav>
-
-<!-- ===== GÖRÜŞ BİLDİR (sağ kenar sabit etiket) ===== -->
-<a class="feedback-tab" href="#" id="fbTab" aria-label="Görüş Bildir — öneri ve şikayet">
-  <i class="fa-solid fa-comment-dots"></i> Görüş Bildir
-</a>
-
-<!-- ===== GÖRÜŞ BİLDİR MODAL ===== -->
-<div class="fb-overlay" id="fbOverlay"></div>
-<div class="fb-modal" id="fbModal" role="dialog" aria-modal="true" aria-label="Görüş Bildir">
-  <div class="fb-panel">
-    <div class="fb-head">
-      <div>
-        <h3>Görüş Bildir</h3>
-        <p>Önerin, şikayetin veya sorun — hepsine kulak veriyoruz.</p>
-      </div>
-      <button class="fb-close" id="fbClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="fb-body">
-      <form id="fbForm">
-        <!-- M17: konu tipine göre alan seti değişir (Onedio referansı, mevcut dil korunarak) -->
-        <div class="fb-topics" role="group" aria-label="Konu seç">
-          <button class="fb-topic active" type="button" data-topic="oneri"><i class="fa-solid fa-lightbulb"></i> Önerim var</button>
-          <button class="fb-topic" type="button" data-topic="soru"><i class="fa-solid fa-circle-question"></i> Bir sorum var</button>
-          <button class="fb-topic" type="button" data-topic="sorun"><i class="fa-solid fa-bug"></i> Teknik sorun</button>
-          <button class="fb-topic" type="button" data-topic="ihlal"><i class="fa-solid fa-shield-halved"></i> İhlal bildirimi</button>
-          <button class="fb-topic" type="button" data-topic="puan"><i class="fa-solid fa-face-smile"></i> Puan ver</button>
-        </div>
-
-        <div class="fb-fields active" data-for="oneri">
-          <div class="fb-chiprow" role="group" aria-label="İlgili alan">
-            <button class="chip active" type="button">Tarifler</button>
-            <button class="chip" type="button">Keşfet</button>
-            <button class="chip" type="button">DadaStore</button>
-            <button class="chip" type="button">Uygulama</button>
-            <button class="chip" type="button">Diğer</button>
-          </div>
-          <div class="fb-field"><textarea required placeholder="Önerini anlat *"></textarea></div>
-          <div class="fb-field"><input type="email" placeholder="E-posta adresin (opsiyonel)" /></div>
-        </div>
-
-        <div class="fb-fields" data-for="soru">
-          <div class="fb-field">
-            <select class="fb-select" required>
-              <option value="" selected disabled>Sorunun konusu *</option>
-              <option>Üyelik & Hesap</option>
-              <option>Tarif ekleme</option>
-              <option>Diyetisyen randevusu</option>
-              <option>Sipariş & DadaStore</option>
-              <option>Diğer</option>
-            </select>
-          </div>
-          <div class="fb-field"><textarea required placeholder="Sorunu yaz *"></textarea></div>
-          <div class="fb-field"><input type="email" required placeholder="E-posta adresin (cevap için) *" /></div>
-        </div>
-
-        <div class="fb-fields" data-for="sorun">
-          <div class="fb-field">
-            <select class="fb-select" required>
-              <option value="" selected disabled>Sorunu nerede yaşadın? *</option>
-              <option>Anasayfa</option>
-              <option>Tarif sayfası</option>
-              <option>Arama / Dolapta Ne Var?</option>
-              <option>Üyelik & Giriş</option>
-              <option>DadaStore</option>
-              <option>Mobil uygulama</option>
-            </select>
-          </div>
-          <div class="fb-field"><textarea required placeholder="Sorunu kısaca anlat — ne yaptın, ne oldu? *"></textarea></div>
-          <button class="fb-shot" type="button"><i class="fa-solid fa-image"></i> Ekran görüntüsü ekle <small>(opsiyonel)</small></button>
-          <div class="fb-field"><input type="email" placeholder="E-posta adresin (opsiyonel)" /></div>
-        </div>
-
-        <div class="fb-fields" data-for="ihlal">
-          <div class="fb-field"><input type="url" required placeholder="İhlal içeren sayfanın linki *" /></div>
-          <div class="fb-field">
-            <select class="fb-select" required>
-              <option value="" selected disabled>İhlal türü *</option>
-              <option>Telif hakkı</option>
-              <option>Uygunsuz içerik</option>
-              <option>Spam / yanıltıcı içerik</option>
-              <option>Diğer</option>
-            </select>
-          </div>
-          <div class="fb-field"><textarea required placeholder="Açıklama *"></textarea></div>
-          <div class="fb-field"><input type="email" required placeholder="E-posta adresin *" /></div>
-        </div>
-
-        <div class="fb-fields" data-for="puan">
-          <p class="fb-q">DadaMutfak deneyimini nasıl puanlarsın?</p>
-          <div class="fb-emoji" role="group" aria-label="Puan">
-            <button type="button" data-val="1" aria-label="Çok kötü">😡</button>
-            <button type="button" data-val="2" aria-label="Kötü">🙁</button>
-            <button type="button" data-val="3" aria-label="İdare eder">😐</button>
-            <button type="button" data-val="4" aria-label="İyi">🙂</button>
-            <button type="button" data-val="5" aria-label="Harika">😍</button>
-          </div>
-          <div class="fb-field"><textarea placeholder="Eklemek istediğin bir şey var mı? (opsiyonel)"></textarea></div>
-          <div class="fb-field"><input type="email" placeholder="E-posta adresin (opsiyonel)" /></div>
-        </div>
-
-        <label class="fb-kvkk">
-          <input type="checkbox" required />
-          <span><a href="yasal-v1.html?metin=aydinlatma">Aydınlatma Metni</a>'ni ve <a href="yasal-v1.html?metin=kvkk">KVKK Metni</a>'ni okudum, onaylıyorum.</span>
-        </label>
-        <button class="btn btn-primary fb-send" type="submit"><i class="fa-solid fa-paper-plane"></i> Gönder</button>
-      </form>
-      <div class="fb-success" id="fbSuccess" hidden>
-        <span class="ok"><i class="fa-solid fa-check"></i></span>
-        <h4>Görüşün bize ulaştı</h4>
-        <p>Teşekkürler! Ekibimiz en kısa sürede inceleyip gerekirse e-posta ile dönüş yapacak.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ÇEREZ ONAY BANNER ===== -->
-<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Çerez onayı" aria-live="polite">
-  <div class="cookie-inner">
-    <div class="cookie-text">
-      <span class="cookie-ico"><i class="fa-solid fa-cookie-bite"></i></span>
-      <p>Sana daha iyi bir deneyim sunmak için çerezler kullanıyoruz. Siteyi kullanmaya devam ederek çerez kullanımını kabul etmiş olursun. <a href="yasal-v1.html?metin=cerez">Çerez Politikası</a> · <a href="yasal-v1.html?metin=aydinlatma">KVKK Aydınlatma Metni</a></p>
-    </div>
-    <div class="cookie-actions">
-      <button type="button" class="btn-cookie-reject" id="cookieReject">Reddet</button>
-      <button type="button" class="btn-cookie-accept" id="cookieAccept">Tümünü Kabul Et</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ANA İÇERİK (footer reveal perdesi) ===== -->
 <main class="page-main" id="pageMain">
 
-<!-- SAYFA İÇERİĞİ -->
-<!-- İlk section'a .below-header class'ı ver (fixed header offseti: 112px / mobil 62px).
- Örnek:
- <section class="below-header" style="background:var(--bg-white)">
- <div class="wrap"> ... </div>
- </section>
--->
-
-
-<!-- ===================== YASAL METİNLER (tek şablon — ?metin=) ===================== -->
-<section class="below-header lg-top">
+<!-- ===================== YASAL METİNLER (tek şablon — ?metin=) =====================
+ Sayfa tek dosyadır; hangi belgenin gösterileceğini ?metin= parametresi seçer.
+ Anahtarlar sayfa JS'indeki ORDER dizisinde tanımlı; geçersiz/eksik anahtar
+ ilk belgeye (Kullanım Koşulları) düşer. Kabuk (footer · çerez bandı · görüş
+ modalı) ve diğer sayfalar bu anahtarlarla doğrudan bağlantı kurar. -->
+<section class="lib-top">
   <div class="wrap">
-    <nav class="rd-crumb" aria-label="Sayfa yolu">
-      <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html"><i class="fa-solid fa-house"></i></a><i class="fa-solid fa-chevron-right"></i>
-      <a href="yasal-v1.html">Yasal Metinler</a><i class="fa-solid fa-chevron-right"></i>
-      <b id="lgCrumb">KVKK Politikası</b>
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit Ana Sayfa</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="yasal-v1.html">Yasal Metinler</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur" id="lgCrumb">Kullanım Koşulları</span>
     </nav>
-    <div class="lg-head">
-      <span class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Yasal Metinler</span>
-      <h1 id="lgTitle">KVKK Politikası</h1>
-      <span class="lg-update"><i class="fa-solid fa-rotate"></i> Son güncelleme: <b style="color:var(--slate)">&nbsp;12 Mayıs 2026</b></span>
-    </div>
+    <span class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Yasal Metinler</span>
+    <h1 id="lgTitle">Kullanım Koşulları</h1>
+    <p class="lib-sub" id="lgLead">Üyelik, gizlilik, veri izinleri ve sağlık sınırları — DadaFit'i kullanırken geçerli olan metinlerin tamamı burada.</p>
+    <span class="lg-update"><i class="fa-solid fa-rotate"></i> Son güncelleme: <b>&nbsp;12 Mayıs 2026</b></span>
   </div>
 </section>
 
@@ -1288,31 +149,34 @@ html,body{overflow-x:hidden}
       <!-- sol sticky dizin -->
       <aside class="lg-side">
         <h3><i class="fa-solid fa-folder-open"></i> Yasal Metinler</h3>
-        <nav class="lg-menu" id="lgMenu">
-          <a href="yasal-v1.html?metin=kvkk" data-slug="kvkk"><i class="fa-solid fa-shield-halved"></i> KVKK Politikası</a>
-          <a href="yasal-v1.html?metin=aydinlatma" data-slug="aydinlatma"><i class="fa-solid fa-circle-info"></i> Aydınlatma Metni</a>
+        <nav class="lg-menu" id="lgMenu" aria-label="Yasal metin listesi">
           <a href="yasal-v1.html?metin=kullanim" data-slug="kullanim"><i class="fa-solid fa-file-lines"></i> Kullanım Koşulları</a>
-          <a href="yasal-v1.html?metin=cerez" data-slug="cerez"><i class="fa-solid fa-cookie-bite"></i> Gizlilik &amp; Çerez Politikası</a>
-          <a href="yasal-v1.html?metin=uyelik" data-slug="uyelik"><i class="fa-solid fa-user-check"></i> Üyelik Sözleşmesi</a>
+          <a href="yasal-v1.html?metin=uyelik" data-slug="uyelik"><i class="fa-solid fa-user-check"></i> Üyelik ve İptal Koşulları</a>
           <a href="yasal-v1.html?metin=mesafeli" data-slug="mesafeli"><i class="fa-solid fa-file-signature"></i> Mesafeli Satış Sözleşmesi</a>
-          <a href="yasal-v1.html?metin=iade" data-slug="iade"><i class="fa-solid fa-rotate-left"></i> İptal, İade ve Değişim</a>
-          <a href="yasal-v1.html?metin=teslimat" data-slug="teslimat"><i class="fa-solid fa-truck-fast"></i> Ödeme ve Teslimat</a>
-          <a href="yasal-v1.html?metin=bilgilendirme" data-slug="bilgilendirme"><i class="fa-solid fa-circle-exclamation"></i> Bilgilendirme Metni</a>
+          <a href="yasal-v1.html?metin=iade" data-slug="iade"><i class="fa-solid fa-rotate-left"></i> Cayma ve İade Koşulları</a>
+          <a href="yasal-v1.html?metin=teslimat" data-slug="teslimat"><i class="fa-solid fa-credit-card"></i> Ödeme ve Erişim Koşulları</a>
+          <a href="yasal-v1.html?metin=kvkk" data-slug="kvkk"><i class="fa-solid fa-shield-halved"></i> Gizlilik ve KVKK Politikası</a>
+          <a href="yasal-v1.html?metin=aydinlatma" data-slug="aydinlatma"><i class="fa-solid fa-circle-info"></i> Aydınlatma Metni</a>
+          <a href="yasal-v1.html?metin=cerez" data-slug="cerez"><i class="fa-solid fa-cookie-bite"></i> Çerez Politikası</a>
+          <a href="yasal-v1.html?metin=veri-izin" data-slug="veri-izin"><i class="fa-solid fa-sliders"></i> Veri ve İzin Politikası</a>
+          <a href="yasal-v1.html?metin=bilgilendirme" data-slug="bilgilendirme"><i class="fa-solid fa-circle-exclamation"></i> Platform Bilgilendirme Metni</a>
+          <a href="yasal-v1.html?metin=sozlesme" data-slug="sozlesme"><i class="fa-solid fa-clipboard-check"></i> Antrenör Sözleşmesi</a>
         </nav>
       </aside>
 
       <!-- sağ uzun-form metin -->
       <article class="lg-main">
+        <span class="lg-demo"><i class="fa-solid fa-flask"></i> Demo metin — prototip</span>
         <div class="lg-toc">
           <b><i class="fa-solid fa-list-ol"></i> İçindekiler</b>
           <ol id="lgToc"></ol>
         </div>
         <div class="seo-prose" id="lgBody"></div>
         <div class="lg-foot">
-          <span class="muted">Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.</span>
+          <span class="muted">Bu sayfadaki metinler arayüz prototipi için yazılmış <strong>örnek</strong> metinlerdir; hukuken bağlayıcı sözleşme değildir. Yayına alınırken hukuk onayından geçecek güncel sürüm bu sayfada yayımlanır.</span>
           <div class="lg-nav">
-            <a href="#" id="lgPrev"><i class="fa-solid fa-arrow-left"></i> <span>Önceki</span></a>
-            <a href="#" id="lgNext"><span>Sonraki</span> <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="yasal-v1.html" id="lgPrev"><i class="fa-solid fa-arrow-left"></i> <span>Önceki</span></a>
+            <a href="yasal-v1.html" id="lgNext"><span>Sonraki</span> <i class="fa-solid fa-arrow-right"></i></a>
           </div>
         </div>
       </article>
@@ -1320,422 +184,155 @@ html,body{overflow-x:hidden}
   </div>
 </section>
 
-
 </main><!-- /.page-main -->
 
-<!-- ===== LG-GATE (giriş kapısı) — logged-out mikro-aksiyon (yorum/kaydet/takip) =====
- Markup </main> SONRASINA (lessons: fixed overlay page-main stacking context'ine girmez).
- body.is-auth iken hiç açılmaz; data-lg-gate taşıyan öğeler tetikler. SS: ?lg=1 -->
-<div class="lg-overlay" id="lgOverlay"></div>
-<div class="lg-gate" id="lgGate" role="dialog" aria-modal="true" aria-label="Giriş gerekli">
-  <div class="lg-panel">
-    <button class="lg-close" id="lgClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
-    <span class="lg-ico"><i class="fa-solid fa-lock"></i></span>
-    <h4 id="lgTitle">Bu işlem için giriş yap</h4>
-    <p id="lgDesc">Kaydetmek, yorum yapmak ve takip etmek için DadaMutfak hesabına giriş yapman gerekiyor.</p>
-    <div class="lg-acts">
-      <a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a>
-      <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Üye Ol</a>
-    </div>
-  </div>
-</div>
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
 
-
-
-<!-- ===== FOOTER ===== -->
-<footer class="footer orange">
-  <div class="wrap">
-    <div class="foot-grid">
-      <div class="foot-brand">
-        <img src="assets/img/logo-official-white.png" alt="DadaMutfak" />
-        <div class="foot-soc">
-          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-      </div>
-      <div class="foot-col">
-        <h5>Kurumsal</h5>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sef-ol-v1.html">Şef Ol</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/sefler-v1.html">Şefler</a>
-        <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/olcu-birimleri-v1.html">Ölçü Birimleri</a>
-      </div>
-      <div class="foot-col">
-        <h5>Hızlı Erişim</h5>
-        <a href="hakkimizda-v1.html">Hakkımızda</a>
-        <a href="hakkimizda-v1.html#kunye">Künye</a>
-        <a href="sss-v1.html">S.S.S.</a>
-      </div>
-      <div class="foot-col">
-        <h5>İletişim</h5>
-        <a href="iletisim-v1.html">Bize Ulaşın</a>
-        <a href="#" onclick="document.getElementById('fbTab').click();return false;">Öneri ve Şikayet</a>
-      </div>
-      <div class="foot-col">
-        <h5>İş Birliği</h5>
-        <a href="reklam-ver-v1.html">Reklam Vermek İçin</a>
-        <a href="reklam-ver-v1.html">Sponsorlar ve Partnerler</a>
-      </div>
-    </div>
-    <div class="foot-bottom">
-      <span>© 2026 DadaMutfak. Tüm hakları saklıdır.</span>
-      <a href="https://gaviaworks.com" target="_blank" rel="noopener">#GaviaWorks</a>
-    </div>
-  </div>
-</footer>
-
+<!-- DadaFit ortak kabuk JS (tek kaynak) -->
+<script src="assets/js/fit-shell.js"></script>
 <script>
-/* ===== ORTAK CHROME JS (v3a'dan, sayfa-bağımsız hale getirildi) =====
- SS paramları: ?dd=1 (mega+dil açık) · ?drawer=1 · ?cc=1 (çerez) · ?fb=1 (görüş modal)
- Header VARSAYILAN KATI. Hero'lu sayfa şeffaf başlangıç isterse aşağıdaki
- heroMode bayrağını kendi kopyasında true yapar (v3a davranışı). */
+/* =====================================================================
+ YASAL METİNLER — ?metin= şablon motoru (SAYFA JS)
+ ---------------------------------------------------------------------
+ Sayfa tek dosyadır. ORDER dizisi hem sol dizinin sırasını hem de
+ metin sonundaki Önceki/Sonraki gezinmesini besler; L nesnesi her
+ anahtarın başlığını (t), kısa adını (c), banner alt metnini (s) ve
+ gövdesini (h) tutar.
 
-// SS paramları
-// ===== Login-state simülasyonu (mockup) — İA §2.3 sözleşmesi =====
-// ?auth=1 → localStorage dm_auth='1' + body.is-auth ; ?auth=0 → temizle (logout)
-// param yoksa localStorage'a bakılır. Çıkış linkleri ?auth=0'a yönlendirir (M7).
+ SÖZLEŞME — bu anahtarlar dışarıdan bağlanıyor, adları değişmez:
+   kabuk çerez bandı  → ?metin=cerez · ?metin=aydinlatma
+   kabuk footer       → ?metin=kullanim · ?metin=kvkk
+   kabuk görüş modalı → ?metin=aydinlatma · ?metin=kvkk
+   antrenor-ol-v1     → ?metin=sozlesme
+   sss / iletisim …   → ?metin=uyelik · iade · mesafeli · teslimat · bilgilendirme
+ Geçersiz veya eksik anahtar ORDER[0]'a (Kullanım Koşulları) düşer.
+
+ İÇERİK NOTU (belge §22): metinler prototip için yazılmış ÖRNEK
+ metinlerdir, hukuken bağlayıcı değildir — sayfa sonunda ve gövde
+ başındaki "Demo metin" ibaresinde açıkça yazıyor. Sağlıkla ilgili her
+ belgede tıbbi tavsiye verilmediği .lg-warn kutusuyla tekrarlanır.
+ ===================================================================== */
 (function(){
-  /* C1 — tek auth/rol token dm_user{auth,roles[],verified,level}. Eski dm_auth/dm_business
- migrate+silinir. Kök kuralı: auth ⟹ roles "kullanici" ile başlar; isletme operatörü
- ["kullanici","isletme"]. Class additive (is-auth/has-business AYNEN) + body[data-roles]. */
-  var KEY='dm_user', OK={kullanici:1,antrenor:1,diyetisyen:1,isletme:1};
-  function rd(){ try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return null;} }
-  function wr(u){ try{localStorage.setItem(KEY,JSON.stringify(u));}catch(e){} }
-  var u=rd();
-  if(!u){                                   // migrasyon: eski binary flag → dm_user (bir kez)
-    var oa=false,ob=false;
-    try{oa=localStorage.getItem('dm_auth')==='1';}catch(e){}
-    try{ob=localStorage.getItem('dm_business')==='1';}catch(e){}
-    if(oa||ob){ u={auth:true,roles:['kullanici'],verified:false,level:0}; if(ob)u.roles.push('isletme'); wr(u); }
-  }
-  try{localStorage.removeItem('dm_auth');localStorage.removeItem('dm_business');}catch(e){}  // eski anahtar temizliği
-  var qs=location.search;                    // URL-param (demo/SS akışı korunur + yeni roller)
-  function ens(){ if(!u)u={auth:false,roles:[],verified:false,level:0}; }
-  function addR(r){ ens(); if(OK[r]&&u.roles.indexOf(r)<0)u.roles.push(r); }
-  if(qs.indexOf('auth=1')>-1){ ens(); u.auth=true; }
-  else if(qs.indexOf('auth=0')>-1){ u=null; try{localStorage.removeItem(KEY);}catch(e){} }
-  if(qs.indexOf('business=1')>-1){ ens(); u.auth=true; addR('isletme'); }
-  else if(qs.indexOf('business=0')>-1){ if(u){var bi=u.roles.indexOf('isletme'); if(bi>-1)u.roles.splice(bi,1);} }
-  var rm=/[?&]role=(antrenor|diyetisyen|isletme)/.exec(qs); if(rm){ ens(); u.auth=true; addR(rm[1]); }
-  if(u){
-    if(qs.indexOf('verified=1')>-1)u.verified=true; else if(qs.indexOf('verified=0')>-1)u.verified=false;
-    var lm=/[?&]level=(\d+)/.exec(qs); if(lm)u.level=parseInt(lm[1],10)||0;
-    if(u.auth&&u.roles.indexOf('kullanici')<0)u.roles.unshift('kullanici');   // kök her zaman önde
-    wr(u);
-  }
-  var b=document.body, authed=!!(u&&u.auth);   // DOM: eski class kanalı (additive) + data-roles
-  if(authed){
-    b.classList.add('is-auth');
-    if(u.roles.indexOf('isletme')>-1)b.classList.add('has-business');   // C3 köprü sinyali — AYNEN
-    b.setAttribute('data-roles',u.roles.join(' '));
-    if(u.verified)b.setAttribute('data-verified','1');
-    if(u.level)b.setAttribute('data-level',String(u.level));
-  }
-  var bnA=document.getElementById('bnAccount');   // M6 — bottom-nav Hesap hedefi
-  if(bnA)bnA.setAttribute('href', authed?'mutfak-defteri-v1.html':'giris-v1.html');
-})();
+  var ORDER=['kullanim','uyelik','mesafeli','iade','teslimat','kvkk','aydinlatma','cerez','veri-izin','bilgilendirme','sozlesme'];
 
-if(location.search.indexOf('dd=1')>-1){document.querySelector('.nav-item').classList.add('open');var _l=document.getElementById('tbLang');if(_l)_l.classList.add('open');}
-if(location.search.indexOf('drawer=1')>-1){window.addEventListener('DOMContentLoaded',function(){document.getElementById('drawer').classList.add('open');document.getElementById('drawerOverlay').classList.add('open');var _s=document.querySelector('.d-has-sub');if(_s)_s.classList.add('open');});}
+  /* her sağlık bağlamlı belgede aynı dille tekrarlanan uyarı */
+  var WARN='<div class="lg-warn"><i class="fa-solid fa-circle-exclamation"></i>'
+    +'<p>DadaFit bir <strong>hareket ve alışkanlık takip platformudur</strong>; teşhis koymaz, tedavi ya da diyet reçetesi vermez. Platformdaki hareket, program ve enerji içerikleri genel bilgilendirme amaçlıdır ve <strong>tıbbi tavsiye yerine geçmez</strong>. Kronik hastalık, sakatlık, gebelik veya ilaç kullanımı gibi durumlarda egzersize başlamadan önce hekimine danış.</p></div>';
 
-// header: VARSAYILAN katı (içerik sayfası). heroMode=true → hero üstünde şeffaf,
-// ~60px scroll sonrası katı (v3a davranışı; ?hdr=solid ile yine zorla katı)
-(function(){
-  var header=document.querySelector('.header');
-  var heroMode=false;                                  // hero'lu sayfada true yap
-  var forceSolid=location.search.indexOf('hdr=solid')>-1;
-  if(!heroMode||forceSolid)return;                     // katı kal — at-top hiç eklenmez
-  function onScroll(){ if(window.scrollY<60){header.classList.add('at-top');} else {header.classList.remove('at-top');} }
-  onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
-})();
-
-// save / favorite toggle (recipes + products) — sayfada varsa çalışır
-document.querySelectorAll('.r-save, .p-fav, .feat-save').forEach(function(btn){
-  btn.addEventListener('click',function(e){
-    e.stopPropagation();
-    btn.classList.toggle('saved');
-    var i=btn.querySelector('i');
-    if(btn.classList.contains('saved')){i.classList.remove('fa-regular');i.classList.add('fa-solid');}
-    else{i.classList.remove('fa-solid');i.classList.add('fa-regular');}
-  });
-});
-
-// "tümünü gör" slider okları — data-track / data-dir ile genel
-document.querySelectorAll('.row-nav button').forEach(function(b){
-  b.addEventListener('click',function(){
-    var t=document.getElementById(b.getAttribute('data-track'));
-    if(t){t.scrollBy({left:b.getAttribute('data-dir')==='prev'?-620:620,behavior:'smooth'});if(t._pauseAuto)t._pauseAuto();}
-  });
-});
-
-// nav dropdown click toggle (hover also works via CSS)
-document.querySelectorAll('.nav-item').forEach(function(it){
-  var trigger=it.querySelector(':scope > a');
-  if(!it.querySelector('.dropdown,.mega'))return;
-  trigger.addEventListener('click',function(e){
-    e.preventDefault();
-    var wasOpen=it.classList.contains('open');
-    document.querySelectorAll('.nav-item.open').forEach(function(o){o.classList.remove('open')});
-    if(!wasOpen)it.classList.add('open');
-  });
-});
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.nav-item'))document.querySelectorAll('.nav-item.open').forEach(function(o){o.classList.remove('open')});
-});
-
-// ---- HESAP / EKLE dropdown (header sağ blok, login-state) tıkla-aç ----
-document.querySelectorAll('.acct-item').forEach(function(it){
-  var trigger=it.querySelector('.icon-btn,.acct-btn');
-  if(!trigger||!it.querySelector('.acct-menu'))return;
-  trigger.addEventListener('click',function(e){
-    e.preventDefault();
-    var wasOpen=it.classList.contains('open');
-    document.querySelectorAll('.acct-item.open').forEach(function(o){o.classList.remove('open')});
-    if(!wasOpen)it.classList.add('open');
-  });
-});
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.acct-item'))document.querySelectorAll('.acct-item.open').forEach(function(o){o.classList.remove('open')});
-});
-
-// ---- LG-GATE (giriş kapısı) — logged-out mikro-aksiyon kapısı ----
-(function(){
-  var gate=document.getElementById('lgGate');
-  var overlay=document.getElementById('lgOverlay');
-  if(!gate)return;
-  function open(title,desc){
-    if(document.body.classList.contains('is-auth'))return false;   // logged-in: kapı yok
-    if(title)document.getElementById('lgTitle').textContent=title;
-    if(desc)document.getElementById('lgDesc').textContent=desc;
-    gate.classList.add('show');overlay.classList.add('show');document.body.style.overflow='hidden';
-    return true;
-  }
-  function close(){gate.classList.remove('show');overlay.classList.remove('show');document.body.style.overflow='';}
-  window.__lgGate=open;window.__lgGateClose=close;
-  document.getElementById('lgClose').addEventListener('click',close);
-  overlay.addEventListener('click',close);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&gate.classList.contains('show'))close();});
- // data-lg-gate taşıyan öğeler logged-out'ta kapıyı açar (capture: sayfa toggle'ından önce keser)
-  document.addEventListener('click',function(e){
-    var t=e.target.closest('[data-lg-gate]');
-    if(!t)return;
-    if(document.body.classList.contains('is-auth'))return;          // logged-in: normal davranış
-    e.preventDefault();e.stopPropagation();
-    open(t.getAttribute('data-lg-title'),t.getAttribute('data-lg-desc'));
-  },true);
-  if(location.search.indexOf('lg=1')>-1){open();}                    // SS paramı
-})();
-
-// ---- DİL SEÇİCİ (üst bant dropdown) ----
-(function(){
-  var lang=document.getElementById('tbLang');
-  if(!lang)return;
-  var btn=document.getElementById('tbLangBtn');
-  btn.addEventListener('click',function(e){
-    e.preventDefault();e.stopPropagation();
-    var open=lang.classList.toggle('open');
-    btn.setAttribute('aria-expanded',open?'true':'false');
-  });
-  lang.querySelectorAll('.tb-lang-menu a').forEach(function(a){
-    a.addEventListener('click',function(e){
-      e.preventDefault();
-      lang.querySelectorAll('.tb-lang-menu a').forEach(function(x){x.classList.remove('active')});
-      a.classList.add('active');
-      btn.querySelector('span').textContent=a.getAttribute('data-lang').toUpperCase();
-      lang.classList.remove('open');btn.setAttribute('aria-expanded','false');
-    });
-  });
-  document.addEventListener('click',function(e){
-    if(!e.target.closest('#tbLang')){lang.classList.remove('open');btn.setAttribute('aria-expanded','false');}
-  });
-})();
-
-// ---- MOBİL DRAWER aç/kapa ----
-(function(){
-  var drawer=document.getElementById('drawer');
-  var overlay=document.getElementById('drawerOverlay');
-  var burger=document.getElementById('hamburger');
-  var closeBtn=document.getElementById('drawerClose');
-  function open(){drawer.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';}
-  function close(){drawer.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow='';}
-  burger.addEventListener('click',open);
-  closeBtn.addEventListener('click',close);
-  overlay.addEventListener('click',close);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
- // accordion: alt menülü öğeler tıkla-aç
-  drawer.querySelectorAll('.d-has-sub > .d-link').forEach(function(lnk){
-    lnk.addEventListener('click',function(){
-      var item=lnk.parentElement;
-      var wasOpen=item.classList.contains('open');
-      drawer.querySelectorAll('.d-item.open').forEach(function(o){o.classList.remove('open')});
-      if(!wasOpen)item.classList.add('open');
-    });
-  });
- // alt link veya direkt linke tıklayınca drawer kapansın
-  drawer.querySelectorAll('.d-sub a, .d-item > a.d-link, .drawer-foot a, .drawer-foot > button').forEach(function(a){
-    a.addEventListener('click',close);
-  });
- // drawer dil seçici — aç/kapa liste + seçim (drawer kapanmaz, N dile ölçeklenir)
-  var dl=document.getElementById('drawerLang');
-  if(dl){
-    var dlToggle=dl.querySelector('.drawer-lang-toggle');
-    dlToggle.addEventListener('click',function(){
-      var open=dl.classList.toggle('open');
-      dlToggle.setAttribute('aria-expanded',open?'true':'false');
-    });
-    dl.querySelectorAll('.drawer-lang-list button').forEach(function(b){
-      b.addEventListener('click',function(){
-        dl.querySelectorAll('.drawer-lang-list button').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');
-        document.getElementById('drawerLangCur').textContent=b.getAttribute('data-lang').toUpperCase()+' — '+b.getAttribute('data-name');
-        dl.classList.remove('open');dlToggle.setAttribute('aria-expanded','false');
-      });
-    });
-  }
-})();
-
-// ---- SÜRÜKLE-KAYDIR (mouse ile yatay slider'lar) ----
-// Sayfa kendi track selector'larını alttaki listeye ekler (.row-track hazır gelir)
-(function(){
-  function enableDrag(el){
-    el.classList.add('drag-scroll');
-    var down=false,startX=0,startScroll=0,moved=false;
-    el.addEventListener('pointerdown',function(e){
-      if(e.pointerType==='touch')return;           // touch zaten native kayar
-      down=true;moved=false;startX=e.clientX;startScroll=el.scrollLeft;
-    });
-    el.addEventListener('pointermove',function(e){
-      if(!down)return;
-      var dx=e.clientX-startX;
-      if(Math.abs(dx)>4){moved=true;el.classList.add('dragging');}
-      el.scrollLeft=startScroll-dx;
-    });
-    function up(){down=false;setTimeout(function(){el.classList.remove('dragging');},0);}
-    el.addEventListener('pointerup',up);
-    el.addEventListener('pointercancel',up);
-    el.addEventListener('pointerleave',up);
- // sürükleme sonrası yanlışlıkla tıklamayı engelle
-    el.addEventListener('click',function(e){if(moved){e.preventDefault();e.stopPropagation();moved=false;}},true);
- // dikey wheel'i yatay scroll'a çevir (trackpad/mouse)
-    el.addEventListener('wheel',function(e){
-      if(el.scrollWidth<=el.clientWidth)return;
-      if(Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
-      e.preventDefault();el.scrollLeft+=e.deltaY;
-    },{passive:false});
-  }
-  ['.row-track','.cat-track','.grid-4','.vid-grid','.chips','.chef-row','.disc-grid'].forEach(function(sel){
-    document.querySelectorAll(sel).forEach(enableDrag);
-  });
-})();
-
-// ---- FOOTER REVEAL — footer yüksekliğini ölç, içerik sonuna boşluk aç ----
-(function(){
-  var main=document.getElementById('pageMain');
-  var foot=document.querySelector('.footer');
-  if(!main||!foot)return;
-  function fit(){
-    if(window.matchMedia('(min-width:641px)').matches){
-      main.style.marginBottom=foot.offsetHeight+'px';
-    }else{
-      main.style.marginBottom='';
-    }
-  }
-  fit();
-  window.addEventListener('resize',fit);
-  window.addEventListener('load',fit);          // logo/font yüklenince yükseklik oturur
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
-})();
-
-// ---- GÖRÜŞ BİLDİR (kenar etiketi → modal) ----
-(function(){
-  var tab=document.getElementById('fbTab');
-  var modal=document.getElementById('fbModal');
-  var overlay=document.getElementById('fbOverlay');
-  if(!tab||!modal)return;
-  var form=document.getElementById('fbForm');
-  var success=document.getElementById('fbSuccess');
-  function open(){modal.classList.add('show');overlay.classList.add('show');document.body.style.overflow='hidden';}
-  function close(){
-    modal.classList.remove('show');overlay.classList.remove('show');document.body.style.overflow='';
-    setTimeout(function(){form.hidden=false;success.hidden=true;form.reset();},300);
-  }
-  tab.addEventListener('click',function(e){e.preventDefault();open();});
-  document.getElementById('fbClose').addEventListener('click',close);
-  overlay.addEventListener('click',close);
-  modal.addEventListener('click',function(e){if(e.target===modal)close();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
- // M17 — konu tipine göre alan seti: aktif pane görünür, pasif pane'lerin
- // input'ları disable edilir (gizli required alanlar submit'i bloklamasın)
-  function syncPanes(){
-    var cur=modal.querySelector('.fb-topic.active').getAttribute('data-topic');
-    modal.querySelectorAll('.fb-fields').forEach(function(p){
-      var on=p.getAttribute('data-for')===cur;
-      p.classList.toggle('active',on);
-      p.querySelectorAll('input,textarea,select,button').forEach(function(el){el.disabled=!on});
-    });
-  }
-  modal.querySelectorAll('.fb-topic').forEach(function(t){
-    t.addEventListener('click',function(){
-      modal.querySelectorAll('.fb-topic').forEach(function(x){x.classList.remove('active')});
-      t.classList.add('active');
-      syncPanes();
-    });
-  });
-  syncPanes();
- // emoji + chip seçimleri (tek seçim)
-  modal.querySelectorAll('.fb-emoji button').forEach(function(b){
-    b.addEventListener('click',function(){
-      modal.querySelectorAll('.fb-emoji button').forEach(function(x){x.classList.remove('active')});
-      b.classList.add('active');
-    });
-  });
-  modal.querySelectorAll('.fb-chiprow .chip').forEach(function(c){
-    c.addEventListener('click',function(){
-      modal.querySelectorAll('.fb-chiprow .chip').forEach(function(x){x.classList.remove('active')});
-      c.classList.add('active');
-    });
-  });
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    form.hidden=true;success.hidden=false;
-  });
-  if(location.search.indexOf('fb=1')>-1){open();}
-})();
-
-// ---- ÇEREZ ONAY BANNER ----
-(function(){
-  var banner=document.getElementById('cookieBanner');
-  if(!banner)return;
-  var KEY='dm-cookie-consent';
-  var force=location.search.indexOf('cc=1')>-1;   // SS/test için zorla göster
-  function stored(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
-  function dismiss(val){
-    try{localStorage.setItem(KEY,val);}catch(e){}
-    banner.classList.remove('show');if(window.__bnUpdate)window.__bnUpdate();
-  }
-  if(force || !stored()){
-    setTimeout(function(){banner.classList.add('show');if(window.__bnUpdate)window.__bnUpdate();},700);
-  }
-  document.getElementById('cookieAccept').addEventListener('click',function(){dismiss('accepted');});
-  document.getElementById('cookieReject').addEventListener('click',function(){dismiss('rejected');});
-})();
-
-/* ===== SAYFA JS — sayfa-spesifik script BU İŞARETİN ALTINA eklenir ===== */
-
-/* ===== YASAL METİNLER — ?metin= şablon motoru ===== */
-(function(){
-  var ORDER=['kvkk','aydinlatma','kullanim','cerez','uyelik','mesafeli','iade','teslimat','bilgilendirme'];
   var L={
-  kvkk:{t:'KVKK Politikası',c:'KVKK Politikası',h:''
+  kullanim:{t:'Kullanım Koşulları',c:'Kullanım Koşulları',
+    s:'DadaFit\'i kullanırken ikimizin de uyduğu temel kurallar: hesabın, paylaştığın içerik, hareket verinin sınırları ve sorumluluk paylaşımı.',h:''
+    +'<h3 id="b1">1. Taraflar ve Konu</h3>'
+    +'<p>İşbu Kullanım Koşulları, <strong>DadaFit</strong> platformu ("<strong>Platform</strong>") ile Platform\'u ziyaret eden veya üye olan kullanıcı ("<strong>Kullanıcı</strong>") arasındaki ilişkiyi düzenler. Platform, DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş. ("<strong>Şirket</strong>") tarafından işletilir. Platform\'u kullanmaya devam ederek bu koşulları kabul etmiş sayılırsın.</p>'
+    +'<h3 id="b2">2. Hizmetin Kapsamı</h3>'
+    +'<p>DadaFit; egzersiz kütüphanesi, hazır ve kişiselleştirilebilir hareket programları, Fit Testleri, challenge\'lar, Enerji Defteri ile günlük aktivite takibi ve antrenör randevu modülünü bir arada sunar. Hizmetlerin bir bölümü ücretsizdir; <strong>DadaFit Pro</strong> ve <strong>Pro Max</strong> paketleri ek içerik ve özellik açar. Kapsam ve fiyatlar <a class="inline" href="pro-v1.html">Pro sayfasında</a>, üyelik ve iptal kuralları ise <a class="inline" href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>\'nda gösterilir.</p>'
+    +'<h3 id="b3">3. Kullanıcının Yükümlülükleri</h3>'
+    +'<ul>'
+    +'<li>Kayıt sırasında doğru ve güncel bilgi vermek; hesap ve şifre güvenliğini korumak.</li>'
+    +'<li>Paylaştığın yorum, ilerleme notu ve fotoğrafların sana ait ya da kullanım hakkına sahip olduğun içerikler olması.</li>'
+    +'<li>Üçüncü kişilerin telif, marka veya kişilik haklarını ihlal eden içerik yayımlamamak.</li>'
+    +'<li><strong>Yanıltıcı sağlık iddiası</strong>, doğrulanmamış takviye/ilaç önerisi, aşırı kısıtlayıcı diyet teşviki ve beden utandırması içeren paylaşımlarda bulunmamak.</li>'
+    +'<li>Antrenörlere, diğer üyelere ve destek ekibine saygılı davranmak.</li>'
+    +'</ul>'
+    +'<p>Bu kurallara aykırı içerikler moderasyon ekibi tarafından kaldırılır; tekrarlanan ihlallerde üyelik askıya alınabilir veya sonlandırılabilir.</p>'
+    +'<h3 id="b4">4. Sağlık ve Güvenlik Sorumluluğu</h3>'
+    + WARN
+    +'<p>Hareketleri kendi fiziksel kapasitene uygun şekilde, doğru formla ve ağrı sınırını zorlamadan uygulamak Kullanıcı\'nın sorumluluğundadır. Fit Testleri öncesinde sunulan <strong>fiziksel aktivite uygunluk taraması</strong> soruları dürüst yanıtlanmalıdır; riskli yanıt verildiğinde test durdurulur.</p>'
+    +'<h3 id="b5">5. Fikri Mülkiyet</h3>'
+    +'<p>Platform\'un tasarımı, yazılımı, markası, hareket videoları ve editoryal program içerikleri Şirket\'e veya lisans verenlerine aittir; izinsiz çoğaltılamaz ve ticari amaçla kullanılamaz. Kullanıcı içeriklerinin mülkiyeti Kullanıcı\'da kalır; Kullanıcı, içeriğin Platform\'da yayımlanması için Şirket\'e münhasır olmayan, telifsiz bir kullanım hakkı tanır.</p>'
+    +'<h3 id="b6">6. Sorumluluğun Sınırlandırılması</h3>'
+    +'<p>Şirket, Platform\'un kesintisiz ve hatasız çalışacağını garanti etmez; bakım, güncelleme ve teknik arıza kaynaklı geçici kesintiler olabilir. Aktivite ve enerji verileri <strong>yaklaşık değerlerdir</strong>; bağlı cihaz ve uygulamalardan gelen ölçümlerin doğruluğu ilgili cihaz üreticisinin sorumluluğundadır.</p>'
+    +'<h3 id="b7">7. Değişiklikler ve Yürürlük</h3>'
+    +'<p>Şirket bu koşulları güncelleyebilir; güncel sürüm bu sayfada yayımlandığı anda yürürlüğe girer. Önemli değişiklikler üyelere e-posta ve uygulama içi bildirimle duyurulur. Sorularını <a class="inline" href="iletisim-v1.html">iletişim formundan</a> ya da <strong>destek@dadafit.com</strong> adresinden iletebilirsin.</p>'},
+
+  uyelik:{t:'Üyelik ve İptal Koşulları',c:'Üyelik ve İptal',
+    s:'Üyeliğin nasıl kurulduğu, Ücretsiz ile Pro arasındaki fark, aboneliğin ve antrenör randevusunun nasıl iptal edildiği.',h:''
+    +'<h3 id="b1">1. Üyeliğin Kurulması</h3>'
+    +'<p>Üyelik, kayıt formunun onaylanması ve e-posta doğrulaması ile kurulur. Üyelik kişiseldir; hesabın üçüncü kişilerce kullanılmasına izin verilemez. 18 yaşından küçükler ancak veli/vasi onayı ile üye olabilir.</p>'
+    +'<h3 id="b2">2. Ücretsiz, Pro ve Pro Max</h3>'
+    +'<div class="lg-defs">'
+    +'<div class="dr"><span>Ücretsiz</span><div>Egzersiz kütüphanesi, temel programlar, Enerji Defteri günlük kaydı ve challenge katılımı.</div></div>'
+    +'<div class="dr"><span>DadaFit Pro</span><div>Tüm programlar, video seansları, Fit Testleri sonuç raporu ve ilerleme analizleri.</div></div>'
+    +'<div class="dr"><span>Pro Max</span><div>Pro içeriğinin tamamı + antrenör görüşmesi kontenjanı ve kişiye göre uyarlanan program.</div></div>'
+    +'</div>'
+    +'<p>Paketlerin güncel içeriği ve fiyatı <a class="inline" href="pro-v1.html">Pro sayfasında</a> karşılaştırma tablosuyla gösterilir. Abonelik, seçilen dönemin sonunda <strong>otomatik yenilenir</strong>; yenileme tarihinden önce e-posta ile hatırlatılır.</p>'
+    +'<h3 id="b3">3. Pro Aboneliğinin İptali</h3>'
+    +'<p>Aboneliği <strong>Hesabım → Üyelik ve Paketim</strong> ekranından tek adımda iptal edebilirsin; iptal için destek ekibiyle görüşmek gerekmez. İptal sonrası:</p>'
+    +'<ul>'
+    +'<li>Ödemesi yapılmış dönemin <strong>sonuna kadar</strong> Pro içeriğine erişim sürer,</li>'
+    +'<li>Dönem sonunda hesap otomatik olarak Ücretsiz pakete döner,</li>'
+    +'<li>Kaydettiğin hareketler, ilerleme geçmişin ve Enerji Defteri kayıtların <strong>silinmez</strong>; Pro\'ya özel içerikler kilitlenir.</li>'
+    +'</ul>'
+    +'<p>Kullanılmamış dönem bedelinin iadesi <a class="inline" href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>\'na tabidir.</p>'
+    +'<h3 id="b4">4. Antrenör Randevusunun İptali</h3>'
+    +'<p>Antrenör görüşmesi, randevu saatinden <strong>en az 12 saat önce</strong> ücretsiz iptal edilebilir veya ertelenebilir. Daha kısa sürede yapılan iptallerde seans kullanılmış sayılır. Antrenör kaynaklı iptallerde seans hakkı bir sonraki uygun tarihe aktarılır veya bedeli iade edilir. Randevularını <strong>Planım → Randevularım ve Mesajlar</strong> ekranından yönetebilirsin.</p>'
+    +'<h3 id="b5">5. Hesabın Dondurulması ve Kapatılması</h3>'
+    +'<p>Hesabını geçici olarak <strong>dondurabilir</strong> (veriler saklanır, bildirimler durur) ya da kalıcı olarak <strong>kapatabilirsin</strong>. Hesap kapatıldığında kişisel veriler <a class="inline" href="yasal-v1.html?metin=kvkk">Gizlilik ve KVKK Politikası</a>\'ndaki saklama süreleri saklı kalmak kaydıyla imha edilir; kapatmadan önce verilerini <a class="inline" href="yasal-v1.html?metin=veri-izin">Veri ve İzin Politikası</a>\'nda anlatıldığı şekilde indirebilirsin.</p>'
+    +'<h3 id="b6">6. Uyuşmazlıkların Çözümü</h3>'
+    +'<p>İşbu koşullardan doğan uyuşmazlıklarda Türk hukuku uygulanır; tüketici işlemlerinde tüketicinin yerleşim yerindeki tüketici hakem heyeti ve tüketici mahkemeleri yetkilidir.</p>'},
+
+  mesafeli:{t:'Mesafeli Satış Sözleşmesi',c:'Mesafeli Satış',
+    s:'Pro ve Pro Max dijital aboneliklerinin uzaktan satışında tarafların hak ve yükümlülükleri.',h:''
+    +'<h3 id="b1">1. Taraflar</h3>'
+    +'<div class="lg-defs">'
+    +'<div class="dr"><span>Hizmet Sağlayıcı</span><div>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş. — destek@dadafit.com</div></div>'
+    +'<div class="dr"><span>Alıcı</span><div>DadaFit üzerinden Pro / Pro Max aboneliği ya da antrenör seansı satın alan, ödeme ekranında bilgileri yer alan tüketici.</div></div>'
+    +'</div>'
+    +'<h3 id="b2">2. Sözleşmenin Konusu</h3>'
+    +'<p>İşbu sözleşme, Alıcı\'nın elektronik ortamda satın aldığı <strong>dijital abonelik hizmetinin</strong> sunulmasına ilişkin olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca tarafların hak ve yükümlülüklerini düzenler. Sözleşme konusu <strong>fiziksel bir ürün değil</strong>, elektronik ortamda anında ifa edilen bir hizmettir; kargo ve teslimat söz konusu olmaz.</p>'
+    +'<h3 id="b3">3. Hizmet ve Ödeme Bilgileri</h3>'
+    +'<p>Paketin adı, süresi, yenileme dönemi ve vergiler dâhil toplam bedeli ödeme özetinde gösterilir. Ödeme yöntemleri ve erişimin açılması <a class="inline" href="yasal-v1.html?metin=teslimat">Ödeme ve Erişim Koşulları</a>\'nda ayrıntılandırılmıştır.</p>'
+    +'<h3 id="b4">4. Cayma Hakkı</h3>'
+    +'<p>Alıcı, sözleşme tarihinden itibaren <strong>14 gün</strong> içinde gerekçe göstermeksizin cayma hakkına sahiptir. Ancak Mesafeli Sözleşmeler Yönetmeliği m.15/1-ğ uyarınca, <strong>Alıcı\'nın onayıyla ifasına başlanan</strong> elektronik ortamda anında sunulan hizmetlerde cayma hakkı kullanılamaz. Bu nedenle ödeme ekranında, aboneliğin hemen başlatılmasını onayladığın ayrı bir kutu bulunur. Ayrıntılar için <a class="inline" href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>\'na bakabilirsin.</p>'
+    +'<h3 id="b5">5. Yürürlük ve Uyuşmazlık</h3>'
+    +'<p>Sözleşme, ödeme onayı ile yürürlüğe girer ve abonelik dönemi boyunca geçerlidir. Uyuşmazlıklarda tüketicinin yerleşim yerindeki tüketici hakem heyeti ve tüketici mahkemeleri yetkilidir.</p>'},
+
+  iade:{t:'Cayma ve İade Koşulları',c:'Cayma ve İade',
+    s:'Aboneliği iptal etmek, cayma hakkını kullanmak ve kullanılmamış antrenör seansının bedelini geri almak.',h:''
+    +'<h3 id="b1">1. Abonelik İptali</h3>'
+    +'<p><strong>Hesabım → Üyelik ve Paketim</strong> ekranından aboneliği tek adımda iptal edebilirsin. İptal, sonraki yenilemeyi durdurur; ödemesi yapılmış dönemin sonuna kadar erişim sürer. Ayrıntı: <a class="inline" href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>.</p>'
+    +'<h3 id="b2">2. Cayma Hakkı ve Süresi</h3>'
+    +'<p>Aboneliğin başlatıldığı tarihten itibaren <strong>14 gün</strong> içinde cayma bildirimi yapılabilir. Bildirim, hesap panelindeki iptal akışından ya da <strong>destek@dadafit.com</strong> adresine yazarak iletilir. Cayma kabul edildiğinde bedel, aynı ödeme aracına <strong>en geç 14 gün</strong> içinde iade edilir.</p>'
+    +'<h3 id="b3">3. Cayma Hakkının Kullanılamadığı Hâl</h3>'
+    +'<p>Onayınla ifasına başlanan dijital abonelikte, yani <strong>Pro içeriğini kullanmaya başladıysan</strong>, mevzuat gereği cayma hakkı sona erer. Bu durumda iptal ileriye dönük çalışır: yenileme durur, dönem sonuna kadar erişim korunur. Ödeme ekranında bu onay ayrı bir kutu olarak sunulur ve işaretlenmeden ödeme alınmaz.</p>'
+    +'<h3 id="b4">4. Antrenör Seansı İade ve Değişimi</h3>'
+    +'<ul>'
+    +'<li>Randevudan <strong>12 saatten fazla</strong> süre kalarak yapılan iptallerde seans bedeli tam iade edilir veya seans hakkı korunur.</li>'
+    +'<li>12 saatten kısa sürede yapılan iptallerde seans kullanılmış sayılır.</li>'
+    +'<li>Antrenör kaynaklı iptal, teknik arıza veya görüşmenin gerçekleşmemesi hâlinde bedel <strong>tam iade</strong> edilir.</li>'
+    +'<li>Görüşmeden memnun kalmadıysan 7 gün içinde <a class="inline" href="iletisim-v1.html">destek kaydı</a> açabilirsin; haklı bulunan taleplerde seans hakkı yenilenir.</li>'
+    +'</ul>'
+    +'<h3 id="b5">5. Bedel İadesi</h3>'
+    +'<p>İade onayından sonra bedel; kredi kartına <strong>3–7 iş günü</strong>, banka havalesi ile yapılan ödemelerde <strong>7 iş günü</strong> içinde iade edilir. Bankanın hesaba yansıtma süresi değişiklik gösterebilir. İade işlemleri <strong>Hesabım → Ödeme Geçmişim</strong> ekranından izlenebilir.</p>'},
+
+  teslimat:{t:'Ödeme ve Erişim Koşulları',c:'Ödeme ve Erişim',
+    s:'Ödeme yöntemleri, ödeme güvenliği, Pro erişiminin ne zaman açıldığı ve yenileme kuralları.',h:''
+    +'<h3 id="b1">1. Ödeme Seçenekleri</h3>'
+    +'<ul>'
+    +'<li><strong>Kredi / banka kartı</strong> — 3D Secure doğrulamalı tek çekim veya taksit,</li>'
+    +'<li><strong>Havale / EFT</strong> — yıllık paketlerde geçerlidir; ödeme 24 saat içinde bekletilir, gelmezse sipariş otomatik iptal edilir,</li>'
+    +'<li><strong>Mobil uygulama içi satın alma</strong> — App Store / Google Play üzerinden yapılan aboneliklerde iptal ve iade ilgili mağazanın kurallarına tabidir.</li>'
+    +'</ul>'
+    +'<h3 id="b2">2. Ödeme Güvenliği</h3>'
+    +'<p>Tüm ödeme işlemleri SSL şifrelemesi ile, BDDK lisanslı ödeme kuruluşunun altyapısında gerçekleşir. <strong>Kart bilgileri DadaFit sistemlerinde saklanmaz</strong>; yalnızca ödeme kuruluşunun ürettiği maskeli kart referansı tutulur.</p>'
+    +'<h3 id="b3">3. Erişimin Açılması</h3>'
+    +'<p>Dijital abonelikte teslimat yerine <strong>erişim</strong> vardır: ödeme onayının ardından Pro içeriği hesabında <strong>anında</strong> açılır, ayrıca bir bekleme süresi yoktur. Erişimin açılmadığı durumlarda <strong>destek@dadafit.com</strong> adresine yazman yeterlidir.</p>'
+    +'<h3 id="b4">4. Yenileme ve Fiyat Değişikliği</h3>'
+    +'<p>Abonelik dönem sonunda otomatik yenilenir; yenilemeden önce e-posta ile hatırlatma gönderilir. Fiyat değişiklikleri <strong>yalnızca sonraki dönem</strong> için geçerli olur ve en az 30 gün önce duyurulur; değişikliği kabul etmezsen yenileme tarihine kadar iptal edebilirsin.</p>'
+    +'<h3 id="b5">5. Fatura</h3>'
+    +'<p>E-arşiv fatura, ödeme onayıyla eş zamanlı olarak hesabındaki e-posta adresine gönderilir ve <strong>Hesabım → Faturalarım</strong> ekranından indirilebilir.</p>'},
+
+  kvkk:{t:'Gizlilik ve KVKK Politikası',c:'Gizlilik ve KVKK',
+    s:'Hangi verini neden işliyoruz, sağlık ve hareket verisini nasıl koruyoruz, hangi haklara sahipsin.',h:''
     +'<h3 id="b1">1. Amaç ve Kapsam</h3>'
-    +'<p>İşbu Kişisel Verilerin Korunması ve İşlenmesi Politikası ("<strong>Politika</strong>"), DadaMutfak Medya ve İnternet Hizmetleri A.Ş. ("<strong>Şirket</strong>") tarafından 6698 sayılı Kişisel Verilerin Korunması Kanunu ("<strong>KVKK</strong>") ve ilgili mevzuat uyarınca; kişisel verilerin işlenmesi, saklanması, aktarılması ve imhasına ilişkin usul ve esasları belirlemek amacıyla hazırlanmıştır.</p>'
-    +'<p>Politika; üyelerimiz, ziyaretçilerimiz, diyetisyen başvuru sahipleri, DadaStore müşterileri ve iş ortaklarımıza ait, otomatik ya da kısmen otomatik yollarla işlenen tüm kişisel verileri kapsar.</p>'
+    +'<p>İşbu Gizlilik ve Kişisel Verilerin Korunması Politikası ("<strong>Politika</strong>"), <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> ("<strong>Şirket</strong>") tarafından 6698 sayılı Kişisel Verilerin Korunması Kanunu ("<strong>KVKK</strong>") ve ilgili mevzuat uyarınca; kişisel verilerin işlenmesi, saklanması, aktarılması ve imhasına ilişkin usul ve esasları belirlemek amacıyla hazırlanmıştır.</p>'
+    +'<p>Politika; üyelerimiz, ziyaretçilerimiz, antrenör başvuru sahipleri ve iş ortaklarımıza ait, otomatik ya da kısmen otomatik yollarla işlenen tüm kişisel verileri kapsar.</p>'
     +'<h3 id="b2">2. Tanımlar</h3>'
     +'<div class="lg-defs">'
     +'<div class="dr"><span>Kişisel Veri</span><div>Kimliği belirli veya belirlenebilir gerçek kişiye ilişkin her türlü bilgi (ad-soyad, e-posta, IP adresi vb.).</div></div>'
-    +'<div class="dr"><span>Veri Sorumlusu</span><div>Kişisel verilerin işleme amaçlarını ve vasıtalarını belirleyen DadaMutfak Medya ve İnternet Hizmetleri A.Ş.</div></div>'
+    +'<div class="dr"><span>Özel Nitelikli Veri</span><div>Sağlık verisi dâhil, KVKK m.6\'da sayılan ve daha yüksek koruma gerektiren veri türleri.</div></div>'
+    +'<div class="dr"><span>Veri Sorumlusu</span><div>İşleme amaçlarını ve vasıtalarını belirleyen DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</div></div>'
     +'<div class="dr"><span>Açık Rıza</span><div>Belirli bir konuya ilişkin, bilgilendirilmeye dayanan ve özgür iradeyle açıklanan rıza.</div></div>'
     +'<div class="dr"><span>İmha</span><div>Kişisel verilerin silinmesi, yok edilmesi veya anonim hâle getirilmesi.</div></div>'
     +'</div>'
@@ -1743,145 +340,142 @@ document.addEventListener('click',function(e){
     +'<p>Şirket, aşağıdaki veri kategorilerini KVKK m.5 ve m.6\'da öngörülen şartlara uygun olarak işler:</p>'
     +'<ul>'
     +'<li><strong>Kimlik ve iletişim verileri</strong> — üyelik oluşturma, hesabın yönetimi ve destek taleplerine dönüş amacıyla.</li>'
+    +'<li><strong>Hareket ve antrenman verileri</strong> (tamamlanan seans, süre, set, tekrar, seri) — programın ilerlemesini göstermek ve öneri üretmek amacıyla.</li>'
+    +'<li><strong>Aktivite verileri</strong> (adım, aktif süre, mesafe, yaklaşık enerji) — Enerji Defteri ve haftalık denge özetini oluşturmak amacıyla.</li>'
+    +'<li><strong>Sağlık ve hareket profili verileri</strong> (boy, kilo, sakatlık/kısıt beyanı, uygunluk taraması yanıtları) — <strong>yalnızca açık rızaya dayalı olarak</strong>, güvenli program önerisi ve Fit Testi uygunluğu amacıyla.</li>'
     +'<li><strong>İşlem güvenliği verileri</strong> (IP, oturum kayıtları) — 5651 sayılı Kanun kapsamındaki yükümlülükler ve platform güvenliği amacıyla.</li>'
-    +'<li><strong>Müşteri işlem verileri</strong> (sipariş, fatura) — DadaStore satış sözleşmesinin ifası amacıyla.</li>'
-    +'<li><strong>Sağlık beyanı verileri</strong> — yalnızca diyetisyen danışmanlık hizmetinde, açık rızaya dayalı olarak.</li>'
+    +'<li><strong>Müşteri işlem verileri</strong> (abonelik, fatura) — Pro üyelik sözleşmesinin ifası amacıyla.</li>'
     +'</ul>'
-    +'<h3 id="b4">4. Verilerin Aktarılması</h3>'
-    +'<p>Kişisel veriler; yasal yükümlülükler çerçevesinde yetkili kamu kurumlarına, hizmetin ifası için zorunlu olduğu ölçüde kargo, ödeme kuruluşu ve barındırma hizmeti sağlayıcılarına KVKK m.8 ve m.9\'a uygun şekilde aktarılabilir. Yurt dışına aktarım yalnızca Kurul kararlarına uygun güvencelerle yapılır.</p>'
-    +'<h3 id="b5">5. Saklama ve İmha</h3>'
-    +'<p>Kişisel veriler, işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen azami süreler boyunca saklanır; sürenin sonunda periyodik imha dönemlerinde silinir, yok edilir veya anonim hâle getirilir.</p>'
-    +'<h3 id="b6">6. İlgili Kişinin Hakları</h3>'
-    +'<p>KVKK m.11 uyarınca; verinizin işlenip işlenmediğini öğrenme, düzeltilmesini veya silinmesini isteme, işlemeye itiraz etme ve zararın giderilmesini talep etme haklarına sahipsiniz. Başvurularınızı <strong>kurumsal@dadamutfak.com</strong> adresine veya yönetim yeri adresimize yazılı olarak iletebilirsiniz. Başvurular en geç <strong>30 gün</strong> içinde ücretsiz sonuçlandırılır.</p>'},
-  aydinlatma:{t:'Aydınlatma Metni',c:'Aydınlatma Metni',h:''
+    +'<h3 id="b4">4. Sağlık Verisi ve Açık Rıza</h3>'
+    + WARN
+    +'<p>Sağlık ve hareket profili verileri <strong>özel nitelikli kişisel veridir</strong>; yalnızca açık rızanla işlenir, ayrı bir güvenlik katmanında tutulur ve pazarlama amacıyla <strong>hiçbir koşulda</strong> kullanılmaz. Rızanı <strong>Planım → Veri ve İzinlerim</strong> ekranından dilediğin zaman geri alabilirsin; geri alma, o veriye dayanan önerilerin durdurulması sonucunu doğurur. Ayrıntı: <a class="inline" href="yasal-v1.html?metin=veri-izin">Veri ve İzin Politikası</a>.</p>'
+    +'<h3 id="b5">5. Verilerin Aktarılması</h3>'
+    +'<p>Kişisel veriler; yasal yükümlülükler çerçevesinde yetkili kamu kurumlarına, hizmetin ifası için zorunlu olduğu ölçüde ödeme kuruluşu, e-posta gönderim ve barındırma hizmeti sağlayıcılarına KVKK m.8 ve m.9\'a uygun şekilde aktarılabilir. <strong>Antrenörünle paylaşılan veriler</strong> yalnızca randevu ilişkisi kurduğun antrenöre, senin onayladığın kapsamda görünür. Yurt dışına aktarım yalnızca Kurul kararlarına uygun güvencelerle yapılır. Verilerin reklam amacıyla üçüncü kişilere satılmaz.</p>'
+    +'<h3 id="b6">6. Saklama ve İmha</h3>'
+    +'<p>Kişisel veriler, işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen azami süreler boyunca saklanır; sürenin sonunda periyodik imha dönemlerinde silinir, yok edilir veya anonim hâle getirilir. Hesabını kapatırsan hareket ve aktivite geçmişin, yasal saklama yükümlülükleri saklı kalmak üzere imha edilir.</p>'
+    +'<h3 id="b7">7. İlgili Kişinin Hakları</h3>'
+    +'<p>KVKK m.11 uyarınca; verinin işlenip işlenmediğini öğrenme, düzeltilmesini veya silinmesini isteme, işlemeye itiraz etme ve zararın giderilmesini talep etme haklarına sahipsin. Başvurularını <strong>kvkk@dadafit.com</strong> adresine ya da yönetim yeri adresimize yazılı olarak iletebilirsin. Başvurular en geç <strong>30 gün</strong> içinde ücretsiz sonuçlandırılır.</p>'},
+
+  aydinlatma:{t:'Aydınlatma Metni',c:'Aydınlatma Metni',
+    s:'KVKK m.10 kapsamında kısa özet: veri sorumlusu kim, veriler hangi amaçla ve hangi hukuki sebeple işleniyor.',h:''
     +'<h3 id="b1">1. Veri Sorumlusu</h3>'
-    +'<p>Bu aydınlatma metni, 6698 sayılı KVKK m.10 uyarınca, veri sorumlusu sıfatıyla <strong>DadaMutfak Medya ve İnternet Hizmetleri A.Ş.</strong> tarafından hazırlanmıştır.</p>'
+    +'<p>Bu aydınlatma metni, 6698 sayılı KVKK m.10 uyarınca, veri sorumlusu sıfatıyla <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> tarafından hazırlanmıştır.</p>'
     +'<h3 id="b2">2. İşleme Amaçları</h3>'
     +'<ul>'
     +'<li>Üyelik hesabının oluşturulması ve yönetilmesi,</li>'
-    +'<li>Tarif, yorum ve fotoğraf paylaşımlarının yayımlanması,</li>'
-    +'<li>DadaStore siparişlerinin alınması, faturalandırılması ve teslimatı,</li>'
-    +'<li>Diyetisyen randevu hizmetinin sunulması,</li>'
-    +'<li>Açık rızanız olması hâlinde kampanya ve bülten gönderimi.</li>'
+    +'<li>Hareket programının, challenge katılımının ve ilerleme kayıtlarının sunulması,</li>'
+    +'<li>Enerji Defteri ve bağlı uygulama/cihaz verilerinin günlük özete dönüştürülmesi,</li>'
+    +'<li>Antrenör randevusu ve mesajlaşma hizmetinin sağlanması,</li>'
+    +'<li>Pro / Pro Max aboneliğinin faturalandırılması ve destek taleplerinin karşılanması,</li>'
+    +'<li>Açık rızan olması hâlinde kampanya, bülten ve alışkanlık hatırlatmalarının gönderilmesi.</li>'
     +'</ul>'
     +'<h3 id="b3">3. Hukuki Sebepler</h3>'
-    +'<p>Verileriniz; sözleşmenin kurulması ve ifası (KVKK m.5/2-c), hukuki yükümlülüğün yerine getirilmesi (m.5/2-ç), meşru menfaat (m.5/2-f) ve gerekli hâllerde açık rıza (m.5/1) hukuki sebeplerine dayanılarak işlenir.</p>'
+    +'<p>Verilerin; sözleşmenin kurulması ve ifası (KVKK m.5/2-c), hukuki yükümlülüğün yerine getirilmesi (m.5/2-ç), meşru menfaat (m.5/2-f) ve <strong>sağlık verileri bakımından açık rıza</strong> (m.6/2) hukuki sebeplerine dayanılarak işlenir.</p>'
     +'<h3 id="b4">4. Toplama Yöntemi</h3>'
-    +'<p>Kişisel verileriniz; üyelik ve iletişim formları, sipariş ekranları, çerezler ve mobil uygulama üzerinden elektronik ortamda toplanır.</p>'
+    +'<p>Kişisel verilerin; üyelik ve iletişim formları, sağlık ve hareket profili adımları, Fit Testi uygunluk taraması, Enerji Defteri girişleri, izin verdiğin bağlı uygulama ve cihazlar (ör. Apple Health, Health Connect, akıllı saat), çerezler ve mobil uygulama üzerinden elektronik ortamda toplanır.</p>'
     +'<h3 id="b5">5. Haklarınız ve Başvuru</h3>'
-    +'<p>KVKK m.11\'deki haklarınızı kullanmak için taleplerinizi <strong>kurumsal@dadamutfak.com</strong> adresine iletebilirsiniz. Ayrıntılı bilgi için <a class="inline" href="yasal-v1.html?metin=kvkk">KVKK Politikası</a>\'nı inceleyebilirsiniz.</p>'},
-  kullanim:{t:'Kullanım Koşulları',c:'Kullanım Koşulları',h:''
-    +'<h3 id="b1">1. Taraflar ve Konu</h3>'
-    +'<p>İşbu Kullanım Koşulları, dadamutfak.com alan adlı platform ("<strong>Platform</strong>") ile Platform\'u ziyaret eden veya üye olan kullanıcı ("<strong>Kullanıcı</strong>") arasındaki ilişkiyi düzenler. Platform\'u kullanmaya devam ederek bu koşulları kabul etmiş sayılırsınız.</p>'
-    +'<h3 id="b2">2. İçerik Paylaşım Kuralları</h3>'
-    +'<ul>'
-    +'<li>Paylaştığınız tarif, fotoğraf ve yorumların size ait veya kullanım hakkınızın bulunduğu içerikler olması zorunludur.</li>'
-    +'<li>Üçüncü kişilerin telif, marka veya kişilik haklarını ihlal eden içerik yayımlanamaz.</li>'
-    +'<li>Spam, yanıltıcı sağlık beyanı, reklam amaçlı yorum ve uygunsuz içerik editör ekibi tarafından kaldırılır.</li>'
-    +'<li>Tekrarlanan ihlallerde üyelik askıya alınabilir veya sonlandırılabilir.</li>'
-    +'</ul>'
-    +'<h3 id="b3">3. Fikri Mülkiyet</h3>'
-    +'<p>Platform\'un tasarımı, yazılımı, markası ve editoryal içerikleri Şirket\'e aittir. Kullanıcı içeriklerinin mülkiyeti kullanıcıda kalır; kullanıcı, içeriğin Platform\'da yayımlanması için Şirket\'e münhasır olmayan, telifsiz bir kullanım hakkı tanır.</p>'
-    +'<h3 id="b4">4. Sorumluluğun Sınırlandırılması</h3>'
-    +'<p>Tarif ve beslenme içerikleri bilgilendirme amaçlıdır; tıbbi tavsiye yerine geçmez. Alerji ve özel sağlık durumlarında uzman görüşü alınması Kullanıcı\'nın sorumluluğundadır.</p>'
-    +'<h3 id="b5">5. Değişiklikler ve Yürürlük</h3>'
-    +'<p>Şirket, koşulları güncelleyebilir; güncel sürüm yayımlandığı anda yürürlüğe girer. Önemli değişiklikler üyelere e-posta ile duyurulur.</p>'},
-  cerez:{t:'Gizlilik Sözleşmesi ve Çerez Politikası',c:'Gizlilik & Çerez',h:''
-    +'<h3 id="b1">1. Gizlilik Taahhüdümüz</h3>'
-    +'<p>DadaMutfak, kullanıcılarına ait kişisel verilerin gizliliğini korumayı taahhüt eder. Verileriniz, bu politika ve <a class="inline" href="yasal-v1.html?metin=kvkk">KVKK Politikası</a>\'nda belirtilen amaçlar dışında işlenmez ve üçüncü kişilerle paylaşılmaz.</p>'
-    +'<h3 id="b2">2. Çerez Nedir?</h3>'
-    +'<p>Çerezler, ziyaret ettiğiniz siteler tarafından tarayıcınıza kaydedilen küçük metin dosyalarıdır. Oturumunuzu açık tutmak, tercihlerinizi hatırlamak ve site performansını ölçmek için kullanılır.</p>'
-    +'<h3 id="b3">3. Kullandığımız Çerez Türleri</h3>'
+    +'<p>KVKK m.11\'deki haklarını kullanmak için taleplerini <strong>kvkk@dadafit.com</strong> adresine iletebilirsin. Ayrıntılı bilgi için <a class="inline" href="yasal-v1.html?metin=kvkk">Gizlilik ve KVKK Politikası</a>\'nı ve <a class="inline" href="yasal-v1.html?metin=veri-izin">Veri ve İzin Politikası</a>\'nı inceleyebilirsin.</p>'},
+
+  cerez:{t:'Çerez Politikası',c:'Çerez Politikası',
+    s:'Hangi çerezleri ve tarayıcı depolamasını kullanıyoruz, tercihlerini nasıl değiştirirsin.',h:''
+    +'<h3 id="b1">1. Çerez Nedir?</h3>'
+    +'<p>Çerezler, ziyaret ettiğin siteler tarafından tarayıcına kaydedilen küçük metin dosyalarıdır. Oturumunu açık tutmak, tercihlerini hatırlamak ve site performansını ölçmek için kullanılır. Bu politika, <a class="inline" href="yasal-v1.html?metin=kvkk">Gizlilik ve KVKK Politikası</a>\'nın ayrılmaz parçasıdır.</p>'
+    +'<h3 id="b2">2. Kullandığımız Çerez Türleri</h3>'
     +'<div class="lg-defs">'
-    +'<div class="dr"><span>Zorunlu Çerezler</span><div>Oturum, güvenlik ve sepet işlevleri için gereklidir; devre dışı bırakılamaz.</div></div>'
-    +'<div class="dr"><span>Tercih Çerezleri</span><div>Dil seçimi, kaydedilen tarifler ve görünüm tercihlerini hatırlar.</div></div>'
+    +'<div class="dr"><span>Zorunlu Çerezler</span><div>Oturum, güvenlik ve üyelik işlevleri için gereklidir; devre dışı bırakılamaz.</div></div>'
+    +'<div class="dr"><span>Tercih Çerezleri</span><div>Dil seçimi, kaydettiğin hareket ve programlar, ses/titreşim ve "hareketi azalt" tercihini hatırlar.</div></div>'
     +'<div class="dr"><span>Analitik Çerezler</span><div>Sayfa performansını anonim ölçümlerle iyileştirmemizi sağlar.</div></div>'
-    +'<div class="dr"><span>Pazarlama Çerezleri</span><div>Yalnızca onay vermeniz hâlinde, ilgi alanınıza uygun içerik göstermek için kullanılır.</div></div>'
+    +'<div class="dr"><span>Pazarlama Çerezleri</span><div>Yalnızca onay verirsen, ilgi alanına uygun içerik göstermek için kullanılır.</div></div>'
     +'</div>'
+    +'<h3 id="b3">3. Tarayıcı Depolaması</h3>'
+    +'<p>Çerez dışında, tarayıcının <strong>yerel depolama</strong> alanı da kullanılır: oturum durumu, çerez onayın, aktif programın, Enerji Defteri taslak girişlerin ve erişilebilirlik tercihlerin cihazında tutulur. Bu kayıtlar cihazından ayrılmaz; tarayıcı verilerini temizlediğinde silinir.</p>'
     +'<h3 id="b4">4. Çerez Yönetimi</h3>'
-    +'<p>Çerez tercihlerinizi sayfa altındaki çerez bandından veya tarayıcı ayarlarınızdan dilediğiniz zaman değiştirebilirsiniz. Zorunlu çerezler dışındaki tüm çerezler varsayılan olarak onayınıza bağlıdır.</p>'
+    +'<p>Çerez tercihlerini sayfa altındaki çerez bandından veya tarayıcı ayarlarından dilediğin zaman değiştirebilirsin. <strong>Zorunlu çerezler dışındaki tüm çerezler onayına bağlıdır</strong>; reddettiğinde analitik ve pazarlama çerezleri yüklenmez.</p>'
     +'<h3 id="b5">5. Üçüncü Taraf Hizmetleri</h3>'
-    +'<p>Platform\'da ölçümleme ve video oynatma amacıyla üçüncü taraf hizmetler kullanılabilir; bu hizmetlerin çerez uygulamaları kendi politikalarına tabidir.</p>'},
-  uyelik:{t:'Üyelik Sözleşmesi',c:'Üyelik Sözleşmesi',h:''
-    +'<h3 id="b1">1. Sözleşmenin Konusu</h3>'
-    +'<p>İşbu sözleşme, Kullanıcı\'nın DadaMutfak platformuna üye olması ile üyelik kapsamında sunulan hizmetlerden yararlanma şartlarını düzenler. Üyelik, formun onaylanması ve e-posta doğrulaması ile kurulur.</p>'
-    +'<h3 id="b2">2. Üyenin Yükümlülükleri</h3>'
-    +'<ul>'
-    +'<li>Kayıt sırasında doğru ve güncel bilgi vermek,</li>'
-    +'<li>Hesap ve şifre güvenliğini sağlamak; hesabın üçüncü kişilerce kullanımına izin vermemek,</li>'
-    +'<li>Platform kurallarına ve <a class="inline" href="yasal-v1.html?metin=kullanim">Kullanım Koşulları</a>\'na uymak,</li>'
-    +'<li>Diğer üyelerin haklarına saygı göstermek.</li>'
-    +'</ul>'
-    +'<h3 id="b3">3. Şirketin Hakları</h3>'
-    +'<p>Şirket; kurallara aykırı içerikleri kaldırma, üyeliği askıya alma, hizmet kapsamını değiştirme ve sözleşmeyi güncelleme hakkını saklı tutar.</p>'
-    +'<h3 id="b4">4. Üyeliğin Sona Ermesi</h3>'
-    +'<p>Üye, hesabını dilediği zaman hesap ayarlarından kapatabilir. Hesap kapatıldığında kişisel veriler <a class="inline" href="yasal-v1.html?metin=kvkk">KVKK Politikası</a>\'ndaki saklama süreleri saklı kalmak kaydıyla imha edilir; yayımlanmış anonim içerikler (tarifler) talep hâlinde kaldırılır.</p>'
-    +'<h3 id="b5">5. Uyuşmazlıkların Çözümü</h3>'
-    +'<p>İşbu sözleşmeden doğan uyuşmazlıklarda İstanbul (Çağlayan) Mahkemeleri ve İcra Daireleri yetkilidir; tüketici işlemlerinde tüketicinin yerleşim yeri hakem heyeti ve mahkemeleri saklıdır.</p>'},
-  mesafeli:{t:'Mesafeli Satış Sözleşmesi',c:'Mesafeli Satış',h:''
-    +'<h3 id="b1">1. Taraflar</h3>'
+    +'<p>Platform\'da ölçümleme, hareket videolarının oynatılması ve yazı tipi/ikon dağıtımı için üçüncü taraf hizmetler kullanılabilir; bu hizmetlerin çerez uygulamaları kendi politikalarına tabidir.</p>'},
+
+  'veri-izin':{t:'Veri ve İzin Politikası',c:'Veri ve İzin',
+    s:'Hangi veriyi kiminle, hangi amaçla paylaştığın ve izni tek adımda nasıl geri aldığın.',h:''
+    +'<h3 id="b1">1. Politikanın Amacı</h3>'
+    +'<p>Bu politika, DadaFit\'te <strong>her veri paylaşımının izne bağlı</strong> olduğunu ve iznin her zaman geri alınabildiğini açıklar. Ne paylaştığını, kiminle paylaştığını ve neden paylaştığını <strong>Planım → Veri ve İzinlerim</strong> ekranında tek listede görürsün; her satırın yanında geri alma düğmesi bulunur.</p>'
+    +'<h3 id="b2">2. İzne Bağlı Veri Türleri</h3>'
     +'<div class="lg-defs">'
-    +'<div class="dr"><span>Satıcı</span><div>DadaMutfak Medya ve İnternet Hizmetleri A.Ş. — Maslak Mah. Büyükdere Cad. No:237 K:4, Sarıyer / İstanbul</div></div>'
-    +'<div class="dr"><span>Alıcı</span><div>DadaStore üzerinden sipariş veren, sipariş formunda bilgileri yer alan tüketici.</div></div>'
+    +'<div class="dr"><span>Hareket verisi</span><div>Tamamlanan seans, süre, set/tekrar, seri. Program ilerlemesi ve öneri için kullanılır.</div></div>'
+    +'<div class="dr"><span>Aktivite verisi</span><div>Adım, aktif süre, mesafe, yaklaşık enerji. Enerji Defteri ve haftalık denge özeti için kullanılır.</div></div>'
+    +'<div class="dr"><span>Sağlık profili</span><div>Boy, kilo, kısıt ve sakatlık beyanı, uygunluk taraması yanıtları. <strong>Özel nitelikli veri</strong>; yalnızca açık rıza ile.</div></div>'
+    +'<div class="dr"><span>Antrenör paylaşımı</span><div>Randevu kurduğun antrenöre görünen alanları sen seçersin; varsayılan olarak yalnız hedefin ve program durumun paylaşılır.</div></div>'
     +'</div>'
-    +'<h3 id="b2">2. Sözleşmenin Konusu</h3>'
-    +'<p>İşbu sözleşme, Alıcı\'nın DadaStore üzerinden elektronik ortamda sipariş verdiği ürünlerin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerini düzenler.</p>'
-    +'<h3 id="b3">3. Ürün ve Ödeme Bilgileri</h3>'
-    +'<p>Ürünün temel nitelikleri, vergiler dâhil satış fiyatı ve kargo bedeli sipariş özetinde gösterilir. Ödeme; kredi kartı, banka kartı veya kapıda ödeme seçenekleriyle yapılabilir.</p>'
-    +'<h3 id="b4">4. Cayma Hakkı</h3>'
-    +'<p>Alıcı, ürünü teslim aldığı tarihten itibaren <strong>14 gün</strong> içinde hiçbir gerekçe göstermeksizin cayma hakkını kullanabilir. Cayma bildirimi hesap panelinden veya destek@dadamutfak.com adresinden yapılabilir. Ayrıntılar için <a class="inline" href="yasal-v1.html?metin=iade">İptal, İade ve Değişim Koşulları</a>\'na bakınız.</p>'
-    +'<h3 id="b5">5. Teslimat</h3>'
-    +'<p>Ürünler, sipariş onayından itibaren en geç <strong>30 gün</strong> içinde anlaşmalı kargo ile teslim edilir; fiili teslimat süresi ortalama 2–4 iş günüdür. Ayrıntılar için <a class="inline" href="yasal-v1.html?metin=teslimat">Ödeme ve Teslimat Koşulları</a>\'na bakınız.</p>'},
-  iade:{t:'İptal, İade ve Değişim Koşulları',c:'İptal, İade ve Değişim',h:''
-    +'<h3 id="b1">1. Sipariş İptali</h3>'
-    +'<p>Kargoya verilmemiş siparişler, hesabındaki "Siparişlerim" ekranından tek tıkla iptal edilebilir; bedel iadesi aynı ödeme aracına 3–7 iş günü içinde yapılır.</p>'
-    +'<h3 id="b2">2. Cayma Hakkı ve İade Süresi</h3>'
-    +'<p>Teslim tarihinden itibaren <strong>14 gün</strong> içinde, kullanılmamış ve yeniden satılabilir durumdaki ürünler için cayma hakkı kullanılabilir. İade kargo kodu sistem tarafından otomatik üretilir; anlaşmalı kargo ile gönderimlerde iade kargo bedeli Şirket\'e aittir.</p>'
-    +'<h3 id="b3">3. İade Edilemeyecek Ürünler</h3>'
+    +'<h3 id="b3">3. Bağlı Uygulamalar ve Cihazlar</h3>'
+    +'<p>Apple Health, Health Connect, akıllı saat ve benzeri kaynaklardan veri aktarımı <strong>yalnızca sen bağladıysan</strong> başlar. Her bağlantı için ekranda şunlar gösterilir: bağlantı durumu, verilen izin kapsamı, son senkron zamanı, aktarılan veri türleri ve <strong>bağlantıyı kes</strong> düğmesi. Bağlantıyı kesmek yeni aktarımı durdurur; o güne kadar aktarılmış kayıtları ayrıca silmeyi seçebilirsin.</p>'
+    +'<p>Kaynaklardan gelen ölçümler <strong>yaklaşık değerlerdir</strong> ve cihaz üreticisinin doğruluğuna bağlıdır; DadaFit bu değerleri tıbbi ölçüm olarak sunmaz.</p>'
+    +'<h3 id="b4">4. Ekosistem Paylaşımı</h3>'
+    +'<p>DadaFit, kardeş ürünler <strong>DadaDiet</strong> ve <strong>DadaGastro</strong> ile veri paylaşabilir — ancak yalnızca sen onayladıysan ve yalnızca onayladığın alanlarda. Her paylaşım isteğinde şu dördü birlikte gösterilir:</p>'
     +'<ul>'
-    +'<li>Ambalajı açılmış gıda ve baharat ürünleri (hijyen gerekçesiyle),</li>'
-    +'<li>Kişiye özel üretilen / isme baskılı ürünler,</li>'
-    +'<li>Hızlı bozulan veya son kullanma tarihi geçebilecek ürünler.</li>'
+    +'<li><strong>Hangi veri</strong> paylaşılacak (ör. günlük yaklaşık enerji harcaması),</li>'
+    +'<li><strong>Hangi sistemle</strong> paylaşılacak,</li>'
+    +'<li><strong>Hangi amaçla</strong> paylaşılacak,</li>'
+    +'<li><strong>Nasıl geri alınacağı</strong> ve geri alındığında ne olacağı.</li>'
     +'</ul>'
-    +'<h3 id="b4">4. Değişim</h3>'
-    +'<p>Yanlış veya hasarlı ürün tesliminde, teslimden itibaren 14 gün içinde ücretsiz değişim talep edilebilir. Hasar tespiti için ürün fotoğrafının destek kaydına eklenmesi yeterlidir.</p>'
-    +'<h3 id="b5">5. Bedel İadesi</h3>'
-    +'<p>İade onayından sonra bedel; kredi kartına 3–7 iş günü, banka havalesi ile ödemelerde 7 iş günü içinde iade edilir. Bankanın yansıtma süresi değişiklik gösterebilir.</p>'},
-  teslimat:{t:'Ödeme ve Teslimat Koşulları',c:'Ödeme ve Teslimat',h:''
-    +'<h3 id="b1">1. Ödeme Seçenekleri</h3>'
+    +'<p>Onay vermezsen DadaFit\'in kendi işlevleri tam çalışmaya devam eder; yalnızca ekosistem özetleri kapalı kalır.</p>'
+    +'<h3 id="b5">5. İzni Geri Alma, İndirme ve Silme</h3>'
     +'<ul>'
-    +'<li><strong>Kredi / banka kartı</strong> — 3D Secure doğrulamalı tek çekim veya taksit,</li>'
-    +'<li><strong>Havale / EFT</strong> — sipariş 24 saat içinde ödeme bekler, sonrasında otomatik iptal edilir,</li>'
-    +'<li><strong>Kapıda ödeme</strong> — nakit veya kart ile, hizmet bedeli sipariş özetinde gösterilir.</li>'
-    +'</ul>'
-    +'<h3 id="b2">2. Ödeme Güvenliği</h3>'
-    +'<p>Tüm ödeme işlemleri SSL şifrelemesi ile BDDK lisanslı ödeme kuruluşu altyapısında gerçekleşir; kart bilgileri Şirket sistemlerinde saklanmaz.</p>'
-    +'<h3 id="b3">3. Teslimat Süresi ve Kargo</h3>'
-    +'<p>Siparişler, ödeme onayından sonra en geç 2 iş günü içinde kargoya verilir; ortalama teslim süresi 2–4 iş günüdür. 600 TL ve üzeri siparişlerde kargo ücretsizdir.</p>'
-    +'<h3 id="b4">4. Teslimat Adresi ve Kontrol</h3>'
-    +'<p>Teslimatta paketi kargo görevlisi yanında kontrol etmenizi öneririz; hasarlı paketler için tutanak tutulması iade sürecini hızlandırır.</p>'
-    +'<h3 id="b5">5. Fatura</h3>'
-    +'<p>E-arşiv fatura, teslimatla eş zamanlı olarak sipariş e-posta adresine gönderilir ve hesap panelindeki "Siparişlerim" ekranından indirilebilir.</p>'},
-  bilgilendirme:{t:'Bilgilendirme Metni',c:'Bilgilendirme Metni',h:''
+    +'<li><strong>İzni geri al</strong> — ilgili satırdaki düğmeyle anında; onay dışında ek adım istenmez.</li>'
+    +'<li><strong>Verilerini indir</strong> — Hesabım → Verilerimi İndir ekranından makine-okunur dosya olarak.</li>'
+    +'<li><strong>Sil</strong> — tek tek kayıt ya da hesabın tamamı; ayrıntı için <a class="inline" href="yasal-v1.html?metin=kvkk">Gizlilik ve KVKK Politikası</a>.</li>'
+    +'</ul>'},
+
+  bilgilendirme:{t:'Platform Bilgilendirme Metni',c:'Bilgilendirme Metni',
+    s:'DadaFit ne yapar, ne yapmaz: tıbbi tavsiye sınırı, egzersiz öncesi uygunluk, enerji değerlerinin anlamı ve antrenör doğrulaması.',h:''
     +'<h3 id="b1">1. Platformun Niteliği</h3>'
-    +'<p>DadaMutfak; kullanıcı katkılı yemek tarifi topluluğu, diyetisyen danışmanlık modülü ve mutfak e-ticareti (DadaStore) hizmetlerini bir arada sunan bir platformdur. Tarif içerikleri kullanıcılar tarafından üretilir, editör ekibince denetlenir.</p>'
-    +'<h3 id="b2">2. Sağlık İçerikleri Hakkında</h3>'
-    +'<p>Platformdaki kalori, besin değeri ve beslenme içerikleri <strong>genel bilgilendirme amaçlıdır</strong>; teşhis veya tedavi önerisi değildir. Kronik hastalık, gebelik, alerji gibi özel durumlarda hekiminize veya diyetisyeninize danışınız.</p>'
-    +'<h3 id="b3">3. Diyetisyen Hizmeti</h3>'
-    +'<p>Platformda listelenen diyetisyenlerin diploma ve unvanları yayın öncesi doğrulanır. Danışmanlık ilişkisi diyetisyen ile danışan arasında kurulur; Şirket aracı hizmet sağlayıcı konumundadır.</p>'
-    +'<h3 id="b4">4. İhlal Bildirimleri</h3>'
-    +'<p>Telif, kişilik hakkı veya uygunsuz içerik ihlallerini sayfanın sağ kenarındaki <strong>Görüş Bildir</strong> penceresinden "İhlal bildirimi" konusuyla iletebilirsiniz. Bildirimler 48 saat içinde incelenir; haklı bulunan talepler için içerik yayından kaldırılır.</p>'
-    +'<h3 id="b5">5. İletişim</h3>'
-    +'<p>Her türlü soru ve talebiniz için <a class="inline" href="iletisim-v1.html">iletişim formunu</a> kullanabilir veya destek@dadamutfak.com adresine yazabilirsiniz.</p>'}
+    +'<p>DadaFit; egzersiz kütüphanesi, hareket programları, Fit Testleri, challenge\'lar, Enerji Defteri ve antrenör randevu modülünü bir arada sunan bir <strong>hareket ve alışkanlık platformudur</strong>. İçerikler spor bilimleri kaynaklarına dayanarak hazırlanır ve editör ekibince denetlenir.</p>'
+    +'<h3 id="b2">2. Tıbbi Tavsiye Değildir</h3>'
+    + WARN
+    +'<p>Bu sınırın günlük kullanımda ne anlama geldiği — hangi durumlarda uzmana danışmalısın, hareketi hemen bırakman gereken belirtiler neler — ayrı bir sayfada anlatılıyor: <a class="inline" href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>'
+    +'<h3 id="b3">3. Egzersiz Öncesi Uygunluk</h3>'
+    +'<p>Fit Testleri ve yüksek yoğunluklu programlar öncesinde kısa bir <strong>fiziksel aktivite uygunluk taraması</strong> sunulur. Göğüs ağrısı, baş dönmesi, kontrolsüz tansiyon, yeni geçirilmiş ameliyat gibi yanıtlarda <strong>test durdurulur</strong> ve hekime yönlendirme yapılır. Bu tarama bir teşhis aracı değildir; amacı yalnızca riskli durumda seni durdurmaktır.</p>'
+    +'<p>Antrenman sırasında ağrı, baş dönmesi, nefes darlığı veya bulantı olursa hareketi <strong>hemen bırak</strong> ve gerekiyorsa acil sağlık hizmetine başvur.</p>'
+    +'<h3 id="b4">4. Enerji ve Kalori Değerleri Hakkında</h3>'
+    +'<p>Enerji Defteri\'ndeki değerler <strong>yaklaşıktır</strong>; kişisel metabolizma, ölçüm cihazı ve hareket tekniğine göre değişir. DadaFit bu değerleri bir hedef ya da borç olarak sunmaz: "yediğini yak" gibi bir dil kullanılmaz, enerji dengesi <strong>bilgi</strong> olarak gösterilir. Kalori rakamlarını tamamen gizlemeyi seçebilir, ilerlemeni süre, aktif gün, kuvvet günü, çeşitlilik ve dinlenme gibi ölçülerle izleyebilirsin.</p>'
+    +'<h3 id="b5">5. Antrenör Hizmeti</h3>'
+    +'<p>Platformda listelenen antrenörlerin diploma, sertifika ve unvanları yayın öncesi doğrulanır; <strong>DadaFit Onaylı</strong> işareti yalnızca doğrulanmış ve belgesi süresi geçerli olan antrenörlerde görünür. Danışmanlık ilişkisi antrenör ile üye arasında kurulur; Şirket aracı hizmet sağlayıcı konumundadır. Antrenörler <strong>teşhis koyamaz, tedavi ya da diyet reçetesi veremez</strong>; beslenme planı gerektiren durumlarda diyetisyene yönlendirme yapılır. Ayrıntı: <a class="inline" href="yasal-v1.html?metin=sozlesme">Antrenör Sözleşmesi</a>.</p>'
+    +'<h3 id="b6">6. İhlal Bildirimleri ve İletişim</h3>'
+    +'<p>Yanıltıcı sağlık iddiası, telif veya kişilik hakkı ihlali içeren içerikleri sayfa kenarındaki <strong>Görüş Bildir</strong> penceresinden "İhlal bildirimi" konusuyla iletebilirsin. Bildirimler 48 saat içinde incelenir; haklı bulunan taleplerde içerik yayından kaldırılır. Diğer tüm soruların için <a class="inline" href="iletisim-v1.html">iletişim formunu</a> kullanabilir veya <strong>destek@dadafit.com</strong> adresine yazabilirsin.</p>'},
+
+  sozlesme:{t:'Antrenör Sözleşmesi',c:'Antrenör Sözleşmesi',
+    s:'DadaFit\'te antrenör olarak yer almanın koşulları: belge doğrulama, sağlık sınırları, randevu ve ücret.',h:''
+    +'<h3 id="b1">1. Taraflar ve Konu</h3>'
+    +'<p>İşbu sözleşme, <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> ("<strong>Şirket</strong>") ile Platform üzerinde profil açarak hizmet sunan antrenör ("<strong>Antrenör</strong>") arasındaki ilişkiyi düzenler. Şirket <strong>aracı hizmet sağlayıcıdır</strong>; danışmanlık ilişkisi Antrenör ile üye arasında kurulur. Başvuru <a class="inline" href="antrenor-ol-v1.html">Antrenör Ol</a> formundan yapılır.</p>'
+    +'<h3 id="b2">2. Antrenörün Beyan ve Yükümlülükleri</h3>'
+    +'<ul>'
+    +'<li>Sunduğu diploma, sertifika ve unvan bilgilerinin doğru ve geçerli olduğunu beyan etmek,</li>'
+    +'<li>Belgelerin süresi dolduğunda güncel olanı 30 gün içinde yüklemek,</li>'
+    +'<li>Üyenin sağlık ve hareket profilindeki kısıtlara uygun program vermek,</li>'
+    +'<li>Üye verilerini yalnızca randevu ilişkisinin gerektirdiği ölçüde kullanmak ve üçüncü kişiyle paylaşmamak,</li>'
+    +'<li>Randevu saatlerine uymak, iptalleri en az 12 saat önce bildirmek.</li>'
+    +'</ul>'
+    +'<h3 id="b3">3. Belge Doğrulama ve "DadaFit Onaylı"</h3>'
+    +'<p>Profiller yayına alınmadan önce belge doğrulamasından geçer. <strong>DadaFit Onaylı</strong> işareti yalnızca doğrulanmış ve belgesi <strong>süresi geçerli</strong> olan antrenörlerde görünür; belge süresi dolduğunda işaret otomatik olarak kaldırılır. Gerçeğe aykırı beyan, profilin kalıcı kapatılması sonucunu doğurur.</p>'
+    +'<h3 id="b4">4. Sağlık Sınırları</h3>'
+    + WARN
+    +'<p>Antrenör; <strong>teşhis koyamaz, tedavi uygulayamaz, ilaç veya takviye öneremez ve diyet reçetesi veremez.</strong> Beslenme planı gerektiren taleplerde üyeyi diyetisyene, tıbbi şüphe hâlinde hekime yönlendirir. Uygunluk taramasında riskli yanıt veren üyeye program verilmez.</p>'
+    +'<h3 id="b5">5. Randevu, Ücret ve İptal</h3>'
+    +'<p>Randevu ücretleri Antrenör tarafından belirlenir, ödeme Platform üzerinden alınır ve Şirket komisyonu düşülerek Antrenör\'e aktarılır. Üye kaynaklı iptaller <a class="inline" href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>\'na, bedel iadeleri <a class="inline" href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>\'na tabidir. Antrenör kaynaklı iptalde seans hakkı üyeye iade edilir.</p>'
+    +'<h3 id="b6">6. Sözleşmenin Sona Ermesi</h3>'
+    +'<p>Taraflar sözleşmeyi 15 gün önceden bildirimle sona erdirebilir; açık randevular tamamlanır. Kural ihlali hâlinde Şirket profili derhal askıya alabilir. Antrenör verilerinin işlenmesi <a class="inline" href="yasal-v1.html?metin=kvkk">Gizlilik ve KVKK Politikası</a>\'na tabidir.</p>'}
   };
+
   var params=new URLSearchParams(location.search);
   var slug=params.get('metin');
-  if(ORDER.indexOf(slug)===-1)slug='kvkk';
+  if(ORDER.indexOf(slug)===-1)slug=ORDER[0];
   var d=L[slug];
- // başlık + crumb + sekme başlığı
+ // başlık + crumb + banner alt metni + sekme başlığı ve meta açıklaması (belge §19)
   document.getElementById('lgTitle').textContent=d.t;
   document.getElementById('lgCrumb').textContent=d.t;
-  document.title=d.t+' — Yasal Metinler · DadaMutfak';
+  var lead=document.getElementById('lgLead');
+  if(lead&&d.s)lead.textContent=d.s;
+  document.title=d.t+' — Yasal Metinler · DadaFit';
+  var meta=document.querySelector('meta[name="description"]');
+  if(meta&&d.s)meta.setAttribute('content',d.s);
  // gövde
   var body=document.getElementById('lgBody');
   body.innerHTML=d.h;
@@ -1895,9 +489,9 @@ document.addEventListener('click',function(e){
   });
  // aktif menü
   document.querySelectorAll('#lgMenu a').forEach(function(a){
-    if(a.getAttribute('data-slug')===slug)a.classList.add('active');
+    if(a.getAttribute('data-slug')===slug){a.classList.add('active');a.setAttribute('aria-current','page');}
   });
- // önceki / sonraki
+ // önceki / sonraki — uçlarda düğme gizlenir (boş href kalmaz, belge §23)
   var i=ORDER.indexOf(slug);
   var prev=document.getElementById('lgPrev'),next=document.getElementById('lgNext');
   if(i>0){prev.href='yasal-v1.html?metin='+ORDER[i-1];prev.querySelector('span').textContent=L[ORDER[i-1]].c;}
@@ -1914,40 +508,6 @@ document.addEventListener('click',function(e){
     },60);
   }
 })();
-
-</script>
-<script>
-/* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) =====
- Kural: ekranda en fazla 1 sabit alt şerit. Çerez onayı (geçici, öncelikli)
- ya da sayfanın kendi aksiyon şeridi (window.__bottomStrips) açıkken global
- bottom-nav gizlenir; şerit olan sayfalarda nav ayrıca aşağı kaydırınca gizlenir. */
-window.__bottomStrips=window.__bottomStrips||[];
-(function(){
-  var nav=document.querySelector('.bottom-nav');
-  if(!nav)return;
-  var cookie=document.getElementById('cookieBanner');
-  var strips=window.__bottomStrips.map(function(s){return document.querySelector(s);}).filter(Boolean);
-  var lastY=window.scrollY||0;
-  function stripShown(){for(var i=0;i<strips.length;i++){if(strips[i]&&strips[i].classList.contains('show'))return true;}return false;}
-  function update(){
-    var y=window.scrollY||0;
-    if((cookie&&cookie.classList.contains('show'))||stripShown()){nav.classList.add('bn-hidden');lastY=y;return;}
-    if(strips.length===0||y<80){nav.classList.remove('bn-hidden');lastY=y;return;}
-    if(y-lastY>12){nav.classList.add('bn-hidden');lastY=y;}
-    else if(lastY-y>12){nav.classList.remove('bn-hidden');lastY=y;}
-  }
-  window.addEventListener('scroll',update,{passive:true});
-  window.addEventListener('resize',update,{passive:true});
-  document.addEventListener('click',function(){setTimeout(update,60);},true);
-  window.__bnUpdate=update;update();
-})();
-</script>
-<script>
-/* ===== Faz3 — işletme-sahibi rolü (has-business): is-auth kardeşi =====
- ?business=1 → localStorage dm_business='1' + body.has-business ; ?business=0 → temizle.
- param yoksa localStorage'a bakılır. Adım 1 işletme linkleri (İşletmem→Panele Git,
- panel topbar account chip) body.has-business ile rol-koşullu gösterilir. */
-(function(){ /* C1 — dm_business emekli; işletme/rol state'i üstteki dm_user token'ında (is-auth kardeşi). */ })();
 </script>
 </body>
 </html>

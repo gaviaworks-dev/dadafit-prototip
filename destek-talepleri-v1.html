@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Destek Taleplerim — Açtığın Talepler ve Yeni Talep | DadaFit</title>
+<meta name="description" content="DadaFit hesabındaki destek taleplerini durumuna göre süz, açık ve yanıtlanmış taleplerini takip et, yeni bir destek talebi oluştur." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (TEK KAYNAK — token, header, footer, kart/çip/banner kitleri) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — DESTEK TALEPLERİM
+ ---------------------------------------------------------------------
+ Kapsam KARARLAR.md K4 ile DAR: talep listesi + durum süzgeci + yeni
+ talep formu. Belge bu sayfanın alanlarını saymadığı için fazlası yok.
+
+ Kabuktan gelen ve burada TEKRAR TANIMLANMAYANLAR: .wrap · .sec ·
+ .lib-top banner + .lib-crumb + .lib-sub + .lib-stats · .eyebrow ·
+ .btn / .btn-ghost · .df-fchip + .fgroup (durum süzgeci) · .lib-empty
+ (boş durum) · .hr-note · .demo-tag · .sr-only · token'lar.
+
+ Buradaki .fk-* form kiti ve .btn-fit, prototipte sayfa sayfa tekrarlanan
+ iki kalıptır (iletisim-v1 · antrenor-ol-v1 · antrenorler-v1 …). Kabukta
+ karşılıkları YOK; kendim kabuğa yazmam yasak olduğu için sayfaya kopyaladım
+ ve raporda "kabuğa taşınmalı" diye bildirdim.
+ ===================================================================== */
+
+/* ---- banner görseli (kabuk .lib-top kiti; yükseklik/gradient kabukta) ---- */
+.lib-top{--lib-img:url('https://images.unsplash.com/photo-1550345332-09e3ac987658?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18');--lib-pos:center 38%}
+
+/* ---- prototipin ortak yeşil düğmesi (kabukta yok, sayfa sayfa tekrar) ---- */
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+
+/* ===================== 1 · GÖVDE YERLEŞİMİ ===================== */
+.tk-body{padding:38px 0 70px;background:var(--bg-cream)}
+
+.tk-demo{display:flex;align-items:flex-start;gap:10px;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;font-weight:500;color:var(--slate-2);line-height:1.5;margin-bottom:26px}
+.tk-demo i{flex:none;color:var(--slate-2);font-size:12px;margin-top:3px}
+.tk-demo .demo-tag{flex:none;margin-right:2px}
+
+/* ===================== 2 · SÜZGEÇ + LİSTE ===================== */
+.tk-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:22px 24px}
+
+.tk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.tk-head h2{font-size:21px;display:flex;align-items:center;gap:11px}
+.tk-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.tk-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:6px;max-width:52ch}
+
+/* süzgeç rayı — çipler kabuğun .df-fchip/.fgroup kiti */
+.tk-filter{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0 6px;margin-bottom:6px}
+.tk-filter .fgroup{gap:8px}
+.tk-filter .tk-c{font-size:11.5px;font-weight:700;opacity:.72}
+
+/* sonuç sayacı — aria-live ile duyurulur, ekranda da yazılıdır */
+.tk-count{font-size:12.5px;font-weight:600;color:var(--slate-2);padding:12px 2px 4px}
+.tk-count b{color:var(--slate)}
+
+/* ---- talep satırları ---- */
+.tk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tk-item[hidden]{display:none}
+
+/* fit-type.css'teki `li{text-align:justify}` .tk-item'a düşüyor, kart başlığı
+   h3 de onu MİRAS alıyor (h3 istisnası "text-align:inherit" yazıyor). ÖLÇÜM:
+   360px'te iki satıra taşan talep başlıklarında kelime araları gerilmiş
+   görünüyordu. Talep satırı akan metin değil kart; sınıf seçicisi (0,1,0) bare
+   li'yi (0,0,1) yendiği için yükleme sırasından bağımsız çalışır. */
+.tk-item, .tk-item h3, .tk-meta{text-align:left;text-align-last:auto}
+
+/* rozet kolonu 152px: en uzun durum "Yanıt bekleniyor" (ikon+boşluk+iç pay
+   dahil 12px/700'de ~145px ölçüldü) tek satırda kalsın, üç rozet hizalansın */
+.tk-row{display:grid;grid-template-columns:152px minmax(0,1fr) 18px;align-items:center;gap:16px;
+  border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);
+  padding:15px 16px;transition:border-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)}
+.tk-row:hover{border-color:var(--fit);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.tk-row:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+
+/* Durum rozeti: renk TEK sinyal değil — her rozette ikon + yazılı durum var.
+   Kontrast ölçüldü (WCAG AA 4.5:1 eşiği): açık #007a3d/#eaf6ef 4.93:1 ·
+   yanıtlandı #006072/#e6f1f4 6.26:1 · kapandı #56514a/#f1f1f1 6.96:1. */
+.tk-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:.01em;padding:7px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.tk-badge i{font-size:10.5px}
+.st-acik{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-deep)}
+.st-yanit{background:#e6f1f4;border:1px solid #cadfe5;color:var(--c-petrol)}
+.st-kapali{background:#f1f1f1;border:1px solid #e2e2e2;color:var(--slate-2)}
+
+.tk-main{min-width:0}
+.tk-subject{font-size:15px;font-weight:700;color:var(--slate);line-height:1.35;margin:0 0 6px}
+.tk-row:hover .tk-subject{color:var(--fit-deep)}
+/* Meta satırı K4'ün istediği bilginin kendisidir (konu · tarih · numara), süs
+   değil. ÖLÇÜM: --muted (#7E7E7E) beyaz üzerinde 12px'te 4.06:1 — AA normal
+   metin eşiği 4.5:1'in ALTINDA. --slate-2 (#56514a) ÖLÇÜLDÜ 6.96:1.
+   (--muted'in kendisi site geneli bir sorun; raporda kabuğa bildirildi.) */
+.tk-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--slate-2);font-weight:500}
+.tk-meta span{display:inline-flex;align-items:center;gap:6px}
+.tk-meta i{font-size:11px}
+.tk-no{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.tk-go{color:var(--muted);font-size:13px;justify-self:end}
+.tk-row:hover .tk-go{color:var(--fit-deep)}
+
+/* yeni eklenen talep bir kez vurgulanır */
+@keyframes tkNew{from{background:var(--fit-tint);border-color:var(--fit)}to{background:var(--paper);border-color:var(--line)}}
+.tk-row.is-new{animation:tkNew 2.4s var(--ease)}
+
+/* boş durum kabuğun .lib-empty kiti; yalnız panel içi payı ayarlanır */
+.tk-panel .lib-empty{padding:44px 20px 30px}
+
+/* ===================== 3 · YENİ TALEP FORMU ===================== */
+.tk-form-sec{padding:0 0 78px;background:var(--bg-cream)}
+.tk-layout{display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:24px;align-items:start}
+
+.form-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:26px}
+.fc-head{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.fc-head h2{font-size:20px;display:flex;align-items:center;gap:11px}
+.fc-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.fc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:7px}
+
+.fk-field{margin-bottom:20px}
+.fk-field:last-child{margin-bottom:0}
+.fk-label{display:flex;align-items:baseline;gap:7px;font-size:14px;font-weight:700;color:var(--slate);margin-bottom:9px}
+/* Zorunlu yıldızı --fit yerine --tomato-deep (#006a35): iletisim-v1'de ölçülen
+   aynı sebep — #009d4f beyaz üzerinde 3.54:1 ile AA altında kalıyor. */
+.fk-label .req{color:var(--tomato-deep);font-weight:700}
+.fk-label .fk-count{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+
+.fk-input,.fk-select,.fk-textarea{
+  width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:13px 15px;outline:none;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.fk-input::placeholder,.fk-textarea::placeholder{color:#6f6f6f}   /* #6f6f6f/#f9f9f9 = 4.77:1 */
+.fk-input:focus,.fk-select:focus,.fk-textarea:focus{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
+.fk-textarea{min-height:140px;resize:vertical;line-height:1.6}
+.fk-select{appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;padding-right:40px}
+.fk-select:invalid{color:#6f6f6f}
+.fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
+.fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
+.fk-grid{display:grid;gap:16px 18px;grid-template-columns:1fr 1fr;margin-bottom:20px}
+.fk-grid .fk-field{margin-bottom:0}
+
+/* ---- HATA GÖSTERİMİ (belge §20: hata yalnız renkle anlatılmaz) ----------
+ Hatalı alan ÜÇ kanaldan birden bildirilir: (1) alanın altında ikonlu METİN,
+ (2) aria-invalid + aria-describedby ile ekran okuyucuya, (3) formun başında
+ role="alert" taşıyan özet + ilk hatalı alana odak. Kenarlık rengi yalnız
+ DESTEKLEYİCİ sinyaldir. Kontrast: #b3261e/#fff 6.54:1 · #8c1d18/#fdecea 7.97:1. */
+.fk-err{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:12.5px;font-weight:600;color:#b3261e;line-height:1.45}
+.fk-err i{font-size:12px;margin-top:2px;flex:none}
+.fk-err[hidden]{display:none}
+.fk-input.is-bad,.fk-select.is-bad,.fk-textarea.is-bad{border-color:#b3261e;background:#fdf7f6}
+.fk-input.is-bad:focus,.fk-select.is-bad:focus,.fk-textarea.is-bad:focus{border-color:#b3261e;box-shadow:0 0 0 3px rgba(179,38,30,.14)}
+.fk-summary{display:flex;align-items:flex-start;gap:9px;margin:0 0 20px;padding:13px 15px;border-radius:var(--radius-md);background:#fdecea;border:1px solid #efc2bd;color:#8c1d18;font-size:13px;font-weight:600;line-height:1.5}
+.fk-summary i{font-size:14px;margin-top:1px;flex:none}
+.fk-summary[hidden]{display:none}
+
+/* gönderi sonrası onay şeridi (form yerinde kalır, liste güncellenir) */
+.tk-ok{display:flex;align-items:flex-start;gap:10px;margin:0 0 20px;padding:13px 15px;border-radius:var(--radius-md);
+  background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-deep);font-size:13px;font-weight:600;line-height:1.5}
+.tk-ok i{font-size:14px;margin-top:1px;flex:none}
+.tk-ok a{color:var(--fit-deep);text-decoration:underline;text-underline-offset:2px}
+.tk-ok[hidden]{display:none}
+
+.tk-submit{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.tk-submit .sub-note{font-size:12.5px;color:var(--muted);font-weight:500;max-width:300px}
+.tk-submit .btn{padding:14px 28px;font-size:15px}
+
+/* ---- yan ray ---- */
+.tk-aside{display:flex;flex-direction:column;gap:16px;position:sticky;top:104px}
+.tips-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 22px}
+.tips-head{font-size:15px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.tips-head i{color:var(--fit-deep);font-size:14px}
+.tips-p{font-size:13px;color:var(--muted);font-weight:500;line-height:1.6;margin:0 0 14px}
+.tips-list{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:10px}
+.tips-list li{display:flex;gap:10px;font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.5}
+.tips-list i{color:var(--fit-deep);font-size:12px;margin-top:3px;flex:none}
+.tips-link{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--fit-deep);
+  border:1px solid var(--fit-line);background:var(--fit-tint);border-radius:var(--radius-md);padding:12px 14px;transition:.18s var(--ease)}
+.tips-link+.tips-link{margin-top:9px}
+.tips-link:hover{background:var(--fit);border-color:var(--fit);color:#fff}
+.tips-link i:first-child{flex:none}
+.tips-link .ar{margin-left:auto;font-size:11px}
+
+/* ===================== TABLET (≤1024px) ===================== */
+@media (max-width:1024px){
+  .tk-layout{grid-template-columns:minmax(0,1fr)}
+  .tk-aside{position:static}
+}
+
+/* ===================== MOBİL (≤640px) ===================== */
+@media (max-width:640px){
+  .tk-body{padding:26px 0 52px}
+  .tk-form-sec{padding-bottom:56px}
+  .tk-panel{padding:18px 16px;border-radius:var(--radius-md)}
+  .tk-head h2{font-size:18px}
+  .tk-row{grid-template-columns:minmax(0,1fr);gap:10px;padding:14px}
+  .tk-badge{justify-self:start}
+  .tk-go{display:none}          /* satırın tamamı zaten bağlantı */
+  .form-card{padding:20px 16px;border-radius:var(--radius-md)}
+  .fk-grid{grid-template-columns:minmax(0,1fr)}
+  .tk-submit .btn{width:100%;justify-content:center}
+  .tk-submit .sub-note{max-width:none}
+}
+</style>
+<!-- Metin yaslama katmanı (tek kaynak) — sayfa stillerinden SONRA yüklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="destek-talepleri">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== BANNER + BREADCRUMB (kabuk .lib-top kiti) ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit Ana Sayfa</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hesabim-v1.html">Hesap Ayarları</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Destek Taleplerim</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-headset"></i> Hesabım</span>
+    <h1>Destek Taleplerim</h1>
+    <p class="lib-sub">Açtığın destek taleplerini durumuna göre süz, hangisinin yanıtlandığını gör ve gerekirse yeni bir talep oluştur. Her talebin kendi numarası ve yazışma geçmişi var.</p>
+    <div class="chips">
+      <a class="btn btn-fit" href="#yeni-talep"><i class="fa-solid fa-plus"></i> Yeni talep oluştur</a>
+      <a class="btn btn-ghost" href="sss-v1.html"><i class="fa-solid fa-circle-question"></i> Sık sorulanlara bak</a>
+    </div>
+    <div class="lib-stats">
+      <div class="lib-stat"><b id="stTotal">8</b><span>toplam talep</span></div>
+      <div class="lib-stat"><b id="stOpen">3</b><span>yanıt bekleyen</span></div>
+      <div class="lib-stat"><b id="stAns">2</b><span>yanıtlanan talep</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TALEP LİSTESİ + DURUM SÜZGECİ ===== -->
+<section class="tk-body">
+  <div class="wrap">
+
+    <p class="tk-demo">
+      <span class="demo-tag"><i class="fa-solid fa-eye" aria-hidden="true"></i> Demo veri</span>
+      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      <span>Bu prototipte gerçek bir destek talebi açılmaz, kimseye iletilmez ve yanıtlanmaz. Aşağıdaki talepler, tarihler ve numaralar yalnız ekran akışını göstermek için konmuş örneklerdir.</span>
+    </p>
+
+    <div class="tk-panel">
+      <div class="tk-head">
+        <div>
+          <h2 id="talepH"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Taleplerim</h2>
+          <p>Bir talebi açmak için satırına dokun. Talep numarası, yazışmayla ilgili her yerde aynı kalır.</p>
+        </div>
+      </div>
+
+      <!-- DURUM SÜZGECİ — kabuğun .fgroup + .df-fchip kiti.
+           Gerçekten süzer, aria-pressed taşır, seçim ?durum= parametresine
+           yazılır; geri/ileri ve sayfa yenileme seçimi korur (belge §23/§20). -->
+      <div class="tk-filter">
+        <div class="fgroup" role="group" aria-label="Talep durumuna göre süz" id="tkFilter">
+          <button type="button" class="df-fchip on" data-f="tumu" aria-pressed="true"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tümü <span class="tk-c" data-c="tumu">8</span></button>
+          <button type="button" class="df-fchip" data-f="acik" aria-pressed="false"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor <span class="tk-c" data-c="acik">3</span></button>
+          <button type="button" class="df-fchip" data-f="yanitlandi" aria-pressed="false"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı <span class="tk-c" data-c="yanitlandi">2</span></button>
+          <button type="button" class="df-fchip" data-f="kapandi" aria-pressed="false"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı <span class="tk-c" data-c="kapandi">3</span></button>
+        </div>
+      </div>
+
+      <p class="tk-count" id="tkCount" role="status" aria-live="polite"><b>8</b> talep gösteriliyor — süzgeç: tümü.</p>
+
+      <!-- Numaralandırma, durum sözcükleri ve rozet ikonları
+           destek-talebi-detay-v1.html ile HİZALI (DF-2xxx · "Yanıt bekleniyor /
+           Yanıtlandı / Kapatıldı" · hourglass/circle-check/lock). Yıldızlı üç
+           talep detay sayfasında gerçekten yazışma içeriğiyle duruyor. -->
+      <ul class="tk-list" id="tkList" aria-labelledby="talepH">
+
+        <li class="tk-item" data-durum="acik" data-no="DF-2418">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2418">
+            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Pro üyeliğim yenilendi ama video seansları kilitli görünüyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> DadaFit Pro ve ödeme</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-11">11 Ağustos 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2418</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="acik" data-no="DF-2412">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2412">
+            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Apple Health adım verisi iki gündür aktarılmıyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-09">9 Ağustos 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2412</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="acik" data-no="DF-2404">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2404">
+            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Video seansı ortasında baştan başlıyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Video seansları</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-06">6 Ağustos 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2404</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="yanitlandi" data-no="DF-2390">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2390">
+            <span class="tk-badge st-yanit"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Antrenman geçmişimde iki günlük boşluk görünüyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-29">29 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2390</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="yanitlandi" data-no="DF-2377">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2377">
+            <span class="tk-badge st-yanit"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Programımı Bul sonucundaki program planıma eklenmedi</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Programlar ve planım</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-24">24 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2377</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapandi" data-no="DF-2352">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2352">
+            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Antrenör randevum takvimde iki kez göründü</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-12">12 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2352</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapandi" data-no="DF-2334">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2334">
+            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Bildirim tercihlerim her girişte sıfırlanıyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Hesap ve giriş</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-03">3 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2334</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapandi" data-no="DF-2311">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2311">
+            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Fatura adresimi güncellemek istiyorum</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Üyelik ve fatura</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-06-18">18 Haziran 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2311</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+      </ul>
+
+      <!-- boş durum — kabuğun .lib-empty kiti -->
+      <div class="lib-empty" id="tkEmpty">
+        <div class="ico"><i class="fa-solid fa-inbox"></i></div>
+        <h3>Bu durumda talebin yok</h3>
+        <p>Seçtiğin durumda görüntülenecek bir destek talebi bulunmuyor. Tümünü görmek için süzgeci sıfırlayabilirsin.</p>
+        <button class="btn btn-fit" type="button" id="tkEmptyReset"><i class="fa-solid fa-rotate-left"></i> Tüm talepleri göster</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== YENİ TALEP FORMU ===== -->
+<section class="tk-form-sec" id="yeni-talep">
+  <div class="wrap">
+    <div class="tk-layout">
+
+      <form class="form-card" id="tkForm" novalidate>
+        <div class="fc-head">
+          <h2 id="yeniH"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Yeni destek talebi</h2>
+          <p>Yıldız (*) ile işaretli alanlar zorunludur. Talebini gönderdiğinde listenin en üstünde <b>Yanıt bekleniyor</b> durumuyla görünür ve kendi talep numarasını alır.</p>
+        </div>
+
+        <!-- gönderi sonrası onay (rol=status) -->
+        <p class="tk-ok" id="tkOk" role="status" hidden>
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+          <span></span>
+        </p>
+
+        <!-- form düzeyi hata özeti — role="alert", gönderide doldurulur -->
+        <p class="fk-summary" id="tkErrSum" role="alert" hidden>
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          <span></span>
+        </p>
+
+        <div class="fk-field">
+          <label class="fk-label" for="tkKategori">Talebin konusu <span class="req" aria-hidden="true">*</span></label>
+          <select class="fk-select" id="tkKategori" name="kategori" required aria-required="true"
+                  data-msg="Bir konu seç — talebin doğru ekibe düşsün."
+                  aria-describedby="tkKategoriHelp tkKategoriErr">
+            <option value="" selected disabled>Konu seç</option>
+            <option>DadaFit Pro ve ödeme</option>
+            <option>Üyelik ve fatura</option>
+            <option>Aktivite ve cihaz bağlantıları</option>
+            <option>Video seansları</option>
+            <option>Programlar ve planım</option>
+            <option>Antrenör ve randevu</option>
+            <option>Hesap ve giriş</option>
+            <option>Uygulama hatası</option>
+            <option>Diğer</option>
+          </select>
+          <p class="fk-help" id="tkKategoriHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Konu seçimi talebi yönlendirir; yanlış seçersen destek ekibi taşır.</p>
+          <p class="fk-err" id="tkKategoriErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
+        </div>
+
+        <div class="fk-field">
+          <label class="fk-label" for="tkBaslik">Başlık <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" class="fk-input" id="tkBaslik" name="baslik" maxlength="90" required aria-required="true"
+                 placeholder="Sorunu tek cümlede özetle"
+                 data-msg="Talebin için bir başlık yaz."
+                 data-msg-short="Başlık en az 8 karakter olsun — listede bu satırı sen tanıyacaksın."
+                 aria-describedby="tkBaslikErr" />
+          <p class="fk-err" id="tkBaslikErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
+        </div>
+
+        <div class="fk-field">
+          <label class="fk-label" for="tkMesaj">Talebin <span class="req" aria-hidden="true">*</span>
+            <span class="fk-count"><span id="tkMsgCount">0</span>/1000</span></label>
+          <textarea class="fk-textarea" id="tkMesaj" name="mesaj" maxlength="1000" required aria-required="true"
+                    placeholder="Ne olduğunu, ne zaman olduğunu ve hangi ekranda gördüğünü yazabilirsin."
+                    data-msg="Ne olduğunu birkaç cümleyle anlat."
+                    data-msg-short="Talebin en az 20 karakter olsun"
+                    aria-describedby="tkMesajHelp tkMesajErr"></textarea>
+          <p class="fk-help" id="tkMesajHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Hangi cihazı ve uygulama sürümünü kullandığını yazarsan talep daha hızlı çözülür.</p>
+          <p class="fk-err" id="tkMesajErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
+        </div>
+
+        <div class="tk-submit">
+          <p class="sub-note">Talebini gönderdikten sonra yazışmayı talebin detay sayfasından sürdürebilir, çözüldüyse talebi kapatabilirsin.</p>
+          <button class="btn btn-fit" type="submit"><i class="fa-solid fa-paper-plane"></i> Talebi gönder</button>
+        </div>
+      </form>
+
+      <aside class="tk-aside" aria-label="Talep açmadan önce">
+        <div class="tips-card">
+          <h2 class="tips-head"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Talep açmadan önce</h2>
+          <p class="tips-p">Çoğu soru, talep açmadan da yanıtlanıyor. Önce şunlara bakmak süre kazandırır.</p>
+          <ul class="tips-list">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Üyelik, ödeme ve iptal soruları sık sorulanlarda yazılı.</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Ödeme ve fatura kayıtların hesap ayarlarında duruyor.</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Aynı konuda açık bir talebin varsa yenisini açmak yerine oradan yaz.</li>
+          </ul>
+          <a class="tips-link" href="sss-v1.html"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Sık Sorulan Sorular <i class="fa-solid fa-arrow-right ar" aria-hidden="true"></i></a>
+          <a class="tips-link" href="hesabim-v1.html#odeme"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Ödeme ve fatura kayıtların <i class="fa-solid fa-arrow-right ar" aria-hidden="true"></i></a>
+          <a class="tips-link" href="iletisim-v1.html"><i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim kanalları <i class="fa-solid fa-arrow-right ar" aria-hidden="true"></i></a>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Sağlık sınırı (belge §8/§9) — destek kanalı sağlık danışmanlığı değildir -->
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p>Destek ekibi uygulamayla ilgili konularda yardımcı olur; <b>tıbbi teşhis, hastalık tanısı ya da tedavi önerisi vermez.</b>
+      Ağrı, sakatlık, gebelik ya da süregelen bir sağlık durumuyla ilgili sorularını bir sağlık uzmanına ilet.
+      Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+    </div>
+  </div>
+</section>
+
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranış -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== DESTEK TALEPLERİM — durum süzgeci ============================
+ · Süzgeç GERÇEKTEN süzer: satırlar hidden ile gizlenir, sayaç ve boş
+   durum buna göre güncellenir.
+ · Seçim ?durum= parametresine yazılır (pushState) — geri/ileri tuşu
+   çalışır, sayfa yenilenince seçim korunur (belge §23).
+ · Çipler aria-pressed taşır (belge §20); sonuç sayısı aria-live ile
+   duyurulur, ayrıca ekranda yazılıdır.
+ =================================================================== */
+(function(){
+  'use strict';
+  var VALID = ['tumu','acik','yanitlandi','kapandi'];
+  /* durum sözcükleri destek-talebi-detay-v1.html ile birebir aynı */
+  var LABEL = {tumu:'tümü', acik:'yanıt bekleniyor', yanitlandi:'yanıtlandı', kapandi:'kapatıldı'};
+
+  var bar   = document.getElementById('tkFilter');
+  var list  = document.getElementById('tkList');
+  var empty = document.getElementById('tkEmpty');
+  var cnt   = document.getElementById('tkCount');
+  if(!bar || !list || !cnt) return;
+
+  function items(){ return [].slice.call(list.querySelectorAll('.tk-item')); }
+
+  function readParam(){
+    var v = new URLSearchParams(location.search).get('durum');
+    return VALID.indexOf(v) > -1 ? v : 'tumu';
+  }
+
+  /* çip sayaçları ve banner istatistikleri tek yerden hesaplanır */
+  function recount(){
+    var all = items();
+    var n = {tumu:all.length, acik:0, yanitlandi:0, kapandi:0};
+    all.forEach(function(li){
+      var d = li.getAttribute('data-durum');
+      if(n[d] !== undefined) n[d]++;
+    });
+    bar.querySelectorAll('.tk-c').forEach(function(el){
+      var k = el.getAttribute('data-c');
+      if(n[k] !== undefined) el.textContent = n[k];
+    });
+    var t = document.getElementById('stTotal'),
+        o = document.getElementById('stOpen'),
+        a = document.getElementById('stAns');
+    if(t) t.textContent = n.tumu;
+    if(o) o.textContent = n.acik;
+    if(a) a.textContent = n.yanitlandi;
+    return n;
+  }
+
+  function apply(f, push){
+    if(VALID.indexOf(f) < 0) f = 'tumu';
+    var shown = 0;
+    items().forEach(function(li){
+      var hit = (f === 'tumu') || (li.getAttribute('data-durum') === f);
+      li.hidden = !hit;
+      if(hit) shown++;
+    });
+
+    bar.querySelectorAll('.df-fchip').forEach(function(b){
+      var on = b.getAttribute('data-f') === f;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    cnt.innerHTML = '<b>' + shown + '</b> talep gösteriliyor — süzgeç: ' + LABEL[f] + '.';
+    if(empty) empty.classList.toggle('show', shown === 0);
+    list.hidden = (shown === 0);
+
+    if(push){
+      var url = location.pathname + (f === 'tumu' ? '' : '?durum=' + f) + location.hash;
+      history.pushState({durum:f}, '', url);
+    }
+    return shown;
+  }
+
+  bar.addEventListener('click', function(e){
+    var b = e.target.closest('.df-fchip');
+    if(!b) return;
+    apply(b.getAttribute('data-f'), true);
+  });
+
+  var reset = document.getElementById('tkEmptyReset');
+  if(reset) reset.addEventListener('click', function(){
+    apply('tumu', true);
+    var first = bar.querySelector('.df-fchip[data-f="tumu"]');
+    if(first) first.focus();
+  });
+
+  window.addEventListener('popstate', function(){ apply(readParam(), false); });
+
+  recount();
+  apply(readParam(), false);
+
+  /* ===== YENİ TALEP FORMU ==========================================
+   Doğrulama neden elde: form novalidate taşıyor (native balon
+   Türkçeleştirilemiyor ve tek alan gösteriyor). Yerine belge §20'nin
+   istediği üç kanal birlikte veriliyor:
+     1) alanın altında ikonlu METİN (.fk-err) — renkten bağımsız,
+     2) aria-invalid + aria-describedby ile ekran okuyucuya,
+     3) formun başında role="alert" taşıyan özet + ilk hatalı alana odak.
+   ================================================================= */
+  var form = document.getElementById('tkForm');
+  if(!form) return;
+
+  var sum     = document.getElementById('tkErrSum');
+  var sumText = sum ? sum.querySelector('span') : null;
+  var okBox   = document.getElementById('tkOk');
+  var MIN_BASLIK = 8, MIN_MSG = 20;
+  var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function errBox(el){
+    var ids = (el.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean);
+    return ids.length ? document.getElementById(ids[ids.length-1]) : null;
+  }
+  function problem(el){
+    var v = (el.value||'').trim();
+    if(!v) return el.dataset.msg || 'Bu alan zorunlu.';
+    if(el.id === 'tkBaslik' && v.length < MIN_BASLIK) return el.dataset.msgShort;
+    if(el.id === 'tkMesaj'  && v.length < MIN_MSG)
+      return el.dataset.msgShort + ' — şu an ' + v.length + '.';
+    return '';
+  }
+  function syncSummary(){
+    if(!sum || !sumText) return;
+    var left = form.querySelectorAll('[aria-invalid="true"]').length;
+    if(!left){ sum.hidden = true; return; }
+    sumText.textContent = (left === 1 ? '1 alan' : left + ' alan') +
+      ' eksik ya da hatalı. Hangisi olduğu aşağıda alanların altında yazıyor.';
+  }
+  function mark(el, msg){
+    var box = errBox(el);
+    if(msg){
+      el.setAttribute('aria-invalid','true');
+      el.classList.add('is-bad');
+      if(box){ box.querySelector('span').textContent = msg; box.hidden = false; }
+    }else{
+      el.removeAttribute('aria-invalid');
+      el.classList.remove('is-bad');
+      if(box) box.hidden = true;
+    }
+    syncSummary();
+  }
+
+  var fields = [].slice.call(form.querySelectorAll('[required]'));
+  fields.forEach(function(el){
+    /* ilk yazımda bağırmayız: alan bir kez terk edilince ya da zaten
+       hatalı işaretliyken canlı doğrulanır */
+    el.addEventListener('blur',   function(){ if(el.dataset.seen) mark(el, problem(el)); });
+    el.addEventListener('input',  function(){ el.dataset.seen='1'; if(el.getAttribute('aria-invalid')) mark(el, problem(el)); });
+    el.addEventListener('change', function(){ el.dataset.seen='1'; mark(el, problem(el)); });
+  });
+
+  var msg = document.getElementById('tkMesaj'), mc = document.getElementById('tkMsgCount');
+  if(msg && mc) msg.addEventListener('input', function(){ mc.textContent = msg.value.length; });
+
+  /* mevcut en büyük numaranın bir fazlası — DF-2xxx (detay sayfasıyla aynı kalıp) */
+  function nextNo(){
+    var max = 0;
+    items().forEach(function(li){
+      var m = /(\d+)$/.exec(li.getAttribute('data-no')||'');
+      if(m && +m[1] > max) max = +m[1];
+    });
+    return 'DF-' + (max + 1);
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var bad = [];
+    fields.forEach(function(el){
+      el.dataset.seen = '1';
+      var m = problem(el);
+      mark(el, m);
+      if(m) bad.push(el);
+    });
+    if(bad.length){
+      if(okBox) okBox.hidden = true;
+      if(sum){ syncSummary(); sum.hidden = false; }
+      bad[0].focus();
+      return;
+    }
+    if(sum) sum.hidden = true;
+
+    var no  = nextNo();
+    var kat = document.getElementById('tkKategori').value;
+    var bas = document.getElementById('tkBaslik').value.trim();
+    var d   = new Date();
+    var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    var trh = d.getDate() + ' ' + AYLAR[d.getMonth()] + ' ' + d.getFullYear();
+
+    var li = document.createElement('li');
+    li.className = 'tk-item';
+    li.setAttribute('data-durum','acik');
+    li.setAttribute('data-no', no);
+    li.innerHTML =
+      '<a class="tk-row is-new" href="destek-talebi-detay-v1.html?talep=' + esc(no) + '">' +
+        '<span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>' +
+        '<span class="tk-main">' +
+          '<h3 class="tk-subject">' + esc(bas) + '</h3>' +
+          '<span class="tk-meta">' +
+            '<span><i class="fa-solid fa-tag" aria-hidden="true"></i> ' + esc(kat) + '</span>' +
+            '<span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="' + iso + '">' + trh + '</time></span>' +
+            '<span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(no) + '</span>' +
+          '</span>' +
+        '</span>' +
+        '<span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>' +
+      '</a>';
+    list.insertBefore(li, list.firstElementChild);
+
+    recount();
+    /* yeni talep "yanıt bekleniyor" — hangi süzgeç seçiliyse ona göre yeniden süzülür */
+    apply(readParam(), false);
+
+    if(okBox){
+      okBox.querySelector('span').innerHTML =
+        '<b>' + esc(no) + '</b> numaralı talebin oluşturuldu ve listenin en üstüne eklendi. ' +
+        'Yazışmayı <a href="destek-talebi-detay-v1.html?talep=' + esc(no) + '">talep detayından</a> sürdürebilirsin. ' +
+        '(Demo: talep gerçekte kimseye iletilmez.)';
+      okBox.hidden = false;
+    }
+
+    form.reset();
+    fields.forEach(function(el){ delete el.dataset.seen; mark(el, ''); });
+    if(mc) mc.textContent = '0';
+    if(okBox){ okBox.setAttribute('tabindex','-1'); try{ okBox.focus({preventScroll:true}); }catch(err){ okBox.focus(); } }
+  });
+})();
+</script>
+</body>
+</html>

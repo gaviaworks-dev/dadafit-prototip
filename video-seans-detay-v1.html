@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- BENZERSİZ title (belge §19) — seans seçilince JS ile seansın adına döner -->
+<title>Video Seans Detayı — bölümler, ilerleme ve devam etme | DadaFit</title>
+<!-- BENZERSİZ meta description (belge §19) -->
+<meta name="description" content="Bir video seansının bölümleri, süresi, seviyesi, ekipmanı ve çalışan bölgeleri; kaldığın yerden devam etme, tamamlandı işaretleme, kaydetme ve programa ekleme." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (TEK KAYNAK — token, header, footer, kart/çip/banner kitleri) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — VIDEO SEANS DETAYI (belge §10)
+ ---------------------------------------------------------------------
+ Kabuktan gelen ve BURADA TEKRAR TANIMLANMAYANLAR:
+ token'lar · .wrap · .btn/.btn-ghost · .lib-top + .lib-crumb + .lib-stats
+ · .lib-grid/.hub-grid · .hub-card + .hub-body/.hub-foot/.hub-cat/.hub-pro
+ · .hr-note · .demo-tag · .sec · .sec-head · .eyebrow.
+
+ Bu blok yalnız bu sayfanın kendi parçalarını (oynatıcı posteri, bölüm
+ listesi, çalışan bölgeler, sağ durum paneli, programa ekle modalı) ölçer.
+ Sınıf öneki: .vsd-*  (video seans detayı)
+ ===================================================================== */
+
+/* --- SAYFA GENELİ: yeşil eyebrow + birincil düğme (repoda sayfa-yerel
+       yazılan iki kural; raporda kabuğa taşınması önerildi) --- */
+.sec-fit .eyebrow{color:var(--fit-deep)}
+.sec-fit .eyebrow::before{background:var(--fit)}
+.btn-fit{background:var(--fit);color:#fff}
+.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+.btn-line{background:var(--bg-white);color:var(--slate);border:1px solid var(--line)}
+.btn-line:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
+
+/* ===== GÖVDE: sol içerik · sağ sticky durum paneli ===== */
+.vsd-body{padding:34px 0 56px;background:var(--bg-white)}
+.vsd-grid{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:40px;align-items:start}
+.vsd-col{min-width:0}
+
+/* ---- OYNATICI POSTERİ (video DOSYASI YOK — §18: repoda ağır medya yok) ---- */
+.vsd-player{position:relative;border-radius:var(--radius-xl);overflow:hidden;background:#1b1913;aspect-ratio:16/9}
+.vsd-player>img{width:100%;height:100%;object-fit:cover;display:block}
+.vsd-player::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,.18) 0%,rgba(33,30,22,0) 38%,rgba(15,13,9,.78) 100%)}
+.vsd-pnote{position:absolute;top:14px;left:14px;z-index:3;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.03em;color:#fff;background:rgba(33,30,22,.6);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:6px 11px;border-radius:var(--radius-sm)}
+.vsd-pnote i{color:var(--fit-bright);font-size:11px}
+.vsd-pcenter{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.vsd-playbtn{width:74px;height:74px;border-radius:var(--radius-circle);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:24px;display:grid;place-items:center;cursor:pointer;transition:.22s var(--ease)}
+.vsd-playbtn:hover{background:var(--fit);border-color:var(--fit);transform:scale(1.06)}
+.vsd-playbtn:focus-visible{outline:3px solid var(--fit-bright);outline-offset:3px}
+.vsd-pcap{font-size:12.5px;font-weight:700;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);text-align:center;padding:0 16px}
+/* ilerleme şeridi — poster altında; sayı aria-valuetext ile de yazılı (§20) */
+.vsd-pbar{position:absolute;left:0;right:0;bottom:0;z-index:4;height:7px;background:rgba(255,255,255,.24)}
+.vsd-pbar-fill{display:block;height:100%;width:0;background:var(--fit-bright);transition:width .3s var(--ease)}
+.vsd-pmeta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.vsd-pmeta b{color:var(--fit-deep);font-variant-numeric:tabular-nums}
+
+/* ---- İÇERİK BLOKLARI ---- */
+.vsd-blk{margin-top:38px}
+.vsd-blk-h{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.vsd-blk-h .ic{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.vsd-blk-h h2{font-size:21px;letter-spacing:-.02em;scroll-margin-top:126px}
+.vsd-blk-h p{font-size:13px;color:var(--muted);font-weight:500;margin-top:1px}
+.vsd-text{font-size:14.5px;font-weight:500;color:var(--slate-2);line-height:1.65}
+.vsd-text+.vsd-text{margin-top:10px}
+
+/* ---- BÖLÜM LİSTESİ ---- */
+.vsd-chaps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.vsd-chap{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg-white);transition:.18s var(--ease)}
+.vsd-chap[data-state="done"]{background:var(--fit-tint);border-color:var(--fit-line)}
+.vsd-chap[data-state="cur"]{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.12)}
+.vsd-chap-no{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--bg);color:var(--slate);
+  display:grid;place-items:center;font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.vsd-chap[data-state="done"] .vsd-chap-no{background:var(--fit);color:#fff}
+.vsd-chap[data-state="cur"] .vsd-chap-no{background:var(--fit-deep);color:#fff}
+.vsd-chap-t{min-width:0}
+.vsd-chap-t b{display:block;font-size:14.5px;font-weight:700;color:var(--slate);letter-spacing:-.01em}
+.vsd-chap-t span{display:block;font-size:12.5px;font-weight:500;color:var(--slate-2);line-height:1.5;margin-top:2px}
+.vsd-chap-t .vsd-chap-flag{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--fit-deep)}
+.vsd-chap-end{display:flex;align-items:center;gap:10px;flex:none}
+.vsd-chap-time{font-size:12.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.vsd-chap-go{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:700;
+  color:var(--fit-deep);background:var(--bg-white);border:1px solid var(--fit-line);border-radius:var(--radius-sm);
+  padding:9px 13px;cursor:pointer;transition:.18s var(--ease);white-space:nowrap}
+.vsd-chap-go:hover{background:var(--fit);border-color:var(--fit);color:#fff}
+.vsd-chap-go:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.vsd-chap[data-state="cur"] .vsd-chap-go{background:var(--fit);border-color:var(--fit);color:#fff}
+
+/* ---- ISINMA BİLGİSİ ---- */
+.vsd-warm{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;border:1px solid var(--fit-line);background:var(--fit-tint);border-radius:var(--radius-lg)}
+.vsd-warm>i{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:#fff;color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.vsd-warm b{display:block;font-size:14.5px;font-weight:700;color:var(--slate);margin-bottom:3px}
+.vsd-warm p{font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.6}
+.vsd-warm a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+/* ---- ÇALIŞAN BÖLGELER ---- */
+.vsd-zones{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vsd-zone{padding:18px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg-white)}
+.vsd-zone.primary{border-color:var(--fit-line);background:var(--fit-tint)}
+.vsd-zone-lab{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.vsd-zone.primary .vsd-zone-lab{color:var(--fit-deep)}
+.vsd-zone-lab .dot{width:9px;height:9px;border-radius:var(--radius-circle);background:var(--muted)}
+.vsd-zone.primary .vsd-zone-lab .dot{background:var(--fit)}
+.vsd-zone-tags{display:flex;flex-wrap:wrap;gap:8px}
+.vsd-zone-tags span{font-size:13px;font-weight:600;color:var(--slate);background:#fff;border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-sm)}
+.vsd-zone.primary .vsd-zone-tags span{border-color:var(--fit-line)}
+
+/* ---- EKİPMAN ---- */
+.vsd-eq{display:flex;flex-wrap:wrap;gap:9px}
+.vsd-eq span{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);padding:9px 15px;border-radius:var(--radius-sm)}
+.vsd-eq span i{color:var(--fit-deep);font-size:12px}
+
+/* ---- GÜVENLİK UYARISI (renk TEK sinyal değil: ikon + başlık + metin) ---- */
+.vsd-safety{display:flex;gap:14px;align-items:flex-start;padding:20px 22px;border:1px solid #f0dcc0;background:#fff6ea;border-radius:var(--radius-lg)}
+.vsd-safety>i{flex:none;color:#a9691a;font-size:19px;margin-top:2px}
+.vsd-safety h3{font-size:15.5px;margin-bottom:6px;color:var(--slate)}
+.vsd-safety p{font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.6}
+.vsd-safety p+p{margin-top:8px}
+.vsd-safety a{color:#8a5a1b;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.vsd-safety ul{margin:8px 0 0 18px}
+.vsd-safety li{font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.6}
+
+/* =====================================================================
+ SAĞ KOLON — SEANS DURUM PANELİ
+ "Kaldığın yerden devam" · "Tamamlandı olarak işaretle" · "Kaydet" ·
+ "Programa ekle" bu panelde toplanır; durum satırı role="status".
+ ===================================================================== */
+.vsd-side{position:sticky;top:128px;background:var(--bg-white);border:1px solid var(--line);
+  border-radius:var(--radius-xl);box-shadow:var(--sh-md);overflow:hidden}
+.vsd-side-h{display:flex;align-items:center;gap:12px;padding:20px 22px 18px;background:linear-gradient(180deg,#211E16,#1d1a14);color:#fff}
+.vsd-side-h .ic{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:rgba(0,157,79,.22);border:1px solid rgba(52,196,126,.4);color:#fff;display:grid;place-items:center;font-size:17px}
+.vsd-side-h b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.vsd-side-h small{display:block;font-size:12px;font-weight:500;color:rgba(255,255,255,.62);margin-top:1px}
+
+/* antrenör satırı */
+.vsd-coach{display:flex;align-items:center;gap:13px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.vsd-coach img{width:52px;height:52px;border-radius:var(--radius-circle);object-fit:cover;flex:none;border:2px solid var(--fit-line)}
+.vsd-coach .t{min-width:0;flex:1}
+.vsd-coach .t b{display:block;font-size:14.5px;font-weight:700;color:var(--slate)}
+.vsd-coach .t span{display:block;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.45;margin-top:1px}
+.vsd-coach a.go{flex:none;font-size:12px;font-weight:700;color:var(--fit-deep);display:inline-flex;align-items:center;gap:6px}
+.vsd-coach a.go:hover{text-decoration:underline}
+
+/* meta listesi */
+.vsd-meta{padding:6px 20px 4px}
+.vsd-meta-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+.vsd-meta-row:last-child{border-bottom:none}
+.vsd-meta-row>span{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--slate-2);flex:none}
+.vsd-meta-row>span i{color:var(--fit-deep);font-size:12.5px;width:14px;text-align:center}
+.vsd-meta-row>b{font-size:13.5px;font-weight:700;color:var(--slate);text-align:right;min-width:0}
+
+/* ilerleme bloğu */
+.vsd-prog{margin:4px 20px 0;padding:16px;border-radius:var(--radius-lg);background:var(--fit-dark);color:#fff}
+.vsd-prog-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px}
+.vsd-prog-top span{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.7)}
+.vsd-prog-top b{font-size:22px;font-weight:800;color:var(--fit-bright);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.vsd-prog-bar{height:8px;border-radius:var(--radius-pill);background:rgba(255,255,255,.16);overflow:hidden}
+.vsd-prog-bar i{display:block;height:100%;width:0;background:var(--fit-bright);border-radius:var(--radius-pill);transition:width .3s var(--ease)}
+.vsd-prog-cap{display:block;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.8);margin-top:11px;line-height:1.5}
+.vsd-prog-cap i{color:var(--fit-bright);margin-right:6px}
+
+/* durum satırı (role=status) */
+.vsd-status{display:flex;gap:9px;align-items:flex-start;margin:14px 20px 0;padding:11px 13px;border-radius:var(--radius-md);
+  background:var(--fit-tint);border:1px solid var(--fit-line);font-size:12.5px;font-weight:600;color:var(--slate-2);line-height:1.5}
+.vsd-status>i{flex:none;color:var(--fit-deep);margin-top:2px}
+.vsd-status a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+/* eylemler */
+.vsd-acts{display:flex;flex-direction:column;gap:9px;padding:16px 20px 6px}
+.vsd-acts .btn{width:100%}
+.vsd-acts .btn[aria-pressed="true"]{background:var(--fit-tint);border-color:var(--fit);color:var(--fit-deep)}
+.vsd-note{display:flex;gap:9px;font-size:11.5px;font-weight:500;color:var(--muted);line-height:1.5;padding:12px 22px 20px}
+.vsd-note i{flex:none;color:var(--fit-deep);margin-top:2px}
+
+/* ---- BENZER SEANSLAR ---- */
+.vsd-sim{padding:56px 0 68px;background:var(--bg-cream);border-top:1px solid var(--line)}
+.vsd-simfig{position:relative;height:168px;overflow:hidden;background:#211E16}
+.vsd-simfig img{width:100%;height:100%;object-fit:cover}
+.vsd-simfig::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 55%,rgba(20,18,12,.5))}
+.vsd-simdur{position:absolute;bottom:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:700;color:#fff;background:rgba(20,18,12,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  padding:6px 10px;border-radius:var(--radius-sm)}
+
+/* =====================================================================
+ PROGRAMA EKLE MODALI — odak içeri (FIT_SHELL.trapFocus), Escape kapatır,
+ kaydırma kilidi FIT_SHELL.lockScroll ile (§20 · HANDOFF §4)
+ ===================================================================== */
+.vsd-mov{position:fixed;inset:0;background:rgba(20,18,12,.55);z-index:97}
+.vsd-modal{position:fixed;inset:0;z-index:98;display:grid;place-items:center;padding:20px}
+.vsd-modal-p{position:relative;width:min(460px,100%);max-height:88vh;overflow-y:auto;background:#fff;
+  border-radius:var(--radius-xl);box-shadow:var(--sh-lg);padding:28px 26px 24px}
+.vsd-modal-x{position:absolute;top:13px;right:13px;width:36px;height:36px;border-radius:var(--radius-md);
+  border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:15px;cursor:pointer;display:grid;place-items:center}
+.vsd-modal-x:hover{border-color:var(--fit);color:var(--fit-deep)}
+.vsd-modal-p h3{font-size:19px;margin-bottom:6px;padding-right:34px}
+.vsd-modal-lead{font-size:13.5px;font-weight:500;color:var(--muted);margin-bottom:18px}
+.vsd-modal-p fieldset{border:none;margin-bottom:16px}
+.vsd-modal-p legend{font-size:12.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.vsd-opt{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:var(--radius-md);cursor:pointer;transition:.16s var(--ease)}
+.vsd-opt+.vsd-opt{margin-top:8px}
+.vsd-opt:hover{border-color:var(--fit);background:var(--fit-tint)}
+.vsd-opt input{margin-top:3px;width:18px;height:18px;accent-color:var(--fit);flex:none;cursor:pointer}
+.vsd-opt input:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.vsd-opt b{display:block;font-size:14px;font-weight:700;color:var(--slate)}
+.vsd-opt small{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:2px}
+.vsd-opt:has(input:checked){border-color:var(--fit);background:var(--fit-tint)}
+.vsd-lbl{display:block;font-size:12.5px;font-weight:700;color:var(--slate-2);margin-bottom:7px}
+.vsd-sel{width:100%;height:46px;font-family:inherit;font-size:14px;font-weight:600;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:0 13px;cursor:pointer}
+.vsd-sel:focus{border-color:var(--fit);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(0,157,79,.12)}
+/* hata: ikon + metin + kenarlık — yalnız renkle anlatılmıyor (§20) */
+.vsd-err{display:flex;gap:9px;align-items:flex-start;margin-top:14px;padding:11px 13px;border-radius:var(--radius-md);
+  background:#fdf0f0;border:1px solid #e2a3a3;font-size:13px;font-weight:600;color:#8f2f2f;line-height:1.5}
+.vsd-err>i{flex:none;margin-top:2px}
+.vsd-ok{display:flex;gap:9px;align-items:flex-start;margin-top:14px;padding:11px 13px;border-radius:var(--radius-md);
+  background:var(--fit-tint);border:1px solid var(--fit-line);font-size:13px;font-weight:600;color:var(--slate-2);line-height:1.5}
+.vsd-ok>i{flex:none;color:var(--fit-deep);margin-top:2px}
+.vsd-ok a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.vsd-modal-acts{display:flex;gap:10px;margin-top:18px}
+.vsd-modal-acts .btn{flex:1}
+
+/* ---- YASLAMA İSTİSNASI ----
+ fit-type.css çıplak `p` ve `li`yi yaslar (akan metin için doğru). Aşağıdakiler
+ akan metin DEĞİL: kısa durum satırı, hata/onay mesajı, bölüm satırı, meta.
+ Ölçülen bozulma: modal hata satırı "Devam  etmek  için  bir  program  seç."
+ diye esniyordu; bölüm listesindeki tek satırlık notlar da öyle.
+ Sınıf (0,1,0) çıplak eleman (0,0,1) kuralını yener — yükleme sırası önemsiz. */
+.vsd-modal-lead,.vsd-err,.vsd-ok,.vsd-status,.vsd-note,.vsd-pmeta,.vsd-chap{
+  text-align:left;text-align-last:auto;hyphens:manual;-webkit-hyphens:manual;
+}
+/* akan metin yaslı KALIR: .vsd-text, .vsd-warm p, .vsd-safety p/li, .hub-body p */
+
+/* ---- DAR EKRAN ---- */
+@media (max-width:1024px){
+  .vsd-grid{grid-template-columns:1fr;gap:30px}
+  .vsd-side{position:static;top:auto}
+}
+@media (max-width:640px){
+  .vsd-body{padding:28px 0 44px}
+  .vsd-zones{grid-template-columns:1fr}
+  .vsd-blk-h h2{font-size:19px}
+  .vsd-chap{grid-template-columns:34px minmax(0,1fr);row-gap:10px}
+  .vsd-chap-no{width:34px;height:34px}
+  .vsd-chap-end{grid-column:1 / -1;justify-content:space-between}
+  .vsd-chap-go{flex:1;justify-content:center}
+  .vsd-player{aspect-ratio:4/3}
+  .vsd-playbtn{width:60px;height:60px;font-size:20px}
+  .vsd-sim{padding:40px 0 48px}
+}
+</style>
+<!-- Metin yaslama katmanı (tek kaynak) — sayfa stillerinden SONRA yüklenir,
+     böylece sayfa içi text-align kuralları yaslamayı geri alamaz (HANDOFF §5) -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="video-seans-detay-v1">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== 1 · BANNER + BREADCRUMB =====================================
+     .lib-top kabuktan gelir; sayfa yalnız görselini bildirir ve JS onu
+     seansa göre değiştirir. Banner'da arama input'u YOK (A3/A4).
+     ================================================================ -->
+<section class="lib-top" id="vsdTop" style="--lib-img:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1680&amp;q=80&amp;auto=format&amp;fit=crop&amp;exp=7&amp;gam=6&amp;sat=-16');--lib-pos:center 32%">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="video-seanslari-v1.html">Video Seansları</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur" id="vsdCrumb">Sabah Mobilite Akışı</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-circle-play"></i> Video seansı</span>
+    <!-- TEK H1 (belge §19) — ALAN 1: Başlık -->
+    <h1 id="vsdTitle">Sabah Mobilite Akışı</h1>
+    <!-- ALAN 2: Açıklama (kısa) -->
+    <p class="lib-sub" id="vsdLead">Güne omurga, kalça ve omuzları uyandıran, ekipmansız ve kendi temponda ilerleyen kısa bir akış.</p>
+    <div class="chips">
+      <button class="btn btn-fit" type="button" id="vsdTopResume"><i class="fa-solid fa-play"></i> <span id="vsdTopResumeTxt">Seansı başlat</span></button>
+      <a class="btn btn-ghost" href="#bolumler"><i class="fa-solid fa-list-ol"></i> Bölümlere git</a>
+    </div>
+    <div class="lib-stats">
+      <div class="lib-stat"><b id="vsdStatDur">18 dk</b><span>toplam süre</span></div>
+      <div class="lib-stat"><b id="vsdStatChap">6</b><span>bölüm</span></div>
+      <div class="lib-stat"><b id="vsdStatLvl">Başlangıç</b><span>seviye</span></div>
+      <!-- .demo-tag doğrudan .lib-stats çocuğu: .lib-stat span{color:rgba(255,255,255,.62)}
+           (0,2,0) .demo-tag'in (0,1,0) rengini yeniyordu → krem zeminde beyaz metin,
+           ekran görüntüsünde okunmuyordu. Sarmalayıcı kaldırılınca kural uygulanmıyor. -->
+      <span class="demo-tag"><i class="fa-solid fa-eye"></i> Demo veri</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 · GÖVDE: sol içerik · sağ durum paneli ===== -->
+<section class="vsd-body sec-fit">
+  <div class="wrap">
+    <div class="vsd-grid">
+
+      <!-- ---------------- SOL KOLON ---------------- -->
+      <div class="vsd-col">
+
+        <!-- OYNATICI POSTERİ — video dosyası YOK (§18: repoda ağır medya yok) -->
+        <div class="vsd-player">
+          <img id="vsdPoster" width="1280" height="720"
+               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&amp;q=80&amp;auto=format&amp;fit=crop&amp;exp=7&amp;gam=6&amp;sat=-12"
+               alt="Sabah Mobilite Akışı seansının poster görseli" />
+          <span class="vsd-pnote"><i class="fa-solid fa-film"></i> Poster görsel — oynatıcı prototipte yok</span>
+          <span class="hub-pro" id="vsdProBadge" hidden><i class="fa-solid fa-crown"></i> Pro</span>
+          <div class="vsd-pcenter">
+            <button class="vsd-playbtn" type="button" id="vsdPlay" aria-label="Seansı kaldığı yerden oynat">
+              <i class="fa-solid fa-play"></i>
+            </button>
+            <small class="vsd-pcap" id="vsdPlayCap">Bölüm 1 · 00:00 / 18:00</small>
+          </div>
+          <div class="vsd-pbar" id="vsdBar" role="progressbar" aria-label="Seans ilerlemesi"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="%0 izlendi">
+            <span class="vsd-pbar-fill" id="vsdBarFill"></span>
+          </div>
+        </div>
+        <p class="vsd-pmeta">
+          <span>Bu prototipte video dosyası yayınlanmaz; bölüm listesi ve ilerleme durumu arayüz olarak çalışır.</span>
+          <b id="vsdPmetaPct">%0 izlendi</b>
+        </p>
+
+        <!-- ALAN 2 (uzun): Açıklama -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-align-left"></i></span>
+            <div>
+              <h2 id="aciklama">Seans hakkında</h2>
+              <p>Bu seansın ne yaptığı, kimin için uygun olduğu ve nasıl ilerlediği.</p>
+            </div>
+          </div>
+          <p class="vsd-text" id="vsdDesc1">Bu akış sabah tutukluğunu azaltmayı hedefler: omurga, kalça ve omuz eklemlerini
+            kontrollü hareketlerle çalıştırır. Her hareket için nefes ritmi ve daha kolay bir seçenek gösterilir.</p>
+          <p class="vsd-text" id="vsdDesc2">Kendi temponda ilerle; bir hareket sana uygun gelmiyorsa atlayabilir ya da
+            gösterilen kolay seçenekle sürdürebilirsin. Bölümler arasında istediğin yerde durabilirsin.</p>
+        </div>
+
+        <!-- ALAN 8: Isınma bilgisi -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-fire-flame-simple"></i></span>
+            <div>
+              <h2 id="isinma">Isınma bilgisi</h2>
+              <p>Isınmanın seansa dahil olup olmadığı ve ne kadar sürdüğü.</p>
+            </div>
+          </div>
+          <div class="vsd-warm">
+            <i class="fa-solid fa-temperature-arrow-up" aria-hidden="true"></i>
+            <div>
+              <b id="vsdWarmTitle">Isınma seansa dahil — ilk 3 dakika</b>
+              <p id="vsdWarmText">Seans nefes ve omurga uyandırma hareketleriyle başlar; ayrıca ısınmana gerek yok.
+                Seansa soğuk kaslarla değil, birkaç dakika yürüdükten sonra başlamak daha rahat olur.</p>
+              <p style="margin-top:7px"><a href="hareket-isinma-soguma-v1.html">Isınma ve soğuma rehberi</a> · ayrıntılı hareket anlatımları</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALAN 9: Video bölümleri -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-list-ol"></i></span>
+            <div>
+              <h2 id="bolumler">Video bölümleri</h2>
+              <p>Bir bölümün &laquo;Buradan devam et&raquo; düğmesi, kaldığın yeri o bölüme taşır.</p>
+            </div>
+          </div>
+          <ol class="vsd-chaps" id="vsdChaps">
+            <!-- bölümler JS ile basılır -->
+          </ol>
+        </div>
+
+        <!-- ALAN 7: Çalışan bölgeler -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-person-rays"></i></span>
+            <div>
+              <h2 id="bolgeler">Çalışan bölgeler</h2>
+              <p>Bu seansın ağırlıklı olarak çalıştırdığı ve destekleyici olarak kullandığı bölgeler.</p>
+            </div>
+          </div>
+          <div class="vsd-zones">
+            <div class="vsd-zone primary">
+              <span class="vsd-zone-lab"><span class="dot"></span> Ağırlıklı bölgeler</span>
+              <div class="vsd-zone-tags" id="vsdZoneA"></div>
+            </div>
+            <div class="vsd-zone">
+              <span class="vsd-zone-lab"><span class="dot"></span> Destekleyici bölgeler</span>
+              <div class="vsd-zone-tags" id="vsdZoneB"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALAN 6: Ekipman -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-dumbbell"></i></span>
+            <div>
+              <h2 id="ekipman">Ekipman</h2>
+              <p>Seansı yapabilmek için gereken ve yerine geçebilecek malzemeler.</p>
+            </div>
+          </div>
+          <div class="vsd-eq" id="vsdEq"></div>
+          <p class="vsd-text" id="vsdEqNote" style="margin-top:12px"></p>
+        </div>
+
+        <!-- ALAN 15: Güvenlik uyarısı -->
+        <div class="vsd-blk">
+          <div class="vsd-blk-h">
+            <span class="ic"><i class="fa-solid fa-shield-heart"></i></span>
+            <div>
+              <h2 id="guvenlik">Güvenlik uyarısı</h2>
+              <p>Seansa başlamadan önce okunması gereken sınırlar.</p>
+            </div>
+          </div>
+          <div class="vsd-safety">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <div>
+              <h3>Bu seansı yapmadan önce</h3>
+              <p id="vsdSafety">Ağrı, baş dönmesi ya da nefes darlığı hissedersen seansı durdur. Hareketleri zorlayarak değil,
+                rahat ulaşabildiğin sınırda uygula.</p>
+              <ul>
+                <li>Yeni bir yaralanman, ameliyat geçmişin ya da hekim kısıtın varsa önce uzmanına danış.</li>
+                <li>Hamilelik, yüksek tansiyon veya kalp rahatsızlığı gibi durumlarda seansı uygulamadan önce hekim onayı al.</li>
+                <li>Zorlanırsan bölümü atla; seansı yarıda bırakmak da bir seçenektir.</li>
+              </ul>
+              <p><a href="antrenorler-v1.html">Bir antrenöre danış</a> &middot;
+                 <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a></p>
+            </div>
+          </div>
+          <div class="hr-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Bu içerik genel bilgi amaçlıdır; tıbbi teşhis, hastalık tanısı ya da tedavi önerisi değildir.
+              Kişisel bir sağlık sorunun varsa uzman desteği al. Ayrıntı:
+              <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ---------------- SAĞ KOLON: DURUM PANELİ ---------------- -->
+      <aside class="vsd-side" id="vsdPanel" aria-label="Seans durumu ve eylemler" data-progress="0">
+        <div class="vsd-side-h">
+          <span class="ic"><i class="fa-solid fa-circle-play"></i></span>
+          <div>
+            <b>Seans durumu</b>
+            <small>Kaldığın yer bu tarayıcıda saklanır</small>
+          </div>
+        </div>
+
+        <!-- ALAN 3: Antrenör -->
+        <div class="vsd-coach">
+          <img id="vsdCoachImg" width="52" height="52" loading="lazy"
+               src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=160&amp;q=80&amp;auto=format&amp;fit=crop&amp;exp=7&amp;gam=6&amp;sat=-12"
+               alt="Derya Yıldız'ın profil fotoğrafı" />
+          <div class="t">
+            <b id="vsdCoachName">Derya Yıldız</b>
+            <span id="vsdCoachRole">Mobilite ve postür</span>
+          </div>
+          <a class="go" id="vsdCoachLink" href="antrenor-detay-v1.html?slug=derya-yildiz">Profil <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <!-- ALAN 4 · 5 · 6 · 9: Süre · Seviye · Ekipman · Bölüm sayısı -->
+        <div class="vsd-meta">
+          <div class="vsd-meta-row"><span><i class="fa-solid fa-clock"></i> Süre</span><b id="vsdMetaDur">18 dk</b></div>
+          <div class="vsd-meta-row"><span><i class="fa-solid fa-signal"></i> Seviye</span><b id="vsdMetaLvl">Başlangıç</b></div>
+          <div class="vsd-meta-row"><span><i class="fa-solid fa-dumbbell"></i> Ekipman</span><b id="vsdMetaEq">Ekipmansız</b></div>
+          <div class="vsd-meta-row"><span><i class="fa-solid fa-list-ol"></i> Bölüm</span><b id="vsdMetaChap">6 bölüm</b></div>
+          <div class="vsd-meta-row"><span><i class="fa-solid fa-lock-open"></i> Erişim</span><b id="vsdMetaAccess">Ücretsiz</b></div>
+        </div>
+
+        <!-- İLERLEME -->
+        <div class="vsd-prog">
+          <div class="vsd-prog-top"><span>İzlenen</span><b id="vsdProgPct">%0</b></div>
+          <div class="vsd-prog-bar"><i id="vsdProgFill"></i></div>
+          <span class="vsd-prog-cap" id="vsdProgCap"><i class="fa-solid fa-circle-play"></i> Bu seansa henüz başlamadın.</span>
+        </div>
+
+        <!-- durum satırı — ekran okuyucuya da duyurulur -->
+        <p class="vsd-status" id="vsdStatus" role="status">
+          <i class="fa-solid fa-circle-info"></i>
+          <span id="vsdStatusTxt">Bir bölümün &laquo;Buradan devam et&raquo; düğmesine basınca kaldığın yer buraya işlenir.</span>
+        </p>
+
+        <!-- ALAN 10 · 11 · 12 · 13 -->
+        <div class="vsd-acts">
+          <button class="btn btn-fit" type="button" id="vsdResume">
+            <i class="fa-solid fa-play"></i> <span id="vsdResumeTxt">Seansı başlat</span>
+          </button>
+          <button class="btn btn-line" type="button" id="vsdComplete" aria-pressed="false">
+            <i class="fa-solid fa-circle-check"></i> <span id="vsdCompleteTxt">Tamamlandı olarak işaretle</span>
+          </button>
+          <button class="btn btn-line" type="button" id="vsdSave" aria-pressed="false">
+            <i class="fa-regular fa-bookmark" id="vsdSaveIco"></i> <span id="vsdSaveTxt">Kaydet</span>
+          </button>
+          <button class="btn btn-line" type="button" id="vsdAddProg">
+            <i class="fa-solid fa-circle-plus"></i> Programa ekle
+          </button>
+        </div>
+        <p class="vsd-note">
+          <i class="fa-solid fa-database"></i>
+          <span>Kaldığın yer, kaydettiklerin ve tamamlama işareti bu tarayıcıda saklanır (prototipte sunucu yok).
+            Tamamlandı işareti <a href="fit-planim-v1.html">Fit Planım</a>&rsquo;daki bugünkü aktivitene işlenir.</span>
+        </p>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 · ALAN 14: Benzer seanslar ===== -->
+<section class="vsd-sim sec-fit">
+  <div class="wrap">
+    <div class="sec-head sec-fit">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-shuffle"></i> Benzer seanslar</span>
+        <h2>Bu seansla aynı çizgide devam et</h2>
+      </div>
+      <a class="see-all" href="video-seanslari-v1.html">Tüm video seansları <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="lib-grid cols-3" id="vsdSim"><!-- kartlar JS ile basılır --></div>
+    <p class="vsd-text" style="margin-top:16px">
+      <span class="demo-tag"><i class="fa-solid fa-eye"></i> Demo veri</span>
+      Bu sayfadaki seans listesi ve antrenör eşleşmeleri prototip amaçlı örnek veridir.
+    </p>
+  </div>
+</section>
+
+<!-- ===== PROGRAMA EKLE MODALI ===== -->
+<div class="vsd-mov" id="vsdMov" hidden></div>
+<div class="vsd-modal" id="vsdModal" role="dialog" aria-modal="true" aria-labelledby="vsdModalT" hidden>
+  <div class="vsd-modal-p">
+    <button class="vsd-modal-x" type="button" id="vsdModalX" aria-label="Programa ekle penceresini kapat"><i class="fa-solid fa-xmark"></i></button>
+    <h3 id="vsdModalT">Programa ekle</h3>
+    <p class="vsd-modal-lead" id="vsdModalLead">Bu seansı hangi programının hangi gününe eklemek istersin?</p>
+    <form id="vsdForm" novalidate>
+      <fieldset>
+        <legend>Program seç</legend>
+        <label class="vsd-opt">
+          <input type="radio" name="vsdProg" value="4-hafta-ev-antrenmani" />
+          <span><b>4 Hafta Ev Antrenmanı</b><small>Başlangıç · ekipmansız</small></span>
+        </label>
+        <label class="vsd-opt">
+          <input type="radio" name="vsdProg" value="8-hafta-mobilite" />
+          <span><b>8 Hafta Mobilite Planı</b><small>Başlangıç · esneklik ve hareket açıklığı</small></span>
+        </label>
+        <label class="vsd-opt">
+          <input type="radio" name="vsdProg" value="12-hafta-guc-temeli" />
+          <span><b>12 Hafta Güç Temeli</b><small>Orta · Pro</small></span>
+        </label>
+        <label class="vsd-opt">
+          <input type="radio" name="vsdProg" value="8-hafta-salon-kondisyon" />
+          <span><b>8 Hafta Salon Kondisyon</b><small>İleri · Pro</small></span>
+        </label>
+      </fieldset>
+      <label class="vsd-lbl" for="vsdDay">Hangi güne eklensin?</label>
+      <select class="vsd-sel" id="vsdDay" name="vsdDay">
+        <option value="pazartesi">Pazartesi</option>
+        <option value="sali">Salı</option>
+        <option value="carsamba">Çarşamba</option>
+        <option value="persembe">Perşembe</option>
+        <option value="cuma">Cuma</option>
+        <option value="cumartesi">Cumartesi</option>
+        <option value="pazar">Pazar</option>
+      </select>
+      <!-- hata: ikon + metin + kenarlık; yalnız renk değil (§20) -->
+      <p class="vsd-err" id="vsdErr" role="alert" hidden>
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>Devam etmek için bir program seç. Hiçbir program işaretlenmedi.</span>
+      </p>
+      <p class="vsd-ok" id="vsdOk" role="status" hidden></p>
+      <div class="vsd-modal-acts">
+        <button class="btn btn-fit" type="submit"><i class="fa-solid fa-circle-plus"></i> Programa ekle</button>
+        <button class="btn btn-ghost" type="button" id="vsdModalCancel">Vazgeç</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranış -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* =====================================================================
+ SAYFA JS — VİDEO SEANS DETAYI (belge §10)
+ ---------------------------------------------------------------------
+ · Sayfa ?seans=<slug> ile farklı seansları basar; slug yoksa varsayılan.
+ · Video DOSYASI yok (§18). "Oynatıcı" yalnız poster + bölüm listesi +
+   ilerleme durumudur. Kaldığın yer gerçek bir istemci durumudur:
+   localStorage['dm_fit_video'][slug] = {b, sn, tamam, kayit}
+ · "Tamamlandı olarak işaretle" merkezî duruma da yazar:
+   FIT_SHELL.state.antrenmanTamamla(...) → Fit Planım'daki bugünkü aktivite.
+ · Modal: FIT_SHELL.trapFocus + lockScroll/unlockScroll, Escape kapatır (§20).
+ · Bölüm seçimi URL'ye yansır (?bolum=N) ve geri/ileri çalışır (§23).
+ ===================================================================== */
+(function(){
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     DEMO VERİ (§22 — sayfada .demo-tag ile işaretli)
+     --------------------------------------------------------------- */
+  /* görsel adresi tek kalıptan — repodaki diğer sayfalarla aynı işleme parametreleri */
+  var IMG = '&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12';
+  function poster(id,w){ return 'https://images.unsplash.com/photo-'+id+'?w='+(w||1200)+IMG; }
+
+  var SEANS = {
+    'sabah-mobilite':{
+      ad:'Sabah Mobilite Akışı',
+      lead:'Güne omurga, kalça ve omuzları uyandıran, ekipmansız ve kendi temponda ilerleyen kısa bir akış.',
+      d1:'Bu akış sabah tutukluğunu azaltmayı hedefler: omurga, kalça ve omuz eklemlerini kontrollü hareketlerle çalıştırır. Her hareket için nefes ritmi ve daha kolay bir seçenek gösterilir.',
+      d2:'Kendi temponda ilerle; bir hareket sana uygun gelmiyorsa atlayabilir ya da gösterilen kolay seçenekle sürdürebilirsin. Bölümler arasında istediğin yerde durabilirsin.',
+      antrenor:{ad:'Derya Yıldız', unvan:'Mobilite ve postür', slug:'derya-yildiz', foto:'1544367567-0f2fcb009e0b'},
+      dk:18, seviye:'Başlangıç', pro:false,
+      ekipman:[{ad:'Ekipmansız', ic:'fa-hand'},{ad:'Mat (isteğe bağlı)', ic:'fa-square'}],
+      ekipmanNot:'Mat yoksa halı ya da havlu yeterlidir. Ayakta yapılan bölümler için yalnız duracak bir boşluk gerekir.',
+      birincil:['Omurga','Kalça','Omuz'],
+      destek:['Boyun','Ayak bileği','Core'],
+      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
+      isinmaT:'Seans nefes ve omurga uyandırma hareketleriyle başlar; ayrıca ısınmana gerek yok. Yine de seansa soğuk kaslarla değil, birkaç dakika yürüdükten sonra başlamak daha rahat olur.',
+      guvenlik:'Sabah eklemler daha tutuk olur; hareket açıklığını zorlayarak değil kademeli açarak ilerle. Boyun bölümünde baş dönmesi hissedersen o hareketi atla.',
+      poster:'1518611012118-696072aa579a',
+      bolumler:[
+        {ad:'Isınma — nefes ve omurga uyanışı', not:'Yerde ya da sandalyede, kaburga hareketini hissederek', bas:0,   sure:180, isinma:true},
+        {ad:'Boyun ve omuz çemberi',            not:'Küçük ve yavaş daireler; ağrı sınırına girme',           bas:180, sure:150},
+        {ad:'Kalça açıcı akış',                 not:'Yarım diz duruşundan öne salınım',                       bas:330, sure:240},
+        {ad:'Omurga rotasyonu',                 not:'Yan yatışta açılan kitap; nefesle eşlik',                bas:570, sure:210},
+        {ad:'Ayak bileği ve baldır',            not:'Duvar desteğiyle kontrollü uzatma',                      bas:780, sure:180},
+        {ad:'Soğuma ve kapanış',                not:'Uzun nefes, omuz bırakma',                               bas:960, sure:120, soguma:true}
+      ]
+    },
+    'masa-basi-boyun-omuz':{
+      ad:'Masa Başı Boyun ve Omuz Rahatlatma',
+      lead:'Gün içinde masadan kalkmadan uygulanabilen, boyun ve omuz bölgesini rahatlatmayı hedefleyen kısa seans.',
+      d1:'Uzun süre ekran karşısında kalınca boyun ve omuz çevresi tutulur. Bu seans oturarak uygulanır; ayakkabını çıkarman ya da kıyafet değiştirmen gerekmez.',
+      d2:'Molada bir kez uygulaman yeterli. Hareketleri yavaş yap; hızlanmak bu seansın amacına ters düşer.',
+      antrenor:{ad:'Ece Yalçın', unvan:'Mobilite ve postür uzmanı', slug:'ece-yalcin', foto:'1567013127542-490d757e51fc'},
+      dk:12, seviye:'Başlangıç', pro:false,
+      ekipman:[{ad:'Sandalye', ic:'fa-chair'},{ad:'Ekipmansız', ic:'fa-hand'}],
+      ekipmanNot:'Tekerlekli sandalye kullanıyorsan tekerlekleri kilitle ya da sabit bir sandalyeye geç.',
+      birincil:['Boyun','Omuz','Üst sırt'],
+      destek:['Göğüs','Bilek','Çene ve şakak'],
+      isinmaB:'Ayrı ısınma gerekmiyor',
+      isinmaT:'Seans zaten düşük yoğunlukludur ve ilk bölüm oturarak yapılan nefes çalışmasıyla ısınma işlevini görür.',
+      guvenlik:'Boyunda uyuşma, kola yayılan ağrı ya da baş dönmesi varsa seansı yapma ve uzmanına danış. Hareketleri hızlı savurmadan uygula.',
+      poster:'1522898467493-49726bf28798',
+      bolumler:[
+        {ad:'Oturarak nefes ve duruş',   not:'Oturma kemiklerine yerleş, omuzları indir',  bas:0,   sure:120, isinma:true},
+        {ad:'Boyun yan esneme',          not:'Kulağı omuza yaklaştır, çekiştirme',         bas:120, sure:120},
+        {ad:'Omuz sıkışması gevşetme',   not:'Kürek kemiklerini geri ve aşağı',            bas:240, sure:150},
+        {ad:'Göğüs açıcı',               not:'Sandalye kenarında kollar geriye',           bas:390, sure:150},
+        {ad:'Bilek ve parmak',           not:'Klavye kullanan eller için',                 bas:540, sure:120},
+        {ad:'Soğuma ve göz molası',      not:'Uzağa bakma + uzun nefes',                   bas:660, sure:60, soguma:true}
+      ]
+    },
+    'dambil-tum-vucut':{
+      ad:'Dambıl ile Tüm Vücut',
+      lead:'Bir çift dambılla evde uygulanan, itme–çekme–alt vücut dengesini gözeten orta seviye kuvvet seansı.',
+      d1:'Seans dört blok halinde ilerler: alt vücut, itme, çekme ve core. Her blokta hareketin daha kolay ve daha zor seçeneği gösterilir; ağırlığını buna göre seç.',
+      d2:'Setler arası dinlenmeyi seansın kendisi sayar. Formun bozulmaya başladığında seti bitir; kalan tekrarları zorlamak yerine bir sonraki sete taşı.',
+      antrenor:{ad:'Burak Demir', unvan:'Kuvvet ve kondisyon antrenörü', slug:'burak-demir', foto:'1571019613454-1cb2f99b2d8b'},
+      dk:32, seviye:'Orta', pro:true,
+      ekipman:[{ad:'Bir çift dambıl', ic:'fa-dumbbell'},{ad:'Mat', ic:'fa-square'},{ad:'Sandalye / sehpa', ic:'fa-chair'}],
+      ekipmanNot:'Dambıl yoksa su dolu bidon ya da sırt çantası benzer bir yük sağlar; ağırlığı kademeli artır.',
+      birincil:['Bacak','Kalça','Sırt','Göğüs'],
+      destek:['Core','Omuz','Ön kol'],
+      isinmaB:'Isınma seansa dahil — ilk 5 dakika',
+      isinmaT:'Dinamik hazırlık bloğu seansın ilk bölümüdür ve ağırlığa geçmeden önce eklemleri hazırlar. Bu bölümü atlama.',
+      guvenlik:'Ağırlıkla çalışırken form önce gelir. Belde ya da omuzda keskin ağrı hissedersen seti bitir. Dambılı yerden alırken dizlerini bük, sırtını yuvarlaklaştırma.',
+      poster:'1534438327276-14e5300c3a48',
+      bolumler:[
+        {ad:'Isınma — dinamik hazırlık', not:'Eklem çemberleri, hafif tempo',        bas:0,    sure:300, isinma:true},
+        {ad:'Alt vücut — goblet squat bloğu', not:'3 set · kontrollü iniş',          bas:300,  sure:360},
+        {ad:'İtme — dambıl göğüs presi',  not:'3 set · omuz bıçaklarını sabitle',    bas:660,  sure:300},
+        {ad:'Çekme — dambıl kürek',       not:'3 set · gövde sabit',                 bas:960,  sure:300},
+        {ad:'Core bloğu',                 not:'Plank ve dead bug kombinasyonu',      bas:1260, sure:300},
+        {ad:'Soğuma ve esneme',           not:'Kalça, göğüs ve sırt uzatma',         bas:1560, sure:360, soguma:true}
+      ]
+    },
+    'core-temeli':{
+      ad:'Core Temeli',
+      lead:'Karın ve gövde stabilitesini adım adım kuran, ekipmansız ve başlangıç dostu bir temel seansı.',
+      d1:'Bu seans mekik saymak yerine gövdeyi sabit tutmayı çalıştırır. Her hareket önce nefes kontrolüyle, sonra kol–bacak hareketiyle zorlaştırılır.',
+      d2:'Bel bölgesinde rahatsızlık hissedersen hareketin küçük seçeneğinde kal. İlerleme, süreyi uzatmakla değil, formu korumakla gelir.',
+      antrenor:{ad:'Selin Aksoy', unvan:'Egzersiz ve spor bilimleri uzmanı', slug:'selin-aksoy', foto:'1518310383802-640c2de311b2'},
+      dk:20, seviye:'Başlangıç', pro:false,
+      ekipman:[{ad:'Mat', ic:'fa-square'},{ad:'Ekipmansız', ic:'fa-hand'}],
+      ekipmanNot:'Sert zeminde çalışacaksan kalın bir havlu ya da battaniye mat yerine geçer.',
+      birincil:['Core','Karın','Bel çevresi'],
+      destek:['Kalça','Omuz','Diyafram'],
+      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
+      isinmaT:'Core aktivasyonu bölümü ısınma işlevini görür; nefes ve kaburga hareketiyle gövdeyi seansa hazırlar.',
+      guvenlik:'Bel fıtığı, yeni doğum sonrası dönem ya da karın ameliyatı geçmişi varsa uygulamadan önce uzmanına danış. Boyun ağrırsa başını yere bırak.',
+      poster:'1571019614242-c5c5dee9f50b',
+      bolumler:[
+        {ad:'Isınma — core aktivasyonu', not:'Nefesle kaburga ve karın bağlantısı', bas:0,    sure:180, isinma:true},
+        {ad:'Dead bug serisi',           not:'Bel yerde sabit, kol–bacak yavaş',    bas:180,  sure:240},
+        {ad:'Plank ilerlemesi',          not:'Dizden başla, hazırsan ayağa geç',    bas:420,  sure:240},
+        {ad:'Yan plank',                 not:'Dizden destekli seçenek gösterilir',  bas:660,  sure:180},
+        {ad:'Köprü ve kalça bağlantısı', not:'Kalçayı sık, beli zorlama',           bas:840,  sure:240},
+        {ad:'Soğuma',                    not:'Bel ve kalça uzatma',                 bas:1080, sure:120, soguma:true}
+      ]
+    },
+    'ekipmansiz-kondisyon':{
+      ad:'Ekipmansız Kondisyon',
+      lead:'Zıplamasız seçenekleri de olan, tur usulü ilerleyen orta seviye ekipmansız kondisyon seansı.',
+      d1:'Seans üç turdan oluşur; her hareket için hem zıplamalı hem zıplamasız seçenek gösterilir. Turlar arasında toparlanma bölümü vardır.',
+      d2:'Nefesin konuşamayacak kadar sıkışıyorsa tempoyu düşür. Bu seansın amacı hızı değil, hareketi sürdürebilmeyi çalıştırmaktır.',
+      antrenor:{ad:'Can Aydın', unvan:'Salon ve kondisyon', slug:'can-aydin', foto:'1541534741688-6078c6bfb5c5'},
+      dk:25, seviye:'Orta', pro:true,
+      ekipman:[{ad:'Ekipmansız', ic:'fa-hand'},{ad:'Mat', ic:'fa-square'},{ad:'Su', ic:'fa-bottle-water'}],
+      ekipmanNot:'Alt kat komşusu olan bir evde çalışıyorsan zıplamasız seçeneği tercih et; seans aynı şekilde ilerler.',
+      birincil:['Bacak','Kalça','Kalp–dolaşım dayanıklılığı'],
+      destek:['Core','Omuz','Ayak bileği'],
+      isinmaB:'Isınma seansa dahil — ilk 4 dakika',
+      isinmaT:'Eklem hazırlığı bölümü seansın ilk parçasıdır. Tempolu bölümlere ısınmadan girme.',
+      guvenlik:'Baş dönmesi, göğüs ağrısı ya da düzensiz kalp atışı hissedersen seansı durdur ve sağlık desteği al. Diz ya da ayak bileği şikâyetin varsa zıplamasız seçenekte kal.',
+      poster:'1549060279-7e168fcee0c2',
+      bolumler:[
+        {ad:'Isınma — eklem hazırlığı', not:'Yerinde yürüyüş, çemberler',        bas:0,    sure:240, isinma:true},
+        {ad:'Alt vücut turu',           not:'Squat · hamle · köprü',             bas:240,  sure:300},
+        {ad:'Üst vücut turu',           not:'Şınav seçenekleri · sırt',          bas:540,  sure:300},
+        {ad:'Tüm vücut kombine tur',    not:'Kısa aralıklar, zıplamasız seçenek',bas:840,  sure:300},
+        {ad:'Tempo düşürme',            not:'Nefesi toparlama yürüyüşü',         bas:1140, sure:180},
+        {ad:'Soğuma ve esneme',         not:'Bacak ve kalça uzatma',             bas:1320, sure:180, soguma:true}
+      ]
+    },
+    'aksam-esneme':{
+      ad:'Akşam Esneme ve Sakinleşme',
+      lead:'Günün sonunda tempoyu düşüren, uzun nefes ve yavaş esneme üzerine kurulu kısa bir kapanış seansı.',
+      d1:'Bu seans gün içinde biriken tutulmayı azaltmayı ve uyku öncesi tempoyu düşürmeyi hedefler. Hareketler yerde ve yavaştır.',
+      d2:'Her pozisyonda nefesini uzatmaya odaklan. Esnemede hedef "daha ileri gitmek" değil, rahatça durabildiğin yeri bulmaktır.',
+      antrenor:{ad:'Ayşe Kaplan', unvan:'Yeni başlayan ve kilo yönetimi', slug:'ayse-kaplan', foto:'1506126613408-eca07ce68773'},
+      dk:15, seviye:'Başlangıç', pro:false,
+      ekipman:[{ad:'Mat', ic:'fa-square'},{ad:'Yastık / blok', ic:'fa-cube'}],
+      ekipmanNot:'Blok yerine katlanmış bir battaniye ya da yastık kullanabilirsin.',
+      birincil:['Sırt','Kalça','Bacak arka zinciri'],
+      destek:['Boyun','Omuz','Nefes'],
+      isinmaB:'Ayrı ısınma gerekmiyor',
+      isinmaT:'Seans düşük yoğunluklu bir kapanıştır; ilk bölüm nefes ritmiyle vücudu hazırlar. Yine de tamamen soğukken çok derin esnemelere girme.',
+      guvenlik:'Esnemede keskin ağrı normal değildir; hafif gerilme hissi yeterlidir. Bacak arkasında karıncalanma olursa pozisyondan çık.',
+      poster:'1552196563-55cd4e45efb3',
+      bolumler:[
+        {ad:'Giriş — nefes ritmi',     not:'Sırtüstü, uzun nefes verme',      bas:0,   sure:150, isinma:true},
+        {ad:'Boyun ve omuz',           not:'Yavaş yan esneme',                bas:150, sure:150},
+        {ad:'Sırt ve kalça',           not:'Diz göğse, yan rotasyon',         bas:300, sure:210},
+        {ad:'Bacak arka zinciri',      not:'Havlu desteğiyle uzatma',         bas:510, sure:210},
+        {ad:'Kapanış — uzun nefes',    not:'Sırtüstü tam gevşeme',            bas:720, sure:180, soguma:true}
+      ]
+    }
+  };
+
+  var BENZER = {
+    'sabah-mobilite':      ['aksam-esneme','core-temeli','masa-basi-boyun-omuz'],
+    'masa-basi-boyun-omuz':['sabah-mobilite','aksam-esneme','core-temeli'],
+    'dambil-tum-vucut':    ['ekipmansiz-kondisyon','core-temeli','aksam-esneme'],
+    'core-temeli':         ['dambil-tum-vucut','sabah-mobilite','ekipmansiz-kondisyon'],
+    'ekipmansiz-kondisyon':['dambil-tum-vucut','core-temeli','aksam-esneme'],
+    'aksam-esneme':        ['sabah-mobilite','masa-basi-boyun-omuz','core-temeli']
+  };
+
+  var VARSAYILAN = 'sabah-mobilite';
+  var qs   = new URLSearchParams(location.search);
+  var SLUG = SEANS[qs.get('seans')] ? qs.get('seans') : VARSAYILAN;
+  var E    = SEANS[SLUG];
+
+  /* ---------------------------------------------------------------
+     DURUM — localStorage['dm_fit_video'][slug]
+     b: kaldığın bölüm indeksi (-1 = başlanmadı) · sn: saniye konumu
+     tamam: tamamlandı işareti · kayit: kaydedildi işareti
+     --------------------------------------------------------------- */
+  var KEY = 'dm_fit_video';
+  function readAll(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } }
+  function writeAll(o){ try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){} }
+  function readOne(){
+    var s = readAll()[SLUG] || {};
+    var o = { b:(typeof s.b==='number') ? s.b : -1,
+              sn:s.sn || 0,
+              tamam:!!s.tamam,
+              kayit:!!s.kayit };
+    if(typeof s.onceB  === 'number') o.onceB  = s.onceB;
+    if(typeof s.onceSn === 'number') o.onceSn = s.onceSn;
+    return o;
+  }
+  function writeOne(st){ var all = readAll(); all[SLUG] = st; writeAll(all); }
+
+  var S = readOne();
+  var TOPLAM = E.dk * 60;
+
+  /* ---------------- yardımcılar ---------------- */
+  function mmss(sec){
+    var m = Math.floor(sec/60), r = Math.round(sec%60);
+    return (m<10?'0':'')+m+':'+(r<10?'0':'')+r;
+  }
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* yüzde: tamamlandıysa 100, değilse kaldığın bölümün başlangıcı */
+  function yuzde(){
+    if(S.tamam) return 100;
+    if(S.b < 0) return 0;
+    return Math.min(100, Math.round(S.sn / TOPLAM * 100));
+  }
+
+  /* ---------------------------------------------------------------
+     STATİK ALANLARI BAS
+     --------------------------------------------------------------- */
+  function basStatik(){
+    document.title = E.ad + ' — Video Seansı · bölümler ve ilerleme | DadaFit';
+    var md = document.querySelector('meta[name="description"]');
+    if(md) md.setAttribute('content',
+      E.ad + ' video seansı: ' + E.dk + ' dakika, ' + E.seviye.toLowerCase() +
+      ' seviye. Bölümler, çalışan bölgeler, ısınma bilgisi ve kaldığın yerden devam etme.');
+
+    $('vsdCrumb').textContent = E.ad;
+    $('vsdTitle').textContent = E.ad;
+    $('vsdLead').textContent  = E.lead;
+    $('vsdDesc1').textContent = E.d1;
+    $('vsdDesc2').textContent = E.d2;
+
+    $('vsdStatDur').textContent  = E.dk + ' dk';
+    $('vsdStatChap').textContent = E.bolumler.length;
+    $('vsdStatLvl').textContent  = E.seviye;
+
+    $('vsdTop').style.setProperty('--lib-img', "url('"+poster(E.poster,1680)+"')");
+    var p = $('vsdPoster');
+    p.src = poster(E.poster,1200);
+    p.alt = E.ad + ' seansının poster görseli';
+
+    $('vsdProBadge').hidden = !E.pro;
+    $('vsdMetaAccess').textContent = E.pro ? 'Pro üyelik' : 'Ücretsiz';
+
+    /* antrenör */
+    $('vsdCoachImg').src = poster(E.antrenor.foto,160);
+    $('vsdCoachImg').alt = E.antrenor.ad + ' profil fotoğrafı';
+    $('vsdCoachName').textContent = E.antrenor.ad;
+    $('vsdCoachRole').textContent = E.antrenor.unvan;
+    $('vsdCoachLink').href = 'antrenor-detay-v1.html?slug=' + E.antrenor.slug;
+
+    /* meta */
+    $('vsdMetaDur').textContent  = E.dk + ' dk';
+    $('vsdMetaLvl').textContent  = E.seviye;
+    $('vsdMetaEq').textContent   = E.ekipman.map(function(x){ return x.ad; }).join(' · ');
+    $('vsdMetaChap').textContent = E.bolumler.length + ' bölüm';
+
+    /* ısınma */
+    $('vsdWarmTitle').textContent = E.isinmaB;
+    $('vsdWarmText').textContent  = E.isinmaT;
+
+    /* çalışan bölgeler */
+    $('vsdZoneA').innerHTML = E.birincil.map(function(z){ return '<span>'+esc(z)+'</span>'; }).join('');
+    $('vsdZoneB').innerHTML = E.destek.map(function(z){ return '<span>'+esc(z)+'</span>'; }).join('');
+
+    /* ekipman */
+    $('vsdEq').innerHTML = E.ekipman.map(function(x){
+      return '<span><i class="fa-solid '+x.ic+'" aria-hidden="true"></i> '+esc(x.ad)+'</span>';
+    }).join('');
+    $('vsdEqNote').textContent = E.ekipmanNot;
+
+    /* güvenlik */
+    $('vsdSafety').textContent = E.guvenlik +
+      ' Ağrı, baş dönmesi ya da nefes darlığı hissedersen seansı durdur.';
+
+    /* modal başlığı */
+    $('vsdModalLead').textContent = '“' + E.ad + '” seansını hangi programının hangi gününe eklemek istersin?';
+
+    /* benzer seanslar */
+    $('vsdSim').innerHTML = (BENZER[SLUG]||[]).map(function(sl){
+      var o = SEANS[sl]; if(!o) return '';
+      return ''
+        +'<a class="hub-card" href="video-seans-detay-v1.html?seans='+sl+'">'
+        +  '<div class="vsd-simfig">'
+        +    '<img src="'+poster(o.poster,700)+'" loading="lazy" width="700" height="394" alt="'+esc(o.ad)+' seansının kapak görseli" />'
+        +    (o.pro ? '<span class="hub-pro"><i class="fa-solid fa-crown"></i> Pro</span>' : '')
+        +    '<span class="vsd-simdur"><i class="fa-solid fa-clock"></i> '+o.dk+' dk</span>'
+        +  '</div>'
+        +  '<div class="hub-body">'
+        +    '<h3 style="font-size:16.5px;margin-bottom:8px">'+esc(o.ad)+'</h3>'
+        +    '<p>'+esc(o.lead)+'</p>'
+        +    '<div class="hub-foot"><span>'+esc(o.seviye)+' · '+esc(o.antrenor.ad)+'</span>'
+        +      '<span class="go">Seansa git <i class="fa-solid fa-arrow-right"></i></span></div>'
+        +  '</div>'
+        +'</a>';
+    }).join('');
+  }
+
+  /* ---------------------------------------------------------------
+     BÖLÜM LİSTESİ + İLERLEME (ALAN 9 · 10 · 11)
+     --------------------------------------------------------------- */
+  function basBolumler(){
+    $('vsdChaps').innerHTML = E.bolumler.map(function(b,i){
+      var durum = S.tamam ? 'done' : (i < S.b ? 'done' : (i === S.b ? 'cur' : 'todo'));
+      var flag = b.isinma ? '<span class="vsd-chap-flag"><i class="fa-solid fa-fire-flame-simple"></i> Isınma bölümü</span>'
+               : (b.soguma ? '<span class="vsd-chap-flag"><i class="fa-solid fa-leaf"></i> Soğuma bölümü</span>' : '');
+      var mark = (durum === 'done') ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : (i+1);
+      return ''
+        +'<li class="vsd-chap" data-i="'+i+'" data-state="'+durum+'"'+(durum==='cur'?' aria-current="true"':'')+'>'
+        +  '<span class="vsd-chap-no">'+mark+'</span>'
+        +  '<div class="vsd-chap-t"><b>'+esc(b.ad)+'</b><span>'+esc(b.not)+'</span>'+flag+'</div>'
+        +  '<div class="vsd-chap-end">'
+        +    '<span class="vsd-chap-time">'+mmss(b.bas)+' · '+Math.round(b.sure/60*10)/10+' dk</span>'
+        +    '<button type="button" class="vsd-chap-go" data-go="'+i+'" '
+        +      'aria-label="'+esc(b.ad)+' bölümünden devam et">'
+        +      '<i class="fa-solid fa-play"></i> '+(durum==='cur' ? 'Kaldığın bölüm' : 'Buradan devam et')
+        +    '</button>'
+        +  '</div>'
+        +'</li>';
+    }).join('');
+  }
+
+  function basDurum(){
+    var pct = yuzde();
+    $('vsdPanel').setAttribute('data-progress', pct);
+    $('vsdProgPct').textContent   = '%' + pct;
+    $('vsdProgFill').style.width  = pct + '%';
+    $('vsdBarFill').style.width   = pct + '%';
+    $('vsdPmetaPct').textContent  = '%' + pct + ' izlendi';
+    var bar = $('vsdBar');
+    bar.setAttribute('aria-valuenow', pct);
+    bar.setAttribute('aria-valuetext', '%' + pct + ' izlendi');
+
+    var cap, playCap, resumeTxt;
+    if(S.tamam){
+      cap = '<i class="fa-solid fa-circle-check"></i> Bu seansı tamamlandı olarak işaretledin.';
+      playCap = 'Tamamlandı · ' + mmss(TOPLAM) + ' / ' + mmss(TOPLAM);
+      resumeTxt = 'Baştan izle';
+    } else if(S.b < 0){
+      cap = '<i class="fa-solid fa-circle-play"></i> Bu seansa henüz başlamadın.';
+      playCap = 'Bölüm 1 · 00:00 / ' + mmss(TOPLAM);
+      resumeTxt = 'Seansı başlat';
+    } else {
+      var b = E.bolumler[S.b];
+      cap = '<i class="fa-solid fa-bookmark"></i> Kaldığın yer: Bölüm ' + (S.b+1) + ' — ' + esc(b.ad) + ' (' + mmss(S.sn) + ')';
+      playCap = 'Bölüm ' + (S.b+1) + ' · ' + mmss(S.sn) + ' / ' + mmss(TOPLAM);
+      resumeTxt = 'Kaldığın yerden devam (Bölüm ' + (S.b+1) + ')';
+    }
+    $('vsdProgCap').innerHTML   = cap;
+    $('vsdPlayCap').textContent = playCap;
+    $('vsdResumeTxt').textContent    = resumeTxt;
+    $('vsdTopResumeTxt').textContent = resumeTxt;
+    $('vsdPlay').setAttribute('aria-label', resumeTxt);
+
+    /* tamamlandı düğmesi */
+    var cb = $('vsdComplete');
+    cb.setAttribute('aria-pressed', S.tamam ? 'true' : 'false');
+    $('vsdCompleteTxt').textContent = S.tamam ? 'Tamamlandı — işareti kaldır' : 'Tamamlandı olarak işaretle';
+
+    /* kaydet düğmesi */
+    var sb = $('vsdSave');
+    sb.setAttribute('aria-pressed', S.kayit ? 'true' : 'false');
+    $('vsdSaveTxt').textContent = S.kayit ? 'Kaydedildi' : 'Kaydet';
+    $('vsdSaveIco').className = (S.kayit ? 'fa-solid' : 'fa-regular') + ' fa-bookmark';
+  }
+
+  function durumSatiri(html){ $('vsdStatusTxt').innerHTML = html; }
+
+  function kaydet(){ writeOne(S); basBolumler(); basDurum(); }
+
+  /* ---------------------------------------------------------------
+     ALAN 10 — KALDIĞIN YERDEN DEVAM
+     · bölüm düğmesi: kaldığın yeri o bölüme TAŞIR (kalıcı)
+     · devam düğmesi: kaydedilmiş yere DÖNER (poster başlığı + odak + kaydırma)
+     --------------------------------------------------------------- */
+  function bolumeGit(i, urlYaz){
+    if(i < 0 || i >= E.bolumler.length) return;
+    S.b = i; S.sn = E.bolumler[i].bas;
+    /* geriye dönüldüyse tamam işareti düşer; "işareti kaldır" hafızası da geçersizleşir */
+    if(S.tamam && i < E.bolumler.length - 1){ S.tamam = false; delete S.onceB; delete S.onceSn; }
+    kaydet();
+    durumSatiri('Kaldığın yer <b>Bölüm ' + (i+1) + ' — ' + esc(E.bolumler[i].ad) + '</b> olarak güncellendi (' + mmss(S.sn) + ').');
+    if(urlYaz !== false){
+      var u = new URL(location.href);
+      u.searchParams.set('seans', SLUG);
+      u.searchParams.set('bolum', String(i+1));
+      history.pushState({bolum:i+1, seans:SLUG}, '', u);
+    }
+  }
+
+  function devamEt(){
+    if(S.b < 0){ bolumeGit(0); }
+    var i = Math.max(0, S.b);
+    var li = document.querySelector('.vsd-chap[data-i="'+i+'"]');
+    if(li){
+      li.scrollIntoView({block:'center'});
+      var btn = li.querySelector('.vsd-chap-go');
+      if(btn) btn.focus({preventScroll:true});
+    }
+    durumSatiri('Oynatıcı <b>Bölüm ' + (i+1) + ' — ' + esc(E.bolumler[i].ad) + '</b> konumuna alındı (' + mmss(S.sn) + '). ' +
+                'Bu prototipte video dosyası yayınlanmaz.');
+  }
+
+  /* ---------------------------------------------------------------
+     ALAN 11 — TAMAMLANDI OLARAK İŞARETLE
+     --------------------------------------------------------------- */
+  function tamamToggle(){
+    if(!S.tamam){
+      /* işaret kaldırılırsa geri dönülecek nokta saklanır — aksi hâlde
+         "0%'ken tamamla → işareti kaldır" son bölümde %89'a düşüyordu (ölçüldü) */
+      S.onceB = S.b; S.onceSn = S.sn;
+      S.tamam = true;
+      S.b = E.bolumler.length - 1;
+      S.sn = TOPLAM;
+      kaydet();
+      /* merkezî duruma yaz — Fit Planım'daki bugünkü aktivite (yeni depo kurulmadı) */
+      var yazildi = false;
+      try{
+        if(window.FIT_SHELL && FIT_SHELL.state && FIT_SHELL.state.antrenmanTamamla){
+          FIT_SHELL.state.antrenmanTamamla({ad:E.ad, dk:E.dk});
+          yazildi = true;
+        }
+      }catch(e){}
+      durumSatiri('Seans <b>tamamlandı</b> olarak işaretlendi.' +
+        (yazildi ? ' ' + E.dk + ' dakika <a href="fit-planim-v1.html">Fit Planım</a>&rsquo;daki bugünkü aktivitene işlendi.' : ''));
+    } else {
+      S.tamam = false;
+      S.b  = (typeof S.onceB  === 'number') ? S.onceB  : S.b;
+      S.sn = (typeof S.onceSn === 'number') ? S.onceSn : E.bolumler[Math.max(0,S.b)].bas;
+      delete S.onceB; delete S.onceSn;
+      kaydet();
+      durumSatiri(S.b < 0
+        ? 'Tamamlandı işareti kaldırıldı. Seans yeniden başlanmamış duruma döndü.'
+        : 'Tamamlandı işareti kaldırıldı. Kaldığın yer <b>Bölüm ' + (S.b+1) + '</b> olarak duruyor.');
+    }
+  }
+
+  /* ---------------------------------------------------------------
+     ALAN 12 — KAYDET
+     --------------------------------------------------------------- */
+  function kayitToggle(){
+    S.kayit = !S.kayit;
+    kaydet();
+    durumSatiri(S.kayit
+      ? 'Seans kaydedildi. <a href="fit-planim-kaydettiklerim-v1.html">Kaydettiklerim</a> listesinde görünür.'
+      : 'Seans kayıtlardan çıkarıldı.');
+  }
+
+  /* ---------------------------------------------------------------
+     ALAN 13 — PROGRAMA EKLE (modal · §20 odak + Escape)
+     --------------------------------------------------------------- */
+  var modal = $('vsdModal'), mov = $('vsdMov'), release = null;
+
+  function modalAc(){
+    if(!modal.hidden) return;                       /* durum korumalı */
+    $('vsdErr').hidden = true; $('vsdOk').hidden = true;
+    mov.hidden = false; modal.hidden = false;
+    if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    if(window.FIT_SHELL && FIT_SHELL.trapFocus) release = FIT_SHELL.trapFocus(modal);
+  }
+  function modalKapat(){
+    if(modal.hidden) return;                        /* durum korumalı */
+    modal.hidden = true; mov.hidden = true;
+    if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+    if(release){ release(); release = null; }
+  }
+
+  $('vsdAddProg').addEventListener('click', modalAc);
+  $('vsdModalX').addEventListener('click', modalKapat);
+  $('vsdModalCancel').addEventListener('click', modalKapat);
+  mov.addEventListener('click', modalKapat);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !modal.hidden){ e.stopPropagation(); modalKapat(); }
+  });
+
+  $('vsdForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var sec = modal.querySelector('input[name="vsdProg"]:checked');
+    if(!sec){
+      $('vsdOk').hidden = true;
+      $('vsdErr').hidden = false;
+      var ilk = modal.querySelector('input[name="vsdProg"]');
+      if(ilk) ilk.focus();
+      return;
+    }
+    $('vsdErr').hidden = true;
+    var gunSel = $('vsdDay');
+    var gunAd  = gunSel.options[gunSel.selectedIndex].textContent;
+    var progAd = sec.closest('.vsd-opt').querySelector('b').textContent;
+    $('vsdOk').innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>' +
+      '<span>“' + esc(E.ad) + '” seansı <b>' + esc(progAd) + '</b> programının <b>' + esc(gunAd) + '</b> gününe eklendi. ' +
+      '<a href="fit-planim-programim-v1.html">Programımı aç</a> · ' +
+      '<a href="program-detay-v1.html?slug=' + sec.value + '">Program detayı</a></span>';
+    $('vsdOk').hidden = false;
+    durumSatiri('Seans <b>' + esc(progAd) + '</b> programının ' + esc(gunAd) + ' gününe eklendi.');
+  });
+
+  /* ---------------------------------------------------------------
+     OLAY BAĞLARI
+     --------------------------------------------------------------- */
+  $('vsdChaps').addEventListener('click', function(e){
+    var b = e.target.closest('.vsd-chap-go'); if(!b) return;
+    bolumeGit(+b.getAttribute('data-go'));
+  });
+  $('vsdResume').addEventListener('click', devamEt);
+  $('vsdTopResume').addEventListener('click', devamEt);
+  $('vsdPlay').addEventListener('click', devamEt);
+  $('vsdComplete').addEventListener('click', tamamToggle);
+  $('vsdSave').addEventListener('click', kayitToggle);
+
+  /* geri/ileri: ?bolum=N (belge §23) */
+  window.addEventListener('popstate', function(){
+    var n = parseInt(new URLSearchParams(location.search).get('bolum'), 10);
+    if(n >= 1 && n <= E.bolumler.length) bolumeGit(n-1, false);
+    else { S.b = -1; S.sn = 0; kaydet(); durumSatiri('Kaldığın yer temizlendi; seans başından açılıyor.'); }
+  });
+
+  /* ---------------------------------------------------------------
+     İLK BASIM — ?bolum=N varsa onu uygula
+     --------------------------------------------------------------- */
+  basStatik();
+  var acilis = parseInt(qs.get('bolum'), 10);
+  if(acilis >= 1 && acilis <= E.bolumler.length){
+    bolumeGit(acilis-1, false);
+  } else {
+    basBolumler(); basDurum();
+    if(S.tamam)      durumSatiri('Bu seansı daha önce tamamlandı olarak işaretledin.');
+    else if(S.b >= 0) durumSatiri('Bu seansı <b>Bölüm ' + (S.b+1) + '</b>&rsquo;de bırakmıştın. &laquo;Kaldığın yerden devam&raquo; ile o noktaya dönersin.');
+  }
+})();
+</script>
+</body>
+</html>

@@ -292,22 +292,25 @@ var ACCOUNT_ITEMS = [
   {label:'Sağlık ve Hareket Profilim',  href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',   desc:'Kısıt, hedef, tercih'},
   {label:'Veri ve İzinlerim',           href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',  desc:'Neyi kiminle paylaştığın'},
   {label:'Bildirim Tercihlerim',        href:'hesabim-v1.html#bildirim',         icon:'fa-solid fa-bell-slash',    desc:'Hangi bildirimi alacaksın'},
-  /* ---- AŞAMA NOTU — bu üç grup Faz 5'te kendi sayfalarına taşınacak ----
-     Belge §24 şu sayfaları istiyor: bagli-uygulamalar-v1 · uyelik-faturalandirma-v1
-     · destek-talepleri-v1. Onlar HENÜZ ÜRETİLMEDİ. Kabuk hesap menüsü 47 sayfanın
-     tamamında basıldığı için var olmayan bir hedefe bağlamak SİTE GENELİNDE kırık
-     link üretir — nihai kabul kriteri "yerel bağlantılarda kırık hedef bulunmamalı"
-     diyor. Bu yüzden kalemler şimdilik var olan en yakın sahibine bağlı; sayfalar
-     üretildiğinde YALNIZ buradaki href'ler değişecek (tek satır, tek yer). */
-  {label:'Bağlı Uygulamalar',           href:'fit-planim-veri-izin-v1.html#baglantilar', icon:'fa-solid fa-plug-circle-check', desc:'Sağlık ve saat bağlantıları'},
+  /* ---- AŞAMA NOTU KAPANDI (Faz 5 indi) ----
+     Bu üç kalem (Bağlı Uygulamalar · Üyelik-Ödeme-Fatura · Destek Taleplerim)
+     sayfaları henüz üretilmediği için GEÇİCİ olarak var olan en yakın sahibine
+     bağlıydı. Belge §24'ün istediği sayfalar Faz 5'te üretildi; söz verildiği gibi
+     YALNIZ href'ler değişti, menü yapısına dokunulmadı:
+       Bağlı Uygulamalar → bagli-uygulamalar-v1.html
+       Üyelik ve Paketim / Ödeme Geçmişim / Faturalarım → uyelik-faturalandirma-v1.html (#paket, #odeme-gecmisi, #faturalar)
+       Destek Taleplerim → destek-talepleri-v1.html
+     hesabim-v1 içindeki eski çapa bölümleri yerinde duruyor; menü artık belgenin
+     saydığı gerçek sayfalara gidiyor. */
+  {label:'Bağlı Uygulamalar',           href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check', desc:'Apple Health · Health Connect · saat'},
   {sep:true},
-  {label:'Üyelik ve Paketim',           href:'hesabim-v1.html#uyelik',           icon:'fa-solid fa-crown',         desc:'Aktif paket, yenileme, iptal'},
-  {label:'Ödeme Geçmişim',              href:'hesabim-v1.html#odeme',            icon:'fa-solid fa-receipt',       desc:'Geçmiş ödemeler'},
-  {label:'Faturalarım',                 href:'hesabim-v1.html#fatura',           icon:'fa-solid fa-file-invoice',  desc:'Fatura belgeleri'},
+  {label:'Üyelik ve Paketim',           href:'uyelik-faturalandirma-v1.html#paket',    icon:'fa-solid fa-crown',         desc:'Aktif paket, yenileme, iptal'},
+  {label:'Ödeme Geçmişim',              href:'uyelik-faturalandirma-v1.html#odeme-gecmisi', icon:'fa-solid fa-receipt',    desc:'Geçmiş ödemeler'},
+  {label:'Faturalarım',                 href:'uyelik-faturalandirma-v1.html#faturalar', icon:'fa-solid fa-file-invoice', desc:'Fatura belgeleri'},
   {sep:true},
   {label:'Güvenlik',                    href:'hesabim-v1.html#guvenlik',         icon:'fa-solid fa-lock',          desc:'Şifre ve oturumlar'},
   {label:'Dil ve Bölge',                href:'hesabim-v1.html#dil',              icon:'fa-solid fa-globe',         desc:'Arayüz dili, birimler'},
-  {label:'Destek Taleplerim',           href:'iletisim-v1.html#destek',          icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},   /* → destek-talepleri-v1 (Faz 5) */
+  {label:'Destek Taleplerim',           href:'destek-talepleri-v1.html',         icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},
   {sep:true},
   {label:'Hesabı Dondurma',             href:'hesabim-v1.html#dondur',           icon:'fa-solid fa-circle-pause',  desc:'Geçici olarak ara ver'},
   {label:'Verilerimi İndir',            href:'fit-planim-veri-izin-v1.html#indir',icon:'fa-solid fa-download',     desc:'Kopyanı al'},

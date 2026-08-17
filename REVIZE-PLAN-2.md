@@ -394,9 +394,16 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
       dört kalem rayda yok · ray dışı dört sayfa başlık+breadcrumb çözüyor · Hesabım'da 14 modül ·
       hesap menüsündeki tüm hedefler diskte var · menü ve drawer'da DadaMutfak kalmadı
 - [ ] Her sekmenin belgedeki alt İÇERİK listesi (Bugün'e §9 günlük durum kartı dahil) — sayfa gövdeleri
-- [ ] **Aşama notu:** Hesabım'daki üç kalem (Bağlı Uygulamalar · Üyelik/Ödeme/Fatura · Destek Talepleri)
-      henüz var olmayan Faz 5 sayfalarına ait. Kabuk hesap menüsü 47 sayfada basıldığı için şimdilik
-      var olan en yakın sahibe bağlı; sayfalar üretilince **yalnız href'ler** değişecek.
+- [x] **Aşama notu KAPANDI.** Hesabım'daki üç kalem (Bağlı Uygulamalar · Üyelik/Ödeme/Fatura ·
+      Destek Talepleri) geçici olarak var olan en yakın sahibine bağlıydı. Faz 5 sayfaları
+      üretildi ve söz verildiği gibi **yalnız href'ler** değişti:
+      `bagli-uygulamalar-v1.html` · `uyelik-faturalandirma-v1.html#paket|#odeme-gecmisi|#faturalar`
+      · `destek-talepleri-v1.html`
+- [x] **Ölçüm (Faz 3 sonrası, giriş yapılmış halde):** kabuktaki 125 yerel bağlantı,
+      52 benzersiz hedef → **kırık link 0, kırık çapa 0.**
+      Bu tarama sırasında **eski bir kusur** da yakalandı: hesap menüsündeki
+      "Verilerimi İndir" `fit-planim-veri-izin-v1.html#indir`'e gidiyordu ama o çapa
+      sayfada YOKTU — bağlantı sessizce sayfa başına düşüyordu. Çapa eklendi.
 
 ---
 

@@ -854,30 +854,55 @@ function items(){
     return n.offsetWidth > 0 || n.offsetHeight > 0 || n === document.activeElement;
   });
 }
-  /* Odağı içeri al — AMA BİR KARE SONRA.
-     Katmanlar sınıf ekleyerek açılıyor (.show / .open) ve o anda öğe henüz
-     boyanmamış oluyor; aynı tick'te .focus() çağrısı tarayıcı tarafından yok
-     sayılıyor. ÖLÇÜM: görüş modalında odak açan sekmede (#fbTab) kalıyordu,
-     giriş kapısında <body>'ye düşüyordu — drawer'da ise çalışıyordu, yani
-     hata katmanın geçiş biçimine bağlıydı. requestAnimationFrame ile bir kare
-     beklenip liste YENİDEN sorgulanıyor (geçiş sırasında odaklanabilir öğe
-     kümesi değişebilir); ilk deneme tutmazsa bir kare daha denenir. */
-  function focusIn(){
+  /* Odağı içeri al — AMA GERÇEKTEN GÖRÜNÜR OLDUĞUNDA.
+     Katmanlar sınıf ekleyerek açılıyor (.show / .open) ve CSS geçişi bitene
+     kadar öğe odaklanamaz durumda: `.fb-modal` `visibility:hidden` +
+     `transition: … visibility .25s` ile açılıyor, `visibility:hidden` bir
+     öğede `.focus()` SESSİZCE NO-OP'tur.
+
+     ÖLÇÜM (görüş modalı, 6 koşu × 12 kare örneklendi):
+       kare 0 → visibility:hidden · checkVisibility()=false · activeElement=BODY
+       kare 1 → visibility:visible · opacity≈0.09  · odak fbClose'a oturuyor
+     Yani odaklanabilirlik ilk karede DEĞİL, ikinci karede geliyor. Eski kod
+     tek bir yedek rAF deneme yapıyordu; kare bütçesi bir kare bile kayınca
+     (gerçek fare tıklaması, yavaş boyama, GC) ikinci deneme de görünmezliğe
+     denk gelip odak açan düğmede kalıyordu → süit 6 koşuda 3 kez düşüyordu.
+
+     Çözüm: tek atış yerine SINIRLI KARE YOKLAMASI. Her karede önce öğenin
+     gerçekten görünür olup olmadığına bakılır (checkVisibility varsa o,
+     yoksa computed visibility + kutu ölçüsü); görünürse odak denenir.
+     Odak içeri girene kadar en fazla MAX_FRAMES kare denenir — .25s'lik geçiş
+     60fps'te ~15 kare, 20 kare üst sınır bunu güvenle kapsar ve sonsuz döngü
+     riski yoktur. Odak içeri girer girmez yoklama durur, böylece kullanıcı
+     modal içinde başka bir öğeye geçtiyse geri çekilmez. */
+  var MAX_FRAMES = 20;
+  function visible(n){
+    if(!n) return false;
+    if(typeof n.checkVisibility === 'function'){
+      return n.checkVisibility({ visibilityProperty:true, contentVisibilityAuto:true });
+    }
+    var cs = window.getComputedStyle(n);
+    if(cs.visibility === 'hidden' || cs.display === 'none') return false;
+    return n.offsetWidth > 0 || n.offsetHeight > 0 || n.getClientRects().length > 0;
+  }
+  function focusIn(tries){
     if(!document.contains(el)) return;
-    var list = items();
-    if(list.length){ list[0].focus(); }
-    else { el.setAttribute('tabindex','-1'); el.focus(); }
-    if(!el.contains(document.activeElement)){
-      requestAnimationFrame(function(){
-        if(!document.contains(el)) return;
-        var l2 = items();
-        if(l2.length){ l2[0].focus(); }
-        else { el.setAttribute('tabindex','-1'); el.focus(); }
-      });
+    if(el.contains(document.activeElement)) return;   /* zaten içeride */
+    if(visible(el)){
+      var list = items();
+      if(list.length){ list[0].focus(); }
+      else { el.setAttribute('tabindex','-1'); el.focus(); }
+      if(el.contains(document.activeElement)) return; /* oturdu */
+    }
+    if(tries >= MAX_FRAMES) return;                   /* üst sınır: pes et */
+    if(typeof requestAnimationFrame === 'function'){
+      requestAnimationFrame(function(){ focusIn(tries + 1); });
+    } else {
+      setTimeout(function(){ focusIn(tries + 1); }, 16);
     }
   }
-  if(typeof requestAnimationFrame === 'function') requestAnimationFrame(focusIn);
-  else setTimeout(focusIn, 0);
+  if(typeof requestAnimationFrame === 'function') requestAnimationFrame(function(){ focusIn(0); });
+  else setTimeout(function(){ focusIn(0); }, 0);
   /* Sayfa YÜKLENİRKEN açılan katman (ör. ?lg=1 giriş kapısı) için ek deneme:
      kabuk script'i parse edilirken open() çağrılıyor, rAF 'load' tamamlanmadan
      çalışıyor ve tarayıcı load sonrası odağı <body>'ye geri alıyor.
@@ -886,7 +911,7 @@ function items(){
   if(document.readyState !== 'complete'){
     window.addEventListener('load', function once(){
       window.removeEventListener('load', once);
-      if(document.contains(el) && !el.contains(document.activeElement)) focusIn();
+      if(document.contains(el) && !el.contains(document.activeElement)) focusIn(0);
     });
   }
 

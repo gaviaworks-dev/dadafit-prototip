@@ -821,12 +821,98 @@ function unlockScroll(){
     if(!a.hasAttribute('target')){ a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
     n++;
   });
-  window.FIT_SHELL = window.FIT_SHELL || {};
+
+window.FIT_SHELL = window.FIT_SHELL || {};
   window.FIT_SHELL.ecoLinks = n;      /* ölçüm/rapor için: kaç bağlantı yazıldı */
 })();
 
+/* ============================================================
+ ODAK TUZAĞI — belge §20
+ ------------------------------------------------------------
+ Belge üç şey istiyor:
+ · "Modal açıldığında focus modal içine taşınmalıdır"
+ · "Modal kapandığında focus önceki öğeye dönmelidir"
+ · "Escape tuşuyla modal kapatılabilmelidir"
+ Escape zaten her katmanda vardı; ilk ikisi HİÇBİR katmanda yoktu — modal
+ açıkken Tab'lamak kullanıcıyı arkadaki sayfaya götürüyor, kapanınca odak
+ <body>'ye düşüyordu (klavye kullanıcısı yerini kaybediyor).
+
+ Katman başına ayrı kod yazmak yerine tek yardımcı: trapFocus(el) odağı
+ içeri alır, Tab/Shift+Tab'ı döngüye sokar ve geri döndürme işini üstlenir;
+ döndürdüğü fonksiyon çağrılınca odak açan öğeye geri gider.
+ Kaydırma kilidiyle aynı desen: SAYAÇ YOK, çünkü her katman kendi
+ release'ini tutuyor ve aç/kapa durum korumalı.
+ ============================================================ */
+function trapFocus(el){
+if(!el) return function(){};
+var SEL = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),'+
+          'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+var prev = document.activeElement;
+function items(){
+  return Array.prototype.filter.call(el.querySelectorAll(SEL), function(n){
+    /* görünmeyen öğe odak sırasına girmez */
+    return n.offsetWidth > 0 || n.offsetHeight > 0 || n === document.activeElement;
+  });
+}
+  /* Odağı içeri al — AMA BİR KARE SONRA.
+     Katmanlar sınıf ekleyerek açılıyor (.show / .open) ve o anda öğe henüz
+     boyanmamış oluyor; aynı tick'te .focus() çağrısı tarayıcı tarafından yok
+     sayılıyor. ÖLÇÜM: görüş modalında odak açan sekmede (#fbTab) kalıyordu,
+     giriş kapısında <body>'ye düşüyordu — drawer'da ise çalışıyordu, yani
+     hata katmanın geçiş biçimine bağlıydı. requestAnimationFrame ile bir kare
+     beklenip liste YENİDEN sorgulanıyor (geçiş sırasında odaklanabilir öğe
+     kümesi değişebilir); ilk deneme tutmazsa bir kare daha denenir. */
+  function focusIn(){
+    if(!document.contains(el)) return;
+    var list = items();
+    if(list.length){ list[0].focus(); }
+    else { el.setAttribute('tabindex','-1'); el.focus(); }
+    if(!el.contains(document.activeElement)){
+      requestAnimationFrame(function(){
+        if(!document.contains(el)) return;
+        var l2 = items();
+        if(l2.length){ l2[0].focus(); }
+        else { el.setAttribute('tabindex','-1'); el.focus(); }
+      });
+    }
+  }
+  if(typeof requestAnimationFrame === 'function') requestAnimationFrame(focusIn);
+  else setTimeout(focusIn, 0);
+  /* Sayfa YÜKLENİRKEN açılan katman (ör. ?lg=1 giriş kapısı) için ek deneme:
+     kabuk script'i parse edilirken open() çağrılıyor, rAF 'load' tamamlanmadan
+     çalışıyor ve tarayıcı load sonrası odağı <body>'ye geri alıyor.
+     ÖLÇÜM: ?lg=1 ile açılan kapıda odak "scroll-locked" (yani body) kalıyordu,
+     aynı katmana elle trapFocus çağrıldığında lgClose'a oturuyordu. */
+  if(document.readyState !== 'complete'){
+    window.addEventListener('load', function once(){
+      window.removeEventListener('load', once);
+      if(document.contains(el) && !el.contains(document.activeElement)) focusIn();
+    });
+  }
+
+function onKey(e){
+  if(e.key !== 'Tab') return;
+  var cur = items();
+  if(!cur.length) return;
+  var first = cur[0], last = cur[cur.length - 1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  else if(!el.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+}
+document.addEventListener('keydown', onKey, true);
+
+return function release(){
+  document.removeEventListener('keydown', onKey, true);
+  /* odak açan öğeye döner — hâlâ DOM'da ve odaklanabilirse */
+  if(prev && document.contains(prev) && typeof prev.focus === 'function'){
+    try{ prev.focus(); }catch(e){}
+  }
+};
+}
+
 window.FIT_SHELL = window.FIT_SHELL || {};
 window.FIT_SHELL.eco = ECO;
+window.FIT_SHELL.trapFocus = trapFocus;
 window.FIT_SHELL.lockScroll = lockScroll;
 window.FIT_SHELL.unlockScroll = unlockScroll;
 
@@ -1054,18 +1140,21 @@ document.addEventListener('click',function(e){
   var gate=document.getElementById('lgGate');
   var overlay=document.getElementById('lgOverlay');
   if(!gate)return;
+  var _lgRelease = null;                         /* §20 odak tuzağı */
   function open(title,desc){
     if(document.body.classList.contains('is-auth'))return false;   // logged-in: kapı yok
     if(gate.classList.contains('show'))return true;                // zaten açık — kilidi ikinci kez sayma
     if(title)document.getElementById('lgTitle').textContent=title;
     if(desc)document.getElementById('lgDesc').textContent=desc;
     gate.classList.add('show');overlay.classList.add('show');lockScroll();
+    _lgRelease = trapFocus(gate);                /* §20 */
     return true;
   }
   /* durum korumalı: kapalıyken çağrılan close() başka bir katmanın kilidini düşürmez */
   function close(){
     if(!gate.classList.contains('show'))return;
     gate.classList.remove('show');overlay.classList.remove('show');unlockScroll();
+    if(_lgRelease){ _lgRelease(); _lgRelease = null; }   /* §20 */
   }
   window.__lgGate=open;window.__lgGateClose=close;
   document.getElementById('lgClose').addEventListener('click',close);
@@ -1113,13 +1202,16 @@ document.addEventListener('click',function(e){
   var burger=document.getElementById('hamburger');
   var closeBtn=document.getElementById('drawerClose');
   /* durum korumalı aç/kapa — kilit sayacı yalnız gerçek geçişte hareket eder */
+  var releaseFocus = null;                      /* §20 odak tuzağı bırakma işi */
   function open(){
     if(drawer.classList.contains('open'))return;
     drawer.classList.add('open');overlay.classList.add('open');lockScroll();
+    releaseFocus = trapFocus(drawer);            /* odak drawer'ın içine */
   }
   function close(){
     if(!drawer.classList.contains('open'))return;
     drawer.classList.remove('open');overlay.classList.remove('open');unlockScroll();
+    if(releaseFocus){ releaseFocus(); releaseFocus = null; }   /* odak hamburgere geri */
   }
   burger.addEventListener('click',open);
   closeBtn.addEventListener('click',close);
@@ -1222,13 +1314,16 @@ document.addEventListener('click',function(e){
   if(!tab||!modal)return;
   var form=document.getElementById('fbForm');
   var success=document.getElementById('fbSuccess');
+  var releaseFocus = null;                      /* §20 */
   function open(){
     if(modal.classList.contains('show'))return;
     modal.classList.add('show');overlay.classList.add('show');lockScroll();
+    releaseFocus = trapFocus(modal);
   }
   function close(){
     if(!modal.classList.contains('show'))return;
     modal.classList.remove('show');overlay.classList.remove('show');unlockScroll();
+    if(releaseFocus){ releaseFocus(); releaseFocus = null; }
     setTimeout(function(){form.hidden=false;success.hidden=true;form.reset();},300);
   }
   tab.addEventListener('click',function(e){e.preventDefault();open();});

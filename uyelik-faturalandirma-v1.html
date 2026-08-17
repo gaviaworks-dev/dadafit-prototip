@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Üyelik ve Faturalandırma — paketin, tarihler, ödeme ve faturalar | DadaFit</title>
+<meta name="description" content="DadaFit üyeliğini tek ekrandan yönet: aktif paketin, başlangıç, bitiş ve yenileme tarihleri, ödeme geçmişin, faturaların, paket değiştirme ve abonelik iptali." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (TEK KAYNAK — token, header, footer, kart/çip/banner kitleri) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — ÜYELİK VE FATURALANDIRMA (belge §15)
+ ---------------------------------------------------------------------
+ Kabuktan gelen ve BURADA TEKRARLANMAYAN her şey: token'lar, .wrap,
+ .btn/.btn-primary/.btn-ghost, .lib-top banner + .lib-crumb, .lib-stats,
+ .eyebrow, .sec-head, .demo-tag, .sr-only, .pf-tabbar/.pf-tabs/.dt bölüm
+ rayı, .df-fchip + .fgroup filtre çipi, .lib-empty boş durum,
+ @keyframes fadeUp.
+
+ Buradaki kitler hesabim-v1.html'in hesap alanı kanonundan BİREBİR alındı
+ (form-card/fc-head · fk-* · set-row/tgl · hs-facts · hs-pill · sub-tier-* ·
+ sub-inv-* · hs-warn/hs-check/hs-gate/hs-state · btn-warn · ntf-foot ·
+ hs-demo). Bu kitlerin hiçbiri fit-shell.css'te YOK — altı sayfa aynı
+ kuralları kendi <style>'ında taşıyor. Kural kabuğa taşınmalı; raporlandı.
+
+ Sayfaya ÖZGÜ olanlar: .cmp-* karşılaştırma tablosu (dar ekranda satır
+ satır kartlara AÇILIR, yatay kaydırma yok) ve .um-* onay penceresi.
+ ===================================================================== */
+
+/* .btn-fit kopyası BİLİNÇLİ OLARAK YOK: kural bu oturumda fit-shell.css'e
+ taşındı (kabuğun kendi Pro kapısı markup'ı `.btn btn-fit` basıyor).
+ Sayfaya kopyalamak tek kaynağı yeniden bölerdi. */
+
+/* ---- YIKICI İŞLEM RENGİ (§20) --------------------------------------
+ Kabuktaki --tomato DadaFit yeşilidir; "iptal et / paketi düşür" yeşille
+ uyarılamaz. hesabim-v1'de ölçülen kontrast değerleri (beyaz zeminde):
+ #b3261e = 6.57:1 · #8a4b00 = 6.80:1 — ikisi de WCAG AA (4.5:1) üstünde.
+ Renk TEK BAŞINA bilgi taşımaz: her yıkıcı bölümde ikon + "Uyarı:" metni +
+ onay adımı + role="status" durum satırı var. */
+:root{
+  --hs-danger:#b3261e; --hs-danger-tint:#fdecea; --hs-danger-line:rgba(179,38,30,.34);
+  --hs-warn:#8a4b00; --hs-warn-tint:#fdf3e4; --hs-warn-line:rgba(138,75,0,.30);
+}
+
+/* [hidden] BAYRAĞI KAZANSIN — bu sayfada gizlenen düğümlerin bir kısmı
+ (.um-facts, .um-warn) display:flex taşıyor; sınıf kuralı UA'nın
+ display:none'ını yener ve `el.hidden = true` sessizce etkisiz kalırdı. */
+[hidden]{display:none !important}
+
+/* ---- banner: eyebrow + demo ibaresi aynı satırda (§22) ---- */
+.uf-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lib-top .demo-tag{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24);color:#fff}
+
+/* ---- sayfa gövdesi ---- */
+.uf-body{background:var(--bg-cream);padding:0 0 74px}
+.uf-col{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+
+/* Bölüm = çapa hedefi. Sabit header payını KABUK veriyor
+ (html{scroll-padding-top:112px}); burada yalnız sticky bölüm rayının payı
+ var. İkisini birden eklemek 112px fazladan boşluk üretiyor (hesabim-v1'de
+ ölçüldü). Ray sarabildiği için değer sabit değil — sayfa JS'i ölçüp yazar;
+ 128px JS'ten önceki ilk boyamanın güvenli tabanı. */
+.uf-sec{scroll-margin-top:var(--uf-anchor-pad,128px)}
+
+/* ---- demo ibaresi (§22) ---- */
+.hs-demo{display:flex;align-items:flex-start;gap:10px;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;font-weight:500;color:var(--slate-2);line-height:1.5}
+.hs-demo i{flex:none;color:var(--slate-2);font-size:12px;margin-top:3px}
+
+/* ---- kart kabuğu + başlık ---- */
+.form-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:28px}
+.fc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.fc-head>div:first-child{min-width:0}
+.fc-head h2{font-size:20px;display:flex;align-items:center;gap:11px}
+.fc-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--tomato-tint);color:var(--tomato-dark);display:grid;place-items:center;font-size:15px}
+.fc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:5px}
+.fc-step{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:6px 11px;border-radius:var(--radius-sm);white-space:nowrap}
+
+/* ---- form kiti (fk-* kanonu) ---- */
+.fk-field{margin-bottom:22px}
+.fk-field:last-child{margin-bottom:0}
+.fk-label{display:flex;align-items:baseline;gap:7px;font-size:14px;font-weight:700;color:var(--slate);margin-bottom:9px}
+.fk-label .req{color:var(--hs-danger);font-weight:700}
+.fk-label .opt{font-size:11.5px;color:var(--muted);font-weight:500}
+.fk-input,.fk-select,.fk-textarea{width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 15px;outline:none;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.fk-textarea{min-height:88px;resize:vertical;line-height:1.6}
+.fk-input:focus,.fk-select:focus,.fk-textarea:focus{border-color:var(--tomato);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
+.fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
+.fk-help i{color:var(--tomato-dark);font-size:12px;margin-top:2px;flex:none}
+/* hata: renk YALNIZ destekleyici — ikon + metin + aria-invalid taşır (§20) */
+.fk-err{display:none;align-items:flex-start;gap:8px;margin-top:9px;font-size:12.5px;font-weight:700;color:var(--hs-danger);line-height:1.5}
+.fk-err i{flex:none;font-size:12px;margin-top:2px}
+.is-err .fk-err{display:flex}
+.is-err .fk-select,.is-err .fk-input{border-color:var(--hs-danger);background:var(--hs-danger-tint)}
+
+/* ---- §15 alan ızgarası: aktif paket · başlangıç · bitiş · yenileme ---- */
+.hs-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden}
+.hs-facts div{background:var(--paper);padding:14px 16px;min-width:0}
+.hs-facts dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hs-facts dd{font-size:14.5px;font-weight:700;color:var(--slate);margin-top:5px;letter-spacing:-.01em;line-height:1.35}
+.hs-facts dd small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:3px;letter-spacing:0}
+
+.hs-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;padding:3px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.hs-pill.on{color:var(--tomato-dark);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24)}
+.hs-pill.off{color:var(--slate-2);background:var(--bg);border:1px solid var(--line)}
+.hs-pill.due{color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+
+/* ---- aktif paket kartı ---- */
+.sub-tier-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.sub-tier-top{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.sub-tier-badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,var(--tomato),var(--tomato-deep));padding:6px 13px;border-radius:var(--radius-pill)}
+.sub-tier-info{flex:1;min-width:0}
+.sub-tier-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:15.5px;color:var(--slate);font-weight:700}
+.sub-renew{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:6px;line-height:1.45}
+.sub-renew i{color:var(--tomato-dark);font-size:11px;flex:none}
+.sub-tier-price{flex:none;text-align:right}
+.sub-tier-price b{font-size:22px;color:var(--slate);font-weight:800;letter-spacing:-.03em;display:block}
+.sub-tier-price span{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.sub-tier-body{padding:18px 20px;border-bottom:1px solid var(--line)}
+.sub-tier-feats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sub-tier-feats span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:7px 12px;border-radius:var(--radius-sm)}
+.sub-tier-feats span i{color:var(--tomato-dark);font-size:11px;flex:none}
+.sub-tier-acts{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-wrap:wrap}
+.sub-tier-acts .btn{padding:12px 20px;font-size:13.5px}
+
+/* fiyat tek-kaynak bekleyen uyarı — demo/gerçek ayrımı (§22) */
+.price-flag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--tomato-dark);background:rgba(0,157,79,.09);border:1px solid rgba(0,157,79,.25);border-radius:4px;padding:2px 7px;letter-spacing:.01em}
+.price-flag i{font-size:10px}
+
+/* ---- planlanan değişiklik şeridi (paket düşürme dönem sonunda geçerli) ---- */
+.uf-planned{display:none;align-items:flex-start;gap:11px;margin-top:18px;padding:14px 16px;border-radius:var(--radius-md);font-size:13.5px;font-weight:500;line-height:1.55;color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+.uf-planned.show{display:flex;animation:fadeUp .3s var(--ease)}
+.uf-planned>i{flex:none;font-size:15px;margin-top:2px}
+.uf-planned .up-body{flex:1;min-width:0}
+.uf-planned b{font-weight:800;display:block;margin-bottom:2px}
+.uf-planned .uys-manage{margin-top:10px}
+
+/* ---- tercih satırı + anahtar ---- */
+.set-list{display:flex;flex-direction:column;margin-top:20px;border-top:1px solid var(--line)}
+.set-row{display:flex;align-items:center;gap:16px;padding:17px 2px}
+.set-row+.set-row{border-top:1px solid var(--line)}
+.set-row .sr-ico{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--bg);color:var(--slate-2);display:grid;place-items:center;font-size:15px}
+.set-row .sr-txt{flex:1;min-width:0}
+.set-row .sr-txt b{display:block;font-size:14px;color:var(--slate)}
+.set-row .sr-txt span{display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.45}
+.set-row .sr-txt a{color:var(--tomato-dark);font-weight:700}
+.tgl{position:relative;display:inline-flex;flex:none;cursor:pointer}
+.tgl input{position:absolute;opacity:0;pointer-events:none}
+.tgl .tk{width:46px;height:26px;border-radius:var(--radius-md);background:#cfcac1;transition:background .2s var(--ease);position:relative}
+.tgl .tk::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:var(--radius-circle);background:#fff;box-shadow:0 1px 4px rgba(33,30,22,.25);transition:transform .2s var(--ease)}
+.tgl input:checked+.tk{background:var(--tomato)}
+.tgl input:checked+.tk::after{transform:translateX(20px)}
+.tgl input:focus-visible+.tk{box-shadow:0 0 0 3px rgba(0,157,79,.22)}
+.tgl input:disabled+.tk{opacity:.5;cursor:not-allowed}
+
+/* ---- kart altı bilgi şeridi ---- */
+.ntf-foot{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.ntf-foot i{color:var(--tomato-dark);font-size:12px;margin-top:3px;flex:none}
+.ntf-foot a{color:var(--tomato-dark);font-weight:700}
+.ntf-foot a:hover{text-decoration:underline;text-underline-offset:2px}
+
+/* =====================================================================
+ KARŞILAŞTIRMA TABLOSU (belge §15: "paket içerikleri karşılaştırma
+ tablosunda açıkça gösterilmelidir")
+ ---------------------------------------------------------------------
+ Dar ekran kararı: kardeş sayfa pro-v1 tabloyu min-width:560px'lik yatay
+ kaydırma kutusuna koyuyor. Bu sayfada AYNI yol seçilmedi — 360px'te dört
+ kolonluk bir rayı yana kaydırarak okumak, üyeliğini yönetmeye gelen
+ kullanıcı için kabul edilebilir değil. Tablo ≤620px'te satır satır
+ KARTA açılır: özellik adı başlık olur, üç paket değeri kendi etiketiyle
+ (::before, data-p) yan yana dizilir. Yatay kaydırma yok, taşma yok.
+ Tablo semantiği display:block ile düşmesin diye roller AÇIKÇA yazıldı
+ (role="table/rowgroup/row/columnheader/rowheader/cell").
+ ===================================================================== */
+.cmp-wrap{border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--paper)}
+.cmp-table{width:100%;border-collapse:collapse;background:var(--paper)}
+.cmp-table th,.cmp-table td{padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line);vertical-align:middle}
+.cmp-table thead th{font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--slate);background:#fafbf9;text-align:center}
+.cmp-table thead th:first-child{text-align:left;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.cmp-table thead th .ch-name{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cmp-table thead th .ch-name i{font-size:14px;color:var(--tomato-dark)}
+.cmp-table thead th .ch-price{font-size:11.5px;font-weight:600;color:var(--muted)}
+.cmp-table tbody td{text-align:center;color:var(--slate-2);font-weight:700}
+.cmp-table tbody th[scope="row"]{text-align:left;font-weight:500;color:var(--slate);font-size:13.5px}
+.cmp-table tbody tr:last-child th,.cmp-table tbody tr:last-child td{border-bottom:0}
+.cmp-table .yes{color:var(--fit-deep)}
+.cmp-table .nope{color:#c4c4c4}
+.cmp-group th{background:var(--bg);text-align:left;font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--slate);padding:11px 14px}
+.cmp-price td,.cmp-price th[scope="row"]{font-weight:800;color:var(--slate);font-size:15px}
+.cmp-price .price-flag{font-size:10px;margin-top:5px}
+/* mevcut paket kolonu — renk TEK BAŞINA anlatmıyor, başlıkta "Mevcut paketin" rozeti var */
+.cmp-cur-pill{display:none;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tomato-dark);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24);border-radius:4px;padding:2px 7px}
+.cmp-table[data-cur="t0"] .c-t0 .cmp-cur-pill,
+.cmp-table[data-cur="t2"] .c-t2 .cmp-cur-pill,
+.cmp-table[data-cur="t3"] .c-t3 .cmp-cur-pill{display:inline-block}
+.cmp-table[data-cur="t0"] td.c-t0,.cmp-table[data-cur="t0"] thead th.c-t0,
+.cmp-table[data-cur="t2"] td.c-t2,.cmp-table[data-cur="t2"] thead th.c-t2,
+.cmp-table[data-cur="t3"] td.c-t3,.cmp-table[data-cur="t3"] thead th.c-t3{background:rgba(0,157,79,.06)}
+/* paket seçim satırı */
+.cmp-act th[scope="row"]{font-weight:700;color:var(--slate)}
+.cmp-act td{padding:14px}
+.cmp-act .btn{width:100%;padding:11px 12px;font-size:12.5px;justify-content:center}
+.cmp-act .cmp-here{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--tomato-dark);line-height:1.4}
+.cmp-note{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:14px}
+.cmp-note i{flex:none;color:var(--tomato-dark);font-size:12px;margin-top:3px}
+
+/* =====================================================================
+ ÖDEME GEÇMİŞİ + FATURALAR LİSTESİ
+ ===================================================================== */
+.uf-filter{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.uf-filter .ff-lbl{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.uf-count{font-size:12.5px;color:var(--muted);font-weight:600;margin:0 0 12px}
+.sub-inv-list{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.sub-inv-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.sub-inv-row:last-child{border-bottom:none}
+.sub-inv-row.head{background:var(--bg);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2)}
+.sub-inv-row.hide{display:none}
+.sub-inv-date{flex:none;color:var(--slate-2);font-weight:600;font-size:12.5px;width:104px}
+.sub-inv-desc{flex:1;min-width:0;color:var(--slate);font-weight:500}
+.sub-inv-desc small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+.sub-inv-amt{flex:none;font-weight:800;color:var(--slate);width:96px;text-align:right}
+.sub-inv-st{flex:none;width:108px;display:flex;justify-content:flex-end}
+.sub-inv-dl{flex:none;font-family:inherit;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--tomato-dark);background:var(--paper);padding:8px 13px;border:1px solid rgba(0,157,79,.30);border-radius:var(--radius-sm);cursor:pointer;transition:.18s var(--ease)}
+.sub-inv-dl:hover{background:var(--tomato-tint)}
+.sub-inv-dl:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+.uys-manage{font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:9px 16px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.uys-manage:hover{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
+.uys-manage:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+
+/* fatura bilgileri özeti — form hesabim-v1'de yaşıyor, burada mükerrer kurulmaz */
+.uf-binfo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin-top:8px}
+.uf-binfo div{background:var(--paper);padding:13px 15px;min-width:0}
+.uf-binfo dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.uf-binfo dd{font-size:13.5px;font-weight:600;color:var(--slate);margin-top:4px;line-height:1.45;word-break:break-word}
+
+/* =====================================================================
+ İPTAL BÖLÜMÜ — onay kapısı (§20)
+ ===================================================================== */
+.hs-warn{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;font-weight:500;line-height:1.55;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:18px;color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+.hs-warn i{flex:none;font-size:15px;margin-top:2px}
+.hs-warn b{font-weight:800}
+.hs-check{display:flex;align-items:flex-start;gap:11px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--slate);line-height:1.5;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px}
+.hs-check input{flex:none;width:19px;height:19px;margin-top:1px;accent-color:var(--hs-danger);cursor:pointer}
+.hs-check:hover{border-color:#d6d0c6}
+.hs-gate{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.hs-gate-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hs-state{flex:1;min-width:200px;display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.5}
+.hs-state i{flex:none;margin-top:3px;font-size:11.5px}
+.hs-state.blocked{color:var(--hs-warn)}
+.hs-state.done{color:var(--tomato-dark)}
+.btn-warn{background:var(--paper);color:var(--hs-warn);border:1px solid var(--hs-warn-line)}
+.btn-warn:hover{border-color:var(--hs-warn);background:var(--hs-warn-tint);transform:translateY(-2px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+/* iptal sonrası: geri alma şeridi */
+.uf-cancelled{display:none;align-items:flex-start;gap:11px;padding:14px 16px;border-radius:var(--radius-md);font-size:13.5px;font-weight:500;line-height:1.55;color:var(--hs-danger);background:var(--hs-danger-tint);border:1px solid var(--hs-danger-line)}
+.uf-cancelled.show{display:flex;animation:fadeUp .3s var(--ease)}
+.uf-cancelled>i{flex:none;font-size:15px;margin-top:2px}
+.uf-cancelled .uc-body{flex:1;min-width:0}
+.uf-cancelled b{font-weight:800;display:block;margin-bottom:2px}
+.uf-cancelled .uys-manage{margin-top:10px}
+.is-cancelled .uf-gate-wrap{display:none}
+
+/* ---- yardım kartları (çıkmaz sokak kırıcı) ---- */
+.uf-help{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.uf-help a{display:flex;flex-direction:column;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--sh-sm);transition:.2s var(--ease)}
+.uf-help a:hover{transform:translateY(-4px);box-shadow:var(--sh-md);border-color:var(--fit-line)}
+.uf-help a>i{width:38px;height:38px;border-radius:var(--radius-md);background:var(--tomato-tint);color:var(--tomato-dark);display:grid;place-items:center;font-size:15px;margin-bottom:4px}
+.uf-help b{font-size:14.5px;color:var(--slate)}
+.uf-help p{font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.5;margin:0}
+
+/* =====================================================================
+ ONAY PENCERESİ (.um-*) — paket değiştirme ve abonelik iptali
+ ---------------------------------------------------------------------
+ Gizleme YÖNTEMİ bilinçli: [hidden] → display:none. Kabuğun modal'ları
+ visibility:hidden + geçiş kullanıyor ve HANDOFF §4.1'de ölçülen kusur tam
+ buradan çıkıyor (öğe henüz görünmezken .focus() sessizce düşüyor).
+ display:none'dan çıkan öğe aynı görevde odaklanabilir → trapFocus
+ doğrudan, rAF beklemeden çağrılabiliyor.
+ ===================================================================== */
+.um-overlay{position:fixed;inset:0;background:rgba(20,24,21,.55);z-index:1200;animation:fadeUp .2s var(--ease)}
+.um-modal{position:fixed;inset:0;z-index:1201;align-items:center;justify-content:center;padding:20px}
+.um-modal:not([hidden]){display:flex}
+.um-panel{width:100%;max-width:520px;max-height:88vh;overflow-y:auto;background:var(--paper);border-radius:var(--radius-lg);box-shadow:var(--sh-lg,0 24px 60px rgba(20,24,21,.28));animation:fadeUp .25s var(--ease)}
+.um-head{display:flex;align-items:flex-start;gap:14px;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.um-head h2{flex:1;min-width:0;font-size:19px;color:var(--slate);line-height:1.3}
+.um-x{flex:none;width:36px;height:36px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate-2);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.18s var(--ease)}
+.um-x:hover{background:var(--bg);color:var(--slate)}
+.um-x:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+.um-body{padding:20px 22px}
+.um-body>p{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.65;margin:0 0 16px}
+.um-facts{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px}
+.um-facts .umf{display:flex;align-items:baseline;justify-content:space-between;gap:14px;background:var(--paper);padding:12px 14px}
+.um-facts .umf span{font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.um-facts .umf b{font-size:14px;color:var(--slate);text-align:right}
+.um-warn{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;font-weight:600;line-height:1.55;border-radius:var(--radius-md);padding:12px 14px;color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line);margin-bottom:16px}
+.um-warn i{flex:none;font-size:13px;margin-top:2px}
+.um-acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:0 22px 22px}
+.um-acts .btn{padding:12px 20px;font-size:13.5px}
+
+/* ===================== TABLET (≤1024px) ===================== */
+@media (max-width:1024px){
+  .hs-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .uf-help{grid-template-columns:1fr}
+}
+
+/* ===================== KARŞILAŞTIRMA TABLOSU: SATIR → KART (≤620px) ===== */
+@media (max-width:620px){
+  .cmp-wrap{border:0;background:transparent;overflow:visible}
+  .cmp-table,.cmp-table tbody,.cmp-table tr,.cmp-table th,.cmp-table td{display:block}
+  .cmp-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .cmp-table tbody tr{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:10px;padding:12px 14px}
+  .cmp-table tbody tr:last-child{margin-bottom:0}
+  .cmp-table tbody th[scope="row"]{border:0;padding:0 0 10px;font-weight:700;font-size:13.5px}
+  .cmp-table tbody td{border:0;padding:0;text-align:left;font-size:13px;
+    display:flex;flex-direction:column;gap:3px}
+  .cmp-table tbody td::before{content:attr(data-p);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  /* üç paket değeri yan yana — 360px'te bile üç kolon sığar */
+  .cmp-table tbody tr:not(.cmp-group):not(.cmp-act){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .cmp-table tbody tr:not(.cmp-group):not(.cmp-act) th[scope="row"]{grid-column:1/-1}
+  .cmp-table tbody tr.cmp-group{background:var(--bg);border-color:var(--line);padding:10px 14px;margin-bottom:10px}
+  .cmp-table tbody tr.cmp-group th{padding:0;background:transparent;text-transform:uppercase}
+  .cmp-table tbody tr.cmp-act{display:flex;flex-direction:column;gap:10px}
+  .cmp-table tbody tr.cmp-act th[scope="row"]{padding:0}
+  .cmp-table[data-cur="t0"] td.c-t0,
+  .cmp-table[data-cur="t2"] td.c-t2,
+  .cmp-table[data-cur="t3"] td.c-t3{background:rgba(0,157,79,.06);border-radius:var(--radius-sm);padding:6px 8px;margin:-6px -8px}
+}
+
+/* ===================== MOBİL (≤640px) ===================== */
+@media (max-width:640px){
+  /* YASLAMA İSTİSNASI (dar ekran) — hesabim-v1'de ölçülen aynı durum:
+     fit-type.css `p`yi yaslıyor, dar kutu istisnası 20rem=320px'lik
+     container-query'ye bağlı ve bu kartlar 324px kalıyor (eşiğin 4px
+     üstünde) → istisna hiç açılmıyor, kelime araları 4–8 katına çıkıyor.
+     Özgüllük (0,1,1) fit-type.css'in (0,0,1) kuralını yener; YÜKLEME
+     SIRASINA DOKUNULMADI, fit-type.css hâlâ en sonda. */
+  .fc-head p,.hs-warn,.hs-warn>span,.um-body>p,.uf-planned .up-body,.uf-cancelled .uc-body{text-align:left;text-align-last:auto}
+
+  .uf-body{padding-bottom:56px}
+  .uf-col{gap:18px}
+  .form-card{padding:20px 16px}
+  .fc-head{flex-direction:column;gap:10px;margin-bottom:18px;padding-bottom:14px}
+  .hs-facts{grid-template-columns:1fr}
+  .uf-binfo{grid-template-columns:1fr}
+  .set-row{flex-wrap:wrap;gap:10px 14px}
+  .set-row .tgl{margin-left:auto}
+  .sub-tier-top{flex-wrap:wrap;gap:12px}
+  .sub-tier-price{order:3;margin-left:auto;text-align:left}
+  .sub-tier-acts{flex-direction:column;align-items:stretch}
+  .sub-tier-acts .btn{width:100%}
+  .sub-inv-row{flex-wrap:wrap;gap:8px 12px}
+  .sub-inv-row.head{display:none}
+  .sub-inv-desc{order:1;flex:1 1 100%}
+  .sub-inv-date{order:2;width:auto}
+  .sub-inv-amt{order:3;width:auto;margin-left:auto;text-align:right}
+  .sub-inv-st{order:4;flex:1 1 100%;justify-content:flex-start;width:auto}
+  .hs-gate-acts .btn{width:100%}
+  .um-modal{padding:12px}
+  .um-panel{max-height:92vh}
+  .um-acts{flex-direction:column-reverse}
+  .um-acts .btn{width:100%;justify-content:center}
+}
+</style>
+<!-- Metin yaslama katmanı (tek kaynak) — sayfa stillerinden SONRA yüklenir,
+     böylece sayfa içi text-align kuralları yaslamayı geri alamaz (HANDOFF §5) -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="uyelik-faturalandirma">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== BANNER + BREADCRUMB (kabuğun .lib-top kiti) =====
+     Banner görseli bilinçli YOK (--lib-img:none varsayılanı): kardeş
+     ekranlar pro-v1 ve pro-odeme-v1 de görselsiz; Faz 9 harici Unsplash
+     bağlantılarını üretimden kaldırmak istiyor. -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit Ana Sayfa</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hesabim-v1.html">Hesap Ayarları</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Üyelik ve Faturalandırma</span>
+    </nav>
+    <div class="uf-eyebrow">
+      <span class="eyebrow"><i class="fa-solid fa-crown"></i> Üyelik</span>
+      <span class="demo-tag"><i class="fa-solid fa-flask"></i> Demo veri · gerçek tahsilat yok</span>
+    </div>
+    <h1>Üyelik, ödeme ve faturalandırma</h1>
+    <p class="lib-sub">Aktif paketin, dönem tarihlerin, ödeme geçmişin ve faturaların tek ekranda. Paketini buradan değiştirebilir, aboneliğini iptal edebilirsin.</p>
+    <div class="lib-stats">
+      <div class="lib-stat"><b id="ufStatPaket">Pro</b><span>aktif paket</span></div>
+      <div class="lib-stat"><b id="ufStatYenile">15 Eylül 2026</b><span>yenileme tarihi</span></div>
+      <div class="lib-stat"><b>8</b><span>ödeme kaydı</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="uf-body">
+  <div class="wrap">
+
+    <!-- BÖLÜM RAYI — kabuk .pf-tabbar/.pf-tabs/.dt kiti. Sekme DEĞİL:
+         bölümler gizlenmiyor, ray yalnız atlama listesi. Böylece çapalar
+         JS olmadan da çalışır ve dışarıdan gelen derin bağlantı
+         (…#odeme-gecmisi) gizli panele düşmez. -->
+    <div class="pf-tabbar">
+      <nav class="pf-tabs" id="ufRail" aria-label="Üyelik ve faturalandırma bölümleri">
+        <a class="dt" href="#paket"><i class="fa-solid fa-crown"></i> Paketim</a>
+        <a class="dt" href="#paket-degistir"><i class="fa-solid fa-arrow-right-arrow-left"></i> Paket Değiştirme</a>
+        <a class="dt" href="#odeme-gecmisi"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişi</a>
+        <a class="dt" href="#faturalar"><i class="fa-solid fa-file-invoice"></i> Faturalar</a>
+        <a class="dt" href="#iptal"><i class="fa-solid fa-ban"></i> Abonelik İptali</a>
+      </nav>
+    </div>
+
+    <div class="uf-col">
+
+      <div class="hs-demo">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span><b>Demo veri:</b> bu prototipte gerçek bir tahsilat yapılmaz, fatura belgesi üretilmez ve paket değişikliği bir ödeme sistemine gitmez. Aşağıdaki tarih, tutar ve kayıtlar ekran akışını göstermek için konmuş örneklerdir; tutarlar <b>onay bekleyen temsilî fiyatlardır</b>.</span>
+      </div>
+
+      <!-- Sayfadaki her durum değişikliği burada da METİN olarak duyurulur —
+           renk tek başına bilgi taşımasın (§20). -->
+      <p class="hs-state" id="ufDurum" role="status" aria-live="polite"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Üyeliğin şu anda etkin: DadaFit Pro, aylık, otomatik yenileme açık.</span></p>
+
+      <!-- ============================================================
+       1 · AKTİF PAKET + DÖNEM TARİHLERİ  (§15 alan 1–4)
+       ============================================================ -->
+      <section class="uf-sec" id="paket" aria-labelledby="paketH">
+        <div class="form-card">
+          <div class="fc-head">
+            <div>
+              <h2 id="paketH"><i class="fa-solid fa-crown"></i> Aktif Paketim</h2>
+              <p>Hangi paketteysen, dönemin ne zaman başladı, ne zaman bitiyor ve ne zaman yenileniyor.</p>
+            </div>
+            <span class="fc-step"><i class="fa-solid fa-flask"></i> Demo veri</span>
+          </div>
+
+          <div class="sub-tier-card">
+            <div class="sub-tier-top">
+              <span class="sub-tier-badge"><i class="fa-solid fa-bolt" id="ufBadgeIco" aria-hidden="true"></i> <span id="ufBadgeAd">Pro</span></span>
+              <div class="sub-tier-info">
+                <b><span id="ufPaketAd">DadaFit Pro — Aylık</span> <span class="hs-pill on" id="ufDurumPill"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
+                <span class="sub-renew" id="ufRenewLine"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Otomatik yenileme açık — sonraki tahsilat 15 Eylül 2026</span>
+              </div>
+              <div class="sub-tier-price"><b id="ufFiyat">₺99</b><span>/ ay</span></div>
+            </div>
+
+            <div class="sub-tier-body">
+              <!-- §15'in dört tarih/paket alanı -->
+              <dl class="hs-facts">
+                <div><dt>Aktif paket</dt><dd id="ufFactPaket">DadaFit Pro (Aylık)</dd></div>
+                <div><dt>Başlangıç tarihi</dt><dd id="ufFactBas">15 Mart 2026</dd></div>
+                <div><dt>Bitiş tarihi</dt><dd id="ufFactBit">14 Eylül 2026<small>mevcut dönemin son günü</small></dd></div>
+                <div><dt>Yenileme tarihi</dt><dd id="ufFactYen">15 Eylül 2026<small>otomatik yenileme · ₺99</small></dd></div>
+              </dl>
+
+              <h3 class="sr-only">Paketine dâhil olanlar</h3>
+              <div class="sub-tier-feats" id="ufFeats">
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Tüm programlar (çok haftalık)</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Video Seansları</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Fit Testleri</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Gelişmiş ilerleme takibi</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Sana uygun program önerileri</span>
+                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Gelişmiş Challenge sistemi</span>
+              </div>
+            </div>
+
+            <div class="sub-tier-acts">
+              <a class="btn btn-primary" href="#paket-degistir"><i class="fa-solid fa-arrow-right-arrow-left"></i> Paketi Değiştir</a>
+              <a class="btn btn-ghost" href="pro-v1.html"><i class="fa-solid fa-table-list"></i> Paketleri Tanıt Sayfasında Gör</a>
+            </div>
+          </div>
+
+          <!-- dönem sonunda geçerli olacak paket değişikliği (düşürme) -->
+          <div class="uf-planned" id="ufPlanned" role="status">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            <div class="up-body">
+              <b>Planlanan paket değişikliği</b>
+              <span id="ufPlannedTxt">—</span>
+              <button class="uys-manage" type="button" id="ufPlannedUndo"><i class="fa-solid fa-rotate-left"></i> Değişiklikten vazgeç</button>
+            </div>
+          </div>
+
+          <div class="set-list">
+            <div class="set-row">
+              <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-rotate"></i></span>
+              <div class="sr-txt"><b>Otomatik yenileme</b><span id="ufYenileAciklama">Kapatırsan üyeliğin 14 Eylül 2026'da sona erer; o güne kadar paket avantajların açık kalır.</span></div>
+              <label class="tgl" for="ufYenile"><input type="checkbox" id="ufYenile" checked /><span class="tk" aria-hidden="true"></span><span class="sr-only">Otomatik yenileme</span></label>
+            </div>
+            <div class="set-row">
+              <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-credit-card"></i></span>
+              <div class="sr-txt"><b>Yenilemede kullanılacak kart</b><span>Visa •••• 4242 — son kullanma 08/2027. Kartlarını <a href="hesabim-v1.html#odeme">Hesap Ayarları › Ödeme Geçmişim</a> bölümünden yönetirsin.</span></div>
+            </div>
+          </div>
+
+          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Üyelik süresi, yenileme ve iptal kurallarının tamamı <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>'nda; kullanılmamış döneme ilişkin haklar <a href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>'nda yazılı.</span></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+       2 · PAKET DEĞİŞTİRME + KARŞILAŞTIRMA TABLOSU  (§15 alan 7)
+       ============================================================ -->
+      <section class="uf-sec" id="paket-degistir" aria-labelledby="degistirH">
+        <div class="form-card">
+          <div class="fc-head">
+            <div>
+              <h2 id="degistirH"><i class="fa-solid fa-arrow-right-arrow-left"></i> Paket Değiştirme</h2>
+              <p>Üç paketin içeriği satır satır. Yükseltme hemen geçerli olur; düşürme mevcut dönemin sonunda uygulanır.</p>
+            </div>
+          </div>
+
+          <div class="cmp-wrap">
+            <table class="cmp-table" id="ufCmp" data-cur="t2" role="table">
+              <caption class="sr-only">Ücretsiz, Pro ve Pro Max paketlerinin içerik karşılaştırması</caption>
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th role="columnheader" scope="col">Özellik</th>
+                  <th role="columnheader" scope="col" class="c-t0">
+                    <span class="ch-name"><i class="fa-solid fa-user" aria-hidden="true"></i> Ücretsiz</span>
+                    <span class="ch-price">₺0 / ay</span>
+                    <span class="cmp-cur-pill">Mevcut paketin</span>
+                  </th>
+                  <th role="columnheader" scope="col" class="c-t2">
+                    <span class="ch-name"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Pro</span>
+                    <span class="ch-price">₺99 / ay</span>
+                    <span class="cmp-cur-pill">Mevcut paketin</span>
+                  </th>
+                  <th role="columnheader" scope="col" class="c-t3">
+                    <span class="ch-name"><i class="fa-solid fa-gem" aria-hidden="true"></i> Pro Max</span>
+                    <span class="ch-price">₺199 / ay</span>
+                    <span class="cmp-cur-pill">Mevcut paketin</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody role="rowgroup">
+
+                <tr class="cmp-group" role="row"><th role="columnheader" scope="colgroup" colspan="4">Hareket ve program</th></tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Egzersiz kütüphanesi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz">Temel</td>
+                  <td role="cell" class="c-t2" data-p="Pro">Tümü</td>
+                  <td role="cell" class="c-t3" data-p="Pro Max">Tümü</td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Hareket Rehberi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Başlangıç programı</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Tüm programlar (çok haftalık)</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Sana uygun program önerileri</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Video Seansları</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Challenge</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz">Temel</td>
+                  <td role="cell" class="c-t2" data-p="Pro">Gelişmiş</td>
+                  <td role="cell" class="c-t3" data-p="Pro Max">Gelişmiş</td>
+                </tr>
+
+                <tr class="cmp-group" role="row"><th role="columnheader" scope="colgroup" colspan="4">Ölçüm ve Enerji Defteri</th></tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Enerji Defteri</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz">Temel</td>
+                  <td role="cell" class="c-t2" data-p="Pro">Gelişmiş</td>
+                  <td role="cell" class="c-t3" data-p="Pro Max">Gelişmiş</td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Su takibi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">İlerleme takibi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz">Temel</td>
+                  <td role="cell" class="c-t2" data-p="Pro">Gelişmiş</td>
+                  <td role="cell" class="c-t3" data-p="Pro Max">Gelişmiş</td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Fit Testleri</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Aktivite ve cihaz bağlantıları</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+
+                <tr class="cmp-group" role="row"><th role="columnheader" scope="colgroup" colspan="4">Antrenör, ekosistem ve destek</th></tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Antrenör görüşmesi avantajları</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Kişisel program değerlendirmesi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Dada Diet entegrasyonu</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Dada Gastro tarif önerileri</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+                <tr role="row">
+                  <th role="rowheader" scope="row">Öncelikli destek</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t2" data-p="Pro"><i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max"><i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span></td>
+                </tr>
+
+                <tr class="cmp-price" role="row">
+                  <th role="rowheader" scope="row">Aylık ücret<br><span class="price-flag"><i class="fa-solid fa-clock" aria-hidden="true"></i> Fiyat onay bekliyor</span></th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz">₺0</td>
+                  <td role="cell" class="c-t2" data-p="Pro">₺99</td>
+                  <td role="cell" class="c-t3" data-p="Pro Max">₺199</td>
+                </tr>
+
+                <tr class="cmp-act" role="row">
+                  <th role="rowheader" scope="row">Paket seçimi</th>
+                  <td role="cell" class="c-t0" data-p="Ücretsiz" id="ufActT0"></td>
+                  <td role="cell" class="c-t2" data-p="Pro" id="ufActT2"></td>
+                  <td role="cell" class="c-t3" data-p="Pro Max" id="ufActT3"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="cmp-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Yükseltmede yeni modüller <b>hemen</b> açılır ve fark tutarı bir sonraki tahsilata yansır. Düşürmede mevcut kapsam <b>dönem sonuna kadar</b> korunur, yeni paket 15 Eylül 2026'da başlar. Kayıtların ve ilerleme geçmişin hiçbir değişiklikte silinmez.</span></p>
+
+          <div class="ntf-foot"><i class="fa-solid fa-crown" aria-hidden="true"></i> <span>Paketlerin tanıtımı ve sık sorulanlar <a href="pro-v1.html">Ücretsiz ve Pro sayfasında</a>; yeni bir abonelik başlatmak için <a href="pro-odeme-v1.html?plan=t2">ödeme ekranını</a> kullanırsın.</span></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+       3 · ÖDEME GEÇMİŞİ  (§15 alan 5)
+       ============================================================ -->
+      <section class="uf-sec" id="odeme-gecmisi" aria-labelledby="odemeH">
+        <div class="form-card">
+          <div class="fc-head">
+            <div>
+              <h2 id="odemeH"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişi</h2>
+              <p>Üyeliğin ve antrenör paketlerin için alınan tahsilatlar; tarih, tutar ve sonuç bilgisiyle.</p>
+            </div>
+            <span class="fc-step"><i class="fa-solid fa-flask"></i> Demo veri</span>
+          </div>
+
+          <div class="uf-filter fgroup" role="group" aria-label="Ödeme kaydı türü süzgeci">
+            <span class="ff-lbl" id="ufFilterLbl">Tür</span>
+            <button class="df-fchip on" type="button" data-tur="tumu" aria-pressed="true"><i class="fa-solid fa-list"></i> Tümü</button>
+            <button class="df-fchip" type="button" data-tur="uyelik" aria-pressed="false"><i class="fa-solid fa-crown"></i> Üyelik</button>
+            <button class="df-fchip" type="button" data-tur="antrenor" aria-pressed="false"><i class="fa-solid fa-user-check"></i> Antrenör paketi</button>
+          </div>
+          <p class="uf-count" id="ufCount" role="status">8 kayıttan 8 tanesi gösteriliyor.</p>
+
+          <div class="sub-inv-list" id="ufOdemeList">
+            <div class="sub-inv-row head" aria-hidden="true">
+              <span class="sub-inv-date">Tarih</span>
+              <span class="sub-inv-desc">İşlem</span>
+              <span class="sub-inv-amt">Tutar</span>
+              <span class="sub-inv-st">Durum</span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 Ağu 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · Ağustos dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="antrenor">
+              <span class="sub-inv-date">2 Ağu 2026</span>
+              <span class="sub-inv-desc">Antrenör paketi — Selin Aksoy<small>Visa •••• 4242 · ayda 4 online seans</small></span>
+              <span class="sub-inv-amt">₺1.400,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 Tem 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · Temmuz dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="antrenor">
+              <span class="sub-inv-date">2 Tem 2026</span>
+              <span class="sub-inv-desc">Antrenör paketi — Selin Aksoy<small>Mastercard •••• 8821 — ilk deneme başarısız, kart değiştirildi</small></span>
+              <span class="sub-inv-amt">₺1.400,00</span>
+              <span class="sub-inv-st"><span class="hs-pill due"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Tekrar denendi</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 Haz 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · Haziran dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 May 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · Mayıs dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 Nis 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · Nisan dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row" data-tur="uyelik">
+              <span class="sub-inv-date">15 Mar 2026</span>
+              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242 · ilk tahsilat</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+          </div>
+
+          <div class="lib-empty" id="ufOdemeEmpty">
+            <span class="ico"><i class="fa-solid fa-receipt"></i></span>
+            <h3>Bu türde kayıt yok</h3>
+            <p>Seçtiğin türde tahsilat bulunamadı. Süzgeci "Tümü"ne alarak bütün kayıtları görebilirsin.</p>
+          </div>
+
+          <div class="ntf-foot"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Kart bilgisi ödeme sağlayıcısında saklanır; DadaFit tam kart numarasını görmez. Kayıtlı kartlarını <a href="hesabim-v1.html#odeme">Hesap Ayarları › Ödeme Geçmişim</a> bölümünden yönetirsin. Bir tahsilatta hata gördüysen <a href="destek-talepleri-v1.html">destek talebi</a> açabilirsin.</span></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+       4 · FATURALAR  (§15 alan 6)
+       ============================================================ -->
+      <section class="uf-sec" id="faturalar" aria-labelledby="faturaH">
+        <div class="form-card">
+          <div class="fc-head">
+            <div>
+              <h2 id="faturaH"><i class="fa-solid fa-file-invoice"></i> Faturalar</h2>
+              <p>Her tahsilat için düzenlenen fatura belgesi. Faturalar aynı zamanda e-posta adresine gönderilir.</p>
+            </div>
+            <span class="fc-step"><i class="fa-solid fa-flask"></i> Demo veri</span>
+          </div>
+
+          <div class="sub-inv-list">
+            <div class="sub-inv-row head" aria-hidden="true">
+              <span class="sub-inv-date">Tarih</span>
+              <span class="sub-inv-desc">Fatura</span>
+              <span class="sub-inv-amt">Tutar</span>
+              <span class="sub-inv-st">Belge</span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 Ağu 2026</span>
+              <span class="sub-inv-desc">DFT-2026-004128<small>DadaFit Pro — Aylık · Ağustos dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">2 Ağu 2026</span>
+              <span class="sub-inv-desc">DFT-2026-004095<small>Antrenör paketi — Selin Aksoy · Ağustos dönemi</small></span>
+              <span class="sub-inv-amt">₺1.400,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 Tem 2026</span>
+              <span class="sub-inv-desc">DFT-2026-003844<small>DadaFit Pro — Aylık · Temmuz dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 Haz 2026</span>
+              <span class="sub-inv-desc">DFT-2026-003512<small>DadaFit Pro — Aylık · Haziran dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 May 2026</span>
+              <span class="sub-inv-desc">DFT-2026-003201<small>DadaFit Pro — Aylık · Mayıs dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 Nis 2026</span>
+              <span class="sub-inv-desc">DFT-2026-002890<small>DadaFit Pro — Aylık · Nisan dönemi</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">15 Mar 2026</span>
+              <span class="sub-inv-desc">DFT-2026-002571<small>DadaFit Pro — Aylık · Mart dönemi · ilk fatura</small></span>
+              <span class="sub-inv-amt">₺99,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+          </div>
+          <p class="hs-state" id="ufFaturaDurum" role="status"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Demo veri — bu prototipte indirilebilir bir fatura belgesi üretilmez.</span></p>
+
+          <h3 style="font-size:15px;margin:24px 0 10px;display:flex;align-items:center;gap:9px"><i class="fa-solid fa-building-columns" style="color:var(--tomato-dark);font-size:14px" aria-hidden="true"></i> Faturaların hangi bilgilerle kesiliyor?</h3>
+          <dl class="uf-binfo">
+            <div><dt>Fatura tipi</dt><dd>Bireysel</dd></div>
+            <div><dt>Ad soyad / unvan</dt><dd>Elif Şahin</dd></div>
+            <div><dt>TCKN / vergi kimlik no</dt><dd>••••••••••1</dd></div>
+            <div><dt>Fatura adresi</dt><dd>Bağdat Cad. No:14 D:3, Kadıköy / İstanbul</dd></div>
+          </dl>
+          <div class="ntf-foot"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> <span>Fatura bilgilerinin düzenlendiği tek yer <a href="hesabim-v1.html#fatura">Hesap Ayarları › Faturalarım</a>; burada ikinci bir form kurulmadı ki iki farklı kayıt oluşmasın. Değişiklik bir sonraki faturadan itibaren geçerli olur.</span></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+       5 · ABONELİK İPTALİ  (§15 alan 8)
+       Yıkıcı sayılır: onay kutusu + gerçekten disabled düğme + sebebi
+       role="status" ile yazılı + ayrıca onay penceresi (§20).
+       ============================================================ -->
+      <section class="uf-sec" id="iptal" aria-labelledby="iptalH">
+        <div class="form-card" id="ufIptalCard">
+          <div class="fc-head">
+            <div>
+              <h2 id="iptalH"><i class="fa-solid fa-ban"></i> Abonelik İptali</h2>
+              <p>Aboneliğini durdurursan sonraki yenileme alınmaz; ödemesi yapılmış dönemin sonuna kadar erişimin sürer.</p>
+            </div>
+          </div>
+
+          <div class="hs-warn">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <span><b>Uyarı:</b> iptal edersen paketine bağlı programlar, video seansları ve ölçüm ekranların <span id="ufIptalTarih">14 Eylül 2026</span> tarihinde kapanır ve hesabın Ücretsiz kademeye döner. Kayıtların, ilerleme geçmişin ve rozetlerin <b>silinmez</b>; tekrar üye olduğunda geri gelir.</span>
+          </div>
+
+          <!-- iptal sonrası durum + geri alma -->
+          <div class="uf-cancelled" id="ufCancelled" role="status">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <div class="uc-body">
+              <b>Aboneliğin iptal edildi</b>
+              <span id="ufCancelledTxt">Üyeliğin 14 Eylül 2026'da sona erecek; o güne kadar Pro erişimin açık kalır.</span>
+              <button class="uys-manage" type="button" id="ufUndoCancel"><i class="fa-solid fa-rotate-left"></i> İptalden vazgeç, aboneliği sürdür</button>
+            </div>
+          </div>
+
+          <div class="uf-gate-wrap" id="ufGateWrap">
+            <form class="hs-gate" id="ufIptalForm">
+              <label class="hs-check" for="ufIptalOnay">
+                <input type="checkbox" id="ufIptalOnay" />
+                <span>Dönem sonunda paket erişimimin kapanacağını ve iptalin kalan dönem için kendiliğinden ücret iadesi doğurmadığını okudum, onaylıyorum.</span>
+              </label>
+              <div class="hs-gate-acts">
+                <button class="btn btn-warn" type="submit" id="ufIptalBtn" disabled aria-describedby="ufIptalDurum"><i class="fa-solid fa-ban"></i> Aboneliği İptal Et</button>
+                <p class="hs-state blocked" id="ufIptalDurum" role="status"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Düğme kapalı: iptal için önce yukarıdaki onay kutusunu işaretle.</span></p>
+              </div>
+            </form>
+          </div>
+
+          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>İptal kuralları ve dönem sonu erişimi <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>'nda; kullanılmamış dönem bedeline ilişkin haklar <a href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>'nda. İptal yerine <b>paketi düşürmeyi</b> de seçebilirsin — <a href="#paket-degistir">karşılaştırma tablosuna</a> bak.</span></div>
+        </div>
+      </section>
+
+      <!-- ---- çıkmaz sokak kırıcı: buradan sonra nereye? ---- -->
+      <section class="uf-sec" id="yardim" aria-labelledby="yardimH">
+        <h2 id="yardimH" style="font-size:15px;font-weight:800;color:var(--slate-2);margin-bottom:12px">Faturalandırmayla ilgili bir sorun mu var?</h2>
+        <div class="uf-help">
+          <a href="destek-talepleri-v1.html">
+            <i class="fa-solid fa-headset" aria-hidden="true"></i>
+            <b>Destek talebi aç</b>
+            <p>Yanlış tahsilat, eksik fatura ya da iptal edilemeyen abonelik için kayıt aç, durumunu takip et.</p>
+          </a>
+          <a href="iletisim-v1.html">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            <b>İletişim</b>
+            <p>Telefon, e-posta ve çalışma saatleri; kurumsal fatura talepleri için doğru kanal.</p>
+          </a>
+          <a href="yasal-v1.html?metin=uyelik">
+            <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+            <b>Üyelik ve İptal Koşulları</b>
+            <p>Dönem, yenileme, iptal ve cayma haklarının tamamı yazılı metinde.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+
+</main><!-- /.page-main -->
+
+<!-- ===== ONAY PENCERESİ (paket değiştirme · abonelik iptali) =====
+     main DIŞINDA: sabit konumlu katman sayfa akışına girmesin. -->
+<div class="um-overlay" id="umOverlay" hidden></div>
+<div class="um-modal" id="umModal" role="dialog" aria-modal="true" aria-labelledby="umTitle" aria-describedby="umDesc" hidden>
+  <div class="um-panel">
+    <div class="um-head">
+      <h2 id="umTitle">Onay</h2>
+      <button class="um-x" type="button" id="umClose" aria-label="Pencereyi kapat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </div>
+    <div class="um-body">
+      <p id="umDesc">—</p>
+      <div class="um-facts" id="umFacts"></div>
+      <div class="um-warn" id="umWarn" hidden>
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <span id="umWarnTxt">—</span>
+      </div>
+      <div class="fk-field" id="umReasonField" hidden>
+        <label class="fk-label" for="umReason">İptal sebebin <span class="req" aria-hidden="true">*</span><span class="sr-only">(zorunlu alan)</span></label>
+        <select class="fk-select" id="umReason" aria-describedby="umReasonErr">
+          <option value="">Bir sebep seç…</option>
+          <option value="fiyat">Ücret bana uygun değil</option>
+          <option value="kullanim">Yeterince kullanmıyorum</option>
+          <option value="icerik">Aradığım içerik yok</option>
+          <option value="teknik">Teknik sorun yaşadım</option>
+          <option value="ara">Bir süre ara vereceğim</option>
+          <option value="diger">Diğer</option>
+        </select>
+        <p class="fk-err" id="umReasonErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Devam edebilmek için bir iptal sebebi seçmen gerekiyor.</span></p>
+        <div class="fk-field" style="margin-top:16px">
+          <label class="fk-label" for="umNote">Eklemek istediğin not <span class="opt">(isteğe bağlı)</span></label>
+          <textarea class="fk-textarea" id="umNote" rows="3" placeholder="Neyi daha iyi yapabilirdik?"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="um-acts">
+      <button class="btn btn-ghost" type="button" id="umCancel">Vazgeç</button>
+      <button class="btn btn-primary" type="button" id="umOk">Onayla</button>
+    </div>
+  </div>
+</div>
+
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranış -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* =====================================================================
+ SAYFA JS — ÜYELİK VE FATURALANDIRMA (belge §15)
+
+ · Kabuk davranışına dokunulmaz. Kaydırma kilidi body.overflow'a DEĞİL
+   FIT_SHELL.lockScroll()/unlockScroll()'a yazılır (HANDOFF §4).
+ · Aç/kapa durum korumalıdır.
+ · Paket/iptal durumu MERKEZÎ depoya yazılır: FIT_SHELL.state (dm_fit).
+   Yeni bir localStorage anahtarı açılmadı (§23).
+ · Ödeme geçmişi süzgeci URL'ye yansır (?odeme=…), geri/ileri çalışır,
+   yenilemede seçim korunur (§23); çipler aria-pressed taşır (§20).
+ ===================================================================== */
+(function(){
+'use strict';
+
+/* ---------------------------------------------------------------------
+ 0 · PAKET TANIMLARI — TEK KAYNAK pro-v1.html + pro-odeme-v1.html
+ Adlar, fiyatlar ve özellik listeleri o iki sayfadan BİREBİR alındı.
+ Ücretsiz kademe ödeme akışına girmez (pro-v1 onun düğmesini
+ giris-v1.html?tab=kayit'e bağlar), bu yüzden t0'ın ödeme bağlantısı yok.
+ --------------------------------------------------------------------- */
+/* `datif` elle yazılı: "Pro" + "'e" Türkçe'de yanlış ("Pro'ya"). Kardeş
+   sayfa pro-v1'in kanonu — "Pro'yu Seç" · "Pro Max'i Seç" — aynı ünlü
+   uyumunu kullanıyor, buradaki yönelme hâlleri onunla uyumlu. */
+var PLANS = {
+  t0:{key:'t0', ad:'Ücretsiz', datif:'Ücretsiz\'e', tam:'DadaFit Ücretsiz', ico:'fa-user',  fiyat:'₺0',   sira:0,
+      feats:['Temel egzersiz kütüphanesi','Başlangıç programı','Temel Enerji Defteri',
+             'Su takibi','Temel Challenge','Hareket Rehberi']},
+  t2:{key:'t2', ad:'Pro', datif:'Pro\'ya', tam:'DadaFit Pro', ico:'fa-bolt', fiyat:'₺99', sira:1,
+      feats:['Tüm programlar (çok haftalık)','Video Seansları','Fit Testleri',
+             'Gelişmiş ilerleme takibi','Aktivite ve cihaz bağlantıları',
+             'Sana uygun program önerileri','Gelişmiş Challenge sistemi']},
+  t3:{key:'t3', ad:'Pro Max', datif:'Pro Max\'e', tam:'DadaFit Pro Max', ico:'fa-gem', fiyat:'₺199', sira:2,
+      feats:['Pro özelliklerinin tamamı','Antrenör görüşmesi avantajları',
+             'Kişisel program değerlendirmesi','Dada Diet entegrasyonu',
+             'Dada Gastro tarif önerileri','Öncelikli destek']}
+};
+var DONEM_SON = '14 Eylül 2026';      /* mevcut dönemin son günü */
+var YENILEME  = '15 Eylül 2026';      /* bir sonraki tahsilat günü */
+var BASLANGIC = '15 Mart 2026';
+
+/* ---------------------------------------------------------------------
+ 1 · DURUM — merkezî dm_fit kaydının `uyelik` dalı
+ --------------------------------------------------------------------- */
+var BOS = { paket:'t2', yenileme:true, iptal:false, planlanan:null };
+var mem = null;                        /* FIT_SHELL.state yoksa yedek */
+
+function S(){ return (window.FIT_SHELL && FIT_SHELL.state) ? FIT_SHELL.state : null; }
+function getState(){
+  var st = S();
+  if(!st){ if(!mem) mem = JSON.parse(JSON.stringify(BOS)); return mem; }
+  var s = st.read();
+  if(!s.uyelik){ s.uyelik = JSON.parse(JSON.stringify(BOS)); st.write(s); }
+  return s.uyelik;
+}
+function setState(patch){
+  var st = S();
+  if(!st){ for(var k in patch) mem[k] = patch[k]; return mem; }
+  var s = st.read();
+  if(!s.uyelik) s.uyelik = JSON.parse(JSON.stringify(BOS));
+  for(var j in patch) s.uyelik[j] = patch[j];
+  st.write(s);
+  return s.uyelik;
+}
+
+/* ---------------------------------------------------------------------
+ 2 · GÖRÜNÜM — durumdan ekrana tek yönlü çizim
+ --------------------------------------------------------------------- */
+var $ = function(id){ return document.getElementById(id); };
+function txt(id,v){ var el=$(id); if(el) el.textContent=v; }
+
+function durumYaz(mesaj, ikon){
+  var el = $('ufDurum'); if(!el) return;
+  el.querySelector('span').textContent = mesaj;
+  el.querySelector('i').className = 'fa-solid ' + (ikon || 'fa-circle-check');
+  el.classList.toggle('blocked', ikon === 'fa-triangle-exclamation');
+  el.classList.toggle('done', ikon !== 'fa-triangle-exclamation');
+}
+
+function render(){
+  var s = getState(), p = PLANS[s.paket] || PLANS.t2, ucretsiz = (p.key === 't0');
+
+  /* -- banner istatistikleri -- */
+  txt('ufStatPaket', p.ad);
+  txt('ufStatYenile', (s.iptal || !s.yenileme || ucretsiz) ? 'Yenilenmeyecek' : YENILEME);
+
+  /* -- paket kartı -- */
+  var ico = $('ufBadgeIco'); if(ico) ico.className = 'fa-solid ' + p.ico;
+  txt('ufBadgeAd', p.ad);
+  txt('ufPaketAd', p.tam + (ucretsiz ? '' : ' — Aylık'));
+  txt('ufFiyat', p.fiyat);
+  txt('ufFactPaket', p.tam + (ucretsiz ? '' : ' (Aylık)'));
+  txt('ufFactBas', BASLANGIC);
+
+  var pill = $('ufDurumPill');
+  if(pill){
+    if(s.iptal){ pill.className = 'hs-pill due'; pill.innerHTML = '<i class="fa-solid fa-clock" aria-hidden="true"></i> Dönem sonunda kapanacak'; }
+    else if(ucretsiz){ pill.className = 'hs-pill off'; pill.innerHTML = '<i class="fa-solid fa-circle" aria-hidden="true"></i> Ücretsiz kademe'; }
+    else { pill.className = 'hs-pill on'; pill.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif'; }
+  }
+
+  var bit = $('ufFactBit'), yen = $('ufFactYen'), rl = $('ufRenewLine');
+  if(ucretsiz && !s.iptal){
+    if(bit) bit.innerHTML = 'Süresiz<small>ücretsiz kademenin süresi dolmaz</small>';
+    if(yen) yen.innerHTML = 'Yok<small>ücretsiz kademede tahsilat alınmaz</small>';
+    if(rl)  rl.innerHTML = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> Ücretsiz kademedesin — tahsilat yapılmaz, süresi dolmaz.';
+  } else {
+    if(bit) bit.innerHTML = DONEM_SON + '<small>mevcut dönemin son günü</small>';
+    if(s.iptal || !s.yenileme){
+      if(yen) yen.innerHTML = 'Yenilenmeyecek<small>üyelik ' + DONEM_SON + ' tarihinde sona erer</small>';
+      if(rl)  rl.innerHTML = '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Otomatik yenileme kapalı — üyeliğin ' + DONEM_SON + ' tarihinde sona erecek';
+    } else {
+      if(yen) yen.innerHTML = YENILEME + '<small>otomatik yenileme · ' + p.fiyat + '</small>';
+      if(rl)  rl.innerHTML = '<i class="fa-solid fa-rotate" aria-hidden="true"></i> Otomatik yenileme açık — sonraki tahsilat ' + YENILEME + ' · ' + p.fiyat;
+    }
+  }
+
+  /* -- paket özellikleri -- */
+  var fl = $('ufFeats');
+  if(fl){
+    fl.innerHTML = '';
+    p.feats.forEach(function(f){
+      var sp = document.createElement('span');
+      sp.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> ';
+      sp.appendChild(document.createTextNode(f));
+      fl.appendChild(sp);
+    });
+  }
+
+  /* -- otomatik yenileme anahtarı -- */
+  var tg = $('ufYenile');
+  if(tg){
+    tg.checked = !s.iptal && s.yenileme && !ucretsiz;
+    tg.disabled = s.iptal || ucretsiz;
+    txt('ufYenileAciklama', ucretsiz
+      ? 'Ücretsiz kademede tahsilat alınmadığı için yenileme ayarı kullanılmaz.'
+      : (s.iptal
+         ? 'Abonelik iptal edildiği için yenileme kapalı. Sürdürmek istersen aşağıdaki "İptalden vazgeç" düğmesini kullan.'
+         : 'Kapatırsan üyeliğin ' + DONEM_SON + ' tarihinde sona erer; o güne kadar paket avantajların açık kalır.'));
+  }
+
+  /* -- planlanan (dönem sonunda geçerli) paket değişikliği -- */
+  var pl = $('ufPlanned');
+  if(pl){
+    if(s.planlanan && PLANS[s.planlanan]){
+      pl.classList.add('show');
+      txt('ufPlannedTxt', p.ad + ' paketin ' + DONEM_SON + ' tarihinde sona erecek ve ' +
+        YENILEME + ' tarihinde ' + PLANS[s.planlanan].ad + ' paketi başlayacak (' +
+        PLANS[s.planlanan].fiyat + ' / ay). O güne kadar mevcut kapsamın aynen sürüyor.');
+    } else { pl.classList.remove('show'); }
+  }
+
+  /* -- iptal bölümü -- */
+  var card = $('ufIptalCard'), cc = $('ufCancelled');
+  if(card) card.classList.toggle('is-cancelled', !!s.iptal);
+  if(cc){
+    cc.classList.toggle('show', !!s.iptal);
+    txt('ufCancelledTxt', 'Üyeliğin ' + DONEM_SON + ' tarihinde sona erecek; o güne kadar ' +
+        p.ad + ' erişimin açık kalır. Ardından hesabın Ücretsiz kademeye döner.');
+  }
+  txt('ufIptalTarih', DONEM_SON);
+
+  /* -- karşılaştırma tablosu: mevcut kolon + eylem düğmeleri -- */
+  var cmp = $('ufCmp');
+  if(cmp) cmp.setAttribute('data-cur', p.key);
+  ['t0','t2','t3'].forEach(function(k){
+    var cell = $('ufAct' + k.toUpperCase());
+    if(!cell) return;
+    var hedef = PLANS[k];
+    if(k === p.key){
+      cell.innerHTML = '<span class="cmp-here"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Mevcut paketin</span>';
+      return;
+    }
+    var yukari = hedef.sira > p.sira;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn ' + (yukari ? 'btn-primary' : 'btn-ghost');
+    b.setAttribute('data-hedef', k);
+    b.innerHTML = '<i class="fa-solid ' + (yukari ? 'fa-arrow-up' : 'fa-arrow-down') + '" aria-hidden="true"></i> ' +
+                  hedef.datif + (yukari ? ' yükselt' : ' düş');
+    cell.innerHTML = '';
+    cell.appendChild(b);
+  });
+}
+
+/* ---------------------------------------------------------------------
+ 3 · ONAY PENCERESİ — paket değiştirme ve iptal ortak kullanır
+ Gizleme [hidden] ile (display:none) — öğe açıldığı anda odaklanabilir,
+ bu yüzden trapFocus rAF beklemeden çağrılabiliyor (HANDOFF §4.1'deki
+ visibility geçişi kusuru bu yolla hiç doğmuyor).
+ --------------------------------------------------------------------- */
+var modal = $('umModal'), overlay = $('umOverlay'), release = null, pending = null;
+
+function modalAcik(){ return modal && !modal.hasAttribute('hidden'); }
+
+function modalAc(cfg){
+  if(!modal || modalAcik()) return;                       /* durum korumalı */
+  txt('umTitle', cfg.baslik);
+  txt('umDesc',  cfg.metin);
+
+  var facts = $('umFacts');
+  facts.innerHTML = '';
+  (cfg.facts || []).forEach(function(f){
+    var d = document.createElement('div');
+    d.className = 'umf';
+    var sp = document.createElement('span'); sp.textContent = f[0];
+    var b  = document.createElement('b');    b.textContent  = f[1];
+    d.appendChild(sp); d.appendChild(b); facts.appendChild(d);
+  });
+  facts.hidden = !(cfg.facts && cfg.facts.length);
+
+  var warn = $('umWarn');
+  if(cfg.uyari){ warn.hidden = false; txt('umWarnTxt', cfg.uyari); }
+  else warn.hidden = true;
+
+  var rf = $('umReasonField');
+  rf.hidden = !cfg.sebep;
+  rf.classList.remove('is-err');
+  if(cfg.sebep){ $('umReason').value = ''; $('umNote').value = ''; $('umReason').removeAttribute('aria-invalid'); }
+
+  var ok = $('umOk');
+  ok.className = 'btn ' + (cfg.yikici ? 'btn-warn' : 'btn-primary');
+  ok.innerHTML = '<i class="fa-solid ' + (cfg.ikon || 'fa-check') + '" aria-hidden="true"></i> ' + cfg.onayMetni;
+
+  pending = cfg;
+  overlay.hidden = false;
+  modal.hidden = false;
+  if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+  if(window.FIT_SHELL && FIT_SHELL.trapFocus) release = FIT_SHELL.trapFocus(modal);
+  else ok.focus();
+}
+
+function modalKapat(){
+  if(!modalAcik()) return;                                /* kapalıyken no-op */
+  modal.hidden = true;
+  overlay.hidden = true;
+  if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+  if(release){ release(); release = null; }               /* odak açan öğeye döner */
+  pending = null;
+}
+
+if(modal){
+  $('umClose').addEventListener('click', modalKapat);
+  $('umCancel').addEventListener('click', modalKapat);
+  overlay.addEventListener('click', modalKapat);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') modalKapat(); });
+
+  $('umOk').addEventListener('click', function(){
+    if(!pending) return;
+    /* zorunlu alan doğrulaması — hata ikon + metin + aria-invalid ile,
+       yalnız renkle DEĞİL (§20) */
+    if(pending.sebep){
+      var sel = $('umReason'), rf = $('umReasonField');
+      if(!sel.value){
+        rf.classList.add('is-err');
+        sel.setAttribute('aria-invalid','true');
+        sel.focus();
+        return;
+      }
+      rf.classList.remove('is-err');
+      sel.removeAttribute('aria-invalid');
+    }
+    var fn = pending.uygula;
+    modalKapat();
+    if(fn) fn();
+  });
+}
+
+/* ---------------------------------------------------------------------
+ 4 · PAKET DEĞİŞTİRME
+ Yükseltme hemen geçerli; düşürme dönem sonunda (planlanan) uygulanır.
+ --------------------------------------------------------------------- */
+document.addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('[data-hedef]') : null;
+  if(!b) return;
+  var s = getState(), cur = PLANS[s.paket] || PLANS.t2, hedef = PLANS[b.getAttribute('data-hedef')];
+  if(!hedef) return;
+  var yukari = hedef.sira > cur.sira;
+
+  modalAc({
+    baslik: yukari ? (hedef.ad + ' paketine yükselt') : (hedef.ad + ' paketine düş'),
+    metin: yukari
+      ? (hedef.ad + ' paketine geçmek üzeresin. Yeni modüller onay verir vermez açılır; aradaki fark bir sonraki tahsilata yansır.')
+      : (hedef.ad + ' paketine düşmek üzeresin. Mevcut kapsamın ' + DONEM_SON + ' tarihine kadar aynen sürer, yeni paket ' + YENILEME + ' tarihinde başlar.'),
+    facts: [
+      ['Mevcut paket', cur.tam + ' · ' + cur.fiyat + ' / ay'],
+      ['Yeni paket',   hedef.tam + ' · ' + hedef.fiyat + ' / ay'],
+      ['Geçerlilik',   yukari ? 'Hemen' : YENILEME]
+    ],
+    uyari: yukari
+      ? 'Tutarlar bu prototipte temsilîdir ve onay bekliyor; gerçek bir tahsilat yapılmaz.'
+      : (hedef.key === 't0'
+         ? 'Ücretsiz kademede tüm programlar, video seansları ve Fit Testleri kapanır. Kayıtların ve ilerleme geçmişin silinmez.'
+         : 'Düşürdüğün pakette yer almayan modüller ' + YENILEME + ' tarihinde kapanır. Kayıtların silinmez.'),
+    yikici: !yukari,
+    ikon: yukari ? 'fa-arrow-up' : 'fa-arrow-down',
+    onayMetni: yukari ? 'Yükseltmeyi Onayla' : 'Değişikliği Onayla',
+    uygula: function(){
+      if(yukari){
+        setState({paket:hedef.key, planlanan:null, iptal:false, yenileme:true});
+        render();
+        durumYaz(hedef.tam + ' paketine yükseltildi — yeni modüller şimdi açık. (Demo: gerçek tahsilat yapılmadı.)','fa-circle-check');
+      } else {
+        setState({planlanan:hedef.key, iptal:false});
+        render();
+        durumYaz('Paket değişikliği planlandı: ' + YENILEME + ' tarihinde ' + hedef.tam + ' başlayacak. O güne kadar mevcut paketin sürüyor.','fa-clock-rotate-left');
+      }
+      var t = document.getElementById('paket');
+      if(t) t.scrollIntoView();
+    }
+  });
+});
+
+var pu = $('ufPlannedUndo');
+if(pu) pu.addEventListener('click', function(){
+  setState({planlanan:null});
+  render();
+  durumYaz('Planlanan paket değişikliğinden vazgeçildi — mevcut paketin dönem sonunda aynen yenilenecek.','fa-rotate-left');
+});
+
+/* ---------------------------------------------------------------------
+ 5 · OTOMATİK YENİLEME ANAHTARI
+ --------------------------------------------------------------------- */
+var tg = $('ufYenile');
+if(tg) tg.addEventListener('change', function(){
+  setState({yenileme: tg.checked});
+  render();
+  durumYaz(tg.checked
+    ? 'Otomatik yenileme açıldı — sonraki tahsilat ' + YENILEME + '.'
+    : 'Otomatik yenileme kapatıldı — üyeliğin ' + DONEM_SON + ' tarihinde sona erecek.',
+    tg.checked ? 'fa-circle-check' : 'fa-triangle-exclamation');
+});
+
+/* ---------------------------------------------------------------------
+ 6 · ABONELİK İPTALİ — onay kapısı + onay penceresi (§20)
+ Düğme onay kutusu işaretlenene kadar GERÇEKTEN disabled; engelin sebebi
+ role="status" satırında yazılı (ekran okuyucu da duyar).
+ --------------------------------------------------------------------- */
+(function(){
+  var form = $('ufIptalForm'), box = $('ufIptalOnay'), btn = $('ufIptalBtn'),
+      state = $('ufIptalDurum');
+  if(!form || !box || !btn || !state) return;
+  var span = state.querySelector('span'), ikon = state.querySelector('i');
+
+  function sync(){
+    btn.disabled = !box.checked;
+    state.classList.toggle('blocked', !box.checked);
+    state.classList.toggle('done', box.checked);
+    span.textContent = box.checked
+      ? 'Onay alındı — düğme artık çalışıyor. Son adımda bir onay penceresi açılacak.'
+      : 'Düğme kapalı: iptal için önce yukarıdaki onay kutusunu işaretle.';
+    ikon.className = box.checked ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock';
+  }
+  box.addEventListener('change', sync);
+  sync();
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!box.checked) return;
+    var s = getState(), p = PLANS[s.paket] || PLANS.t2;
+    modalAc({
+      baslik:'Aboneliğini iptal etmek istediğine emin misin?',
+      metin:'İptal, bir sonraki yenilemeyi durdurur. ' + p.tam + ' erişimin ' + DONEM_SON +
+            ' tarihine kadar açık kalır; ardından hesabın Ücretsiz kademeye döner.',
+      facts:[
+        ['İptal edilen paket', p.tam + ' · ' + p.fiyat + ' / ay'],
+        ['Erişim bitiş tarihi', DONEM_SON],
+        ['Sonraki tahsilat', 'Alınmayacak']
+      ],
+      uyari:'Kayıtların, ilerleme geçmişin ve rozetlerin silinmez. Fikrin değişirse dönem sonuna kadar tek dokunuşla geri alabilirsin.',
+      sebep:true, yikici:true, ikon:'fa-ban', onayMetni:'Aboneliği İptal Et',
+      uygula:function(){
+        setState({iptal:true, yenileme:false, planlanan:null});
+        box.checked = false; sync();
+        render();
+        durumYaz('Aboneliğin iptal edildi — erişimin ' + DONEM_SON + ' tarihine kadar sürüyor, sonraki tahsilat alınmayacak. (Demo: gerçek bir işlem uygulanmadı.)','fa-triangle-exclamation');
+        var t = document.getElementById('iptal'); if(t) t.scrollIntoView();
+      }
+    });
+  });
+
+  var undo = $('ufUndoCancel');
+  if(undo) undo.addEventListener('click', function(){
+    setState({iptal:false, yenileme:true});
+    render();
+    durumYaz('İptalden vazgeçildi — aboneliğin sürüyor, sonraki tahsilat ' + YENILEME + '.','fa-circle-check');
+  });
+})();
+
+/* ---------------------------------------------------------------------
+ 7 · ÖDEME GEÇMİŞİ SÜZGECİ — URL'ye yansır, geri/ileri çalışır (§23)
+ --------------------------------------------------------------------- */
+(function(){
+  var chips = [].slice.call(document.querySelectorAll('.uf-filter .df-fchip'));
+  var rows  = [].slice.call(document.querySelectorAll('#ufOdemeList .sub-inv-row:not(.head)'));
+  var head  = document.querySelector('#ufOdemeList .sub-inv-row.head');
+  var empty = $('ufOdemeEmpty'), list = $('ufOdemeList'), count = $('ufCount');
+  if(!chips.length || !rows.length) return;
+  var GECERLI = {tumu:1, uyelik:1, antrenor:1};
+
+  function uygula(tur, push){
+    if(!GECERLI[tur]) tur = 'tumu';
+    var gorunen = 0;
+    rows.forEach(function(r){
+      var on = (tur === 'tumu') || (r.getAttribute('data-tur') === tur);
+      r.classList.toggle('hide', !on);
+      if(on) gorunen++;
+    });
+    chips.forEach(function(c){
+      var on = c.getAttribute('data-tur') === tur;
+      c.classList.toggle('on', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    if(empty) empty.classList.toggle('show', gorunen === 0);
+    if(list)  list.style.display = gorunen === 0 ? 'none' : '';
+    if(head)  head.style.display = gorunen === 0 ? 'none' : '';
+    /* "8 kaydın 2'i" gibi ek uyumsuzluğuna düşmemek için ek almayan kalıp */
+    if(count) count.textContent = rows.length + ' kayıttan ' + gorunen + ' tanesi gösteriliyor' +
+      (tur === 'tumu' ? '.' : ' (süzgeç açık).');
+
+    var u = new URL(location.href);
+    if(tur === 'tumu') u.searchParams.delete('odeme'); else u.searchParams.set('odeme', tur);
+    var yeni = u.pathname + (u.search || '') + u.hash;
+    if(push){ if(yeni !== location.pathname + location.search + location.hash) history.pushState({odeme:tur}, '', yeni); }
+    else history.replaceState({odeme:tur}, '', yeni);
+  }
+
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){ uygula(c.getAttribute('data-tur'), true); });
+  });
+  window.addEventListener('popstate', function(){
+    uygula(new URLSearchParams(location.search).get('odeme') || 'tumu', false);
+  });
+  uygula(new URLSearchParams(location.search).get('odeme') || 'tumu', false);
+})();
+
+/* ---------------------------------------------------------------------
+ 8 · DEMO FATURA İNDİRME — gerçek belge yok, durum satırında bildirilir
+ --------------------------------------------------------------------- */
+(function(){
+  var fd = $('ufFaturaDurum');
+  if(!fd) return;
+  var span = fd.querySelector('span'), taban = span.textContent;
+  document.querySelectorAll('[data-demo-dl]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var sat = b.closest('.sub-inv-row');
+      var no  = sat ? (sat.querySelector('.sub-inv-desc').childNodes[0].textContent || '').trim() : '';
+      fd.classList.add('done');
+      span.textContent = 'Demo veri — ' + (no ? no + ' numaralı fatura için ' : '') +
+                         'bu prototipte belge üretilmediği için indirme başlatılmadı.';
+      clearTimeout(fd._t);
+      fd._t = setTimeout(function(){ fd.classList.remove('done'); span.textContent = taban; }, 4000);
+    });
+  });
+})();
+
+/* ---------------------------------------------------------------------
+ 9 · BÖLÜM RAYI — çapa payı + aktif bölüm işareti
+ Sabit header payını KABUK veriyor (html{scroll-padding-top}); burada
+ yalnız sticky rayın payı hesaplanır (hesabim-v1'de ölçülen kanon).
+ --------------------------------------------------------------------- */
+(function(){
+  var rail = $('ufRail'), bar = rail && rail.closest('.pf-tabbar');
+  if(!bar) return;
+  var links = [].slice.call(rail.querySelectorAll('.dt'));
+  var secs  = [].slice.call(document.querySelectorAll('.uf-sec[id]'));
+
+  function chromePad(){
+    var sp = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
+    return isNaN(sp) ? 0 : sp;
+  }
+  function syncPad(){
+    document.documentElement.style.setProperty('--uf-anchor-pad', Math.round(bar.offsetHeight + 16) + 'px');
+  }
+  function mark(id){
+    links.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', on);
+      if(on) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current');
+    });
+  }
+  links.forEach(function(a){ a.addEventListener('click', function(){ mark(a.getAttribute('href').slice(1)); }); });
+
+  function land(){
+    var h = location.hash;
+    if(!h || h.length < 2) return;
+    var el = null;
+    try{ el = document.querySelector(h); }catch(e){ return; }
+    if(!el) return;
+    syncPad(); el.scrollIntoView(); mark(h.slice(1));
+  }
+  syncPad();
+  window.addEventListener('resize', syncPad, {passive:true});
+  window.addEventListener('load', land);
+  land(); setTimeout(land, 260);
+
+  var raf = 0, tail = 0;
+  function spy(){
+    raf = 0;
+    var pad = chromePad() + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--uf-anchor-pad')) || 128);
+    var cur = secs[0];
+    for(var i=0;i<secs.length;i++){ if(secs[i].getBoundingClientRect().top <= pad + 8) cur = secs[i]; }
+    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) cur = secs[secs.length-1];
+    if(cur) mark(cur.id);
+  }
+  window.addEventListener('scroll', function(){
+    if(!raf) raf = requestAnimationFrame(spy);
+    clearTimeout(tail); tail = setTimeout(spy, 180);
+  }, {passive:true});
+  spy();
+})();
+
+/* ---------------------------------------------------------------------
+ 10 · İLK ÇİZİM
+ --------------------------------------------------------------------- */
+render();
+
+})();
+</script>
+</body>
+</html>

@@ -407,6 +407,33 @@ body.is-auth .drawer-login{display:none}
 .dropdown.dd-wide a+a{border-top:none}
 .dropdown.dd-wide a{align-items:flex-start}
 
+/* ---- DAR EKRANDA GENİŞ PANEL SOLA YASLANIR ----
+ Ana menü Faz 3'te dört başlıktan BEŞE çıktı (Enerji Defteri eklendi, belge §2).
+ `.nav` ortalanmış olduğu için beşinci başlık menüyü genişletti ve en soldaki
+ "Hareket" sola kaydı; 560px'lik panel onun MERKEZİNE hizalandığından sol kenarı
+ ekranın dışına taştı.
+
+ ÖLÇÜM (Hareket başlığının merkezi ↔ 560px panelin sol kenarı):
+   1440px → merkez 408 · panel 128–688   ✓
+   1280px → merkez 328 · panel  48–608   ✓ (pay yalnız 48px)
+   1100px → merkez 238 · panel −42–518   ✗ taşma
+   1025px → merkez 200 · panel −80–480   ✗ taşma
+ Ortalama, merkez 280'in (560/2) altına düştüğü her genişlikte imkânsız.
+
+ Çözüm: ≤1280px'te panel başlığın MERKEZİNE değil SOL KENARINA hizalanır.
+ Panel genişliği ve iki kolonlu düzen korunur; yalnız hizalama değişir.
+ Ok işareti de sola alınır, yoksa başlığı değil boşluğu gösterirdi.
+ Seçiciler bilinçli olarak .dd-wide ile bir sınıf daha derin (0,4,0):
+ aşağıdaki `:focus-within` kuralı (0,3,0) medya sorgusundan BAĞIMSIZ olarak
+ kazanırdı — medya sorgusu özgüllük eklemez. */
+@media (max-width:1280px){
+  .nav-item .dropdown.dd-wide{left:0;transform:translateX(0) translateY(8px)}
+  .nav-item:hover .dropdown.dd-wide,
+  .nav-item.open .dropdown.dd-wide,
+  .nav-item:focus-within>.dropdown.dd-wide{transform:translateX(0) translateY(0)}
+  .nav-item .dropdown.dd-wide::before{left:38px;transform:translateX(0) rotate(45deg)}
+}
+
 /* ---- MEGA MENÜ (Tarifler) — header'a bağlı tam genişlik panel — KİLİTLİ ---- */
 .nav-item.has-mega{position:static}            /* containing block = .header (fixed) */
 .mega{

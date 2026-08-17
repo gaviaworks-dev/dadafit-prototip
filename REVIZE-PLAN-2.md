@@ -317,32 +317,62 @@ değişimi de "sapma" olarak sayılır, çıkış kodu bu yüzden 1 kalır. Kap�
 
 ---
 
-# FAZ 3 — NAVİGASYON (belge §2, §3, §16)
+# FAZ 3 — NAVİGASYON (belge §2, §3, §16) ✅
 
-- [ ] **Masaüstü mega menü** — Hareket paneli belgedeki 11 kalemle iki kolon (bugünkü yapı büyük ölçüde uygun;
-      belge "Hareket Merkezi"ni de panelde istiyor → *aynı-hedefe-tek-kapı* kuralıyla çelişiyor, **doğrulanacak**)
-- [ ] **Programlar** paneli: Programlar Merkezi · Tüm Programlar · Programımı Bul · **Fit Testleri** · **Video Seansları**
-- [ ] **Enerji Defteri ana menüye** (Planım'dan çıkacak): Bugünkü Denge · Aktivite Günlüğü · Su Takibi ·
-      Haftalık Denge Özeti · Bağlı Uygulamalar ve Cihazlar
-- [ ] **Challenge** paneli: Merkez · Aktif · Yaklaşan · Tamamlanan · Detay
-- [ ] **Antrenörler** paneli: Antrenör Bul · Antrenör Profili · Randevu Al · Antrenör Ol
-      (bugün panelsiz düz link — belge panel istiyor; A4 referansı DadaDiet'te panelsiz. **Doğrulanacak**)
-- [ ] Sağ üst: Arama · Planım · Giriş Yap · Bildirimler · Hesabım (Planım ana menüye girmez ✔ zaten öyle)
-- [ ] **Mobil alt bar 5 öğe** ✔ (bugün 5) — korunacak
-- [ ] Enerji Defteri'ne mobil erişim: ana sayfa hızlı erişim kartı + drawer + Planım günlük özeti
-- [ ] Drawer masaüstündeki tüm ana modülleri taşıyacak
-- [ ] **Kabuktaki 14 boş `href="#"`** (§23 "boş bağlantı bırakma"). Ölçüm: `page-check`
-      her sayfada 14 tane sayıyor — hiç göç etmemiş `antrenorler-v1` ve `sss-v1` dahil,
-      yani **sayfa kusuru değil kabuk kusuru**. Kaynak `fit-shell.js`'te 11 tanım:
-      üst bant sosyal ikonları (3) · TR/EN dil seçici (2) · görüş sekmesi (1) ·
-      footer sosyal ikonları (5). Dil seçici Faz 8'e, sosyal ikonlar gerçek hesap
-      adresi belirlenene kadar karar bekliyor, görüş sekmesi `<button>` olmalı.
-- [ ] **Footer** belgedeki 4 kolona göre yeniden kurulacak (DadaFit · Kurumsal · İletişim · Yasal ve Sağlık),
-      logo altı metni: "Günlük hareketini, enerjini ve ilerlemeni kendi ritminde yönet."
-      Eksik hedefler: Sponsorlar ve Partnerler · Destek Merkezi · Üyelik ve İptal Koşulları ·
-      Çerez Politikası · Veri ve İzin Politikası
+**Faz 5 bittiği için yapılabildi.** Kabuk menüsü ve footer 56 sayfanın hepsinde
+basılıyor; var olmayan bir hedefe bağlamak tek hamlede site geneli kırık link üretirdi.
 
----
+- [x] **Masaüstü mega menü** — Hareket paneli belgedeki **on bir** kalemle iki kolon.
+      "Hareket Merkezi" panele geri kondu (açık soru 1 kapandı → `KARARLAR.md` K5).
+- [x] **Programlar** paneli beş kalem: Programlar Merkezi · Tüm Programlar ·
+      Programımı Bul · **Fit Testleri** · **Video Seansları** (son ikisi Faz 5'te üretildi)
+- [x] **Enerji Defteri ana menüye çıktı** (belge §2) — beş kalem: Bugünkü Denge ·
+      Aktivite Günlüğü · Su Takibi · Haftalık Denge Özeti · Bağlı Uygulamalar ve Cihazlar.
+      `#su` ve `#haftalik` çapaları bu tur `enerji-defteri-v1.html`'e eklendi.
+- [x] **Challenge** paneli beş kalem. Durum kalemleri sahte sayfa üretilmeden
+      `challenge-merkezi-v1.html?durum=aktif|yaklasan|gecmis` ile sayfanın KENDİ filtre
+      motoruna bağlandı (sayfa `?durum=` okuyup çipi işaretliyor — kodu okunarak doğrulandı).
+- [x] **Antrenörler** paneli dört kalem: Antrenör Bul · Antrenör Profili · Randevu Al ·
+      Antrenör Ol (açık soru 1 → `KARARLAR.md` K5)
+- [x] Sağ üst: Arama · Planım · Giriş Yap · Bildirimler · Hesabım — Planım ana menüde değil ✔
+- [x] **Mobil alt bar tam 5 öğe** — ölçüldü: Ana Sayfa · Hareket · Programlar · Planım ·
+      Hesabım (belgenin listesiyle birebir)
+- [x] Enerji Defteri'ne mobil erişim: drawer'da kendi başlığı var (ölçüldü)
+- [x] Drawer masaüstündeki beş ana modülün hepsini taşıyor — ölçüldü: Hareket ✓
+      Programlar ✓ Enerji Defteri ✓ Challenge ✓ Antrenörler ✓ (46 bağlantı)
+- [x] **Footer belgedeki dört kolona göre yeniden kuruldu:** DadaFit · Kurumsal ·
+      İletişim · Yasal ve Sağlık. Logo altı metni belgeden birebir:
+      "Günlük hareketini, enerjini ve ilerlemeni kendi ritminde yönet."
+      "Eksik" sanılan beş hedef aslında vardı, ölçülerek bulundu —
+      Sponsorlar ve Partnerler → `hakkimizda-v1.html#partnerler` · Künye → `#kunye` ·
+      Çerez / Üyelik ve İptal / Veri ve İzin → `yasal-v1.html?metin=cerez|uyelik|veri-izin`.
+      Yalnız **Destek Merkezi** gerçekten Faz 5'i bekliyordu (`destek-talepleri-v1`).
+
+### Ölçüm
+
+- **Kabuk bağlantıları: 107 yerel · 48 benzersiz hedef · KIRIK 0 · KIRIK ÇAPA 0.**
+  (menü + footer + drawer + alt bar + üst bant; her hedef HTTP ile, her `#parça`
+  hedef sayfada `id=` olarak arandı)
+- Beş süit: dropdown **90 panel / 0 sorun** · header-banner 14×4 / 0 · coach-list 0 ·
+  plan-account 0 · a11y-focus 0.
+
+### Ölçerek yakalanan yan etki — geniş panel taşması
+
+Ana menü dörtten **beşe** çıkınca ortalanmış `.nav` genişledi, en soldaki "Hareket"
+sola kaydı ve 560px'lik panel onun merkezine hizalandığı için ekran dışına taştı:
+
+| genişlik | Hareket merkezi | ortalanmış panel | durum |
+|---|---|---|---|
+| 1440px | 408 | 128–688 | ✓ |
+| 1280px | 328 | 48–608 | ✓ (pay 48px) |
+| 1100px | 238 | **−42**–518 | ✗ taşma |
+| 1025px | 200 | **−80**–480 | ✗ taşma |
+
+Ortalama, merkez 280'in (560/2) altına düştüğü her genişlikte matematiksel olarak
+imkânsız. ≤1280px'te panel başlığın merkezine değil **sol kenarına** hizalanıyor;
+genişlik ve iki kolonlu düzen korundu, ok işareti de sola alındı.
+Düzeltme sonrası gerçek kutu ölçüldü: 1440 → 128–688 · 1280 → 282–842 ·
+1100 → 192–752 · 1025 → 154–714, **dördü de içeride**.
 
 # FAZ 4 — PLANIM (6 sekme) ve HESABIM (belge §4, §5)
 

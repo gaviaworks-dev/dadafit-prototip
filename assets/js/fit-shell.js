@@ -70,9 +70,13 @@ var NAV = [
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
            'hareket-isinma-soguma-v1','hareket-sozluk-v1'],
-    /* NOT: panelde "Hareket Merkezi" diye ikinci bir kalem YOK — başlığın kendisi
-       zaten oraya gidiyor. Aynı hedefe farklı adla ikinci kapı açılmaz. */
+    /* Belge §2 Hareket panelinde ON BİR kalem sayıyor ve ilki "Hareket Merkezi".
+       Önceki tur bunu *aynı-hedefe-tek-kapı* gerekçesiyle çıkarmıştı; bu tur
+       belgeye dönüldü (gerekçe: KARARLAR.md K5). Başlığın kendisi hover ile
+       paneli açtığı için masaüstünde merkeze gitmenin tek yolu paneldeki bu
+       kalemdir — kalem yokken merkez sayfası menüden ERİŞİLEMEZ durumdaydı. */
     dd:[
+      {label:'Hareket Merkezi', desc:'Hareket dünyasının giriş kapısı', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running'},
       {label:'Egzersiz Kütüphanesi', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
       {label:'Hareket Rehberi', desc:'Nasıl ve neden — öğretici içerik', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
       {group:'Rehber konuları'},
@@ -86,29 +90,59 @@ var NAV = [
       {label:'Hareket Sözlüğü', desc:'Set, tekrar, core, mobilite…', href:'hareket-sozluk-v1.html', icon:'fa-solid fa-spell-check'}
     ] },
 
-  /* 2 · PROGRAMLAR — iki gerçek hedef: merkez sayfa ve tam liste.
- "Ücretsiz ve Pro" ile "Tek günlük rutin" kalemleri kaldırıldı: ilki merkez sayfanın
- kendi #pro bölümüydü (üstelik çapa yanlış sayfayı gösteriyordu), ikincisi Hareket
- menüsündeki "Süreye Göre" kaleminin kopyasıydı. */
+  /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
+ Faz 5'te üretildi; menüye ancak sayfalar diskte olduğu için bağlandı. */
   { key:'programlar', label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-clipboard-list',
-    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1'],
-    /* Başlık zaten Programlar Merkezi'ne gidiyor; panelde tekrarlanmaz.
-       "Ücretsiz ve Pro" da ayrı kalem DEĞİL: o, Programlar Merkezi'nin kendi
-       #pro bölümü. Menüde tek giriş var; bölüme sayfa gövdesinden ve
-       program-liste banner'ındaki düğmeden gidilir. */
+    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1',
+           'fit-testleri-v1','fit-testi-detay-v1','fit-testi-sonuc-v1',
+           'video-seanslari-v1','video-seans-detay-v1'],
     dd:[
+      {label:'Programlar Merkezi', desc:'Program dünyasının giriş kapısı', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-compass'},
       {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
-      {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true}
+      {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true},
+      {label:'Fit Testleri', desc:'Seviyeni kendi ölçümünle belirle', href:'fit-testleri-v1.html', icon:'fa-solid fa-clipboard-check'},
+      {label:'Video Seansları', desc:'Eğitmen eşliğinde çalış', href:'video-seanslari-v1.html', icon:'fa-solid fa-circle-play'}
     ] },
 
-  /* 3 · CHALLENGE — Programlar panelinin altından çıkıp kendi başlığına taşındı (belge §8.4) */
-  { key:'challenge', label:'Challenge', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy',
-    match:['challenge-merkezi-v1','challenge-v1'] },
+  /* 3 · ENERJİ DEFTERİ — belge §2: "Enerji Defteri'ni Planım alanından çıkararak
+ ana menüde doğrudan erişilebilir hâle getir." Faz 4'te Planım rayından çıkarılmıştı;
+ asıl sahibi burası. Beş kalem belgenin saydıklarının aynısı.
+ Çapalar bu tur enerji-defteri-v1.html'e eklendi (#su, #haftalik); #dengele ve
+ #yediklerim zaten vardı. */
+  { key:'defter', label:'Enerji Defteri', href:'enerji-defteri-v1.html', icon:'fa-solid fa-bolt',
+    match:['enerji-defteri-v1','aktivite-gunlugu-v1','bagli-uygulamalar-v1','dadafit-kopru-v1'],
+    dd:[
+      {label:'Bugünkü Denge', desc:'Bugün ne yaptın, dengen nerede', href:'enerji-defteri-v1.html#dengele', icon:'fa-solid fa-scale-balanced'},
+      {label:'Aktivite Günlüğü', desc:'Adım, süre, mesafe, yaklaşık enerji', href:'aktivite-gunlugu-v1.html', icon:'fa-solid fa-shoe-prints'},
+      {label:'Su Takibi', desc:'Günlük su hedefin', href:'enerji-defteri-v1.html#su', icon:'fa-solid fa-droplet'},
+      {label:'Haftalık Denge Özeti', desc:'Haftanın hareket ve enerji tablosu', href:'enerji-defteri-v1.html#haftalik', icon:'fa-solid fa-calendar-week'},
+      {label:'Bağlı Uygulamalar ve Cihazlar', desc:'Apple Health · Health Connect · saat', href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check'}
+    ] },
 
-  /* 4 · ANTRENÖRLER — panelsiz düz bağlantı (DadaDiet "Diyetisyenler" kuralı):
- alt kalemler dizin banner'ındaki ikili düğmeye ve sayfa gövdelerine taşındı. */
+  /* 4 · CHALLENGE — belge §2'nin beş kalemi. Durum kalemleri challenge-merkezi'nin
+ KENDİ filtre motoruna bağlanıyor (sayfa ?durum= parametresini okuyup çipi işaretliyor,
+ ölçüldü) — sahte sayfa üretilmedi. */
+  { key:'challenge', label:'Challenge', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy',
+    match:['challenge-merkezi-v1','challenge-v1'],
+    dd:[
+      {label:'Challenge Merkezi', desc:'Tüm challenge dünyası', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy'},
+      {label:'Aktif Challenge', desc:'Şu an devam edenler', href:'challenge-merkezi-v1.html?durum=aktif', icon:'fa-solid fa-play'},
+      {label:'Yaklaşan Challenge\'lar', desc:'Yakında başlayacaklar', href:'challenge-merkezi-v1.html?durum=yaklasan', icon:'fa-regular fa-clock'},
+      {label:'Tamamlanan Challenge\'lar', desc:'Bitmiş olanlar', href:'challenge-merkezi-v1.html?durum=gecmis', icon:'fa-solid fa-flag-checkered'},
+      {label:'Challenge Detayı', desc:'Örnek bir challenge sayfası', href:'challenge-v1.html?slug=hareket-aliskanligi', icon:'fa-solid fa-circle-info'}
+    ] },
+
+  /* 5 · ANTRENÖRLER — belge §2 dört kalemlik panel istiyor. Önceki tur burayı
+ DadaDiet "Diyetisyenler" referansına bakarak panelsiz bırakmıştı; o referans
+ A4'te LİSTE SAYFASI kurgusu için ölçülmüştü, menü yapısı için değil (KARARLAR.md K5). */
   { key:'antrenorler', label:'Antrenörler', href:'antrenorler-v1.html', icon:'fa-solid fa-user-tie',
-    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'] }
+    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'],
+    dd:[
+      {label:'Antrenör Bul', desc:'Uzmanlık ve çalışma şekline göre filtrele', href:'antrenorler-v1.html', icon:'fa-solid fa-magnifying-glass'},
+      {label:'Antrenör Profili', desc:'Örnek bir antrenör sayfası', href:'antrenor-detay-v1.html', icon:'fa-solid fa-id-badge'},
+      {label:'Randevu Al', desc:'Randevularını Planım > Antrenörüm\'den yönet', href:'fit-planim-randevular-v1.html', icon:'fa-solid fa-calendar-check'},
+      {label:'Antrenör Ol', desc:'DadaFit\'te antrenör olarak yer al', href:'antrenor-ol-v1.html', icon:'fa-solid fa-user-plus'}
+    ] }
 ];
 
 /* Mobil alt bar — belge §3.2 / §19: BEŞTEN FAZLA sabit öğe olamaz. */
@@ -120,29 +154,58 @@ var BOTTOM = [
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
 
-/* Footer — belge §3.3'ün saydığı kalemler */
+/* ============================================================
+ FOOTER — belge §16, DÖRT kolon ve saydığı kalemlerin tamamı
+ ------------------------------------------------------------
+ Kolon adları ve sıraları belgeden birebir: DadaFit · Kurumsal ·
+ İletişim · Yasal ve Sağlık.
+
+ Bu kolonlar Faz 5'i BEKLİYORDU: §16 "Destek Merkezi" istiyor ve o
+ sayfa (destek-talepleri-v1) Faz 5'te üretildi. Footer 56 sayfanın
+ hepsinde basıldığı için var olmayan bir hedefe bağlamak tek hamlede
+ site geneli kırık link üretirdi — nihai kabul kriteri "yerel
+ bağlantılarda kırık hedef bulunmamalı" diyor.
+
+ "Eksik" sanılan diğer beş hedef aslında vardı, ölçülerek bulundu:
+   Sponsorlar ve Partnerler   → hakkimizda-v1.html#partnerler
+   Künye                      → hakkimizda-v1.html#kunye
+   Çerez Politikası           → yasal-v1.html?metin=cerez
+   Üyelik ve İptal Koşulları  → yasal-v1.html?metin=uyelik
+   Veri ve İzin Politikası    → yasal-v1.html?metin=veri-izin
+ yasal-v1 on bir hukuki metni ?metin= parametresiyle tek sayfada
+ sunuyor; ayrı sayfa üretmeye gerek yok (belge sonu "gereksiz sayfa
+ çoğaltacak değişiklikler yapma").
+ ============================================================ */
 var FOOTER_COLS = [
   { title:'DadaFit', links:[
-      {label:'Hareket',     href:'hareket-merkezi-v1.html'},
-      {label:'Programlar',  href:'programlar-merkezi-v1.html'},
-      {label:'Challenge',   href:'challenge-merkezi-v1.html'},
-      {label:'Planım',      href:'fit-planim-v1.html'},
-      {label:'Antrenörler', href:'antrenorler-v1.html'}
+      {label:'Hareket',        href:'hareket-merkezi-v1.html'},
+      {label:'Programlar',     href:'programlar-merkezi-v1.html'},
+      {label:'Enerji Defteri', href:'enerji-defteri-v1.html'},
+      {label:'Challenge',      href:'challenge-merkezi-v1.html'},
+      {label:'Antrenörler',    href:'antrenorler-v1.html'},
+      {label:'Planım',         href:'fit-planim-v1.html'}
   ]},
-  { title:'Hızlı Erişim', links:[
-      {label:'Hakkımızda', href:'hakkimizda-v1.html'},
-      {label:'Künye',      href:'hakkimizda-v1.html#kunye'},
-      {label:'S.S.S.',     href:'sss-v1.html'}
+  { title:'Kurumsal', links:[
+      {label:'Hakkımızda',              href:'hakkimizda-v1.html'},
+      {label:'Antrenör Ol',             href:'antrenor-ol-v1.html'},
+      {label:'Künye',                   href:'hakkimizda-v1.html#kunye'},
+      {label:'Sponsorlar ve Partnerler',href:'hakkimizda-v1.html#partnerler'},
+      {label:'Sıkça Sorulan Sorular',   href:'sss-v1.html'}
   ]},
-  { title:'İletişim & İş Birliği', links:[
+  { title:'İletişim', links:[
       {label:'Bize Ulaşın',       href:'iletisim-v1.html'},
-      {label:'Öneri ve Şikayet',  href:'#', fb:true},
-      {label:'İş Birliği',        href:'reklam-ver-v1.html'}
+      {label:'Öneri ve Şikâyet',  href:'#', fb:true},
+      {label:'Destek Merkezi',    href:'destek-talepleri-v1.html'},
+      {label:'İş Birliği',        href:'reklam-ver-v1.html#isbirligi'},
+      {label:'Reklam Vermek İçin',href:'reklam-ver-v1.html#reklam'}
   ]},
-  { title:'Yasal & Sağlık', links:[
-      {label:'Kullanım Koşulları',   href:'yasal-v1.html?metin=kullanim'},
-      {label:'Gizlilik (KVKK)',      href:'yasal-v1.html?metin=kvkk'},
-      {label:'Sağlık Bilgilendirmesi', href:'saglik-bilgilendirme-v1.html'}
+  { title:'Yasal ve Sağlık', links:[
+      {label:'Kullanım Koşulları',      href:'yasal-v1.html?metin=kullanim'},
+      {label:'Gizlilik ve KVKK',        href:'yasal-v1.html?metin=kvkk'},
+      {label:'Çerez Politikası',        href:'yasal-v1.html?metin=cerez'},
+      {label:'Üyelik ve İptal Koşulları',href:'yasal-v1.html?metin=uyelik'},
+      {label:'Sağlık Bilgilendirmesi',  href:'saglik-bilgilendirme-v1.html'},
+      {label:'Veri ve İzin Politikası', href:'yasal-v1.html?metin=veri-izin'}
   ]}
 ];
 
@@ -637,7 +700,8 @@ var FOOTER_RAW = `<footer class="footer orange">
     <div class="foot-grid">
       <div class="foot-brand">
         <div class="foot-lockup"><span class="fl-mark"><i class="fa-solid fa-bolt"></i></span><span class="fl-word"><span class="bd">Dada</span><span class="sf">Fit</span></span></div>
-        <p class="foot-tag">Harekete geçmenin en kolay yolu — çalış, ölç, güçlen.</p>
+        <!-- belge §16 "Footer logo altı metni" — birebir -->
+        <p class="foot-tag">Günlük hareketini, enerjini ve ilerlemeni kendi ritminde yönet.</p>
         <div class="foot-soc">
           <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
           <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>

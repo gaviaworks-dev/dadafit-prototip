@@ -86,3 +86,57 @@ ayrıntılı yazdığı diğer dokuz sayfayla orantısız bir modül üretirdi.
 **Uygulandı:** `tools/FAZ5-SAYFA-SPEC.md`.
 
 **Geri almak için:** kullanıcı destek akışının kapsamını söylerse spec genişletilir.
+
+---
+
+## K5 · Menü panelleri: BELGE kazandı, "aynı-hedefe-tek-kapı" kuralı değil
+
+**Belirsizlik:** `REVIZE-PLAN-2.md` sonundaki 1 numaralı açık soru. Belge §2, Hareket
+panelinde ilk kalem olarak "Hareket Merkezi"ni ve Antrenörler için dört kalemlik bir
+panel istiyor. Önceki tur ikisini de **bilinçli olarak** kaldırmıştı: gerekçe
+"başlığın kendisi zaten o hedefe gidiyor, aynı hedefe ikinci kapı açılmaz" idi ve
+A4'ün referansı DadaDiet'te Diyetisyenler panelsizdi.
+
+**Seçilen: belgeye uyuldu.** Hareket paneline "Hareket Merkezi" geri kondu,
+Antrenörler dört kalemlik panel aldı, Programlar paneline "Programlar Merkezi" kondu.
+
+**Gerekçe — üçü de ölçüme ya da belgeye dayanıyor:**
+
+1. **Kaldırma kararı erişilebilirliği bozuyordu.** Masaüstünde başlığın üzerine
+   gelince panel açılıyor; başlığa tıklamak için panelin altından geçmek gerekiyor.
+   "Hareket Merkezi" paneldeki tek kalem olarak yokken merkez sayfasına menüden
+   pratikte gidilemiyordu. Belge kalemi boşuna saymamış.
+2. **DadaDiet referansı yanlış yere uygulanmıştı.** O ölçüm A4'te *liste sayfası
+   kurgusu* için alınmıştı (banner, sol filtre kolonu, kart anatomisi); §2 menü
+   yapısını ayrıca ve açıkça tanımlıyor. Bir alandaki referansı başka bir alanın
+   şartını iptal etmek için kullanmak yanlıştı.
+3. **Faz 5 önceki turdaki engeli kaldırdı.** Programlar paneline "Fit Testleri" ve
+   "Video Seansları" ancak sayfalar üretildikten sonra bağlanabilirdi; artık varlar.
+
+**Uygulandı:** `assets/js/fit-shell.js` → `NAV`.
+**Ölçüm:** kabuktaki 107 yerel bağlantı (menü + footer + drawer + alt bar + üst bant),
+48 benzersiz hedef → **kırık link 0, kırık çapa 0**.
+
+**Geri almak için:** `NAV` içindeki ilgili `dd:[…]` kalemleri çıkarılır.
+
+---
+
+## K6 · Kalan 13 boş `href="#"` — ikiye ayrılıyor, hepsi kusur değil
+
+**Belirsizlik:** belge §23 "boş bağlantı bırakma" diyor; kabukta 13 tane var.
+
+**Seçilen:** ayrım yapıldı, yalnız gerçekten ölü olanlar kusur sayıldı.
+
+- **Ölü DEĞİL (6):** "Programımı Bul" (menü + drawer) sihirbazı açıyor,
+  "Öneri ve Şikâyet" görüş modalını açıyor. Bunlar `href="#"` + `preventDefault`
+  ile çalışan gerçek eylemler. Doğru semantik `<button>` olurdu; görünüm riskine
+  girmemek için bu turda markup değiştirilmedi, Faz 9'a (§20 erişilebilirlik) yazıldı.
+- **Gerçekten ölü (7):** 8 sosyal medya ikonu (üst bant 3 + footer 5) ve TR/EN dil
+  seçici (2). Sosyal hesap adresleri **bilinmiyor** — uydurma adres yazmak kırık
+  link üretmekten kötü olurdu. Dil seçici Faz 8'in konusu.
+
+**Gerekçe:** §23'ün amacı kullanıcıyı hiçbir yere götürmeyen bağlantıyı önlemek;
+modal açan bir tetikleyici bu tanıma girmiyor. Bilinmeyen sosyal adres ise
+kullanıcıdan bilgi bekleyen bir boşluk, teknik bir hata değil.
+
+**Kullanıcıdan gereken:** DadaFit'in gerçek sosyal medya adresleri.

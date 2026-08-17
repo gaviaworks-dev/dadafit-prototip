@@ -202,7 +202,14 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
 /* ============ HEADER — TEK KAT (marka · ortalanmış nav · aksiyonlar) — Revize T3 M2 ============ */
 .header{
   position:fixed;top:0;left:0;right:0;z-index:60;
-  top:40px;background:rgba(255,255,255,.94);backdrop-filter:saturate(150%) blur(10px);
+  /* KATI DURUM TAM OPAK (kullanıcı kararı — KARARLAR.md K8).
+     Eskiden rgba(255,255,255,.94) + blur idi. Banner görseli olan sayfalarda
+     header'ın arkasından koyu fotoğraf sızdığı için "ne şeffaf ne katı" bir
+     ara ton oluşuyor, menü yazıları kirli bir zemine oturuyordu. İstenen
+     davranış ikili: banner üzerinde TAM ŞEFFAF, kaydırınca TAM KATI.
+     %94 opaklık ikisinin de arası olduğu için 1.0'a çekildi; tam opak zeminde
+     backdrop blur'un görsel katkısı yok, kaldırıldı (§18 gereksiz iş). */
+  top:40px;background:var(--paper,#fff);
   border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(33,30,22,.05);
   transition:background .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
 }
@@ -395,44 +402,15 @@ body.is-auth .drawer-login{display:none}
 /* .dd-group'tan hemen sonra gelen bağlantı üst çizgisini tekrarlamaz */
 .dd-group+a{border-top:none !important}
 
-/* ---- GENİŞ PANEL (dd-wide) — Hareket menüsü on bir hedefe çıktı ----
- Tek kolonda panel ekran boyunu aşıyordu; kalemler iki kolona akar.
- dd-group tam satır kaplar, böylece "Rehber konuları" ayrımı korunur. */
-.dropdown.dd-wide{
-  min-width:560px;
-  display:grid;grid-template-columns:1fr 1fr;gap:0 8px;align-content:start;
-}
-.dropdown.dd-wide .dd-group{grid-column:1/-1}
-/* iki kolonda "a+a üst çizgisi" yanlış yere düşer → çizgi yerine boşluk ritmi */
-.dropdown.dd-wide a+a{border-top:none}
-.dropdown.dd-wide a{align-items:flex-start}
+/* ---- GENİŞ PANEL (dd-wide) KALDIRILDI ----
+ Hareket paneli 11 kalemle iki kolona yayılıyordu; kullanıcı kararıyla üç kaleme
+ ve tek kolona indi (KARARLAR.md K7), böylece `.dd-wide` sınıfını kullanan kalan
+ öğe olmadı. Beraberinde ≤1280px'te paneli sola yaslayan medya sorgusu da kalktı:
+ o kural yalnız 560px'lik geniş panelin ekran dışına taşmasını çözmek için vardı,
+ dar panelde (265px) taşma matematiksel olarak mümkün değil — ölçüldü, en dar
+ başlık merkezi 200px, panelin yarısı 133px.
+ Belge §18 "kullanılmayan CSS'i kaldır". */
 
-/* ---- DAR EKRANDA GENİŞ PANEL SOLA YASLANIR ----
- Ana menü Faz 3'te dört başlıktan BEŞE çıktı (Enerji Defteri eklendi, belge §2).
- `.nav` ortalanmış olduğu için beşinci başlık menüyü genişletti ve en soldaki
- "Hareket" sola kaydı; 560px'lik panel onun MERKEZİNE hizalandığından sol kenarı
- ekranın dışına taştı.
-
- ÖLÇÜM (Hareket başlığının merkezi ↔ 560px panelin sol kenarı):
-   1440px → merkez 408 · panel 128–688   ✓
-   1280px → merkez 328 · panel  48–608   ✓ (pay yalnız 48px)
-   1100px → merkez 238 · panel −42–518   ✗ taşma
-   1025px → merkez 200 · panel −80–480   ✗ taşma
- Ortalama, merkez 280'in (560/2) altına düştüğü her genişlikte imkânsız.
-
- Çözüm: ≤1280px'te panel başlığın MERKEZİNE değil SOL KENARINA hizalanır.
- Panel genişliği ve iki kolonlu düzen korunur; yalnız hizalama değişir.
- Ok işareti de sola alınır, yoksa başlığı değil boşluğu gösterirdi.
- Seçiciler bilinçli olarak .dd-wide ile bir sınıf daha derin (0,4,0):
- aşağıdaki `:focus-within` kuralı (0,3,0) medya sorgusundan BAĞIMSIZ olarak
- kazanırdı — medya sorgusu özgüllük eklemez. */
-@media (max-width:1280px){
-  .nav-item .dropdown.dd-wide{left:0;transform:translateX(0) translateY(8px)}
-  .nav-item:hover .dropdown.dd-wide,
-  .nav-item.open .dropdown.dd-wide,
-  .nav-item:focus-within>.dropdown.dd-wide{transform:translateX(0) translateY(0)}
-  .nav-item .dropdown.dd-wide::before{left:38px;transform:translateX(0) rotate(45deg)}
-}
 
 /* ---- MEGA MENÜ (Tarifler) — header'a bağlı tam genişlik panel — KİLİTLİ ---- */
 .nav-item.has-mega{position:static}            /* containing block = .header (fixed) */

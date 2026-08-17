@@ -65,29 +65,21 @@ var NAV = [
  Rehberin yedi alt sayfası artık menüde: eskiden yalnız ?bolge= varyantlarıyla
  kütüphaneye giden dört kopya kalem vardı, gerçek sayfalar erişilemezdi. */
   { key:'hareket', label:'Hareket', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running',
-    wide:true,
     match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1',
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
            'hareket-isinma-soguma-v1','hareket-sozluk-v1'],
-    /* Belge §2 Hareket panelinde ON BİR kalem sayıyor ve ilki "Hareket Merkezi".
-       Önceki tur bunu *aynı-hedefe-tek-kapı* gerekçesiyle çıkarmıştı; bu tur
-       belgeye dönüldü (gerekçe: KARARLAR.md K5). Başlığın kendisi hover ile
-       paneli açtığı için masaüstünde merkeze gitmenin tek yolu paneldeki bu
-       kalemdir — kalem yokken merkez sayfası menüden ERİŞİLEMEZ durumdaydı. */
+    /* PANEL ÜÇ KALEM, TEK KOLON (kullanıcı kararı — KARARLAR.md K7).
+       Panel önce iki kolonlu 11 kalemdi (belge §2'nin listesi). Yedi "rehber
+       konusu" + sözlük panelden çıkarıldı: bunlar zaten Hareket Rehberi
+       sayfasının İÇERİĞİ ve o sayfa sekizinin de kartını taşıyor
+       (ölçüldü: hareket-rehberi-v1.html sekiz hedefin sekizine de link veriyor).
+       Menüde tekrarlanmaları paneli şişiriyordu; erişim kaybı YOK, bir tık
+       derinleşti. Panel tek kolona indiği için `wide:true` de kalktı. */
     dd:[
       {label:'Hareket Merkezi', desc:'Hareket dünyasının giriş kapısı', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running'},
       {label:'Egzersiz Kütüphanesi', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
-      {label:'Hareket Rehberi', desc:'Nasıl ve neden — öğretici içerik', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
-      {group:'Rehber konuları'},
-      {label:'Yeni Başlayanlar', desc:'İlk 7 gün ve rutine dönüş', href:'hareket-yeni-baslayanlar-v1.html', icon:'fa-solid fa-seedling'},
-      {label:'Doğru Form', desc:'Teknik ve sık yapılan hatalar', href:'hareket-dogru-form-v1.html', icon:'fa-solid fa-person-rays'},
-      {label:'Süreye Göre', desc:'5 · 10 · 15 · 20 · 30 dakika', href:'hareket-sureye-gore-v1.html', icon:'fa-solid fa-stopwatch'},
-      {label:'Hedefe Göre', desc:'Güç, mobilite, kondisyon', href:'hareket-hedefe-gore-v1.html', icon:'fa-solid fa-bullseye'},
-      {label:'Bölgeye Göre', desc:'Üst vücut, alt vücut, core', href:'hareket-bolgeye-gore-v1.html', icon:'fa-solid fa-person-walking'},
-      {label:'Masa Başı', desc:'Gün içinde kısa molalar', href:'hareket-masa-basi-v1.html', icon:'fa-solid fa-chair'},
-      {label:'Isınma ve Soğuma', desc:'Hazırlık ve toparlanma', href:'hareket-isinma-soguma-v1.html', icon:'fa-solid fa-fire-flame-simple'},
-      {label:'Hareket Sözlüğü', desc:'Set, tekrar, core, mobilite…', href:'hareket-sozluk-v1.html', icon:'fa-solid fa-spell-check'}
+      {label:'Hareket Rehberi', desc:'Nasıl ve neden — yedi rehber konusu ve sözlük', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'}
     ] },
 
   /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
@@ -363,7 +355,7 @@ function navHtml(){
       var extra = d.wizard ? ' data-fit-wizard' : '';
       return '<a href="'+d.href+'"'+extra+'><i class="'+d.icon+'"></i> <span>'+d.label+(d.desc?'<small>'+d.desc+'</small>':'')+'</span></a>';
     }).join('\n            ');
-    return '<div class="nav-item">\n          <a href="'+it.href+'"'+(act||' class=""')+' aria-haspopup="true" aria-expanded="false">'+it.label+' <i class="fa-solid fa-chevron-down"></i></a>\n          <div class="dropdown'+(it.wide?' dd-wide':'')+'">\n            '+items+'\n          </div>\n        </div>';
+    return '<div class="nav-item">\n          <a href="'+it.href+'"'+(act||' class=""')+' aria-haspopup="true" aria-expanded="false">'+it.label+' <i class="fa-solid fa-chevron-down"></i></a>\n          <div class="dropdown">\n            '+items+'\n          </div>\n        </div>';
   }).join('\n        ');
 }
 

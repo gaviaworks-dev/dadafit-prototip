@@ -244,12 +244,35 @@ rozetler · sss · yasal` — her biri kendi satır içi turuncu DadaMutfak kabu
 (`--tomato:#E14827`), `fit-shell.css/js` yüklemiyor. Belge bunları DadaFit arayüzüne geçirmeyi
 açıkça istiyor; ayrıca §23 "sayfa bazında tekrarlanan header ve footer kodlarını temizle" diyor.
 
-- [ ] Sayfa sözleşmesine geçiş: `<div id="fitShellTop">` / `<div id="fitShellBottom">` + `fit-shell` yükleme
-- [ ] Gömülü header/nav/footer/drawer/topbar markup'ı ve onların `<style>`/`<script>` blokları sökülecek
-- [ ] Ölü kod: `.row-track`/`.row-nav` slider CSS+JS (bu 12 dosyada tanımlı, markup'ı yok) — silinecek
-- [ ] Sayfaya özgü içerik stilleri korunacak, marka token'ları DadaFit yeşiline çevrilecek
-- [ ] Sıra (küçükten büyüğe, her biri ayrı doğrulama): `sss` → `iletisim` → `yasal` → `bildirimler`
-      → `hakkimizda` → `pro` → `pro-odeme` → `giris` → `rozetler` → `hesabim` → `reklam-ver` → `profil`
+## ✅ FAZ 2 TAMAMLANDI — 12/12
+
+Ölçüm: `grep -c fitShellTop` 12 dosyanın her birinde **1** → toplam 12/12.
+
+- [x] Sayfa sözleşmesine geçiş: `<div id="fitShellTop">` / `<div id="fitShellBottom">` + `fit-shell` yükleme
+- [x] Gömülü header/nav/footer/drawer/topbar markup'ı ve onların `<style>`/`<script>` blokları söküldü
+- [x] Ölü kod: `.row-track`/`.row-nav` slider CSS+JS silindi
+- [x] Sayfaya özgü içerik stilleri korundu, marka token'ları DadaFit yeşiline çevrildi
+- [x] Sıra: `sss` → `iletisim` → `yasal` → `bildirimler` → `hakkimizda` → `pro` → `giris`
+      → `hesabim` → `reklam-ver` → `pro-odeme` → `rozetler` → `profil`
+
+| Sayfa | karakter | `main` metni (göç öncesi → şimdi) | page-check |
+|---|---|---|---|
+| `pro-odeme-v1` | 122828 → 35800 | 817 → **2318** | 4/4 temiz |
+| `rozetler-v1` | 153573 → 58651 | 2658 → **4509** | 4/4 temiz |
+| `profil-v1` | 365448 → 260641 | 1501 → **1576** | 4/4 temiz |
+
+**Dosya küçülmesi içerik kaybı değil** — üçünde de `main` metni uzadı. Küçülen,
+her dosyanın kendi içine kopyalanmış turuncu DadaMutfak kabuğu ve onun CSS/JS'i.
+
+`profil-v1`'de HANDOFF'un uyardığı `</main>` sınır sapması ölçülerek kapatıldı:
+dosyadaki iki `</main>` geçişinden biri CSS yorumunun içinde (satır 864), gerçek
+kapanış 3312'de — sınır doğru, içerik kaymamış.
+
+`rozetler-v1` içerik çevirisi (KARARLAR.md K2): mutfak dili kalıntısı **0**
+(tek eşleşme "**şef**faf" kelimesinin içindeydi), rozet aileleri belgedeki
+ölçülebilir boyutlardan türedi — adım 25 · aktif gün 27 · challenge 22 ·
+kuvvet günü 8 · dinlenme 10 · hareket süresi 6 · kilometre taşı 6 ·
+program tamamlama 4 · çeşitlilik 2.
 - [ ] **Ölçüm:** her sayfa taşındıktan sonra 4 genişlikte konsol hatası / yatay taşma / kırık link taraması
 
 ### Dalga 1'in görsel doğrulaması ✅ (HANDOFF §4.2'nin bekleyen ölçümü)

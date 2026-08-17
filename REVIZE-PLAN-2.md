@@ -397,6 +397,24 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
 - [ ] "Enerji Köprüsü'nü Gör" ana CTA olmaktan çıkacak → Enerji Defteri alanında ikincil bağlantı
 - [ ] **İçerik sayısı tutarlılığı**: bugün üst bantta "320+ egzersiz", başka yerde "80+ hareket" —
       tek doğrulanmış sayı belirlenip **tüm sayfalarda** aynı değer kullanılacak (grep ile taranacak)
+- [ ] **§23 · Filtreler URL'ye yansımıyor (ÖLÇÜLDÜ, mevcut sayfalarda genel kusur).**
+      Belge §23: "Filtreleri URL parametresine yansıt, tarayıcı geri/ileri işlemlerini
+      destekle, yenilemede seçim korunsun." Beş filtre sayfasında gerçek bir süzme
+      çipine (— "Tümü" sıfırlama çipi değil —) basılıp ölçüldü:
+
+      | Sayfa | tıklanan çip | URL değişti | geri çalışıyor |
+      |---|---|---|---|
+      | `egzersiz-kutuphane-v1` | Bacak | ✗ hayır | — |
+      | `antrenorler-v1` | Güç & Kondisyon | ✗ hayır | — |
+      | `program-liste-v1` | Güç & Kondisyon | ✗ hayır | — |
+      | `hareket-merkezi-v1` | 5 dk | ✗ hayır | — |
+      | `programlar-merkezi-v1` | Tek günlük rutin | ✓ `?tur=rutin` | ✗ hayır |
+
+      Yani 5 sayfanın 4'ünde URL hiç yazılmıyor; yazan tek sayfada da geri tuşu
+      önceki duruma dönmüyor (büyük ihtimalle `replaceState`, `pushState` değil).
+      Faz 5'te üretilen yeni sayfalar bu kuralı sağlıyor; **eski sayfalar sağlamıyor.**
+      Bu, "aynı davranışı iki farklı sayfa ailesinde iki türlü yapmak" demek —
+      merkezî bir yardımcı (kabukta `FIT_SHELL.syncFilterURL`) doğru çözüm olur.
 - [ ] Hedef kartları filtre taşıyacak: `?hedef=guc|esneklik|dayaniklilik|aliskanlik`
 - [ ] Tüm antrenör kartları gerçek detay sayfasına (`?slug=`) — genel profile gitmeyecek (§11)
 - [ ] Egzersiz/program/challenge kartları benzersiz `?slug=` ile açılacak; hepsi aynı örneğe gitmeyecek

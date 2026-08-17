@@ -72,7 +72,7 @@ Kabuğun hazır kitleri: `.lib-top` banner + `.lib-crumb`, `.lib-grid`/`.hub-gri
 Sunucu ayakta değilse repo kökünde: `python3 -m http.server 8811 &`
 
 ```bash
-export PW_HOME=/private/tmp/claude-501/-Users-gaviaworks-Developer-Projects-dadafit-prototip/8e804619-336a-4048-8bf6-c70cbb02bc7c/scratchpad/pw
+export PW_HOME=~/.pw
 node tools/page-check.mjs <sayfa>.html 1440
 node tools/page-check.mjs <sayfa>.html 1024
 node tools/page-check.mjs <sayfa>.html 768

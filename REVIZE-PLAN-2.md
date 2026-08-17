@@ -371,6 +371,12 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
       breadcrumb yapılandırılmış verisi · egzersiz/program/antrenör şeması · hreflang · tek H1 · H1-H2-H3
 - [ ] Erişilebilirlik: klavye · modal focus trap + geri dönüş + Escape · filtrelerde `aria-pressed` ·
       gerçek `label` · hata yalnız renkle değil · anlamlı `alt` · kontrast · dokunma alanı · hareketi azalt
+  - [x] **Odak tuzağı kararsızlığı kapandı** (`fit-shell.js` → `trapFocus`). Ölçüm: modal
+        `visibility:hidden` + `transition:… visibility .25s` ile açılıyor; kare 0'da
+        `checkVisibility()=false` ve `.focus()` sessizce no-op, kare 1'de odaklanabilir hâle
+        geliyor. Eski kod tek yedek rAF denemesi yapıyordu, bir kare kayınca düşüyordu.
+        Sınırlı kare yoklamasına (≤20 kare) geçildi → `tests/a11y-focus.mjs` **10 koşu 10/10**
+        (düzeltmeden önce aynı ortamda 1 sorun). Yöntem seçimi gerekçesi: `KARARLAR.md` K1.
 - [ ] **Birincil düğme kontrastı (A2'de ölçüldü):** beyaz metin / `#009d4f` = **3.55:1**, AA'nın
       altında. `--tomato-dark` `#007a3d` = **5.45:1**, `--tomato-deep` `#006a35` = **6.84:1**.
       Karar site geneli verilecek (`.btn-login`, `.btn-primary`, `.btn-fit` birlikte).

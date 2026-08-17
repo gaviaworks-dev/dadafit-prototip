@@ -34,6 +34,28 @@
  başlığa tıklanınca kendi merkez sayfasına gidilir.
  · Panelsiz başlık chevron TAŞIMAZ (dd yok → düz link).
  ------------------------------------------------------------------ */
+/* ============================================================
+ EKOSİSTEM ADRESLERİ — belge §14
+ ------------------------------------------------------------
+ "Doğrudan başka prototiplerin HTML sayfalarına bağımlı bağlantılar
+ oluşturma · entegrasyonlar yapılandırılabilir servis adresleri üzerinden
+ tasarlanmalıdır." Statik prototipte bunun karşılığı: adresler sayfalara
+ ve markup'a gömülmez, TEK yerden okunur. Gerçek servis adresleri
+ belirlendiğinde yalnız bu nesne değişir.
+
+ DadaFit'in KENDİ akışları (giriş, hesap, çıkış, Planım) buraya BAKMAZ —
+ bağımsız görünmesi gerekiyor (belge §1). Burada yalnız kardeş ürünlere
+ giden kontrollü ekosistem kapıları var.
+ ============================================================ */
+var ECO = {
+  gastro:  'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html',
+  diet:    'https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html',
+  gourmet: 'https://by4r.github.io/dadamutfak-view/v7-6cu356/kesfet-v1.html',
+  campus:  'https://by4r.github.io/dadamutfak-view/v7-6cu356/akademi-v1.html'
+};
+/* DadaFit'in kendi çıkış hedefi — eskiden DadaMutfak portalına gidiyordu. */
+var FIT_LOGOUT = 'dadafit-hub-v1.html?auth=0';
+
 var NAV = [
   /* 1 · HAREKET — Egzersiz Kütüphanesi ile Hareket Rehberi bu şemsiye altında (belge §3.1).
  Rehberin yedi alt sayfası artık menüde: eskiden yalnız ?bolge= varyantlarıyla
@@ -127,43 +149,119 @@ var FOOTER_COLS = [
  data-plan-sub="…"></div> yazar; başlık, breadcrumb ve
  sekme rayı buradan üretilir.
  ============================================================ */
-var PLAN_NAV = [
-  {key:'bugun',        label:'Bugün',                     href:'fit-planim-v1.html',                icon:'fa-solid fa-sun',                 desc:'Bugünkü plan, sıradaki antrenman'},
-  {key:'defter',       label:'Enerji Defteri',            href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',                desc:'Aldığın · harcadığın · denge'},
-  {key:'programim',    label:'Programım',                 href:'fit-planim-programim-v1.html',      icon:'fa-solid fa-clipboard-list',      desc:'Aktif programın ve takvimi'},
-  {key:'gecmis',       label:'Antrenman Geçmişim',        href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left',   desc:'Tamamladığın seanslar'},
-  {key:'ilerleme',     label:'İlerlemem',                 href:'fit-planim-ilerleme-v1.html',       icon:'fa-solid fa-chart-line',          desc:'Süre, seri, gelişim'},
-  {key:'rozetler',     label:'Challenge ve Rozetler',     href:'fit-planim-rozetler-v1.html',       icon:'fa-solid fa-medal',               desc:'Kilometre taşların'},
-  {key:'kaydettiklerim',label:'Kaydettiklerim',           href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',            desc:'Hareket, program, rehber'},
-  {key:'randevular',   label:'Randevularım ve Mesajlar',  href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-calendar-check',      desc:'Antrenörünle iletişim'},
-  /* Enerji Köprüsü kavram sayfası bu rayın parçası: beslenme ile hareketin buluştuğu yer. */
-  {key:'kopru',        label:'Enerji Köprüsü',            href:'dadafit-kopru-v1.html',             icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
-  {key:'saglik',       label:'Sağlık ve Hareket Profilim',href:'fit-planim-saglik-profil-v1.html',  icon:'fa-solid fa-heart-pulse',         desc:'Kısıt, hedef, tercih'},
-  {key:'veri',         label:'Veri ve İzinlerim',         href:'fit-planim-veri-izin-v1.html',      icon:'fa-solid fa-shield-halved',       desc:'Neyi kiminle paylaştığın'}
+/* ------------------------------------------------------------------
+ PLANIM ALTI SEKMEYE SADELEŞTİ (belge §4)
+ ------------------------------------------------------------------
+ Ray on bir kalemdi; belge altı ana başlık istiyor:
+   Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem ·
+   Kaydettiklerim · Antrenörüm
+
+ Eşleme (yeni sayfa üretilmedi, mevcut sayfalar yeni başlık altına girdi):
+   programim  → Plan ve Takvim        (aktif program + haftalık plan + takvim)
+   gecmis     → Aktivite Kayıtlarım   (tamamlanan antrenman + manuel aktivite + set geçmişi)
+   ilerleme   → İlerlemem             (rozet ve challenge ilerlemesi de bu başlığın altında)
+   kaydett…   → Kaydettiklerim
+   randevular → Antrenörüm            (randevu + mesaj + paylaşılan program/belge)
+
+ RAYDAN ÇIKANLAR ve nereye gittikleri:
+   defter  → ana menüde kendi başlığı oldu (belge §2: "Enerji Defteri'ni Planım
+             alanından çıkararak ana menüde doğrudan erişilebilir hâle getir")
+   kopru   → Enerji Defteri içindeki açıklayıcı sistem (belge §5: "Enerji Köprüsü,
+             Planım veya Hesabım sekmesi olarak gösterilmemelidir")
+   rozetler→ İlerlemem'in içeriği (belge §4.4 rozetleri İlerlemem altında sayıyor)
+   saglik  → Hesabım > Sağlık ve Hareket Profilim (belge §5)
+   veri    → Hesabım > Veri ve İzinlerim (belge §5)
+
+ İKİ LİSTE, TEK KAYNAK:
+ · PLAN_TABS  → sekme rayında görünen ALTI kalem
+ · PLAN_PAGES → #fitPlanTop kullanan TÜM sayfalar (ray dışı olanlar dahil)
+ Ray dışı sayfalar hâlâ Planım kabuğunu (banner + breadcrumb) kullanıyor;
+ anahtarları PLAN_PAGES'te durmazsa başlık/breadcrumb çözümü boşa düşer.
+ ------------------------------------------------------------------ */
+var PLAN_TABS = [
+  {key:'bugun',         label:'Bugün',              href:'fit-planim-v1.html',                icon:'fa-solid fa-sun',               desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
+  {key:'programim',     label:'Plan ve Takvim',     href:'fit-planim-programim-v1.html',      icon:'fa-solid fa-calendar-days',     desc:'Aktif program, haftalık plan, takvim'},
+  {key:'gecmis',        label:'Aktivite Kayıtlarım',href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
+  {key:'ilerleme',      label:'İlerlemem',          href:'fit-planim-ilerleme-v1.html',       icon:'fa-solid fa-chart-line',        desc:'Süre, gelişim, challenge, rozetler'},
+  {key:'kaydettiklerim',label:'Kaydettiklerim',     href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
+  /* anahtar 'randevular' KALIYOR: sayfa kendi data-plan-page="randevular"
+     değerini bildiriyor. Değişen yalnız görünen ad — anahtarı değiştirmek
+     sayfanın banner/breadcrumb çözümünü kırardı. */
+  {key:'randevular',    label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'}
 ];
+
+/* Ray dışında kalan ama Planım kabuğunu kullanan sayfalar. Ray'da GÖRÜNMEZLER;
+   yalnız banner/breadcrumb çözümü ve eski data-plan-page anahtarlarının
+   kırılmaması için burada dururlar. */
+var PLAN_EXTRA = [
+  {key:'defter',    label:'Enerji Defteri',             href:'enerji-defteri-v1.html',           icon:'fa-solid fa-bolt',                   desc:'Günlük denge · su · aktivite'},
+  {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
+  {key:'rozetler',  label:'Challenge ve Rozetler',      href:'fit-planim-rozetler-v1.html',      icon:'fa-solid fa-medal',                  desc:'Kilometre taşların'},
+  {key:'saglik',    label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',            desc:'Kısıt, hedef, tercih'},
+  {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın'}
+];
+var PLAN_PAGES = PLAN_TABS.concat(PLAN_EXTRA);
+/* geriye dönük ad — kabuk içinde "Planım alanının tamamı" anlamında kullanılıyordu */
+var PLAN_NAV = PLAN_PAGES;
 
 /* Hesap menüsü — belge §3.3: Dada Gastro hesap aksiyonları (Mutfak Defterim /
  Tarif Ekle / Alışveriş Listem …) DadaFit hesap menüsünde DURMAZ; onlara
- ekosistem değiştiriciden (üst bant marka barı · drawer "DadaMutfak'a dön")
+ ekosistem değiştiriciden (üst bant marka barı)
  geçilir. Burada yalnız DadaFit kalemleri var. */
-/* Hesap menüsü = Planım alanının tamamı (DadaDiet hesap menüsü deseni).
- PLAN_NAV'dan türetilir: kalem eklemek YALNIZ PLAN_NAV'da tek satırdır, iki liste
- birbirinden ayrışamaz. Eski menüde "Programım" yanlışlıkla program-liste-v1'e
- (Tüm Programlar ile aynı hedef) gidiyordu; artık plan sayfasına gider. */
-var ACCOUNT = PLAN_NAV.map(function(p,i){
-  /* Kök kalem hesap menüsünde header düğmesiyle AYNI adı taşır ("Planım");
-     "Bugün" adı yalnız sekme rayında kalır — aynı hedefe iki farklı ad çıkmasın. */
-  if(i===0) return {label:'Planım', href:p.href, icon:'fa-solid fa-list-check', desc:'Bugünün özeti'};
-  return {label:p.label, href:p.href, icon:p.icon, desc:p.desc};
-}).concat([
+/* ============================================================
+ HESABIM — belge §5
+ ------------------------------------------------------------
+ "Planım ile Hesabım birbirine karıştırılmamalıdır." Bu yüzden hesap
+ menüsü artık Planım rayının kopyası DEĞİL: Planım'a tek giriş verir,
+ gerisi hesap/üyelik/veri kalemleridir.
+
+ Belgenin saydığı on dört modül. Bir kısmı bugün hesabim-v1 içindeki
+ bölümler; onlara çapayla gidilir (ayrı sayfa çoğaltmamak için — belge
+ sonu "gereksiz sayfa çoğaltacak değişiklikler yapma" diyor). Üyelik/
+ faturalandırma ve destek talepleri kendi sayfalarını alıyor (belge §24).
+ ============================================================ */
+var ACCOUNT_ITEMS = [
+  {label:'Profil Bilgilerim',           href:'profil-v1.html',                   icon:'fa-solid fa-id-card',       desc:'Ad, foto, görünen bilgiler'},
+  {label:'Sağlık ve Hareket Profilim',  href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',   desc:'Kısıt, hedef, tercih'},
+  {label:'Veri ve İzinlerim',           href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',  desc:'Neyi kiminle paylaştığın'},
+  {label:'Bildirim Tercihlerim',        href:'hesabim-v1.html#bildirim',         icon:'fa-solid fa-bell-slash',    desc:'Hangi bildirimi alacaksın'},
+  /* ---- AŞAMA NOTU — bu üç grup Faz 5'te kendi sayfalarına taşınacak ----
+     Belge §24 şu sayfaları istiyor: bagli-uygulamalar-v1 · uyelik-faturalandirma-v1
+     · destek-talepleri-v1. Onlar HENÜZ ÜRETİLMEDİ. Kabuk hesap menüsü 47 sayfanın
+     tamamında basıldığı için var olmayan bir hedefe bağlamak SİTE GENELİNDE kırık
+     link üretir — nihai kabul kriteri "yerel bağlantılarda kırık hedef bulunmamalı"
+     diyor. Bu yüzden kalemler şimdilik var olan en yakın sahibine bağlı; sayfalar
+     üretildiğinde YALNIZ buradaki href'ler değişecek (tek satır, tek yer). */
+  {label:'Bağlı Uygulamalar',           href:'fit-planim-veri-izin-v1.html#baglantilar', icon:'fa-solid fa-plug-circle-check', desc:'Sağlık ve saat bağlantıları'},
   {sep:true},
-  {label:'Bildirimler',       href:'bildirimler-v1.html',    icon:'fa-solid fa-bell'},
+  {label:'Üyelik ve Paketim',           href:'hesabim-v1.html#uyelik',           icon:'fa-solid fa-crown',         desc:'Aktif paket, yenileme, iptal'},
+  {label:'Ödeme Geçmişim',              href:'hesabim-v1.html#odeme',            icon:'fa-solid fa-receipt',       desc:'Geçmiş ödemeler'},
+  {label:'Faturalarım',                 href:'hesabim-v1.html#fatura',           icon:'fa-solid fa-file-invoice',  desc:'Fatura belgeleri'},
   {sep:true},
-  {label:"Pro'ya Yükselt",    href:'pro-v1.html',            icon:'fa-solid fa-crown', cls:'acct-pro'},
-  {label:'Ayarlar',           href:'hesabim-v1.html',        icon:'fa-solid fa-gear'},   /* drawer kısayoluyla aynı ad */
+  {label:'Güvenlik',                    href:'hesabim-v1.html#guvenlik',         icon:'fa-solid fa-lock',          desc:'Şifre ve oturumlar'},
+  {label:'Dil ve Bölge',                href:'hesabim-v1.html#dil',              icon:'fa-solid fa-globe',         desc:'Arayüz dili, birimler'},
+  {label:'Destek Taleplerim',           href:'iletisim-v1.html#destek',          icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},   /* → destek-talepleri-v1 (Faz 5) */
   {sep:true},
-  {label:'DadaMutfak\'a dön', href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html', icon:'fa-solid fa-arrow-left-long'},
-  {label:'Çıkış',             href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0', icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
+  {label:'Hesabı Dondurma',             href:'hesabim-v1.html#dondur',           icon:'fa-solid fa-circle-pause',  desc:'Geçici olarak ara ver'},
+  {label:'Verilerimi İndir',            href:'fit-planim-veri-izin-v1.html#indir',icon:'fa-solid fa-download',     desc:'Kopyanı al'},
+  {label:'Hesabımı Sil',                href:'hesabim-v1.html#sil',              icon:'fa-solid fa-user-xmark',    desc:'Kalıcı olarak kapat', cls:'acct-danger'}
+];
+
+/* Header'daki avatar menüsü: Planım'a TEK giriş + Bildirimler + Hesabım kalemleri.
+   Planım'ın altı sekmesi burada TEKRARLANMAZ — ray zaten Planım sayfalarında
+   duruyor ve "Planım ile Hesabım karıştırılmaz" kuralı bunu gerektiriyor. */
+var ACCOUNT = [
+  {label:'Planım', href:'fit-planim-v1.html', icon:'fa-solid fa-list-check', desc:'Bugünün özeti'},
+  {label:'Bildirimler', href:'bildirimler-v1.html', icon:'fa-solid fa-bell'},
+  {sep:true}
+].concat(ACCOUNT_ITEMS).concat([
+  {sep:true},
+  {label:"Pro'ya Yükselt", href:'pro-v1.html', icon:'fa-solid fa-crown', cls:'acct-pro'},
+  {sep:true},
+  /* "DadaMutfak'a dön" kalemi KALDIRILDI (belge §1: DadaFit'in hesap ve üyelik
+     yapısı bağımsız görünmeli). Ekosistem geçişi üst banttaki marka barında
+     duruyor — kontrollü bağlantı orada. Çıkış artık DadaFit'in kendi hedefine. */
+  {label:'Çıkış', href:FIT_LOGOUT, icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
 ]);
 
 /* ============================================================
@@ -217,7 +315,11 @@ function drawerNavHtml(){
   });
   /* slice(1): kök kalem ("Bugün") atlanır — üstteki "Planım" satırı zaten
      aynı sayfaya giden gerçek bağlantı; aynı hedefe iki kapı olmaz. */
-  var planSubs = PLAN_NAV.slice(1).map(function(p){
+  /* slice(1): kök kalem ("Bugün") atlanır — üstteki "Planım" satırı zaten
+     aynı sayfaya giden gerçek bağlantı. Ray dışı sayfalar drawer'da da
+     görünmez; onlara kendi sahiplerinden gidilir (Enerji Defteri ana menüde,
+     rozetler İlerlemem içinde, sağlık/veri Hesabım'da). */
+  var planSubs = PLAN_TABS.slice(1).map(function(p){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
   out.push('<div class="d-item d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
@@ -257,11 +359,11 @@ var TOPBAR = ''+
 '    </div>\n'+
 '    <div class="tb-right">\n'+
 '      <nav class="brand-switch" aria-label="Dada dünyaları">\n'+
-'        <a class="bs-item bs-gastro" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html" title="DadaGastro"><i class="fa-solid fa-utensils"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gastro</span></span></a>\n'+
-'        <a class="bs-item bs-diet" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html" title="DadaDiet"><i class="fa-solid fa-leaf"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Diet</span></span></a>\n'+
+'        <a class="bs-item bs-gastro" href="'+ECO.gastro+'" title="DadaGastro"><i class="fa-solid fa-utensils"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gastro</span></span></a>\n'+
+'        <a class="bs-item bs-diet" href="'+ECO.diet+'" title="DadaDiet"><i class="fa-solid fa-leaf"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Diet</span></span></a>\n'+
 '        <a class="bs-item bs-fit is-active" href="dadafit-hub-v1.html" aria-current="page"><i class="fa-solid fa-dumbbell"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Fit</span></span></a>\n'+
-'        <a class="bs-item bs-gourmet" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/kesfet-v1.html" title="DadaGourmet"><i class="fa-solid fa-map-location-dot"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gourmet</span></span></a>\n'+
-'        <a class="bs-item bs-campus" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/akademi-v1.html" title="DadaCampus"><i class="fa-solid fa-graduation-cap"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Campus</span></span></a>\n'+
+'        <a class="bs-item bs-gourmet" href="'+ECO.gourmet+'" title="DadaGourmet"><i class="fa-solid fa-map-location-dot"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gourmet</span></span></a>\n'+
+'        <a class="bs-item bs-campus" href="'+ECO.campus+'" title="DadaCampus"><i class="fa-solid fa-graduation-cap"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Campus</span></span></a>\n'+
 '      </nav>\n'+
 '      <div class="tb-lang" id="tbLang">\n'+
 '        <button class="tb-lang-btn" id="tbLangBtn" type="button" aria-haspopup="true" aria-expanded="false">\n'+
@@ -338,13 +440,15 @@ function drawerHtml(){
 '          <a href="fit-planim-v1.html">Planım</a>\n'+
 '          <a href="bildirimler-v1.html">Bildirimler</a>\n'+
 '          <a href="hesabim-v1.html">Ayarlar</a>\n'+
-'          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0">Çıkış</a>\n'+
+'          <a href="'+FIT_LOGOUT+'">Çıkış</a>\n'+
 '        </div>\n'+
 '      </div>\n'+
 '    </div>\n'+
 /* "Antrenör Bul" kısayolu kaldırıldı: drawer menüsündeki "Antrenörler" ile aynı hedefe
- gidiyordu (aynı hedefe farklı adla ikinci kapı açılmaz kuralı). */
-'    <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html" class="drawer-add"><i class="fa-solid fa-arrow-left-long"></i> DadaMutfak\'a dön</a>\n'+
+ gidiyordu (aynı hedefe farklı adla ikinci kapı açılmaz kuralı).
+ "DadaMutfak'a dön" kısayolu da kaldırıldı (belge §1: DadaFit bir alt sayfa gibi
+ görünmemeli, hesap/üyelik yapısı bağımsız olmalı). Ekosistem geçişi üst bandın
+ marka barında duruyor; kontrollü bağlantı orada. */
 '    <div class="drawer-lang" id="drawerLang">\n'+
 '      <button class="drawer-lang-toggle" type="button" aria-haspopup="true" aria-expanded="false">\n'+
 '        <span class="drawer-lang-label"><i class="fa-solid fa-globe"></i> Dil</span>\n'+
@@ -445,7 +549,7 @@ var FEEDBACK_HTML = `<a class="feedback-tab" href="#" id="fbTab" aria-label="Gö
         </div>
 
         <div class="fb-fields" data-for="puan">
-          <p class="fb-q">DadaMutfak deneyimini nasıl puanlarsın?</p>
+          <p class="fb-q">DadaFit deneyimini nasıl puanlarsın?</p>
           <div class="fb-emoji" role="group" aria-label="Puan">
             <button type="button" data-val="1" aria-label="Çok kötü">😡</button>
             <button type="button" data-val="2" aria-label="Kötü">🙁</button>
@@ -492,7 +596,7 @@ var LGGATE_HTML = `<div class="lg-overlay" id="lgOverlay"></div>
     <button class="lg-close" id="lgClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
     <span class="lg-ico"><i class="fa-solid fa-lock"></i></span>
     <h4 id="lgTitle">Bu işlem için giriş yap</h4>
-    <p id="lgDesc">Kaydetmek, yorum yapmak ve takip etmek için DadaMutfak hesabına giriş yapman gerekiyor.</p>
+    <p id="lgDesc">Kaydetmek, yorum yapmak ve takip etmek için DadaFit hesabına giriş yapman gerekiyor.</p>
     <div class="lg-acts">
       <a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a>
       <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Üye Ol</a>
@@ -506,9 +610,9 @@ var LGGATE_HTML = `<div class="lg-overlay" id="lgOverlay"></div>
   <div class="pg-panel">
     <button class="pg-close" id="pgClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
     <span class="pg-ico"><i class="fa-solid fa-crown"></i></span>
-    <span class="pg-tag"><i class="fa-solid fa-lock"></i> DadaMutfak Pro</span>
+    <span class="pg-tag"><i class="fa-solid fa-lock"></i> DadaFit Pro</span>
     <h4 id="pgTitle">Bu içerik Pro'da</h4>
-    <p id="pgDesc">Derin program ve video içeriği DadaMutfak Pro üyeliğinle açılır.</p>
+    <p id="pgDesc">Derin program ve video içeriği DadaFit Pro üyeliğinle açılır.</p>
     <ul class="pg-feats">
       <li><i class="fa-solid fa-check"></i> İleri çok-haftalık programlar</li>
       <li><i class="fa-solid fa-check"></i> Eğitmen eşliğinde video serileri</li>
@@ -578,8 +682,10 @@ if(_plan){
   var ptit  = _plan.getAttribute('data-plan-title') || 'Fit Planım';
   var psub  = _plan.getAttribute('data-plan-sub') || '';
   var cur   = null;
-  for(var pi=0;pi<PLAN_NAV.length;pi++){ if(PLAN_NAV[pi].key===pk) cur=PLAN_NAV[pi]; }
-  var tabs = PLAN_NAV.map(function(it){
+  /* Başlık/breadcrumb çözümü TÜM plan sayfalarından (ray dışındakiler dahil),
+     ray ise YALNIZ altı sekmeden üretilir (belge §4). */
+  for(var pi=0;pi<PLAN_PAGES.length;pi++){ if(PLAN_PAGES[pi].key===pk) cur=PLAN_PAGES[pi]; }
+  var tabs = PLAN_TABS.map(function(it){
     var on = it.key===pk;
     return '<a class="dt'+(on?' active':'')+'" href="'+it.href+'"'+(on?' aria-current="page"':'')+
            '><i class="'+it.icon+'"></i> '+it.label+'</a>';
@@ -1452,7 +1558,7 @@ setTimeout(function(){
              'seni tanıyan biri belirlemeli.</p></div></div>'+
              '<div class="wz-res" style="margin-top:14px">'+
              '<a class="wz-card" href="antrenorler-v1.html"><span class="ico"><i class="fa-solid fa-user-tie"></i></span>'+
-             '<span class="txt"><b>DadaMutfak onaylı antrenörler</b><small>Belgesi doğrulanmış uzmanlar · online ve yüz yüze</small></span>'+
+             '<span class="txt"><b>DadaFit onaylı antrenörler</b><small>Belgesi doğrulanmış uzmanlar · online ve yüz yüze</small></span>'+
              '<i class="fa-solid fa-arrow-right go"></i></a>'+
              '<a class="wz-card" href="saglik-bilgilendirme-v1.html"><span class="ico"><i class="fa-solid fa-shield-heart"></i></span>'+
              '<span class="txt"><b>Sağlık Bilgilendirmesi</b><small>Durma kriterleri ve uzmana danışma koşulları</small></span>'+
@@ -1611,11 +1717,11 @@ setTimeout(function(){
    '  </div>'+
    '  <div class="fh-by">'+
    '    <div class="row"><span class="ico"><i class="fa-solid fa-pen-nib"></i></span>'+
-   '      <span><b>Hazırlayan: Selin Aksoy</b><small>Egzersiz ve spor bilimleri uzmanı · DadaMutfak onaylı antrenör</small></span></div>'+
+   '      <span><b>Hazırlayan: Selin Aksoy</b><small>Egzersiz ve spor bilimleri uzmanı · DadaFit onaylı antrenör</small></span></div>'+
    '    <div class="row"><span class="ico"><i class="fa-solid fa-user-check"></i></span>'+
    '      <span><b>Kontrol eden: Dr. Mert Yılmaz</b><small>Fiziksel tıp ve rehabilitasyon · içerik güvenlik kontrolü</small></span></div>'+
    '    <div class="row"><span class="ico"><i class="fa-solid fa-certificate"></i></span>'+
-   '      <span><b>“DadaMutfak Onaylı” nedir?</b><small>Kimlik ve sertifika doğrulamasıdır; hizmet sonucu garantisi değildir.</small></span></div>'+
+   '      <span><b>“DadaFit Onaylı” nedir?</b><small>Kimlik ve sertifika doğrulamasıdır; hizmet sonucu garantisi değildir.</small></span></div>'+
    '    <p class="fh-date"><i class="fa-regular fa-calendar-check"></i> Son kontrol: 11 Ağustos 2026</p>'+
    '  </div>'+
    '</div></div>';

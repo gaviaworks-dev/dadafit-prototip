@@ -1,0 +1,178 @@
+/* =====================================================================
+ DADA — METİN YASLAMA KATMANI (TEK KAYNAK)
+ ---------------------------------------------------------------------
+ Sitedeki akan metin iki yana yaslanır. Bu katman 46 sayfanın tamamına
+ link'lenir: DadaFit sayfaları (assets/css/fit-shell.css kullananlar) ve
+ kendi satır içi kabuğunu taşıyan eski DadaMutfak sayfaları.
+
+ SIRALAMA: bu dosya sayfa stillerinden SONRA yüklenir; yaslamayı sayfa
+ içi kurallar (ör. eski ".wrap p{text-align:left}") geri alamasın diye.
+
+ KAPSAM
+ · GİRER : paragraflar, açıklama blokları, kart açıklamaları, madde
+ metinleri, akordeon gövdeleri, alıntı ve not blokları.
+ · GİRMEZ: başlıklar, buton ve etiket metinleri, tablolar, sayısal
+ alanlar, rozet/çip/sekme, form kontrolleri, breadcrumb,
+ istatistik blokları, ikon-metin satırları.
+
+ YÖNTEM
+ Kör bir "p{text-align:justify}" bu arayüzde iş görmez: kartların çoğunda
+ paragraf iki-üç satırlık ve dar; yaslama son satırdan önceki satırlarda
+ kelime araları açıp "nehir" üretir. Bu yüzden yaslama YALNIZ yeterince
+ uzun satır kutusuna sahip metne uygulanır (--jt-min eşiği) ve daima
+ tireleme ile birlikte gelir; tireleme boşluk gerilimini emer.
+ ===================================================================== */
+
+:root{
+  /* yaslamanın açıldığı en küçük metin genişliği — bunun altında sola yaslı kalır */
+  --jt-min: 30rem;   /* ~480px: iki kolonlu kart gövdesi bu eşiğin altında kalır */
+}
+
+/* ---------------------------------------------------------------------
+ 1 · TABAN — akan metnin ortak davranışı
+ Yaslama olsun olmasın, tireleme ve taşma güvenliği her metinde vardır.
+ --------------------------------------------------------------------- */
+p, li, dd, blockquote, figcaption,
+.lead, .lib-sub, .qa-body, .hr-note p, .fp-card p,
+.hub-body p, .pr-body p, .ex-body p, .coach-body p, .fs-card p{
+  hyphens:auto;
+  -webkit-hyphens:auto;
+  -ms-hyphens:auto;
+  overflow-wrap:break-word;      /* uzun URL/kelime kutuyu patlatmasın */
+  word-break:normal;             /* Türkçede agresif kırma istemiyoruz */
+  line-break:auto;
+  text-wrap:pretty;              /* destekleyen tarayıcıda yetim satır azalır */
+}
+/* tireleme dili: sayfalar lang="tr", tarayıcı Türkçe tireleme sözlüğünü kullanır */
+html[lang="tr"] p, html[lang="tr"] li, html[lang="tr"] dd, html[lang="tr"] blockquote{
+  -webkit-hyphenate-limit-before:3;
+  -webkit-hyphenate-limit-after:3;
+  hyphenate-limit-chars:6 3 3;   /* en az 6 harfli kelime, 3+3 parça */
+}
+
+/* ---------------------------------------------------------------------
+ 2 · YASLAMA — yeterince geniş satır kutusuna sahip akan metin
+ container query birimi yerine @supports + inline-size sorgusu yok;
+ basit ve her yerde çalışan yöntem: minimum genişlik medya sorgusu
+ (kart gövdeleri zaten ekran daraldıkça tek kolona iner).
+ --------------------------------------------------------------------- */
+p,
+li,
+dd,
+blockquote,
+.lead,
+.lib-sub,
+.qa-body p,
+.qa-body li,
+.hr-note p,
+.fp-card p,
+.hub-body p,
+.pr-body p,
+.ex-body p,
+.coach-body p,
+.fs-card p,
+.brg-card p,
+.pm-tier li,
+.art-wrap p,
+.art-wrap li{
+  text-align:justify;
+  text-justify:inter-word;
+}
+/* son satır sola yaslı kalsın (varsayılan davranış; bazı sayfalarda
+ text-align-last miras alınıyordu, açıkça sıfırlanır) */
+p, li, dd, blockquote, .lead, .lib-sub{ text-align-last:start; }
+
+/* ---------------------------------------------------------------------
+ 3 · İSTİSNALAR — yaslanmayacak alanlar
+ Yaslama akan metin içindir. Aşağıdakiler ya tek satırlık etiket, ya
+ sayısal hizalı, ya da ortalanmış kompozisyondur; yaslamak bozar.
+ --------------------------------------------------------------------- */
+
+/* başlıklar */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3,
+.eyebrow, .dd-group, .dd-head,
+.sec-head h2, .lib-top h1{
+  text-align:inherit;
+  hyphens:manual;
+  -webkit-hyphens:manual;
+}
+h1, h2, h3, h4, h5, h6{ text-wrap:balance; }
+
+/* buton · etiket · çip · rozet · sekme · bağlantı düğmeleri */
+.btn, .btn-login, .btn-plan, .btn-primary, .btn-ghost, .btn-fit, .btn-line,
+.btn-more, .see-all, .chip, .df-fchip, .fclear, .sort-seg button,
+.pf-tabs a, .dt, .fp-act, .fp-badge, .demo-tag, .soon,
+.pr-tag, .pr-goal, .pr-pro, .pr-level, .cm-state, .cm-len, .pm-len, .pm-kind,
+.coach-verify, .coach-status, .coach-tags span, .ed-tag, .hub-pro,
+.bn-item, .d-link, .drawer-add, .acct-menu a, .dropdown a, .lib-crumb, .rd-crumb, .ed-crumb,
+label, legend, caption, button, summary,
+.cj-step, .cj-eyebrow, .fh-stop span, .fh-pref{
+  text-align:left;
+  text-align-last:auto;
+  hyphens:manual;
+  -webkit-hyphens:manual;
+}
+/* ortalanmış düğme/etiket içerikleri kendi hizalarını korur */
+.btn, .btn-login, .btn-plan, .btn-more, button{ text-align:center; }
+
+/* tablo ve sayısal alanlar */
+table, thead, tbody, tr, th, td,
+.lib-stat, .lib-stats, .fp-stat, .fp-meta, .pm-meta, .res-num,
+.ed-sum-row, .ed-set-head, .ed-set-row, .coach-meta, .pr-foot, .hub-foot,
+[class*="-count"], [class*="-num"], [class*="-stat"]{
+  text-align:inherit;
+  text-align-last:auto;
+  hyphens:manual;
+  -webkit-hyphens:manual;
+}
+th, td{ text-align:left; }
+
+/* form kontrolleri — yaslama girdiyi okunmaz yapar */
+input, select, textarea, option, ::placeholder{
+  text-align:start;
+  hyphens:manual;
+  -webkit-hyphens:manual;
+}
+
+/* açıkça ortalanmış/sağa yaslanmış kompozisyonlar korunur */
+[style*="text-align:center"], [style*="text-align: center"],
+.lib-empty, .lib-empty p, .lg-gate, .lg-gate p, .pro-gate, .pro-gate p,
+.fb-success, .fb-success p, .wz-panel .wz-hint, .foot-bottom,
+.lib-more, .lib-more .more-note{
+  text-align:center;
+  text-align-last:auto;
+}
+
+/* dar kolon güvenliği — çok dar kutuda yaslama nehir üretir, sola döner.
+ Kart ızgaraları ≤640px'te zaten tek kolona iniyor; asıl risk 2–3 kolonlu
+ orta genişlikler, o yüzden eşik kartın kendi kutusuna göre uygulanır. */
+@supports (container-type:inline-size){
+  .hub-body, .pr-body, .ex-body, .coach-body, .fs-card, .brg-card, .fp-card{
+    container-type:inline-size;
+  }
+  @container (max-width: 20rem){
+    p, li{ text-align:left; }
+  }
+}
+/* container query desteklemeyen tarayıcı: dar ekranda kartlarda sola yaslı */
+@supports not (container-type:inline-size){
+  @media (max-width:640px){
+    .hub-body p, .pr-body p, .ex-body p, .coach-body p, .fs-card p, .brg-card p{
+      text-align:left;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------
+ 4 · ERİŞİLEBİLİRLİK
+ Yaslama disleksi için okumayı zorlaştırabilir; kullanıcı "hareketi azalt"
+ tercihini açtığında ya da tarayıcı yüksek kontrast/okuma modundaysa
+ sola yaslıya dönülür.
+ --------------------------------------------------------------------- */
+html.reduce-motion p, html.reduce-motion li, html.reduce-motion dd, html.reduce-motion blockquote,
+html.reduce-motion .lead, html.reduce-motion .lib-sub{
+  text-align:left;
+  hyphens:manual;
+  -webkit-hyphens:manual;
+}

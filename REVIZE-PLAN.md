@@ -86,12 +86,12 @@ Her madde bitince kutusu işaretlenir.
 
 ## 6 · Tüm içerikler justify
 
-- [ ] **Kök neden:** `fit-shell.css:1396` `.wrap p,.fp-card p,.hr-note p{text-align:left}`
+- [x] **Kök neden:** `fit-shell.css:1396` `.wrap p,.fp-card p,.hr-note p{text-align:left}`
   ("dar kolonda iki yana yaslama yok" kuralı) — yeni istekle çelişiyor, kaldırılacak.
-- [ ] `assets/css/fit-type.css` (YENİ) — paragraf/açıklama/kart metni `text-align:justify`,
+- [x] `assets/css/fit-type.css` (YENİ) — paragraf/açıklama/kart metni `text-align:justify`,
   `hyphens:auto`, `-webkit-hyphens`, `overflow-wrap:break-word`, `text-wrap:pretty`;
   başlık · buton · etiket · tablo · sayısal alanlar hariç.
-- [ ] 46 sayfanın tamamına `<link>`.
+- [x] 46 sayfanın tamamına `<link>`.
 
 ## 7 · Egzersiz detay — set takibi paneli zenginleştirme
 
@@ -152,7 +152,7 @@ Her madde bitince kutusu işaretlenir.
 ## Commit sırası
 
 - [x] `shell:` overflow/scroll-lock + NAV yeniden kurgusu (madde 1·2·3·9)
-- [ ] `type:` fit-type.css + justify (madde 6)
+- [x] `type:` fit-type.css + justify (madde 6)
 - [ ] `filters:` ortak `.ff` bileşeni (madde 4·10)
 - [ ] `pages:` antrenörler listesi, egzersiz detay, hr-note, challenge kart (madde 1·5·7·8·11)
 - [ ] `qa:` çapraz sayfa doğrulama düzeltmeleri

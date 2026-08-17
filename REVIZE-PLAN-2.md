@@ -457,20 +457,40 @@ Faz 2/5 için sayfa başına kapı: `node tools/page-check.mjs <sayfa>.html <144
 `pro-v1` ve `giris-v1` ajanları bitirdi, ben ölçtüm (1440+390 temiz) ve commit ettim
 → **Faz 2: 10/12 sayfa** kabuğa geçti.
 
-**İKİ DOSYA COMMIT EDİLMEDİ — ilk iş bunlar:**
-- `hesabim-v1.html` (ajan `faz2-hesabim`) — kabuktaki Hesabım menüsü şu 8 çapaya
-  bağlı, **hepsinin sayfada gerçekten olduğu doğrulanmalı**:
-  `#bildirim #uyelik #odeme #fatura #guvenlik #dil #dondur #sil`
-- `reklam-ver-v1.html` (ajan `faz2-reklamver`) — footer'a bağlanacak iki çapa
-  gerekiyordu: `#isbirligi` ve `#reklam` (belge §23 aynı sayfaya farklı adla
-  iki bağlantı istemiyor); ayrıca sayfaya özgü `#ypModal` korunmuş olmalı.
+**hesabim-v1 ve reklam-ver-v1 doğrulandı ve commit edildi** (2026-08-17, ayrı commit'ler).
+Ajanları rapor vermeden kapandığı için işleri sıfırdan değil, ölçülerek kabul edildi:
+- `hesabim-v1` 160KB→98KB · 8 çapa (`#bildirim #uyelik #odeme #fatura #guvenlik #dil
+  #dondur #sil`) taze sayfa yüklemesiyle 360+1440px'te ölçüldü → 16/16 çalışıyor,
+  hepsi gerçek içeriğe (767–1769 karakter) bağlı, uydurma bölüm yok.
+- `reklam-ver-v1` 174KB→86KB · `#isbirligi` + `#reklam` çalışıyor, başlıkları
+  header'ın altında kalmıyor; sayfaya özgü `#ypModal`/`#ypOverlay` korunmuş.
+- İkisi de `page-check` 360/768/1024/1440'ta temiz; DadaMutfak metni 0, turuncu 0.
 
-Her ikisi için: `node tools/page-check.mjs <sayfa>.html <1440|1024|768|390>` →
-dördü temizse commit et. **Sayfa kural sayısına GÜVENME** — bkz. aşağıdaki 1. uyarı.
+→ **Faz 2: 9/12 sayfa kabuğa geçti.** (Ölçüldü: `grep -c fitShellTop` ile 12 dosya tek tek.)
 
-Kalan 2 sayfa hiç başlamadı: `pro-odeme-v1` · `rozetler-v1` · `profil-v1` (356KB, tek ajan almalı).
+**AÇIK KUSUR — `tests/a11y-focus.mjs` KARARSIZ (öncelik: yüksek)**
+Görüş bildir modalı, açıldığında odağı %50 oranında içine ALMIYOR. 6 koşuda 3 kez
+başarısız. Ölçüm: başarısız koşularda `focusin` olayı yalnız `fbTab` için ateşleniyor,
+`fbClose` HİÇ odak almıyor — yani `trapFocus` içindeki `focusIn()` sessizce boşa
+düşüyor. Sebep: modal `visibility:hidden`'dan geçişle açılıyor; `requestAnimationFrame`
+tick'inde hâlâ görünmez olduğu için `.focus()` no-op oluyor ve tek ek rAF denemesi
+yetmiyor.
+Çözüm `assets/js/fit-shell.js` içindeki `trapFocus`'ta: rAF yerine gerçek görünürlüğü
+bekle (`transitionend` dinle ya da birkaç frame boyunca `offsetWidth>0` olana kadar
+yokla, üst sınırla). Bu oturumda kabuk dosyalarına dokunmama talimatı olduğu için
+YAPILMADI, bilinçli olarak devredildi.
+
+**KALAN 3 LEGACY SAYFA (hiç başlanmadı):**
+- `pro-odeme-v1.html` (119KB) — Pro ödeme akışı; `pro-v1`'in üç kademeli
+  (Ücretsiz/Pro/Pro Max) yapısıyla tutarlı olmalı, §15 ödeme/fatura alanları
+- `rozetler-v1.html` (149KB) — rozet/kademe sayfası; içerik DadaFit hareket
+  rozetlerine çevrilmeli (şef kademesi değil), Planım>İlerlemem ile tutarlı
+- `profil-v1.html` (356KB, 4967 satır) — **tek ajan almalı**, en büyük dosya;
+  göç aracının `</main>` sınır sapması burada 16661 karakterdi, düzeltildi ama
+  bu dosyada ayrıca dikkatli olunmalı
+
 `verify-faz2` ajanı dalga 1'in görsel karşılaştırmasını bitirmeden kapandı — o kontrol
-hâlâ yapılmadı sayılır (dalga 1 benim kalite kapımdan geçti ama görsel kıyas yok).
+hâlâ yapılmadı sayılır.
 
 ## Bir sonraki oturum için üç kritik uyarı
 
@@ -490,4 +510,4 @@ hâlâ yapılmadı sayılır (dalga 1 benim kalite kapımdan geçti ama görsel 
    `tools/FAZ5-BRIEF.md` (ajan brief'i). 10 sayfa, sayfa başına bir ajan, en fazla 6 paralel.
 
 ## Push durumu
-**Hiçbir şey push EDİLMEDİ** — 14 commit yerelde duruyor, kullanıcı onayı bekliyor.
+**Hiçbir şey push EDİLMEDİ** — 19 commit yerelde duruyor, kullanıcı onayı bekliyor.

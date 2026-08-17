@@ -140,3 +140,65 @@ modal açan bir tetikleyici bu tanıma girmiyor. Bilinmeyen sosyal adres ise
 kullanıcıdan bilgi bekleyen bir boşluk, teknik bir hata değil.
 
 **Kullanıcıdan gereken:** DadaFit'in gerçek sosyal medya adresleri.
+
+
+---
+
+## K7 · Hareket paneli üç kaleme indi — belge §2'nin 11 kalemi yerine
+
+**Belirsizlik:** belge §2 Hareket panelinde on bir kalem sayıyor ve "iki kolonlu
+mega menü" istiyor. Faz 3'te aynen uygulandı. **Kullanıcı bunu gördükten sonra
+paneli dikey ve üç kaleme indirmemizi istedi.**
+
+**Seçilen:** kullanıcı kararı uygulandı. Panel: Hareket Merkezi · Egzersiz
+Kütüphanesi · Hareket Rehberi. "Rehber konuları" ayracı ve altındaki yedi konu +
+Hareket Sözlüğü panelden çıkarıldı.
+
+**Gerekçe:** erişim kaybı olmadığı **ölçüldü** — `hareket-rehberi-v1.html`
+sekiz hedefin sekizine de link veriyor, yani o kalemler zaten Hareket Rehberi
+sayfasının içeriği ve menüde ikinci kez listeleniyorlardı. Kullanıcı ürünün
+sahibi ve menü yoğunluğu bir tasarım tercihi; belgeyi harfiyen uygulamak
+kullanıcının gördüğü sonucu beğenmemesini geçersiz kılmaz.
+
+**Yan kazanç:** panel tek kolona indiği için `.dd-wide` kiti ve onun ≤1280px
+taşma düzeltmesi tamamen kalktı (o kural yalnız 560px'lik geniş panel içindi).
+
+**Uygulandı:** `fit-shell.js` → `NAV[0].dd` · `fit-shell.css` → `.dd-wide` silindi.
+**Ölçüm:** panel 3 kalem · `display:block` · 319px · ayraç 0.
+
+**Geri almak için:** eski 11 kalemli liste ve `wide:true` geri konur.
+
+---
+
+## K8 · Header'ın katı durumu tam opak yapıldı
+
+**Belirsizlik:** header kaydırıldığında `rgba(255,255,255,.94)` + backdrop blur
+oluyordu. Kullanıcı banner görselli sayfalarda bunun "ne şeffaf ne katı"
+göründüğünü bildirdi.
+
+**Seçilen:** davranış ikiliye çekildi — banner üzerinde **tam şeffaf**,
+kaydırınca **tam katı** (`--paper` = `#ffffff`, alfa 1.0). Backdrop blur kaldırıldı.
+
+**Gerekçe:** %94 opaklık arkadan koyu fotoğrafın sızmasına izin veriyor ve menü
+yazıları kirli bir zemine oturuyordu. Tam opak zeminde blur'un görsel katkısı
+zaten yok (§18 gereksiz iş).
+
+**Ölçüm:** `scroll=0 → rgba(0, 0, 0, 0)` · `scroll=500 → rgb(255, 255, 255)`.
+
+**Not:** A2'de ölçülen kardeş ürün davranışı (`rgba(255,255,255,.94)`) bilinçli
+olarak terk edildi; kullanıcı kendi ürünü için net ayrım istedi.
+
+---
+
+## K9 · `fa-shield-check` kullanılmayacak — PRO ikonu
+
+**Bulgu (belirsizlik değil, ölçülmüş kusur):** repo Font Awesome 6.5.2'nin
+**ücretsiz** kitini yüklüyor; `fa-shield-check` PRO'ya ait ve hiç çizilmiyor
+(`::before{content:none}`, genişlik 0px). 18 yerde kullanılıyordu ve "DadaFit
+Onaylı" rozetini bozuk gösteriyordu.
+
+**Seçilen:** `fa-shield-halved` (ücretsiz, ölçüldü: 16px çiziliyor).
+
+**Kural:** yeni ikon eklerken ücretsiz kitte var mı diye ölçülmeli. Ücretsiz
+olduğu doğrulananlar: `fa-circle-check` · `fa-user-check` · `fa-calendar-check` ·
+`fa-clipboard-check` · `fa-square-check` · `fa-shield-halved`.

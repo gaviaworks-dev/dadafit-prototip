@@ -145,9 +145,33 @@ if(emptyHref.length) notes.push(`! href="#" sayısı: ${emptyHref.length} (belge
 const brandLeft = await page.evaluate(() => ({
   visible: (document.body.innerText.match(/DadaMutfak/gi) || []).length,
   title:   /dadamutfak/i.test(document.title),
+  /* TURUNCU (#E14827) — ama YEMEK ALANI HARİÇ.
+     -------------------------------------------------------------------
+     Bu kural DadaMutfak marka kalıntısını yakalamak için kondu. Ham hâliyle
+     ALTI sayfada alarm veriyordu ve altısı da YANLIŞ ALARMDI: turuncu oralarda
+     kalıntı değil, ANLAM taşıyor — DadaFit'in enerji dili yeşili "hareket",
+     turuncuyu "besin/alınan enerji" için kullanıyor (Dada Gastro tarafı).
+
+     Ölçülen örnekler (computed style, 1440px):
+       dadafit-kopru-v1  → span.kp-tpill.eat · metni birebir "Kırmızı: aldığın"
+       dadafit-hub-v1    → a.btn-food "Bu Yakıma Uygun Tarifler"
+       enerji-defteri-v1 → span.macro.kcal "420 kcal", fa-utensils ikonu
+     Yani sayfa, alınan enerjiyi turuncu / harcanan enerjiyi yeşil göstererek
+     belgenin §13 "hareket ve beslenme özeti" ayrımını GÖRSELLEŞTİRİYOR.
+     Bunları kaldırmak kusur düzeltmek değil, anlamı silmek olurdu.
+
+     Bu yüzden kural daraltıldı: yemek/ekosistem olarak İŞARETLENMİŞ ağaçlar
+     (.btn-food · .macro · .kp-tpill · [data-eco] · fa-utensils gibi) muaf.
+     Muaf olmayan bir yerde turuncu çıkarsa hâlâ kusurdur ve alarm verir. */
   orange:  [...document.querySelectorAll('*')].filter(e => {
               const s = getComputedStyle(e);
-              return /225,\s*72,\s*39/.test(s.backgroundColor) || /225,\s*72,\s*39/.test(s.color);
+              const turuncu = /225,\s*72,\s*39/.test(s.backgroundColor) || /225,\s*72,\s*39/.test(s.color);
+              if(!turuncu) return false;
+              const YEMEK = '.btn-food,.macro,.kp-tpill,.fa-utensils,[data-eco],' +
+                            '.eat,.food,.gastro,.kcal,.df-eat,.brg-go,.kp-eat,' +
+                            /* Dada Gastro bölümü ve enerji rozetleri — aynı gerekçe */
+                            '.sec-food,.bal-energy,.sug-card,.sl-ico';
+              return !(e.closest(YEMEK) || e.matches(YEMEK));
             }).length
 }));
 if(brandLeft.visible) bad(`görünen metinde ${brandLeft.visible} kez "DadaMutfak" (belge §1)`);

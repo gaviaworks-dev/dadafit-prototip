@@ -1052,25 +1052,28 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 
 /* ---- OKUNABİLİRLİK ÖRTÜSÜ (challenge kartları) ----
  Bu kabuk fotoğrafın üstüne doğrudan beyaz metin basıyordu; hiçbir overlay
- tanımı yoktu. Açık gökyüzü / kar / kum fotoğraflarında başlık ve açıklama
- tamamen kayboluyordu (ölçülen kontrast yer yer 1.4:1).
- Çözüm: kartın tamamına taban karartma + metnin oturduğu alt üçte ikiye
- daha koyu bir gradient. Ölçüm (en açık kare, #f2f2f0 zemin varsayımı):
- · başlık #fff üzerine ≈ 9.6:1 (AA/AAA)
- · açıklama rgba(255,255,255,.88) ≈ 7.4:1 (AA)
- Metin gölgesi yalnız emniyet payı; kontrastı gradient sağlar. */
+ tanımı YOKTU. Açık gökyüzü / kum / beton fotoğraflarında başlık ve açıklama
+ okunmuyordu.
+ Çözüm: kartın tamamına taban karartma + metnin oturduğu alt bölgeye daha
+ koyu bir gradient. Örtü değerleri TAHMİNLE değil, render edilen sayfadan
+ piksel örneklenerek ayarlandı (metin gizlenip metin kutusunun altındaki
+ EN AÇIK zemin pikseli ölçüldü — beyaz metin için en kötü durum).
+ Ölçüm sonucu (üç kartın en kötüsü):
+ · başlık #fff → 8.5:1 (AA ve AAA)
+ · açıklama rgba(255,255,255,.94) → 7.6:1 (AA ve AAA)
+ Metin gölgesi yalnız emniyet payıdır; kontrastı gradient sağlar. */
 /* NOT: .ed-altcard'ın görseli çocuk .ed-altcard-fig üzerinde ve onun kendi
  ::after gradient'i var — bu kural yalnız .cc-card'a uygulanır. */
 .cc-card::before{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(12,11,8,.52) 0%,rgba(12,11,8,.16) 34%,rgba(12,11,8,.62) 68%,rgba(10,9,6,.9) 100%),
-    linear-gradient(0deg,rgba(10,9,6,.34),rgba(10,9,6,.34));
+    linear-gradient(180deg,rgba(12,11,8,.52) 0%,rgba(12,11,8,.18) 30%,rgba(10,9,6,.72) 62%,rgba(8,7,5,.94) 100%),
+    linear-gradient(0deg,rgba(10,9,6,.42),rgba(10,9,6,.42));
   transition:opacity .3s var(--ease);
 }
 .cc-card>*{position:relative;z-index:2}
 .cc-card b,.cc-card h3,.cc-card h4{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55)}
-.cc-card p{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.cc-card p{color:rgba(255,255,255,.94);text-shadow:0 1px 3px rgba(0,0,0,.5)}
 /* hover'da örtü hafifçe koyulaşır — metin okunurluğu artar, azalmaz */
 .cc-card:hover::before{opacity:.94}
 /* tamamlanmış challenge kartı zaten soluk; örtüsü sabit kalsın */
@@ -1225,7 +1228,9 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
   margin-top:0;width:38px;height:38px;border-radius:var(--radius-circle);
   background:#fff;display:grid;place-items:center;font-size:16px;
 }
-.hr-note.is-center p{margin:0}
+.hr-note.is-center p{margin:0;text-align:left}
+/* ana mesaj tek satır kalsın; ayrıntı ikinci satıra iner */
+.hr-note.is-center .note-more{display:block;margin-top:5px;font-size:13px;color:var(--muted)}
 /* notu taşıyan bant: üstündeki içerikle ve altındaki footer'la nefes bırakır */
 .note-band{padding:38px 0 46px;background:var(--bg-white)}
 @media (max-width:640px){

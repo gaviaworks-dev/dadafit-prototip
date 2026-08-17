@@ -33,8 +33,8 @@ Her madde bitince kutusu işaretlenir.
   `navHtml()` `dd` gören her kaleme chevron + panel basıyor ve tıklamayı `preventDefault` ediyor.
   DadaDiet'te aynı başlık (`Diyetisyenler`) bilinçli olarak **panelsiz düz bağlantı**.
 - [x] `fit-shell.js` — `NAV[antrenorler].dd` kaldırıldı → düz link.
-- [ ] `antrenorler-v1.html` — banner'a `Antrenör Ol` CTA'sı (DadaDiet `.chips` + `btn-primary`/`btn-ghost` deseni).
-- [ ] `antrenorler-v1.html` — "daha fazla yükle" yerine numaralı sayfalama.
+- [x] `antrenorler-v1.html` — banner'a `Antrenör Ol` CTA'sı (DadaDiet `.chips` + `btn-primary`/`btn-ghost` deseni).
+- [x] `antrenorler-v1.html` — "daha fazla yükle" yerine numaralı sayfalama.
 
 ## 2 · Header dropdown kayma bug'ı
 
@@ -95,18 +95,18 @@ Her madde bitince kutusu işaretlenir.
 
 ## 7 · Egzersiz detay — set takibi paneli zenginleştirme
 
-- [ ] **Kapsam:** `egzersiz-detay-v1.html` sağ kolon (`.ed-track`).
-- [ ] Set arası dinlenme geri sayımı (uyarı + ses/titreşim tercihine saygı)
-- [ ] Kronometre (antrenman süresi)
-- [ ] Set başına tekrar + ağırlık + RPE, toplam hacim
-- [ ] Tamamlanan set işareti, önceki antrenmanla karşılaştırma
-- [ ] Hızlı not
-- [ ] "Antrenmanı bitir → özet" akışı (localStorage örnek durum)
+- [x] **Kapsam:** `egzersiz-detay-v1.html` sağ kolon (`.ed-track`).
+- [x] Set arası dinlenme geri sayımı (uyarı + ses/titreşim tercihine saygı)
+- [x] Kronometre (antrenman süresi)
+- [x] Set başına tekrar + ağırlık + RPE, toplam hacim
+- [x] Tamamlanan set işareti, önceki antrenmanla karşılaştırma
+- [x] Hızlı not
+- [x] "Antrenmanı bitir → özet" akışı (localStorage örnek durum)
 
 ## 8 · "Videoyu izleyemiyor musun?" uyarısı
 
-- [ ] **Kök neden:** blok `main` sonunda başıboş bir `.wrap` içinde, sola yaslı, section dışı.
-- [ ] `egzersiz-detay-v1.html` + `fit-shell.css` — ortalanmış `.hr-note.is-center` varyantı,
+- [x] **Kök neden:** blok `main` sonunda başıboş bir `.wrap` içinde, sola yaslı, section dışı.
+- [x] `egzersiz-detay-v1.html` + `fit-shell.css` — ortalanmış `.hr-note.is-center` varyantı,
   üst/alt nefes, yumuşak zemin, ikon + tek satır metin.
 
 ## 9 · Menü linklerinde duplike temizliği
@@ -154,5 +154,5 @@ Her madde bitince kutusu işaretlenir.
 - [x] `shell:` overflow/scroll-lock + NAV yeniden kurgusu (madde 1·2·3·9)
 - [x] `type:` fit-type.css + justify (madde 6)
 - [x] `filters:` ortak `.ff` bileşeni (madde 4·10)
-- [ ] `pages:` antrenörler listesi, egzersiz detay, hr-note, challenge kart (madde 1·5·7·8·11)
+- [x] `pages:` antrenörler listesi, egzersiz detay, hr-note, challenge kart (madde 1·5·7·8·11)
 - [ ] `qa:` çapraz sayfa doğrulama düzeltmeleri

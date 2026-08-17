@@ -194,16 +194,35 @@
 .coach-join .cj-note{font-size:12px;color:rgba(255,255,255,.62);font-weight:500;display:inline-flex;align-items:center;gap:7px}
 .coach-join .cj-note i{color:var(--fit-bright)}
 
-/* ---- DAHA FAZLA YÜKLE ---- */
-.lib-more{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:40px}
-.lib-more .btn-more{
-  display:inline-flex;align-items:center;gap:10px;font-family:inherit;font-size:14.5px;font-weight:700;
-  color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
-  padding:14px 30px;cursor:pointer;transition:.22s var(--ease);
+/* ---- BANNER CTA (koyu bant üstünde) ---- */
+.lib-cta{margin-top:22px}
+.lib-cta-ghost{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.26)}
+.lib-cta-ghost:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.5);color:#fff}
+
+/* ---- SAYFALAMA — "daha fazla yükle" yerine numaralı sayfalar ----
+ Dizin sayfası: kullanıcı kaçıncı sayfada olduğunu görmeli, geri
+ dönebilmeli ve derin bağlantı verebilmeli. */
+.lib-page{display:flex;flex-direction:column;align-items:center;gap:13px;margin-top:40px}
+.pager{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.pager button,.pager span.gap{
+  min-width:42px;height:42px;padding:0 12px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;font-size:14px;font-weight:700;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  cursor:pointer;transition:.18s var(--ease);font-variant-numeric:tabular-nums;
 }
-.lib-more .btn-more:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
-.lib-more .btn-more i{color:var(--fit)}
-.lib-more .more-note{font-size:12.5px;font-weight:500;color:var(--muted)}
+.pager button:hover:not(:disabled):not(.on){border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.pager button.on{background:var(--fit);border-color:var(--fit);color:#fff;cursor:default}
+.pager button:disabled{opacity:.36;cursor:default}
+.pager button:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.pager span.gap{border:none;background:none;color:var(--muted);min-width:24px;padding:0}
+.pager .pg-edge{padding:0 15px}
+.lib-page .page-note{font-size:12.5px;font-weight:500;color:var(--muted)}
+.lib-page .page-note b{color:var(--slate);font-weight:800}
+@media (max-width:640px){
+  .pager .pg-edge span{display:none}      /* dar ekranda ok metni gizlenir, ikon kalır */
+  .pager .pg-edge{padding:0 12px;min-width:42px}
+}
 
 /* boş durum (filtre eşleşmezse) */
 .lib-empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:54px 20px}
@@ -286,6 +305,14 @@
     <span class="eyebrow"><i class="fa-solid fa-user-check"></i> Antrenör Bul</span>
     <h1>DadaMutfak Onaylı Antrenörler</h1>
     <p class="lib-sub">Alanında sertifikalı, platform tarafından onaylanmış antrenörlerle çalış. Uzmanlık, çalışma şekli ve seviyene göre filtrele — sana uygun olanı seç.</p>
+    <!-- BANNER İKİLİ DÜĞMESİ — "Antrenör Ol" artık menüde değil, dizinin banner'ında.
+         Kardeş üründeki diyetisyen dizininin banner deseniyle birebir: .chips
+         sarmalayıcı + birincil eylem + ikincil ghost düğme; .chips flex-wrap
+         taşıdığı için dar ekranda alt alta düşer, taşma yapmaz. -->
+    <div class="chips lib-cta">
+      <button class="btn btn-fit" type="button" data-fit-wizard><i class="fa-solid fa-wand-magic-sparkles"></i> Sana Uygun Antrenörü Bul</button>
+      <a class="btn btn-ghost lib-cta-ghost" href="antrenor-ol-v1.html"><i class="fa-solid fa-id-badge"></i> Antrenör Ol</a>
+    </div>
     <form class="lib-search" id="libSearch" role="search" onsubmit="return false">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="search" id="libSearchInput" placeholder="Antrenör ara — isim ya da uzmanlık…" aria-label="Antrenör ara" />
@@ -503,11 +530,11 @@
       <button class="btn btn-fit" type="button" id="emptyReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
     </div>
 
-    <!-- DAHA FAZLA YÜKLE -->
-    <div class="lib-more" id="libMore">
-      <button class="btn-more" type="button" id="loadMore"><i class="fa-solid fa-circle-down"></i> Daha fazla antrenör yükle</button>
-      <span class="more-note"><b id="moreSeen">8</b> / 40+ antrenör gösteriliyor</span>
-    </div>
+    <!-- SAYFALAMA -->
+    <nav class="lib-page" id="libPage" aria-label="Sayfalama">
+      <div class="pager" id="pager"></div>
+      <span class="page-note" id="pageNote"></span>
+    </nav>
 
     <!-- ===== ANTRENÖR OL CTA ===== -->
     <div class="coach-join">
@@ -578,16 +605,24 @@
 })();
 </script>
 <script>
-/* ===== SAYFA JS — ANTRENÖR DİZİNİ ===== */
+/* ===== SAYFA JS — ANTRENÖR DİZİNİ · filtre + sıralama + arama + SAYFALAMA =====
+ Dizin sayfası kurgusu (kardeş üründeki diyetisyen dizini muadili):
+ filtre → sonuç sayısı + sıralama → kart ızgarası → numaralı sayfalama.
+ "Daha fazla yükle" kaldırıldı; kullanıcı kaçıncı sayfada olduğunu görür,
+ geri döner ve ?sayfa=N ile derin bağlantı verebilir. */
 (function(){
   var grid=document.getElementById('libGrid');
   if(!grid)return;
   var cards=Array.prototype.slice.call(grid.querySelectorAll('.coach-card'));
   var filters=document.getElementById('libFilters');
   var countEl=document.getElementById('libCount');
-  var moreSeen=document.getElementById('moreSeen');
   var emptyEl=document.getElementById('libEmpty');
-  var moreWrap=document.getElementById('libMore');
+  var pageWrap=document.getElementById('libPage');
+  var pagerEl=document.getElementById('pager');
+  var noteEl=document.getElementById('pageNote');
+  var searchInput=document.getElementById('libSearchInput');
+
+  var PER_PAGE=6, page=1;
  // aktif seçim: her grup için Set (all = filtre yok)
   var sel={uzmanlik:new Set(),format:new Set(),durum:new Set()};
 
@@ -605,6 +640,7 @@
       if(sel[group].size===0){sel[group].clear();allBtn.classList.add('on');}
       else{allBtn.classList.remove('on');}
     }
+    page=1;                      // filtre değişti → ilk sayfaya dön
     apply();
   }
 
@@ -620,20 +656,84 @@
     if(!tokenHit(card,'uzmanlik','data-uzmanlik'))return false;
     if(!tokenHit(card,'format','data-format'))return false;
     if(!tokenHit(card,'durum','data-durum'))return false;
+    var q=searchInput ? searchInput.value.trim().toLocaleLowerCase('tr') : '';
+    if(q && (card.getAttribute('data-name')||'').toLocaleLowerCase('tr').indexOf(q)<0)return false;
     return true;
   }
 
-  function apply(){
-    var shown=0;
-    cards.forEach(function(card){
-      var ok=matches(card);
-      card.style.display=ok?'':'none';
-      if(ok)shown++;
+  /* ---- sayfalama çubuğu: 1 … 3 [4] 5 … 9 deseni ---- */
+  function renderPager(totalPages){
+    pagerEl.innerHTML='';
+    if(totalPages<=1){ pageWrap.hidden=true; return; }
+    pageWrap.hidden=false;
+
+    function mk(label,opts){
+      var b=document.createElement('button');
+      b.type='button';
+      b.innerHTML=label;
+      if(opts&&opts.cls)b.className=opts.cls;
+      if(opts&&opts.on){b.classList.add('on');b.setAttribute('aria-current','page');}
+      if(opts&&opts.disabled)b.disabled=true;
+      if(opts&&opts.label)b.setAttribute('aria-label',opts.label);
+      if(opts&&opts.go)b.addEventListener('click',function(){go(opts.go);});
+      pagerEl.appendChild(b);
+      return b;
+    }
+    function gap(){ var s=document.createElement('span'); s.className='gap'; s.textContent='…'; pagerEl.appendChild(s); }
+
+    mk('<i class="fa-solid fa-chevron-left"></i> <span>Önceki</span>',
+       {cls:'pg-edge',disabled:page===1,go:page-1,label:'Önceki sayfa'});
+
+    var nums=[];
+    for(var i=1;i<=totalPages;i++){
+      if(i===1||i===totalPages||Math.abs(i-page)<=1) nums.push(i);
+    }
+    var prev=0;
+    nums.forEach(function(n){
+      if(prev && n-prev>1) gap();
+      mk(String(n),{on:n===page,go:n,label:n+'. sayfa'});
+      prev=n;
     });
-    countEl.textContent=shown;
-    if(moreSeen)moreSeen.textContent=shown;
-    emptyEl.classList.toggle('show',shown===0);
-    if(moreWrap)moreWrap.style.display=shown===0?'none':'';
+
+    mk('<span>Sonraki</span> <i class="fa-solid fa-chevron-right"></i>',
+       {cls:'pg-edge',disabled:page===totalPages,go:page+1,label:'Sonraki sayfa'});
+  }
+
+  function go(n){
+    page=n;
+    apply();
+    /* liste başına dön — sayfa değişince kullanıcı sonucun başında olsun */
+    var top=document.querySelector('.lib-body');
+    if(top){
+      var y=top.getBoundingClientRect().top+window.scrollY-130;
+      window.scrollTo({top:y,behavior:'smooth'});
+    }
+    /* derin bağlantı: geri tuşu sayfayı korusun */
+    var url=new URL(location.href);
+    if(page>1)url.searchParams.set('sayfa',page); else url.searchParams.delete('sayfa');
+    history.replaceState(null,'',url.pathname+url.search+url.hash);
+  }
+
+  function apply(){
+    var hits=cards.filter(matches);
+    var total=hits.length;
+    var totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
+    if(page>totalPages)page=totalPages;
+
+    var from=(page-1)*PER_PAGE, to=from+PER_PAGE;
+    cards.forEach(function(c){ c.style.display='none'; });
+    hits.slice(from,to).forEach(function(c){ c.style.display=''; });
+
+    countEl.textContent=total;
+    emptyEl.classList.toggle('show',total===0);
+    grid.style.display=total===0?'none':'';
+
+    renderPager(totalPages);
+    if(total===0){ pageWrap.hidden=true; }
+    else{
+      noteEl.innerHTML='<b>'+(from+1)+'–'+Math.min(to,total)+'</b> / '+total+' antrenör gösteriliyor'+
+                       (totalPages>1?(' · sayfa <b>'+page+'</b> / '+totalPages):'');
+    }
   }
 
   filters.querySelectorAll('.fgroup').forEach(function(g){
@@ -648,6 +748,8 @@
     filters.querySelectorAll('.fgroup').forEach(function(g){
       g.querySelectorAll('.df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
     });
+    if(searchInput)searchInput.value='';
+    page=1;
     apply();
   }
   var fClear=document.getElementById('fClear');
@@ -655,7 +757,7 @@
   var emptyReset=document.getElementById('emptyReset');
   if(emptyReset)emptyReset.addEventListener('click',resetAll);
 
- // sıralama
+ // sıralama — sıralama değişince ilk sayfaya dön
   var sortSeg=document.querySelector('.sort-seg');
   if(sortSeg){
     sortSeg.querySelectorAll('button').forEach(function(b){
@@ -668,45 +770,21 @@
         else if(mode==='yeni')arr.reverse();
         else if(mode==='az')arr.sort(function(a,c){return a.getAttribute('data-name').localeCompare(c.getAttribute('data-name'),'tr');});
         arr.forEach(function(card){grid.appendChild(card);});
+        cards=arr;
+        page=1;
+        apply();
       });
     });
   }
 
  // arama → kart adına göre süz (üst panel + filtre birlikte)
-  var searchInput=document.getElementById('libSearchInput');
   if(searchInput){
-    searchInput.addEventListener('input',function(){
-      var q=searchInput.value.trim().toLocaleLowerCase('tr');
-      var shown=0;
-      cards.forEach(function(card){
-        var nameOk=!q || card.getAttribute('data-name').toLocaleLowerCase('tr').indexOf(q)>-1;
-        var ok=matches(card)&&nameOk;
-        card.style.display=ok?'':'none';
-        if(ok)shown++;
-      });
-      countEl.textContent=shown;
-      if(moreSeen)moreSeen.textContent=shown;
-      emptyEl.classList.toggle('show',shown===0);
-      if(moreWrap)moreWrap.style.display=shown===0?'none':'';
-    });
+    searchInput.addEventListener('input',function(){ page=1; apply(); });
   }
 
- // "daha fazla yükle" — mockup: aynı kartları klonlayıp ekler (gerçekte API sayfası)
-  var loadMore=document.getElementById('loadMore');
-  if(loadMore){
-    var loaded=false;
-    loadMore.addEventListener('click',function(){
-      if(loaded){loadMore.parentElement.style.display='none';return;}
-      cards.slice(0,8).forEach(function(card){
-        var clone=card.cloneNode(true);
-        grid.appendChild(clone);
-        cards.push(clone);
-      });
-      loaded=true;
-      apply();
-      loadMore.innerHTML='<i class="fa-solid fa-check"></i> Tüm hareketler yüklendi';
-    });
-  }
+  /* derin bağlantı: ?sayfa=N */
+  var qp=new URLSearchParams(location.search).get('sayfa');
+  if(qp && +qp>0) page=+qp;
 
   apply();
 })();

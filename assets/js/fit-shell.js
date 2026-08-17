@@ -495,9 +495,9 @@ var FEEDBACK_HTML = `<a class="feedback-tab" href="#" id="fbTab" aria-label="Gö
 
         <div class="fb-fields active" data-for="oneri">
           <div class="fb-chiprow" role="group" aria-label="İlgili alan">
-            <button class="chip active" type="button">Tarifler</button>
-            <button class="chip" type="button">Keşfet</button>
-            <button class="chip" type="button">DadaStore</button>
+            <button class="chip active" type="button">Hareketler</button>
+            <button class="chip" type="button">Programlar</button>
+            <button class="chip" type="button">Enerji Defteri</button>
             <button class="chip" type="button">Uygulama</button>
             <button class="chip" type="button">Diğer</button>
           </div>
@@ -510,9 +510,9 @@ var FEEDBACK_HTML = `<a class="feedback-tab" href="#" id="fbTab" aria-label="Gö
             <select class="fb-select" required>
               <option value="" selected disabled>Sorunun konusu *</option>
               <option>Üyelik & Hesap</option>
-              <option>Tarif ekleme</option>
+              <option>Hareket & Program</option>
               <option>Antrenör randevusu</option>
-              <option>Sipariş & DadaStore</option>
+              <option>DadaFit Pro & Ödeme</option>
               <option>Diğer</option>
             </select>
           </div>
@@ -524,11 +524,11 @@ var FEEDBACK_HTML = `<a class="feedback-tab" href="#" id="fbTab" aria-label="Gö
           <div class="fb-field">
             <select class="fb-select" required>
               <option value="" selected disabled>Sorunu nerede yaşadın? *</option>
-              <option>Anasayfa</option>
-              <option>Tarif sayfası</option>
-              <option>Arama / Dolapta Ne Var?</option>
+              <option>Ana sayfa</option>
+              <option>Hareket / Egzersiz sayfası</option>
+              <option>Arama</option>
               <option>Üyelik & Giriş</option>
-              <option>DadaStore</option>
+              <option>Planım / Enerji Defteri</option>
               <option>Mobil uygulama</option>
             </select>
           </div>

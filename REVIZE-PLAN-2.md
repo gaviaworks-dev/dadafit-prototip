@@ -422,3 +422,63 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
    "üretimde yapılacak" notuyla mı bırakılacak?
 4. **Legacy 12 sayfanın kapsamı** — `profil-v1` (365KB), `reklam-ver-v1` (174KB) gibi dosyalar
    DadaFit'e ait olmayan ortak sayfalar; tamamı mı taşınacak yoksa DadaFit akışında geçenler mi?
+
+---
+
+# OTURUM DEVRİ — 2026-08-17 (hesap değişimi)
+
+## Ölçüm altyapısı (hepsi repoda kalıcı)
+
+```bash
+mkdir -p ~/.pw && cd ~/.pw && npm init -y && npm i playwright-core
+npx playwright install chromium
+export PW_HOME=~/.pw
+cd <repo> && python3 -m http.server 8811 &
+node tests/dropdown-position.mjs && node tests/header-banner.mjs \
+  && node tests/coach-list.mjs && node tests/plan-account.mjs && node tests/a11y-focus.mjs
+```
+**Son durum: beş süit de 0 sorun.**
+
+Faz 2/5 için sayfa başına kapı: `node tools/page-check.mjs <sayfa>.html <1440|1024|768|390>`
+
+## Bu turda bitenler
+
+| | |
+|---|---|
+| Faz 0 (A1–A4) | ✅ dropdown kayması · banner'da şeffaf header + solid Planım · iki banner aramasının kaldırılması · antrenör dizini referans kurguda |
+| Faz 1 | DadaMentor tamamen kalktı (kod+CSS+2.4MB video+ölü token) · 35 sayfada DadaMutfak metni 0 · ekosistem adresleri tek `ECO_BASE` · çift `#toTop` id hatası kapandı |
+| Faz 2 | **8/12 sayfa** kabuğa geçti (dalga 1'in 5'i commit'li; `pro`·`giris`·`hesabim`·`reklam-ver` ajanlarda) |
+| Faz 4 | ✅ Planım 6 sekme (`PLAN_TABS`/`PLAN_PAGES` ayrımı) · Hesabım §5'in 14 modülüyle ayrı liste |
+| Faz 6 (kısmi) | tek içerik sayısı (140+ hareket) · demo listeler `.demo-tag` ile işaretli |
+| Faz 9 (kısmi) | §20 odak tuzağı + odak geri dönüşü (drawer · görüş modalı · giriş kapısı) |
+
+## DEVAM EDEN — bir sonraki oturum buradan alsın
+
+**Çalışan 5 alt ajan vardı (raporları alınamadan oturum kapandı).** Durumları
+`git status` ile görülür; dosyaları commit EDİLMEMİŞ olabilir:
+- `faz2-pro` → `pro-v1.html` · `faz2-giris` → `giris-v1.html`
+- `faz2-hesabim` → `hesabim-v1.html` · `faz2-reklamver` → `reklam-ver-v1.html`
+- `verify-faz2` → dalga 1'in 5 sayfasını göç öncesi hâliyle görsel karşılaştırıyordu
+
+İlk iş: `git status` → değişmiş dosyaları `tools/page-check.mjs` ile 4 genişlikte
+ölç, temizse commit et, değilse düzelt. **Sayfa kural sayısına GÜVENME** — bkz. aşağıdaki not.
+
+## Bir sonraki oturum için üç kritik uyarı
+
+1. **Kural sayısı/seçici farkı defekt göstergesi DEĞİL.** Faz 2'de bunu denedim,
+   yanlış alarm verdi (bkz. commit `2b92a45`). Bir sayfa kuralının yokluğu stilin
+   yokluğu demek değil — kabuk aynı işi başka seçiciyle yapıyor olabilir. Doğru
+   ölçüm: göç öncesi sürümle **computed style / boundingBox** karşılaştırması.
+   Göç öncesi sunucu şöyle kurulur:
+   `mkdir /tmp/baseline && for f in <12 sayfa>; do git show 981df3b:$f.html > /tmp/baseline/$f.html; done`
+   `ln -s <repo>/assets /tmp/baseline/assets && (cd /tmp/baseline && python3 -m http.server 8812 &)`
+2. **Faz 3 (menü/footer) Faz 5'i BEKLİYOR.** Belge §2 menüye Fit Testleri ve Video
+   Seansları, §16 footer'a Destek Merkezi/Çerez Politikası vb. koyuyor. O sayfalar
+   üretilmeden menüye bağlanırsa **47 sayfada kırık link** olur (kabuk her sayfada basılıyor).
+   Aynı sebeple Hesabım'daki üç kalem geçici olarak var olan sahiplere bağlı —
+   `ACCOUNT_ITEMS` içindeki "AŞAMA NOTU" yorumuna bak, sayfalar gelince yalnız href'ler değişir.
+3. **Faz 5 hazır bekliyor:** `tools/FAZ5-SKELETON.html` (kopyalanacak iskelet) +
+   `tools/FAZ5-BRIEF.md` (ajan brief'i). 10 sayfa, sayfa başına bir ajan, en fazla 6 paralel.
+
+## Push durumu
+**Hiçbir şey push EDİLMEDİ** — 14 commit yerelde duruyor, kullanıcı onayı bekliyor.

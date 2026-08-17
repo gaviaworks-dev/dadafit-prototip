@@ -308,6 +308,12 @@ değişimi de "sapma" olarak sayılır, çıkış kodu bu yüzden 1 kalır. Kap�
 - [ ] **Mobil alt bar 5 öğe** ✔ (bugün 5) — korunacak
 - [ ] Enerji Defteri'ne mobil erişim: ana sayfa hızlı erişim kartı + drawer + Planım günlük özeti
 - [ ] Drawer masaüstündeki tüm ana modülleri taşıyacak
+- [ ] **Kabuktaki 14 boş `href="#"`** (§23 "boş bağlantı bırakma"). Ölçüm: `page-check`
+      her sayfada 14 tane sayıyor — hiç göç etmemiş `antrenorler-v1` ve `sss-v1` dahil,
+      yani **sayfa kusuru değil kabuk kusuru**. Kaynak `fit-shell.js`'te 11 tanım:
+      üst bant sosyal ikonları (3) · TR/EN dil seçici (2) · görüş sekmesi (1) ·
+      footer sosyal ikonları (5). Dil seçici Faz 8'e, sosyal ikonlar gerçek hesap
+      adresi belirlenene kadar karar bekliyor, görüş sekmesi `<button>` olmalı.
 - [ ] **Footer** belgedeki 4 kolona göre yeniden kurulacak (DadaFit · Kurumsal · İletişim · Yasal ve Sağlık),
       logo altı metni: "Günlük hareketini, enerjini ve ilerlemeni kendi ritminde yönet."
       Eksik hedefler: Sponsorlar ve Partnerler · Destek Merkezi · Üyelik ve İptal Koşulları ·

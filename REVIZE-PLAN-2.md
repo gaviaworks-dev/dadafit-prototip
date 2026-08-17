@@ -454,14 +454,23 @@ Faz 2/5 için sayfa başına kapı: `node tools/page-check.mjs <sayfa>.html <144
 
 ## DEVAM EDEN — bir sonraki oturum buradan alsın
 
-**Çalışan 5 alt ajan vardı (raporları alınamadan oturum kapandı).** Durumları
-`git status` ile görülür; dosyaları commit EDİLMEMİŞ olabilir:
-- `faz2-pro` → `pro-v1.html` · `faz2-giris` → `giris-v1.html`
-- `faz2-hesabim` → `hesabim-v1.html` · `faz2-reklamver` → `reklam-ver-v1.html`
-- `verify-faz2` → dalga 1'in 5 sayfasını göç öncesi hâliyle görsel karşılaştırıyordu
+`pro-v1` ve `giris-v1` ajanları bitirdi, ben ölçtüm (1440+390 temiz) ve commit ettim
+→ **Faz 2: 10/12 sayfa** kabuğa geçti.
 
-İlk iş: `git status` → değişmiş dosyaları `tools/page-check.mjs` ile 4 genişlikte
-ölç, temizse commit et, değilse düzelt. **Sayfa kural sayısına GÜVENME** — bkz. aşağıdaki not.
+**İKİ DOSYA COMMIT EDİLMEDİ — ilk iş bunlar:**
+- `hesabim-v1.html` (ajan `faz2-hesabim`) — kabuktaki Hesabım menüsü şu 8 çapaya
+  bağlı, **hepsinin sayfada gerçekten olduğu doğrulanmalı**:
+  `#bildirim #uyelik #odeme #fatura #guvenlik #dil #dondur #sil`
+- `reklam-ver-v1.html` (ajan `faz2-reklamver`) — footer'a bağlanacak iki çapa
+  gerekiyordu: `#isbirligi` ve `#reklam` (belge §23 aynı sayfaya farklı adla
+  iki bağlantı istemiyor); ayrıca sayfaya özgü `#ypModal` korunmuş olmalı.
+
+Her ikisi için: `node tools/page-check.mjs <sayfa>.html <1440|1024|768|390>` →
+dördü temizse commit et. **Sayfa kural sayısına GÜVENME** — bkz. aşağıdaki 1. uyarı.
+
+Kalan 2 sayfa hiç başlamadı: `pro-odeme-v1` · `rozetler-v1` · `profil-v1` (356KB, tek ajan almalı).
+`verify-faz2` ajanı dalga 1'in görsel karşılaştırmasını bitirmeden kapandı — o kontrol
+hâlâ yapılmadı sayılır (dalga 1 benim kalite kapımdan geçti ama görsel kıyas yok).
 
 ## Bir sonraki oturum için üç kritik uyarı
 

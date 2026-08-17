@@ -65,6 +65,24 @@ SHELL_JS_MARKS = [
     'bnAccount', 'dm_user', 'reveal-ready', 'toTop',
 ]
 
+def _at_group(prelude):
+    """Yorumu atarak koşullu grup at-rule'u mu diye bakar.
+
+    prelude kendinden ÖNCEKİ yorumu da taşır; bu yüzden test yorumsuz kopyada
+    yapılmalı. Eski hâli `re.match(r'\\s*@(media|…)', prelude)` idi: `\\s*`
+    newline'ı yiyor, sonra `@` beklerken yorumun `/` karakterini görüyor ve
+    eşleşme olmuyordu. Sonuç: yorumlu bir @media bloğu "tanımadığım at-rule →
+    olduğu gibi KORU" dalına düşüyor ve gövdesi HİÇ SÜZÜLMÜYORDU (yani ilk
+    hatanın tersi: "komple sil" yerine "komple tut"). Aynı sebeple
+    shell_selectors kabuğun yorumlu media bloklarına inmiyor, o blokların iç
+    seçicilerini hiç öğrenmiyordu.
+    Ölçüm (faz2-iletisim ajanı): aynı blok, tek fark önündeki yorum —
+    yorumsuz düşen=1/kalan=1, yorumlu düşen=0/kalan=1.
+    """
+    p = re.sub(r'/\*.*?\*/', ' ', prelude, flags=re.S).lstrip()
+    return re.match(r'@(media|supports|container|layer)\b', p) is not None
+
+
 def norm_sel(s):
     """Seçiciyi karşılaştırılabilir hâle getirir (boşluk ve sıra normalize)."""
     s = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
@@ -109,7 +127,7 @@ def shell_selectors(shell_css):
     def walk(css):
         for kind, prelude, body, _full in split_css(css):
             if kind == 'at':
-                if re.match(r'\s*@(media|supports|container|layer)', prelude):
+                if _at_group(prelude):
                     walk(body)
             else:
                 sels.add(norm_sel(prelude))
@@ -117,30 +135,52 @@ def shell_selectors(shell_css):
     return sels
 
 
+def sel_parts(prelude):
+    """Virgülle ayrılmış seçici listesini tek tek parçalara böler (yorumsuz)."""
+    s = re.sub(r'/\*.*?\*/', '', prelude, flags=re.S)
+    s = re.sub(r'\s+', ' ', s).strip()
+    return [p.strip() for p in s.split(',') if p.strip()]
+
+
 def filter_css(css, shell_sels):
-    """Kabukta AYNI seçiciyle tanımlı kuralları atar, sayfaya özgü olanları tutar."""
+    """Kabukta AYNI seçiciyle tanımlı kuralları atar, sayfaya özgü olanları tutar.
+
+    EŞLEŞTİRME PARÇA BAŞINA YAPILIR. Önce liste bir bütün olarak
+    karşılaştırılıyordu: sayfa `.row-nav,.cat-nav{…}` yazıp kabuk ikisini AYRI
+    kurallarda tanımladığında eşleşme olmuyor ve kural gereksizce kalıyordu.
+    Ölçülen kurbanlar (faz2-iletisim): `.row-nav,.cat-nav` (parçaların 1/2'si
+    kabukta), `.row-nav button,.cat-nav button` (1/2),
+    `body.is-auth .head-add,…` (1/3).
+    Artık: TÜM parçalar kabukta varsa kural düşer; BİR KISMI varsa kural KALIR
+    ve "kısmi eşleşme" olarak raporlanır — ajan ona elle bakar, çünkü kalan
+    parça sayfaya ait olabilir de ölü kod da olabilir.
+    """
     dropped = kept = 0
+    partial = []
     def walk(css, depth=0):
         nonlocal dropped, kept
         out = []
         for kind, prelude, body, full in split_css(css):
             if kind == 'at':
-                if re.match(r'\s*@(media|supports|container|layer)', prelude):
-                    inner, _ = walk(body, depth + 1), None
+                if _at_group(prelude):
+                    inner = walk(body, depth + 1)
                     if inner.strip():
                         out.append(prelude + '{' + inner + '\n' + '  ' * depth + '}')
                 else:
                     # @keyframes / @font-face / @import → kabukta var mı bilinmez, KORU
                     out.append(full); kept += 1
                 continue
-            ns = norm_sel(prelude)
-            if ns in shell_sels:
-                dropped += 1
+            parts = sel_parts(prelude)
+            inshell = [p for p in parts if norm_sel(p) in shell_sels]
+            if parts and len(inshell) == len(parts):
+                dropped += 1                      # tamamı kabukta → düş
             else:
                 out.append(full); kept += 1
+                if inshell:                       # kısmen kabukta → koru + bildir
+                    partial.append(f'{", ".join(parts)}  ({len(inshell)}/{len(parts)} parça kabukta)')
         return '\n'.join(out)
     res = walk(css)
-    return res, dropped, kept
+    return res, dropped, kept, partial
 
 
 def node_key(tag, id_, cls):
@@ -207,9 +247,11 @@ def migrate(name, apply=False, page_key=None):
 
     new_styles = []            # (start, end, yeni_govde)
     for (a, b, body) in styles:
-        kept_css, dropped, keptn = filter_css(body, shell_sels)
+        kept_css, dropped, keptn, partial = filter_css(body, shell_sels)
         new_styles.append((a, b, kept_css))
         rep.append(f'   CSS bloğu: {dropped} kural düştü (kabukta var), {keptn} kural kaldı (sayfaya özgü)')
+        for pt in partial:
+            rep.append(f'   ?? KISMİ EŞLEŞME — korundu, ELLE BAK: {pt}')
 
     # ---------- 2 · gövde bölgelerini bul ----------------------------------
     bm = re.search(r'<body[^>]*>', src)
@@ -358,8 +400,10 @@ def css_from_head(name):
     total_d = total_k = 0
     chunks = []
     for m in re.finditer(r'<style[^>]*>(.*?)</style>', head, re.S):
-        kept, d, k = filter_css(m.group(1), shell_sels)
+        kept, d, k, partial = filter_css(m.group(1), shell_sels)
         total_d += d; total_k += k
+        for pt in partial:
+            sys.stderr.write(f'# ?? kısmi eşleşme (korundu, elle bak): {pt}\n')
         if kept.strip(): chunks.append(kept.strip())
     sys.stderr.write(f'# {path}: HEAD sürümünden {total_d} kabuk kuralı düştü, '
                      f'{total_k} sayfa kuralı kaldı\n')

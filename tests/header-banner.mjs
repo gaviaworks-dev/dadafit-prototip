@@ -24,7 +24,13 @@ const BASE   = process.argv[2] || 'http://localhost:8811';
    okunurluğu tam bu sınırda dönüyor. Sınırın kendisi ölçülmezse kusur kaçıyor. */
 const WIDTHS = (process.argv[3] || '1440,1024,640,390').split(',').map(Number);
 
-/* banner taşıyan sayfalar (.lib-top) + Planım kabuğu (.fp-top) + tam hero */
+/* KOYU BANNER TAŞIYAN SAYFALAR — header şeffaf başlamalı.
+   Liste GENİŞLETİLDİ: başlangıçta yalnız .lib-top / .fp-top / tam hero vardı.
+   Kullanıcı antrenör detayı (.cp-top) ve antrenör-ol (.ol-top) sayfalarında
+   header'ın koyu görselin üzerinde KATI kaldığını bildirdi; kabuk over-mode'u
+   bütün koyu banner sınıflarını kapsayacak şekilde genişletildi
+   (.cp-top · .kp-top · .chl-hero · .pd-hero · .fs-top · .ol-top).
+   Bu sayfalar artık PLAIN değil BANNER tarafında. */
 const BANNER = [
   'dadafit-hub-v1.html',            // tam ekran hero
   'antrenorler-v1.html',            // .lib-top
@@ -36,10 +42,16 @@ const BANNER = [
   'hareket-rehberi-v1.html',
   'saglik-bilgilendirme-v1.html',
   'fit-planim-v1.html',             // .fp-top
-  'enerji-defteri-v1.html'
+  'enerji-defteri-v1.html',
+  'antrenor-detay-v1.html',         // .cp-top
+  'antrenor-ol-v1.html',            // .ol-top
+  'arama-fit-v1.html',              // .fs-top
+  'dadafit-kopru-v1.html',          // .kp-top
+  'challenge-v1.html',              // .chl-hero
+  'program-detay-v1.html'           // .pd-hero
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
-const PLAIN = ['egzersiz-detay-v1.html', 'antrenor-detay-v1.html', 'arama-fit-v1.html'];
+const PLAIN = ['egzersiz-detay-v1.html', 'giris-v1.html', 'profil-v1.html'];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;
 let fail = 0; const bad = [];
@@ -91,7 +103,8 @@ for(const width of WIDTHS){
         word:   r(document.querySelector('.header .fit-word b')),
         wordColor: (() => { const w = document.querySelector('.header .fit-word b');
                             return w ? getComputedStyle(w).color : null; })(),
-        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top'))
+        /* koyu bant seçicisi over-mode'un kapsadığı TÜM sınıfları içerir */
+        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top'))
       };
     });
 

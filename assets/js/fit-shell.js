@@ -124,17 +124,14 @@ var NAV = [
       {label:'Challenge Detayı', desc:'Örnek bir challenge sayfası', href:'challenge-v1.html?slug=hareket-aliskanligi', icon:'fa-solid fa-circle-info'}
     ] },
 
-  /* 5 · ANTRENÖRLER — belge §2 dört kalemlik panel istiyor. Önceki tur burayı
- DadaDiet "Diyetisyenler" referansına bakarak panelsiz bırakmıştı; o referans
- A4'te LİSTE SAYFASI kurgusu için ölçülmüştü, menü yapısı için değil (KARARLAR.md K5). */
+  /* 5 · ANTRENÖRLER — PANELSİZ DÜZ BAĞLANTI (kullanıcı kararı, KARARLAR.md K10).
+ Faz 3'te belge §2'ye uyularak dört kalemlik panel verilmişti; kullanıcı
+ başlığın tıklanınca doğrudan dizine gitmesini istedi. Alt kalemlerin hepsi
+ zaten dizin sayfasından erişilebilir: banner'daki "Sana Uygun Antrenörü Bul"
+ ve "Antrenör Ol" düğmeleri, kartlardan antrenör profili, randevu ise
+ Planım > Antrenörüm. Yani panel kalkınca erişim kaybı yok. */
   { key:'antrenorler', label:'Antrenörler', href:'antrenorler-v1.html', icon:'fa-solid fa-user-tie',
-    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'],
-    dd:[
-      {label:'Antrenör Bul', desc:'Uzmanlık ve çalışma şekline göre filtrele', href:'antrenorler-v1.html', icon:'fa-solid fa-magnifying-glass'},
-      {label:'Antrenör Profili', desc:'Örnek bir antrenör sayfası', href:'antrenor-detay-v1.html', icon:'fa-solid fa-id-badge'},
-      {label:'Randevu Al', desc:'Randevularını Planım > Antrenörüm\'den yönet', href:'fit-planim-randevular-v1.html', icon:'fa-solid fa-calendar-check'},
-      {label:'Antrenör Ol', desc:'DadaFit\'te antrenör olarak yer al', href:'antrenor-ol-v1.html', icon:'fa-solid fa-user-plus'}
-    ] }
+    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'] }
 ];
 
 /* Mobil alt bar — belge §3.2 / §19: BEŞTEN FAZLA sabit öğe olamaz. */
@@ -806,7 +803,17 @@ var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
  Bayrak body'ye yazılır, banner'ın üst boşluğunu CSS oradan çözer
  (bkz. fit-shell.css "BANNER ÜZERİNDE ŞEFFAF HEADER").
  ------------------------------------------------------------------ */
-var OVER_MODE = HERO_MODE || !!document.querySelector('.lib-top, .fp-top');
+/* .cp-top SONRADAN EKLENDİ: antrenör detayının banner'ı bu sınıfı taşıyor ve
+   over-mode'a girmediği için header o sayfada koyu görselin üstünde KATI
+   kalıyordu (ölçüldü: scroll=0 → rgb(255,255,255)). Diğer banner sayfalarıyla
+   tutarsızdı. Eşlik eden yerleşim kuralları fit-shell.css'te. */
+/* TÜM KOYU BANNER SINIFLARI over-mode'a girer. Başlangıçta yalnız .lib-top ve
+   .fp-top vardı; kullanıcı antrenör detayında (.cp-top) ve antrenör ol
+   sayfasında (.ol-top) header'ın koyu görselin üstünde KATI kaldığını bildirdi.
+   Tek tek kovalamak yerine banner sınıflarının tamamı listelendi — her biri
+   için eşlik eden yerleşim kuralı fit-shell.css'te (margin → padding çevrimi). */
+var OVER_MODE = HERO_MODE || !!document.querySelector(
+  '.lib-top, .fp-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top');
 if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
 
 /* ============================================================

@@ -93,18 +93,23 @@ bir karar (yalnız Planım'ı koyulaştırmak iki düğmeyi birbirinden ayırır
 görünüş birebir istendiği gibi bırakıldı ve madde §20 kapsamına yazıldı: `--tomato-dark`
 (`#007a3d`, 5.45:1) birincil dolgu yapılırsa hem AA sağlanır hem yeşil kimlik korunur.
 
-## A3 · Egzersiz kütüphanesi banner'ındaki arama input'u kalkacak
+## A3 · Egzersiz kütüphanesi banner'ındaki arama input'u kalkacak ✅
 
-- [ ] `egzersiz-kutuphane-v1.html` — banner içindeki `.lib-search` formu kaldırılacak.
-- [ ] Aramanın kaybolmaması için: header'daki arama ikonu + sayfa içi filtre bileşeni yeterli;
-  kaldırılan input'un beslediği JS varsa (`libSearchInput`) filtre motorundan güvenle sökülecek.
-- [ ] **Referans doğrulaması:** DadaDiet `/diyetisyenler` banner'ında arama input'u **yok** —
+- [x] `egzersiz-kutuphane-v1.html` — banner içindeki `.lib-search` formu kaldırıldı.
+- [x] Güvenlik kontrolü: sayfa JS'i input'u **null-korumalı** okuyordu
+  (`var searchInput=…; if(searchInput){…}`), yani markup kalkınca filtre motoru etkilenmiyor.
+  Tüm `searchInput` geçişleri tek tek denetlendi, korumasız kullanım yok.
+- [x] **Referans doğrulaması:** DadaDiet `/diyetisyenler` banner'ında arama input'u **yok** —
   banner'da yalnız `.chips` içinde `btn-primary` + `btn-ghost` var (ölçülen DOM: `div.chips.drag-scroll`).
 
-## A4 · Antrenörler sayfası — dadadiet.com/diyetisyenler kurgusu
+**Not:** aynı banner arama formu üç sayfada daha duruyor (`hareket-merkezi`,
+`program-liste`, `programlar-merkezi`). Belge onları saymadığı ve input'un kaldırılması
+metin aramasını gerçekten kaldırdığı için (işlev kaybı) dokunulmadı — sonda soruluyor.
 
-- [ ] Banner içindeki arama input'u kaldırılacak (A3 ile aynı kural).
-- [ ] **Ölçülen referans kurgu** (1440px, `/diyetisyenler` DOM + CSS):
+## A4 · Antrenörler sayfası — dadadiet.com/diyetisyenler kurgusu ✅
+
+- [x] Banner içindeki arama input'u kaldırıldı (A3 ile aynı kural).
+- [x] **Ölçülen referans kurgu** (1440px, `/diyetisyenler` DOM + CSS):
 
   ```
   section.lst-top            banner · padding-top:128px · koyu gradient + foto
@@ -136,16 +141,43 @@ görünüş birebir istendiği gibi bırakıldı ve madde §20 kapsamına yazıl
   `.dz-title` · `.dz-rate` → `.dz-tags` (üstte 1px çizgi, ilk 2 etiket) → `.dz-meta` (ilk 2 alan) →
   `.dz-foot` (`margin-top:auto`, bg-cream, üst çizgi) → `.dz-price` + `.dz-go`.
 
-- [ ] `fit-shell.css` — bu kurgu **merkezi** olarak eklenecek (`.lst-layout`, `.lst-side`,
-  `.fct*`, `.dz-*` DadaFit yeşiline ve mevcut token'lara uyarlanmış hâlde). Sayfaya kopyalanmaz.
-- [ ] `antrenorler-v1.html` — sol filtre kolonu + sağ kart grid'i + altta sayfalama kurgusuna geçiş.
-- [ ] **Kritik kısıt:** sayfanın kendi filtre motoru `.fgroup[data-group]` kutularını sorguluyor
-  (bkz. HANDOFF §3). Facet'ler akordeona taşınırken `.fgroup` düğümleri **silinmeyecek, taşınacak**;
-  `.df-fchip` düğümleri klonlanmayacak — yoksa filtreleme sessizce ölür.
-- [ ] Mevcut `.pager` (`.pg`, 1…3[4]5…9 deseni) korunur — DadaDiet ile aynı sınıf dili zaten.
-- [ ] ≤1024px'te sol kolon alttan çekmeceye döner (DadaDiet davranışı).
-- [ ] **Ölçüm:** 1440/1280/1024/768/390'da grid kolon sayısı, sticky kolonun yapışması,
-  yatay taşma yok, filtre seçince kart sayısının düşmesi. Test: `tests/coach-list.mjs`.
+- [x] `fit-shell.css` — kurgu **merkezi** olarak eklendi (`.lst-layout`, `.lst-side`, `.fil-top`,
+  `.fct*`, `.sheet-*`, `.fil-trigger`), DadaFit token'larına ve yeşil kimliğine çevrilmiş hâlde.
+  Sayfaya kopyalanmadı; sonraki liste sayfaları da bu kitten beslenebilir.
+- [x] `antrenorler-v1.html` — sol filtre kolonu + sağ sonuç kolonu + altta sayfalama.
+- [x] **Kritik kısıt tutuldu:** `#libFilters` kimliği ve `.fgroup[data-group]` kutuları aynen
+  korundu, çipler klonlanmadı — yalnız yerleşimleri değişti. Motor dokunulmadı ve test ediliyor.
+- [x] Çipler dikey satır + kutucuk görünümüne alındı (`.lst-side .df-fchip`), `<button>` kaldı →
+  `aria-pressed` ile durum bildiriyor (belge §20 filtrelerde `aria-pressed` istiyor).
+- [x] Facet başına aktif seçim sayacı (`.fct-dot`) + akordeon aç/kapa.
+- [x] Mevcut `.pager` korundu — zaten DadaDiet `.pg` sınıf diliyle aynı desende.
+- [x] ≤1024px'te sol kolon alttan çekmeceye dönüyor (`.sheet-head/.sheet-body/.sheet-foot`,
+  örtü, `FIT_SHELL.lockScroll` ile kaydırma kilidi, Escape ile kapanma).
+- [x] **Kaldırılan kopya motor:** sayfadaki "Sana uygun antrenörü bul" `.fp-card` paneli de
+  aynı `.coach-card` düğümlerinin `style.display`'ini yazıyordu; dizinin sayfalama motoru da
+  aynı özelliği yazıyor. İki motor tek özelliği paylaşamaz — panelden seçim yapılınca kart
+  sayısı ve sayfa numarası tutmuyordu. Referansta da böyle bir satır içi panel yok
+  (eşleştirme banner'daki sihirbaz düğmesi). Panel kaldırıldı, sağlık uyarısı `.dz-vnote`
+  olarak liste başına taşındı.
+- [x] **Ölçüm — `tests/coach-list.mjs`: 1440 + 1024 + 768 + 390 px, 0 sorun.**
+  Sol kolon 272px ve sticky (kaydırma sonrası y=9) · sonuç kolonu sağda · ızgara 3/2/2/1 kolon ·
+  sayfalama ızgaranın altında ve 2. sayfaya geçiyor · **filtre çalışıyor: 8 → 2 sonuç**,
+  facet sayacı 1, `aria-pressed=true`, sıfırla 8'e dönüyor · çekmece açılıp kapanıyor ·
+  yatay taşma ve konsol hatası yok.
+
+### A4'te ölçerek yakalanan iki gerçek hata (gözle bakmadan geçilecekti)
+
+1. **Mobil çekmece çökmüştü.** `.sheet-body{flex:1 1 0}` — çekmecenin yüksekliği içeriğe
+   göre belirlendiği için `flex-basis:0` konteynerin içerik yüksekliğini `head+0+foot` yapıyor,
+   `flex-grow`'a dağıtacak boş alan kalmıyor. Ölçüm: gövde **height=10px**, `scrollHeight=732px` —
+   facet'ler pratikte görünmüyordu. **Testler yine geçiyordu**, çünkü Playwright kaydırılabilir
+   kapsayıcı içindeki düğmeye kendi kendine kaydırıp tıklıyor. `flex:1 1 auto` ile düzeltildi
+   (şimdi 589px gövde, kendi içinde kayıyor) ve teste "gövde gerçekten görünür mü" kontrolü eklendi.
+2. **Kart rozetleri üst üste bindi.** Sol kolon gelince kart genişliği ~397px'ten ~273px'e indi;
+   "DadaFit Onaylı" ve uygunluk rozeti ikisi de `position:absolute` (biri sol, biri sağ üst) olduğu
+   için çakıştılar. Tek bir `.coach-badges` flex satırına alındılar; ayrıca flex öğeleri varsayılan
+   `shrink:1` taşıdığı için uygunluk rozeti içeriğinin altına sıkışıp metnini pilin dışına
+   taşırıyordu → `flex:0 0 auto` + `nowrap`. Teste rozet kesişimi ölçümü eklendi.
 
 ---
 
@@ -154,13 +186,25 @@ görünüş birebir istendiği gibi bırakıldı ve madde §20 kapsamına yazıl
 Ölçülen kapsam: **1416** "DadaMutfak" geçişi, **70** "Mentor" geçişi.
 Bunun ~1150'si 12 legacy sayfanın kendi satır içi turuncu kabuğunda (Faz 2'de kalkacak).
 
-- [ ] **DadaMentor tamamen kaldırılacak** (belge §1 ve §21 — yerine başka AI asistanı da eklenmeyecek):
-  - [ ] `fit-shell.js` — `MENTOR_HTML` sabiti (satır ~527) ve mount'taki kullanımı (satır ~604)
-  - [ ] `fit-shell.js` — DadaMentor davranış bloğu (satır ~1208–…)
-  - [ ] `fit-shell.css` — `.mentor-*` kuralları (21 geçiş)
-  - [ ] `assets/video/mentor-panel.mp4` dosyası silinecek (belge §18: "ilgili video ve kodları temizle")
-  - [ ] Sayfalardaki artık `mentor` geçişleri (çoğu tek satır yorum/överlay) taranacak
-  - [ ] Footer içinde/üstünde Mentor kalmayacak (belge §16)
+- [x] **DadaMentor tamamen kaldırıldı** (belge §1 ve §21 — yerine başka AI asistanı da eklenmedi):
+  - [x] `fit-shell.js` — `MENTOR_HTML` sabiti (1980 karakter) ve mount'taki kullanımı
+  - [x] `fit-shell.js` — DadaMentor davranış bloğu (1641 karakter)
+  - [x] `fit-shell.css` — `.mentor-panel` / `.mp-*` kuralları (37 satır)
+  - [x] `assets/video/mentor-panel.mp4` **silindi** — 2.4 MB (belge §18)
+  - [x] Yalnız o panelin kullandığı **ölü token/sınıf bloğu** da kaldırıldı: `--d-3` · `--d-deep`
+    · `--dline` · `--sh-3` · `--panel-fl` · `--ease-spring` · `--tomato-rgb` · `--b-*-l` ve
+    `.w-gastro/.w-gourmet/.w-diet/.w-fit/.w-akademi`. Ölçüm: panel kalktıktan sonra bu adların
+    tek geçişi kendi tanımlarıydı (belge §18 "kullanılmayan CSS'i kaldır").
+  - [x] 34 sayfadaki artık `mentor` yorum satırları temizlendi
+  - [x] Footer içinde/üstünde Mentor yok (belge §16)
+  - [x] **Yan kazanç — çift id hatası kapandı:** `MENTOR_HTML` kendi içinde de bir
+    `<button id="toTop">` taşıyordu, mount ayrıca bir tane daha basıyordu; her sayfada
+    **aynı id'den iki düğme** vardı. Blok kalkınca tekilleşti (47 sayfada ölçüldü).
+  - [x] **Yan etki düzeltildi:** mobil tam-ekran hero'nun alt payı 146px'ti çünkü alt barın
+    yanında mentor mini paneli de ekranın altını kaplıyordu. Panel gidince o pay boşluğa
+    dönüştü → `calc(72px + safe-area)` yapıldı.
+  - [x] **Doğrulama (47 sayfa, 1440px):** DadaMentor kalıntısı YOK · çift `#toTop` YOK ·
+    404/hatalı istek YOK · konsol/JS hatası YOK.
 - [ ] **Marka dili** (fit-shell + 35 DadaFit sayfası):
   - [ ] "DadaMutfak Onaylı Antrenör" → "**DadaFit Onaylı Antrenör**"
   - [ ] "DadaMutfak Pro" → "**DadaFit Pro**"

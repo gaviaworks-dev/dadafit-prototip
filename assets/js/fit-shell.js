@@ -3,7 +3,7 @@
  ---------------------------------------------------------------------
  Bu dosya DadaFit public sayfalarının ortak kabuğunu (üst bant, header,
  ana menü, mobil drawer, mobil alt bar, görüş bildir, çerez, giriş kapısı,
- footer, DadaMentor FAB, başa dön) TEK YERDEN üretir ve davranışını kurar.
+ footer, başa dön) TEK YERDEN üretir ve davranışını kurar.
 
  Menüye kalem eklemek = aşağıdaki NAV / BOTTOM / FOOTER_COLS dizilerinde
  TEK satır. Sayfa dosyalarına kabuk markup'ı KOPYALANMAZ.
@@ -524,44 +524,6 @@ var LGGATE_HTML = `<div class="lg-overlay" id="lgOverlay"></div>
 
 `;
 
-var MENTOR_HTML = `<aside class="mentor-panel floating mini" id="mentorPanel" data-state="mini" aria-label="DadaMentor asistan">
-  <div class="mp-media">
-    <div class="mp-atmos"></div>
-    <video id="mentorVideo" autoplay muted loop playsinline preload="auto">
-      <source src="assets/video/mentor-panel.mp4" type="video/mp4" />
-    </video>
-  </div>
-  <div class="mp-fade"></div>
-  <div class="mp-mini-overlay" id="mpMiniOv" aria-hidden="false">
-    <span class="mav"><i class="fa-solid fa-compass"></i></span>
-    <span class="mp-mini-lbl">Mentör</span>
-  </div>
-  <div class="mp-top">
-    <span class="mp-tag"><i class="fa-solid fa-comment-dots"></i> Mentor</span>
-    <button class="mp-toggle" type="button" id="mpToggle" aria-label="Paneli küçült">
-      <i class="fa-solid fa-minus" id="mpToggleIco"></i>
-    </button>
-  </div>
-  <div class="mp-chat">
-    <div class="mp-id">
-      <span class="mp-av"><i class="fa-solid fa-compass"></i></span>
-      <span>
-        <span class="nm"><span class="bd">Dada</span><span class="sf">Mentor</span></span><br>
-        <span class="on"><span class="d"></span> çevrimiçi</span>
-      </span>
-    </div>
-    <div class="mp-bubble" id="mpBubble">Bugün sana nasıl yardımcı olayım?</div>
-    <div class="mp-row">
-      <a class="mp-opt" href="egzersiz-kutuphane-v1.html">Egzersizler</a>
-      <a class="mp-opt" href="program-liste-v1.html">Programlar</a>
-      <a class="mp-opt" href="antrenorler-v1.html">Antrenörler</a>
-      <a class="mp-opt w-gastro" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html"><span class="bd">Dada</span><span class="sf">Gastro</span></a>
-      <a class="mp-opt w-diet" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/saglik-hub-v1.html"><span class="bd">Dada</span><span class="sf">Diet</span></a>
-    </div>
-  </div>
-</aside>
-<button class="to-top" id="toTop" type="button" aria-label="Başa dön"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>`;
-
 var FOOTER_RAW = `<footer class="footer orange">
   <div class="wrap">
     <div class="foot-grid">
@@ -601,7 +563,11 @@ if(_top){
 }
 var _bot = document.getElementById('fitShellBottom');
 if(_bot){
-  _bot.outerHTML = LGGATE_HTML + '\n' + footerHtml() + '\n' + MENTOR_HTML +
+  /* DadaMentor kaldirildi (belge §1 ve §21: yerine baska bir yapay zeka
+     asistani da eklenmez). Not: MENTOR_HTML kendi icinde de bir
+     <button id="toTop"> tasiyordu, yani sayfada AYNI id'den iki dugme
+     olusuyordu — blok kalkinca o cift-id hatasi da kapandi. */
+  _bot.outerHTML = LGGATE_HTML + '\n' + footerHtml() +
     '\n<button class="to-top" id="toTop" type="button" aria-label="Basa don"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>';
 }
 
@@ -1225,39 +1191,7 @@ setTimeout(function(){
   });
 })();
 
-/* ---- DadaMentor FAB + scroll-reveal + başa dön ---- */
-/* ===== ADIM 3 KABUK JS (DadaMentor + reveal + scroll-top) ===== */
-// ---- DADAMENTOR ASİSTAN PANELİ (floating collapse/expand morph + footer-hide) ----
-(function(){
-  var panel=document.getElementById('mentorPanel');
-  if(!panel)return;
-  var mpToggle=document.getElementById('mpToggle');
-  var mpToggleIco=document.getElementById('mpToggleIco');
-  var mpMiniOv=document.getElementById('mpMiniOv');
-  var panelState='mini';
-  function collapse(){
-    panelState='mini';panel.setAttribute('data-state','mini');panel.classList.add('mini');
-    if(mpToggleIco)mpToggleIco.className='fa-solid fa-plus';
-    if(mpToggle)mpToggle.setAttribute('aria-label','Paneli büyüt');
-    if(mpMiniOv)mpMiniOv.setAttribute('aria-hidden','false');
-  }
-  function expand(){
-    panelState='full';panel.setAttribute('data-state','full');panel.classList.remove('mini');
-    if(mpToggleIco)mpToggleIco.className='fa-solid fa-minus';
-    if(mpToggle)mpToggle.setAttribute('aria-label','Paneli küçült');
-    if(mpMiniOv)mpMiniOv.setAttribute('aria-hidden','true');
-  }
-  if(mpToggle)mpToggle.addEventListener('click',function(e){e.stopPropagation();panelState==='full'?collapse():expand();});
-  if(mpMiniOv)mpMiniOv.addEventListener('click',expand);
-  function onFootScroll(){
-    var y=window.scrollY||document.documentElement.scrollTop;
-    var max=document.documentElement.scrollHeight-window.innerHeight;
-    panel.classList.toggle('foot-hide',(max-y)<260);
-  }
-  window.addEventListener('scroll',onFootScroll,{passive:true});
-  window.addEventListener('resize',onFootScroll);
-  onFootScroll();
-})();
+/* ---- scroll-reveal + başa dön (DadaMentor paneli kaldırıldı — belge §1/§21) ---- */
 // ---- ÖLÇÜLÜ SCROLL-REVEAL (FOUC-güvenli; .reveal hedefi yoksa no-op; class 'in') ----
 (function(){
   var els=document.querySelectorAll('.reveal');

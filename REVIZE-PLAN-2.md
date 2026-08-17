@@ -26,6 +26,19 @@ node tests/dropdown-position.mjs                 # A1 regresyonu
 |---|---|
 | `tests/_pw.mjs` | playwright-core çözücü (repo'ya node_modules kurulmaz) |
 | `tests/dropdown-position.mjs` | hover ≡ tıklama panel konumu · scrollWidth · header sabitliği |
+| `tests/header-banner.mjs` | banner sayfasında şeffaf→katı header · Planım solid · üst üste binme |
+| `tests/coach-list.mjs` | dizin kurgusu · filtre motoru · çekmece · rozet çakışması |
+| `tests/plan-account.mjs` | Planım altı sekme · ray dışı sayfalar yetim değil · Hesabım §5 |
+| `tools/page-check.mjs` | **tek sayfa kalite kapısı** — Faz 2/5'te her sayfa bundan geçer |
+| `tools/legacy-migrate.py` | legacy kabuk sökümü + kural-kural CSS süzme + `--css-from-head` kurtarma |
+
+### Paralel çalışma — dosya sahipliği
+
+| Katman | Sahibi |
+|---|---|
+| `assets/js/fit-shell.js` · `assets/css/*.css` · `REVIZE-PLAN-2.md` · `tools/*` · `tests/*` | **yalnız ana oturum** |
+| Bir HTML sayfası | o sayfaya atanmış **tek** alt ajan |
+Alt ajan kabukta kural gerekirse rapor eder, ana oturum merkezî olarak uygular. Ajan commit atmaz.
 
 ---
 
@@ -205,15 +218,22 @@ Bunun ~1150'si 12 legacy sayfanın kendi satır içi turuncu kabuğunda (Faz 2'd
     dönüştü → `calc(72px + safe-area)` yapıldı.
   - [x] **Doğrulama (47 sayfa, 1440px):** DadaMentor kalıntısı YOK · çift `#toTop` YOK ·
     404/hatalı istek YOK · konsol/JS hatası YOK.
-- [ ] **Marka dili** (fit-shell + 35 DadaFit sayfası):
-  - [ ] "DadaMutfak Onaylı Antrenör" → "**DadaFit Onaylı Antrenör**"
-  - [ ] "DadaMutfak Pro" → "**DadaFit Pro**"
-  - [ ] Sayfa `<title>`'larındaki DadaMutfak ifadeleri
-  - [ ] Breadcrumb başlangıcı "DadaFit Ana Sayfa"
-- [ ] **Ekosistem bağlantıları** yalnız kontrollü kalacak: üst bant marka barı + hesap menüsündeki
-  "DadaMutfak'a dön" ve "Çıkış" hedefleri gözden geçirilecek (belge §14: başka prototipin HTML
-  sayfasına doğrudan bağımlılık kurulmayacak → yapılandırılabilir servis adresi).
-- [ ] Çıkış bağlantısı DadaFit'in kendi çıkış hedefine bağlanacak (bugün DadaMutfak portalına gidiyor).
+- [x] **Marka dili — kabuk + 35 DadaFit sayfası** (12 legacy sayfa ajanlarda):
+  - [x] "DadaMutfak Onaylı Antrenör" → "**DadaFit Onaylı Antrenör**" (kart rozetleri, başlıklar, JS title'ları)
+  - [x] "DadaMutfak Pro" → "**DadaFit Pro**" (pro kapısı dahil)
+  - [x] 42 sayfanın `<title>` kuyruğundaki DadaMutfak → sahibim olan 35'inde temizlendi
+  - [x] Ekosistem prozası doğru ürüne bağlandı: **tarif/menü → Dada Gastro**,
+    **TDEE/beslenme/diyetisyen → Dada Diet** (eski şemsiye adı değil). Giriş kapısı metni DadaFit.
+  - [x] **Ölçüm:** 35 sayfada görünen metinde DadaMutfak geçişi **0**
+- [x] **Ekosistem bağlantıları tek noktadan** (§14): 37 gömülü adres vardı. Kök artık kabukta
+  `ECO_BASE`; yükleme anında yeniden yazılıyor → markup'taki eski önek adres değil, "bu bir
+  ekosistem bağlantısı" işareti. Gerçek servis adresi belirlenince **yalnız `ECO_BASE`** değişir.
+  Her bağlantı `data-eco="gastro|diet|gourmet|campus"` ile hangi sisteme gittiğini bildiriyor
+  (§14 "hangi sistemle paylaşıldığı açıkça gösterilmelidir"), ve `target=_blank rel=noopener`
+  ile kullanıcı DadaFit'ten düşmüyor. Ölçüm: hub 13 · enerji-defteri 19 · köprü 10 · rehber 5.
+- [x] "DadaMutfak'a dön" hesap menüsünden ve drawer'dan kaldırıldı; ekosistem geçişi yalnız
+  üst bandın marka barında (kontrollü bağlantı).
+- [x] Çıkış artık DadaFit'in kendi hedefine gidiyor (`FIT_LOGOUT`), DadaMutfak portalına değil.
 
 ---
 
@@ -259,16 +279,25 @@ açıkça istiyor; ayrıca §23 "sayfa bazında tekrarlanan header ve footer kod
 
 Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
 
-- [ ] Yeni `PLAN_NAV`: **Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim · Antrenörüm**
-- [ ] Eşleme: `programim`→Plan ve Takvim · `gecmis`→Aktivite Kayıtlarım · `ilerleme`+`rozetler`→İlerlemem ·
-      `kaydettiklerim`→aynı · `randevular`→Antrenörüm
-- [ ] Planım'dan **çıkacaklar**: `defter` (→ ana menü, Faz 3) · `kopru` (→ Enerji Defteri içi açıklayıcı sistem) ·
-      `saglik` ve `veri` (→ Hesabım)
-- [ ] Her sekmenin belgedeki alt içerik listesi karşılanacak (Bugün'e §9 günlük durum kartı dahil)
-- [ ] **Hesabım** 14 modül: Profil · Sağlık ve Hareket Profilim · Veri ve İzinlerim · Bildirim Tercihlerim ·
-      Bağlı Uygulamalar · Üyelik ve Paketim · Ödeme Geçmişim · Faturalarım · Güvenlik · Dil ve Bölge ·
-      Destek Taleplerim · Hesabı Dondurma · Verilerimi İndir · Hesabımı Sil
-- [ ] `ACCOUNT` menüsü `PLAN_NAV`'dan türediği için (HANDOFF §1) Hesabım listesi ayrı bir diziye ayrılacak
+- [x] Ray artık **altı sekme**: Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim · Antrenörüm
+- [x] Eşleme yeni sayfa üretmeden yapıldı: `programim`→Plan ve Takvim · `gecmis`→Aktivite Kayıtlarım ·
+      `ilerleme`(+rozetler içeriği)→İlerlemem · `kaydettiklerim`→aynı · `randevular`→Antrenörüm
+      (**anahtar `randevular` korundu** — sayfa kendi `data-plan-page` değerini bildiriyor, anahtarı
+      değiştirmek banner/breadcrumb çözümünü kırardı)
+- [x] Raydan çıkanların hepsine yeni sahip verildi: `defter`→ana menü · `kopru`→Enerji Defteri içi ·
+      `rozetler`→İlerlemem içeriği · `saglik`+`veri`→Hesabım
+- [x] **İki liste, tek kaynak:** `PLAN_TABS` (rayda görünen altı) + `PLAN_PAGES` (`#fitPlanTop`
+      kullanan tüm sayfalar). Ray `PLAN_TABS`'tan, başlık/breadcrumb `PLAN_PAGES`'ten çözülür —
+      bu ayrım olmasa ray dışı dört sayfa **boş başlıkla** açılırdı.
+- [x] **Hesabım** kendi listesine ayrıldı (`ACCOUNT_ITEMS`), belgedeki 14 modülün tamamı var.
+      Planım rayı hesap menüsünde TEKRARLANMIYOR (§5 "karıştırılmamalı"), Planım'a tek giriş var.
+- [x] **Ölçüm — `tests/plan-account.mjs`, 0 sorun:** ray tam altı ve belgedeki adlar · çıkarılan
+      dört kalem rayda yok · ray dışı dört sayfa başlık+breadcrumb çözüyor · Hesabım'da 14 modül ·
+      hesap menüsündeki tüm hedefler diskte var · menü ve drawer'da DadaMutfak kalmadı
+- [ ] Her sekmenin belgedeki alt İÇERİK listesi (Bugün'e §9 günlük durum kartı dahil) — sayfa gövdeleri
+- [ ] **Aşama notu:** Hesabım'daki üç kalem (Bağlı Uygulamalar · Üyelik/Ödeme/Fatura · Destek Talepleri)
+      henüz var olmayan Faz 5 sayfalarına ait. Kabuk hesap menüsü 47 sayfada basıldığı için şimdilik
+      var olan en yakın sahibe bağlı; sayfalar üretilince **yalnız href'ler** değişecek.
 
 ---
 

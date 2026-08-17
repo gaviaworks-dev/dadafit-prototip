@@ -255,6 +255,26 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
 .btn-login i{font-size:14px}
 .btn-login:hover{background:var(--tomato-dark);border-color:var(--tomato-dark)}
 
+/* ---- PLANIM düğmesi (head-actions) — DadaDiet kişisel buton deseni ----
+ Ana menüde DEĞİL: Fit Planım dropdown'ı kaldırıldı, giriş noktası tek düğme.
+ İkincil dilde durur ki birincil eylem (Giriş Yap / Pro) ile yarışmasın;
+ her iki oturum durumunda da görünür. */
+.btn-plan{
+  background:var(--paper);color:var(--slate);border-color:var(--line);
+  text-decoration:none;
+}
+.btn-plan i{color:var(--tomato)}
+.btn-plan:hover{background:var(--tomato-tint);border-color:var(--tomato);color:var(--tomato-dark)}
+.btn-plan:hover i{color:var(--tomato-dark)}
+.btn-plan.active{background:var(--tomato-tint);border-color:var(--tomato);color:var(--tomato-dark)}
+.btn-plan:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+/* logged-in'de de kalır (btn-login gizleme kuralının dışında) */
+body.is-auth .btn-login.btn-plan{display:inline-flex}
+/* hero üstünde şeffaf header: cam yüzey */
+.header.at-top .btn-plan{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#fff}
+.header.at-top .btn-plan i{color:#fff}
+.header.at-top .btn-plan:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.5);color:#fff}
+
 /* ===== LOGIN-STATE (cila-2 faz 2) — header logged-in chrome ===== */
 /* varsayılan logged-out: ekle/zil/avatar gizli. body.is-auth → açılır, btn-login gizlenir */
 .head-add,.head-bell,.acct-wrap{display:none}
@@ -274,7 +294,11 @@ body.is-auth .head-bell{display:grid}
 .head-bell{position:relative}
 .hb-badge{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:var(--radius-circle);background:var(--tomato);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
 /* dropdown panel (header sağa hizalı; nav dropdown diliyle aynı) */
-.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:236px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.12s var(--ease);z-index:80}
+/* Hesap menüsü artık Planım alanının tamamını taşıyor (11 kalem + hesap aksiyonları)
+ → ekranı aşmasın diye kendi içinde kaydırılır. */
+.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:272px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.12s var(--ease);z-index:80;max-height:calc(100vh - 150px);overflow-y:auto;overscroll-behavior:contain}
+.acct-menu::-webkit-scrollbar{width:6px}
+.acct-menu::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .acct-item:hover .acct-menu,.acct-item.open .acct-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .acct-menu::before{content:"";position:absolute;top:-7px;right:24px;width:13px;height:13px;background:#fff;border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
 .acct-menu>a{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:var(--radius-md);font-size:14px;font-weight:500;color:var(--slate);transition:.16s var(--ease)}
@@ -343,6 +367,26 @@ body.is-auth .drawer-login{display:none}
 .dropdown a+a{border-top:1px solid var(--line)}
 .dd-head{padding:8px 13px 4px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .dd-col{display:flex;flex-direction:column}
+/* grup başlığı (dd-group) — panel içi ayraç */
+.dd-group{
+  padding:12px 13px 5px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border-top:1px solid var(--line);margin-top:6px;
+}
+.dropdown>.dd-group:first-child{border-top:none;margin-top:0;padding-top:6px}
+/* .dd-group'tan hemen sonra gelen bağlantı üst çizgisini tekrarlamaz */
+.dd-group+a{border-top:none !important}
+
+/* ---- GENİŞ PANEL (dd-wide) — Hareket menüsü on bir hedefe çıktı ----
+ Tek kolonda panel ekran boyunu aşıyordu; kalemler iki kolona akar.
+ dd-group tam satır kaplar, böylece "Rehber konuları" ayrımı korunur. */
+.dropdown.dd-wide{
+  min-width:560px;
+  display:grid;grid-template-columns:1fr 1fr;gap:0 8px;align-content:start;
+}
+.dropdown.dd-wide .dd-group{grid-column:1/-1}
+/* iki kolonda "a+a üst çizgisi" yanlış yere düşer → çizgi yerine boşluk ritmi */
+.dropdown.dd-wide a+a{border-top:none}
+.dropdown.dd-wide a{align-items:flex-start}
 
 /* ---- MEGA MENÜ (Tarifler) — header'a bağlı tam genişlik panel — KİLİTLİ ---- */
 .nav-item.has-mega{position:static}            /* containing block = .header (fixed) */
@@ -456,8 +500,31 @@ body.is-auth .drawer-login{display:none}
  tablet 641–1024px · mobil ≤640px
  ========================================================= */
 
-/* yatay taşmayı global engelle */
-html,body{overflow-x:hidden}
+/* =========================================================
+ YATAY TAŞMA + KAYDIRMA OLUĞU — "layout sağa kayıyor" kökü
+ ---------------------------------------------------------
+ ESKİ: html,body{overflow-x:hidden}
+ overflow-x:hidden kökü YATAY KAYDIRMA KONTEYNERİNE çevirir. Taşan bir
+ öğe (dropdown paneli, çip rayı, geniş kart) görsel olarak kırpılır ama
+ kök hâlâ programatik olarak kaydırılabilir kalır: içindeki bir bağlantı
+ odak alınca tarayıcı onu görünür kılmak için sayfayı yana kaydırır.
+ Ayrıca overflow:hidden, içindeki position:sticky öğelerin yapışmasını
+ bozar.
+
+ YENİ:
+ · overflow-x:clip → kırpar ama KAYDIRMA KONTEYNERİ YARATMAZ; hiçbir
+ odak/anchor sayfayı yana kaydıramaz. (clip ↔ visible eşleşmesi
+ spesifikasyonda serbesttir, dikey kaydırma normal kalır.)
+ · scrollbar-gutter:stable → dikey kaydırma oluğu HER ZAMAN rezerve.
+ Modal/drawer açılıp gövde kilitlendiğinde çubuk kaybolsa bile
+ clientWidth değişmez → .wrap yeniden ortalanmaz → sıçrama olmaz.
+ · body.scroll-locked → kilidin tek CSS kanalı (JS: lockScroll()).
+ ========================================================= */
+html{overflow-x:clip;scrollbar-gutter:stable}
+body{overflow-x:clip}
+body.scroll-locked{overflow:hidden}
+/* clip desteklemeyen eski tarayıcı: hidden'a düş (davranış eskisi gibi olur) */
+@supports not (overflow-x:clip){ html,body{overflow-x:hidden} }
 
 /* sürükle-kaydır (mouse) imleci — yatay slider'lar */
 .drag-scroll.dragging{cursor:grabbing;user-select:none;scroll-behavior:auto}
@@ -482,12 +549,16 @@ html,body{overflow-x:hidden}
 .drawer-close:hover{border-color:var(--tomato);color:var(--tomato)}
 .drawer-nav{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .d-item{border-bottom:1px solid var(--line)}
+/* Tüm kalemler aynı sol eksende hizalanır: [ikon] etiket …………… [chevron]
+ (eskiden justify-content:space-between yüzünden panelsiz kalemlerin etiketi
+ sağa yapışıyor, panelli olanlarınki solda kalıyordu) */
 .d-link{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  display:flex;align-items:center;justify-content:flex-start;gap:11px;width:100%;
   font-family:inherit;font-weight:700;font-size:16px;color:var(--slate);
   background:none;border:none;text-align:left;padding:16px 22px;cursor:pointer;
 }
-.d-link .fa-chevron-down{font-size:12px;color:var(--muted);transition:transform .25s var(--ease),color .25s var(--ease)}
+.d-link>i:first-child{width:20px;text-align:center;font-size:15px;color:var(--tomato);flex:none}
+.d-link .fa-chevron-down{margin-left:auto;width:auto;font-size:12px;color:var(--muted);transition:transform .25s var(--ease),color .25s var(--ease)}
 .d-item.open>.d-link .fa-chevron-down{transform:rotate(180deg);color:var(--tomato)}
 .d-link .soon{font-size:9.5px}
 .d-sub{max-height:0;overflow:hidden;transition:max-height .15s var(--ease);background:var(--bg)}
@@ -959,6 +1030,32 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 .cc-card:hover,.ed-altcard:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
 .cc-card:focus-visible,.ed-altcard:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
 
+/* ---- OKUNABİLİRLİK ÖRTÜSÜ (challenge kartları) ----
+ Bu kabuk fotoğrafın üstüne doğrudan beyaz metin basıyordu; hiçbir overlay
+ tanımı yoktu. Açık gökyüzü / kar / kum fotoğraflarında başlık ve açıklama
+ tamamen kayboluyordu (ölçülen kontrast yer yer 1.4:1).
+ Çözüm: kartın tamamına taban karartma + metnin oturduğu alt üçte ikiye
+ daha koyu bir gradient. Ölçüm (en açık kare, #f2f2f0 zemin varsayımı):
+ · başlık #fff üzerine ≈ 9.6:1 (AA/AAA)
+ · açıklama rgba(255,255,255,.88) ≈ 7.4:1 (AA)
+ Metin gölgesi yalnız emniyet payı; kontrastı gradient sağlar. */
+/* NOT: .ed-altcard'ın görseli çocuk .ed-altcard-fig üzerinde ve onun kendi
+ ::after gradient'i var — bu kural yalnız .cc-card'a uygulanır. */
+.cc-card::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(12,11,8,.52) 0%,rgba(12,11,8,.16) 34%,rgba(12,11,8,.62) 68%,rgba(10,9,6,.9) 100%),
+    linear-gradient(0deg,rgba(10,9,6,.34),rgba(10,9,6,.34));
+  transition:opacity .3s var(--ease);
+}
+.cc-card>*{position:relative;z-index:2}
+.cc-card b,.cc-card h3,.cc-card h4{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55)}
+.cc-card p{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+/* hover'da örtü hafifçe koyulaşır — metin okunurluğu artar, azalmaz */
+.cc-card:hover::before{opacity:.94}
+/* tamamlanmış challenge kartı zaten soluk; örtüsü sabit kalsın */
+.cc-card.is-past::before{opacity:1}
+
 /* 2026-08-11 referans kıyaslaması: tekilleştirmede iki kartın kendi değeri kaybolmuştu.
  Sekiz kartın altısı zaten birebir aynıydı (sh-sm dinlenme / sh-lg hover); bu ikisi değildi.
  Ölçülen sapma geri alındı — kanonik kabuk korunur, yalnız o iki değer referansa döner. */
@@ -1084,6 +1181,37 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 .hr-note p{font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0}
 .hr-note p a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .hr-note p+p{margin-top:9px}
+/* ---- MARGIN-COLLAPSE DÜZELTMESİ (rehber sayfalarındaki gri boşluk) ----
+ .hr-note'un 34px üst boşluğu, kapsayıcı section style="padding-top:0"
+ taşıdığında section'ın DIŞINA taşıyordu (margin collapse): "Sırada"
+ bölümü ile disclaimer arasında gövde grisini gösteren 34px'lik anlamsız
+ bir şerit oluşuyordu. Ölçüm: section 1704→2214 bitiyor, sonraki 2248'de
+ başlıyordu. Not bir sarmalayıcının İLK çocuğuysa üst boşluğa gerek yok —
+ aradaki nefesi section'ın kendi padding'i verir.
+ Yedi rehber sayfasını (yeni-baslayanlar · dogru-form · sureye-gore ·
+ hedefe-gore · bolgeye-gore · masa-basi · isinma-soguma · sozluk) birden düzeltir. */
+.wrap>.hr-note:first-child,
+.sec>.wrap>.hr-note:first-child{margin-top:0}
+
+/* ---- ORTALANMIŞ NOT (is-center) — video erişilebilirlik uyarısı gibi
+ tek başına duran, section'a ait olmayan bloklar için. Sayfa genişliğinde
+ sola yaslı durmak yerine okuma kolonunda ortalanır. ---- */
+.hr-note.is-center{
+  max-width:760px;margin-left:auto;margin-right:auto;
+  align-items:center;text-align:left;
+  background:var(--tomato-tint);border-color:var(--fit-line,#d8ebe0);
+}
+.hr-note.is-center>i{
+  margin-top:0;width:38px;height:38px;border-radius:var(--radius-circle);
+  background:#fff;display:grid;place-items:center;font-size:16px;
+}
+.hr-note.is-center p{margin:0}
+/* notu taşıyan bant: üstündeki içerikle ve altındaki footer'la nefes bırakır */
+.note-band{padding:38px 0 46px;background:var(--bg-white)}
+@media (max-width:640px){
+  .hr-note.is-center{flex-direction:column;align-items:flex-start;gap:11px}
+  .note-band{padding:26px 0 32px}
+}
 
 /* ---- "ÖRNEK" ETİKETİ (ziyaretçi demo görünümü — belge §9.3/§19) ---- */
 .demo-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);background:var(--cream-2);border:1px solid #e3d9c7;padding:4px 10px;border-radius:var(--radius-sm)}

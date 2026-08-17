@@ -25,9 +25,21 @@
 /* ============================================================
  1 · TEK MENÜ LİSTESİ
  ============================================================ */
+/* ------------------------------------------------------------------
+ MENÜ SÖZLEŞMESİ (2026 revizyon · DadaDiet header mantığı)
+ · Bir hedefe YALNIZ BİR kalem gider. Aynı sayfaya farklı adla ikinci
+ bir kapı açılmaz (ölçüm: eski menüde 5 kalem 2 hedefe gidiyordu,
+ buna karşılık 7 gerçek rehber sayfası menüde hiç yoktu).
+ · Paneli olan başlık da GERÇEK bağlantıdır: panel hover ile açılır,
+ başlığa tıklanınca kendi merkez sayfasına gidilir.
+ · Panelsiz başlık chevron TAŞIMAZ (dd yok → düz link).
+ ------------------------------------------------------------------ */
 var NAV = [
-  /* 1 · HAREKET — Egzersiz Kütüphanesi ile Hareket Rehberi bu şemsiye altında (belge §3.1) */
+  /* 1 · HAREKET — Egzersiz Kütüphanesi ile Hareket Rehberi bu şemsiye altında (belge §3.1).
+ Rehberin yedi alt sayfası artık menüde: eskiden yalnız ?bolge= varyantlarıyla
+ kütüphaneye giden dört kopya kalem vardı, gerçek sayfalar erişilemezdi. */
   { key:'hareket', label:'Hareket', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running',
+    wide:true,
     match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1',
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
@@ -36,54 +48,37 @@ var NAV = [
       {label:'Hareket Merkezi', desc:'Nereden başlayacağını seç', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-compass'},
       {label:'Egzersiz Kütüphanesi', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
       {label:'Hareket Rehberi', desc:'Nasıl ve neden — öğretici içerik', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
-      {label:'Hareket Sözlüğü', desc:'Set, tekrar, core, mobilite…', href:'hareket-sozluk-v1.html', icon:'fa-solid fa-spell-check'},
-      {group:'Kısa rutinler'},
-      {label:'Bugün kaç dakikan var?', desc:'5 · 10 · 15 · 20 · 30 dakika', href:'hareket-merkezi-v1.html#sure', icon:'fa-solid fa-stopwatch'},
-      {group:'Vücut bölgesi'},
-      {label:'Üst Vücut', desc:'Kol, omuz, sırt, göğüs', href:'egzersiz-kutuphane-v1.html?bolge=ust-vucut', icon:'fa-solid fa-dumbbell'},
-      {label:'Alt Vücut', desc:'Bacak, kalça, kalf', href:'egzersiz-kutuphane-v1.html?bolge=alt-vucut', icon:'fa-solid fa-person-walking'},
-      {label:'Karın & Core', desc:'Merkez bölge, denge', href:'egzersiz-kutuphane-v1.html?bolge=karin', icon:'fa-solid fa-child-reaching'}
+      {group:'Rehber konuları'},
+      {label:'Yeni Başlayanlar', desc:'İlk 7 gün ve rutine dönüş', href:'hareket-yeni-baslayanlar-v1.html', icon:'fa-solid fa-seedling'},
+      {label:'Doğru Form', desc:'Teknik ve sık yapılan hatalar', href:'hareket-dogru-form-v1.html', icon:'fa-solid fa-person-rays'},
+      {label:'Süreye Göre', desc:'5 · 10 · 15 · 20 · 30 dakika', href:'hareket-sureye-gore-v1.html', icon:'fa-solid fa-stopwatch'},
+      {label:'Hedefe Göre', desc:'Güç, mobilite, kondisyon', href:'hareket-hedefe-gore-v1.html', icon:'fa-solid fa-bullseye'},
+      {label:'Bölgeye Göre', desc:'Üst vücut, alt vücut, core', href:'hareket-bolgeye-gore-v1.html', icon:'fa-solid fa-person-walking'},
+      {label:'Masa Başı', desc:'Gün içinde kısa molalar', href:'hareket-masa-basi-v1.html', icon:'fa-solid fa-chair'},
+      {label:'Isınma ve Soğuma', desc:'Hazırlık ve toparlanma', href:'hareket-isinma-soguma-v1.html', icon:'fa-solid fa-fire-flame-simple'},
+      {label:'Hareket Sözlüğü', desc:'Set, tekrar, core, mobilite…', href:'hareket-sozluk-v1.html', icon:'fa-solid fa-spell-check'}
     ] },
 
-  /* 2 · PROGRAMLAR — Challenge burada özel bir program türüdür (belge §8.4) */
+  /* 2 · PROGRAMLAR — iki gerçek hedef: merkez sayfa ve tam liste.
+ "Ücretsiz ve Pro" ile "Tek günlük rutin" kalemleri kaldırıldı: ilki merkez sayfanın
+ kendi #pro bölümüydü (üstelik çapa yanlış sayfayı gösteriyordu), ikincisi Hareket
+ menüsündeki "Süreye Göre" kaleminin kopyasıydı. */
   { key:'programlar', label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-clipboard-list',
-    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','challenge-merkezi-v1','challenge-v1'],
+    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1'],
     dd:[
-      {label:'Programlar Merkezi', desc:'Hedefe, süreye, seviyeye göre', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-compass'},
-      {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planlar', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
-      {label:"Challenge Merkezi", desc:'Aktif · yaklaşan · tamamlanan', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy'},
-      {group:'Süreye göre'},
-      {label:'Tek günlük rutin', desc:'Bugün bir şey yap', href:'hareket-merkezi-v1.html#sure', icon:'fa-solid fa-bolt'},
-      {label:'Ücretsiz ve Pro', desc:'Neyin ücretsiz olduğunu gör', href:'program-liste-v1.html#pro', icon:'fa-solid fa-crown'}
+      {label:'Programlar Merkezi', desc:'Hedefe, süreye, seviyeye göre · ücretsiz ve Pro', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-compass'},
+      {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
+      {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true}
     ] },
 
-  /* 3 · FİT PLANIM — kişisel alan. Ziyaretçide örnek görünüm, üyede kişisel veri (belge §9).
- NOT: kabuğun 10 kalemi Faz 2'de kurulur; bu listede yalnız BUGÜN VAR OLAN hedefler durur. */
-  { key:'fit-planim', label:'Fit Planım', href:'fit-planim-v1.html', icon:'fa-solid fa-bolt',
-    match:['fit-planim-v1','enerji-defteri-v1','dadafit-kopru-v1','fit-planim-programim-v1',
-           'fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1',
-           'fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1',
-           'fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1'],
-    dd:[
-      {label:'Bugün', desc:'Bugünkü plan, sıradaki antrenman', href:'fit-planim-v1.html', icon:'fa-solid fa-sun'},
-      {label:'Enerji Defteri', desc:'Aldığın · harcadığın · denge', href:'enerji-defteri-v1.html', icon:'fa-solid fa-bolt'},
-      {label:'Programım', desc:'Aktif programın ve takvimi', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-clipboard-list'},
-      {label:'İlerlemem', desc:'Süre, seri, gelişim', href:'fit-planim-ilerleme-v1.html', icon:'fa-solid fa-chart-line'},
-      {label:'Kaydettiklerim', desc:'Hareket, program, rehber', href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark'},
-      {group:'Kavram'},
-      {label:'Enerji Köprüsü', desc:'Beslenme ile hareketin buluştuğu yer', href:'dadafit-kopru-v1.html', icon:'fa-solid fa-arrow-right-arrow-left'}
-    ] },
+  /* 3 · CHALLENGE — Programlar panelinin altından çıkıp kendi başlığına taşındı (belge §8.4) */
+  { key:'challenge', label:'Challenge', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy',
+    match:['challenge-merkezi-v1','challenge-v1'] },
 
-  /* 4 · ANTRENÖRLER — ticari dönüşüm nedeniyle bağımsız başlık (belge §1) */
+  /* 4 · ANTRENÖRLER — panelsiz düz bağlantı (DadaDiet "Diyetisyenler" kuralı):
+ alt kalemler dizin banner'ındaki ikili düğmeye ve sayfa gövdelerine taşındı. */
   { key:'antrenorler', label:'Antrenörler', href:'antrenorler-v1.html', icon:'fa-solid fa-user-tie',
-    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'],
-    dd:[
-      {label:'Antrenör Bul', desc:'Uzmanlık, çalışma şekli, uygunluk', href:'antrenorler-v1.html', icon:'fa-solid fa-user-tie'},
-      {label:'Online destek', desc:'Uzaktan çalışan antrenörler', href:'antrenorler-v1.html?calisma=online', icon:'fa-solid fa-video'},
-      {label:'Yüz yüze çalışma', desc:'Şehrindeki antrenörler', href:'antrenorler-v1.html?calisma=yuzyuze', icon:'fa-solid fa-location-dot'},
-      {group:'Uzman tarafı'},
-      {label:'Antrenör Ol', desc:'Başvuru ve belge doğrulama', href:'antrenor-ol-v1.html', icon:'fa-solid fa-id-badge'}
-    ] }
+    match:['antrenorler-v1','antrenor-detay-v1','antrenor-ol-v1'] }
 ];
 
 /* Mobil alt bar — belge §3.2 / §19: BEŞTEN FAZLA sabit öğe olamaz. */
@@ -91,7 +86,7 @@ var BOTTOM = [
   {label:'Ana Sayfa',  href:'dadafit-hub-v1.html',        icon:'fa-solid fa-house',           match:['dadafit-hub-v1']},
   {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','challenge-merkezi-v1','challenge-v1']},
-  {label:'Fit Planım', href:'fit-planim-v1.html',         icon:'fa-solid fa-bolt',            match:['fit-planim-v1','enerji-defteri-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
+  {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
 
@@ -100,7 +95,8 @@ var FOOTER_COLS = [
   { title:'DadaFit', links:[
       {label:'Hareket',     href:'hareket-merkezi-v1.html'},
       {label:'Programlar',  href:'programlar-merkezi-v1.html'},
-      {label:'Fit Planım',  href:'fit-planim-v1.html'},
+      {label:'Challenge',   href:'challenge-merkezi-v1.html'},
+      {label:'Planım',      href:'fit-planim-v1.html'},
       {label:'Antrenörler', href:'antrenorler-v1.html'}
   ]},
   { title:'Hızlı Erişim', links:[
@@ -128,27 +124,32 @@ var FOOTER_COLS = [
  sekme rayı buradan üretilir.
  ============================================================ */
 var PLAN_NAV = [
-  {key:'bugun',        label:'Bugün',                     href:'fit-planim-v1.html',                icon:'fa-solid fa-sun'},
-  {key:'defter',       label:'Enerji Defteri',            href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt'},
-  {key:'programim',    label:'Programım',                 href:'fit-planim-programim-v1.html',      icon:'fa-solid fa-clipboard-list'},
-  {key:'gecmis',       label:'Antrenman Geçmişim',        href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left'},
-  {key:'ilerleme',     label:'İlerlemem',                 href:'fit-planim-ilerleme-v1.html',       icon:'fa-solid fa-chart-line'},
-  {key:'rozetler',     label:'Challenge ve Rozetler',     href:'fit-planim-rozetler-v1.html',       icon:'fa-solid fa-medal'},
-  {key:'kaydettiklerim',label:'Kaydettiklerim',           href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark'},
-  {key:'randevular',   label:'Randevularım ve Mesajlar',  href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-calendar-check'},
-  {key:'saglik',       label:'Sağlık ve Hareket Profilim',href:'fit-planim-saglik-profil-v1.html',  icon:'fa-solid fa-heart-pulse'},
-  {key:'veri',         label:'Veri ve İzinlerim',         href:'fit-planim-veri-izin-v1.html',      icon:'fa-solid fa-shield-halved'}
+  {key:'bugun',        label:'Bugün',                     href:'fit-planim-v1.html',                icon:'fa-solid fa-sun',                 desc:'Bugünkü plan, sıradaki antrenman'},
+  {key:'defter',       label:'Enerji Defteri',            href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',                desc:'Aldığın · harcadığın · denge'},
+  {key:'programim',    label:'Programım',                 href:'fit-planim-programim-v1.html',      icon:'fa-solid fa-clipboard-list',      desc:'Aktif programın ve takvimi'},
+  {key:'gecmis',       label:'Antrenman Geçmişim',        href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left',   desc:'Tamamladığın seanslar'},
+  {key:'ilerleme',     label:'İlerlemem',                 href:'fit-planim-ilerleme-v1.html',       icon:'fa-solid fa-chart-line',          desc:'Süre, seri, gelişim'},
+  {key:'rozetler',     label:'Challenge ve Rozetler',     href:'fit-planim-rozetler-v1.html',       icon:'fa-solid fa-medal',               desc:'Kilometre taşların'},
+  {key:'kaydettiklerim',label:'Kaydettiklerim',           href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',            desc:'Hareket, program, rehber'},
+  {key:'randevular',   label:'Randevularım ve Mesajlar',  href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-calendar-check',      desc:'Antrenörünle iletişim'},
+  /* Enerji Köprüsü kavram sayfası bu rayın parçası: beslenme ile hareketin buluştuğu yer. */
+  {key:'kopru',        label:'Enerji Köprüsü',            href:'dadafit-kopru-v1.html',             icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
+  {key:'saglik',       label:'Sağlık ve Hareket Profilim',href:'fit-planim-saglik-profil-v1.html',  icon:'fa-solid fa-heart-pulse',         desc:'Kısıt, hedef, tercih'},
+  {key:'veri',         label:'Veri ve İzinlerim',         href:'fit-planim-veri-izin-v1.html',      icon:'fa-solid fa-shield-halved',       desc:'Neyi kiminle paylaştığın'}
 ];
 
 /* Hesap menüsü — belge §3.3: Dada Gastro hesap aksiyonları (Mutfak Defterim /
  Tarif Ekle / Alışveriş Listem …) DadaFit hesap menüsünde DURMAZ; onlara
  ekosistem değiştiriciden (üst bant marka barı · drawer "DadaMutfak'a dön")
  geçilir. Burada yalnız DadaFit kalemleri var. */
-var ACCOUNT = [
-  {label:'Fit Planım',        href:'fit-planim-v1.html',     icon:'fa-solid fa-bolt'},
-  {label:'Enerji Köprüsü',    href:'dadafit-kopru-v1.html',  icon:'fa-solid fa-arrow-right-arrow-left'},
-  {label:'Programım',         href:'program-liste-v1.html',  icon:'fa-solid fa-clipboard-list'},
-  {label:'Rozetlerim',        href:'rozetler-v1.html',       icon:'fa-solid fa-medal'},
+/* Hesap menüsü = Planım alanının tamamı (DadaDiet hesap menüsü deseni).
+ PLAN_NAV'dan türetilir: kalem eklemek YALNIZ PLAN_NAV'da tek satırdır, iki liste
+ birbirinden ayrışamaz. Eski menüde "Programım" yanlışlıkla program-liste-v1'e
+ (Tüm Programlar ile aynı hedef) gidiyordu; artık plan sayfasına gider. */
+var ACCOUNT = PLAN_NAV.map(function(p){
+  return {label:p.label, href:p.href, icon:p.icon, desc:p.desc};
+}).concat([
+  {sep:true},
   {label:'Bildirimler',       href:'bildirimler-v1.html',    icon:'fa-solid fa-bell'},
   {sep:true},
   {label:"Pro'ya Yükselt",    href:'pro-v1.html',            icon:'fa-solid fa-crown', cls:'acct-pro'},
@@ -156,7 +157,7 @@ var ACCOUNT = [
   {sep:true},
   {label:'DadaMutfak\'a dön', href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html', icon:'fa-solid fa-arrow-left-long'},
   {label:'Çıkış',             href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0', icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
-];
+]);
 
 /* ============================================================
  2 · AKTİF SAYFA ÇÖZÜMÜ
@@ -168,6 +169,8 @@ function isActive(item){
   for(var i=0;i<item.match.length;i++){ if(item.match[i]===PAGE) return true; }
   return false;
 }
+/* Planım alanındaki herhangi bir sayfada mıyız? (header düğmesi + drawer bölümü için) */
+var PLAN_ACTIVE = PLAN_NAV.some(function(p){ return p.href.replace(/\.html$/,'') === PAGE; });
 var AVA = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5";
 var MARK = '<svg class="fit-mark" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11.5" fill="#009d4f"/><path d="M25 8 L13.6 26 H19.8 L18.2 36 L30.4 17.6 H23.8 Z" fill="#fff"/></svg>';
 var WORD = '<span class="fit-word"><b>Dada</b><span class="ft">Fit</span></span>';
@@ -178,24 +181,35 @@ var WORD = '<span class="fit-word"><b>Dada</b><span class="ft">Fit</span></span>
 function navHtml(){
   return NAV.map(function(it){
     var act = isActive(it) ? ' class="active"' : '';
+    /* panelsiz başlık: chevron YOK, aria-haspopup YOK — düz bağlantı (DadaDiet kuralı) */
     if(!it.dd) return '<div class="nav-item"><a href="'+it.href+'"'+act+'>'+it.label+'</a></div>';
     var items = it.dd.map(function(d){
       if(d.group) return '<div class="dd-group">'+d.group+'</div>';
-      return '<a href="'+d.href+'"><i class="'+d.icon+'"></i> <span>'+d.label+(d.desc?'<small>'+d.desc+'</small>':'')+'</span></a>';
+      var extra = d.wizard ? ' data-fit-wizard' : '';
+      return '<a href="'+d.href+'"'+extra+'><i class="'+d.icon+'"></i> <span>'+d.label+(d.desc?'<small>'+d.desc+'</small>':'')+'</span></a>';
     }).join('\n            ');
-    return '<div class="nav-item">\n          <a href="'+it.href+'"'+(act||' class=""')+' aria-haspopup="true" aria-expanded="false">'+it.label+' <i class="fa-solid fa-chevron-down"></i></a>\n          <div class="dropdown">\n            '+items+'\n          </div>\n        </div>';
+    return '<div class="nav-item">\n          <a href="'+it.href+'"'+(act||' class=""')+' aria-haspopup="true" aria-expanded="false">'+it.label+' <i class="fa-solid fa-chevron-down"></i></a>\n          <div class="dropdown'+(it.wide?' dd-wide':'')+'">\n            '+items+'\n          </div>\n        </div>';
   }).join('\n        ');
 }
 
+/* Mobil drawer — masaüstü menüsünün birebir karşılığı + Planım rayı.
+ Planım masaüstünde header düğmesi olduğu için burada kendi katlanır bölümünü alır;
+ aksi hâlde mobilde plan alt sayfalarına hiçbir kapı kalmazdı. */
 function drawerNavHtml(){
-  return NAV.map(function(it){
+  var planActive = PLAN_ACTIVE;
+  var out = NAV.map(function(it){
     var act = isActive(it) ? ' active' : '';
     if(!it.dd) return '<div class="d-item"><a class="d-link'+act+'" href="'+it.href+'"><i class="'+it.icon+'"></i> '+it.label+'</a></div>';
     var subs = it.dd.filter(function(d){return !d.group && !d.ddOnly;}).map(function(d){
-      return '<a href="'+d.href+'"><i class="'+d.icon+'"></i> '+d.label+'</a>';
+      return '<a href="'+d.href+'"'+(d.wizard?' data-fit-wizard':'')+'><i class="'+d.icon+'"></i> '+d.label+'</a>';
     }).join('\n        ');
-    return '<div class="d-item d-has-sub'+(act?' open':'')+'">\n      <button class="d-link'+act+'">'+it.label+' <i class="fa-solid fa-chevron-down"></i></button>\n      <div class="d-sub">\n        '+subs+'\n      </div>\n    </div>';
-  }).join('\n    ');
+    return '<div class="d-item d-has-sub'+(act?' open':'')+'">\n      <button class="d-link'+act+'" type="button" aria-expanded="'+(act?'true':'false')+'"><i class="'+it.icon+'"></i> '+it.label+' <i class="fa-solid fa-chevron-down"></i></button>\n      <div class="d-sub">\n        '+subs+'\n      </div>\n    </div>';
+  });
+  var planSubs = PLAN_NAV.map(function(p){
+    return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
+  }).join('\n        ');
+  out.push('<div class="d-item d-has-sub'+(planActive?' open':'')+'">\n      <button class="d-link'+(planActive?' active':'')+'" type="button" aria-expanded="'+(planActive?'true':'false')+'"><i class="fa-solid fa-list-check"></i> Planım <i class="fa-solid fa-chevron-down"></i></button>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
+  return out.join('\n    ');
 }
 
 function bottomNavHtml(){
@@ -253,7 +267,8 @@ var TOPBAR = ''+
 function accountHtml(){
   return ACCOUNT.map(function(a){
     if(a.sep) return '<div class="acct-div"></div>';
-    return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> <span>'+a.label+'</span></a>';
+    return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> <span>'+a.label+
+           (a.desc?'<small>'+a.desc+'</small>':'')+'</span></a>';
   }).join('\n            ');
 }
 
@@ -266,6 +281,9 @@ function headerHtml(){
 '      <nav class="nav">\n        '+navHtml()+'\n      </nav>\n'+
 '      <div class="head-actions">\n'+
 '        <button class="icon-btn" aria-label="Ara" onclick="location.href=\'arama-fit-v1.html\'"><i class="fa-solid fa-magnifying-glass"></i></button>\n'+
+/* PLANIM — ana menüye girmez; kişisel buton olarak burada durur ve HER İKİ oturum
+ durumunda da görünür (DadaDiet head-actions sırası: arama · Planım · Giriş/Hesap). */
+'        <a class="btn-login btn-plan'+(PLAN_ACTIVE?' active':'')+'" href="fit-planim-v1.html"'+(PLAN_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-list-check"></i> Planım</a>\n'+
 '        <button class="btn-login" onclick="location.href=\'giris-v1.html\'"><i class="fa-regular fa-user"></i> Giriş Yap</button>\n'+
 '        <a class="icon-btn head-bell" href="bildirimler-v1.html" aria-label="Bildirimler"><i class="fa-solid fa-bell"></i><span class="hb-badge">3</span></a>\n'+
 '        <div class="acct-item acct-wrap">\n'+
@@ -305,15 +323,15 @@ function drawerHtml(){
 '      <div class="da-info">\n'+
 '        <b>Elif Şahin</b>\n'+
 '        <div class="da-links">\n'+
-'          <a href="fit-planim-v1.html">Fit Planım</a>\n'+
+'          <a href="fit-planim-v1.html">Planım</a>\n'+
 '          <a href="bildirimler-v1.html">Bildirimler</a>\n'+
 '          <a href="hesabim-v1.html">Ayarlar</a>\n'+
 '          <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0">Çıkış</a>\n'+
 '        </div>\n'+
 '      </div>\n'+
 '    </div>\n'+
-'    <a href="fit-planim-v1.html" class="drawer-add"><i class="fa-solid fa-bolt"></i> Fit Planım</a>\n'+
-'    <a href="antrenorler-v1.html" class="drawer-add"><i class="fa-solid fa-user-tie"></i> Antrenör Bul</a>\n'+
+/* "Antrenör Bul" kısayolu kaldırıldı: drawer menüsündeki "Antrenörler" ile aynı hedefe
+ gidiyordu (aynı hedefe farklı adla ikinci kapı açılmaz kuralı). */
 '    <a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html" class="drawer-add"><i class="fa-solid fa-arrow-left-long"></i> DadaMutfak\'a dön</a>\n'+
 '    <div class="drawer-lang" id="drawerLang">\n'+
 '      <button class="drawer-lang-toggle" type="button" aria-haspopup="true" aria-expanded="false">\n'+
@@ -626,6 +644,45 @@ if(_plan){
 var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
 
 /* ============================================================
+ 4b · TEK KAYDIRMA KİLİDİ — "layout sağa kayıyor" bug'ının kökü
+ ------------------------------------------------------------
+ Eskiden altı ayrı yer (drawer, görüş modalı, giriş kapısı, pro kapısı,
+ sihirbaz, kabuk dışı sayfa scriptleri) doğrudan
+ document.body.style.overflow='hidden' yazıyordu. Dikey kaydırma çubuğu
+ kaybolunca clientWidth ~15px büyüyor, ortalanmış .wrap yeniden
+ konumlanıyor ve TÜM SAYFA yana sıçrıyordu. Üstelik iki katman üst üste
+ açılıp biri kapanınca (dropdown → drawer → link) kilit erken kalkıyordu.
+
+ Çözüm iki parçalı:
+ · CSS: html{scrollbar-gutter:stable} → oluk her zaman rezerve, kilit
+ açılıp kapansa da genişlik DEĞİŞMEZ.
+ · JS: sayaçlı tek kilit. N kez kilitlenip N kez açılmadan serbest kalmaz.
+ Ek güvenlik olarak scrollbar-gutter desteklemeyen tarayıcıda
+ padding telafisi uygulanır.
+ ============================================================ */
+var _lockCount = 0, _lockPad = '';
+function lockScroll(){
+  if(_lockCount++ > 0) return;
+  var sbw = window.innerWidth - document.documentElement.clientWidth;
+  var gutterOK = window.CSS && CSS.supports && CSS.supports('scrollbar-gutter','stable');
+  if(sbw > 0 && !gutterOK){
+    _lockPad = document.body.style.paddingRight;
+    document.body.style.paddingRight = sbw + 'px';
+  }
+  document.body.classList.add('scroll-locked');
+}
+function unlockScroll(){
+  if(_lockCount === 0) return;
+  if(--_lockCount > 0) return;
+  document.body.classList.remove('scroll-locked');
+  document.body.style.paddingRight = _lockPad;
+  _lockPad = '';
+}
+window.FIT_SHELL = window.FIT_SHELL || {};
+window.FIT_SHELL.lockScroll = lockScroll;
+window.FIT_SHELL.unlockScroll = unlockScroll;
+
+/* ============================================================
  5 · KABUK DAVRANISI
  ============================================================ */
 /* ---- ortak chrome davranışı (hub satır içi bloklarından birebir) ---- */
@@ -713,25 +770,57 @@ document.querySelectorAll('.row-nav button').forEach(function(b){
   });
 });
 
-// nav dropdown click toggle (hover also works via CSS)
-document.querySelectorAll('.nav-item').forEach(function(it){
-  var trigger=it.querySelector(':scope > a');
-  if(!it.querySelector('.dropdown,.mega'))return;
-  trigger.addEventListener('click',function(e){
-    e.preventDefault();
-    var wasOpen=it.classList.contains('open');
-    document.querySelectorAll('.nav-item.open').forEach(function(o){o.classList.remove('open');var t=o.querySelector(':scope > a');if(t)t.setAttribute('aria-expanded','false');});
-    if(!wasOpen){it.classList.add('open');trigger.setAttribute('aria-expanded','true');}
+/* ---- NAV PANELİ — DadaDiet kuralı: panel hover ile açılır, BAŞLIK TIKLANINCA
+ kendi merkez sayfasına gidilir. Eski davranış her tıklamada preventDefault
+ uyguluyordu: başlık ölü bağlantıydı, panel açıkken ikinci bir sekmeye tıklamak
+ odak + toggle çakışması üretiyordu. Dokunmatikte hover olmadığı için ilk dokunuş
+ paneli açar, ikinci dokunuş bağlantıyı izler. ---- */
+(function(){
+  var HOVER = window.matchMedia('(hover:hover) and (pointer:fine)');
+  function closeAll(except){
+    document.querySelectorAll('.nav-item.open').forEach(function(o){
+      if(o===except)return;
+      o.classList.remove('open');
+      var t=o.querySelector(':scope > a'); if(t)t.setAttribute('aria-expanded','false');
+    });
+  }
+  document.querySelectorAll('.nav-item').forEach(function(it){
+    var trigger=it.querySelector(':scope > a');
+    if(!trigger || !it.querySelector('.dropdown,.mega'))return;
+
+    /* masaüstü: hover — CSS zaten açıyor, aria durumunu JS senkronlar */
+    it.addEventListener('mouseenter',function(){
+      if(!HOVER.matches)return;
+      closeAll(it); trigger.setAttribute('aria-expanded','true');
+    });
+    it.addEventListener('mouseleave',function(){
+      if(!HOVER.matches)return;
+      it.classList.remove('open'); trigger.setAttribute('aria-expanded','false');
+    });
+
+    trigger.addEventListener('click',function(e){
+      if(HOVER.matches) return;                 // fare/klavye: bağlantı normal çalışsın
+      if(it.classList.contains('open')) return; // dokunmatikte ikinci dokunuş → git
+      e.preventDefault();                       // dokunmatikte ilk dokunuş → paneli aç
+      closeAll(it);
+      it.classList.add('open');
+      trigger.setAttribute('aria-expanded','true');
+    });
+
+    /* klavye: panel odakla açılır, Tab ile içine girilir */
+    it.addEventListener('focusin',function(){ closeAll(it); it.classList.add('open'); trigger.setAttribute('aria-expanded','true'); });
+    it.addEventListener('focusout',function(e){
+      if(it.contains(e.relatedTarget))return;
+      it.classList.remove('open'); trigger.setAttribute('aria-expanded','false');
+    });
   });
-});
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.nav-item'))document.querySelectorAll('.nav-item.open').forEach(function(o){o.classList.remove('open');var t=o.querySelector(':scope > a');if(t)t.setAttribute('aria-expanded','false');});
-});
-document.addEventListener('keydown',function(e){
-  if(e.key!=='Escape')return;
-  var open=document.querySelector('.nav-item.open');
-  if(open){var t=open.querySelector(':scope > a');open.classList.remove('open');if(t){t.setAttribute('aria-expanded','false');t.focus();}}
-});
+  document.addEventListener('click',function(e){ if(!e.target.closest('.nav-item')) closeAll(null); });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape')return;
+    var open=document.querySelector('.nav-item.open');
+    if(open){var t=open.querySelector(':scope > a');open.classList.remove('open');if(t){t.setAttribute('aria-expanded','false');t.focus();}}
+  });
+})();
 
 // ---- HESAP / EKLE dropdown (header sağ blok, login-state) tıkla-aç ----
 document.querySelectorAll('.acct-item').forEach(function(it){
@@ -755,12 +844,17 @@ document.addEventListener('click',function(e){
   if(!gate)return;
   function open(title,desc){
     if(document.body.classList.contains('is-auth'))return false;   // logged-in: kapı yok
+    if(gate.classList.contains('show'))return true;                // zaten açık — kilidi ikinci kez sayma
     if(title)document.getElementById('lgTitle').textContent=title;
     if(desc)document.getElementById('lgDesc').textContent=desc;
-    gate.classList.add('show');overlay.classList.add('show');document.body.style.overflow='hidden';
+    gate.classList.add('show');overlay.classList.add('show');lockScroll();
     return true;
   }
-  function close(){gate.classList.remove('show');overlay.classList.remove('show');document.body.style.overflow='';}
+  /* durum korumalı: kapalıyken çağrılan close() başka bir katmanın kilidini düşürmez */
+  function close(){
+    if(!gate.classList.contains('show'))return;
+    gate.classList.remove('show');overlay.classList.remove('show');unlockScroll();
+  }
   window.__lgGate=open;window.__lgGateClose=close;
   document.getElementById('lgClose').addEventListener('click',close);
   overlay.addEventListener('click',close);
@@ -806,8 +900,15 @@ document.addEventListener('click',function(e){
   var overlay=document.getElementById('drawerOverlay');
   var burger=document.getElementById('hamburger');
   var closeBtn=document.getElementById('drawerClose');
-  function open(){drawer.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';}
-  function close(){drawer.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow='';}
+  /* durum korumalı aç/kapa — kilit sayacı yalnız gerçek geçişte hareket eder */
+  function open(){
+    if(drawer.classList.contains('open'))return;
+    drawer.classList.add('open');overlay.classList.add('open');lockScroll();
+  }
+  function close(){
+    if(!drawer.classList.contains('open'))return;
+    drawer.classList.remove('open');overlay.classList.remove('open');unlockScroll();
+  }
   burger.addEventListener('click',open);
   closeBtn.addEventListener('click',close);
   overlay.addEventListener('click',close);
@@ -904,9 +1005,13 @@ document.addEventListener('click',function(e){
   if(!tab||!modal)return;
   var form=document.getElementById('fbForm');
   var success=document.getElementById('fbSuccess');
-  function open(){modal.classList.add('show');overlay.classList.add('show');document.body.style.overflow='hidden';}
+  function open(){
+    if(modal.classList.contains('show'))return;
+    modal.classList.add('show');overlay.classList.add('show');lockScroll();
+  }
   function close(){
-    modal.classList.remove('show');overlay.classList.remove('show');document.body.style.overflow='';
+    if(!modal.classList.contains('show'))return;
+    modal.classList.remove('show');overlay.classList.remove('show');unlockScroll();
     setTimeout(function(){form.hidden=false;success.hidden=true;form.reset();},300);
   }
   tab.addEventListener('click',function(e){e.preventDefault();open();});
@@ -1405,14 +1510,16 @@ setTimeout(function(){
       });
     }
     adim=0; goster();
+    if(modal.classList.contains('show')) return;
     modal.classList.add('show'); ov.classList.add('show');
-    document.body.style.overflow='hidden';
+    lockScroll();
     if(window.__bnUpdate) window.__bnUpdate();
     var f = modal.querySelector('.wz-step.on .wz-opt'); if(f) f.focus();
   }
   function kapat(){
+    if(!modal.classList.contains('show')) return;
     modal.classList.remove('show'); ov.classList.remove('show');
-    document.body.style.overflow='';
+    unlockScroll();
     if(window.__bnUpdate) window.__bnUpdate();
   }
 

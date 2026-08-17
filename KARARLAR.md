@@ -202,3 +202,58 @@ Onaylı" rozetini bozuk gösteriyordu.
 **Kural:** yeni ikon eklerken ücretsiz kitte var mı diye ölçülmeli. Ücretsiz
 olduğu doğrulananlar: `fa-circle-check` · `fa-user-check` · `fa-calendar-check` ·
 `fa-clipboard-check` · `fa-square-check` · `fa-shield-halved`.
+
+
+---
+
+## K10 · Antrenörler paneli kaldırıldı — K5'in bir parçası geri alındı
+
+**Belirsizlik:** K5'te belgeye uyularak Antrenörler'e dört kalemlik panel verilmişti.
+**Kullanıcı canlıda görüp paneli istemedi**, başlığın tıklanınca doğrudan dizine
+gitmesini istedi.
+
+**Seçilen:** panelsiz düz bağlantı. (K5'in Hareket ve Programlar kısmı yürürlükte;
+yalnız Antrenörler geri alındı.)
+
+**Gerekçe:** erişim kaybı yok — alt kalemlerin dördü de dizin sayfasından
+erişilebiliyor: banner'daki "Sana Uygun Antrenörü Bul" ve "Antrenör Ol" düğmeleri,
+kartlardan antrenör profili, randevu ise Planım > Antrenörüm. İlginç biçimde bu,
+önceki turun DadaDiet referansına dayanan kararıyla aynı yere düşüyor.
+
+---
+
+## K11 · Banner sayfalarında header ŞEFFAF — bütün banner sınıfları kapsandı
+
+**Belirsizlik:** over-mode yalnız `.lib-top` ve `.fp-top`'u tanıyordu. Kullanıcı
+antrenör detayı ve antrenör-ol sayfalarında header'ın koyu görselin üstünde katı
+kaldığını bildirdi.
+
+**Seçilen:** tek tek kovalamak yerine **tüm koyu banner sınıfları** over-mode'a
+alındı: `.cp-top` · `.kp-top` · `.chl-hero` · `.pd-hero` · `.fs-top` · `.ol-top`.
+
+**Gerekçe:** aynı kusurun kalan beş sınıfta da bulunması an meselesiydi; sınıf
+listesi kabukta tek yerde duruyor. Her sınıfın yerleşimi ayrı ölçüldü çünkü
+padding değerleri farklı (header alt kenarı + özgün padding).
+
+**Tuzak:** bu sınıfların hepsinin **medya sorgusu dışında** duran
+`padding:… !important` sıkıştırma kuralı var; over-mode padding'i `!important`
+olmadan yazılırsa sessizce eziliyor ve breadcrumb header'ın altında kalıyor.
+İlk denemede tam bu oldu (yazılan 146px, computed 20px).
+
+**Ölçüm:** 7 banner × 4 genişlik = 28/28.
+
+---
+
+## K12 · Uyarı ve not blokları yaslanmaz
+
+**Belirsizlik:** `fit-type.css` akan metni iki yana yaslıyor. Kullanıcı iki ayrı
+ekranda "yazılar hizalı değil" diye bildirdi.
+
+**Seçilen:** uyarı/not blokları (`.hr-note`, `.dz-vnote`, `.ntf-foot` vb.)
+yaslamadan çıkarıldı, sola yaslı.
+
+**Gerekçe (ölçüldü):** `.dz-vnote` 874px genişlikte ve **2 satır**, `.hr-note p`
+561px ve **4 satır**. Yaslama son satır hariç her satırda kelime aralarını açar;
+iki satırlık bir uyarıda bu, metnin yarısında görünür "nehir" demek. Akan makale
+metni değil kısa uyarı metni oldukları için sola yaslı okunurluğu daha iyi.
+Makale/kart gövdelerinde yaslama korunuyor.

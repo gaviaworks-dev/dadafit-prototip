@@ -155,4 +155,4 @@ Her madde bitince kutusu işaretlenir.
 - [x] `type:` fit-type.css + justify (madde 6)
 - [x] `filters:` ortak `.ff` bileşeni (madde 4·10)
 - [x] `pages:` antrenörler listesi, egzersiz detay, hr-note, challenge kart (madde 1·5·7·8·11)
-- [ ] `qa:` çapraz sayfa doğrulama düzeltmeleri
+- [x] `qa:` çapraz sayfa doğrulama düzeltmeleri

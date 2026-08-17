@@ -578,6 +578,19 @@ body.scroll-locked{overflow:hidden}
   background:none;border:none;text-align:left;padding:16px 22px;cursor:pointer;
 }
 .d-link>i:first-child{width:20px;text-align:center;font-size:15px;color:var(--tomato);flex:none}
+/* satır = bağlantı + ayrı chevron düğmesi */
+.d-row{display:flex;align-items:stretch}
+.d-row>.d-link{flex:1;min-width:0}
+.d-toggle{
+  flex:none;width:56px;border:none;background:none;cursor:pointer;
+  border-left:1px solid var(--line);color:var(--muted);font-size:12px;
+  display:grid;place-items:center;transition:color .2s var(--ease),background .2s var(--ease);
+}
+.d-toggle:hover{background:var(--tomato-tint);color:var(--tomato)}
+.d-toggle:focus-visible{outline:3px solid var(--tomato);outline-offset:-3px}
+.d-toggle i{transition:transform .25s var(--ease)}
+.d-item.open>.d-row>.d-toggle{color:var(--tomato)}
+.d-item.open>.d-row>.d-toggle i{transform:rotate(180deg)}
 .d-link .fa-chevron-down{margin-left:auto;width:auto;font-size:12px;color:var(--muted);transition:transform .25s var(--ease),color .25s var(--ease)}
 .d-item.open>.d-link .fa-chevron-down{transform:rotate(180deg);color:var(--tomato)}
 .d-link .soon{font-size:9.5px}
@@ -1281,8 +1294,14 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 
 /* sekme rayı — hesabim-v1 .pf-tabbar kiti, DadaFit yeşiliyle */
 .pf-tabbar{position:sticky;top:112px;z-index:40;background:rgba(249,249,249,.94);-webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);padding:12px 0;margin-bottom:0}
-.pf-tabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px;overflow-x:auto;scrollbar-width:none}
+/* Ray on bir kaleme çıktı (Enerji Köprüsü eklendi). Masaüstünde tek satıra
+ sığmıyor; gizli kaydırma çubuğuyla yatay ray olarak bırakmak kalemleri
+ görünmez kılıyordu → geniş ekranda SARAR, dar ekranda yatay ray kalır. */
+.pf-tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px;scrollbar-width:none}
 .pf-tabs::-webkit-scrollbar{display:none}
+@media (max-width:900px){
+  .pf-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
 .pf-tabs .dt{font-family:inherit;font-weight:700;font-size:13px;color:var(--muted);background:transparent;border:none;border-radius:var(--radius-sm);padding:9px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s var(--ease);white-space:nowrap;flex:none}
 .pf-tabs .dt i{font-size:12.5px;opacity:.85}
 .pf-tabs .dt:hover{color:var(--fit-deep);background:var(--fit-tint)}

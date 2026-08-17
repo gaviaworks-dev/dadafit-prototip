@@ -44,8 +44,9 @@ var NAV = [
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
            'hareket-isinma-soguma-v1','hareket-sozluk-v1'],
+    /* NOT: panelde "Hareket Merkezi" diye ikinci bir kalem YOK — başlığın kendisi
+       zaten oraya gidiyor. Aynı hedefe farklı adla ikinci kapı açılmaz. */
     dd:[
-      {label:'Hareket Merkezi', desc:'Nereden başlayacağını seç', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-compass'},
       {label:'Egzersiz Kütüphanesi', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
       {label:'Hareket Rehberi', desc:'Nasıl ve neden — öğretici içerik', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
       {group:'Rehber konuları'},
@@ -65,8 +66,11 @@ var NAV = [
  menüsündeki "Süreye Göre" kaleminin kopyasıydı. */
   { key:'programlar', label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-clipboard-list',
     match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1'],
+    /* Başlık zaten Programlar Merkezi'ne gidiyor; panelde tekrarlanmaz.
+       "Ücretsiz ve Pro" da ayrı kalem DEĞİL: o, Programlar Merkezi'nin kendi
+       #pro bölümü. Menüde tek giriş var; bölüme sayfa gövdesinden ve
+       program-liste banner'ındaki düğmeden gidilir. */
     dd:[
-      {label:'Programlar Merkezi', desc:'Hedefe, süreye, seviyeye göre · ücretsiz ve Pro', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-compass'},
       {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
       {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true}
     ] },
@@ -146,14 +150,17 @@ var PLAN_NAV = [
  PLAN_NAV'dan türetilir: kalem eklemek YALNIZ PLAN_NAV'da tek satırdır, iki liste
  birbirinden ayrışamaz. Eski menüde "Programım" yanlışlıkla program-liste-v1'e
  (Tüm Programlar ile aynı hedef) gidiyordu; artık plan sayfasına gider. */
-var ACCOUNT = PLAN_NAV.map(function(p){
+var ACCOUNT = PLAN_NAV.map(function(p,i){
+  /* Kök kalem hesap menüsünde header düğmesiyle AYNI adı taşır ("Planım");
+     "Bugün" adı yalnız sekme rayında kalır — aynı hedefe iki farklı ad çıkmasın. */
+  if(i===0) return {label:'Planım', href:p.href, icon:'fa-solid fa-list-check', desc:'Bugünün özeti'};
   return {label:p.label, href:p.href, icon:p.icon, desc:p.desc};
 }).concat([
   {sep:true},
   {label:'Bildirimler',       href:'bildirimler-v1.html',    icon:'fa-solid fa-bell'},
   {sep:true},
   {label:"Pro'ya Yükselt",    href:'pro-v1.html',            icon:'fa-solid fa-crown', cls:'acct-pro'},
-  {label:'Ayarlar / Hesabım', href:'hesabim-v1.html',        icon:'fa-solid fa-gear'},
+  {label:'Ayarlar',           href:'hesabim-v1.html',        icon:'fa-solid fa-gear'},   /* drawer kısayoluyla aynı ad */
   {sep:true},
   {label:'DadaMutfak\'a dön', href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html', icon:'fa-solid fa-arrow-left-long'},
   {label:'Çıkış',             href:'https://by4r.github.io/dadamutfak-view/v7-6cu356/anasayfa-portal-v3a.html?auth=0', icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
@@ -203,12 +210,17 @@ function drawerNavHtml(){
     var subs = it.dd.filter(function(d){return !d.group && !d.ddOnly;}).map(function(d){
       return '<a href="'+d.href+'"'+(d.wizard?' data-fit-wizard':'')+'><i class="'+d.icon+'"></i> '+d.label+'</a>';
     }).join('\n        ');
-    return '<div class="d-item d-has-sub'+(act?' open':'')+'">\n      <button class="d-link'+act+'" type="button" aria-expanded="'+(act?'true':'false')+'"><i class="'+it.icon+'"></i> '+it.label+' <i class="fa-solid fa-chevron-down"></i></button>\n      <div class="d-sub">\n        '+subs+'\n      </div>\n    </div>';
+    /* Satırın kendisi GERÇEK BAĞLANTI, chevron ayrı bir aç/kapa düğmesi.
+       (Eskiden tüm satır <button> idi; panelden "… Merkezi" kalemi kalkınca
+       mobilde merkez sayfaya hiç kapı kalmazdı.) */
+    return '<div class="d-item d-has-sub'+(act?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+act+'" href="'+it.href+'"><i class="'+it.icon+'"></i> '+it.label+'</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(act?'true':'false')+'" aria-label="'+it.label+' alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+subs+'\n      </div>\n    </div>';
   });
-  var planSubs = PLAN_NAV.map(function(p){
+  /* slice(1): kök kalem ("Bugün") atlanır — üstteki "Planım" satırı zaten
+     aynı sayfaya giden gerçek bağlantı; aynı hedefe iki kapı olmaz. */
+  var planSubs = PLAN_NAV.slice(1).map(function(p){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
-  out.push('<div class="d-item d-has-sub'+(planActive?' open':'')+'">\n      <button class="d-link'+(planActive?' active':'')+'" type="button" aria-expanded="'+(planActive?'true':'false')+'"><i class="fa-solid fa-list-check"></i> Planım <i class="fa-solid fa-chevron-down"></i></button>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
+  out.push('<div class="d-item d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
   return out.join('\n    ');
 }
 
@@ -977,16 +989,21 @@ document.addEventListener('click',function(e){
   overlay.addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
  // accordion: alt menülü öğeler tıkla-aç
-  drawer.querySelectorAll('.d-has-sub > .d-link').forEach(function(lnk){
-    lnk.addEventListener('click',function(){
-      var item=lnk.parentElement;
+  /* akordeon: yalnız chevron düğmesi açar/kapatır — satırın kendisi bağlantıdır */
+  drawer.querySelectorAll('.d-has-sub .d-toggle').forEach(function(tg){
+    tg.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      var item=tg.closest('.d-item');
       var wasOpen=item.classList.contains('open');
-      drawer.querySelectorAll('.d-item.open').forEach(function(o){o.classList.remove('open')});
-      if(!wasOpen)item.classList.add('open');
+      drawer.querySelectorAll('.d-item.open').forEach(function(o){
+        o.classList.remove('open');
+        var t=o.querySelector('.d-toggle'); if(t)t.setAttribute('aria-expanded','false');
+      });
+      if(!wasOpen){item.classList.add('open');tg.setAttribute('aria-expanded','true');}
     });
   });
- // alt link veya direkt linke tıklayınca drawer kapansın
-  drawer.querySelectorAll('.d-sub a, .d-item > a.d-link, .drawer-foot a, .drawer-foot > button').forEach(function(a){
+ // alt link veya direkt linke tıklayınca drawer kapansın (chevron hariç)
+  drawer.querySelectorAll('.d-sub a, a.d-link, .drawer-foot a, .drawer-foot > button').forEach(function(a){
     a.addEventListener('click',close);
   });
  // drawer dil seçici — aç/kapa liste + seçim (drawer kapanmaz, N dile ölçeklenir)

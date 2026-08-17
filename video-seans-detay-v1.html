@@ -34,8 +34,6 @@
        yazılan iki kural; raporda kabuğa taşınması önerildi) --- */
 .sec-fit .eyebrow{color:var(--fit-deep)}
 .sec-fit .eyebrow::before{background:var(--fit)}
-.btn-fit{background:var(--fit);color:#fff}
-.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
 .btn-line{background:var(--bg-white);color:var(--slate);border:1px solid var(--line)}
 .btn-line:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
 
@@ -618,165 +616,441 @@
   var IMG = '&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12';
   function poster(id,w){ return 'https://images.unsplash.com/photo-'+id+'?w='+(w||1200)+IMG; }
 
+  /* ---- Antrenör kimlikleri: yalnız antrenor-detay-v1.html'de KARŞILIĞI OLAN
+     slug'lar kullanılır; ad ve unvan o sayfanın VERI kaydından alındı, böylece
+     kart ile açılan profil aynı kişiyi gösterir. ---- */
+  var ANTRENOR = {
+    'derya-yildiz':{ad:'Derya Yıldız',  unvan:'Mobilite ve postür',              foto:'1544367567-0f2fcb009e0b'},
+    'ece-yalcin'  :{ad:'Ece Yalçın',    unvan:'Mobilite ve postür uzmanı',       foto:'1567013127542-490d757e51fc'},
+    'burak-demir' :{ad:'Burak Demir',   unvan:'Kuvvet ve kondisyon antrenörü',   foto:'1571019613454-1cb2f99b2d8b'},
+    'selin-aksoy' :{ad:'Selin Aksoy',   unvan:'Egzersiz ve spor bilimleri uzmanı',foto:'1518310383802-640c2de311b2'},
+    'can-aydin'   :{ad:'Can Aydın',     unvan:'Salon ve kondisyon',              foto:'1541534741688-6078c6bfb5c5'},
+    'ayse-kaplan' :{ad:'Ayşe Kaplan',   unvan:'Yeni başlayan ve kilo yönetimi',  foto:'1506126613408-eca07ce68773'},
+    'deniz-kaya'  :{ad:'Deniz Kaya',    unvan:'Kadın sağlığı ve hareket',        foto:'1538805060514-97d9cc17730c'}
+  };
+
+  /* ---- Ortak metinler (aynı cümleyi 18 kez yazmamak için) ---- */
+  var EQ = {
+    vucut:{ad:'Ekipmansız', ic:'fa-hand'},
+    mat:{ad:'Mat', ic:'fa-square'},
+    dambil:{ad:'Bir çift dambıl', ic:'fa-dumbbell'},
+    bant:{ad:'Direnç bandı', ic:'fa-grip-lines'},
+    sandalye:{ad:'Sandalye', ic:'fa-chair'},
+    su:{ad:'Su', ic:'fa-bottle-water'},
+    blok:{ad:'Yastık / blok', ic:'fa-cube'},
+    havlu:{ad:'Havlu', ic:'fa-scroll'}
+  };
+
+  /* ---------------------------------------------------------------
+     SEANS KATALOĞU (§22 demo veri — sayfada .demo-tag ile işaretli)
+     Slug listesi video-seanslari-v1.html'deki 18 kartla BİREBİR aynıdır;
+     o sayfadaki her kart bu kayıtlardan birini açar.
+     Bölümlerde yalnız `sure` (saniye) yazılır; başlangıç saatleri toplanarak
+     hesaplanır — böylece süre ile bölümler asla ayrışmaz.
+     --------------------------------------------------------------- */
   var SEANS = {
     'sabah-mobilite':{
-      ad:'Sabah Mobilite Akışı',
+      ad:'Sabah Mobilite Akışı', tur:'esneme', ant:'derya-yildiz', dk:18, seviye:'Başlangıç', pro:false,
       lead:'Güne omurga, kalça ve omuzları uyandıran, ekipmansız ve kendi temponda ilerleyen kısa bir akış.',
       d1:'Bu akış sabah tutukluğunu azaltmayı hedefler: omurga, kalça ve omuz eklemlerini kontrollü hareketlerle çalıştırır. Her hareket için nefes ritmi ve daha kolay bir seçenek gösterilir.',
       d2:'Kendi temponda ilerle; bir hareket sana uygun gelmiyorsa atlayabilir ya da gösterilen kolay seçenekle sürdürebilirsin. Bölümler arasında istediğin yerde durabilirsin.',
-      antrenor:{ad:'Derya Yıldız', unvan:'Mobilite ve postür', slug:'derya-yildiz', foto:'1544367567-0f2fcb009e0b'},
-      dk:18, seviye:'Başlangıç', pro:false,
-      ekipman:[{ad:'Ekipmansız', ic:'fa-hand'},{ad:'Mat (isteğe bağlı)', ic:'fa-square'}],
+      ekipman:[EQ.vucut,EQ.mat],
       ekipmanNot:'Mat yoksa halı ya da havlu yeterlidir. Ayakta yapılan bölümler için yalnız duracak bir boşluk gerekir.',
-      birincil:['Omurga','Kalça','Omuz'],
-      destek:['Boyun','Ayak bileği','Core'],
+      birincil:['Omurga','Kalça','Omuz'], destek:['Boyun','Ayak bileği','Core'],
       isinmaB:'Isınma seansa dahil — ilk 3 dakika',
       isinmaT:'Seans nefes ve omurga uyandırma hareketleriyle başlar; ayrıca ısınmana gerek yok. Yine de seansa soğuk kaslarla değil, birkaç dakika yürüdükten sonra başlamak daha rahat olur.',
       guvenlik:'Sabah eklemler daha tutuk olur; hareket açıklığını zorlayarak değil kademeli açarak ilerle. Boyun bölümünde baş dönmesi hissedersen o hareketi atla.',
       poster:'1518611012118-696072aa579a',
       bolumler:[
-        {ad:'Isınma — nefes ve omurga uyanışı', not:'Yerde ya da sandalyede, kaburga hareketini hissederek', bas:0,   sure:180, isinma:true},
-        {ad:'Boyun ve omuz çemberi',            not:'Küçük ve yavaş daireler; ağrı sınırına girme',           bas:180, sure:150},
-        {ad:'Kalça açıcı akış',                 not:'Yarım diz duruşundan öne salınım',                       bas:330, sure:240},
-        {ad:'Omurga rotasyonu',                 not:'Yan yatışta açılan kitap; nefesle eşlik',                bas:570, sure:210},
-        {ad:'Ayak bileği ve baldır',            not:'Duvar desteğiyle kontrollü uzatma',                      bas:780, sure:180},
-        {ad:'Soğuma ve kapanış',                not:'Uzun nefes, omuz bırakma',                               bas:960, sure:120, soguma:true}
-      ]
-    },
-    'masa-basi-boyun-omuz':{
-      ad:'Masa Başı Boyun ve Omuz Rahatlatma',
-      lead:'Gün içinde masadan kalkmadan uygulanabilen, boyun ve omuz bölgesini rahatlatmayı hedefleyen kısa seans.',
-      d1:'Uzun süre ekran karşısında kalınca boyun ve omuz çevresi tutulur. Bu seans oturarak uygulanır; ayakkabını çıkarman ya da kıyafet değiştirmen gerekmez.',
-      d2:'Molada bir kez uygulaman yeterli. Hareketleri yavaş yap; hızlanmak bu seansın amacına ters düşer.',
-      antrenor:{ad:'Ece Yalçın', unvan:'Mobilite ve postür uzmanı', slug:'ece-yalcin', foto:'1567013127542-490d757e51fc'},
-      dk:12, seviye:'Başlangıç', pro:false,
-      ekipman:[{ad:'Sandalye', ic:'fa-chair'},{ad:'Ekipmansız', ic:'fa-hand'}],
-      ekipmanNot:'Tekerlekli sandalye kullanıyorsan tekerlekleri kilitle ya da sabit bir sandalyeye geç.',
-      birincil:['Boyun','Omuz','Üst sırt'],
-      destek:['Göğüs','Bilek','Çene ve şakak'],
-      isinmaB:'Ayrı ısınma gerekmiyor',
-      isinmaT:'Seans zaten düşük yoğunlukludur ve ilk bölüm oturarak yapılan nefes çalışmasıyla ısınma işlevini görür.',
-      guvenlik:'Boyunda uyuşma, kola yayılan ağrı ya da baş dönmesi varsa seansı yapma ve uzmanına danış. Hareketleri hızlı savurmadan uygula.',
-      poster:'1522898467493-49726bf28798',
-      bolumler:[
-        {ad:'Oturarak nefes ve duruş',   not:'Oturma kemiklerine yerleş, omuzları indir',  bas:0,   sure:120, isinma:true},
-        {ad:'Boyun yan esneme',          not:'Kulağı omuza yaklaştır, çekiştirme',         bas:120, sure:120},
-        {ad:'Omuz sıkışması gevşetme',   not:'Kürek kemiklerini geri ve aşağı',            bas:240, sure:150},
-        {ad:'Göğüs açıcı',               not:'Sandalye kenarında kollar geriye',           bas:390, sure:150},
-        {ad:'Bilek ve parmak',           not:'Klavye kullanan eller için',                 bas:540, sure:120},
-        {ad:'Soğuma ve göz molası',      not:'Uzağa bakma + uzun nefes',                   bas:660, sure:60, soguma:true}
-      ]
-    },
-    'dambil-tum-vucut':{
-      ad:'Dambıl ile Tüm Vücut',
-      lead:'Bir çift dambılla evde uygulanan, itme–çekme–alt vücut dengesini gözeten orta seviye kuvvet seansı.',
-      d1:'Seans dört blok halinde ilerler: alt vücut, itme, çekme ve core. Her blokta hareketin daha kolay ve daha zor seçeneği gösterilir; ağırlığını buna göre seç.',
-      d2:'Setler arası dinlenmeyi seansın kendisi sayar. Formun bozulmaya başladığında seti bitir; kalan tekrarları zorlamak yerine bir sonraki sete taşı.',
-      antrenor:{ad:'Burak Demir', unvan:'Kuvvet ve kondisyon antrenörü', slug:'burak-demir', foto:'1571019613454-1cb2f99b2d8b'},
-      dk:32, seviye:'Orta', pro:true,
-      ekipman:[{ad:'Bir çift dambıl', ic:'fa-dumbbell'},{ad:'Mat', ic:'fa-square'},{ad:'Sandalye / sehpa', ic:'fa-chair'}],
-      ekipmanNot:'Dambıl yoksa su dolu bidon ya da sırt çantası benzer bir yük sağlar; ağırlığı kademeli artır.',
-      birincil:['Bacak','Kalça','Sırt','Göğüs'],
-      destek:['Core','Omuz','Ön kol'],
-      isinmaB:'Isınma seansa dahil — ilk 5 dakika',
-      isinmaT:'Dinamik hazırlık bloğu seansın ilk bölümüdür ve ağırlığa geçmeden önce eklemleri hazırlar. Bu bölümü atlama.',
-      guvenlik:'Ağırlıkla çalışırken form önce gelir. Belde ya da omuzda keskin ağrı hissedersen seti bitir. Dambılı yerden alırken dizlerini bük, sırtını yuvarlaklaştırma.',
-      poster:'1534438327276-14e5300c3a48',
-      bolumler:[
-        {ad:'Isınma — dinamik hazırlık', not:'Eklem çemberleri, hafif tempo',        bas:0,    sure:300, isinma:true},
-        {ad:'Alt vücut — goblet squat bloğu', not:'3 set · kontrollü iniş',          bas:300,  sure:360},
-        {ad:'İtme — dambıl göğüs presi',  not:'3 set · omuz bıçaklarını sabitle',    bas:660,  sure:300},
-        {ad:'Çekme — dambıl kürek',       not:'3 set · gövde sabit',                 bas:960,  sure:300},
-        {ad:'Core bloğu',                 not:'Plank ve dead bug kombinasyonu',      bas:1260, sure:300},
-        {ad:'Soğuma ve esneme',           not:'Kalça, göğüs ve sırt uzatma',         bas:1560, sure:360, soguma:true}
-      ]
-    },
-    'core-temeli':{
-      ad:'Core Temeli',
-      lead:'Karın ve gövde stabilitesini adım adım kuran, ekipmansız ve başlangıç dostu bir temel seansı.',
-      d1:'Bu seans mekik saymak yerine gövdeyi sabit tutmayı çalıştırır. Her hareket önce nefes kontrolüyle, sonra kol–bacak hareketiyle zorlaştırılır.',
-      d2:'Bel bölgesinde rahatsızlık hissedersen hareketin küçük seçeneğinde kal. İlerleme, süreyi uzatmakla değil, formu korumakla gelir.',
-      antrenor:{ad:'Selin Aksoy', unvan:'Egzersiz ve spor bilimleri uzmanı', slug:'selin-aksoy', foto:'1518310383802-640c2de311b2'},
-      dk:20, seviye:'Başlangıç', pro:false,
-      ekipman:[{ad:'Mat', ic:'fa-square'},{ad:'Ekipmansız', ic:'fa-hand'}],
-      ekipmanNot:'Sert zeminde çalışacaksan kalın bir havlu ya da battaniye mat yerine geçer.',
-      birincil:['Core','Karın','Bel çevresi'],
-      destek:['Kalça','Omuz','Diyafram'],
-      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
-      isinmaT:'Core aktivasyonu bölümü ısınma işlevini görür; nefes ve kaburga hareketiyle gövdeyi seansa hazırlar.',
-      guvenlik:'Bel fıtığı, yeni doğum sonrası dönem ya da karın ameliyatı geçmişi varsa uygulamadan önce uzmanına danış. Boyun ağrırsa başını yere bırak.',
-      poster:'1571019614242-c5c5dee9f50b',
-      bolumler:[
-        {ad:'Isınma — core aktivasyonu', not:'Nefesle kaburga ve karın bağlantısı', bas:0,    sure:180, isinma:true},
-        {ad:'Dead bug serisi',           not:'Bel yerde sabit, kol–bacak yavaş',    bas:180,  sure:240},
-        {ad:'Plank ilerlemesi',          not:'Dizden başla, hazırsan ayağa geç',    bas:420,  sure:240},
-        {ad:'Yan plank',                 not:'Dizden destekli seçenek gösterilir',  bas:660,  sure:180},
-        {ad:'Köprü ve kalça bağlantısı', not:'Kalçayı sık, beli zorlama',           bas:840,  sure:240},
-        {ad:'Soğuma',                    not:'Bel ve kalça uzatma',                 bas:1080, sure:120, soguma:true}
+        {ad:'Isınma — nefes ve omurga uyanışı', not:'Yerde ya da sandalyede, kaburga hareketini hissederek', sure:180, isinma:true},
+        {ad:'Boyun ve omuz çemberi', not:'Küçük ve yavaş daireler; ağrı sınırına girme', sure:150},
+        {ad:'Kalça açıcı akış', not:'Yarım diz duruşundan öne salınım', sure:240},
+        {ad:'Omurga rotasyonu', not:'Yan yatışta açılan kitap; nefesle eşlik', sure:210},
+        {ad:'Ayak bileği ve baldır', not:'Duvar desteğiyle kontrollü uzatma', sure:180},
+        {ad:'Soğuma ve kapanış', not:'Uzun nefes, omuz bırakma', sure:120, soguma:true}
       ]
     },
     'ekipmansiz-kondisyon':{
-      ad:'Ekipmansız Kondisyon',
+      ad:'Ekipmansız Kondisyon', tur:'kardiyo', ant:'can-aydin', dk:25, seviye:'Orta', pro:true,
       lead:'Zıplamasız seçenekleri de olan, tur usulü ilerleyen orta seviye ekipmansız kondisyon seansı.',
       d1:'Seans üç turdan oluşur; her hareket için hem zıplamalı hem zıplamasız seçenek gösterilir. Turlar arasında toparlanma bölümü vardır.',
       d2:'Nefesin konuşamayacak kadar sıkışıyorsa tempoyu düşür. Bu seansın amacı hızı değil, hareketi sürdürebilmeyi çalıştırmaktır.',
-      antrenor:{ad:'Can Aydın', unvan:'Salon ve kondisyon', slug:'can-aydin', foto:'1541534741688-6078c6bfb5c5'},
-      dk:25, seviye:'Orta', pro:true,
-      ekipman:[{ad:'Ekipmansız', ic:'fa-hand'},{ad:'Mat', ic:'fa-square'},{ad:'Su', ic:'fa-bottle-water'}],
+      ekipman:[EQ.vucut,EQ.mat,EQ.su],
       ekipmanNot:'Alt kat komşusu olan bir evde çalışıyorsan zıplamasız seçeneği tercih et; seans aynı şekilde ilerler.',
-      birincil:['Bacak','Kalça','Kalp–dolaşım dayanıklılığı'],
-      destek:['Core','Omuz','Ayak bileği'],
+      birincil:['Bacak','Kalça','Kalp–dolaşım dayanıklılığı'], destek:['Core','Omuz','Ayak bileği'],
       isinmaB:'Isınma seansa dahil — ilk 4 dakika',
       isinmaT:'Eklem hazırlığı bölümü seansın ilk parçasıdır. Tempolu bölümlere ısınmadan girme.',
       guvenlik:'Baş dönmesi, göğüs ağrısı ya da düzensiz kalp atışı hissedersen seansı durdur ve sağlık desteği al. Diz ya da ayak bileği şikâyetin varsa zıplamasız seçenekte kal.',
       poster:'1549060279-7e168fcee0c2',
       bolumler:[
-        {ad:'Isınma — eklem hazırlığı', not:'Yerinde yürüyüş, çemberler',        bas:0,    sure:240, isinma:true},
-        {ad:'Alt vücut turu',           not:'Squat · hamle · köprü',             bas:240,  sure:300},
-        {ad:'Üst vücut turu',           not:'Şınav seçenekleri · sırt',          bas:540,  sure:300},
-        {ad:'Tüm vücut kombine tur',    not:'Kısa aralıklar, zıplamasız seçenek',bas:840,  sure:300},
-        {ad:'Tempo düşürme',            not:'Nefesi toparlama yürüyüşü',         bas:1140, sure:180},
-        {ad:'Soğuma ve esneme',         not:'Bacak ve kalça uzatma',             bas:1320, sure:180, soguma:true}
+        {ad:'Isınma — eklem hazırlığı', not:'Yerinde yürüyüş, çemberler', sure:240, isinma:true},
+        {ad:'Alt vücut turu', not:'Squat · hamle · köprü', sure:300},
+        {ad:'Üst vücut turu', not:'Şınav seçenekleri · sırt', sure:300},
+        {ad:'Tüm vücut kombine tur', not:'Kısa aralıklar, zıplamasız seçenek', sure:300},
+        {ad:'Tempo düşürme', not:'Nefesi toparlama yürüyüşü', sure:180},
+        {ad:'Soğuma ve esneme', not:'Bacak ve kalça uzatma', sure:180, soguma:true}
+      ]
+    },
+    'masa-basi-boyun-omuz':{
+      ad:'Masa Başı Boyun ve Omuz Rahatlatma', tur:'esneme', ant:'ece-yalcin', dk:12, seviye:'Başlangıç', pro:false,
+      lead:'Gün içinde masadan kalkmadan uygulanabilen, boyun ve omuz bölgesini rahatlatmayı hedefleyen kısa seans.',
+      d1:'Uzun süre ekran karşısında kalınca boyun ve omuz çevresi tutulur. Bu seans oturarak uygulanır; ayakkabını çıkarman ya da kıyafet değiştirmen gerekmez.',
+      d2:'Molada bir kez uygulaman yeterli. Hareketleri yavaş yap; hızlanmak bu seansın amacına ters düşer.',
+      ekipman:[EQ.sandalye,EQ.vucut],
+      ekipmanNot:'Tekerlekli sandalye kullanıyorsan tekerlekleri kilitle ya da sabit bir sandalyeye geç.',
+      birincil:['Boyun','Omuz','Üst sırt'], destek:['Göğüs','Bilek','Çene ve şakak'],
+      isinmaB:'Ayrı ısınma gerekmiyor',
+      isinmaT:'Seans zaten düşük yoğunlukludur ve ilk bölüm oturarak yapılan nefes çalışmasıyla ısınma işlevini görür.',
+      guvenlik:'Boyunda uyuşma, kola yayılan ağrı ya da baş dönmesi varsa seansı yapma ve uzmanına danış. Hareketleri hızlı savurmadan uygula.',
+      poster:'1522898467493-49726bf28798',
+      bolumler:[
+        {ad:'Oturarak nefes ve duruş', not:'Oturma kemiklerine yerleş, omuzları indir', sure:120, isinma:true},
+        {ad:'Boyun yan esneme', not:'Kulağı omuza yaklaştır, çekiştirme', sure:120},
+        {ad:'Omuz sıkışması gevşetme', not:'Kürek kemiklerini geri ve aşağı', sure:150},
+        {ad:'Göğüs açıcı', not:'Sandalye kenarında kollar geriye', sure:150},
+        {ad:'Bilek ve parmak', not:'Klavye kullanan eller için', sure:120},
+        {ad:'Soğuma ve göz molası', not:'Uzağa bakma + uzun nefes', sure:60, soguma:true}
+      ]
+    },
+    'dambil-tum-vucut':{
+      ad:'Dambıl ile Tüm Vücut', tur:'kuvvet', ant:'burak-demir', dk:32, seviye:'Orta', pro:true,
+      lead:'Bir çift dambılla evde uygulanan, itme–çekme–alt vücut dengesini gözeten orta seviye kuvvet seansı.',
+      d1:'Seans dört blok halinde ilerler: alt vücut, itme, çekme ve core. Her blokta hareketin daha kolay ve daha zor seçeneği gösterilir; ağırlığını buna göre seç.',
+      d2:'Setler arası dinlenmeyi seansın kendisi sayar. Formun bozulmaya başladığında seti bitir; kalan tekrarları zorlamak yerine bir sonraki sete taşı.',
+      ekipman:[EQ.dambil,EQ.mat,EQ.sandalye],
+      ekipmanNot:'Dambıl yoksa su dolu bidon ya da sırt çantası benzer bir yük sağlar; ağırlığı kademeli artır.',
+      birincil:['Bacak','Kalça','Sırt','Göğüs'], destek:['Core','Omuz','Ön kol'],
+      isinmaB:'Isınma seansa dahil — ilk 5 dakika',
+      isinmaT:'Dinamik hazırlık bloğu seansın ilk bölümüdür ve ağırlığa geçmeden önce eklemleri hazırlar. Bu bölümü atlama.',
+      guvenlik:'Ağırlıkla çalışırken form önce gelir. Belde ya da omuzda keskin ağrı hissedersen seti bitir. Dambılı yerden alırken dizlerini bük, sırtını yuvarlaklaştırma.',
+      poster:'1534438327276-14e5300c3a48',
+      bolumler:[
+        {ad:'Isınma — dinamik hazırlık', not:'Eklem çemberleri, hafif tempo', sure:300, isinma:true},
+        {ad:'Alt vücut — goblet squat bloğu', not:'3 set · kontrollü iniş', sure:360},
+        {ad:'İtme — dambıl göğüs presi', not:'3 set · kürek kemiklerini sabitle', sure:300},
+        {ad:'Çekme — dambıl kürek', not:'3 set · gövde sabit', sure:300},
+        {ad:'Core bloğu', not:'Plank ve dead bug kombinasyonu', sure:300},
+        {ad:'Soğuma ve esneme', not:'Kalça, göğüs ve sırt uzatma', sure:360, soguma:true}
+      ]
+    },
+    'dusuk-tempo-kardiyo':{
+      ad:'Düşük Tempo Kardiyo', tur:'kardiyo', ant:'can-aydin', dk:25, seviye:'Başlangıç', pro:false,
+      lead:'Nefesin rahat kaldığı, konuşabildiğin tempoda sürekli hareket seansı.',
+      d1:'Bu seansın ölçüsü hız değil nefes: seans boyunca cümle kurabiliyor olman gerekir. Tempoyu bu ölçüye göre ayarla.',
+      d2:'Dizlerini zorlamayan, yerinde ya da dar alanda yapılabilen hareketlerden oluşur. Yorulursan yürüyüş temposuna dön; seansı bırakman gerekmez.',
+      ekipman:[EQ.vucut,EQ.su],
+      ekipmanNot:'Kaydırmayan bir taban ve rahat bir ayakkabı yeterlidir. Dar alanda çalışıyorsan yerinde yürüyüş seçeneğini kullan.',
+      birincil:['Kalp–dolaşım dayanıklılığı','Bacak'], destek:['Kalça','Core','Omuz'],
+      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
+      isinmaT:'İlk bölüm kademeli tempo artışıyla ısınma işlevini görür; doğrudan ana tempoya geçilmez.',
+      guvenlik:'Göğüs ağrısı, olağandışı nefes darlığı ya da baş dönmesi varsa seansı durdur. Kalp veya tansiyon takibindeysen tempolu seanslardan önce hekimine danış.',
+      poster:'1476480862126-209bfaa8edc8',
+      bolumler:[
+        {ad:'Isınma — kademeli tempo', not:'Yerinde yürüyüş, kol çemberleri', sure:180, isinma:true},
+        {ad:'Sürekli tempo — birinci blok', not:'Konuşabildiğin hız; adım genişliğini koru', sure:360},
+        {ad:'Yön değiştirme bloğu', not:'Yana adım ve geri adım kombinasyonu', sure:360},
+        {ad:'Sürekli tempo — ikinci blok', not:'Aynı hızda kal; hızlanma isteğine direnç göster', sure:360},
+        {ad:'Soğuma ve nefes', not:'Tempoyu yavaşça indir, bacak esnetme', sure:240, soguma:true}
+      ]
+    },
+    'baslangic-hiit-devresi':{
+      ad:'Başlangıç HIIT Devresi', tur:'hiit', ant:'selin-aksoy', dk:18, seviye:'Orta', pro:true,
+      lead:'Kısa yüklenme ve uzun toparlanma aralıklarıyla kurulmuş giriş seviyesi devre.',
+      d1:'Yüklenme 20 saniye, toparlanma 40 saniyedir; yani dinlenme çalışmadan uzundur. Bu oran HIIT’e yeni başlayanlar için seçildi.',
+      d2:'Her hareketin zıplamasız seçeneği gösterilir. Toparlanma aralığını kısaltma; seansın etkisi o aralığın korunmasına bağlıdır.',
+      ekipman:[EQ.vucut,EQ.mat,EQ.su],
+      ekipmanNot:'Ekipman gerekmez. Kaygan zeminde çalışma; mat ya da halı üzerinde dur.',
+      birincil:['Kalp–dolaşım dayanıklılığı','Bacak','Core'], destek:['Omuz','Kalça'],
+      isinmaB:'Isınma seansa dahil — ilk 4 dakika',
+      isinmaT:'Yüksek yoğunluklu aralıklardan önce ısınma zorunludur; ilk bölüm bu işi yapar ve atlanmamalıdır.',
+      guvenlik:'Yüksek yoğunluklu aralıklar herkese uygun değildir. Kalp, tansiyon ya da eklem şikâyetin varsa önce uzmanına danış; zorlanırsan yürüyüş aralığına geç.',
+      poster:'1434608519344-49d77a699e1d',
+      bolumler:[
+        {ad:'Isınma — eklem ve nabız hazırlığı', not:'Kademeli tempo, çemberler', sure:240, isinma:true},
+        {ad:'Birinci devre', not:'20 sn yüklenme / 40 sn toparlanma × 4', sure:240},
+        {ad:'İkinci devre', not:'Aynı oran; zıplamasız seçenek gösterilir', sure:240},
+        {ad:'Üçüncü devre', not:'Son tur; formu koru, hızı değil', sure:180},
+        {ad:'Soğuma ve nefes', not:'Nabzı indirme, bacak esnetme', sure:180, soguma:true}
       ]
     },
     'aksam-esneme':{
-      ad:'Akşam Esneme ve Sakinleşme',
+      ad:'Akşam Esneme ve Sakinleşme', tur:'esneme', ant:'ayse-kaplan', dk:15, seviye:'Başlangıç', pro:false,
       lead:'Günün sonunda tempoyu düşüren, uzun nefes ve yavaş esneme üzerine kurulu kısa bir kapanış seansı.',
-      d1:'Bu seans gün içinde biriken tutulmayı azaltmayı ve uyku öncesi tempoyu düşürmeyi hedefler. Hareketler yerde ve yavaştır.',
-      d2:'Her pozisyonda nefesini uzatmaya odaklan. Esnemede hedef "daha ileri gitmek" değil, rahatça durabildiğin yeri bulmaktır.',
-      antrenor:{ad:'Ayşe Kaplan', unvan:'Yeni başlayan ve kilo yönetimi', slug:'ayse-kaplan', foto:'1506126613408-eca07ce68773'},
-      dk:15, seviye:'Başlangıç', pro:false,
-      ekipman:[{ad:'Mat', ic:'fa-square'},{ad:'Yastık / blok', ic:'fa-cube'}],
+      d1:'Bu seans gün içinde biriken tutulmayı azaltmayı ve akşam tempoyu düşürmeyi hedefler. Hareketler yerde ve yavaştır.',
+      d2:'Her pozisyonda nefesini uzatmaya odaklan. Esnemede hedef daha ileri gitmek değil, rahatça durabildiğin yeri bulmaktır.',
+      ekipman:[EQ.mat,EQ.blok],
       ekipmanNot:'Blok yerine katlanmış bir battaniye ya da yastık kullanabilirsin.',
-      birincil:['Sırt','Kalça','Bacak arka zinciri'],
-      destek:['Boyun','Omuz','Nefes'],
+      birincil:['Sırt','Kalça','Bacak arka zinciri'], destek:['Boyun','Omuz','Nefes'],
       isinmaB:'Ayrı ısınma gerekmiyor',
       isinmaT:'Seans düşük yoğunluklu bir kapanıştır; ilk bölüm nefes ritmiyle vücudu hazırlar. Yine de tamamen soğukken çok derin esnemelere girme.',
       guvenlik:'Esnemede keskin ağrı normal değildir; hafif gerilme hissi yeterlidir. Bacak arkasında karıncalanma olursa pozisyondan çık.',
       poster:'1552196563-55cd4e45efb3',
       bolumler:[
-        {ad:'Giriş — nefes ritmi',     not:'Sırtüstü, uzun nefes verme',      bas:0,   sure:150, isinma:true},
-        {ad:'Boyun ve omuz',           not:'Yavaş yan esneme',                bas:150, sure:150},
-        {ad:'Sırt ve kalça',           not:'Diz göğse, yan rotasyon',         bas:300, sure:210},
-        {ad:'Bacak arka zinciri',      not:'Havlu desteğiyle uzatma',         bas:510, sure:210},
-        {ad:'Kapanış — uzun nefes',    not:'Sırtüstü tam gevşeme',            bas:720, sure:180, soguma:true}
+        {ad:'Giriş — nefes ritmi', not:'Sırtüstü, uzun nefes verme', sure:150, isinma:true},
+        {ad:'Boyun ve omuz', not:'Yavaş yan esneme', sure:150},
+        {ad:'Sırt ve kalça', not:'Diz göğse, yan rotasyon', sure:210},
+        {ad:'Bacak arka zinciri', not:'Havlu desteğiyle uzatma', sure:210},
+        {ad:'Kapanış — uzun nefes', not:'Sırtüstü tam gevşeme', sure:180, soguma:true}
+      ]
+    },
+    'core-temeli':{
+      ad:'Core Temeli', tur:'pilates', ant:'selin-aksoy', dk:20, seviye:'Başlangıç', pro:false,
+      lead:'Karın ve gövde stabilitesini adım adım kuran, ekipmansız ve başlangıç dostu bir temel seansı.',
+      d1:'Bu seans tekrar saymak yerine gövdeyi sabit tutmayı çalıştırır. Her hareket önce nefes kontrolüyle, sonra kol–bacak hareketiyle zorlaştırılır.',
+      d2:'Bel bölgesinde rahatsızlık hissedersen hareketin küçük seçeneğinde kal. İlerleme süreyi uzatmakla değil, formu korumakla gelir.',
+      ekipman:[EQ.mat,EQ.vucut],
+      ekipmanNot:'Sert zeminde çalışacaksan kalın bir havlu ya da battaniye mat yerine geçer.',
+      birincil:['Core','Karın','Bel çevresi'], destek:['Kalça','Omuz','Diyafram'],
+      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
+      isinmaT:'Core aktivasyonu bölümü ısınma işlevini görür; nefes ve kaburga hareketiyle gövdeyi seansa hazırlar.',
+      guvenlik:'Bel fıtığı, yeni doğum sonrası dönem ya da karın ameliyatı geçmişi varsa uygulamadan önce uzmanına danış. Boyun ağrırsa başını yere bırak.',
+      poster:'1571019614242-c5c5dee9f50b',
+      bolumler:[
+        {ad:'Isınma — core aktivasyonu', not:'Nefesle kaburga ve karın bağlantısı', sure:180, isinma:true},
+        {ad:'Dead bug serisi', not:'Bel yerde sabit, kol–bacak yavaş', sure:240},
+        {ad:'Plank ilerlemesi', not:'Dizden başla, hazırsan ayağa geç', sure:240},
+        {ad:'Yan plank', not:'Dizden destekli seçenek gösterilir', sure:180},
+        {ad:'Köprü ve kalça bağlantısı', not:'Kalçayı sık, beli zorlama', sure:240},
+        {ad:'Soğuma', not:'Bel ve kalça uzatma', sure:120, soguma:true}
+      ]
+    },
+    'direnc-bandi-sirt-postur':{
+      ad:'Direnç Bandıyla Sırt ve Postür', tur:'kuvvet', ant:'deniz-kaya', dk:17, seviye:'Orta', pro:true,
+      lead:'Kürek çevresi kaslarını çalıştırarak dik duruşu destekleyen direnç bandı seansı.',
+      d1:'Masa başı günlerde öne düşen omuz duruşunu dengelemek için sırt ve kürek çevresi kaslarını hedefler. Bandın direnci hafiften başlar.',
+      d2:'Hareketi kolunla değil kürek kemiğinle başlat. Band gerilirken omuzların kulağa doğru yükselmemeli.',
+      ekipman:[EQ.bant,EQ.mat],
+      ekipmanNot:'Band yoksa hafif dambıl ya da su dolu şişe benzer bir direnç sağlar; hareket yolu aynı kalır.',
+      birincil:['Sırt','Kürek çevresi','Omuz arkası'], destek:['Core','Boyun','Kol'],
+      isinmaB:'Isınma seansa dahil — ilk 3 dakika',
+      isinmaT:'Omuz kuşağı hazırlığı ilk bölümdedir; banda geçmeden önce eklem çemberleriyle bölgeyi ısıtır.',
+      guvenlik:'Bandın sağlam bir yere sabitlendiğinden emin ol; kopan band göze zarar verebilir. Omuzda sıkışma hissi varsa hareket açıklığını küçült.',
+      poster:'1598971639058-fab3c3109a00',
+      bolumler:[
+        {ad:'Isınma — omuz kuşağı', not:'Çemberler, kürek kaydırma', sure:180, isinma:true},
+        {ad:'Bantla kürek çekme', not:'Dirsek gövdeye yakın, sıkıştır ve bırak', sure:240},
+        {ad:'Dış rotasyon', not:'Dirsek 90 derece, hafif direnç', sure:240},
+        {ad:'Yüz çekişi ve açılma', not:'Bandı alına doğru çek, omuz arkasını hisset', sure:240},
+        {ad:'Soğuma ve göğüs açma', not:'Kapı kenarında göğüs uzatma', sure:120, soguma:true}
+      ]
+    },
+    'isinma-5-dakika':{
+      ad:'Isınma: 5 Dakikalık Hazırlık', tur:'isinma', ant:'ayse-kaplan', dk:5, seviye:'Başlangıç', pro:false,
+      lead:'Her seansın öncesinde eklemleri ve kasları hazırlayan kısa giriş.',
+      d1:'Bu seans tek başına bir antrenman değildir; başka bir seansın ya da yürüyüşün önüne konur. Amacı eklem sıvısını hareketlendirmek ve nabzı kademeli yükseltmektir.',
+      d2:'Hareketleri büyük ama yumuşak yap. Isınmada esneme tutmak yerine hareket etmek daha işe yarar.',
+      ekipman:[EQ.vucut],
+      ekipmanNot:'Ekipman gerekmez; ayakta duracak kadar boşluk yeterlidir.',
+      birincil:['Tüm eklemler','Kalp–dolaşım hazırlığı'], destek:['Omuz','Kalça','Ayak bileği'],
+      isinmaB:'Seansın tamamı zaten ısınmadır',
+      isinmaT:'Bu içerik bir ısınma protokolüdür; kendisi için ayrıca ısınmaya gerek yoktur. Ana seansına geçmeden hemen önce uygula.',
+      guvenlik:'Isınmada bile ağrı hissedersen o hareketi atla. Soğuk bir ortamda çalışıyorsan üzerini hemen çıkarma.',
+      poster:'1517344884509-a0c97ec11bcc',
+      bolumler:[
+        {ad:'Nefes ve duruş', not:'Ayakta, omuzlar gevşek', sure:60, isinma:true},
+        {ad:'Üst vücut çemberleri', not:'Omuz, dirsek ve bilek', sure:80},
+        {ad:'Kalça ve diz hazırlığı', not:'Diz çekme, kalça salınımı', sure:80},
+        {ad:'Kademeli tempo', not:'Yerinde yürüyüşten hafif tempoya', sure:80}
+      ]
+    },
+    'soguma-ve-nefes':{
+      ad:'Soğuma ve Nefes', tur:'isinma', ant:'ayse-kaplan', dk:7, seviye:'Başlangıç', pro:false,
+      lead:'Seans sonrası nabzı yavaşça indiren esneme ve nefes çalışması.',
+      d1:'Antrenman bittiğinde durmak yerine tempoyu kademeli düşürmek toparlanmayı kolaylaştırır. Bu kısa seans o işi yapar.',
+      d2:'Esnemeleri zorlamadan, rahat gerilme hissinde tut. Nefes verme süresini alma süresinden uzun tutmaya çalış.',
+      ekipman:[EQ.mat,EQ.havlu],
+      ekipmanNot:'Havlu, ulaşamadığın esnemelerde uzatma bandı gibi kullanılır.',
+      birincil:['Bacak','Sırt','Nefes'], destek:['Kalça','Omuz','Boyun'],
+      isinmaB:'Ayrı ısınma gerekmiyor',
+      isinmaT:'Bu içerik zaten bir soğuma protokolüdür ve sıcak kaslarla, seansın hemen ardından uygulanır.',
+      guvenlik:'Baş dönmesi varsa oturarak devam et. Esnemede keskin ağrı hissedersen pozisyondan çık.',
+      poster:'1603287681836-b174ce5074c2',
+      bolumler:[
+        {ad:'Tempoyu indirme', not:'Yavaş yürüyüş, uzun nefes', sure:90, soguma:true},
+        {ad:'Bacak ve kalça esnetme', not:'Her tarafta rahat gerilme hissinde kal', sure:120},
+        {ad:'Sırt ve göğüs esnetme', not:'Omuzları geriye açarak', sure:120},
+        {ad:'Nefes kapanışı', not:'Verme süresini uzat', sure:90, soguma:true}
+      ]
+    },
+    'ileri-kuvvet-devresi':{
+      ad:'İleri Seviye Kuvvet Devresi', tur:'kuvvet', ant:'burak-demir', dk:42, seviye:'İleri', pro:true,
+      lead:'Ağır setler ve kısa aralarla kurulmuş, deneyimli kullanıcıya yönelik uzun kuvvet devresi.',
+      d1:'Seans dört ana kalıp üzerine kurulur: çömelme, kalça menteşesi, itme ve çekme. Her kalıpta üç ağır set ve kısa dinlenme vardır.',
+      d2:'Bu seans hareketleri daha önce öğrenmiş kullanıcılar içindir. Tekniğin oturmadığı bir harekette ağırlığı düşür ya da başlangıç seansına dön.',
+      ekipman:[EQ.dambil,EQ.mat,EQ.sandalye],
+      ekipmanNot:'Ağırlık seçenekli bir dambıl seti işi kolaylaştırır; tek ağırlıkla çalışıyorsan tekrar sayısını artır.',
+      birincil:['Bacak','Kalça','Sırt','Göğüs'], destek:['Core','Omuz','Ön kol'],
+      isinmaB:'Isınma seansa dahil — ilk 6 dakika',
+      isinmaT:'Ağır setlerden önce hem genel hem harekete özel ısınma yapılır; ilk bölüm ikisini de kapsar ve atlanmamalıdır.',
+      guvenlik:'Ağır setlerde form bozulduğu anda seti bitir. Bel, diz ya da omuz şikâyetin varsa bu seansı uygulama; orta seviye seçeneklere dön.',
+      poster:'1534258936925-c58bed479fcb',
+      bolumler:[
+        {ad:'Isınma — genel ve harekete özel', not:'Tempo + hafif set provaları', sure:360, isinma:true},
+        {ad:'Çömelme kalıbı', not:'3 ağır set · kontrollü iniş', sure:420},
+        {ad:'Kalça menteşesi', not:'3 ağır set · sırt nötr', sure:420},
+        {ad:'İtme kalıbı', not:'3 set · omuz sabit', sure:420},
+        {ad:'Çekme kalıbı', not:'3 set · kürek kemiğiyle başlat', sure:420},
+        {ad:'Soğuma ve esneme', not:'Uzun soğuma; toparlanma da plana dahil', sure:480, soguma:true}
+      ]
+    },
+    'uzun-dayaniklilik-seansi':{
+      ad:'Uzun Dayanıklılık Seansı', tur:'kardiyo', ant:'can-aydin', dk:52, seviye:'İleri', pro:true,
+      lead:'Tempoyu uzun süre koruma pratiği — aralarda yürüyüş molası bırakır.',
+      d1:'Bu seansın amacı yüksek hız değil, orta tempoyu uzun süre sürdürebilmektir. Bloklar arasında yürüyüş molaları vardır.',
+      d2:'Su içmeyi seans içine yay. Nefesin bozulduğunda hızı düşür; seansı tamamlamak, hızlı bitirmekten önemlidir.',
+      ekipman:[EQ.vucut,EQ.su,EQ.havlu],
+      ekipmanNot:'Uzun seansta rahat ayakkabı ve yeterli su önemlidir. Sıcak ortamda tempoyu bir kademe düşür.',
+      birincil:['Kalp–dolaşım dayanıklılığı','Bacak'], destek:['Kalça','Core','Omuz'],
+      isinmaB:'Isınma seansa dahil — ilk 6 dakika',
+      isinmaT:'Uzun seanslarda ısınma daha uzundur; ilk bölüm nabzı kademeli yükseltir ve eklemleri hazırlar.',
+      guvenlik:'Uzun süreli yüklenme sıvı kaybı ve aşırı yorgunluk riski taşır. Baş dönmesi, bulantı ya da göğüs ağrısı olursa seansı bırak ve sağlık desteği al.',
+      poster:'1581009146145-b5ef050c2e1e',
+      bolumler:[
+        {ad:'Isınma — kademeli nabız', not:'Yürüyüşten orta tempoya', sure:360, isinma:true},
+        {ad:'Birinci uzun blok', not:'Orta tempo; konuşma testi', sure:660},
+        {ad:'Yürüyüş molası ve ikinci blok', not:'2 dk yürüyüş + tempo', sure:660},
+        {ad:'Üçüncü uzun blok', not:'Aynı tempoyu koru', sure:660},
+        {ad:'Tempo indirme', not:'Kademeli yavaşlama', sure:420},
+        {ad:'Soğuma ve esneme', not:'Bacak, kalça ve sırt', sure:360, soguma:true}
+      ]
+    },
+    'kalca-bacak-kuvveti':{
+      ad:'Kalça ve Bacak Kuvveti', tur:'kuvvet', ant:'selin-aksoy', dk:27, seviye:'Orta', pro:true,
+      lead:'Bantla direnç ekleyerek kalça ve bacak kaslarını hedefleyen kuvvet seansı.',
+      d1:'Kalça yan kasları ve arka zincir çoğu günlük harekette az çalışır. Bu seans bandı kullanarak o bölgeleri hedefler.',
+      d2:'Bandı dizin hemen üstüne yerleştir ve dizlerin içe düşmesine izin verme. Yanma hissi normaldir; keskin ağrı değildir.',
+      ekipman:[EQ.bant,EQ.mat],
+      ekipmanNot:'Band yoksa hareketleri ekipmansız da yapabilirsin; bu durumda tekrar sayısını artır.',
+      birincil:['Kalça','Bacak','Arka zincir'], destek:['Core','Bel çevresi','Ayak bileği'],
+      isinmaB:'Isınma seansa dahil — ilk 4 dakika',
+      isinmaT:'Kalça aktivasyonu bölümü ısınmayı kapsar; bantlı setlere doğrudan girilmez.',
+      guvenlik:'Diz ya da kalça ağrın varsa hareket açıklığını küçült ve uzmanına danış. Bandın gerginliği hareketi kontrolden çıkarmamalı.',
+      poster:'1566241142559-40e1dab266c6',
+      bolumler:[
+        {ad:'Isınma — kalça aktivasyonu', not:'Köprü ve yan açılma', sure:240, isinma:true},
+        {ad:'Bantlı squat bloğu', not:'3 set · dizler dışa doğru itilir', sure:300},
+        {ad:'Kalça menteşesi', not:'3 set · sırt nötr', sure:300},
+        {ad:'Yan adım ve abdüksiyon', not:'Kalça yan kasları', sure:300},
+        {ad:'Tek bacak bloğu', not:'Denge ve tek taraf kuvveti', sure:240},
+        {ad:'Soğuma ve esneme', not:'Kalça ve bacak uzatma', sure:240, soguma:true}
+      ]
+    },
+    'sandalyede-hareket':{
+      ad:'Sandalyede Hareket', tur:'esneme', ant:'deniz-kaya', dk:15, seviye:'Başlangıç', pro:false,
+      lead:'Ayakta durmayı zorlayan günlerde oturarak yapılabilen tam seans.',
+      d1:'Seansın tamamı sandalyede uygulanır. Denge sorunu, yorgunluk ya da ayakta durmayı zorlaştıran bir durum varsa hareketi tamamen bırakmak yerine bu seçenek kullanılabilir.',
+      d2:'Her hareketin küçük ve büyük seçeneği gösterilir. Kendi rahat açıklığında kal.',
+      ekipman:[EQ.sandalye,EQ.vucut],
+      ekipmanNot:'Kolçaksız, sabit ve sağlam bir sandalye tercih et. Tekerlekli sandalyede tekerlekleri kilitle.',
+      birincil:['Omuz','Sırt','Kalça'], destek:['Boyun','Bacak','Ayak bileği'],
+      isinmaB:'Isınma seansa dahil — ilk 2 dakika',
+      isinmaT:'İlk bölüm oturarak nefes ve duruş çalışmasıdır; ayrıca ısınmaya gerek yoktur.',
+      guvenlik:'Ayağa kalkma hareketi yoktur; yine de baş dönmesi hissedersen ara ver. Sandalyenin sabit durduğundan her bölüm öncesi emin ol.',
+      poster:'1599901860904-17e6ed7083a0',
+      bolumler:[
+        {ad:'Oturarak nefes ve duruş', not:'Oturma kemiklerine yerleş', sure:120, isinma:true},
+        {ad:'Üst vücut açılma', not:'Omuz ve göğüs', sure:180},
+        {ad:'Gövde rotasyonu', not:'Sandalye kenarından destek al', sure:180},
+        {ad:'Bacak ve ayak bileği', not:'Diz uzatma, bilek çemberi', sure:240},
+        {ad:'Soğuma ve nefes', not:'Uzun nefes verme', sure:180, soguma:true}
+      ]
+    },
+    'yoga-temelli-akis':{
+      ad:'Yoga Temelli Akış', tur:'pilates', ant:'derya-yildiz', dk:30, seviye:'Orta', pro:true,
+      lead:'Nefese bağlı duruş geçişleriyle esneklik ve gövde kontrolü çalışması.',
+      d1:'Duruşlar arasında nefesle geçilir; akış boyunca hız değil ritim korunur. Her duruşun destekli seçeneği gösterilir.',
+      d2:'Esneklik günden güne değişir. Bugün ulaşamadığın bir açıklık için kendini zorlama; destekli seçenek aynı işi görür.',
+      ekipman:[EQ.mat,EQ.blok],
+      ekipmanNot:'Blok yoksa kalın kitap ya da katlanmış battaniye kullanılabilir.',
+      birincil:['Omurga','Kalça','Denge'], destek:['Omuz','Bacak arka zinciri','Nefes'],
+      isinmaB:'Isınma seansa dahil — ilk 4 dakika',
+      isinmaT:'Akış, yerde nefes ve omurga hazırlığıyla başlar; ayakta duruşlara doğrudan geçilmez.',
+      guvenlik:'Bilek, omuz ya da diz şikâyetin varsa destekli seçeneği kullan. Ters duruş (baş aşağı) hareketleri bu akışta yoktur.',
+      poster:'1532384748853-8f54a8f476e2',
+      bolumler:[
+        {ad:'Isınma — yerde nefes ve omurga', not:'Kedi–inek, nefes ritmi', sure:240, isinma:true},
+        {ad:'Ayakta akış', not:'Nefese bağlı geçişler', sure:360},
+        {ad:'Denge duruşları', not:'Duvar desteği serbest', sure:360},
+        {ad:'Kalça açıcı seri', not:'Blokla destekli seçenek', sure:360},
+        {ad:'Yerde esneme', not:'Uzun tutuşlar', sure:240},
+        {ad:'Kapanış', not:'Sırtüstü gevşeme', sure:240, soguma:true}
+      ]
+    },
+    'kisa-hiit-12-dakika':{
+      ad:'Kısa HIIT: 12 Dakika', tur:'hiit', ant:'selin-aksoy', dk:12, seviye:'İleri', pro:true,
+      lead:'Zamanın kısıtlıysa yüksek yoğunluklu, tek blokluk hızlı seans.',
+      d1:'Kısa süreli ama yoğun bir seanstır: 30 saniye yüklenme, 30 saniye toparlanma. Deneyimli kullanıcılar içindir.',
+      d2:'Isınmayı atlama — kısa seans, ısınmasız seans demek değildir. Zorlanırsan yüklenme süresini kısalt.',
+      ekipman:[EQ.vucut,EQ.mat],
+      ekipmanNot:'Ekipman gerekmez. Zeminin kaymadığından emin ol.',
+      birincil:['Kalp–dolaşım dayanıklılığı','Bacak','Core'], destek:['Omuz','Kalça'],
+      isinmaB:'Isınma seansa dahil — ilk 2 dakika',
+      isinmaT:'Kısa ama zorunlu bir ısınma bölümüyle başlar. Bu bölüm atlanırsa sakatlanma riski artar.',
+      guvenlik:'Yüksek yoğunluk herkese uygun değildir. Kalp, tansiyon veya eklem şikâyetin varsa bu seansı uygulama; düşük tempo seçeneklerine yönel.',
+      poster:'1574680096145-d05b474e2155',
+      bolumler:[
+        {ad:'Isınma — hızlı hazırlık', not:'Kademeli tempo, çemberler', sure:120, isinma:true},
+        {ad:'Birinci blok', not:'30 sn yüklenme / 30 sn toparlanma', sure:200},
+        {ad:'İkinci blok', not:'Aynı oran; form önce gelir', sure:200},
+        {ad:'Soğuma ve nefes', not:'Nabzı indir, bacak esnet', sure:200, soguma:true}
+      ]
+    },
+    'hafta-sonu-tam-vucut':{
+      ad:'Hafta Sonu Tam Vücut Akışı', tur:'kuvvet', ant:'ayse-kaplan', dk:38, seviye:'Orta', pro:true,
+      lead:'Zamanın bol olduğu günler için kuvvet ve kondisyonu birleştiren uzun seans.',
+      d1:'Seans kuvvet bloklarıyla başlar, kondisyon turuyla devam eder. Zaman baskısı olmadığı için dinlenmeler rahattır.',
+      d2:'Uzun seansta yorulma kaçınılmazdır; form bozulduğunda ağırlığı düşür ya da bir sonraki bloğa geç.',
+      ekipman:[EQ.dambil,EQ.mat,EQ.su],
+      ekipmanNot:'Dambıl yoksa su bidonu ya da sırt çantası kullanılabilir; kondisyon turu zaten ekipmansızdır.',
+      birincil:['Bacak','Sırt','Göğüs','Kalça'], destek:['Core','Omuz','Kalp–dolaşım dayanıklılığı'],
+      isinmaB:'Isınma seansa dahil — ilk 6 dakika',
+      isinmaT:'Uzun seansın ilk bölümü hem genel ısınma hem hareket provasıdır; ağırlığa doğrudan geçilmez.',
+      guvenlik:'Uzun seansta su içmeyi ihmal etme. Bel, diz ya da omuz ağrısı başlarsa o bloğu bitir ve devam etme.',
+      poster:'1571019613454-1cb2f99b2d8b',
+      bolumler:[
+        {ad:'Isınma — genel hazırlık ve prova', not:'Tempo + hafif set provaları', sure:360, isinma:true},
+        {ad:'Alt vücut kuvvet bloğu', not:'3 set · çömelme ve menteşe', sure:420},
+        {ad:'Üst vücut kuvvet bloğu', not:'3 set · itme ve çekme', sure:420},
+        {ad:'Core bloğu', not:'Plank ve dead bug', sure:420},
+        {ad:'Kondisyon turu', not:'Ekipmansız, orta tempo', sure:300},
+        {ad:'Soğuma ve esneme', not:'Tüm vücut uzatma', sure:360, soguma:true}
       ]
     }
   };
 
-  var BENZER = {
-    'sabah-mobilite':      ['aksam-esneme','core-temeli','masa-basi-boyun-omuz'],
-    'masa-basi-boyun-omuz':['sabah-mobilite','aksam-esneme','core-temeli'],
-    'dambil-tum-vucut':    ['ekipmansiz-kondisyon','core-temeli','aksam-esneme'],
-    'core-temeli':         ['dambil-tum-vucut','sabah-mobilite','ekipmansiz-kondisyon'],
-    'ekipmansiz-kondisyon':['dambil-tum-vucut','core-temeli','aksam-esneme'],
-    'aksam-esneme':        ['sabah-mobilite','masa-basi-boyun-omuz','core-temeli']
-  };
+  /* eski slug'lar (bu sayfanın ilk sürümünde kullanılmıştı) → yeni karşılıkları.
+     Dışarıdan kalmış bir bağlantı boş sayfa açmasın diye korunuyor. */
+  var ESKI_SLUG = { 'core-denge-pilatesi':'core-temeli', 'aksam-esneme-rutini':'aksam-esneme' };
+
+  /* Bölüm başlangıçları süreden TÜRETİLİR — süre ile bölümler ayrışamaz.
+     Antrenör bilgisi ANTRENOR tablosundan bağlanır. */
+  Object.keys(SEANS).forEach(function(k){
+    var o = SEANS[k], t = 0;
+    o.bolumler.forEach(function(b){ b.bas = t; t += b.sure; });
+    o.toplamSn = t;
+    o.antrenor = ANTRENOR[o.ant];
+  });
 
   var VARSAYILAN = 'sabah-mobilite';
   var qs   = new URLSearchParams(location.search);
-  var SLUG = SEANS[qs.get('seans')] ? qs.get('seans') : VARSAYILAN;
+  var istek = qs.get('seans') || '';
+  if(ESKI_SLUG[istek]) istek = ESKI_SLUG[istek];
+  var SLUG = SEANS[istek] ? istek : VARSAYILAN;
   var E    = SEANS[SLUG];
+
+  /* BENZER SEANSLAR — elle liste tutmak yerine türetilir:
+     önce aynı hareket türü, sonra süresi en yakın olan üç seans. */
+  function benzerler(){
+    return Object.keys(SEANS)
+      .filter(function(k){ return k !== SLUG; })
+      .sort(function(a,b){
+        var A = SEANS[a], B = SEANS[b];
+        var ta = (A.tur === E.tur ? 0 : 1), tb = (B.tur === E.tur ? 0 : 1);
+        if(ta !== tb) return ta - tb;
+        return Math.abs(A.dk - E.dk) - Math.abs(B.dk - E.dk);
+      })
+      .slice(0,3);
+  }
 
   /* ---------------------------------------------------------------
      DURUM — localStorage['dm_fit_video'][slug]
@@ -799,7 +1073,8 @@
   function writeOne(st){ var all = readAll(); all[SLUG] = st; writeAll(all); }
 
   var S = readOne();
-  var TOPLAM = E.dk * 60;
+  /* toplam süre bölümlerin toplamıdır (E.dk yalnız etiket) — ikisi ayrışamaz */
+  var TOPLAM = E.toplamSn;
 
   /* ---------------- yardımcılar ---------------- */
   function mmss(sec){
@@ -879,7 +1154,7 @@
     $('vsdModalLead').textContent = '“' + E.ad + '” seansını hangi programının hangi gününe eklemek istersin?';
 
     /* benzer seanslar */
-    $('vsdSim').innerHTML = (BENZER[SLUG]||[]).map(function(sl){
+    $('vsdSim').innerHTML = benzerler().map(function(sl){
       var o = SEANS[sl]; if(!o) return '';
       return ''
         +'<a class="hub-card" href="video-seans-detay-v1.html?seans='+sl+'">'

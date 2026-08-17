@@ -442,13 +442,33 @@ body.is-auth .drawer-login{display:none}
 .sec-tools{flex:none;display:flex;align-items:center;gap:12px}
 .row-nav{display:flex;gap:8px}
 .row-nav button{width:42px;height:42px;font-size:13px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);cursor:pointer;transition:.2s var(--ease)}
-.row-nav button:hover{background:var(--tomato);border-color:var(--tomato);color:#fff}
+.row-nav button:hover:not(:disabled){background:var(--tomato);border-color:var(--tomato);color:#fff}
+.row-nav button:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+/* uçlara gelindiğinde ok DEVRE DIŞI görünür — "bastım ama bir şey olmadı" hâli biter */
+.row-nav button:disabled{opacity:.34;cursor:default;background:var(--paper);border-color:var(--line);color:var(--muted)}
+/* kaydırılacak içerik yoksa ok grubu hiç görünmez */
+.row-nav[hidden]{display:none}
+
 .row-track{
-  display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;
+  display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x proximity;
   scrollbar-width:none;padding:6px 2px 10px;
+  /* klavye: Tab ile ray içindeki karta geçince tarayıcı hizalar; ok tuşları da çalışsın */
+  scroll-behavior:smooth;overscroll-behavior-x:contain;
+  /* mobil swipe momentumu */
+  -webkit-overflow-scrolling:touch;
 }
 .row-track::-webkit-scrollbar{display:none}
 .row-track>*{flex:none;width:274px;scroll-snap-align:start}
+/* ray klavyeyle odaklanabilir olduğunda görünür halka */
+.row-track:focus-visible{outline:3px solid var(--tomato);outline-offset:4px;border-radius:var(--radius-md)}
+/* hareket azaltma tercihinde yumuşak kaydırma kapanır */
+html.reduce-motion .row-track{scroll-behavior:auto}
+@media (prefers-reduced-motion:reduce){ .row-track{scroll-behavior:auto} }
+/* dar ekranda kart genişliği ekrana oranlanır — sabit 274px taşma yapıyordu */
+@media (max-width:640px){
+  .row-track{gap:14px;scroll-padding-left:2px}
+  .row-track>*{width:min(274px,78vw)}
+}
 
 /* ---- FOOTER REVEAL (gaviaworks perde efekti) — yalnız desktop/tablet ----
  Footer sayfanın arkasında sabit bekler (z düşük); opak içerik wrapper'ı
@@ -1747,3 +1767,263 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 .footer a:focus-visible,.lib-top a:focus-visible,.fp-top a:focus-visible{
   outline:3px solid #fff !important;outline-offset:2px !important;
 }
+
+/* =====================================================================
+ ORTAK FİLTRE BİLEŞENİ — .ff (TEK KAYNAK)
+ ---------------------------------------------------------------------
+ NEDEN: Altı sayfa (program-liste · programlar-merkezi · egzersiz-kutuphane ·
+ antrenorler · challenge-merkezi · hareket-merkezi) filtreyi "her facet bir
+ satır" olarak diziyordu: HEDEF / SÜRE / SEVİYE / EKİPMAN alt alta dört-beş
+ sıra, ekranın üçte birini yiyen bir blok. ≤640px'te satırlar overflow-x:auto
+ ile yatay kaydırma rayına dönüşüyordu — gizli seçenek, kaybolan bağlam.
+
+ NE: Kompakt tek satır bar. Her facet bir açılır panel (çoklu seçim), yanında
+ seçim sayacı. Seçilenler bar altında tek tek kaldırılabilir çip olur. Sonuç
+ sayısı ve sıralama aynı satırda kalır. Bar sticky. ≤900px'te tüm paneller
+ alttan açılan "Filtrele" çekmecesine iner.
+
+ NASIL: Bileşen mevcut .df-fchip DÜĞÜMLERİNİ TAŞIR (klonlamaz). Böylece her
+ sayfanın kendi filtre motoru — kendi click dinleyicileri, kendi apply()'ı,
+ kendi derin bağlantı okuması — hiç değişmeden çalışmaya devam eder.
+ Sayfa tarafındaki tek iş: panele data-ff eklemek.
+ ===================================================================== */
+
+.ff{position:relative;margin-bottom:22px}
+
+/* ---- sticky bar ---- */
+/* NOT — backdrop-filter BİLEREK KULLANILMIYOR:
+ Chromium'da backdrop-filter taşıyan öğe kendi "backdrop root"unu kurar ve
+ alt öğelerini o katmana hapseder; kutusundan taşan popover, z-index'i ne
+ olursa olsun sayfadaki konumlanmış kartların ALTINDA kalıyordu (ölçüldü:
+ elementsFromPoint → .pr-media, .pr-card, sonra .ff-pop). Sticky bar zaten
+ opak; cam efekti burada işlevsel bir şey kazandırmıyordu. */
+.ff-bar{
+  position:sticky;top:112px;z-index:42;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  background:var(--paper);
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:10px 12px;box-shadow:var(--sh-sm);
+}
+.ff-bar-lbl{
+  display:inline-flex;align-items:center;gap:8px;margin-right:2px;
+  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+}
+.ff-bar-lbl i{font-size:13px;color:var(--tomato)}
+
+/* ---- facet düğmesi + paneli ---- */
+.ff-facet{position:relative}
+.ff-btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:0 13px;height:42px;cursor:pointer;white-space:nowrap;transition:.18s var(--ease);
+}
+.ff-btn:hover{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
+.ff-btn:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+.ff-btn .ff-car{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
+.ff-facet.open .ff-btn{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
+.ff-facet.open .ff-btn .ff-car{transform:rotate(180deg);color:var(--tomato)}
+/* seçim sayacı — facet başlığında kaç seçenek aktif */
+.ff-btn .ff-n{
+  min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);
+  background:var(--tomato);color:#fff;font-size:11px;font-weight:800;
+  display:none;place-items:center;font-variant-numeric:tabular-nums;
+}
+.ff-btn.has-sel{border-color:var(--tomato);color:var(--tomato-dark)}
+.ff-btn.has-sel .ff-n{display:grid}
+
+.ff-pop{
+  position:absolute;top:calc(100% + 9px);left:0;z-index:60;
+  min-width:248px;max-width:min(420px,90vw);
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);
+  padding:9px;opacity:0;visibility:hidden;transform:translateY(6px);
+  transition:opacity .14s var(--ease),transform .14s var(--ease),visibility .14s;
+  max-height:min(60vh,420px);overflow-y:auto;overscroll-behavior:contain;
+}
+.ff-facet.open .ff-pop{opacity:1;visibility:visible;transform:translateY(0)}
+/* sağa taşacaksa panel sağa hizalanır (JS ölçer, sınıf verir) */
+.ff-facet.flip .ff-pop{left:auto;right:0}
+.ff-pop-h{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:4px 8px 9px;margin-bottom:5px;border-bottom:1px solid var(--line);
+}
+.ff-pop-h b{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ff-pop-clear{
+  font-family:inherit;font-size:12px;font-weight:700;color:var(--tomato);
+  background:none;border:none;cursor:pointer;padding:2px 4px;
+}
+.ff-pop-clear:hover{text-decoration:underline}
+/* Taşınan .fgroup kutusu popover gövdesi olur — sayfa scriptleri onu hâlâ
+ bulabilsin diye silinmiyor, yalnız yatay çip rayından dikey listeye çevriliyor.
+ (Sayfaların kendi .fgroup kuralları: flex + wrap + kimi sayfada overflow-x:auto
+ ve üst çizgi — hepsi burada sıfırlanır.) */
+.ff-pop>.fgroup{
+  display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;
+  gap:2px;padding:0;margin:0;border-top:none;overflow:visible;
+}
+.ff-pop>.fgroup::-webkit-scrollbar{display:none}
+.ff-pop>.fgroup>.lbl{display:none}          /* başlık popover header'ında */
+
+/* panel içindeki çipler dikey liste gibi davranır — dokunma hedefi büyür */
+.ff-pop .df-fchip{
+  display:flex;width:100%;justify-content:flex-start;text-align:left;
+  border-color:transparent;background:none;padding:10px 11px;border-radius:var(--radius-md);
+  font-size:14px;font-weight:500;
+}
+.ff-pop .df-fchip:hover{background:var(--tomato-tint);border-color:transparent;color:var(--tomato-dark)}
+.ff-pop .df-fchip.on{background:var(--tomato-tint);border-color:transparent;color:var(--tomato-dark);font-weight:700}
+/* seçili kalemin sağına onay işareti (renkten BAŞKA bir sinyal — §14.3) */
+.ff-pop .df-fchip::after{
+  content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;font-size:12px;
+  margin-left:auto;color:var(--tomato);opacity:0;
+}
+.ff-pop .df-fchip.on::after{opacity:1}
+.ff-pop .df-fchip i{color:currentColor}
+
+/* ---- bar sağ blok: aktif sayaç + sıfırla + mobil düğmesi ---- */
+.ff-spacer{flex:1 1 auto;min-width:0}
+.ff-reset{
+  display:none;align-items:center;gap:8px;
+  font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);
+  background:none;border:none;cursor:pointer;padding:9px 8px;height:42px;
+  transition:color .2s var(--ease);white-space:nowrap;
+}
+.ff-reset:hover{color:var(--tomato-dark)}
+.ff.has-sel .ff-reset{display:inline-flex}
+.ff-total{
+  display:none;align-items:center;gap:7px;height:42px;padding:0 12px;
+  border-radius:var(--radius-md);background:var(--tomato-tint);border:1px solid var(--fit-line,#d8ebe0);
+  font-size:12.5px;font-weight:700;color:var(--tomato-dark);white-space:nowrap;
+}
+.ff.has-sel .ff-total{display:inline-flex}
+.ff-total b{font-variant-numeric:tabular-nums}
+
+/* mobil "Filtrele" düğmesi ve çekmecesi — masaüstünde YOK.
+ (Çekmece markup'ı panelin içine basıldığı için gizlenmezse ≥901px'te
+ normal blok olarak sayfa akışına düşer.) */
+.ff-open{display:none}
+.ff-sheet,.ff-sheet-ov{display:none}
+
+/* ---- aktif filtre çipleri ---- */
+.ff-chips{display:none;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.ff.has-sel .ff-chips{display:flex}
+.ff-chips .ff-chips-lbl{font-size:12px;font-weight:600;color:var(--muted);margin-right:2px}
+.ff-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:inherit;font-size:12.5px;font-weight:600;color:var(--tomato-dark);
+  background:var(--tomato-tint);border:1px solid var(--fit-line,#d8ebe0);
+  border-radius:var(--radius-pill);padding:6px 8px 6px 13px;cursor:pointer;
+  transition:.18s var(--ease);
+}
+.ff-chip:hover{background:#fff;border-color:var(--tomato)}
+.ff-chip:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+.ff-chip .ff-chip-g{color:var(--muted);font-weight:600}
+.ff-chip .ff-x{
+  width:18px;height:18px;border-radius:var(--radius-circle);
+  background:rgba(0,157,79,.14);color:var(--tomato-dark);
+  display:grid;place-items:center;font-size:9px;flex:none;
+}
+.ff-chip:hover .ff-x{background:var(--tomato);color:#fff}
+
+/* ---- sonuç satırı: sayı + sıralama aynı hizada ---- */
+.ff-res{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-top:16px;
+}
+.ff-res .ff-count{font-size:14px;font-weight:600;color:var(--slate-2)}
+.ff-res .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
+.ff-res .ff-sort{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+
+/* =========================== RESPONSIVE =========================== */
+@media (max-width:1024px){
+  .ff-bar{top:112px}
+}
+
+/* ≤900px: facet panelleri alttan açılan çekmeceye iner */
+@media (max-width:900px){
+  .ff-bar{gap:8px;padding:9px 10px}
+  .ff-bar-lbl{display:none}
+  .ff-facet{display:none}                 /* barda tek tek durmaz */
+  .ff-open{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate);
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+    padding:0 15px;height:42px;cursor:pointer;white-space:nowrap;transition:.18s var(--ease);
+  }
+  .ff-open i{color:var(--tomato)}
+  .ff-open:hover{border-color:var(--tomato);color:var(--tomato-dark)}
+  .ff.has-sel .ff-open{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
+  .ff-open .ff-n{
+    min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);
+    background:var(--tomato);color:#fff;font-size:11px;font-weight:800;
+    display:none;place-items:center;font-variant-numeric:tabular-nums;
+  }
+  .ff.has-sel .ff-open .ff-n{display:grid}
+  .ff-total{display:none !important}      /* sayaç düğmenin üstünde zaten var */
+
+  /* çekmece */
+  .ff-sheet-ov{
+    display:block;
+    position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:96;
+    opacity:0;pointer-events:none;transition:opacity .28s var(--ease);
+  }
+  .ff-sheet-ov.open{opacity:1;pointer-events:auto}
+  .ff-sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:97;
+    max-height:86vh;display:flex;flex-direction:column;
+    background:#fff;border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow:0 -14px 44px rgba(20,18,12,.24);
+    transform:translateY(100%);transition:transform .3s var(--ease);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .ff-sheet.open{transform:translateY(0)}
+  .ff-sheet-h{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 20px;border-bottom:1px solid var(--line);flex:none;
+  }
+  .ff-sheet-h h3{font-size:17px;display:flex;align-items:center;gap:9px}
+  .ff-sheet-h h3 i{color:var(--tomato);font-size:15px}
+  .ff-sheet-close{
+    width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--line);
+    background:var(--paper);color:var(--slate);font-size:16px;cursor:pointer;display:grid;place-items:center;
+  }
+  .ff-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 14px 14px}
+  /* çekmecede facet'ler akordeon değil, açık liste — kaydırma tek eksende kalsın */
+  .ff-sheet .ff-facet{display:block;margin-top:12px}
+  .ff-sheet .ff-btn{display:none}
+  .ff-sheet .ff-pop{
+    position:static;opacity:1;visibility:visible;transform:none;
+    max-width:none;max-height:none;overflow:visible;
+    border:none;box-shadow:none;border-radius:0;padding:0;
+  }
+  .ff-sheet .ff-pop-h{padding:6px 4px 8px}
+  .ff-sheet-foot{
+    flex:none;display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line);
+    background:#fff;
+  }
+  .ff-sheet-foot .btn{flex:1}
+}
+
+@media (max-width:640px){
+  .ff-bar{top:62px;border-radius:var(--radius-md)}
+  .ff-res{margin-top:14px}
+  .ff-res .ff-sort{width:100%;justify-content:space-between}
+}
+
+/* ---- ESKİ PANEL KABUKLARI BİLEŞENE DEVREDİLDİ ----
+ Sayfaların kendi .lib-filters/.pm-panel/.cm-panel/.hm-panel kuralları
+ sıfırlanır; görsel kabuk artık .ff-bar'ın.
+
+ backdrop-filter'ı SIFIRLAMAK ZORUNLU: Chromium'da backdrop-filter taşıyan
+ öğe bir "backdrop root" kurar ve alt öğelerini kendi border-box'ına KIRPAR.
+ Sıfırlanmadığında facet popover'ı panelin alt kenarında kesiliyordu —
+ z-index ne yapılırsa yapılsın (999'da bile) kart ızgarası üstte kalıyor,
+ daha doğrusu popover'ın alt kısmı hiç boyanmıyordu. */
+.lib-filters.ff, .pm-panel.ff, .cm-panel.ff, .hm-panel.ff{
+  background:none;border:none;box-shadow:none;padding:0;position:static;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  border-radius:0;overflow:visible;
+}
+/* bileşen kurulmadan (JS kapalı) sayfa hâlâ kullanılabilir kalsın:
+ .ff-ready gelmeden eski satır düzeni görünür durur */
+.ff:not(.ff-ready) .ff-bar,.ff:not(.ff-ready) .ff-chips,.ff:not(.ff-ready) .ff-res{display:none}

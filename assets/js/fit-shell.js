@@ -762,13 +762,76 @@ document.querySelectorAll('.r-save, .p-fav, .feat-save').forEach(function(btn){
   });
 });
 
-// "tümünü gör" slider okları — data-track / data-dir ile genel
-document.querySelectorAll('.row-nav button').forEach(function(b){
-  b.addEventListener('click',function(){
-    var t=document.getElementById(b.getAttribute('data-track'));
-    if(t){t.scrollBy({left:b.getAttribute('data-dir')==='prev'?-620:620,behavior:'smooth'});if(t._pauseAuto)t._pauseAuto();}
+/* ---- "TÜMÜNÜ GÖR" SLIDER'LARI — data-track / data-dir ile genel ----
+ Eskiden ok yalnız sabit 620px kaydırıyordu: uçta basınca hiçbir şey olmuyor,
+ ok yine de aktif görünüyordu; ray klavyeyle kullanılamıyor, kaydırılacak
+ içerik olmasa bile oklar duruyordu. Şimdi:
+ · kaydırma miktarı görünür genişliğe göre hesaplanır (kart hizası bozulmaz)
+ · uçlarda oklar disabled olur, hiç taşma yoksa ok grubu tamamen gizlenir
+ · ray klavyeyle odaklanabilir; ok tuşları / Home / End çalışır
+ · içerik veya boyut değişince durum yeniden ölçülür */
+(function(){
+  var tracks = {};
+  document.querySelectorAll('.row-nav button[data-track]').forEach(function(b){
+    var id = b.getAttribute('data-track');
+    (tracks[id] = tracks[id] || []).push(b);
   });
-});
+
+  Object.keys(tracks).forEach(function(id){
+    var t = document.getElementById(id);
+    if(!t) return;
+    var btns = tracks[id];
+    var nav  = btns[0].closest('.row-nav');
+
+    function step(){
+      var first = t.firstElementChild;
+      var card  = first ? first.getBoundingClientRect().width : 274;
+      var gap   = parseFloat(getComputedStyle(t).columnGap || getComputedStyle(t).gap) || 0;
+      var per   = Math.max(1, Math.floor(t.clientWidth / (card + gap)));
+      return per * (card + gap);
+    }
+    function update(){
+      var max = t.scrollWidth - t.clientWidth;
+      var scrollable = max > 2;
+      if(nav) nav.hidden = !scrollable;
+      btns.forEach(function(b){
+        var prev = b.getAttribute('data-dir') === 'prev';
+        b.disabled = !scrollable || (prev ? t.scrollLeft <= 1 : t.scrollLeft >= max - 1);
+      });
+      /* kaydırılabilir ray klavye ile gezilebilir olsun */
+      if(scrollable){
+        if(!t.hasAttribute('tabindex')) t.setAttribute('tabindex','0');
+        if(!t.hasAttribute('role')){ t.setAttribute('role','group'); }
+        if(!t.hasAttribute('aria-label')) t.setAttribute('aria-label','Yatay kaydırılabilir liste');
+      }
+    }
+
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        t.scrollBy({left: b.getAttribute('data-dir')==='prev' ? -step() : step(), behavior:'smooth'});
+        if(t._pauseAuto) t._pauseAuto();
+      });
+    });
+
+    t.addEventListener('keydown', function(e){
+      if(e.target !== t) return;                    // kart içindeki odak kendi işini görsün
+      var d = 0;
+      if(e.key==='ArrowRight') d = step();
+      else if(e.key==='ArrowLeft') d = -step();
+      else if(e.key==='Home') { e.preventDefault(); t.scrollTo({left:0,behavior:'smooth'}); return; }
+      else if(e.key==='End')  { e.preventDefault(); t.scrollTo({left:t.scrollWidth,behavior:'smooth'}); return; }
+      if(!d) return;
+      e.preventDefault();
+      t.scrollBy({left:d, behavior:'smooth'});
+    });
+
+    t.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', update);
+    window.addEventListener('load', update);
+    if(window.ResizeObserver) new ResizeObserver(update).observe(t);
+    update();
+  });
+})();
 
 /* ---- NAV PANELİ — DadaDiet kuralı: panel hover ile açılır, BAŞLIK TIKLANINCA
  kendi merkez sayfasına gidilir. Eski davranış her tıklamada preventDefault
@@ -1719,6 +1782,311 @@ setTimeout(function(){
   place();
   if(mq.addEventListener) mq.addEventListener('change', place);
   else if(mq.addListener) mq.addListener(place);
+})();
+
+
+/* =====================================================================
+ ORTAK FİLTRE BİLEŞENİ — .ff (TEK KAYNAK)
+ ---------------------------------------------------------------------
+ Sayfa sözleşmesi (tek satır):
+ <div class="lib-filters ff" data-ff data-ff-label="program" …>
+ · İçindeki .fgroup[data-group] kalemleri facet olarak okunur.
+ · Facet başlığı .lbl (yoksa aria-label ya da ilk <span>) metnidir.
+ · Sonuç sayacı: data-ff-count=".lib-count" (var olan düğüm taşınır).
+ · Sıralama: data-ff-sort=".lib-sort" (var olan blok taşınır).
+ · Sıfırla: data-ff-clear="#fClear" (var olan düğmeye tıklanır).
+
+ KRİTİK TASARIM KISITI — .fgroup KUTUSU YAŞAMAYA DEVAM EDER
+ Sayfa filtre motorları çipleri doğrudan seçmiyor; ÖNCE grup kutusunu
+ buluyorlar:
+ filters.querySelectorAll('.fgroup') → her grupta .df-fchip'leri bağla
+ filters.querySelector('.fgroup[data-group="…"]') → "Tümü"yü aç/kapa
+ Bu yüzden .fgroup SİLİNMEZ, İÇİ BOŞALTILMAZ: olduğu gibi popover'ın
+ gövdesine TAŞINIR ve panelin altında kalmaya devam eder. Böylece sayfa
+ scripti (bu dosyadan SONRA çalışır) her şeyi yerinde bulur; bileşen
+ yalnızca kabuğu ve yerleşimi değiştirir, davranışa hiç dokunmaz.
+ Aynı nedenle mobil çekmece de panelin İÇİNE basılır (body'ye değil):
+ çekmece açıkken bile .fgroup panelin torunu olarak kalır.
+ ===================================================================== */
+(function(){
+  var panels = document.querySelectorAll('[data-ff]');
+  if(!panels.length) return;
+
+  var MQ = window.matchMedia('(max-width:900px)');
+  var uid = 0;
+
+  function txt(el){ return el ? (el.textContent||'').replace(/\s+/g,' ').trim() : ''; }
+
+  /* çipin "Tümü" (filtresiz) kalemi mi olduğu — sayfa motorlarının ortak sözleşmesi */
+  function isAll(chip){ return chip.getAttribute('data-val') === 'all'; }
+
+  function build(panel){
+    var groups = Array.prototype.slice.call(panel.querySelectorAll('.fgroup[data-group]'));
+    if(!groups.length) return;
+
+    panel.classList.add('ff');
+    var id = 'ff' + (++uid);
+
+    /* ---- iskelet ---- */
+    var bar = document.createElement('div');
+    bar.className = 'ff-bar';
+    bar.innerHTML = '<span class="ff-bar-lbl"><i class="fa-solid fa-sliders"></i> Filtrele</span>';
+
+    var chipsRow = document.createElement('div');
+    chipsRow.className = 'ff-chips';
+    chipsRow.setAttribute('aria-label','Aktif filtreler');
+    chipsRow.setAttribute('aria-live','polite');
+
+    var res = document.createElement('div');
+    res.className = 'ff-res';
+
+    /* ---- mobil çekmece ---- */
+    var sheetOv = document.createElement('div');
+    sheetOv.className = 'ff-sheet-ov';
+    var sheet = document.createElement('div');
+    sheet.className = 'ff-sheet';
+    sheet.setAttribute('role','dialog');
+    sheet.setAttribute('aria-modal','true');
+    sheet.setAttribute('aria-label','Filtrele');
+    sheet.innerHTML =
+      '<div class="ff-sheet-h"><h3><i class="fa-solid fa-sliders"></i> Filtrele</h3>'+
+      '<button class="ff-sheet-close" type="button" aria-label="Filtre panelini kapat"><i class="fa-solid fa-xmark"></i></button></div>'+
+      '<div class="ff-sheet-body"></div>'+
+      '<div class="ff-sheet-foot">'+
+      '  <button class="btn btn-ghost ff-sheet-clear" type="button"><i class="fa-solid fa-rotate-left"></i> Sıfırla</button>'+
+      '  <button class="btn btn-primary ff-sheet-apply" type="button">Sonuçları gör</button>'+
+      '</div>';
+    var sheetBody = sheet.querySelector('.ff-sheet-body');
+
+    /* ---- facet'ler ---- */
+    var facets = groups.map(function(g, gi){
+      var key   = g.getAttribute('data-group');
+      var lblEl = g.querySelector('.lbl') || g.querySelector(':scope > span');
+      var label = txt(lblEl) || g.getAttribute('aria-label') || key;
+      label = label.replace(/\s*(filtresi|seç)$/i,'').trim();
+      if(lblEl) lblEl.remove();
+
+      var chips = Array.prototype.slice.call(g.querySelectorAll('.df-fchip'));
+
+      /* grup içine sıkışmış "Filtreyi sıfırla" düğmesi varsa önce dışarı al —
+         popover'ın içinde durmasın (sayfa onu id ile bulmaya devam eder) */
+      Array.prototype.slice.call(g.querySelectorAll('.fclear')).forEach(function(fc){
+        panel.appendChild(fc);
+      });
+
+      var facet = document.createElement('div');
+      facet.className = 'ff-facet';
+      var popId = id+'-p'+gi;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ff-btn';
+      btn.setAttribute('aria-haspopup','true');
+      btn.setAttribute('aria-expanded','false');
+      btn.setAttribute('aria-controls', popId);
+      btn.innerHTML = '<span class="ff-btn-t">'+label+'</span><span class="ff-n">0</span><i class="fa-solid fa-chevron-down ff-car"></i>';
+
+      var pop = document.createElement('div');
+      pop.className = 'ff-pop';
+      pop.id = popId;
+      pop.setAttribute('role','group');
+      pop.setAttribute('aria-label', label);
+      var head = document.createElement('div');
+      head.className = 'ff-pop-h';
+      head.innerHTML = '<b>'+label+'</b><button class="ff-pop-clear" type="button">Temizle</button>';
+      pop.appendChild(head);
+      /* .fgroup KUTUSUYLA BİRLİKTE taşınır (yukarıdaki kısıt) — sayfa motoru
+         hem grubu hem çipleri eskisi gibi bulur, listener'ları düşmez */
+      pop.appendChild(g);
+
+      facet.appendChild(btn);
+      facet.appendChild(pop);
+
+      var allChip = chips.filter(isAll)[0] || null;
+      return {key:key, label:label, el:facet, btn:btn, pop:pop, chips:chips, allChip:allChip,
+              clearBtn:head.querySelector('.ff-pop-clear')};
+    });
+
+    /* ---- bar içeriği ---- */
+    facets.forEach(function(f){ bar.appendChild(f.el); });
+
+    var spacer = document.createElement('div'); spacer.className = 'ff-spacer';
+    bar.appendChild(spacer);
+
+    var total = document.createElement('span');
+    total.className = 'ff-total';
+    total.innerHTML = '<i class="fa-solid fa-filter"></i> <b>0</b> filtre';
+    bar.appendChild(total);
+
+    var reset = document.createElement('button');
+    reset.type = 'button';
+    reset.className = 'ff-reset';
+    reset.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla';
+    bar.appendChild(reset);
+
+    var openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'ff-open';
+    openBtn.innerHTML = '<i class="fa-solid fa-sliders"></i> Filtrele <span class="ff-n">0</span>';
+    bar.appendChild(openBtn);
+
+    /* ---- sayfadaki mevcut sayaç ve sıralama bloklarını sonuç satırına taşı ---- */
+    var countSel = panel.getAttribute('data-ff-count');
+    var sortSel  = panel.getAttribute('data-ff-sort');
+    var countHost = countSel ? document.querySelector(countSel) : null;
+    var sortHost  = sortSel  ? document.querySelector(sortSel)  : null;
+    if(countHost){ countHost.classList.add('ff-count'); res.appendChild(countHost); }
+    if(sortHost){ sortHost.classList.add('ff-sort'); res.appendChild(sortHost); }
+
+    /* eski .lib-bar kabuğu boşaldıysa yer kaplamasın */
+    document.querySelectorAll('.lib-bar').forEach(function(lb){
+      if(!lb.querySelector('*')) lb.remove();
+    });
+
+    /* ---- DOM'a yerleştir ---- */
+    panel.appendChild(bar);
+    panel.appendChild(chipsRow);
+    if(res.children.length) panel.appendChild(res);
+    /* çekmece body'ye DEĞİL panele basılır: açıkken bile .fgroup panelin
+       torunu kalsın (sayfa motorlarının kapsam sorguları çalışmaya devam etsin).
+       position:fixed olduğu için görsel olarak yine ekrana yapışır. */
+    panel.appendChild(sheetOv);
+    panel.appendChild(sheet);
+    panel.classList.add('ff-ready');
+
+    /* ---- sayfanın kendi "sıfırla" düğmesi varsa ona bağlan ---- */
+    var pageClear = panel.getAttribute('data-ff-clear');
+    var pageClearEl = pageClear ? document.querySelector(pageClear) : null;
+    /* eski .fclear düğmesi bar'a taşınmışsa gizle — bileşenin kendi reset'i var */
+    panel.querySelectorAll('.fclear').forEach(function(b){ b.style.display='none'; });
+
+    /* =============== durum senkronu =============== */
+    function selectedOf(f){
+      return f.chips.filter(function(c){ return !isAll(c) && c.classList.contains('on'); });
+    }
+    function sync(){
+      var totalSel = 0;
+      chipsRow.innerHTML = '';
+      var lbl = document.createElement('span');
+      lbl.className = 'ff-chips-lbl';
+      lbl.textContent = 'Seçili:';
+      chipsRow.appendChild(lbl);
+
+      facets.forEach(function(f){
+        var sel = selectedOf(f);
+        totalSel += sel.length;
+        f.btn.classList.toggle('has-sel', sel.length>0);
+        f.btn.querySelector('.ff-n').textContent = sel.length;
+        sel.forEach(function(c){
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'ff-chip';
+          var name = txt(c);
+          chip.innerHTML = '<span class="ff-chip-g">'+f.label+':</span> '+name+
+                           '<span class="ff-x" aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>';
+          chip.setAttribute('aria-label', f.label+' — '+name+' filtresini kaldır');
+          chip.addEventListener('click', function(){ c.click(); });
+          chipsRow.appendChild(chip);
+        });
+      });
+
+      panel.classList.toggle('has-sel', totalSel>0);
+      total.querySelector('b').textContent = totalSel;
+      openBtn.querySelector('.ff-n').textContent = totalSel;
+      var applyBtn = sheet.querySelector('.ff-sheet-apply');
+      if(applyBtn) applyBtn.textContent = totalSel ? ('Sonuçları gör ('+totalSel+' filtre)') : 'Sonuçları gör';
+    }
+
+    /* çip tıklamaları sayfa motoruna ait; biz yalnız SONRASINDA durumu okuruz */
+    facets.forEach(function(f){
+      f.chips.forEach(function(c){ c.addEventListener('click', function(){ setTimeout(sync,0); }); });
+      f.clearBtn.addEventListener('click', function(){
+        if(f.allChip){ f.allChip.click(); }
+        else { selectedOf(f).forEach(function(c){ c.click(); }); }
+        setTimeout(sync,0);
+      });
+    });
+
+    function resetAll(){
+      if(pageClearEl){ pageClearEl.click(); }
+      else{
+        facets.forEach(function(f){
+          if(f.allChip) f.allChip.click();
+          else selectedOf(f).forEach(function(c){ c.click(); });
+        });
+      }
+      setTimeout(sync,0);
+    }
+    reset.addEventListener('click', resetAll);
+    sheet.querySelector('.ff-sheet-clear').addEventListener('click', resetAll);
+
+    /* =============== popover aç/kapa (masaüstü) =============== */
+    function closeFacets(except){
+      facets.forEach(function(f){
+        if(f===except) return;
+        f.el.classList.remove('open');
+        f.btn.setAttribute('aria-expanded','false');
+      });
+    }
+    facets.forEach(function(f){
+      f.btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var willOpen = !f.el.classList.contains('open');
+        closeFacets(f);
+        f.el.classList.toggle('open', willOpen);
+        f.btn.setAttribute('aria-expanded', willOpen?'true':'false');
+        if(willOpen){
+          /* sağ kenardan taşacaksa paneli sağa hizala */
+          f.el.classList.remove('flip');
+          var r = f.pop.getBoundingClientRect();
+          if(r.right > document.documentElement.clientWidth - 12) f.el.classList.add('flip');
+        }
+      });
+    });
+    document.addEventListener('click', function(e){
+      if(!e.target.closest('.ff-facet')) closeFacets(null);
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key!=='Escape') return;
+      if(sheet.classList.contains('open')){ closeSheet(); return; }
+      closeFacets(null);
+    });
+
+    /* =============== mobil çekmece =============== */
+    function openSheet(){
+      if(sheet.classList.contains('open')) return;
+      facets.forEach(function(f){ sheetBody.appendChild(f.el); f.el.classList.remove('open'); });
+      sheet.classList.add('open'); sheetOv.classList.add('open');
+      if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+      if(window.__bnUpdate) window.__bnUpdate();
+      var first = sheetBody.querySelector('.df-fchip');
+      if(first) first.focus();
+    }
+    function closeSheet(){
+      if(!sheet.classList.contains('open')) return;
+      sheet.classList.remove('open'); sheetOv.classList.remove('open');
+      if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if(window.__bnUpdate) window.__bnUpdate();
+      /* facet'leri bar'a geri al — masaüstüne dönüşte yerli yerinde olsun */
+      facets.forEach(function(f){ bar.insertBefore(f.el, spacer); });
+      openBtn.focus();
+    }
+    openBtn.addEventListener('click', openSheet);
+    sheetOv.addEventListener('click', closeSheet);
+    sheet.querySelector('.ff-sheet-close').addEventListener('click', closeSheet);
+    sheet.querySelector('.ff-sheet-apply').addEventListener('click', closeSheet);
+    function onMQ(){ if(!MQ.matches) closeSheet(); }
+    if(MQ.addEventListener) MQ.addEventListener('change', onMQ);
+    else if(MQ.addListener) MQ.addListener(onMQ);
+
+    /* sayfa motoru derin bağlantıdan çip açmış olabilir → ilk senkron */
+    sync();
+    /* sayfa scriptleri bu dosyadan SONRA çalışır; bir tur daha oku */
+    setTimeout(sync, 0);
+    window.addEventListener('load', sync);
+  }
+
+  panels.forEach(build);
 })();
 
 

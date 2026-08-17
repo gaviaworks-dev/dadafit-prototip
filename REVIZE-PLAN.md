@@ -65,16 +65,16 @@ Her madde bitince kutusu işaretlenir.
 
 ## 4 · Program liste filtreleri — UX yenileme (ortak bileşen)
 
-- [ ] **Kök neden:** `.fgroup` satırları alt alta diziliyor (`program-liste` 4, `programlar-merkezi` 5,
+- [x] **Kök neden:** `.fgroup` satırları alt alta diziliyor (`program-liste` 4, `programlar-merkezi` 5,
   `antrenorler` 3+3, `hareket-merkezi` 3, `challenge-merkezi` 3, `egzersiz-kutuphane` 3).
   ≤640px'te `overflow-x:auto` ile yatay kaydırma rayına dönüşüyor.
-- [ ] `fit-shell.css` + `fit-shell.js` — yeni `.ff` bileşeni:
+- [x] `fit-shell.css` + `fit-shell.js` — yeni `.ff` bileşeni:
   kompakt tek satır bar · grup başına popover (çoklu seçim) · aktif filtre çipleri (tek tek kaldırılabilir) ·
   aktif sayaç + "Filtreyi sıfırla" · sonuç sayısı + sıralama aynı satırda · sticky bar ·
   ≤900px "Filtrele" drawer'ı.
-- [ ] **Yöntem:** bileşen mevcut `.df-fchip` düğümlerini *taşır* (klonlamaz) → her sayfanın kendi
+- [x] **Yöntem:** bileşen mevcut `.df-fchip` düğümlerini *taşır* (klonlamaz) → her sayfanın kendi
   filtre motoru değişmeden çalışmaya devam eder.
-- [ ] 6 sayfaya `data-ff` bağlanışı.
+- [x] 6 sayfaya `data-ff` bağlanışı.
 
 ## 5 · Yeni Başlayanlar sayfasındaki boşluk
 
@@ -126,13 +126,13 @@ Her madde bitince kutusu işaretlenir.
 
 ## 10 · Pro slider'ları
 
-- [ ] **Tespit:** `program-liste-v1.html#pro` çapası **hiç yok**; menü oraya gönderiyordu.
+- [x] **Tespit:** `program-liste-v1.html#pro` çapası **hiç yok**; menü oraya gönderiyordu.
   Sayfada carousel de yok — "slider" görünen şey ≤640px'te yatay kaydırma rayına dönüşen
   `.fgroup` filtre satırları. Ayrıca kabukta `.row-track/.row-nav` slider altyapısı
   ok devre-dışı durumu, klavye erişimi ve snap olmadan duruyor.
-- [ ] Filtre rayları madde 4'teki `.ff` bileşeniyle tamamen kalktı.
-- [ ] `#pro` hedefi düzeltildi (`programlar-merkezi-v1.html#pro`), `program-liste`'den de erişim verildi.
-- [ ] `.row-track` slider altyapısı: ok devre-dışı durumları, snap, mobil swipe, klavye erişimi.
+- [x] Filtre rayları madde 4'teki `.ff` bileşeniyle tamamen kalktı.
+- [x] `#pro` hedefi düzeltildi (`programlar-merkezi-v1.html#pro`), `program-liste`'den de erişim verildi.
+- [x] `.row-track` slider altyapısı: ok devre-dışı durumları, snap, mobil swipe, klavye erişimi.
 
 ## 11 · Challenge kartları okunmuyor
 
@@ -153,6 +153,6 @@ Her madde bitince kutusu işaretlenir.
 
 - [x] `shell:` overflow/scroll-lock + NAV yeniden kurgusu (madde 1·2·3·9)
 - [x] `type:` fit-type.css + justify (madde 6)
-- [ ] `filters:` ortak `.ff` bileşeni (madde 4·10)
+- [x] `filters:` ortak `.ff` bileşeni (madde 4·10)
 - [ ] `pages:` antrenörler listesi, egzersiz detay, hr-note, challenge kart (madde 1·5·7·8·11)
 - [ ] `qa:` çapraz sayfa doğrulama düzeltmeleri

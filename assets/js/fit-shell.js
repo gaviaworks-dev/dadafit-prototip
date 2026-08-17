@@ -655,6 +655,25 @@ if(_plan){
 /* hero'lu sayfa: body[data-fit-hero="1"] → header hero uzerinde seffaf baslar */
 var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
 
+/* ------------------------------------------------------------------
+ HEADER ŞEFFAF MODU — hero'ya ek olarak BANNER'lı sayfalar da girer.
+ Ölçülen referans (dadadiet.com/diyetisyenler, 1440px):
+ · scroll 0  → header.at-top · background rgba(0,0,0,0) · box-shadow none
+ · scroll 400 → at-top düşer · background rgba(255,255,255,.94) + gölge
+ Yani kardeş ürün at-top'ı tam-ekran hero sayfasına özel KULLANMIYOR;
+ koyu banner taşıyan liste sayfalarında da header banner'ın üzerinde
+ şeffaf duruyor. DadaFit'te bu mod yalnız data-fit-hero ile açılıyordu,
+ 16 banner sayfası hep katıydı.
+
+ Karar tek yerde verilir: sayfa koyu banner taşıyor mu?
+ · .lib-top  → liste/rehber banner'ı (16 sayfa)
+ · #fitPlanTop → Planım kabuğu; .fp-top banner'ı yukarıda ondan üretildi
+ Bayrak body'ye yazılır, banner'ın üst boşluğunu CSS oradan çözer
+ (bkz. fit-shell.css "BANNER ÜZERİNDE ŞEFFAF HEADER").
+ ------------------------------------------------------------------ */
+var OVER_MODE = HERO_MODE || !!document.querySelector('.lib-top, .fp-top');
+if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
+
 /* ============================================================
  4b · TEK KAYDIRMA KİLİDİ — "layout sağa kayıyor" bug'ının kökü
  ------------------------------------------------------------
@@ -756,9 +775,10 @@ if(location.search.indexOf('drawer=1')>-1){window.addEventListener('DOMContentLo
 // ~60px scroll sonrası katı (v3a davranışı; ?hdr=solid ile yine zorla katı)
 (function(){
   var header=document.querySelector('.header');
-  var heroMode=HERO_MODE;                                   // full-viewport hero — header şeffaf, ~60px scroll'da katı
+  /* hero VEYA banner → header üstte şeffaf, ~60px scroll sonrası katı */
+  var overMode=OVER_MODE;
   var forceSolid=location.search.indexOf('hdr=solid')>-1;
-  if(!heroMode||forceSolid)return;                     // katı kal — at-top hiç eklenmez
+  if(!overMode||forceSolid){ document.body.removeAttribute('data-fit-over'); return; }  // katı kal — at-top hiç eklenmez
   function onScroll(){ if(window.scrollY<60){header.classList.add('at-top');} else {header.classList.remove('at-top');} }
   onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
 })();

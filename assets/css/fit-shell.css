@@ -259,21 +259,26 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
  Ana menüde DEĞİL: Fit Planım dropdown'ı kaldırıldı, giriş noktası tek düğme.
  İkincil dilde durur ki birincil eylem (Giriş Yap / Pro) ile yarışmasın;
  her iki oturum durumunda da görünür. */
-.btn-plan{
-  background:var(--paper);color:var(--slate);border-color:var(--line);
-  text-decoration:none;
-}
-.btn-plan i{color:var(--tomato)}
-.btn-plan:hover{background:var(--tomato-tint);border-color:var(--tomato);color:var(--tomato-dark)}
-.btn-plan:hover i{color:var(--tomato-dark)}
-.btn-plan.active{background:var(--tomato-tint);border-color:var(--tomato);color:var(--tomato-dark)}
+/* SOLID PRIMARY (A2) — eskiden outline/ghost'tu (beyaz zemin, gri kenar).
+ Ölçülen referans (dadadiet.com, hem ana sayfa hem /diyetisyenler, 1440px):
+ Planım düğmesi .btn-login sınıfını taşıyor ve DOLU yeşil —
+ background rgb(28,122,78) · color #fff · border 1px aynı yeşil · radius 12px
+ · font-weight 700 · font-size 14px · padding 0 18px. Orada "Giriş Yap" da
+ aynı sınıfı taşır, yani iki düğme AYNI solid dilde durur.
+ Bizde .btn-login zaten bu solid dili veriyor (--tomato = #009d4f kurumsal
+ yeşil) → .btn-plan artık onu EZMEZ, yalnız <a> olduğu için gereken
+ düzeltmeleri ve aktif-sayfa durumunu ekler. */
+.btn-plan{text-decoration:none}
+.btn-plan i{color:#fff}
+.btn-plan.active{background:var(--tomato-dark);border-color:var(--tomato-dark)}
 .btn-plan:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
 /* logged-in'de de kalır (btn-login gizleme kuralının dışında) */
 body.is-auth .btn-login.btn-plan{display:inline-flex}
-/* hero üstünde şeffaf header: cam yüzey */
-.header.at-top .btn-plan{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#fff}
-.header.at-top .btn-plan i{color:#fff}
-.header.at-top .btn-plan:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.5);color:#fff}
+/* NOT: şeffaf header'da (at-top) cam yüzeye DÖNMEZ — ölçüm, kardeş üründe
+ at-top durumunda da düğmenin dolu yeşil kaldığını gösterdi
+ (scroll 0 · header.at-top · planım background rgb(28,122,78)).
+ Bu yüzden eski ".header.at-top .btn-plan{background:rgba(255,255,255,.14)}"
+ cam varyantı kaldırıldı; düğme her iki header durumunda da solid primary. */
 
 /* ===== LOGIN-STATE (cila-2 faz 2) — header logged-in chrome ===== */
 /* varsayılan logged-out: ekle/zil/avatar gizli. body.is-auth → açılır, btn-login gizlenir */
@@ -1124,6 +1129,29 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
   padding:40px 0 38px;
 }
 .lib-top .wrap{position:relative;z-index:2}
+
+/* ---- BANNER ÜZERİNDE ŞEFFAF HEADER (A2) ----------------------------
+ Banner taşıyan sayfada header artık katı değil, banner'ın üzerinde şeffaf
+ duruyor (fit-shell.js → body[data-fit-over="1"]; ölçülen referans:
+ dadadiet.com/diyetisyenler .lst-top{padding-top:128px} + header.at-top).
+ Bu yüzden banner kabuğun ALTINDAN başlar: üst payı margin yerine padding
+ olur ve koyu zemin header'ın arkasına uzar.
+
+ İÇERİK KONUMU DEĞİŞMEZ: eski (margin-top + padding-top) toplamı kadar
+ padding-top verilir, yani metin bir piksel oynamaz, yalnız koyu zemin
+ yukarı uzar:
+   ≥1025px  112 (üst bant 40 + header 72) + 40 = 152
+   ≤1024px  112 + 30 = 142      (nav gizlenir ama kat yükseklikleri aynı)
+   ≤640px    62 (üst bant gizli, header 62) + 24 = 86
+
+ SEÇİCİ NEDEN İKİ SINIF DERİN: 16 sayfa kendi <style> bloğunda
+ .lib-top{margin-top:112px} kopyasını taşıyor ve o bloklar fit-shell.css'ten
+ SONRA geliyor. body[data-fit-over] .lib-top (0,2,0) o kopyaları (0,1,0)
+ özgüllükle yener — böylece 16 sayfayı tek tek düzenlemek gerekmez ve kural
+ tek yerde kalır. (Kopyaların kendisi ayrı bir temizlik işi: §23.)
+ -------------------------------------------------------------------- */
+body[data-fit-over="1"] .lib-top{margin-top:0;padding-top:152px}
+
 .lib-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:18px;flex-wrap:wrap}
 .lib-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
 .lib-crumb a:hover{color:#fff}
@@ -1201,11 +1229,13 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
   .hub-grid,.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
   .hub-grid.cols-3,.lib-grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lib-top{padding:30px 0 28px}   /* margin-top 112px KALIR — ≤1024'te kabuk hâlâ 113px */
+  body[data-fit-over="1"] .lib-top{padding-top:142px}   /* 112 + 30 — içerik yerinde kalır */
   .lib-top h1{font-size:31px}
 }
 @media (max-width:640px){
   .hub-grid,.lib-grid,.hub-grid.cols-3,.lib-grid.cols-3,.hub-grid.cols-2,.lib-grid.cols-2{grid-template-columns:minmax(0,1fr);gap:16px}
   .lib-top{padding:24px 0 24px}
+  body[data-fit-over="1"] .lib-top{padding-top:86px}    /* 62 + 24 — üst bant gizli, header 62px */
   .lib-top h1{font-size:25px}
   .lib-top .lib-sub{font-size:14px}
   .lib-stats{gap:16px}

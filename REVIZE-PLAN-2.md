@@ -54,9 +54,9 @@ logo geç yüklenirse marka bloğunun genişliği değişir ve ortalanmış `.na
 Bu tıklamayla ilgisiz bir yükleme yarışıdır; test `.nav` boundingBox'ı iki ardışık okumada
 aynı çıkana kadar bekleyerek bunu ayıklar (ilk koşuda 3.6px'lik yanlış alarm bu yüzden çıkmıştı).
 
-## A2 · Banner'lı sayfalarda header şeffaf + Planım solid
+## A2 · Banner'lı sayfalarda header şeffaf + Planım solid ✅
 
-- [ ] **Ölçülen referans (dadadiet.com, 1440px):**
+- [x] **Ölçülen referans (dadadiet.com, 1440px):**
   - `/diyetisyenler` (banner sayfası, tam hero değil) `header.at-top` ile açılıyor →
     `background: rgba(0,0,0,0)`, `box-shadow:none`, `border-color: rgba(255,255,255,.14)`.
   - 400px scroll sonrası `at-top` düşüyor → `background: rgba(255,255,255,.94)`,
@@ -67,15 +67,31 @@ aynı çıkana kadar bekleyerek bunu ayıklar (ilk koşuda 3.6px'lik yanlış al
   - Planım düğmesi `.btn-login`: `background rgb(28,122,78)` (kendi yeşili), `color #fff`,
     `border 1px` aynı yeşil, `radius 12px`, `font-weight 700`, `font-size 14px`, `padding 0 18px`
     → **solid primary**, outline değil. DadaFit karşılığı `--fit` = `#009d4f`.
-- [ ] `fit-shell.js` — banner taşıyan sayfalar için şeffaf-header modu
-  (`data-fit-hero="1"` yanına banner sayfalarını da alan tek bayrak; sayfa sayfa kopya yok).
-- [ ] `fit-shell.css` — `.lib-top`/`.fp-top` banner'ları header'ın altından başlayacak şekilde
-  üst boşluk düzeltmesi (şeffaf header artık banner'ın üzerinde duruyor).
-- [ ] `fit-shell.css` — `.btn-plan` solid primary (`--fit` zemin, beyaz metin);
-  `at-top` durumunda beyaz-şeffaf varyantı korunur (DadaDiet'te de öyle).
-- [ ] **Ölçüm:** her banner sayfasında scroll=0 ve scroll=400'de header `backgroundColor`
-  + `.btn-plan` `backgroundColor`; banner metninin header altında kalmadığı (üst üste binme yok)
-  boundingBox ile doğrulanacak. Test: `tests/header-banner.mjs`.
+- [x] `fit-shell.js` — tek merkezi bayrak: `OVER_MODE = HERO_MODE || .lib-top|.fp-top var mı`
+  → `body[data-fit-over="1"]`. Sayfa sayfa kopya yok, 16 banner sayfası birden kazandı.
+  `?hdr=solid` hâlâ katıyı zorluyor (bayrak da geri alınıyor).
+- [x] `fit-shell.css` — `body[data-fit-over="1"] .lib-top{margin-top:0;padding-top:152px}`
+  (+ ≤1024 → 142px, ≤640 → 86px). **İçerik bir piksel oynamıyor:** eski
+  `margin-top + padding-top` toplamı kadar `padding-top` verildi (112+40 · 112+30 · 62+24);
+  yalnız koyu zemin header'ın arkasına uzadı.
+  *Seçici bilinçli olarak iki sınıf derin* (`body[...] .lib-top` = 0,2,0): 16 sayfa kendi
+  `<style>` bloğunda `.lib-top{margin-top:112px}` kopyasını taşıyor ve o bloklar
+  `fit-shell.css`'ten sonra geliyor — özgüllük onları yeniyor, 16 dosyayı düzenlemek gerekmedi.
+- [x] `fit-shell.css` — `.btn-plan` artık `.btn-login`'i **ezmiyor** → solid primary.
+  Eski ghost tanımları (beyaz zemin, gri kenar) ve `.header.at-top .btn-plan` cam varyantı silindi:
+  ölçüm, kardeş üründe `at-top` durumunda da düğmenin **dolu yeşil** kaldığını gösterdi.
+- [x] **Ölçüm — `tests/header-banner.mjs`, 14 sayfa × 3 genişlik (1440/1024/390) = 0 sorun:**
+  banner sayfalarında scroll=0 şeffaf → scroll=400 katı · banner **taşımayan** 3 sayfada
+  header katı kalıyor (mod sızmıyor) · Planım her iki header durumunda dolu yeşil + beyaz metin ·
+  breadcrumb header'ın altında kalmıyor (üst üste binme yok).
+
+**Faz 9'a devredilen ölçüm bulgusu — birincil düğme kontrastı:** solid yeşil `#009d4f`
+üzerine beyaz 14px/700 metin **3.55:1** veriyor; WCAG AA normal metin için 4.5:1 gerekiyor
+(14px bold "büyük metin" sayılmaz). Kardeş ürünün yeşili `rgb(28,122,78)` daha koyu ve
+**5.32:1** ile geçiyor. Bu, `.btn-login`/`.btn-primary`'nin tamamını ilgilendiren site geneli
+bir karar (yalnız Planım'ı koyulaştırmak iki düğmeyi birbirinden ayırır), bu yüzden A2'de
+görünüş birebir istendiği gibi bırakıldı ve madde §20 kapsamına yazıldı: `--tomato-dark`
+(`#007a3d`, 5.45:1) birincil dolgu yapılırsa hem AA sağlanır hem yeşil kimlik korunur.
 
 ## A3 · Egzersiz kütüphanesi banner'ındaki arama input'u kalkacak
 
@@ -282,6 +298,9 @@ Bugün `PLAN_NAV` 11 kalem. Belge 6 istiyor.
       breadcrumb yapılandırılmış verisi · egzersiz/program/antrenör şeması · hreflang · tek H1 · H1-H2-H3
 - [ ] Erişilebilirlik: klavye · modal focus trap + geri dönüş + Escape · filtrelerde `aria-pressed` ·
       gerçek `label` · hata yalnız renkle değil · anlamlı `alt` · kontrast · dokunma alanı · hareketi azalt
+- [ ] **Birincil düğme kontrastı (A2'de ölçüldü):** beyaz metin / `#009d4f` = **3.55:1**, AA'nın
+      altında. `--tomato-dark` `#007a3d` = **5.45:1**, `--tomato-deep` `#006a35` = **6.84:1**.
+      Karar site geneli verilecek (`.btn-login`, `.btn-primary`, `.btn-fit` birlikte).
 
 ---
 

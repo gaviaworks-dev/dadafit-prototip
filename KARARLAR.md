@@ -585,3 +585,90 @@ bugünü (`fit-planim-v1`). Adları birleştirme, kümeleri tek rayda toplama.
 `PLAN_EXTRA` / `RAY_UST` ve dört Enerji Defteri dosyasının adı birlikte
 değişmeli; ayrıca `enerji-defteri-v1.html` içindeki eski çapa köprüsü
 (`#dengele` / `#su` / `#haftalik`) güncellenmeli.
+
+---
+
+## K21 · Banner içeriği sabit kutuya SÜTUN-SARMALI ile sığdırıldı
+
+**Beyar'ın talimatı (4. tur, R1):** *"Banner'lar istediğim şekilde değil, yapıyı
+bozmuş, saçma bir şekilde ortalanmış… Aile içi sabit yüksekliklere (liste 344 px,
+detay 384 px) DOKUNMA, onlar doğru… Ayrıca banner başlık ve açıklama alanında
+boş alan verimli kullanılsın, gereksiz boşluk kalmasın."*
+
+**Ölçülen çatışma:** liste banner'ı 344 px, üst 113 px'i şeffaf header'ın altında
+→ gerçek içerik alanı **231 px**. Zengin banner'ın altı bloğu (kırıntı · eyebrow ·
+başlık · açıklama · eylem satırı · istatistik) **tek kolonda en sıkı makul ölçekle
+bile ~330 px** sürüyor. Yani sabit yüksekliğe dokunmadan tek kolonda sığmıyor.
+3. tur bunu `overflow:hidden` ile **kırparak** "çözmüştü": 51 banner sayfasının
+**28'inde** içerik kesiliyordu (`program-liste-v1` −112 px; CTA satırı ve
+istatistikler tamamen görünmezdi).
+
+**Seçilen:** banner `.wrap` sabit yükseklikte bir **sütun-sarmalı flex kutusu**
+(`height:100%; flex-flow:column wrap`). Bloklar yukarıdan aşağı dizilir; sığmayan
+ilk blok **kendiliğinden ikinci kolona** geçer. Kolon genişlikleri kelepçeli:
+ana bloklar 660 px, açıklamadan sonrakiler 380 px (660 + 52 + 380 = 1092 ≤ 1116).
+
+**Gerekçe — üç şartı birden karşılayan tek düzen:**
+1. Sabit yükseklik **değişmedi** (liste 47/47 = 344 px · detay 3/3 = 384 px,
+   yayılım 0 px) — Beyar'ın "dokunma" talimatı.
+2. **Hiçbir içerik kırpılmıyor** (28 → 0). Ölçüm iki kez koşuldu, 59/59 birebir.
+3. Banner 1180 px geniş ama metin ölçüsü 680 px'te kapalıydı; sağda ~440 px boş
+   duruyordu. İkinci kolon tam oraya oturuyor — Beyar'ın "boş alan verimli
+   kullanılsın" talimatı.
+
+**Denenen ve BIRAKILAN yol — CSS grid.** İki sorunu var: (a) seyrek yerleşimde
+imleç geri gitmediği için sağ kolon boş satırlarla başlıyordu (`dense` ile
+çözüldü), (b) asıl kırılma: **satır yüksekliği iki kolonun büyüğü kadar oluyor**;
+eylem satırı sarınca sol kolondaki eyebrow da 18.6 → 85.3 px'e geriliyordu
+(ölçüldü: `hakkimizda-v1`). Grid'de satır paylaşımı kaçınılmaz, flex sütun
+sarmalında yok.
+
+**Eşlik eden ölçek değişiklikleri (hepsi kabukta, sayfa işaretlemesi değişmedi):**
+banner `h1` **39 → 34 px** (39 px başlık 231 px'lik alanda tek başına iki-üç
+satır sürüyordu) · banner içi düğme 44 → 38 px · `.lib-stats` satır aralığı
+26 → 9 px · banner `row-gap` 10 → 8 px.
+
+**Sütun-sarmalının DIŞINDA tutulan iki banner:** `reklam-ver` (`.mk-hero`) ve
+`bildirimler` (`.nt-*`). İçerikleri tek büyük blok olduğu için ikinci kolona
+geçince banner metni sağa kayıyor ve R1'in düzelttiği hiza bozukluğu geri
+geliyordu (ölçüldü: `.mk-hero` sola **508 px**'e kaymıştı). CSS `:has()` ile
+kelepçelendi; ikisi kendi dikey ritimleri sıkılarak kutuya oturdu.
+
+**Uygulandı:** `assets/css/fit-shell.css` — banner bloğu. **0 HTML dosyası düzenlendi.**
+
+**Geri almak için:** `@media (min-width:901px)` içindeki
+`body[data-fit-hero-kind] .lib-top:has(> .wrap > .lib-sub) > .wrap` bloğu.
+
+---
+
+## K22 · `.cp-top` (antrenör detayı) sabit kutudan çıkarıldı — imza banner'ı
+
+**Belirsizlik:** 3. tur kendi kuralını yazmıştı — *"içinde ikinci kart taşıyan
+imza banner'ları sabit kutunun DIŞINDADIR"* — ve beş banner'ı dışarıda bırakmıştı
+(`.kp-top` 614 · `.ol-top` 602 · `.chl-hero` 697 · `.pd-hero` 570 · ana sayfa
+`.df-top` 900). Ama `.cp-top` tam da öyle bir banner olduğu hâlde **detay
+ailesine alınmıştı.**
+
+**Ölçüm:** `.cp-top` içinde randevu kartı var — fiyat + üç eylem düğmesi + not
+(`₺450 seans başı` · Randevu Al · Danışan Ol · Mesaj Gönder + kaydet · "İlk 15 dk
+tanışma görüşmesi ücretsiz"). Kart **en sıkı makul ölçekle 226 px** sürüyor;
+384 px'lik kutunun verebildiği **207.6 px**'i aşıyor. Sabit kutuda kartın
+**75.2 px**'i `overflow:hidden` ile kesiliyordu — yani "Mesaj Gönder" düğmesi ve
+ücretsiz görüşme notu **hiç görünmüyordu**.
+
+**Seçilen:** `.cp-top` imza banner'ı sayıldı. **Taban yükseklik 384 px korunuyor**
+(`min-height`), tavan içeriğe bırakıldı → ölçülen 477.2 px, kart tam görünür.
+
+**Gerekçe:** kutuya sığdırmanın tek yolu bir eylem düğmesini ya da ücretsiz
+görüşme notunu silmekti — ikisi de içerik kaybı. 3. turun kendi kuralı zaten bu
+banner'ı dışarıda tutmayı gerektiriyordu; kural doğru uygulanmamıştı.
+
+**Aileye etkisi:** detay ailesi (sabit 384) artık **3 sayfa** —
+`destek-talebi-detay-v1` · `fit-testi-detay-v1` · `video-seans-detay-v1`;
+üçünün de yayılımı **0 px**. Liste ailesi **47 sayfa**, yayılım **0 px**.
+
+**Beyar'a bildirilecek:** bu, "sabit yüksekliklere dokunma" talimatının bir
+istisnası. Sabit değer (384) değişmedi; bir sayfa aileden çıkarıldı.
+
+**Geri almak için:** `fit-shell.css` → `body[data-fit-hero-kind="detay"] .cp-top`
+kuralına `height:var(--hero-h-detail)` geri konur (kart yeniden kırpılır).

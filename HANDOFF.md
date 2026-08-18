@@ -1,10 +1,38 @@
 # DEVİR NOTU — REVİZE TURU 3
 
-**Tarih:** 18.08.2026 · **Taban commit:** `9f9c8b7` · **Son commit:** `74ee4ec`
-**Plan dosyası:** `REVIZE-PLAN-3.md` · **Kararlar:** `KARARLAR.md` (K13–K19)
-**Bu turda 13 commit atıldı, HİÇBİRİ PUSH EDİLMEDİ.**
+**Tarih:** 18.08.2026 · **Taban commit:** `9f9c8b7` · **Son commit:** `0c70bf8`
+**Plan dosyası:** `REVIZE-PLAN-3.md` · **Kararlar:** `KARARLAR.md` (K13–K20)
+
+## ÖZET SATIRI — kapanış durumu
+
+| | Sonuç |
+|---|---|
+| **Canlı doğrulama** (`https://gaviaworks-dev.github.io/dadafit-prototip`) | **60/60 sayfa HTTP 200** · **0 kırık bağlantı** · **0 kırık çapa** · 3.575 bağlantı tarandı · 4xx alt kaynak **0** · konsol hatası **0** |
+| **Yerel kalite kapısı** (`tools/page-check.mjs`) | dokunulan sayfalarda 1440 ve 390'da **temiz** |
+| **Working tree** | **temiz** (`git status --short` boş) |
+| **Push** | ✅ **tamam** — `9f9c8b7..0c70bf8`, `main...origin/main` ahead **0** |
+| **Kabul listesi** | Beyar'ın 3. tur kabul listesi baştan sona ölçüldü → **kırmızı yok** (ayrıntı §1b) |
+
+## EKİP DURUMU
+
+Bu oturumda **beş doğrulama alt ajanı** açıldı; hepsi işini bitirdi ve **boşta**:
+
+| Ajan | Faz | Rapor metni | Not |
+|---|---|---|---|
+| `dogrula-A` | A | ❌ gelmedi | ham çıktı `scratchpad/verify-A/` |
+| `dogrula-B` | B | ❌ gelmedi | ham çıktı `scratchpad/verify-B/` — kaydırılmış sekme senaryosunu araştırmış, ana oturumda koşturuldu |
+| `dogrula-C` | C | ✅ **geldi** | tek bağımsız doğrulama; bir kırmızı buldurdu (düzeltildi) |
+| `dogrula-D` | D | ❌ gelmedi | ham çıktı `scratchpad/verify-D/` |
+| `dogrula-E` | E | ❌ gelmedi | ham çıktı `scratchpad/verify-E/` |
+
+> **Sonraki oturum için:** bu ajanlar bu oturuma aitti, **yeniden açma**.
+> Faz A · B · D · E · F · G için doğrulamayı **sıfırdan** koştur ve brief'e
+> mutlaka *"raporu MESAJLA gönder, dosyaya yazma"* yaz (bkz. §1c).
+> Ham çıktıları scratchpad'de; scratchpad **oturuma özel**, kalıcı değil —
+> gerekiyorsa ölçüm script'lerini yeniden yaz.
 
 ---
+
 
 ## 1 · Fazların durumu
 

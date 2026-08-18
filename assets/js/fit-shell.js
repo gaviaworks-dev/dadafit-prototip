@@ -783,7 +783,9 @@ if(_plan){
    '<section class="lib-top fp-top">\n'+
    '  <div class="wrap">\n'+
    '    <nav class="lib-crumb" aria-label="Sayfa yolu">\n'+
-   '      <a href="dadafit-hub-v1.html"><i class="fa-solid fa-house"></i> DadaFit</a>\n'+
+   '      <a href="dadafit-hub-v1.html" class="crumb-home">'+
+   '<i class="fa-solid fa-house" aria-hidden="true"></i>'+
+   '<span class="sr-only">DadaFit ana sayfa</span></a>\n'+
    '      <i class="fa-solid fa-chevron-right"></i>\n'+
    '      <a href="fit-planim-v1.html">Fit Planım</a>\n'+
    '      <i class="fa-solid fa-chevron-right"></i>\n'+

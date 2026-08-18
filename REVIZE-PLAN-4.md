@@ -297,6 +297,63 @@ da eklendi (K22).
 | `egzersiz-detay-v1` `page-check` | 1440 ve 390 **temiz** ✅ |
 
 # R3 — BREADCRUMB ANA SAYFA İKONU
+
+**Beyar:** *"Banner'ın breadcrumb'ındaki ana sayfa logosu. DadaFit zaten ana
+sayfa, ana sayfa logo şeklinde olacak. Kardeş markalarda ana sayfa ikonları daha
+kompakt. Büyük yapma ve DadaFit'i ayrıca yazma, sadece ikon olacak orada."*
+
+## R3.1 · Uygulama
+
+Kırıntının ilk kalemi artık **yalnız ikon**; metin ekran okuyucuya bırakıldı:
+
+```html
+<a href="dadafit-hub-v1.html" class="crumb-home">
+  <i class="fa-solid fa-house" aria-hidden="true"></i>
+  <span class="sr-only">DadaFit ana sayfa</span>
+</a>
+```
+
+| Kaynak | Kalem | Nasıl |
+|---|---|---|
+| 44 HTML dosyası | 44 kırıntı bağı | dört yazım varyantı tek kalıba çevrildi (`DadaFit` · `DadaFit Ana Sayfa` · ikisinin `aria-hidden`lı hâlleri) |
+| `assets/js/fit-shell.js` | Fit Planım kabuğunun **ürettiği** kırıntı | 13 sayfayı birden besliyor (`fit-planim-*` + 4 Enerji Defteri) — HTML taramasında görünmüyordu |
+| `profil-v1.html` | `.pf-crumb` | ikonu **hiç yoktu**, düz metindi; ikon eklendi |
+| `assets/css/fit-shell.css` | boyut + renk tek kaynağa | aşağıda |
+
+## R3.2 · ÖLÇÜM
+
+| Ölçüm | Sonuç |
+|---|---|
+| Kırıntısı olan sayfa | **59** (`index.html`'de kırıntı yok) |
+| İlk kalemde **metin düğümü** kalan sayfa | **0** — DOM'dan `childNodes` süzülerek sayıldı ✅ |
+| Erişilebilir ad var mı | **58/58** sayfada `"DadaFit ana sayfa"` ✅ |
+| `.sr-only` gerçekten görünmez mi | kutu ölçüsü **1 × 1 px** (58/58) ✅ |
+| Bağın toplam genişliği | **14.6 px** = ikonun kendisi (metin genişlik katmıyor) ✅ |
+| İkon yüksekliği ↔ satır yüksekliği | **13 px ≤ 19.4 px** — 58/58 sayfa ✅ |
+| İkon boyutu tekil değer | **13 px** (58/58) |
+| İkon rengi tekil değer | **2 değer, ikisi de kasıtlı:** koyu banner'da `rgb(52,196,126)` (56 sayfa) · açık zeminde `rgb(0,122,61)` (2 sayfa) |
+| Kontrast | koyu banner **7.82:1** · `profil-v1` **5.45:1** · `giris-v1` **5.18:1** — üçü de AA üstü ✅ |
+| `page-check` | 7 sayfa × 2 genişlik = **14/14 temiz** ✅ |
+
+> **BEKLENMEDİK BULGU B4 — kırıntı ikonu beş farklı boyut ve beş farklı renkteymiş.**
+> Ölçüm öncesi: boyut `.lib-crumb` **13 px** · `.cp-crumb` **12 px** ·
+> `.ed-crumb` **12.5 px** · `.rd-crumb`/`.kp-crumb` **9 px`.
+> Renk: `rgba(255,255,255,.72)` · `rgb(52,196,126)` · `rgb(199,199,199)` ·
+> `rgba(255,255,255,.34)` · `rgb(169,205,185)`.
+> En kötüsü `antrenor-ol-v1`: **%34 alfa beyaz**, koyu banner üzerinde ve metin
+> kalkınca sayfadaki **tek** ana sayfa bağı. İkisi de kabukta tek kaynağa çekildi.
+
+**İstisna — `dadafit-hub-v1` (1 sayfa):** kırıntısının ilk kalemi
+`Dada Gastro › DadaFit`, yani **kardeş marka portalı**, DadaFit ana sayfası değil
+(sayfanın kendisi DadaFit ana sayfası). Ev ikonuna çevrilmesi yanlış olurdu;
+bilerek dokunulmadı.
+
+**Kalıntı taraması (3 varyant, eşleşmeler gözle doğrulandı):**
+`fa-house` + metin → 12 eşleşme, **hepsi filtre çipi** ("Evde Antrenman" ·
+"Ekipmansız") · `dadafit-hub-v1.html` bağı + metin → 2 eşleşme, **ikisi de gövde
+düğmesi** ("Ana Sayfaya Dön") · kırıntı içinde düz `DadaFit` metni → **0**.
+
+**Ekran görüntüsü:** `scratchpad/shots/r3-*.png` (5 sayfa, kırıntı kırpması)
 # R4 — FİLTRE KARTI REFERANSA HİZALANSIN
 # R5 — HER EKSENDE ARAMA
 # R6 — DROPDOWN YÖNÜ

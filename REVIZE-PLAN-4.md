@@ -782,30 +782,60 @@ Ayrıca her ajana: dosya değiştirme/commit yasağı · 1440 ve 390'da ayrı ö
 hiç rapordan iyidir" · 27. dakikada "SON ÇAĞRI, başka ölçüm yapma, elindekiyle
 bitir".
 
-## R10.2 · SONUÇ — altı fazın altısı da SARI
+## R10.2 · SONUÇ — iki faz YEŞİL, dört faz SARI
+
+> **DÜZELTME — ilk kapanıştan sonra iki rapor GELDİ.** Bu bölüm 30 dakikalık
+> beklemenin sonunda "altısı da sarı" diye kapatılmıştı. Kapanıştan sonra
+> `dogrula-A4` ve `dogrula-E4` tam rapor metinlerini gönderdi. Diğer dördü
+> (B · D · F · G) "boşta" bildirimiyle döndü; B · D · G'de ayrıca
+> **API bağlantı hatası** raporlandı ("Connection lost mid-response").
+> Tablo gelen raporlara göre güncellendi.
 
 | Faz | Ajan | Ajan çalıştı mı | Ölçüm üretti mi | **Rapor METNİ geldi mi** | **Renk** |
 |---|---|---|---|---|---|
-| **A** — Antrenör kartları | `dogrula-A4` | ✅ evet | ✅ **29 dosya** | ❌ **hayır** | 🟡 **SARI** |
-| **B** — Sekme bileşeni | `dogrula-B4` | ✅ evet | ⚠️ dosya bırakmadı | ❌ **hayır** | 🟡 **SARI** |
-| **D** — Global temizlik + banner | `dogrula-D4` | ✅ evet | ✅ **27 dosya** | ❌ **hayır** | 🟡 **SARI** |
-| **E** — Programlar + video + sihirbaz | `dogrula-E4` | ✅ evet | ✅ **35 dosya** | ❌ **hayır** | 🟡 **SARI** |
-| **F** — Challenge | `dogrula-F4` | ✅ evet | ✅ **20 dosya** | ❌ **hayır** | 🟡 **SARI** |
-| **G** — Enerji Defteri | `dogrula-G4` | ✅ evet | ✅ **24 dosya** | ❌ **hayır** | 🟡 **SARI** |
+| **A** — Antrenör kartları | `dogrula-A4` | ✅ evet | ✅ 29 dosya | ✅ **EVET — tam rapor** | 🟢 **YEŞİL** — 8/8 madde bağımsız doğrulandı, **1 kırmızı buldurdu** |
+| **B** — Sekme bileşeni | `dogrula-B4` | ✅ evet | ⚠️ dosya bırakmadı | ❌ hayır (API hatası) | 🟡 **SARI** |
+| **D** — Global temizlik + banner | `dogrula-D4` | ✅ evet | ✅ 27 dosya | ❌ hayır (API hatası) | 🟡 **SARI** |
+| **E** — Programlar + video + sihirbaz | `dogrula-E4` | ✅ evet | ✅ 35 dosya | ✅ **EVET — tam rapor** | 🟢 **YEŞİL** — E1–E8 bağımsız doğrulandı, **2 kırmızı buldurdu** |
+| **F** — Challenge | `dogrula-F4` | ✅ evet | ✅ 20 dosya | ❌ hayır | 🟡 **SARI** |
+| **G** — Enerji Defteri | `dogrula-G4` | ✅ evet | ✅ 24 dosya | ❌ hayır (API hatası) | 🟡 **SARI** |
 
-**Yeşile dönen faz: 0. Sarı kalan faz: 6.**
+**Yeşile dönen faz: 2 (A · E). Sarı kalan faz: 4 (B · D · F · G).**
+
+### Gelen iki raporun buldurduğu üç kırmızı — üçü de DÜZELTİLDİ
+
+| # | Bulgu | Ajan | Doğrulama | Düzeltme |
+|---|---|---|---|---|
+| **K-A1** | **Antrenör kartlarının 5'i YANLIŞ profile gidiyordu.** `data-name="Merve Tan"` olan kart `?slug=burak-demir`'e; Zeynep Arı → Ece Yalçın; Burak Demir → Mert Özkan; Elif Şahin → Deniz Kaya; Naz Erdem → Can Aydın. Detay sayfası slug'ı gerçekten çözüyor, yani kullanıcı **başka birinin profiline düşüyordu.** | `dogrula-A4` | Kaynakta tek tek doğrulandı (`antrenorler-v1.html:544 · 559 · 574 · 589 · 604`) | Dizindeki sekiz antrenörün **dördü** detay haritasında hiç yoktu; haritaya eklendiler ve beş `href` kendi slug'ına döndü. **Ölçüm: 8 kartın 8'i kendi profiline gidiyor, ad eşleşmesi 8/8.** |
+| **K-A2** | **`unvan` ve `fiyat` verisi ölüydü.** Haritada slug başına fiyat (₺380–₺520) ve ünvan vardı ama hiçbir yere bağlanmamıştı: `.cta-price` markup'ta sabit **₺450**, `.cp-spec` sabit "Güç & Kondisyon · Evde Antrenman". Her antrenör aynı fiyatı ve aynı uzmanlığı gösteriyordu. | `dogrula-A4` | `antrenor-detay-v1.html:409` | İkisi de slug'dan geliyor. **Ölçüm: 8 antrenör → 8 farklı fiyat ve 8 farklı uzmanlık satırı.** |
+| **K-E1** | **Yaslanmış metinde "nehir" boşlukları — R9'un ÜRETTİĞİ içerikte.** `fit-type.css` akan metni yaslıyor; K12 uyarı bloklarını istisna tutuyor ama R9'da eklenen `.wz-risk p` ve `.wz-how-note` listede yoktu. Range API ölçümü @390: `.lib-sub` 5.6 → **20.1 px** (3.6×), `.wz-risk p` 3.4 → **15.8 px** (4.6×), `.ft-lead` 3.8 → 11.8 px. En kötüsü: risk uyarısının kalın cümlesi tek satırda üç kelimeye düşüyor — yani ekranda **en net kalması gereken güvenlik mesajı** bozuluyordu. Ayrıca `.lib-sub` iki satıra kırpılı (D3), yaslama + üç nokta üst üste biniyordu. | `dogrula-E4` | `assets/css/fit-type.css:77` | İstisna listesine `.wz-risk` · `.wz-how` · `.wz-how-note` · `.wz-why` · `.lib-sub` · `.fs-lead` · `.ft-lead` · `.cp-spec` eklendi. **Ölçüm: beşinde de `text-align:left`.** |
+
+### İki raporun açtığı, KARAR BEKLEYEN noktalar
+
+| # | Not | Kaynak |
+|---|---|---|
+| **N1** | Ray'da gizlenen etiketler **ekran okuyucudan da** kayboluyor (`display:none` + rozet `aria-hidden`), ama `fit-shell.js`'teki yorum bunun **aksini** söylüyor ("bilgi kaybı yok"). Görsel davranış doğru, **yorum yanlış**. Etiketleri `.sr-only` ile duyurmak mı, yorumu düzeltmek mi? | A4 |
+| **N2** | Video kartlarında **Pro/Ücretsiz rozeti** duruyor (4 karttan 1'i Pro) ama E1'de "Erişim" filtre ekseni kaldırıldı. Kullanıcı farkı **görüyor ama süzemiyor**. (Beyar'ın **S1** sorusuyla aynı aile.) | E4 |
+| **N3** | Sihirbazda **yanıt zorunluluğu yok**: "Devam" boş geçiyor, varsayılanlar kullanılıyor. Altı soru da boş bırakılırsa "Seçimlerin" bloğu hiç basılmıyor. | E4 |
+| **N4** | Sayfada 3 `[data-fit-wizard]` tetikleyicisi var (menü · drawer · banner), `aria-expanded` yalnız banner düğmesinde. | E4 |
+| **N5** | `egzersiz-kutuphane-v1` iki farklı etiketle anılıyor: üst şeritte "140+ hareket", menüde "DadaFit Egzersizleri". (**S2/S3** ile aynı kök.) | E4 |
+| **N6** | CTA yüksekliği **42.92 px**, 44 px dokunma hedefinin 1.08 px altında. Pratikte tıklanabilir alan kartın tamamı. | A4 |
+| **N7** | Etiket rayında rozetten sonra **87 px'e varan boş kuyruk** (Selin 150.3/237.3 dolu, Derya 229.9). Algoritma doğru, ama yan yana bakınca kenar düzensiz. Bilinçli mi? | A4 |
 
 **Ham çıktılar OKUNMADI.** Kural bunu açıkça yasaklıyor: *"ham çıktısını ana
 oturumda okuyup yeşile çevirme."* `scratchpad/verify*/` altındaki 135 dosya
 **yorumlanmadan** bırakıldı — ölçen ile yorumlayanın aynı taraf olması
 doğrulamanın işlevini yok eder (K19).
 
-> **BEKLENMEDİK BULGU B9 — doğrulama kanalı iki tur üst üste çalışmadı.**
-> 3. turda beş ajandan **biri** rapor döndürmüştü (`dogrula-C`, ve tam da o
-> gerçek bir kusur buldurmuştu). 4. turda brief'e talimat **açıkça** yazıldığı,
-> üç kez çağrı yapıldığı ve 30 dakika beklendiği hâlde **altıdan sıfırı**
-> döndürdü. Ajanlar ölçümü yaptı (135 ölçüm dosyası), raporu iletmedi.
-> **Bu bir yöntem sorunu, bir ölçüm sorunu değil** — karar `KARARLAR.md` **K27**.
+> **BEKLENMEDİK BULGU B9 — doğrulama kanalı GECİKMELİ ve GÜVENİLMEZ.**
+> 3. turda 5 ajandan **1**'i, 4. turda 6 ajandan **2**'si rapor döndürdü — ve
+> ikisi de **30 dakikalık beklemeden ve fazın sarı kapatılmasından SONRA**.
+> Dört ajanın üçünde **API bağlantı hatası** raporlandı
+> ("Connection lost mid-response"), yani kayıp teknik.
+> **Kanalın değeri yine kanıtlandı:** gelen iki rapor **üç gerçek kırmızı**
+> buldurdu; en ağırı, kullanıcıyı **başka bir antrenörün profiline** götüren
+> beş kart. Ana oturumun hiçbir ölçümü bunu yakalamamıştı — çünkü bağlantılar
+> **kırık değildi**, yanlış hedefe gidiyordu (HTTP 200). Karar: `KARARLAR.md` **K27**.
 
 ## R10.3 · Bu turda GERÇEKTEN doğrulanmış olan ne
 
@@ -829,12 +859,13 @@ bulmuştu (24 çipte `aria-pressed` çakışması), çünkü ana oturum **yanlı
 
 | | 3. tur sonu | **4. tur sonu** |
 |---|---|---|
-| Bağımsız raporla doğrulanmış faz | **1** (C) | **1** (C — değişmedi) |
-| Sarı faz | 4 (A · B · D · E) | **6** (A · B · D · E · F · G) |
-| Hiç doğrulanmamış faz | 2 (F · G) | **0** — ikisi de artık ölçüldü ama raporsuz, yani sarı |
+| Bağımsız raporla doğrulanmış faz | **1** (C) | **3** (C · **A** · **E**) |
+| Sarı faz | 4 (A · B · D · E) | **4** (B · D · F · G) |
+| Hiç doğrulanmamış faz | 2 (F · G) | **0** — ikisi de ölçüldü, raporsuz kaldı |
 
-**Borç kapanmadı.** F ve G "beyaz"dan "sarı"ya geçti (ajan çalıştı, ölçüm üretti),
-ama hiçbir faz yeşile dönmedi.
+**Borç yarı yarıya kapandı.** A ve E bağımsız raporla **yeşile** döndü ve üç
+gerçek kırmızı buldurdu (üçü de aynı turda düzeltildi). B · D · F · G ölçüldü
+ama rapor gelmedi — **sarı**. Ham çıktıları okunmadı.
 # H0 — YENİ MODÜLLER İÇİN KONSEPT ÖNERİSİ (uygulama yok)
 
 ---

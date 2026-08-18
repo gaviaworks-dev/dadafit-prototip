@@ -745,11 +745,27 @@ html,body{overflow-x:clip}
     'deniz-kaya' :{ad:'Deniz Kaya',   unvan:'Kadın sağlığı ve hareket',           fiyat:'₺470'},
     'derya-yildiz':{ad:'Derya Yıldız',unvan:'Mobilite ve postür',                 fiyat:'₺430'},
     'ayse-kaplan':{ad:'Ayşe Kaplan',  unvan:'Yeni başlayan ve kilo yönetimi',     fiyat:'₺390'},
-    'can-aydin'  :{ad:'Can Aydın',    unvan:'Salon ve kondisyon',                 fiyat:'₺500'}
+    'can-aydin'  :{ad:'Can Aydın',    unvan:'Salon ve kondisyon',                 fiyat:'₺500'},
+    /* R10 · dogrula-A4'ün bulduğu kırmızı: dizindeki sekiz antrenörün DÖRDÜ
+       bu haritada yoktu (Merve Tan · Zeynep Arı · Elif Şahin · Naz Erdem) ve
+       kartlarının href'i başka birinin slug'ına gidiyordu — kadın antrenörün
+       kartına tıklayan erkek antrenörün profiline düşüyordu. Ünvanlar
+       uydurulmadı, her kartın KENDİ görünen uzmanlık satırından alındı. */
+    'merve-tan'  :{ad:'Merve Tan',    unvan:'Güç, kondisyon ve kilo yönetimi',    fiyat:'₺460'},
+    'zeynep-ari' :{ad:'Zeynep Arı',   unvan:'Koşu, dayanıklılık ve başlangıç',    fiyat:'₺410'},
+    'elif-sahin' :{ad:'Elif Şahin',   unvan:'Mobilite, pilates ve esneklik',      fiyat:'₺440'},
+    'naz-erdem'  :{ad:'Naz Erdem',    unvan:'Evde antrenman ve başlangıç',        fiyat:'₺370'}
   };
   var slug = new URLSearchParams(location.search).get('slug') || 'selin-aksoy';
   var A = VERI[slug] || VERI['selin-aksoy'];
   document.querySelectorAll('[data-at="ad"]').forEach(function(el){ el.textContent = A.ad; });
+  /* dogrula-A4 bulgusu: `unvan` ve `fiyat` haritada VARDI ama hiçbir yere
+     bağlanmamıştı — her antrenör aynı ₺450'yi ve aynı uzmanlık satırını
+     gösteriyordu. İkisi de artık slug'dan geliyor. */
+  var specEl = document.querySelector('.cp-spec');
+  if(specEl) specEl.textContent = A.unvan;
+  var priceEl = document.querySelector('.cta-price b');
+  if(priceEl) priceEl.textContent = A.fiyat;
   document.title = A.ad + ' — DadaFit Onaylı Antrenör | DadaFit';
 
   /* randevu onayı → Fit Planım > Randevularım (belge §11 adım 5–6) */

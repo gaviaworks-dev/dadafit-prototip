@@ -891,3 +891,59 @@ bakar ve şemayla raporlar.
 
 **Yürürlükteki durum:** Faz **A · B · D · E · F · G** → **SARI**.
 Bağımsız raporla yeşil olan tek faz hâlâ **C** (3. turdan).
+
+---
+
+## K28 · Antrenör dizini ile detay haritası ayrışmıştı — beş kart yanlış profile gidiyordu
+
+**Bulan:** `dogrula-A4` (Faz A bağımsız doğrulaması, 4. tur R10). Ana oturumun
+hiçbir ölçümü bunu yakalamamıştı.
+
+**Bulgu:** `antrenorler-v1.html` sekiz antrenör kartı gösteriyor; beşinin
+`href` slug'ı **başka bir antrenöre** ait:
+
+| Kartta yazan | Gittiği slug | Detayda açılan |
+|---|---|---|
+| Merve Tan | `burak-demir` | Burak Demir |
+| Zeynep Arı | `ece-yalcin` | Ece Yalçın |
+| Burak Demir | `mert-ozkan` | Mert Özkan |
+| Elif Şahin | `deniz-kaya` | Deniz Kaya |
+| Naz Erdem | `can-aydin` | Can Aydın |
+
+**Neden hiçbir tarama görmedi:** bağlantılar **kırık değil**. Hepsi HTTP 200
+dönüyor ve `antrenor-detay-v1.html` slug'ı gerçekten çözüp adı değiştiriyor
+(`[data-at="ad"]`). Yani hata sessizce yutulmuyor — kullanıcı **başka birinin
+profilini** görüyor. Kırık bağlantı taraması, çapa taraması, konsol taraması,
+`page-check`: hiçbiri bu sınıf hatayı göremez. Görebilecek tek şey, **kartın
+adı ile detayın adını karşılaştıran** bir ölçümdü; onu bağımsız ajan yazdı.
+
+**Kök neden:** iki dosya farklı isim kümeleriyle yazılmış. Dizinde **Merve Tan ·
+Zeynep Arı · Elif Şahin · Naz Erdem** var, detay haritasında yok; haritada
+**Ece Yalçın · Mert Özkan · Deniz Kaya · Can Aydın** var, dizinde yok. Ortada
+kalan tek ad Burak Demir ve onun kartı bile başkasına gidiyordu — yani `href`'ler
+sıraya göre elle yazılmış.
+
+**Seçilen:** dizin **kaynak** kabul edildi; eksik dört antrenör detay haritasına
+eklendi ve beş `href` kendi slug'ına döndü.
+
+**Gerekçe:** dizin sayfası Beyar'ın üç tur boyunca gördüğü ve kabul ettiği
+içerik; kartların adını değiştirmek görünen ürünü değiştirmek olurdu. Ünvanlar
+**uydurulmadı** — her kartın kendi görünen uzmanlık satırından alındı
+(ör. "Güç & Kondisyon · Kilo Yönetimi" → "Güç, kondisyon ve kilo yönetimi").
+
+**Yan bulgu (aynı ajan) — ölü veri:** haritada slug başına `fiyat` (₺380–₺520)
+ve `unvan` vardı ama hiçbirine bağlanmamıştı. `.cta-price` markup'ta sabit
+**₺450**, `.cp-spec` sabit "Güç & Kondisyon · Evde Antrenman". Yani sekiz
+antrenörün sekizi de aynı fiyatı ve aynı uzmanlığı gösteriyordu. İkisi de
+slug'a bağlandı.
+
+**Ölçüm (sonrası):** 8 kart × detay turu → **ad eşleşmesi 8/8** · 8 farklı fiyat ·
+8 farklı uzmanlık satırı · hepsi HTTP 200 · tam site taraması **60/60 · 6.455
+bağlantı · 0 kırık**.
+
+**DERS (kalıcı kural adayı):** "kırık bağlantı yok" ile "bağlantı doğru yere
+gidiyor" aynı şey değil. Slug taşıyan her listede, **listedeki ad ile hedefteki
+adın eşleştiği** ayrıca ölçülmeli.
+
+**Geri almak için:** `antrenorler-v1.html` beş `href` + `antrenor-detay-v1.html`
+`VERI` haritasındaki dört yeni kayıt ve `.cp-spec` / `.cta-price` bağlamaları.

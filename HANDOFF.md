@@ -1,7 +1,7 @@
 # DEVİR NOTU — REVİZE TURU 4
 
 **Tarih:** 19.08.2026 · **Taban commit:** `a0c2afc` · **Plan:** `REVIZE-PLAN-4.md`
-**Kararlar:** `KARARLAR.md` (bu turda **K21–K26**) · **Konsept:** `tasks/H0-YENI-MODUL-KONSEPT.md`
+**Kararlar:** `KARARLAR.md` (bu turda **K21–K28**) · **Konsept:** `tasks/H0-YENI-MODUL-KONSEPT.md`
 
 ---
 
@@ -36,40 +36,55 @@
 | **R7** | Çip radius'u | ✅ | Seçili etiket çipi 999 px → **12 px**; ölçek içi literal **29 → 0** |
 | **R8** | Dikey tutarsızlık | ✅ | Bölüm dolgusunda tekil değer **26 → 3**; ikiden fazla değeri olan sayfa **29 → 0** |
 | **R9** | Açık kalan kontroller | ✅ | a) adlandırma kesinleşti (K25) · b) sihirbaza iki blok eklendi (K26) · c) şerit görsel doğrulandı |
-| **R10** | Doğrulama borcu | 🟡 | Altı ajan koştu, ölçüm üretti, **rapor metni döndürmedi** → altı faz da **SARI** (§2) |
+| **R10** | Doğrulama borcu | 🟢🟡 | Altı ajan koştu; **A ve E tam rapor döndürdü → YEŞİL** ve **üç gerçek kırmızı buldurdular** (üçü de düzeltildi). B · D · F · G raporsuz → **SARI** (§2) |
 | **H0** | Yeni modül konsepti | ✅ | `tasks/H0-YENI-MODUL-KONSEPT.md` — şema · sayfa yapısı · bağ şeması · 8 soru |
 
 ---
 
-## 2 · DOĞRULAMA DURUMU (R10) — **ALTI FAZIN ALTISI DA SARI**
+## 2 · DOĞRULAMA DURUMU (R10) — **2 YEŞİL · 4 SARI**
 
 Altı bağımsız ajan açıldı, brief'te talimat açıkça yazıldı
-(*"raporunu MESAJLA gönder, dosyaya YAZMA"*), **üç ayrı çağrı** yapıldı ve
-**30 dakika** beklendi.
+(*"raporunu MESAJLA gönder, dosyaya YAZMA"*), üç ayrı çağrı yapıldı.
+**İki ajan tam rapor döndürdü — ama 30 dakikalık beklemeden ve fazın sarı
+kapatılmasından SONRA.** Diğer dördünün üçünde **API bağlantı hatası**
+raporlandı ("Connection lost mid-response").
 
-| Faz | Ajan | Çalıştı | Ölçüm üretti | **Rapor metni** | Renk |
+| Faz | Ajan | Çalıştı | Ölçüm | **Rapor metni** | Renk |
 |---|---|---|---|---|---|
-| A | `dogrula-A4` | ✅ | 29 dosya | ❌ | 🟡 **SARI** |
-| B | `dogrula-B4` | ✅ | — | ❌ | 🟡 **SARI** |
-| D | `dogrula-D4` | ✅ | 27 dosya | ❌ | 🟡 **SARI** |
-| E | `dogrula-E4` | ✅ | 35 dosya | ❌ | 🟡 **SARI** |
+| **A** | `dogrula-A4` | ✅ | 29 dosya | ✅ **tam rapor** | 🟢 **YEŞİL** — 8/8 madde, **1 kırmızı buldurdu** |
+| B | `dogrula-B4` | ✅ | — | ❌ (API hatası) | 🟡 **SARI** |
+| D | `dogrula-D4` | ✅ | 27 dosya | ❌ (API hatası) | 🟡 **SARI** |
+| **E** | `dogrula-E4` | ✅ | 35 dosya | ✅ **tam rapor** | 🟢 **YEŞİL** — E1–E8, **2 kırmızı buldurdu** |
 | F | `dogrula-F4` | ✅ | 20 dosya | ❌ | 🟡 **SARI** |
-| G | `dogrula-G4` | ✅ | 24 dosya | ❌ | 🟡 **SARI** |
+| G | `dogrula-G4` | ✅ | 24 dosya | ❌ (API hatası) | 🟡 **SARI** |
 
-**Yeşile dönen faz: 0.** Bağımsız raporla yeşil olan tek faz hâlâ **C**
-(3. turdan). F ve G "beyaz"dan "sarı"ya geçti — ajan çalıştı ve ölçüm üretti,
-ama rapor gelmedi.
+**Yeşil: 3 faz (C — 3. turdan · A · E). Sarı: 4 faz (B · D · F · G).**
+B · D · F · G'nin ham çıktıları **OKUNMADI** — kural bunu açıkça yasaklıyor (K19).
 
-**Ham çıktılar OKUNMADI.** `scratchpad/verify*/` altındaki 135 dosya
-yorumlanmadan bırakıldı; kural bunu açıkça yasaklıyor (K19). "Ajan zaten
-ölçmüş, ben okuyup yeşile çevireyim" **yapılmadı**.
+### Gelen raporların buldurduğu ÜÇ KIRMIZI — üçü de bu turda düzeltildi
 
-> **B9 — doğrulama kanalı iki tur üst üste çalışmadı.** 3. turda 5 ajandan
-> **1**'i, 4. turda 6 ajandan **0**'ı rapor döndürdü. Ajanlar işi yaptı
-> (135 ölçüm dosyası); kırılan şey **iletim**. Bu bir yöntem sorunu.
-> `KARARLAR.md` **K27** üç seçenek sunuyor ve **(3)+(1)**'i öneriyor:
-> kabul ölçütlerini `tests/*.mjs` süitine çevir + ajandan yapılandırılmış
-> çıktı zorunlu kıl. **Beyar seçmeli.**
+| # | Bulgu | Düzeltme + ölçüm |
+|---|---|---|
+| **K-A1** | **Antrenör kartlarının 5'i YANLIŞ profile gidiyordu.** Merve Tan → `?slug=burak-demir`, Zeynep Arı → Ece Yalçın, Burak Demir → Mert Özkan, Elif Şahin → Deniz Kaya, Naz Erdem → Can Aydın. Detay sayfası slug'ı gerçekten çözüyor: kullanıcı **başka birinin profiline düşüyordu.** Bağlantılar **kırık değildi** (HTTP 200) — bu yüzden hiçbir tarama yakalamamıştı. | Dizindeki sekiz antrenörün **dördü** detay haritasında hiç yoktu; eklendiler, beş `href` kendi slug'ına döndü. **8 kartın 8'i kendi profiline gidiyor, ad eşleşmesi 8/8.** |
+| **K-A2** | **`unvan` ve `fiyat` verisi ölüydü.** Haritada slug başına fiyat (₺380–₺520) vardı ama `.cta-price` markup'ta sabit **₺450**, `.cp-spec` sabit tek satır. Her antrenör aynı fiyatı gösteriyordu. | İkisi de slug'dan geliyor. **8 antrenör → 8 farklı fiyat, 8 farklı uzmanlık satırı.** |
+| **K-E1** | **Yaslanmış metinde "nehir" boşlukları — R9'un ÜRETTİĞİ içerikte.** K12 uyarı bloklarını istisna tutuyor ama R9'da eklenen `.wz-risk p` / `.wz-how-note` listede yoktu. @390 Range ölçümü: `.lib-sub` 5.6 → **20.1 px** (3.6×), `.wz-risk p` 3.4 → **15.8 px** (4.6×). Risk uyarısının kalın cümlesi tek satırda üç kelimeye düşüyordu — **en net kalması gereken güvenlik mesajı.** | İstisna listesine `.wz-risk` · `.wz-how` · `.wz-how-note` · `.wz-why` · `.lib-sub` · `.fs-lead` · `.ft-lead` · `.cp-spec` eklendi. **Beşinde de `text-align:left`.** |
+
+### Raporların açtığı, KARAR BEKLEYEN yedi not
+`REVIZE-PLAN-4.md` R10.2 → N1–N7. Özet: gizlenen etiketler ekran okuyucudan da
+kayboluyor ama koddaki yorum aksini söylüyor (N1) · video kartlarında Pro rozeti
+duruyor ama filtre ekseni yok (N2) · sihirbazda yanıt zorunluluğu yok (N3) ·
+üç tetikleyiciden yalnız birinde `aria-expanded` (N4) · kütüphane iki farklı
+etiketle anılıyor (N5) · CTA 42.92 px, 44 px eşiğinin altında (N6) · etiket
+rayında 87 px'e varan boş kuyruk (N7).
+
+> **B9 — doğrulama kanalı gecikmeli ve güvenilmez, AMA değerini kanıtladı.**
+> 3. turda 5 ajandan 1'i, 4. turda 6 ajandan 2'si rapor döndürdü; ikisi de
+> faz sarı kapatıldıktan sonra. Dört kayıptan üçü **API bağlantı hatası**.
+> Buna karşılık gelen iki rapor **üç gerçek kırmızı** buldurdu — biri
+> kullanıcıyı yanlış antrenörün profiline götürüyordu ve ana oturumun
+> hiçbir ölçümü onu görmemişti. `KARARLAR.md` **K27**: kabul ölçütlerini
+> `tests/*.mjs` süitine çevir + ajandan yapılandırılmış çıktı zorunlu kıl.
+> **Beyar seçmeli.**
 
 ---
 

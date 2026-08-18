@@ -459,3 +459,54 @@ Programlar'ın altında olmadığı için ara basamak kaldırıldı:
 `DadaFit › Challenge Merkezi › <challenge adı>`.
 
 **Geri almak için:** `assets/js/fit-shell.js` → `NAV[challenge]`.
+
+---
+
+## K18 · Enerji Defteri profile taşındı ve dört sayfaya bölündü
+
+**Talimat iki parçaydı:** G1 *"Enerji defterini profile koyabilirsin"* ve
+G2 *"1 page olmayacak burası, ayrı ayrı sayfalandırma olacak: Bugün, Plan ve
+Takvim, Aktivite Kayıtlarım, İlerlemem, Kaydettiklerim, Antrenörüm."*
+
+**Belirsizlik — ölçümle ortaya çıktı:** G2'de sayılan **altı ad, Enerji
+Defteri'nin bölümleri DEĞİL**; birebir Fit Planım sekme rayının altı kalemi ve
+o altı sayfa **zaten ayrı HTML dosyası olarak vardı** (`fit-planim-v1` ·
+`fit-planim-programim-v1` · `fit-planim-gecmis-v1` · `fit-planim-ilerleme-v1` ·
+`fit-planim-kaydettiklerim-v1` · `fit-planim-randevular-v1` — altısı da diskte).
+Yani "ayrı sayfa yap" isteğinin o altısı için karşılığı yoktu; Enerji Defteri
+ise gerçekten **tek uzun sayfaydı** (911 satır, yedi modül).
+
+**Seçilen — iki okumayı da karşıla:**
+
+1. **G1:** `defter` kalemi üst menüden çıktı. Erişim üç kapıya taşındı ve
+   hiçbiri kırılmadı: Fit Planım sekme rayı · hesap (profil) menüsü · footer.
+   Alt kalemleri de sahiplerine gitti (Aktivite Günlüğü ve Bağlı Uygulamalar
+   Planım kabuğuna). **Ölçüm:** üst nav artık `Hareket · Programlar · Challenge ·
+   Antrenörler`; `enerji-defteri-v1.html` **HTTP 200**, ekmek kırıntısı
+   `DadaFit › Fit Planım › Enerji Defteri`.
+2. **G2-a:** Fit Planım rayı B1'in ortak bileşenine geçti (`.pf-tabs/.dt` →
+   `.fit-tabs/.fit-tab`, sayfa geçişi kipi). Altı sekme + Enerji Defteri = yedi.
+3. **G2-b:** Enerji Defteri **dörde bölündü** — `enerji-defteri-v1` (Bugün) ·
+   `-dengele-` · `-su-` · `-haftalik-`. Aralarında yine `.fit-tabs`.
+
+**Eski adres politikası:** `#dengele` / `#su` / `#haftalik` çapaları artık bu
+sayfada yok. Kırık bağlantı üretmemesi için `enerji-defteri-v1` içinde bir
+köprü var: çapa sayfada yoksa yeni sayfaya `location.replace` ile geçilir.
+`#yediklerim` bu sayfada DURDUĞU için yönlendirilmez.
+**Ölçüm:** `#dengele → enerji-defteri-dengele-v1.html` ·
+`#su → enerji-defteri-su-v1.html` · `#haftalik → enerji-defteri-haftalik-v1.html` ·
+`#yediklerim → enerji-defteri-v1.html#yediklerim` (yerinde kaldı).
+
+**Ölçüm (dört sayfa):** hepsi **HTTP 200**; alt sekme şeridi 4 kalem, aktif
+kalem doğru + `aria-current="page"`; üst rayda **"Enerji Defteri"** aktif
+(alt sayfalar üst kalemi işaretliyor — ilk ölçümde rayda hiçbir kalem aktif
+değildi, düzeltildi); `page-check` 1440 ve 390'da **sekiz koşunun sekizi temiz**;
+konsol hatası **0**; yatay taşma yok.
+
+**Beyar'a soru (S3):** G2'nin saydığı altı ad Fit Planım rayının kalemleri;
+onlar zaten ayrı sayfaydı. Enerji Defteri'ni kendi içeriğine göre dörde böldüm.
+Kastettiğin bu değilse — örneğin Enerji Defteri'nin de tam o altı adı taşımasını
+istiyorsan — sayfa adlarını ona göre değiştiririm.
+
+**Geri almak için:** üç yeni dosya silinir, `fit-shell.js` → `PLAN_TABS` /
+`PLAN_EXTRA` / `ACCOUNT_ITEMS` eski hâline döner.

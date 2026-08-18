@@ -769,8 +769,13 @@ if(_plan){
      Sayfa geçişi kipi: kalemler <a>, aktif olan aria-selected="true" +
      aria-current="page" taşır; bileşen JS'i bu kipte panel yönetmez,
      yalnız rolleri kurar (bkz. fit-shell.js → [data-fit-tabs]). */
+  /* Alt sayfalar rayda ÜST kalemini işaretler: defter-su / defter-dengele /
+     defter-haftalik açıkken ray "Enerji Defteri"ni aktif gösterir. Ölçümde
+     bu üç sayfada raydaki hiçbir kalem aktif değildi. */
+  var RAY_UST = {'defter-dengele':'defter','defter-su':'defter','defter-haftalik':'defter'};
+  var rayKey = RAY_UST[pk] || pk;
   var tabs = PLAN_TABS.map(function(it){
-    var on = it.key===pk;
+    var on = it.key===rayKey;
     return '<a class="fit-tab" href="'+it.href+'" aria-selected="'+(on?'true':'false')+'"'+
            (on?' aria-current="page"':'')+'><i class="'+it.icon+'"></i> '+it.label+'</a>';
   }).join('\n        ');

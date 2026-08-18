@@ -8,16 +8,19 @@
 
 ## 1 · Fazların durumu
 
-| Faz | İş | Uygulama | Doğrulama |
-|---|---|---|---|
-| **A** — Antrenör kartları (A1–A6) | ✅ bitti | ölçüldü, geçti | 🟡 **bağımsız değil** |
-| **B** — Sekme bileşeni (B1) | ✅ bitti | ölçüldü, geçti | 🟡 **bağımsız değil** |
-| **C** — Filtre bileşeni (C0–C5) | ✅ bitti | ölçüldü, geçti | 🟢 **bağımsız** — bir kırmızı buldurdu, düzeltildi |
-| **D** — Global temizlik (D1, D2, D3) | ✅ bitti | ölçüldü, geçti | 🟡 **bağımsız değil** |
-| **E** — Programlar + video (E1–E6) | ✅ bitti | ölçüldü, geçti | 🟡 **bağımsız değil** |
-| **F** — Challenge (F1–F3) | ✅ bitti | ölçüldü, geçti | ⚪ **ajan hiç çalışmadı** |
-| **G** — Enerji Defteri (G1, G2) | ✅ **bitti** | ölçüldü, geçti | ⚪ **ajan hiç çalışmadı** |
-| **H** — İçerik ve veri (H1) | ⛔ **başlanmadı** (Beyar'ın talimatı) | — | — |
+| Faz | İş | Uygulama | Kabul listesi | Doğrulama rengi |
+|---|---|---|---|---|
+| **A** — Antrenör kartları (A1–A6) | ✅ bitti | ölçüldü, geçti | **8/8 geçti** | 🟡 **SARI** — bağımsız değil |
+| **B** — Sekme bileşeni (B1) | ✅ bitti | ölçüldü, geçti | **2/2 geçti** | 🟡 **SARI** — bağımsız değil |
+| **C** — Filtre bileşeni (C0–C5) | ✅ bitti | ölçüldü, geçti | **5/5 geçti** | 🟢 **YEŞİL** — tek bağımsız doğrulama; bir kırmızı buldurdu, düzeltildi |
+| **D** — Global temizlik (D1, D2, D3) | ✅ bitti | ölçüldü, geçti | **2/2 geçti** | 🟡 **SARI** — bağımsız değil |
+| **E** — Programlar + video (E1–E6) | ✅ bitti | ölçüldü, geçti | **4/4 + E6 geçti** | 🟡 **SARI** — bağımsız değil |
+| **F** — Challenge (F1–F3) | ✅ bitti | ölçüldü, geçti | **5/5 geçti** | ⚪ **BEYAZ** — ajan hiç çalışmadı |
+| **G** — Enerji Defteri (G1, G2) | ✅ **bitti** | ölçüldü, geçti | **G1 ✅ · G2 açıklandı** | ⚪ **BEYAZ** — ajan hiç çalışmadı |
+| **H** — İçerik ve veri (H1) | ⛔ **başlanmadı** (Beyar'ın talimatı) | — | — | — |
+
+**Renk ne demek:** 🟢 bağımsız ajan rapor METNİ döndürdü · 🟡 ajan koştu ama
+raporu ana oturumda okundu → **bağımsız sayılmaz** · ⚪ ajan **hiç çalıştırılmadı**.
 
 > **ÖNEMLİ — Beyar'ın devir talimatındaki varsayım düzeltmesi:**
 > Talimat "Faz G'ye başlama, altı yeni HTML üretecek" diyordu. **Faz G bu turda
@@ -36,6 +39,96 @@ sayılmaz — bkz. `KARARLAR.md` **K19**.
 
 **Farkın kanıtı:** rapor gönderen tek ajan, benim **temiz** raporladığım bir
 noktada gerçek bir kusur buldu (aşağıda §3).
+
+---
+
+## 1b · 3. TURUN KABUL LİSTESİ — ölçüm sonuçları
+
+Beyar'ın kabul listesi baştan sona tarayıcıda ölçüldü (18.08.2026).
+**Tüm maddeler geçti; kırmızı yok.**
+
+### Antrenörler — 8/8 ✅
+| Madde | Ölçülen |
+|---|---|
+| A1 eşit yükseklik | aynı satırdaki 3 kart tek değer **435 px** (390'da 462) |
+| A2 isimler hizalı | `boundingBox.top` sapması **0 px** (iki satırda da) |
+| A3 tek satır + `+N` | `scrollHeight = clientHeight`, `scrollWidth ≤ clientWidth`; gizlenen/rozet **birebir**: +2 · +2 · +1 · +1 |
+| A4 meta hizalı | sapma **0 px** |
+| A5 fiyat yok | `₺` ve `\bTL\b` araması **0** |
+| A5 tek baskın düğme | `.coach-cta` **237.3 px** = kart iç genişliği **237 px**; kartta başka düğme **0**; kontrast **5.45** |
+| A6 bilgi şeridi | `.fit-note` var, düz paragraf `.dz-vnote` **yok**, kontrast **7.08** |
+| mobil | 390 px'te yatay taşma **yok** |
+
+### Antrenör detay — 2/2 ✅
+- Sekme değişiminde **sayfa zıplamıyor** — **kaydırılmış durumda** ölçüldü (kritik senaryo): `scrollY` dört geçişte de **356**'da sabit, panel kapsayıcısı **top=138**'de sabit.
+- Sekme stili: aktif **dolu hap** `rgb(0,122,61)` + beyaz metin, şerit 12px radius / 4px padding / 4px gap, sekme yükseklikleri tek değer **37 px**.
+- **"DadaGastro referansı doğrulanmadı" notu DÜŞÜLMEDİ — çünkü gerekmedi.** Referansa erişildi ve okundu (dört sayfa, `anasayfa-portal-v3a` HTTP 200). `KARARLAR.md` **K13** bunu "Referans DOĞRULANDI (varsayım değil)" başlığıyla, birebir CSS değer tablosuyla kaydediyor.
+
+### DadaFit Egzersizleri — 5/5 ✅
+| Madde | Ölçülen |
+|---|---|
+| C5 ad | title · h1 · kırıntı hepsi "DadaFit Egzersizleri"; görünen metinde "kütüphane" **0** |
+| C1 taşma | panel sağ/alt kenar viewport içinde, `z-index:60`, `elementFromPoint` panelin içini döndürüyor |
+| C1 URL turu | `?kas=gogus&ekipman=ekipmansiz&sure=5` → yeni sekmede seçimler **birebir geri geldi** |
+| C3 arama | panel açılınca **odak arama alanında**; "dam" → **15 → 1** seçenek |
+| C4 rozet | 12 `.ex-cat` rozeti duruyor; zemin `rgb(0,157,79)`, radius 8px, `position:absolute` **değişmemiş** |
+
+### Global — 2/2 ✅
+- **D1:** 60 sayfa tarayıcıda açıldı → `.demo-tag / .fp-demo / .lg-demo` düğümü **0**, görünen metinde "demo veri / örnek görünüm / örnek metrik" eşleşmesi **0**.
+- **D1 istisna:** "Bu sayfadaki veriler **örnektir**" şeridi Enerji Defteri'nde **duruyor ve görünür**.
+- **Yanlış alarm notu:** ilk taramada `.fc-step` seçicisi fazla genişti; `antrenor-ol`'daki "1 / 4" adım çipleri ve `pro-odeme`'deki "Güvenli" rozeti demo rozeti sanıldı. Doğru seçiciyle **0**.
+
+### Programlar merkezi — 4/4 ✅
+| Madde | Ölçülen |
+|---|---|
+| E1 | `#pro` bölümü **yok**, `.pm-tier*` **0**, "Erişim" filtre ekseni **yok** |
+| E2 | `.pm-cont / .pm-bar / .pm-meta` **0** |
+| E3 | açılıştan **3.2 sn** sonra `.wz-modal` **yok**, `.wz-overlay` **yok**; düğmeye basınca `role="region"`, host içinde, viewport içinde, örtü üretilmiyor |
+| E4 | video bölümü **344 px**'te, program ızgarası **1003 px**'te → ızgaranın **üstünde**; 4 kartın 4'ü de `video-seans-detay-v1.html`'e gidiyor |
+| **E5** | `programlar-merkezi` → **4 kalem, hepsi "Programlar"**; `program-liste` → **2 kalem, hepsi "Tüm Programlar"**. Aynı etiket iki hedefe, aynı hedef iki etikete gitmiyor. **Karışıklık çözüldü: ikisi ayrı şey.** |
+
+### Fit testleri — ✅
+Üç iterasyon `REVIZE-PLAN-3.md`'de tam: **it0** (hiyerarşi zayıf) → **it1** akış rayı →
+**it2** satır ölçüsü **119 → 79** karakter → **it3** mobilde eylem **5656 → 1047 px**.
+Seçim gerekçesi yazılı (**it3**, üçü üst üste biniyor). Ayrıca bir **dürüstlük notu**:
+it2'deki bir iddiam ölçümle kısmen yanlışlandı, düzeltildi.
+
+### Challenge — 5/5 ✅
+Dropdown **yok**, chevron **yok**, tek bağlantı → challenge merkezi.
+`?durum=yaklasan` → **HTTP 200**, kırık sayfa yok, üç durum tek ızgarada rozetli.
+Zaman bileşeni: 1 Ağustos → 30 Ağustos · 30 gün toplam · 12 gün kaldı ·
+"Bugün · 18. gün" · taşma **yok**; katıl düğmesi görünür; geri dönüş `challenge-merkezi-v1.html`.
+
+### Enerji Defteri — ✅
+Üst nav artık **Hareket · Programlar · Challenge · Antrenörler**.
+Eski adres ve çapalar: `enerji-defteri-v1.html` **200** · `#dengele` → Dengele ·
+`#su` → Su Takibi · `#haftalik` → Haftalık Özet · `#yediklerim` **yerinde kaldı**.
+Hepsi 200, kırık yok.
+
+---
+
+## 1c · DOĞRULAMA BORCUNUN TAM KAPSAMI
+
+| Faz | Ajan koştu mu | Rapor metni geldi mi | Sonuç | Borç |
+|---|---|---|---|---|
+| A | ✅ evet (`dogrula-A`) | ❌ hayır — yalnız "boşta" bildirimi | ham çıktı ana oturumda okundu | 🟡 **yeniden koş** |
+| B | ✅ evet (`dogrula-B`) | ❌ hayır | ham çıktı ana oturumda okundu | 🟡 **yeniden koş** |
+| C | ✅ evet (`dogrula-C`) | ✅ **evet** | bir kırmızı buldu → düzeltildi | 🟢 borç yok |
+| D | ✅ evet (`dogrula-D`) | ❌ hayır | ham çıktı ana oturumda okundu | 🟡 **yeniden koş** |
+| E | ✅ evet (`dogrula-E`) | ❌ hayır | ham çıktı ana oturumda okundu | 🟡 **yeniden koş** |
+| F | ❌ **hayır** | — | doğrulanmadı | ⚪ **sıfırdan koş** |
+| G | ❌ **hayır** | — | doğrulanmadı | ⚪ **sıfırdan koş** |
+
+**Neden bu bir borç:** ölçen ile yorumlayan aynı taraf olunca doğrulamanın işlevi
+kaybolur. Kanıt: rapor gönderen **tek** ajan (`dogrula-C`), benim **temiz**
+raporladığım bir noktada gerçek bir kusur buldu — 24 çipte `role="option"` ile
+`aria-pressed` çakışması. Benim ölçümüm temiz çıkmıştı çünkü kabuk özniteliği
+kuruluşta siliyordu; sayfa motoru onu ancak **kullanıcı bir çipe tıkladıktan
+sonra** geri koyuyordu. Yani **yanlış anda ölçmüştüm**.
+
+**Ajan brief'ine mutlaka yaz:** *"Raporu MESAJLA gönder, dosyaya yazma."*
+Ajan metin döndürmüyorsa ham çıktısını ana oturumda okuyup **yeşile çevirme** —
+sarı bırak ve öyle raporla. Ham çıktılar: `scratchpad/verify-A … verify-E/`.
 
 ---
 
@@ -168,6 +261,42 @@ konsol hatası 0 · yatay taşma yok · `index.html` site haritası güncellendi
 
 ---
 
+### Enerji Defteri ≠ Fit Planım rayı — iki KÜME, karıştırılmayacak
+
+Bu ayrım turun en çok karışan noktasıydı; net hâli (karar: `KARARLAR.md` **K20**):
+
+| | **Enerji Defteri kümesi** (4 sayfa) | **Fit Planım rayı kümesi** (6 sayfa) |
+|---|---|---|
+| Ne | Günlük enerji/denge defteri | Kişisel plan alanı |
+| Sayfalar | `enerji-defteri-v1` (**Bugün**) · `enerji-defteri-dengele-v1` (**Dengele**) · `enerji-defteri-su-v1` (**Su Takibi**) · `enerji-defteri-haftalik-v1` (**Haftalık Özet**) | `fit-planim-v1` (**Bugün**) · `-programim-` (**Plan ve Takvim**) · `-gecmis-` (**Aktivite Kayıtlarım**) · `-ilerleme-` (**İlerlemem**) · `-kaydettiklerim-` (**Kaydettiklerim**) · `-randevular-` (**Antrenörüm**) |
+| Ne zaman ayrıldı | **bu turda** (G2) — önce tek 911 satırlık sayfaydı | **bu turdan ÖNCE** zaten ayrı dosyalardı |
+| Sekme şeridi | `.ed-subtabs .fit-tabs` (4 kalem) | `.pf-tabbar .fit-tabs` (**7 kalem** — altısı + Enerji Defteri) |
+| Ölçüm | 4/4 HTTP 200 | 6/6 HTTP 200 |
+
+**Kritik:** iki kümede de "Bugün" adlı bir sayfa var ama **farklı şeyler** —
+biri defterin bugünü, diğeri planın bugünü. Adları birleştirme, kümeleri
+karıştırma. Enerji Defteri'nin alt sayfaları rayda **üst kalemini** işaretler
+(`fit-shell.js` → `RAY_UST` eşlemesi).
+
+### Banner ailelerinin sabit değerleri (D3)
+
+Aile işareti kabuk JS'inde dosya adından türer: `body[data-fit-hero-kind]`
+(`-detay` geçen + dört bilinen detay sayfası → `detay`, geri kalanı → `liste`).
+
+| Aile | ≥901 px | ≤1024 px | ≤640 px | Ölçülen sonuç |
+|---|---|---|---|---|
+| **liste** (`--hero-h-list`) | **344 px** | 296 px | 262 px | **47 sayfanın 47'si 344 px** — yayılım **199 → 0 px** |
+| **detay** (`--hero-h-detail`) | **384 px** | 330 px | 296 px | **4 sayfanın 4'ü 384 px** — yayılım **92 → 0 px** |
+
+- ≥901 px'te `height` (gerçekten sabit), altında `min-height` — dar ekranda aynı
+  içerik 1.3–1.7 kat uzun sarıyor, sabitlemek **metin kırpmak** olurdu.
+- Taşan/kırpılan içerik **0**.
+- `justify-content:safe center` **şart**: düz `center` taşmayı iki yana dağıtıp
+  içeriği şeffaf header'ın altına kaydırıyordu (4 sayfada ölçüldü).
+- **Kural dışı beş imza banner'ı** (içlerinde ikinci kart var, sabit kutuya
+  sığmaz): `dadafit-kopru` 614 · `antrenor-ol` 602 · `challenge-v1` 697 ·
+  `program-detay` 570 · ana sayfa `df-top` 900. → **Beyar'a soru S5**.
+
 ## 5 · G2'de verilen yorum — Beyar'a açık soru (S3)
 
 Beyar G2'de altı ad saymıştı: *Bugün · Plan ve Takvim · Aktivite Kayıtlarım ·
@@ -177,19 +306,20 @@ o altı sayfa **zaten ayrı dosya olarak vardı** (`fit-planim-*.html`, altısı
 diskte). Tek uzun sayfa **Enerji Defteri**'ydi (911 satır, yedi modül); bölünen
 o oldu ve **kendi içeriğine göre** dörde ayrıldı.
 
-**Soru duruyor:** kastedilen bu değilse — örneğin Enerji Defteri'nin de tam o
-altı adı taşıması isteniyorsa — sayfa adları değişir. Cevap gelene kadar mevcut
-kurgu yerinde. (Tam liste: `REVIZE-PLAN-3.md` → "Beyar'a soru dönen maddeler".)
+**KARAR VERİLDİ (Beyar, tur sonu) — soru S3 KAPANDI.** Enerji Defteri sayfa
+adları **mevcut hâliyle kalıyor**: Bugün · Dengele · Su Takibi · Haftalık Özet.
+Fit Planım rayının altı sayfası **ayrı kalmaya devam ediyor**. İki küme
+birbirine **karıştırılmayacak**. Ayrıntı: `KARARLAR.md` **K20**.
 
 ---
 
-## 6 · Beyar'a açık beş soru (cevap bekliyor)
+## 6 · Beyar'a açık sorular — **4 açık, 1 kapandı**
 
 | # | Konu | Soru |
 |---|---|---|
 | **S1** | E1 | Erişim bölümü ve filtre ekseni kalktı; kartlardaki altın **PRO rozeti** ve "Başlangıç · Ücretsiz" etiketi **duruyor** (site geneli kural). Kart rozetleri de gitsin mi? |
 | **S2** | C4 / H | Kütüphane sayaçları gerçeğe çekildi (140+ → 12). Kabuk üst bandındaki site geneli **"140+ hareket"** duruyor. Hedef sayı mı, gerçek mi? |
-| **S3** | G2 | §5'teki yorum doğru mu? |
+| ~~S3~~ | G2 | ✅ **KAPANDI** — Beyar karar verdi: adlar mevcut hâliyle kalıyor, iki küme ayrı (K20) |
 | **S4** | B4 | `--fit` (#009d4f) + beyaz metin **3.54:1** — AA altı. Bu turda dokunulan düğmeler `--fit-deep`'e (5.45:1) geçti. Site geneli `.btn-fit` de koyulaşsın mı? |
 | **S5** | D3 | Banner yükseklikleri aile içinde sabit (liste 344 · detay 384, yayılım 0). İçinde ikinci kart taşıyan **beş imza banner'ı** kural dışı: `dadafit-kopru` 614 · `antrenor-ol` 602 · `challenge-v1` 697 · `program-detay` 570 · ana sayfa 900. Sadeleşip katılsınlar mı? |
 

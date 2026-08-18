@@ -542,3 +542,46 @@ bağımsız koştur ve raporu **metin olarak** al. Ajan metin döndürmüyorsa, 
 
 **Geri almak için:** bağımsız raporlar geldiğinde plandaki ⚠ bölümü ve bu
 karar güncellenir.
+
+---
+
+## K20 · Enerji Defteri sayfa adları kalıyor — iki küme karıştırılmayacak
+
+**Beyar'ın kararı (18.08.2026, tur sonu).** Turun en çok karışan noktası buydu;
+soru **S3** olarak açık bırakılmıştı, artık **kapandı**.
+
+**Karar:**
+
+1. **Enerji Defteri sayfa adları mevcut hâliyle KALIYOR** —
+   **Bugün · Dengele · Su Takibi · Haftalık Özet.**
+   Dosyalar: `enerji-defteri-v1.html` · `enerji-defteri-dengele-v1.html` ·
+   `enerji-defteri-su-v1.html` · `enerji-defteri-haftalik-v1.html`.
+2. **Fit Planım rayının altı sayfası AYRI kalmaya devam ediyor** —
+   Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim ·
+   Antrenörüm. Dosyalar: `fit-planim-v1.html` · `fit-planim-programim-v1.html` ·
+   `fit-planim-gecmis-v1.html` · `fit-planim-ilerleme-v1.html` ·
+   `fit-planim-kaydettiklerim-v1.html` · `fit-planim-randevular-v1.html`.
+3. **İki küme birbirine KARIŞTIRILMAYACAK.**
+
+**Neden karışıyordu:** G2 talimatı altı ad sayıyordu (*Bugün · Plan ve Takvim ·
+Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim · Antrenörüm*) ve bunlar
+Enerji Defteri'nin bölümleri sanılabilirdi. Ölçüm aksini gösterdi: bu altı ad
+**birebir Fit Planım rayının kalemleri** ve o altı sayfa **bu turdan önce zaten
+ayrı dosya olarak vardı** (ölçüldü: altısı da HTTP 200). Tek uzun sayfa
+**Enerji Defteri**'ydi — 911 satır, yedi modül — ve bölünen o oldu.
+
+**Dikkat edilecek tuzak:** iki kümede de **"Bugün"** adlı bir sayfa var ama
+farklı şeyler — biri **defterin** bugünü (`enerji-defteri-v1`), diğeri **planın**
+bugünü (`fit-planim-v1`). Adları birleştirme, kümeleri tek rayda toplama.
+
+**Uygulamadaki karşılığı:**
+- Enerji Defteri alt şeridi: `.ed-subtabs .fit-tabs` → **4 kalem**
+- Fit Planım rayı: `.pf-tabbar .fit-tabs` → **7 kalem** (altı plan sayfası +
+  Enerji Defteri'nin girişi)
+- Alt sayfalar rayda **üst kalemi** işaretler: `fit-shell.js` → `RAY_UST`
+  eşlemesi (`defter-dengele` / `defter-su` / `defter-haftalik` → `defter`)
+
+**Geri almak için:** bu karar değişirse `fit-shell.js` → `PLAN_TABS` /
+`PLAN_EXTRA` / `RAY_UST` ve dört Enerji Defteri dosyasının adı birlikte
+değişmeli; ayrıca `enerji-defteri-v1.html` içindeki eski çapa köprüsü
+(`#dengele` / `#su` / `#haftalik`) güncellenmeli.

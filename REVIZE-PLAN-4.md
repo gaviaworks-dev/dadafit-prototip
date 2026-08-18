@@ -174,9 +174,127 @@ Görsel doğrulama — daha önce görünmeyen içerik geri geldi:
 
 ---
 
-# R2 — BANNER AİLE SINIFLANDIRMASI
+# R2 — BANNER AİLE SINIFLANDIRMASI DOĞRULANDI
 
-_(R1 bitmeden başlanmaz)_
+**Beyar:** *"Mevcut sınıflandırma 47 liste artı 4 detay = 51 sayfa. Depoda bundan
+fazla sayfa var. Tüm sayfaları tek tek gez ve liste mi detay mı olduğunu yeniden
+sınıflandır."*
+
+**Ölçüm yöntemi:** 60 HTML dosyasının **60'ı** tarayıcıda açıldı; her sayfada
+banner sınıfı, `body[data-fit-hero-kind]`, ölçülen yükseklik ve `h1` okundu
+(`scratchpad/m/classify.mjs` → `classify.json`).
+
+## R2.0 · Sayım kapanıyor
+
+| | Sayfa |
+|---|---|
+| **LİSTE ailesi** (sabit **344 px**) | **47** |
+| **DETAY ailesi** (sabit **384 px**) | **4** |
+| **İMZA banner'ları** (sabit kutunun dışında — içinde ikinci kart var) | **6** |
+| **Koyu banner'ı olmayan** sayfalar | **3** |
+| **TOPLAM** | **60** = depodaki sayfa sayısı ✅ |
+
+**Önceki sayım 51 idi (47 + 4) ve 9 sayfayı hiç saymıyordu.** Bu turda 9'unun
+da nereye ait olduğu karara bağlandı.
+
+## R2.1 · LİSTE ailesi — 47 sayfa, yayılım **0 px**
+
+Ölçülen tekil yükseklik değeri: **344 px** (47/47).
+
+| # | Sayfa | Banner sınıfı | H |
+|---|---|---|---|
+| 1 | `aktivite-gunlugu-v1` | `.lib-top` | 344 |
+| 2 | `antrenorler-v1` | `.lib-top` | 344 |
+| 3 | `arama-fit-v1` | `.fs-top` | 344 |
+| 4 | `bagli-uygulamalar-v1` | `.lib-top` | 344 |
+| 5 | `bildirimler-v1` | `.lib-top.nt-top` | 344 |
+| 6 | `challenge-merkezi-v1` | `.lib-top` | 344 |
+| 7 | `destek-talepleri-v1` | `.lib-top` | 344 |
+| 8 | `egzersiz-kutuphane-v1` | `.lib-top` | 344 |
+| 9–12 | `enerji-defteri-v1` · `-dengele-` · `-su-` · `-haftalik-` | `.lib-top.fp-top` | 344 |
+| 13–21 | `fit-planim-v1` · `-programim-` · `-gecmis-` · `-ilerleme-` · `-kaydettiklerim-` · `-randevular-` · `-rozetler-` · `-saglik-profil-` · `-veri-izin-` | `.lib-top.fp-top` | 344 |
+| 22 | `fit-testi-sonuc-v1` | `.lib-top` | 344 |
+| 23 | `fit-testleri-v1` | `.lib-top` | 344 |
+| 24 | `hakkimizda-v1` | `.lib-top` | 344 |
+| 25–33 | `hareket-bolgeye-gore-v1` · `-dogru-form-` · `-hedefe-gore-` · `-isinma-soguma-` · `-masa-basi-` · `-merkezi-` · `-rehberi-` · `-sozluk-` · `-sureye-gore-` | `.lib-top` | 344 |
+| 34 | `hareket-yeni-baslayanlar-v1` | `.lib-top` | 344 |
+| 35 | `hesabim-v1` | `.lib-top` | 344 |
+| 36 | `iletisim-v1` | `.lib-top` | 344 |
+| 37 | `pro-odeme-v1` | `.lib-top` | 344 |
+| 38 | `pro-v1` | `.lib-top` | 344 |
+| 39 | `program-liste-v1` | `.lib-top` | 344 |
+| 40 | `programlar-merkezi-v1` | `.lib-top` | 344 |
+| 41 | `reklam-ver-v1` | `.lib-top` | 344 |
+| 42 | `rozetler-v1` | `.lib-top` | 344 |
+| 43 | `saglik-bilgilendirme-v1` | `.lib-top` | 344 |
+| 44 | `sss-v1` | `.lib-top` | 344 |
+| 45 | `uyelik-faturalandirma-v1` | `.lib-top` | 344 |
+| 46 | `video-seanslari-v1` | `.lib-top` | 344 |
+| 47 | `yasal-v1` | `.lib-top` | 344 |
+
+## R2.2 · DETAY ailesi — 4 sayfa, yayılım **0 px**
+
+Ölçülen tekil yükseklik değeri: **384 px** (4/4).
+
+| # | Sayfa | Banner sınıfı | H | Not |
+|---|---|---|---|---|
+| 1 | `destek-talebi-detay-v1` | `.lib-top` | 384 | — |
+| 2 | **`egzersiz-detay-v1`** | **`.ed-top`** | **384** | **BU TURDA AİLEYE ALINDI** — önce 216.3 px'ti ve hiçbir ailede sayılmıyordu |
+| 3 | `fit-testi-detay-v1` | `.lib-top` | 384 | — |
+| 4 | `video-seans-detay-v1` | `.lib-top` | 384 | — |
+
+> **BEKLENMEDİK BULGU B3 — `egzersiz-detay-v1` iki ayrı kuralın dışında kalmış.**
+> `.ed-top` diğer koyu banner'larla **birebir aynı dili** kullanıyor (aynı radial
+> yeşil + üç katman + fotoğraf + `#1b1913` taban) ama:
+> (a) `fit-shell.js`'in **over-mode listesinde yoktu** → header koyu görselin
+> üstünde **KATI** kalıyordu; bu, `KARARLAR.md` **K11**'in beş sınıf için
+> düzelttiği kusurun aynısı, altıncı sınıfta kalmış.
+> (b) Sabit yükseklik kuralının dışındaydı → **216.3 px**, detay ailesinin
+> 384 px'inden **167.7 px** sapma.
+> Sayfa `DETAY_PAGES` dizisinde **vardı**, yani "detay" işaretini alıyordu —
+> ama CSS o işareti yalnız `.lib-top` ve `.cp-top` için okuyordu.
+> **Düzeltildi:** `.ed-top` over-mode listesine ve detay ailesine alındı.
+> Ölçüm: **384 px** · over-mode **1** · kırıntı `top=135` > header alt kenarı
+> `112` (örtüşme yok) · taşma **0** · `page-check` 1440 ve 390'da **temiz**.
+
+## R2.3 · Hiçbir aileye girmeyen 9 sayfa — karar verildi
+
+### (a) İMZA banner'ları — 6 sayfa, **sabit kutunun DIŞINDA kalıyor**
+
+Ortak özellik: **banner'ın içinde ikinci bir kart var** (randevu kartı, arama
+kartı, kayıt formu, program medyası, challenge sayacı). Sabit kutuya sığmıyorlar
+ve kırpmak içerik kaybı olur. 3. tur bu kuralı zaten koymuştu; bu turda `.cp-top`
+da eklendi (K22).
+
+| Sayfa | Banner | Ölçülen H | İçindeki ikinci kart |
+|---|---|---|---|
+| `dadafit-hub-v1` | `.df-top` | **900** | tam-ekran perde (100dvh) — K15 |
+| `challenge-v1` | `.chl-hero` | **697.1** | challenge zaman/sayaç bileşeni |
+| `dadafit-kopru-v1` | `.kp-top` | **613.6** | kardeş ürün geçiş kartı |
+| `antrenor-ol-v1` | `.ol-top` | **602.2** | başvuru fayda paneli |
+| `program-detay-v1` | `.pd-hero` | **570.4** | program medya kartı |
+| **`antrenor-detay-v1`** | `.cp-top` | **477.2** | **randevu kartı** — bu turda çıkarıldı (K22) |
+
+### (b) Koyu banner'ı OLMAYAN 3 sayfa — aile dışı kalıyor
+
+| Sayfa | Üst bölüm | Neden aile dışı |
+|---|---|---|
+| `index.html` | `.px` (1483.7) | Prototip **site haritası** — ürün sayfası değil, araç sayfası. Kabuk banner'ı taşımıyor, taşımamalı. |
+| `giris-v1.html` | `.au-top` (1317) | **Kimlik kapısı** — iki kolonlu tam sayfa giriş/kayıt düzeni. Banner değil, form perdesi. |
+| `profil-v1.html` | `.pf-top` (689.7) | **Beyaz profil kapağı** — kapak görseli + avatar + istatistik. Koyu banner ailesiyle aynı dil değil; sosyal profil deseni. |
+
+**Karar:** üçü de hiçbir banner ailesine alınmıyor; gerekçe `KARARLAR.md` **K23**.
+
+## R2.4 · ÖLÇÜM — kapanış
+
+| Ölçüm | Sonuç |
+|---|---|
+| Depodaki sayfa | **60** |
+| Sınıflandırılan sayfa | **60** — eşit ✅ |
+| Liste ailesi yayılımı | **0 px** (47 sayfanın 47'si 344) ✅ |
+| Detay ailesi yayılımı | **0 px** (4 sayfanın 4'ü 384) ✅ |
+| Banner içi kırpma (@1440, 59 banner) | **0** ✅ |
+| `egzersiz-detay-v1` `page-check` | 1440 ve 390 **temiz** ✅ |
 
 # R3 — BREADCRUMB ANA SAYFA İKONU
 # R4 — FİLTRE KARTI REFERANSA HİZALANSIN

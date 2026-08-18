@@ -672,3 +672,56 @@ istisnası. Sabit değer (384) değişmedi; bir sayfa aileden çıkarıldı.
 
 **Geri almak için:** `fit-shell.css` → `body[data-fit-hero-kind="detay"] .cp-top`
 kuralına `height:var(--hero-h-detail)` geri konur (kart yeniden kırpılır).
+
+---
+
+## K23 · Banner aile sınıflandırması kapandı — 60 sayfanın 60'ı sınıflandı
+
+**Beyar'ın talimatı (4. tur, R2):** *"Mevcut sınıflandırma 47 liste artı 4 detay
+= 51 sayfa. Depoda bundan fazla sayfa var… hiçbir aileye girmeyen sayfaları ayrı
+listele ve hangi aileye alınacağına karar ver."*
+
+**Ölçüm:** 60 HTML dosyasının 60'ı tarayıcıda açıldı; banner sınıfı,
+`body[data-fit-hero-kind]`, yükseklik ve `h1` okundu.
+
+**Sonuç — dört küme, toplam 60:**
+
+| Küme | Sayfa | Yayılım |
+|---|---|---|
+| LİSTE ailesi — sabit **344 px** | **47** | **0 px** |
+| DETAY ailesi — sabit **384 px** | **4** | **0 px** |
+| İMZA banner'ları — sabit kutu dışı | **6** | değişken (içerik belirler) |
+| Koyu banner'ı olmayan | **3** | — |
+
+**Bu turda verilen üç karar:**
+
+1. **`egzersiz-detay-v1` DETAY ailesine alındı.** `.ed-top` diğer koyu
+   banner'larla birebir aynı dili kullanıyor ama iki kuralın da dışında
+   kalmıştı: (a) `fit-shell.js` over-mode listesinde yoktu → header koyu
+   görselin üstünde KATI kalıyordu (K11'in beş sınıf için düzelttiği kusurun
+   altıncısı), (b) sabit yükseklik kuralı yalnız `.lib-top`/`.cp-top` okuyordu
+   → banner 216.3 px'te, aileden 167.7 px sapmalıydı. Sayfa `DETAY_PAGES`
+   dizisinde zaten vardı; işaret basılıyor ama okunmuyordu.
+   **Ölçüm sonrası:** 384 px · over-mode 1 · kırıntı top=135 > header alt kenarı
+   112 · taşma 0 · `page-check` 1440 ve 390 temiz.
+
+2. **Altı imza banner'ı sabit kutunun dışında kalıyor.** Ortak özellik: banner'ın
+   içinde ikinci bir kart var (`dadafit-hub` 900 tam-ekran perde · `challenge-v1`
+   697.1 sayaç · `dadafit-kopru` 613.6 geçiş kartı · `antrenor-ol` 602.2 fayda
+   paneli · `program-detay` 570.4 medya kartı · `antrenor-detay` 477.2 randevu
+   kartı). Sabit kutuya sığdırmak kırpmak demek — ölçüldü, bkz. K22.
+
+3. **Üç sayfa hiçbir banner ailesine alınmıyor:**
+   - `index.html` — prototip **site haritası**, ürün sayfası değil, araç sayfası.
+     Kabuk banner'ı taşımıyor ve taşımamalı.
+   - `giris-v1.html` — **kimlik kapısı** (`.au-top`, 1317 px). İki kolonlu tam
+     sayfa giriş/kayıt düzeni; banner değil, form perdesi.
+   - `profil-v1.html` — **beyaz profil kapağı** (`.pf-top`, 689.7 px). Kapak
+     görseli + avatar + istatistik; koyu banner ailesiyle aynı dil değil,
+     sosyal profil deseni.
+
+**Uygulandı:** `assets/js/fit-shell.js` (over-mode listesi) +
+`assets/css/fit-shell.css` (detay ailesi ve `.ed-top` yerleşimi).
+
+**Geri almak için:** `.ed-top` her iki listeden çıkarılır; banner 216.3 px'e,
+header katı hâline döner.

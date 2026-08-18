@@ -841,7 +841,7 @@ var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
    Tek tek kovalamak yerine banner sınıflarının tamamı listelendi — her biri
    için eşlik eden yerleşim kuralı fit-shell.css'te (margin → padding çevrimi). */
 var OVER_MODE = HERO_MODE || !!document.querySelector(
-  '.lib-top, .fp-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top');
+  '.lib-top, .fp-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top');
 if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
 
 /* ------------------------------------------------------------------

@@ -355,14 +355,17 @@ yapısında yukarı scroll çok fazla oluyor, bunu engelleyelim."*
 **Ölçüm:** 1440×900'de perde **900px**, içindeki içerik yalnız **585px**
 (hero ızgarası 446 + header payı 112 + alt nefes 28). Yani **315px boş perde**.
 
-**Seçilen:** perde kaldırılmadı, **kısaltıldı** — `--hero-full:74dvh`.
-Tam-bleed video kimliği duruyor, "bir sonraki bölüm var" sinyali güçlendi.
-Ölçülen sonuç: **900 → 666px** (1440), **900 → 764px** (390).
+**İlk seçim (74dvh) GERİ ALINDI.** Perde `--hero-full:74dvh`'ye indirilmişti
+(ölçüm: 900 → 666px @1440, 900 → 764px @390). **Beyar aynı turda "ana sayfa
+herosunu bozmuşsun, düzelt" dedi** → değer `100dvh`'ye geri döndü.
+Ölçüm: `.df-top` yüksekliği yeniden **900px** (1440×900), yani turdan önceki
+hâli. Tam-ekran perde ana sayfanın imzası; "yukarı scroll çok fazla"
+talimatı ana sayfa herosunu **kapsamıyormuş** — Beyar netleştirdi.
 
-**Gerekçe:** eski karar bir ölçüm sonucuydu ("banner ekran yüksekliğinin
-yarısını geçmez" kuralının ana sayfa istisnası), yeni karar ise Beyar'ın
-doğrudan talimatı. Talimat ölçümü ezer; ama kimliği silmek talimatta yok,
-o yüzden gevşetildi, kaldırılmadı.
+**Yürürlükteki karar:** ana sayfa herosu **100dvh**, dokunulmuyor.
+D2'nin geri kalanı (37 `.lib-top` sayfası ve diğer banner sınıfları)
+**yürürlükte kaldı** — orada ortalama **−53px @1440** kısalma duruyor ve
+ana sayfa dışında hiçbir sayfa büyümedi.
 
 **Yan karar — TEK ÖLÇEK:** banner yükseklikleri artık sayfa sayfa sabit sayı
 değil, kabuktaki dört token: `--fit-header-h` · `--hero-pt` · `--hero-pb` ·
@@ -375,7 +378,8 @@ tek formüle indi.
 `antrenor-ol-v1` 600→602 (+2) ve `program-detay-v1` 564→570 (+6); ikisinin de
 eski dolgusu ortak ölçekten daha sıkıydı. Tutarlılık uğruna kabul edildi.
 
-**Geri almak için:** `:root` içindeki hero token'ları.
+**Geri almak için:** `:root` içindeki hero token'ları. Perdeyi yeniden
+kısaltmak istenirse tek satır: `--hero-full`.
 
 ---
 

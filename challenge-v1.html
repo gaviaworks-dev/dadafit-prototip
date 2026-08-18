@@ -91,6 +91,46 @@
 .chl-mstat b small{font-size:13px;font-weight:700;color:rgba(255,255,255,.72);margin-left:3px;letter-spacing:0}
 .chl-mstat span{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6)}
 .chl-mdiv{width:1px;height:38px;background:rgba(255,255,255,.16);flex:none}
+/* ---- F3 · ZAMAN ÇİZELGESİ ---------------------------------------
+ Tek okunur bileşen: solda başlangıç, ortada ilerleme rayı ve "bugün"
+ imleci, sağda bitiş; altında dört sayısal olgu.
+ Taşma güvenliği: ray min-width:0 ile büzülür, olgular sarar; 390px'te
+ uçlar üst üste değil ALT ALTA gelir. */
+.chl-time{
+  margin-top:26px;padding:18px 20px;max-width:640px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius-lg)
+}
+/* Başlık ŞART: sağdaki "İlerlemen" kartı KİŞİSEL ilerlemeyi gösteriyor
+   (7/30). Bu bileşen ise CHALLENGE'IN kendi takvimini gösteriyor (18/30).
+   İkisi farklı şey; etiketsiz yan yana durduklarında çelişki gibi okunuyordu. */
+.ct-title{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.ct-title i{color:var(--fit-bright);font-size:12px}
+.ct-line{display:flex;align-items:flex-end;gap:16px;min-width:0}
+.ct-end{flex:0 0 auto;min-width:0}
+.ct-end.is-right{text-align:right}
+.ct-lbl{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.56)}
+.ct-end b{display:block;font-size:15px;color:#fff;margin-top:3px;white-space:nowrap}
+.ct-track{flex:1 1 auto;min-width:0;padding-bottom:3px}
+.ct-bar{display:block;height:6px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden}
+.ct-bar i{display:block;height:100%;background:var(--fit-bright);border-radius:999px}
+.ct-now{display:block;margin-top:7px;text-align:center;font-size:11.5px;font-weight:700;color:var(--fit-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-facts{
+  list-style:none;display:flex;flex-wrap:wrap;gap:10px 22px;margin:16px 0 0;
+  padding-top:14px;border-top:1px solid rgba(255,255,255,.14)
+}
+.ct-facts li{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ct-facts b{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap}
+.ct-facts span{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.6)}
+@media (max-width:640px){
+  .chl-time{padding:15px 16px;margin-top:20px}
+  .ct-line{flex-wrap:wrap;gap:10px}
+  .ct-end,.ct-end.is-right{flex:1 1 46%;text-align:left}
+  .ct-track{flex:1 1 100%;order:3}
+  .ct-facts{gap:10px 18px}
+  .ct-facts b{font-size:15px}
+}
+
 .chl-cta{display:flex;align-items:center;gap:14px;margin-top:32px;flex-wrap:wrap}
 .chl-cta .btn-fit{box-shadow:0 12px 30px rgba(0,157,79,.36);padding:15px 28px}
 .chl-cta .btn-line{
@@ -508,12 +548,33 @@
         </div>
         <h1 data-ch="baslik">30 günde <em>hareket alışkanlığı</em></h1>
         <p class="chl-sub" data-ch="ozet">Büyük hedef değil, küçük süreklilik. Her gün 10–15 dakika ufak bir hareket; ayın sonunda bir alışkanlık. Kaçırdığın gün suçluluk yok — kaldığın yerden devam et.</p>
-        <div class="chl-meta">
-          <div class="chl-mstat"><b data-ch="kalan">23<small>kaldı</small></b><span>gün bitime</span></div>
-          <span class="chl-mdiv"></span>
-          <div class="chl-mstat"><b data-ch="sure">10–15<small>dk</small></b><span>günlük süre</span></div>
-          <span class="chl-mdiv"></span>
-          <div class="chl-mstat"><b data-ch="katilimci">2.840</b><span>katılımcı</span></div>
+        <!-- F3 · ZAMAN ÇİZELGESİ — başlangıç · süre · bitiş TEK bileşende.
+             ÖNCE (ölçüldü): zaman bilgisi üç ayrı yere dağılmıştı ve çelişiyordu —
+             hero'da "30 gün / gün bitime" (değer TOPLAM süre, etiket KALAN süre
+             diyor), ilerleme kartında "7 / 30 gün tamam", aşağıdaki şeritte
+             "KALAN 23 gün". Başlangıç ve bitiş tarihi ise HİÇBİR YERDE yoktu. -->
+        <div class="chl-time" role="group" aria-labelledby="ctTitle">
+          <p class="ct-title" id="ctTitle"><i class="fa-solid fa-calendar-days"></i> Challenge takvimi</p>
+          <div class="ct-line">
+            <div class="ct-end">
+              <span class="ct-lbl">Başlangıç</span>
+              <b data-ch="basla">1 Ağustos</b>
+            </div>
+            <div class="ct-track">
+              <span class="ct-bar"><i data-ch="ilerlemeYuzde" style="width:23%"></i></span>
+              <span class="ct-now" data-ch="bugun">Bugün · Gün 7</span>
+            </div>
+            <div class="ct-end is-right">
+              <span class="ct-lbl">Bitiş</span>
+              <b data-ch="bitis">30 Ağustos</b>
+            </div>
+          </div>
+          <ul class="ct-facts">
+            <li><b data-ch="toplam">30 gün</b><span>toplam süre</span></li>
+            <li><b data-ch="kalan">23 gün</b><span>kaldı</span></li>
+            <li><b data-ch="sure">10–15 dk</b><span>günlük süre</span></li>
+            <li><b data-ch="katilimci">2.840</b><span>katılımcı</span></li>
+          </ul>
         </div>
         <div class="chl-cta">
           <button class="btn btn-fit" type="button" id="chJoin"><i class="fa-solid fa-plus"></i> Challenge'a Katıl</button>
@@ -992,16 +1053,19 @@
 /* ===== CHALLENGE DETAY — slug veri kümesi + katılım yaşam döngüsü (belge §8.4 · §13) ===== */
 (function(){
   var VERI = {
-    'hareket-aliskanligi':{ad:"30 Günde Hareket Alışkanlığı", donem:'Haziran Challenge', toplam:30,
-      baslik:'30 günde <em>hareket alışkanlığı</em>', sure:'10–15<small>dk</small>', katilimci:'2.840',
+    'hareket-aliskanligi':{ad:"30 Günde Hareket Alışkanlığı", donem:'Ağustos Challenge', toplam:30,
+      basla:'1 Ağustos', bitis:'30 Ağustos', gecen:18,
+      baslik:'30 günde <em>hareket alışkanlığı</em>', sure:'10–15 dk', katilimci:'2.840',
       ozet:'Büyük hedef değil, küçük süreklilik. Her gün 10–15 dakika ufak bir hareket; ayın sonunda bir alışkanlık. Kaçırdığın gün suçluluk yok — kaldığın yerden devam et.',
       durum:'Şu an aktif'},
     'sabah-esneme':{ad:'7 Gün Sabah Esneme Ritüeli', donem:'Yaklaşan challenge', toplam:7,
-      baslik:'7 günde <em>sabah esneme ritüeli</em>', sure:'8–10<small>dk</small>', katilimci:'640',
+      basla:'1 Eylül', bitis:'7 Eylül', gecen:0,
+      baslik:'7 günde <em>sabah esneme ritüeli</em>', sure:'8–10 dk', katilimci:'640',
       ozet:'Bir haftalık kısa deneme. Güne yumuşak başlamanın nasıl bir şey olduğunu görmek için iyi bir başlangıç — alışkanlık tutarsa uzun challenge sırada.',
       durum:'Yakında başlıyor'},
     'adim-adim-yuruyus':{ad:'21 Gün Adım Adım Yürüyüş', donem:'Tamamlanan challenge', toplam:21,
-      baslik:'21 günde <em>adım adım yürüyüş</em>', sure:'15–30<small>dk</small>', katilimci:'1.480',
+      basla:'1 Temmuz', bitis:'21 Temmuz', gecen:21,
+      baslik:'21 günde <em>adım adım yürüyüş</em>', sure:'15–30 dk', katilimci:'1.480',
       ozet:'Her gün biraz daha uzun bir yürüyüş. Ekipman yok, salon yok — sadece dışarısı ve düzenli tempo.',
       durum:'Tamamlandı'}
   };
@@ -1011,6 +1075,25 @@
   function set(k,v){ document.querySelectorAll('[data-ch="'+k+'"]').forEach(function(el){ el.innerHTML=v; }); }
   set('ad',C.ad); set('donem',C.donem); set('baslik',C.baslik); set('ozet',C.ozet);
   set('sure',C.sure); set('katilimci',C.katilimci); set('durum',C.durum);
+  /* F3 · zaman çizelgesi tek kaynaktan beslenir — "kalan" değeri de burada
+     hesaplanır, artık hero'da toplam süreyi "kalan" diye göstermiyoruz. */
+  set('basla',C.basla); set('bitis',C.bitis); set('toplam',C.toplam+' gün');
+  /* F3 · Çizelge CHALLENGE'IN TAKVİMİNİ gösterir, kullanıcının ilerlemesini
+     değil — o sağdaki "İlerlemen" kartının işi. Eskiden hero'daki tek zaman
+     kalemi TOPLAM süreyi "kalan" etiketiyle gösteriyordu (30 gün / gün bitime)
+     ve aşağıdaki şeritteki "KALAN 23 gün" ile çelişiyordu. */
+  (function zamanCizelgesi(){
+    var gecen = Math.max(0, Math.min(C.gecen, C.toplam));
+    var kalan = C.toplam - gecen;
+    set('kalan', kalan + ' gün');
+    set('bugun',
+      gecen === 0            ? 'Henüz başlamadı' :
+      kalan === 0            ? 'Tamamlandı' :
+      ('Bugün · ' + gecen + '. gün'));
+    document.querySelectorAll('[data-ch="ilerlemeYuzde"]').forEach(function(el){
+      el.style.width = Math.round(gecen / C.toplam * 100) + '%';
+    });
+  })();
   document.title = C.ad + ' — Challenge | DadaFit';
 
   var S = window.FIT_SHELL && window.FIT_SHELL.state;
@@ -1026,7 +1109,6 @@
     join.hidden = !!mine;
     day.hidden = !(mine && st.durum==='devam');
     leave.hidden = !mine;
-    set('kalan', mine ? (st.toplam-st.gun+1)+'<small>kaldı</small>' : (C.toplam)+'<small>gün</small>');
     if(!mine) return;
     document.getElementById('chStateName').textContent = st.ad;
     var b=document.getElementById('chStateBadge');

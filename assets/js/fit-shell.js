@@ -122,18 +122,16 @@ var NAV = [
       {label:'Bağlı Uygulamalar ve Cihazlar', desc:'Apple Health · Health Connect · saat', href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check'}
     ] },
 
-  /* 4 · CHALLENGE — belge §2'nin beş kalemi. Durum kalemleri challenge-merkezi'nin
- KENDİ filtre motoruna bağlanıyor (sayfa ?durum= parametresini okuyup çipi işaretliyor,
- ölçüldü) — sahte sayfa üretilmedi. */
+  /* 4 · CHALLENGE — PANELSİZ DÜZ BAĞLANTI (kullanıcı kararı, KARARLAR.md K17).
+ Panel beş kalemdi: merkez + üç DURUM kalemi (?durum=aktif / yaklasan / gecmis)
+ + örnek detay. Beyar: "header'daki challenge'da dropdown'lar var, hepsi aynı
+ yere, tek bir buton olsun" ve "aktif / yaklaşan / tamamlanan challenge olarak
+ sunmana gerek yok, hepsi tek bir yerde".
+ Durum artık YALNIZ kart rozeti ve merkez sayfasının kendi filtre ekseni.
+ Erişim kaybı yok: eski ?durum= adresleri aynı sayfaya düşüyor ve sayfa
+ parametreyi okuyup çipi işaretlemeye devam ediyor (ölçüldü). */
   { key:'challenge', label:'Challenge', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy',
-    match:['challenge-merkezi-v1','challenge-v1'],
-    dd:[
-      {label:'Challenge Merkezi', desc:'Tüm challenge dünyası', href:'challenge-merkezi-v1.html', icon:'fa-solid fa-trophy'},
-      {label:'Aktif Challenge', desc:'Şu an devam edenler', href:'challenge-merkezi-v1.html?durum=aktif', icon:'fa-solid fa-play'},
-      {label:'Yaklaşan Challenge\'lar', desc:'Yakında başlayacaklar', href:'challenge-merkezi-v1.html?durum=yaklasan', icon:'fa-regular fa-clock'},
-      {label:'Tamamlanan Challenge\'lar', desc:'Bitmiş olanlar', href:'challenge-merkezi-v1.html?durum=gecmis', icon:'fa-solid fa-flag-checkered'},
-      {label:'Challenge Detayı', desc:'Örnek bir challenge sayfası', href:'challenge-v1.html?slug=hareket-aliskanligi', icon:'fa-solid fa-circle-info'}
-    ] },
+    match:['challenge-merkezi-v1','challenge-v1'] },
 
   /* 5 · ANTRENÖRLER — PANELSİZ DÜZ BAĞLANTI (kullanıcı kararı, KARARLAR.md K10).
  Faz 3'te belge §2'ye uyularak dört kalemlik panel verilmişti; kullanıcı

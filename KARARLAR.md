@@ -841,3 +841,53 @@ risk dalı ayrı sonuç veriyor · `page-check` 12/12 temiz.
 
 **Geri almak için:** `assets/js/fit-shell.js` → `secimlerinHtml()` / `nasilHtml()`
 ve `assets/css/fit-shell.css` → `.wz-sum` / `.wz-how` blokları.
+
+---
+
+## K27 · Doğrulama ajanı kanalı iki tur üst üste çalışmadı — yöntem değişmeli
+
+**Beyar'ın kuralı (3. ve 4. tur):** *"Kimse kendi işini onaylamasın. Ajan rapor
+metni döndürmezse fazı YEŞİL İŞARETLEME, sarı bırak ve bana bildir."*
+
+**Ölçülen durum:**
+
+| | 3. tur | 4. tur |
+|---|---|---|
+| Açılan doğrulama ajanı | 5 | **6** |
+| Ölçüm üreten | 5 | **6** (135 ölçüm dosyası) |
+| **Rapor METNİ döndüren** | **1** (`dogrula-C`) | **0** |
+
+4. turda brief'e talimat **açıkça** yazıldı (*"raporunu MESAJLA gönder, dosyaya
+YAZMA; ham çıktı bırakırsan raporun sayılmaz ve faz SARI kalır"*), ajanlara
+**üç ayrı çağrı** yapıldı (ilk brief · durum kontrolü · "SON ÇAĞRI, başka ölçüm
+yapma, elindekiyle bitir") ve **30 dakika** beklendi. Yine de altıdan sıfırı
+rapor döndürdü.
+
+**Karar — ham çıktılar OKUNMADI.** `scratchpad/verify*/` altındaki 135 dosya
+yorumlanmadan bırakıldı ve altı faz da **SARI** işaretlendi. Kural harfiyen
+uygulandı; "ajan zaten ölçmüş, ben okuyup yeşile çevireyim" yapılmadı — o
+yapılırsa doğrulamanın tek işlevi (ölçen ≠ yorumlayan) kaybolur (bkz. K19).
+
+**Neden bu bir yöntem sorunu, ölçüm sorunu değil:** ajanlar işi yaptı
+(A 29 · D 27 · E 35 · F 20 · G 24 dosya). Kırılan şey **iletim**.
+
+**Sonraki tur için üç seçenek — Beyar seçmeli:**
+
+1. **Yapılandırılmış çıktı zorunlu kıl.** Ajandan serbest metin değil, önceden
+   tanımlı bir şema (madde · ölçülen değer · geçti/kaldı) istenir; şema
+   doldurulmadan ajan bitemez. En sağlam yol.
+2. **Doğrulamayı ayrı bir OTURUMA taşı.** Ajan yerine ikinci bir Claude Code
+   oturumu açılır, ölçümü o koşturur ve raporunu Beyar'a **doğrudan** verir.
+   Bağımsızlık en yüksek; koordinasyon maliyeti de en yüksek.
+3. **Doğrulamayı sınama süitine çevir.** Her fazın kabul ölçütü `tests/*.mjs`
+   altında bir sınama olur; "bağımsız göz" yerine "kırmızıya dönebilen test"
+   geçer. Bu turda süitin **sessizce kırmızı** olduğu ve gerçek gerilemeyi
+   yakalayamadığı bulundu (B8) — düzeltildi, süit 5/5 temiz. Bu yol, insan
+   bağımsızlığını makine tekrarlanabilirliğiyle değiştirir.
+
+**Önerim: (3) + (1).** Kabul ölçütleri teste dönerse doğrulama her turda
+kendiliğinden koşar; ajan da yalnız testin göremediği görsel/bağlam sorularına
+bakar ve şemayla raporlar.
+
+**Yürürlükteki durum:** Faz **A · B · D · E · F · G** → **SARI**.
+Bağımsız raporla yeşil olan tek faz hâlâ **C** (3. turdan).

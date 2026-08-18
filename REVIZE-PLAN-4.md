@@ -761,6 +761,80 @@ Enerji Defteri'nde.
 
 **Ekran görüntüsü:** `scratchpad/shots/r9c-enerji-defteri-v1.png` (+ üç alt sayfa)
 # R10 — DOĞRULAMA BORCU
+
+**Beyar:** *"3. turun A, B, D, E fazları sarı, F ve G fazları hiç doğrulanmadı.
+Bu altı faz için doğrulamayı gerçekten bağımsız ajanlarda koştur. Ajan rapor
+metni döndürmezse fazı yeşile çekme, sarı bırak ve bana bildir."*
+
+## R10.1 · Ne yapıldı
+
+Altı bağımsız doğrulama ajanı açıldı: `dogrula-A4` · `dogrula-B4` · `dogrula-D4` ·
+`dogrula-E4` · `dogrula-F4` · `dogrula-G4`.
+
+Her brief'te **açıkça** şu vardı:
+> *"Raporunu **MESAJLA (final text olarak) gönder, dosyaya YAZMA.** Ham çıktı
+> dosyası bırakırsan raporun sayılmaz ve faz SARI kalır."*
+
+Ayrıca her ajana: dosya değiştirme/commit yasağı · 1440 ve 390'da ayrı ölçüm ·
+"ana oturumun iddialarına güvenme, sıfırdan ölç" · madde madde beklenen sayılar.
+
+**Üç ayrı çağrı yapıldı:** ilk brief · 20. dakikada durum kontrolü + "eksik rapor
+hiç rapordan iyidir" · 27. dakikada "SON ÇAĞRI, başka ölçüm yapma, elindekiyle
+bitir".
+
+## R10.2 · SONUÇ — altı fazın altısı da SARI
+
+| Faz | Ajan | Ajan çalıştı mı | Ölçüm üretti mi | **Rapor METNİ geldi mi** | **Renk** |
+|---|---|---|---|---|---|
+| **A** — Antrenör kartları | `dogrula-A4` | ✅ evet | ✅ **29 dosya** | ❌ **hayır** | 🟡 **SARI** |
+| **B** — Sekme bileşeni | `dogrula-B4` | ✅ evet | ⚠️ dosya bırakmadı | ❌ **hayır** | 🟡 **SARI** |
+| **D** — Global temizlik + banner | `dogrula-D4` | ✅ evet | ✅ **27 dosya** | ❌ **hayır** | 🟡 **SARI** |
+| **E** — Programlar + video + sihirbaz | `dogrula-E4` | ✅ evet | ✅ **35 dosya** | ❌ **hayır** | 🟡 **SARI** |
+| **F** — Challenge | `dogrula-F4` | ✅ evet | ✅ **20 dosya** | ❌ **hayır** | 🟡 **SARI** |
+| **G** — Enerji Defteri | `dogrula-G4` | ✅ evet | ✅ **24 dosya** | ❌ **hayır** | 🟡 **SARI** |
+
+**Yeşile dönen faz: 0. Sarı kalan faz: 6.**
+
+**Ham çıktılar OKUNMADI.** Kural bunu açıkça yasaklıyor: *"ham çıktısını ana
+oturumda okuyup yeşile çevirme."* `scratchpad/verify*/` altındaki 135 dosya
+**yorumlanmadan** bırakıldı — ölçen ile yorumlayanın aynı taraf olması
+doğrulamanın işlevini yok eder (K19).
+
+> **BEKLENMEDİK BULGU B9 — doğrulama kanalı iki tur üst üste çalışmadı.**
+> 3. turda beş ajandan **biri** rapor döndürmüştü (`dogrula-C`, ve tam da o
+> gerçek bir kusur buldurmuştu). 4. turda brief'e talimat **açıkça** yazıldığı,
+> üç kez çağrı yapıldığı ve 30 dakika beklendiği hâlde **altıdan sıfırı**
+> döndürdü. Ajanlar ölçümü yaptı (135 ölçüm dosyası), raporu iletmedi.
+> **Bu bir yöntem sorunu, bir ölçüm sorunu değil** — karar `KARARLAR.md` **K27**.
+
+## R10.3 · Bu turda GERÇEKTEN doğrulanmış olan ne
+
+Aşağıdakiler bağımsız doğrulama **DEĞİL** (ana oturum ölçtü), ama boş da değil —
+her biri sayıya dayanıyor ve tekrar koşturulabilir:
+
+| Kanıt | Kapsam | Sonuç |
+|---|---|---|
+| Tam site taraması (@1440 **ve** @390) | 60 sayfa · 6.455 iç bağlantı | 60/60 HTTP 200 · kırık bağlantı **0** · kırık çapa **0** · 4xx **0** · konsol hatası **0** · yatay taşma **0** |
+| **Test süiti** `tests/*.mjs` | 5 süit | **5/5 temiz** — ve bu turda **üç bayat sınama düzeltildi**, yani süit artık gerçekten kırmızıya dönebiliyor |
+| `tools/page-check.mjs` | dokunulan 40+ sayfa × 2 genişlik | temiz |
+| Banner kırpma denetimi | 59 banner × 4 kenar | **0** |
+| İki kez ölçüm | R1 hero (59/59 birebir) · R4 çubuk · R5 arama · R6 yön · R7 radius · R8 dikey ölçek | tekrar üretilebilir |
+
+**Ama:** bunların hiçbiri "bağımsız göz" yerine geçmez. 3. turun dersi tam buydu —
+ana oturum **temiz** raporladığı bir noktada bağımsız ajan gerçek bir kusur
+bulmuştu (24 çipte `aria-pressed` çakışması), çünkü ana oturum **yanlış anda**
+ölçmüştü.
+
+## R10.4 · Borcun bugünkü hâli
+
+| | 3. tur sonu | **4. tur sonu** |
+|---|---|---|
+| Bağımsız raporla doğrulanmış faz | **1** (C) | **1** (C — değişmedi) |
+| Sarı faz | 4 (A · B · D · E) | **6** (A · B · D · E · F · G) |
+| Hiç doğrulanmamış faz | 2 (F · G) | **0** — ikisi de artık ölçüldü ama raporsuz, yani sarı |
+
+**Borç kapanmadı.** F ve G "beyaz"dan "sarı"ya geçti (ajan çalıştı, ölçüm üretti),
+ama hiçbir faz yeşile dönmedi.
 # H0 — YENİ MODÜLLER İÇİN KONSEPT ÖNERİSİ (uygulama yok)
 
 ---

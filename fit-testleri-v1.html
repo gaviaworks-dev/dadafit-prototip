@@ -183,29 +183,29 @@
          data-ff data-ff-count=".lib-count" data-ff-sort=".lib-sort" data-ff-clear="#ftClear">
       <div class="fgroup" data-group="odak" role="group" aria-label="Ölçtüğü alan filtresi">
         <span class="lbl">Ölçtüğü alan</span>
-        <button class="df-fchip on" type="button" data-val="all" aria-pressed="true">Tümü</button>
-        <button class="df-fchip" type="button" data-val="genel" aria-pressed="false"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Genel seviye</button>
-        <button class="df-fchip" type="button" data-val="hareketlilik" aria-pressed="false"><i class="fa-solid fa-child-reaching" aria-hidden="true"></i> Hareketlilik</button>
-        <button class="df-fchip" type="button" data-val="denge" aria-pressed="false"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Denge</button>
-        <button class="df-fchip" type="button" data-val="kuvvet" aria-pressed="false"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Kuvvet</button>
-        <button class="df-fchip" type="button" data-val="dayaniklilik" aria-pressed="false"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Dayanıklılık</button>
-        <button class="df-fchip" type="button" data-val="gunluk" aria-pressed="false"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Günlük yaşam</button>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="genel"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Genel seviye</button>
+        <button class="df-fchip" type="button" data-val="hareketlilik"><i class="fa-solid fa-child-reaching" aria-hidden="true"></i> Hareketlilik</button>
+        <button class="df-fchip" type="button" data-val="denge"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Denge</button>
+        <button class="df-fchip" type="button" data-val="kuvvet"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Kuvvet</button>
+        <button class="df-fchip" type="button" data-val="dayaniklilik"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Dayanıklılık</button>
+        <button class="df-fchip" type="button" data-val="gunluk"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Günlük yaşam</button>
       </div>
       <div class="fgroup" data-group="sure" role="group" aria-label="Süre filtresi">
         <span class="lbl">Süre</span>
-        <button class="df-fchip on" type="button" data-val="all" aria-pressed="true">Tümü</button>
-        <button class="df-fchip" type="button" data-val="kisa" aria-pressed="false">7 dk ve altı</button>
-        <button class="df-fchip" type="button" data-val="orta" aria-pressed="false">8–10 dk</button>
-        <button class="df-fchip" type="button" data-val="uzun" aria-pressed="false">11 dk ve üstü</button>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="kisa">7 dk ve altı</button>
+        <button class="df-fchip" type="button" data-val="orta">8–10 dk</button>
+        <button class="df-fchip" type="button" data-val="uzun">11 dk ve üstü</button>
       </div>
       <!-- ekipman: bir test birden fazla değer taşıyabilir (data-ekipman boşlukla
            ayrılmış); seçili değerlerden HERHANGİ biri eşleşirse kart görünür -->
       <div class="fgroup" data-group="ekipman" role="group" aria-label="Ekipman filtresi">
         <span class="lbl">Ekipman</span>
-        <button class="df-fchip on" type="button" data-val="all" aria-pressed="true">Tümü</button>
-        <button class="df-fchip" type="button" data-val="yok" aria-pressed="false"><i class="fa-solid fa-person" aria-hidden="true"></i> Ekipman gerekmez</button>
-        <button class="df-fchip" type="button" data-val="mat" aria-pressed="false"><i class="fa-solid fa-square" aria-hidden="true"></i> Mat / kaymayan zemin</button>
-        <button class="df-fchip" type="button" data-val="destek" aria-pressed="false"><i class="fa-solid fa-chair" aria-hidden="true"></i> Sandalye / duvar desteği</button>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="yok"><i class="fa-solid fa-person" aria-hidden="true"></i> Ekipman gerekmez</button>
+        <button class="df-fchip" type="button" data-val="mat"><i class="fa-solid fa-square" aria-hidden="true"></i> Mat / kaymayan zemin</button>
+        <button class="df-fchip" type="button" data-val="destek"><i class="fa-solid fa-chair" aria-hidden="true"></i> Sandalye / duvar desteği</button>
         <button class="fclear" type="button" id="ftClear"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Filtreyi sıfırla</button>
       </div>
     </div>
@@ -483,7 +483,10 @@
         var v  = c.getAttribute('data-val');
         var on = (v === 'all') ? (sel[g].length === 0) : has(g,v);
         c.classList.toggle('on', on);
-        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+        /* aria-pressed YAZILMAZ: çip ortak filtre bileşeninde `role="option"`
+           taşıyor ve durumunu `aria-selected` bildiriyor. İkisi aynı öğede
+           duramaz — doğrulama ajanı bu çakışmayı ölçtü. Durumu kabuk yazar. */
+        c.setAttribute('aria-selected', on ? 'true' : 'false');
       });
     });
     if(sortSeg){

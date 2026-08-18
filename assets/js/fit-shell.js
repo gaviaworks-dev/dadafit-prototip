@@ -2433,10 +2433,15 @@ setTimeout(function(){
         });
       });
 
-      /* çiplerin aria-selected'i durumla birlikte yürür */
+      /* çiplerin aria-selected'i durumla birlikte yürür.
+         aria-pressed HER TURDA yeniden siliniyor: kurulumda bir kez silmek
+         yetmiyordu — iki sayfanın kendi boyama fonksiyonu kabuktan SONRA
+         çalışıp özniteliği geri koyuyor ve `role="option"` ile çakışıyordu
+         (doğrulama ajanı 24 çipte ölçtü: fit-testleri 15, aktivite-gunlugu 9). */
       facets.forEach(function(f){
         f.chips.forEach(function(c){
           c.setAttribute('aria-selected', c.classList.contains('on') ? 'true':'false');
+          if(c.hasAttribute('aria-pressed')) c.removeAttribute('aria-pressed');
         });
       });
 

@@ -306,6 +306,30 @@ script'lerini yazdı ve benim sayılarımı yeniden üretti (ham çıktılar
 `scratchpad/verify-*/`). Ajanların **kırmızı bulgu raporları beklemede** —
 geldiklerinde bu bölüme işlenecek.
 
+### dogrula-C · Faz C raporu (geldi)
+
+**Bir kırmızı buldu, düzeltildi:**
+
+| Bulgu | Beklenen | Ölçülen | Düzeltme | Yeniden ölçüm |
+|---|---|---|---|---|
+| Çakışan `aria-pressed` | `.df-fchip` üzerinde `aria-pressed` kalmamalı (`role="option"` + `aria-selected` sözleşmesi) | **24 çipte ikisi birden** — `fit-testleri-v1` 15, `aktivite-gunlugu-v1` 9 | Kök neden: kabuk özniteliği kuruluşta siliyordu ama bu iki sayfanın kendi boyama fonksiyonu **kabuktan sonra** çalışıp geri koyuyordu. Üç yerde birden çözüldü: kabuk `sync()` her turda siliyor · iki sayfanın çip markup'ından statik öznitelik kalktı (15 + 9) · boyama fonksiyonları `aria-selected` yazıyor. Sıralama düğmelerindeki `aria-pressed` **korundu** — onlar gerçek toggle, listbox seçeneği değil | **7 sayfa, 125 çip: `aria-pressed` kalan 0**, `role=option` 125/125, `aria-selected` 125/125 — üstelik sayfa motoru bir çipi boyadıktan **sonra** ölçüldü ✅ |
+
+**Ajanın bayat ölçüm uyarısı (B-1) — yeniden ölçüldü:** ölçümleri filtre yeniden
+tasarımından önce alınmıştı. Son görselle (kart geri, radius keskin, arama eşiği 5)
+tekrar koştum: **23 eksenin 23'ünde** panel sağ/alt kenarı viewport içinde,
+`elementFromPoint` panelin içini döndürüyor, `role=listbox`, konsol hatası 0;
+**390 px'te 7/7 sayfada** çekmece tam görünür, panel viewport içinde,
+`scrollWidth`=390. Arama alanı artık **3 eksende** (Kas Grubu 10 · Ekipman 15 ·
+Ölçtüğü alan 6). ✅
+
+**Ajanın diğer bulguları:** `?bolge=` alias'ı kullanıcı dokunmadıkça URL'yi
+kanonikleştirmiyor, paylaşılan bağlantı bozulmuyor (B-3, beklenenden iyi) ·
+`href="#" 14` uyarısı Faz C regresyonu değil, filtresiz sayfalarda da aynı,
+11'i kabuktan geliyor (B-4) · `.ex-cat` rozetinin CSS'i diff'te yok, yalnız
+metin değişti (B-5 — C4'ün "rozet tasarımı korunacak" şartı doğrulandı).
+
+**Ajanın yeni beklenmedik bulgusu → plana B8 olarak eklendi.**
+
 **Ajanların bağımsız olarak doğruladığı ölçümlerden örnekler (Faz A):**
 `offsetHeight` tek değer (435 / 462) · isim `boundingBox.top` sapması 0 px ·
 etiket rayı `scrollHeight = clientHeight = 30 px` · `+N` rozeti ile gizlenen
@@ -322,6 +346,7 @@ etiket sayısı **4 kartta birebir** (2/2 · 2/2 · 1/1 · 1/1) · rozet `SPAN` 
 | B4 | **Marka yeşili düğme metninde AA altı.** `--fit` (#009d4f) üzerinde beyaz metin **3.54:1** — WCAG AA eşiği 4.5:1 | site geneli `.btn-fit` / birincil düğmeler | Bu turda dokunulan yerlerde `--fit-deep` (#007a3d, **5.45:1**) kullanıldı. Site geneli `.btn-fit` **değiştirilmedi** → **Beyar'a soru S4** |
 | B5 | **Ana sayfa perdesinde 315 px boş alan.** `min-height:100dvh` ile perde 900 px, içerik yalnız 585 px | `dadafit-hub-v1` | D2'de 74dvh'ye indirilmişti; **Beyar geri istedi**, 100dvh'ye döndü (K15) |
 | B6 | **Kendi düzenlemem bir sayfanın JS'ini çökertti.** D1'in metin değişimi `uyelik-faturalandirma-v1` içinde bir JS dizesinde tırnak kaçırdı | `uyelik-faturalandirma-v1` | Teslim taramasında yakalandı ve onarıldı; sayfa artık konsol hatasız |
+| B8 | **Filtre ekseni prototip verisinin karşılayamadığı seçenek vaat ediyor** (dogrula-C ölçtü). Ekipman ekseninin **15 seçeneğinden 11'inin** hiçbir kartta karşılığı yok (halter · kablo · sabit makine · askı bandı · sağlık topu · pilates topu · step · bench · barfiks barı · atlama ipi · foam roller); kas ekseninin **10'undan 2'si** karşılıksız (triceps · ön kol) | `egzersiz-kutuphane-v1` | **Kırılma değil, veri eksiği** — davranış temiz: `?ekipman=halter` → 0 kart, "0 hareket bulundu", boş durum görünür. Eksen listesi Beyar'ın C4'te birebir verdiği listedir, kısaltmadım. Kartların o değerlere kavuşması **Faz H'nin işi** (veri turu) |
 | B7 | **`.demo-tag` ailesi tek sınıf değildi.** Rozet üç ayrı adla dağılmıştı: `.demo-tag` (48), `.fc-step` "Demo veri" çipi (4), `.lg-demo` "DEMO METİN" hapı (1) | 23 HTML + kabuk | Üçü de kaldırıldı; `.lg-demo` §22 açıklaması olduğu için silinmedi, `.fit-note` şeridine dönüştürüldü (K14) |
 
 # BEYAR'A SORU DÖNEN MADDELER

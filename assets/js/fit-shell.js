@@ -766,7 +766,6 @@ if(_plan){
    '    <div class="fp-who">\n'+
    '      <span class="fp-ava" style="background-image:url(\''+AVA+'\')"></span>\n'+
    '      <span class="fp-who-txt"><b class="fp-name">Elif Şahin</b><small class="fp-state">Ücretsiz üye · 3 haftadır burada</small></span>\n'+
-   '      <span class="demo-tag fp-demo"><i class="fa-solid fa-eye"></i> Örnek görünüm</span>\n'+
    '    </div>\n'+
    '  </div>\n'+
    '</section>\n'+
@@ -2013,14 +2012,15 @@ setTimeout(function(){
   try{ if(localStorage.getItem('dm_fit_motion')==='1') document.documentElement.classList.add('reduce-motion'); }catch(e){}
 })();
 
-/* ---- Ziyaretçi ↔ üye: "örnek görünüm" işaretleri (belge §9.3 · §19) ----
- Giriş yapılmışsa demo etiketleri ve giriş şeridi kalkar. Her sayfada tekrar
- yazılmasın diye kabukta. */
+/* ---- Ziyaretçi ↔ üye görünümü (belge §9.3 · §19) ----
+ Giriş yapılmışsa [data-lg-only] şeritleri (ziyaretçiye "bu veriler örnektir"
+ diyen bilgilendirme kapısı) kalkar. Her sayfada tekrar yazılmasın diye kabukta.
+ NOT: eskiden burada bir de "Örnek görünüm" ROZETİ (.demo-tag/.fp-demo)
+ senkronlanıyordu — rozet ailesi bu turda tüm depodan kaldırıldı (D1). */
 (function(){
   function sync(){
     var authed = document.body.classList.contains('is-auth');
     document.querySelectorAll('[data-lg-only]').forEach(function(el){ el.style.display = authed ? 'none' : ''; });
-    document.querySelectorAll('.fp-demo').forEach(function(el){ el.style.display = authed ? 'none' : ''; });
     var st = document.querySelector('.fp-state');
     if(st && authed) st.textContent = 'Ücretsiz üye · kendi verin';
   }

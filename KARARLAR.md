@@ -307,3 +307,72 @@ kapsamadığı için **dokunulmadı**; `.fit-tabs` onların da hedef kalıbıdı
 
 **Geri almak için:** `assets/css/fit-shell.css` `.fit-tabs` bloğu ve
 `assets/js/fit-shell.js` `[data-fit-tabs]` IIFE'si.
+
+---
+
+## K14 · "Örnek görünüm / Demo veri" rozeti kalktı, bilgi ŞERİTLERİ kaldı
+
+**Belirsizlik:** Beyar "Demo veri tag'i hiçbir yerde olmasın" dedi ama aynı cümlede
+"Enerji Defteri sayfasındaki *Bu sayfadaki veriler örnektir* bilgi şeridi KALSIN"
+dedi. İkisi arasındaki sınırın nerede olduğu yazılı değildi.
+
+**Seçilen sınır — ROZET gider, ŞERİT kalır:**
+
+| Aile | Ne yapıldı | Gerekçe |
+|---|---|---|
+| `.demo-tag` rozeti (48 örnek, 23 dosya) | **silindi** — işaretleme, 18 CSS kuralı, kabuk JS üreticisi (`.demo-tag.fp-demo`) ve `.fp-demo` senkronu dahil | Beyar'ın doğrudan istediği şey. Rozet bilgi vermiyor, kartın üstünde gürültü yapıyordu. |
+| `.fc-step` "Demo veri" çipi (4 örnek) | **silindi** | aynı aile, başka sınıf adıyla |
+| `.lg-demo` "DEMO METİN — PROTOTİP" hapı (yasal-v1) | **`.fit-note` bilgi şeridine dönüştürüldü** | rozet ailesi ama içeriği §22 gereği zorunlu bir açıklama; silmek hukuki metni gerçek gibi gösterirdi |
+| "Demo veri — …" ile başlayan açıklama şeritleri (12 örnek) | **ibare düştü, cümle kaldı** ("Bu prototipte gerçek bir tahsilat yapılmaz…") | şerit kullanıcıya ne olduğunu anlatıyor; Beyar'ın koruduğu şey tam olarak bu işlev |
+| Kabuktaki `.fp-gate` "Bu sayfadaki veriler **örnektir**" şeridi | **KALDI** | Beyar'ın açıkça koruduğu şerit budur |
+
+**ÖNEMLİ TESPİT — Beyar'ın tarifiyle koddaki durum uyuşmuyor:** o şerit
+`enerji-defteri-v1.html`'de **yok**. Şerit kabuk JS'inde üretiliyor
+(`fit-shell.js` → Fit Planım kabuğu, `.fp-gate[data-lg-only]`) ve yalnız
+**Fit Planım** sayfalarında basılıyor. Enerji Defteri şu an bağımsız bir üst
+menü kalemi olduğu için şeridi almıyor. Faz G1'de Enerji Defteri Fit Planım /
+profil bağlamına taşınınca şeridi **kendiliğinden** alacak — yani Beyar'ın
+koruduğu davranış G'den sonra gerçekten Enerji Defteri'nde olacak.
+
+**Ölçüm:** 57 sayfa tarayıcıda açılıp DOM'dan tarandı —
+`.demo-tag,.fp-demo` düğüm sayısı **0**, görünen metinde
+`demo veri` / `örnek görünüm` / `demo-tag` / `örnek metrik` eşleşmesi **0**.
+Kaynakta kalan tek geçiş HTML/JS **yorumu**.
+
+**Geri almak için:** `assets/css/fit-shell.css` içindeki `.demo-tag` bloğu ve
+`fit-shell.js`'teki üretici satır geri konur.
+
+---
+
+## K15 · Ana sayfanın tam-ekran perdesi 100dvh → 74dvh
+
+**Çatışma:** `assets/css/fit-shell.css` içinde bir uyarı vardı —
+"⚠ Sonraki oturum: bu blok bilerek konuldu, banner ölçümünde ana sayfayı ihlal
+sanıp geri alma" — `body[data-fit-hero="1"] .df-top{min-height:100dvh}`.
+Bu turda Beyar'ın talimatı doğrudan tersini istiyor: *"Sitenin genel perde
+yapısında yukarı scroll çok fazla oluyor, bunu engelleyelim."*
+
+**Ölçüm:** 1440×900'de perde **900px**, içindeki içerik yalnız **585px**
+(hero ızgarası 446 + header payı 112 + alt nefes 28). Yani **315px boş perde**.
+
+**Seçilen:** perde kaldırılmadı, **kısaltıldı** — `--hero-full:74dvh`.
+Tam-bleed video kimliği duruyor, "bir sonraki bölüm var" sinyali güçlendi.
+Ölçülen sonuç: **900 → 666px** (1440), **900 → 764px** (390).
+
+**Gerekçe:** eski karar bir ölçüm sonucuydu ("banner ekran yüksekliğinin
+yarısını geçmez" kuralının ana sayfa istisnası), yeni karar ise Beyar'ın
+doğrudan talimatı. Talimat ölçümü ezer; ama kimliği silmek talimatta yok,
+o yüzden gevşetildi, kaldırılmadı.
+
+**Yan karar — TEK ÖLÇEK:** banner yükseklikleri artık sayfa sayfa sabit sayı
+değil, kabuktaki dört token: `--fit-header-h` · `--hero-pt` · `--hero-pb` ·
+`--hero-gap` (+ `--hero-min`, `--hero-full`, `--sec-pad`). Over-mode
+padding'leri `calc(var(--fit-header-h) + var(--hero-pt))` formülünden
+türüyor — önceki 12 sabit sayı (152·142·133·131·147·153·125·129·139·73·83·93)
+tek formüle indi.
+
+**Bilinen bedel:** iki sayfanın banner'ı ölçek yüzünden **büyüdü** —
+`antrenor-ol-v1` 600→602 (+2) ve `program-detay-v1` 564→570 (+6); ikisinin de
+eski dolgusu ortak ölçekten daha sıkıydı. Tutarlılık uğruna kabul edildi.
+
+**Geri almak için:** `:root` içindeki hero token'ları.

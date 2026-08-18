@@ -30,6 +30,23 @@
   /* DadaFit alt-marka recolor (Store/Akademi pattern'i): chrome aksanı kurumsal yeşil.
  "Yemek/aldığın" kırmızısı --food (#E14827) ile hardcoded → Enerji Defteri korunur. */
   --tomato:#009d4f;          /* DadaFit aksanı — kurumsal yeşil (Pantone 7482 C) */
+
+  /* ---- TEK HERO YÜKSEKLİK ÖLÇEĞİ (D2) --------------------------------
+     Önce her banner sınıfının kendi sabit padding'i vardı (.lib-top 30/30 ·
+     .df-hero 20/34 · .fs-top 26/32 · .cp-top 20/24 · .chl-hero 18/22 ·
+     .pd-hero 12/16 · .ol-top 16/16) ve over-mode padding-top'ları sayfa
+     sayfa ölçülmüş sabit sayılardı (152 · 133 · 147 · 131 · 125 · 139 · 129).
+     Hepsi TEK ölçeğe indi: banner içi nefes iki token, header ofseti ise
+     `calc(--fit-header-h + --hero-pt)` formülüyle türetiliyor. Sayfa bazında
+     rastgele değer kalmadı; ölçeği değiştirmek için burası yeter. */
+  --fit-header-h:113px;   /* üst bant 40 + header 72 (ölçüldü) */
+  --hero-pt:16px;         /* banner üst nefesi */
+  --hero-pb:18px;         /* banner alt nefesi */
+  --hero-gap:10px;        /* banner içi dikey ritim (crumb ↔ h1 ↔ alt metin) */
+  --hero-min:0px;         /* banner taban yüksekliği — içerik belirler */
+  --hero-full:74dvh;      /* tam-bleed hero (ana sayfa) — perde yüksekliği */
+  --hero-full-fallback:74vh;
+  --sec-pad:50px;         /* bölüm dikey nefesi (eskiden sabit 74px) */
   --tomato-dark:#007a3d;     /* hover türevi (yeşil) */
   --tomato-deep:#006a35;     /* gradient ucu (yeşil) */
   --tomato-tint:#e8f6ee;     /* yeşil fısıltısı zemin */
@@ -88,7 +105,10 @@ img{display:block;max-width:100%}
 .eyebrow i{font-size:13px}
 
 /* section head */
-.sec{padding:74px 0}
+/* Bölüm nefesi de tek ölçekten (D2: "perde yapısında yukarı scroll çok fazla").
+   Ölçüm: 74px'lik bölüm dolgusu hero'dan sonraki ilk içeriği 6 sayfada
+   900px'in altına indirmeyi engelliyordu. */
+.sec{padding:var(--sec-pad) 0}
 /* fixed header offseti — sayfanın İLK section'ına bu class verilir
  (topbar 40 + header 72 = 112px · mobil 62px) */
 .below-header{padding-top:112px}
@@ -828,7 +848,7 @@ body.scroll-locked{overflow:hidden}
   html{scroll-padding-top:62px}
 
   /* bölüm ritmi */
-  .sec{padding:44px 0}
+  .sec{padding:var(--sec-pad) 0}
 
   /* section başlık araçları: oklar h2 satırında, "Tamamını Gör" kompakt metin-link.
  DOM aynı — sol blok + sec-tools display:contents ile grid'e açılır:
@@ -1085,6 +1105,9 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
  Yeni sınıf adı üretilmedi — hepsi mevcut sayfalardan gelen adlardır.
  ===================================================================== */
 
+@media (max-width:1024px){ :root{ --hero-pt:14px; --hero-pb:16px; --hero-gap:9px; --sec-pad:42px } }
+@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:12px; --hero-pb:14px; --hero-gap:8px; --sec-pad:34px } }
+
 /* ---- BANNER + BREADCRUMB (belge §17: ikisi birlikte gelir) ----
  Sayfa yalnız görselini bildirir: .lib-top{--lib-img:url('…')}
  Yükseklik güvenliği: banner ekran yüksekliğinin yarısını geçmez. */
@@ -1121,17 +1144,17 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
  özgüllükle yener — böylece 16 sayfayı tek tek düzenlemek gerekmez ve kural
  tek yerde kalır. (Kopyaların kendisi ayrı bir temizlik işi: §23.)
  -------------------------------------------------------------------- */
-body[data-fit-over="1"] .lib-top{margin-top:0;padding-top:152px}
+body[data-fit-over="1"] .lib-top{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
 /* .cp-top (antrenör detay banner'ı) — .lib-top ile aynı desen: eski
    margin-top + padding-top toplamı kadar padding verilir, içerik oynamaz,
    yalnız koyu zemin header'ın arkasına uzar.
    !important ŞART: aşağıda (satır ~1616) medya sorgusu DIŞINDA duran
-   `.cp-top{padding:20px 0 24px !important}` sıkıştırma kuralı her genişlikte
+   `.cp-top{padding:var(--hero-pt) 0 var(--hero-pb) !important}` sıkıştırma kuralı her genişlikte
    geçerli ve normal bir `padding-top`u yeniyor — ilk denemede tam bu yüzden
    breadcrumb header'ın altında kaldı (ölçüm: padding-top 146 yazıldı,
    computed 20px çıktı, crumbTop=20 < headerAlt=113).
    Değerler ölçülen header yüksekliğinden türedi: 113 + 20 · 113 + 18 · 63 + 10. */
-body[data-fit-over="1"] .cp-top{margin-top:0 !important;padding-top:133px !important}
+body[data-fit-over="1"] .cp-top{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
 /* Diğer banner sınıfları — aynı desen, değerler her sayfada TEK TEK ölçüldü
    (header alt kenarı + o sınıfın özgün padding-top'u):
      .kp-top    1440/1024→147/153px · ≤640→93px
@@ -1141,11 +1164,11 @@ body[data-fit-over="1"] .cp-top{margin-top:0 !important;padding-top:133px !impor
      .ol-top    1440/1024→129/133px · ≤640→77px
    !important şart: bu sınıfların hepsinin medya sorgusu dışında duran
    `padding:… !important` sıkıştırma kuralı var. */
-body[data-fit-over="1"] .kp-top{margin-top:0 !important;padding-top:147px !important}
-body[data-fit-over="1"] .chl-hero{margin-top:0 !important;padding-top:131px !important}
-body[data-fit-over="1"] .pd-hero{margin-top:0 !important;padding-top:125px !important}
-body[data-fit-over="1"] .fs-top{margin-top:0 !important;padding-top:139px !important}
-body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:129px !important}
+body[data-fit-over="1"] .kp-top{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
+body[data-fit-over="1"] .chl-hero{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
+body[data-fit-over="1"] .pd-hero{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
+body[data-fit-over="1"] .fs-top{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
+body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:calc(var(--fit-header-h) + var(--hero-pt)) !important}
 
 .lib-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:18px;flex-wrap:wrap}
 .lib-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
@@ -1224,13 +1247,6 @@ body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:129px !impor
   .hub-grid,.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
   .hub-grid.cols-3,.lib-grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lib-top{padding:30px 0 28px}   /* margin-top 112px KALIR — ≤1024'te kabuk hâlâ 113px */
-  body[data-fit-over="1"] .lib-top{padding-top:142px}   /* 112 + 30 — içerik yerinde kalır */
-  body[data-fit-over="1"] .cp-top{padding-top:131px !important}   /* header 113 + sıkıştırılmış padding 18 */
-  body[data-fit-over="1"] .kp-top{padding-top:153px !important}
-  body[data-fit-over="1"] .chl-hero{padding-top:137px !important}
-  body[data-fit-over="1"] .pd-hero{padding-top:129px !important}
-  body[data-fit-over="1"] .fs-top{padding-top:139px !important}
-  body[data-fit-over="1"] .ol-top{padding-top:133px !important}
   .lib-top h1{font-size:31px}
 }
 @media (max-width:640px){
@@ -1283,9 +1299,6 @@ body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:129px !impor
 }
 
 /* ---- "ÖRNEK" ETİKETİ (ziyaretçi demo görünümü — belge §9.3/§19) ---- */
-.demo-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);background:var(--cream-2);border:1px solid #e3d9c7;padding:4px 10px;border-radius:var(--radius-sm)}
-.demo-tag i{font-size:10px}
-
 /* =====================================================================
  BANNER YÜKSEKLİK KURALI (Faz 1)
  Belge/tur kuralı: banner ekran yüksekliğinin yarısını geçmez.
@@ -1321,8 +1334,6 @@ body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:129px !impor
 .fp-who-txt{display:flex;flex-direction:column;line-height:1.3}
 .fp-name{color:#fff;font-size:15px;font-weight:800}
 .fp-state{color:rgba(255,255,255,.66);font-size:12.5px;font-weight:600}
-.fp-top .demo-tag{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24);color:#fff}
-
 /* sekme rayı — hesabim-v1 .pf-tabbar kiti, DadaFit yeşiliyle */
 .pf-tabbar{position:sticky;top:112px;z-index:40;background:rgba(249,249,249,.94);-webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);padding:12px 0;margin-bottom:0}
 /* Ray on bir kaleme çıktı (Enerji Köprüsü eklendi). Masaüstünde tek satıra
@@ -1627,47 +1638,71 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
 
 /* ---------- geniş ekran: yalnız dikey nefes ---------- */
 .df-top .df-crumb{margin-top:10px !important;margin-bottom:2px !important}
-.df-top .df-hero{padding:20px 0 34px !important}
+.df-top .df-hero{padding:var(--hero-pt) 0 var(--hero-pb) !important}
 .df-hmain h1{margin:12px 0 12px !important}
 .df-hcta{margin-top:18px !important}
 .df-htrust{margin-top:16px !important}
 .df-top .ed-demo{margin-top:14px !important}
-.kp-top .kp-hero{padding:20px 0 26px !important}
-.chl-hero{padding:18px 0 22px !important}
+.kp-top .kp-hero{padding:var(--hero-pt) 0 var(--hero-pb) !important}
+.chl-hero{padding:var(--hero-pt) 0 var(--hero-pb) !important}
 .chl-hero h1{margin:8px 0 10px !important}
 .chl-meta{margin:12px 0 !important}
 .chl-cta{margin-top:13px !important}
-.cp-top{padding:20px 0 24px !important}
-.ol-top{padding-top:16px !important;padding-bottom:16px !important}
+.cp-top{padding:var(--hero-pt) 0 var(--hero-pb) !important}
+.ol-top{padding-top:var(--hero-pt) !important;padding-bottom:var(--hero-pb) !important}
 .ol-top .ol-bene{margin-top:12px !important}
 .ol-top .ol-intro{margin-top:10px !important}
 .ol-top .ol-hero-acts{margin-top:14px !important}
-.pd-hero{padding:12px 0 16px !important}
+.pd-hero{padding:var(--hero-pt) 0 var(--hero-pb) !important}
 .pd-hero .pd-crumb{margin-bottom:8px !important}
 .pd-hero h1{margin:6px 0 6px !important}
 .pd-hero .pd-meta{margin-top:10px !important}
 .pd-hero .pd-hcta{margin-top:12px !important}
-.fs-top{padding:26px 0 32px !important}
+.fs-top{padding:var(--hero-pt) 0 var(--hero-pb) !important}
+/* .lib-top 37 sayfada kullanılıyor ve 16'sı kendi <style> bloğunda
+   `padding:30px 0 30px` kopyasını taşıyor. body seçicisi (0,2,0) o
+   kopyaları (0,1,0) yener — sayfaları tek tek düzenlemeye gerek yok. */
+body[data-brand="fit"] .lib-top{padding-top:var(--hero-pt);padding-bottom:var(--hero-pb)}
+/* Dış kabuk taşıyan banner'lar (.kp-top/.df-top/.ol-top): iç hero ızgarası
+   ölçekten besleniyor ama DIŞ kutunun kendi padding'i sayfa CSS'inde kalıyordu
+   (kp-top 34/40 · df-top 112/24). Alt nefesi de tek ölçeğe bağla. */
+body[data-brand="fit"] .kp-top,
+body[data-brand="fit"] .df-top,
+body[data-brand="fit"] .ol-top{padding-bottom:var(--hero-pb)}
+
+/* Sayfa bazında kalan iki "rastgele" taban yükseklik de ölçeğe bağlandı:
+   program-detay `.pd-hero{min-height:400px}` (≤1024'te 480px) ve
+   antrenör detayda banner içi sabit boşluklar. Taban artık içerik belirler. */
+body[data-brand="fit"] .pd-hero,
+body[data-brand="fit"] .chl-hero,
+body[data-brand="fit"] .cp-top,
+body[data-brand="fit"] .fs-top,
+body[data-brand="fit"] .ol-top{min-height:var(--hero-min) !important}
+
+/* ---- banner içi dikey ritim de tek ölçekten ---- */
+body[data-brand="fit"] .lib-top .lib-crumb{margin-bottom:var(--hero-gap)}
+body[data-brand="fit"] .lib-top h1{margin:var(--hero-gap) 0 calc(var(--hero-gap) - 2px)}
+body[data-brand="fit"] .lib-top .lib-stats{margin-top:calc(var(--hero-gap) + 6px)}
 .fs-top .lib-crumb{margin-bottom:12px !important}
 
 /* ---------- ≤1024 ---------- */
 @media (max-width:1024px){
   .df-top{padding-top:62px !important}
-  .df-top .df-hero{padding:14px 0 22px !important;gap:24px !important}
-  .kp-top .kp-hero{padding:14px 0 18px !important}
+  .df-top .df-hero{gap:24px !important}
+
   .df-hmain h1,.kp-hmain h1{margin:10px 0 10px !important}
   .df-hcta{margin-top:14px !important}
   .df-htrust{margin-top:13px !important;gap:12px !important}
-  .chl-hero{padding:24px 0 26px !important}
+
   .chl-hero .chl-grid{gap:22px !important}
   .chl-meta{gap:14px !important;margin:13px 0 !important}
-  .pd-hero{min-height:0 !important;padding:16px 0 18px !important}
+  .pd-hero{min-height:0 !important}
   .pd-hero .pd-meta{gap:8px 16px !important;margin-top:11px !important}
-  .cp-top{padding:18px 0 20px !important}
+
   .cp-top .cp-head{gap:12px !important}
   .cp-portre{width:88px !important;height:88px !important}
   .cp-top .cp-cta{gap:8px !important}
-  .ol-top{padding-top:20px !important;padding-bottom:18px !important}
+
   .ol-top .ol-bene{margin-top:12px !important}
   .ol-top .rd-crumb{margin-bottom:8px !important}
 }
@@ -1698,11 +1733,6 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
      over-mode'da OLMAYAN sayfalar 62px margin'ini korur. */
   body[data-fit-over="1"] .lib-top{margin-top:0 !important}
   /* aynı gerekçe: yukarıdaki `.cp-top{margin-top:62px !important}` satırını yener */
-  body[data-fit-over="1"] .cp-top{margin-top:0 !important;padding-top:73px !important}  /* header 63 + sıkıştırılmış padding 10 */
-  body[data-fit-over="1"] .kp-top{margin-top:0 !important;padding-top:93px !important}
-  body[data-fit-over="1"] .chl-hero{margin-top:0 !important;padding-top:73px !important}
-  body[data-fit-over="1"] .pd-hero{margin-top:0 !important;padding-top:71px !important}
-  body[data-fit-over="1"] .fs-top{margin-top:0 !important;padding-top:83px !important}
   body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:77px !important}
   /* hub hero'lu: header şeffaf, bant header'ın ARKASINDAN başlar → padding ile ofset */
   body[data-fit-hero="1"] .df-top{margin-top:0 !important;padding-top:70px !important;padding-bottom:16px !important}
@@ -1761,11 +1791,16 @@ textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{
  · Dar ekranda tipografi kademeli daralır; hiçbir kalem gizlenmez.
  ===================================================================== */
 body[data-fit-hero="1"] .df-top{
-  min-height:100vh;                      /* yedek: dvh bilmeyen tarayıcı */
-  min-height:100dvh;                     /* dinamik görüntü alanı */
+  /* D2 — PERDE KISALDI: eskiden 100dvh idi (1440x900'de 900px ölçüldü,
+     içerik yalnız 585px; 315px boş perde). Beyar "yukarı scroll çok fazla"
+     dedi, tam-ekran perde kararı bilinçli olarak gevşetildi (KARARLAR K15).
+     Tam-bleed video kimliği korunuyor, yalnız yükseklik tek ölçek token'ından
+     geliyor — sayfada sabit sayı kalmadı. */
+  min-height:var(--hero-full-fallback);  /* yedek: dvh bilmeyen tarayıcı */
+  min-height:var(--hero-full);           /* dinamik görüntü alanı */
   justify-content:center !important;
-  padding-top:112px !important;          /* sabit header (112px) karşılanır */
-  padding-bottom:28px !important;
+  padding-top:var(--fit-header-h) !important;   /* sabit header karşılanır */
+  padding-bottom:var(--hero-pb) !important;
   margin-top:0 !important;
 }
 /* video kırpılarak kaplar, oran korunur (object-fit zaten cover; burada kilitli) */
@@ -1777,7 +1812,7 @@ body[data-fit-hero="1"] .df-hero-media video{
 body[data-fit-hero="1"] .df-top .df-hero{padding:0 !important;align-items:center}
 
 @media (max-width:1024px){
-  body[data-fit-hero="1"] .df-top{padding-top:112px !important;padding-bottom:14px !important}
+  body[data-fit-hero="1"] .df-top{padding-top:var(--fit-header-h) !important;padding-bottom:var(--hero-pb) !important}
   body[data-fit-hero="1"] .df-top .df-hero{gap:20px !important}
   body[data-fit-hero="1"] .df-hmain h1{font-size:31px !important;margin:8px 0 8px !important}
   body[data-fit-hero="1"] .df-hmain .lead{font-size:14.5px !important;line-height:1.5 !important}

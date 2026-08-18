@@ -354,7 +354,80 @@ bilerek dokunulmadı.
 düğmesi** ("Ana Sayfaya Dön") · kırıntı içinde düz `DadaFit` metni → **0**.
 
 **Ekran görüntüsü:** `scratchpad/shots/r3-*.png` (5 sayfa, kırıntı kırpması)
-# R4 — FİLTRE KARTI REFERANSA HİZALANSIN
+# R4 — FİLTRE KARTI REFERANSA HİZALANDI
+
+**Beyar:** *"Egzersiz kütüphanesindeki filtre kartını referans alacaksın, ekipman
+tarafı. O daha kompakt. Durum, kategori, süre filtresi diğer filtreyle tutarlı
+olacak, burada bir farklılık var."*
+
+## R4.0 · Filtre çubuğunu kullanan sayfalar — 7
+
+`grep -l "data-ff" *.html` → 7 sayfa. Referans: `egzersiz-kutuphane-v1`.
+
+| # | Sayfa | Eksen | Eksen adları |
+|---|---|---|---|
+| **REF** | `egzersiz-kutuphane-v1` | 4 | Kas Grubu · Ekipman · Süre · Seviye |
+| 2 | `challenge-merkezi-v1` | 3 | Durum · Kategori · Süre |
+| 3 | `program-liste-v1` | 4 | Hedef · Süre · Seviye · Ekipman |
+| 4 | `programlar-merkezi-v1` | 4 | Tür · Hedef · Seviye · Ekipman & mekân |
+| 5 | `hareket-merkezi-v1` | 3 | Süre · Hedef · Ekipman |
+| 6 | `fit-testleri-v1` | 3 | Ölçtüğü alan · Süre · Ekipman |
+| 7 | `aktivite-gunlugu-v1` | 2 | Aktivite türü · Aktivite kaynağı |
+
+## R4.1 · Tespit — tek fark ÇUBUK YÜKSEKLİĞİYDİ, sebebi de sayfa marjı
+
+| Sayfa | Çubuk yüksekliği — ÖNCE |
+|---|---|
+| `egzersiz-kutuphane-v1` **(REF)** · `program-liste-v1` · `fit-testleri-v1` · `aktivite-gunlugu-v1` | **62 px** |
+| `challenge-merkezi-v1` · `programlar-merkezi-v1` · `hareket-merkezi-v1` | **85.9 px** |
+
+**Kök neden (tek tek çocuk gizlenerek bulundu):** sonuç sayacı düğümü sayfaya ait
+ve üç sayfada kendi dikey marjını taşıyor — `.cm-count` / `.pm-count` /
+`.hm-count` → `margin:22px 0 18px`. Flex satırının yüksekliği öğenin **marjlı dış
+ölçüsünden** hesaplanır:
+
+```
+23.9 (sayaç) + 40 (marj) = 63.9 satır  +  20 dolgu  +  2 kenarlık  =  85.9 px
+```
+
+Referanstaki `.lib-count` marjsız → satır 40 px → **62 px**. Kabuğun eski
+sıfırlama bloğu (`.cm-panel.ff{padding:0;…}`) yalnız **kabuğu** sıfırlıyordu,
+sayacın kendi marjını değil.
+
+**Düzeltme:** `.ff-bar .ff-count{margin:0}` — kabukta **tek satır**, tek kaynak.
+Sayfa CSS'lerine dokunulmadı.
+
+## R4.2 · ÖLÇÜM — 7 sayfa, 23 eksen
+
+Panel ölçüleri **zaten birebir aynıydı** (C1'de tek kaynağa çıkmış); sapma yalnız
+çubuktaydı. Ölçüm iki kez koşuldu.
+
+| Ölçü | Değer | Sapma |
+|---|---|---|
+| Filtre çubuğu yüksekliği | **62 px** — 7/7 sayfa | **0** ✅ |
+| Çubuk iç boşluğu | `10px 12px` — 7/7 | **0** ✅ |
+| Çubuk köşe yarıçapı | `12px` — 7/7 | **0** ✅ |
+| Çubuk öğe aralığı | `8px` — 7/7 | **0** ✅ |
+| Panel genişliği | **252 px** — 23/23 eksen | **0** ✅ |
+| Panel iç boşluğu | `9px` — 23/23 | **0** ✅ |
+| Panel köşe yarıçapı | `12px` — 23/23 | **0** ✅ |
+| Seçenek çipi yüksekliği | **38 px** — 23/23 | **0** ✅ |
+| Çip iç boşluğu | `10px 11px` — 23/23 | **0** ✅ |
+| Çip yazı boyu | `14px` — 23/23 | **0** ✅ |
+| Çip köşe yarıçapı | `12px` — 23/23 | **0** ✅ |
+| `page-check` | 7 sayfa × 2 genişlik = **14/14 temiz** ✅ | |
+
+> Panelin `max-height` değeri sayfa sayfa farklı (420 … 1089 px) — bu **sapma
+> değil**, C1'in viewport kelepçesi paneli açıldığı yere göre hesaplıyor.
+> Ama ölçüm bu kelepçenin **çalışmadığı dört eksen** buldu → **R6'nın konusu**.
+
+**Ekran görüntüsü:** `scratchpad/shots/ff-*.png` (referans + düzeltilen üç sayfa)
+
+> **AÇIK NOKTA — Beyar'a soru S6:** referans çubukta sağ uçta **sıralama şeridi**
+> var (Popüler · Yeni · A–Z); `challenge-merkezi` · `programlar-merkezi` ·
+> `hareket-merkezi` çubuklarında **yok** (o sayfalarda sıralama motoru yazılmamış).
+> Ölçüler artık birebir aynı; kalan tek görsel fark bu. Sıralama o üç sayfaya da
+> eklensin mi? Uydurmadım — sormayı seçtim.
 # R5 — HER EKSENDE ARAMA
 # R6 — DROPDOWN YÖNÜ
 # R7 — ÇİP RADIUS'U

@@ -88,9 +88,20 @@ var NAV = [
     match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1',
            'fit-testleri-v1','fit-testi-detay-v1','fit-testi-sonuc-v1',
            'video-seanslari-v1','video-seans-detay-v1'],
+    /* E5 — "Programlar" ile "Tüm Programlar" ayrımı netleşti.
+       ÖLÇÜM (değişiklik öncesi, NAV/BOTTOM/FOOTER dizilerinden okundu):
+         Programlar (başlık)        → programlar-merkezi-v1.html
+         Programlar Merkezi (panel) → programlar-merkezi-v1.html   ← AYNI HEDEF
+         Tüm Programlar (panel)     → program-liste-v1.html        ← farklı hedef
+         Programlar (alt bar)       → programlar-merkezi-v1.html
+         Programlar (footer)        → programlar-merkezi-v1.html
+       Yani başlık ile panelin ilk kalemi aynı yere gidiyordu (menü
+       sözleşmesinin "bir hedefe yalnız bir kalem" kuralının ihlali);
+       "Tüm Programlar" ise gerçekten başka bir sayfa. KARAR: tekrar eden
+       kalem silindi, farklı hedefli kalemin etiketi netleştirildi
+       (KARARLAR.md K16). */
     dd:[
-      {label:'Programlar Merkezi', desc:'Program dünyasının giriş kapısı', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-compass'},
-      {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
+      {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların filtrelenebilir tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
       {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true},
       {label:'Fit Testleri', desc:'Seviyeni kendi ölçümünle belirle', href:'fit-testleri-v1.html', icon:'fa-solid fa-clipboard-check'},
       {label:'Video Seansları', desc:'Eğitmen eşliğinde çalış', href:'video-seanslari-v1.html', icon:'fa-solid fa-circle-play'}
@@ -1841,13 +1852,34 @@ setTimeout(function(){
     }
   }
 
+  /* ---- SATIR İÇİ KİP (E3) ----------------------------------------
+     Beyar: "Programımı bul wizard'ı popup şeklinde çıkmayacak, programlar
+     merkezinin içerisinde banner'da bir buton olarak sunabiliriz."
+     Sayfa bir barındırıcı bildirirse (<div data-fit-wizard-host>) sihirbaz
+     MODAL OLARAK AÇILMAZ: aynı panel o kutunun içine basılır, örtü katmanı
+     üretilmez, scroll kilitlenmez, Esc bağlanmaz. Soru/yanıt/sonuç mantığı
+     birebir aynı kalır — iki ayrı sihirbaz kopyası oluşmaz. */
+  var HOST = document.querySelector('[data-fit-wizard-host]');
+  var INLINE = !!HOST;
+
   function ac(){
     if(!modal){
       var holder = document.createElement('div');
       holder.innerHTML = html();
-      while(holder.firstChild) document.body.appendChild(holder.firstChild);
+      var target = INLINE ? HOST : document.body;
+      while(holder.firstChild){
+        var node = holder.firstChild;
+        /* satır içi kipte örtü katmanı hiç DOM'a girmez */
+        if(INLINE && node.nodeType===1 && node.classList.contains('wz-overlay')){ holder.removeChild(node); continue; }
+        target.appendChild(node);
+      }
       modal = document.getElementById('wzModal');
       ov = document.getElementById('wzOverlay');
+      if(INLINE){
+        modal.classList.add('wz-inline');
+        modal.removeAttribute('aria-modal');
+        modal.setAttribute('role','region');
+      }
       modal.addEventListener('click', function(e){
         var o = e.target.closest('.wz-opt');
         if(o){
@@ -1865,7 +1897,7 @@ setTimeout(function(){
         }
       });
       document.getElementById('wzClose').addEventListener('click', kapat);
-      ov.addEventListener('click', kapat);
+      if(ov) ov.addEventListener('click', kapat);
       document.getElementById('wzBack').addEventListener('click', function(){ if(adim>0){adim--;goster();} });
       document.getElementById('wzNext').addEventListener('click', function(){
         if(this.getAttribute('data-son')){
@@ -1875,27 +1907,48 @@ setTimeout(function(){
         }
         if(adim<SORULAR.length){ adim++; goster(); }
       });
-      document.addEventListener('keydown', function(e){
-        if(e.key==='Escape' && modal.classList.contains('show')) kapat();
-      });
+      /* Esc yalnız MODAL kipte anlamlı — satır içi bölüm bir katman değil,
+         sayfanın parçası; Esc bağlamak kullanıcıyı şaşırtır. */
+      if(!INLINE){
+        document.addEventListener('keydown', function(e){
+          if(e.key==='Escape' && modal.classList.contains('show')) kapat();
+        });
+      }
     }
     adim=0; goster();
     if(modal.classList.contains('show')) return;
-    modal.classList.add('show'); ov.classList.add('show');
-    lockScroll();
+    modal.classList.add('show');
+    if(ov) ov.classList.add('show');
+    if(!INLINE) lockScroll();
     if(window.__bnUpdate) window.__bnUpdate();
+    if(INLINE && HOST.scrollIntoView) HOST.scrollIntoView({block:'start'});
     var f = modal.querySelector('.wz-step.on .wz-opt'); if(f) f.focus();
   }
   function kapat(){
     if(!modal.classList.contains('show')) return;
-    modal.classList.remove('show'); ov.classList.remove('show');
-    unlockScroll();
+    modal.classList.remove('show');
+    if(ov) ov.classList.remove('show');
+    if(!INLINE) unlockScroll();
     if(window.__bnUpdate) window.__bnUpdate();
+    document.querySelectorAll('[data-fit-wizard][aria-expanded]').forEach(function(b){
+      b.setAttribute('aria-expanded','false');
+    });
   }
 
+  function syncTriggers(){
+    var on = !!(modal && modal.classList.contains('show'));
+    document.querySelectorAll('[data-fit-wizard][aria-expanded]').forEach(function(b){
+      b.setAttribute('aria-expanded', on ? 'true':'false');
+    });
+  }
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-fit-wizard]');
-    if(t){ e.preventDefault(); ac(); }
+    if(!t) return;
+    e.preventDefault();
+    /* satır içi kipte düğme AÇ/KAPA anahtarıdır (modal kipte yalnız açar) */
+    if(INLINE && modal && modal.classList.contains('show')) kapat();
+    else ac();
+    syncTriggers();
   });
   if(location.search.indexOf('wizard=1')>-1) setTimeout(ac,120);
   window.FIT_SHELL = window.FIT_SHELL || {};

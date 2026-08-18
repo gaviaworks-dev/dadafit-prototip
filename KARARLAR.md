@@ -376,3 +376,46 @@ tek formüle indi.
 eski dolgusu ortak ölçekten daha sıkıydı. Tutarlılık uğruna kabul edildi.
 
 **Geri almak için:** `:root` içindeki hero token'ları.
+
+---
+
+## K16 · "Programlar" ile "Tüm Programlar": tekrar silindi, ayrım korundu
+
+**Belirsizlik:** Beyar "Programlar, tüm programlar şeklinde bunlar aynı bağlamda
+gözüküyor" dedi ama hangisinin kalacağını söylemedi. Talimat iki yol bırakıyordu:
+aynı hedefe gidiyorlarsa tek bağlantıya indir, farklı hedeflere gidiyorlarsa
+etiketleri ayrıştır.
+
+**ÖNCE ÖLÇÜLDÜ** (kabuk `NAV`/`BOTTOM`/`FOOTER_COLS` dizileri + tarayıcıda DOM):
+
+| Etiket | Yer | Hedef |
+|---|---|---|
+| Programlar | menü başlığı | `programlar-merkezi-v1.html` |
+| **Programlar Merkezi** | panel 1. kalem | **`programlar-merkezi-v1.html`** ← başlıkla AYNI |
+| Tüm Programlar | panel 2. kalem | `program-liste-v1.html` ← farklı |
+| Programlar | mobil alt bar | `programlar-merkezi-v1.html` |
+| Programlar | footer | `programlar-merkezi-v1.html` |
+
+Yani **iki durum birden** vardı: bir tekrar (başlık ↔ panel 1) ve bir gerçek ayrım
+(panel 2). Talimatın iki şıkkı da uygulandı.
+
+**Seçilen:**
+1. Panelin "Programlar Merkezi" kalemi **silindi** — başlığın kendisi zaten oraya
+   gidiyor. Bu, dosyadaki menü sözleşmesinin ("bir hedefe YALNIZ BİR kalem gider,
+   paneli olan başlık da gerçek bağlantıdır") zaten yazılı olan kuralı.
+2. "Tüm Programlar" **kaldı**, açıklaması netleşti: *"4 · 8 · 12 haftalık planların
+   filtrelenebilir tam listesi"*.
+3. Üçüncü bir çakışma **üretilmeden önce yakalandı**: E3'te banner'a eklediğim
+   ikincil düğme önce sayfa içi `#tumu` çapasına gidiyordu ve etiketi yine
+   "Tüm Programlar"dı — aynı etiket üçüncü bir hedefe. Düğme
+   `program-liste-v1.html`'e çevrildi; sayfa içi ızgaranın başlığı da
+   "Tüm programlar" → **"Programlar ve challenge'lar"** oldu.
+
+**Ölçüm (sonrası, tarayıcıda kabuk bağlantıları):**
+`programlar-merkezi-v1.html` → 4 kalem, hepsinin etiketi **"Programlar"**;
+`program-liste-v1.html` → 2 kalem, hepsinin etiketi **"Tüm Programlar"**.
+Aynı etiket iki hedefe, aynı hedef iki farklı etikete gitmiyor.
+Site genelinde "Tüm Programlar" yazan **9 bağlantının 9'u** da
+`program-liste-v1.html`'e gidiyor.
+
+**Geri almak için:** `assets/js/fit-shell.js` → `NAV[programlar].dd`.

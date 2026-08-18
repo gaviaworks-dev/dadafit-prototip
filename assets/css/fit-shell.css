@@ -1502,6 +1502,15 @@ body.kcal-off .dl-row::after{content:"sayı gizli";font-size:11.5px;font-weight:
 .wz-modal.show{opacity:1;visibility:visible;pointer-events:auto}
 .wz-panel{position:relative;width:min(620px,100%);max-height:calc(100vh - 40px);overflow-y:auto;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--sh-lg);transform:translateY(14px);transition:transform .3s var(--ease)}
 .wz-modal.show .wz-panel{transform:translateY(0)}
+
+/* ---- SATIR İÇİ KİP (E3) — sihirbaz sayfanın içinde bir bölüm ----
+   Aynı .wz-panel, katman değil akış öğesi: sabit konum yok, örtü yok,
+   ekran ortalaması yok. Kapalıyken yer kaplamaz. */
+.wz-modal.wz-inline{position:static;inset:auto;z-index:auto;display:none;place-items:stretch;padding:0;
+  opacity:1;visibility:visible;pointer-events:auto;transition:none}
+.wz-modal.wz-inline.show{display:block}
+.wz-modal.wz-inline .wz-panel{width:100%;max-width:none;max-height:none;overflow:visible;
+  transform:none;border:1px solid var(--line);box-shadow:var(--sh-sm)}
 .wz-head{display:flex;align-items:flex-start;gap:14px;padding:22px 24px 16px;border-bottom:1px solid var(--line)}
 .wz-head h3{font-size:19px;margin-bottom:4px}
 .wz-head p{font-size:13px;color:var(--muted);font-weight:500}
@@ -2434,3 +2443,50 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   .fit-tab{padding:9px 14px;font-size:12.5px}
   .fit-tabs{display:flex;width:100%}
 }
+
+/* =====================================================================
+ VİDEO SEANS KARTI — .vs-card ailesi (ORTAK · TEK KAYNAK)
+ video-seanslari-v1'den taşındı; E4 ile programlar-merkezi-v1 de kullanıyor.
+ ===================================================================== */
+/* ---- SEANS KARTI — kabuğun .hub-card kabuğu + sayfaya özgü ölçüler ----
+ Kart başlığı h3 (§19 hiyerarşi: h1 banner'da, bölüm h2, kart h3).
+ Kabuk .hub-body h4'ü biçimliyor; h3 karşılığı sayfa-yerel. */
+.vs-card .hub-body h3{font-size:16.5px;margin-bottom:8px;letter-spacing:-.01em;transition:color .2s var(--ease)}
+.vs-card:hover .hub-body h3{color:var(--fit-deep)}
+
+/* Kapak: kabuğun .hub-media kutusu (168px sabit yükseklik + alt gradient)
+ korunur, içine gerçek <img> oturur. Kutu sabit olduğu için görsel geç
+ yüklense bile yerleşim oynamaz (§18 CLS). */
+.vs-shot{overflow:hidden}
+.vs-shot .vs-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
+/* oynat rozeti — kart bir video seansına gittiğini görsel olarak söyler */
+.vs-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
+  width:52px;height:52px;border-radius:var(--radius-circle);
+  display:grid;place-items:center;color:#fff;font-size:16px;
+  background:rgba(20,18,12,.42);border:1.5px solid rgba(255,255,255,.62);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  transition:.25s var(--ease);
+}
+.vs-play i{margin-left:3px}
+.vs-card:hover .vs-play{background:var(--fit);border-color:var(--fit);transform:translate(-50%,-50%) scale(1.06)}
+/* ücretsiz rozeti — .hub-pro'nun (Pro, altın) yeşil karşılığı, aynı konumda */
+.vs-free{
+  position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:#fff;background:var(--fit);border:1px solid var(--fit-deep);
+  padding:5px 10px;border-radius:var(--radius-sm);
+}
+/* kart içi künye: antrenör + ekipman */
+.vs-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.vs-meta span{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:700;color:var(--slate-2);
+  background:var(--bg);border:1px solid var(--line);
+  padding:5px 10px;border-radius:var(--radius-sm);
+}
+.vs-meta span i{font-size:11px;color:var(--fit-deep)}
+.vs-card .hub-foot{margin-top:auto;padding-top:14px}
+
+
+@media (max-width:640px){ .vs-play{width:44px;height:44px;font-size:14px} }

@@ -22,14 +22,6 @@
 .lib-top{--lib-img:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16');--lib-pos:center 28%}
 
 /* devam eden program şeridi (ziyaretçide örnek görünüm) */
-.pm-cont{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:26px;align-items:center;background:linear-gradient(160deg,#0f2f1e,#211E16);border-radius:var(--radius-lg);padding:28px 30px;color:#fff}
-.pm-cont h3{color:#fff;font-size:21px;margin:10px 0 8px}
-.pm-cont p{color:rgba(255,255,255,.76);font-size:14px;font-weight:500;line-height:1.6;max-width:56ch}
-.pm-bar{margin-top:16px;height:8px;border-radius:var(--radius-pill);background:rgba(255,255,255,.14);overflow:hidden;max-width:420px}
-.pm-bar span{display:block;height:100%;background:var(--fit);border-radius:var(--radius-pill)}
-.pm-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.66)}
-.pm-meta b{color:#fff;font-weight:800}
-.pm-cont .acts{display:flex;flex-direction:column;gap:10px;min-width:210px}
 
 /* filtre paneli */
 .pm-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 24px}
@@ -41,31 +33,21 @@
 .pm-len{position:absolute;top:12px;left:12px;z-index:2;background:var(--fit);color:#fff;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:var(--radius-sm)}
 .pm-kind{position:absolute;bottom:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 
-/* ücretsiz / Pro karşılaştırma */
-.pm-tiers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
-.pm-tier{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 28px 24px;box-shadow:var(--sh-sm)}
-.pm-tier h3{font-size:19px;margin-bottom:6px}
-.pm-tier .sub{font-size:13.5px;color:var(--muted);font-weight:500;margin-bottom:18px}
-.pm-tier ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:22px}
-.pm-tier li{display:flex;gap:10px;font-size:14px;font-weight:600;color:var(--slate-2);line-height:1.5}
-.pm-tier li i{color:var(--fit-deep);font-size:12.5px;margin-top:4px;flex:none}
-.pm-tier.is-pro{border-color:#e0bc63;background:linear-gradient(180deg,#fffdf7,#fff)}
-.pm-tier.is-pro li i{color:#b8860b}
 
 @media (max-width:1024px){
-  .pm-cont{grid-template-columns:minmax(0,1fr);gap:20px}
-  .pm-cont .acts{min-width:0}
-  .pm-tiers{grid-template-columns:minmax(0,1fr);gap:18px}
   .sec{padding:var(--sec-pad) 0}
 }
 @media (max-width:640px){
-  .pm-cont{padding:22px}
-  .pm-cont h3{font-size:18.5px}
   .pm-panel{padding:16px}
   .pm-panel .fgroup .lbl{min-width:100%}
-  .pm-tier{padding:22px 20px 20px}
   .sec{padding:var(--sec-pad) 0}
 }
+
+/* E3 — sihirbaz barındırıcısı boşken bölüm yer kaplamaz */
+.wz-host-sec:has(#wizardHost:empty){padding:0}
+.wz-host-sec{padding-bottom:var(--sec-pad)}
+#wizardHost{margin-top:var(--sec-pad)}
+#wizardHost:empty{margin-top:0}
 </style>
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
@@ -94,6 +76,12 @@
       <input type="search" id="pmSearch" placeholder="Program ara — ev antrenmanı, 30 gün, mobilite…" aria-label="Program ara" />
       <button type="submit">Ara</button>
     </form>
+    <div class="lib-cta">
+      <button class="btn btn-fit" type="button" data-fit-wizard aria-controls="wizardHost" aria-expanded="false">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Programımı Bul
+      </button>
+      <a class="btn btn-ghost lib-cta-ghost" href="program-liste-v1.html"><i class="fa-solid fa-clipboard-list"></i> Tüm Programlar</a>
+    </div>
     <div class="lib-stats">
       <div class="lib-stat"><b>12</b><span>program ve challenge</span></div>
       <div class="lib-stat"><b>1 gün – 12 hafta</b><span>süre aralığı</span></div>
@@ -102,31 +90,151 @@
   </div>
 </section>
 
-<!-- ===== 2 · DEVAM ETTİĞİM PROGRAM ===== -->
-<section class="sec sec-fit" style="background:var(--bg-white)">
+<!-- ===== 1b · PROGRAMIMI BUL — SAYFA İÇİ BÖLÜM (E3) =====
+     Sihirbaz artık modal değil. Kabuk (fit-shell.js) bu barındırıcıyı görüp
+     paneli buraya basıyor: örtü katmanı üretilmiyor, scroll kilitlenmiyor,
+     Esc bağlanmıyor. Banner'daki düğme bölümü açıp kapatıyor. -->
+<section class="sec sec-fit wz-host-sec" id="programimi-bul" style="background:var(--bg-white);scroll-margin-top:120px;padding-top:0">
   <div class="wrap">
-    <div class="pm-cont">
-      <div> <h3>4 Hafta Ev Antrenmanı — 2. hafta, 3. gün</h3>
-        <p>Kaldığın yerden devam et. Bir gün kaçırdıysan program seni geri saymaz; planı kaydırır.</p>
-        <div class="pm-bar" role="img" aria-label="Program ilerlemesi yüzde 38"><span style="width:38%"></span></div>
-        <div class="pm-meta">
-          <span><b>%38</b> tamamlandı</span>
-          <span><b>7</b> antrenman bitti</span>
-          <span><b>11</b> antrenman kaldı</span>
-          <span><b>Haftada 3</b> gün · <b>25 dk</b> seans</span>
+    <div id="wizardHost" data-fit-wizard-host></div>
+  </div>
+</section>
+
+<!-- ===== 2 · İLERLEME BÖLÜMÜ KALDIRILDI (E2) =====
+     Beyar: "kaldığın yerden devam et, ilerleme kısmı, oradaki section'ı da kaldır."
+     Aktif program ilerlemesi zaten Fit Planım'ın işi (fit-planim-programim-v1);
+     merkez sayfasında ziyaretçiye örnek bir ilerleme çubuğu göstermek hem
+     ikinci bir doğruluk kaynağı üretiyordu hem de ilk gerçek içeriği aşağı itiyordu. -->
+
+<!-- ===== 2 · VİDEO SEANSLARI — KENDİ BAŞLIKLI BÖLÜMÜ (E4) =====
+     Beyar: "Programların altındaki video seansları çok arka planda kalmış,
+     bunu ön plana çıkartabiliriz."
+     ÖNCEKİ DURUM (ölçüldü): bu sayfada video seanslarına ait BÖLÜM YOKTU;
+     tek giriş kapısı ana menü panelinin BEŞİNCİ (son) kalemiydi.
+     ŞİMDİ: kendi başlığı, kendi kart ızgarası ve her kart
+     video-seans-detay-v1.html'e giden bir bölüm — üstelik program ızgarasının
+     ÜSTÜNDE, yani ilk ekranın hemen ardında. -->
+<section class="sec sec-fit" id="video-seanslari" style="background:var(--bg-white);scroll-margin-top:120px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-circle-play"></i> Video Seansları</span>
+        <h2>Eğitmen eşliğinde, ekranla birlikte çalış</h2>
+        <p class="lead">Programı tek başına yürütmek zorunda değilsin. Seansı aç, birlikte yap — süre, seviye ve ekipman kartın üstünde yazıyor.</p>
+        <div class="sec-tools">
+          <a class="see-all" href="video-seanslari-v1.html">Tüm Video Seansları <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
-      <div class="acts">
-        <a class="btn btn-primary" href="program-detay-v1.html"><i class="fa-solid fa-play"></i> Kaldığın yerden devam et</a>
-        <a class="btn btn-ghost" href="program-detay-v1.html">Programı incele</a>
-      </div>
     </div>
-    <div class="hm-gate-strip" data-lg-only style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:18px 22px">
-      <p style="font-size:14px;font-weight:500;color:var(--slate-2);margin:0;max-width:64ch">Yukarıdaki ilerleme <b>örnek bir görünümdür</b>. Giriş yaptığında burada kendi aktif programın olur ve Fit Planım'a işlenir.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a>
-        <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz hesap oluştur</a>
-      </div>
+
+    <div class="lib-grid cols-4">
+        <a class="hub-card vs-card" href="video-seans-detay-v1.html?seans=sabah-mobilite"
+           data-hedef="mobilite postur" data-sure="s20" data-seviye="1" data-ekipman="mat"
+           data-antrenor="derya-yildiz" data-tur="esneme" data-erisim="ucretsiz"
+           data-pop="98" data-dk="18" data-name="Sabah Mobilite Akışı">
+          <div class="hub-media vs-shot">
+            <img class="vs-poster" loading="lazy" decoding="async" width="320" height="180"
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%23234438'/%3E%3Ccircle cx='262' cy='34' r='74' fill='%23336352'/%3E%3Ccircle cx='38' cy='158' r='52' fill='%23336352'/%3E%3C/svg%3E"
+                 alt="Sabah Mobilite Akışı seansının kapak yer tutucusu" />
+            <span class="hub-cat fit">Esneme</span>
+            <span class="vs-free"><i class="fa-solid fa-unlock" aria-hidden="true"></i> Ücretsiz</span>
+            <span class="vs-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+            <div class="hub-tags">
+              <span class="hub-tag"><i class="fa-regular fa-clock" aria-hidden="true"></i> 18 dk</span>
+              <span class="hub-tag"><i class="fa-solid fa-signal" aria-hidden="true"></i> Başlangıç</span>
+            </div>
+          </div>
+          <div class="hub-body">
+            <h3>Sabah Mobilite Akışı</h3>
+            <p>Omurga, kalça ve omuzları güne kendi temponda hazırlayan ekipmansız akış.</p>
+            <div class="vs-meta">
+              <span><i class="fa-solid fa-user-check" aria-hidden="true"></i> Derya Yıldız</span>
+              <span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Mat</span>
+            </div>
+            <div class="hub-foot"><span>Mobilite · Postür</span><span class="go">Seansı aç <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
+          </div>
+        </a>
+
+        <a class="hub-card vs-card" href="video-seans-detay-v1.html?seans=ekipmansiz-kondisyon"
+           data-hedef="dayaniklilik kilo" data-sure="s30" data-seviye="2" data-ekipman="vucut"
+           data-antrenor="can-aydin" data-tur="kardiyo" data-erisim="pro"
+           data-pop="95" data-dk="25" data-name="Ekipmansız Kondisyon">
+          <div class="hub-media vs-shot">
+            <img class="vs-poster" loading="lazy" decoding="async" width="320" height="180"
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%23124a44'/%3E%3Ccircle cx='262' cy='34' r='74' fill='%23196b60'/%3E%3Ccircle cx='38' cy='158' r='52' fill='%23196b60'/%3E%3C/svg%3E"
+                 alt="Ekipmansız Kondisyon seansının kapak yer tutucusu" />
+            <span class="hub-cat fit">Kardiyo</span>
+            <span class="hub-pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
+            <span class="vs-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+            <div class="hub-tags">
+              <span class="hub-tag"><i class="fa-regular fa-clock" aria-hidden="true"></i> 25 dk</span>
+              <span class="hub-tag"><i class="fa-solid fa-signal" aria-hidden="true"></i> Orta</span>
+            </div>
+          </div>
+          <div class="hub-body">
+            <h3>Ekipmansız Kondisyon</h3>
+            <p>Tur usulü ilerleyen, zıplamasız seçenekleri de olan ekipmansız kondisyon seansı.</p>
+            <div class="vs-meta">
+              <span><i class="fa-solid fa-user-check" aria-hidden="true"></i> Can Aydın</span>
+              <span><i class="fa-solid fa-person" aria-hidden="true"></i> Ekipmansız</span>
+            </div>
+            <div class="hub-foot"><span>Dayanıklılık · Kilo Yönetimi</span><span class="go">Seansı aç <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
+          </div>
+        </a>
+
+        <a class="hub-card vs-card" href="video-seans-detay-v1.html?seans=masa-basi-boyun-omuz"
+           data-hedef="mobilite postur" data-sure="s20" data-seviye="1" data-ekipman="sandalye"
+           data-antrenor="ece-yalcin" data-tur="esneme" data-erisim="ucretsiz"
+           data-pop="93" data-dk="12" data-name="Masa Başı Boyun ve Omuz Rahatlatma">
+          <div class="hub-media vs-shot">
+            <img class="vs-poster" loading="lazy" decoding="async" width="320" height="180"
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%23234438'/%3E%3Ccircle cx='262' cy='34' r='74' fill='%23336352'/%3E%3Ccircle cx='38' cy='158' r='52' fill='%23336352'/%3E%3C/svg%3E"
+                 alt="Masa Başı Boyun ve Omuz Rahatlatma seansının kapak yer tutucusu" />
+            <span class="hub-cat fit">Esneme</span>
+            <span class="vs-free"><i class="fa-solid fa-unlock" aria-hidden="true"></i> Ücretsiz</span>
+            <span class="vs-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+            <div class="hub-tags">
+              <span class="hub-tag"><i class="fa-regular fa-clock" aria-hidden="true"></i> 12 dk</span>
+              <span class="hub-tag"><i class="fa-solid fa-signal" aria-hidden="true"></i> Başlangıç</span>
+            </div>
+          </div>
+          <div class="hub-body">
+            <h3>Masa Başı Boyun ve Omuz Rahatlatma</h3>
+            <p>Masadan kalkmadan, oturarak uygulanan boyun ve omuz rahatlatma molası.</p>
+            <div class="vs-meta">
+              <span><i class="fa-solid fa-user-check" aria-hidden="true"></i> Ece Yalçın</span>
+              <span><i class="fa-solid fa-chair" aria-hidden="true"></i> Sandalye</span>
+            </div>
+            <div class="hub-foot"><span>Mobilite · Postür</span><span class="go">Seansı aç <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
+          </div>
+        </a>
+
+        <a class="hub-card vs-card" href="video-seans-detay-v1.html?seans=dusuk-tempo-kardiyo"
+           data-hedef="dayaniklilik kilo" data-sure="s30" data-seviye="1" data-ekipman="vucut"
+           data-antrenor="zeynep-ari" data-tur="kardiyo" data-erisim="ucretsiz"
+           data-pop="90" data-dk="25" data-name="Düşük Tempo Kardiyo">
+          <div class="hub-media vs-shot">
+            <img class="vs-poster" loading="lazy" decoding="async" width="320" height="180"
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%23124a44'/%3E%3Ccircle cx='262' cy='34' r='74' fill='%23196b60'/%3E%3Ccircle cx='38' cy='158' r='52' fill='%23196b60'/%3E%3C/svg%3E"
+                 alt="Düşük Tempo Kardiyo seansının kapak yer tutucusu" />
+            <span class="hub-cat fit">Kardiyo</span>
+            <span class="vs-free"><i class="fa-solid fa-unlock" aria-hidden="true"></i> Ücretsiz</span>
+            <span class="vs-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+            <div class="hub-tags">
+              <span class="hub-tag"><i class="fa-regular fa-clock" aria-hidden="true"></i> 25 dk</span>
+              <span class="hub-tag"><i class="fa-solid fa-signal" aria-hidden="true"></i> Başlangıç</span>
+            </div>
+          </div>
+          <div class="hub-body">
+            <h3>Düşük Tempo Kardiyo</h3>
+            <p>Nefesin rahat kaldığı, konuşabildiğin tempoda sürekli hareket seansı.</p>
+            <div class="vs-meta">
+              <span><i class="fa-solid fa-user-check" aria-hidden="true"></i> Zeynep Arı</span>
+              <span><i class="fa-solid fa-person" aria-hidden="true"></i> Ekipmansız</span>
+            </div>
+            <div class="hub-foot"><span>Dayanıklılık · Kilo Yönetimi</span><span class="go">Seansı aç <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
+          </div>
+        </a>
     </div>
   </div>
 </section>
@@ -136,11 +244,10 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Tüm programlar</span>
+        <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Programlar ve challenge'lar</span>
         <h2>Hedefine, süreye ve ekipmanına göre</h2>
         <p class="lead">Aynı listede hem çok haftalık programlar hem de 7–30 günlük challenge'lar var. Süre filtresiyle ayırabilirsin.</p>
         <div class="sec-tools">
-          <button class="btn btn-primary" type="button" data-fit-wizard><i class="fa-solid fa-wand-magic-sparkles"></i> Programımı Bul</button>
           <a class="see-all" href="challenge-merkezi-v1.html">Challenge Merkezi <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
@@ -176,12 +283,8 @@
         <button class="df-fchip" type="button" data-val="dambil"><i class="fa-solid fa-dumbbell"></i> Dambıl / bant</button>
         <button class="df-fchip" type="button" data-val="salon"><i class="fa-solid fa-building"></i> Salon</button>
       </div>
-      <div class="fgroup" data-group="erisim" role="group" aria-label="Erişim seç">
-        <span class="lbl">Erişim</span>
-        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="ucretsiz">Ücretsiz</button>
-        <button class="df-fchip" type="button" data-val="pro"><i class="fa-solid fa-crown"></i> Pro</button>
-      </div>
+      <!-- "Erişim" ekseni (Ücretsiz / Pro) E1 ile kaldırıldı — Beyar erişim
+           kısmının bu sayfada olmamasını istedi. Paket ayrımı tek yerde: pro-v1.html -->
     </div>
 
     <p class="pm-count"><b id="pmCount">8</b> program ve challenge gösteriliyor</p>
@@ -291,42 +394,12 @@
   </div>
 </section>
 
-<!-- ===== 4 · ÜCRETSİZ ve PRO ===== -->
-<section class="sec sec-fit" id="pro" style="background:var(--bg-white);scroll-margin-top:120px">
+<!-- ===== 4 · ERİŞİM (ÜCRETSİZ / PRO) BÖLÜMÜ KALDIRILDI (E1) =====
+     Beyar: "burada erişim kısmında ücretsiz, pro kısmı olmayacak, bu section'ı kaldır."
+     Paket karşılaştırması tek yerde kalıyor: pro-v1.html. Bölümün İÇİNDEKİ sağlık
+     notu (§ zorunlu) kaybolmadı, aşağıya taşındı. -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
   <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <span class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Erişim</span>
-        <h2>Neyin ücretsiz olduğu baştan belli</h2>
-        <p class="lead">Ücretsiz tarafta tam bir başlangıç programı, challenge'lar ve DadaFit Egzersizleri'nin tamamı var. Pro, derinleşmek isteyenler için.</p>
-      </div>
-    </div>
-    <div class="pm-tiers">
-      <div class="pm-tier">
-        <h3>Ücretsiz</h3>
-        <p class="sub">Hesap açman yeterli</p>
-        <ul>
-          <li><i class="fa-solid fa-check"></i> DadaFit Egzersizleri'nin tamamı</li>
-          <li><i class="fa-solid fa-check"></i> Başlangıç ve mobilite programları</li>
-          <li><i class="fa-solid fa-check"></i> Tüm challenge'lara katılım</li>
-          <li><i class="fa-solid fa-check"></i> Enerji Defteri ve günlük denge</li>
-          <li><i class="fa-solid fa-check"></i> Temel ilerleme takibi</li>
-        </ul>
-        <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz hesap oluştur</a>
-      </div>
-      <div class="pm-tier is-pro">
-        <h3><i class="fa-solid fa-crown" style="color:#b8860b"></i> Pro</h3>
-        <p class="sub">Derinleşmek isteyenler için</p>
-        <ul>
-          <li><i class="fa-solid fa-check"></i> İleri seviye ve salon programları</li>
-          <li><i class="fa-solid fa-check"></i> Uzman anlatımlı video serileri</li>
-          <li><i class="fa-solid fa-check"></i> Set–tekrar–ağırlık gelişim analizi</li>
-          <li><i class="fa-solid fa-check"></i> Dönem karşılaştırması ve rapor</li>
-          <li><i class="fa-solid fa-check"></i> Antrenörle ortak plan yürütme</li>
-        </ul>
-        <a class="btn btn-primary" href="pro-v1.html"><i class="fa-solid fa-crown"></i> Pro'yu incele</a>
-      </div>
-    </div>
     <div class="hr-note">
       <i class="fa-solid fa-circle-info"></i>
       <p>Programlar <b>genel bilgilendirme amaçlıdır</b>, kişiye özel antrenman reçetesi değildir. Kronik bir rahatsızlığın, sakatlığın ya da özel bir durumun varsa programa başlamadan önce <a href="antrenorler-v1.html">bir uzmana danış</a>. Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
@@ -350,7 +423,13 @@
   var countEl=document.getElementById('pmCount');
   var emptyEl=document.getElementById('pmEmpty');
   var search=document.getElementById('pmSearch');
-  var sel={tur:new Set(),hedef:new Set(),seviye:new Set(),ekipman:new Set(),erisim:new Set()};
+  /* Eksen listesi TEK YERDE: markup'taki .fgroup[data-group] kalemlerinden
+     türer. "Erişim" ekseni E1'de kalktı; motor artık listeyi kendi okuduğu
+     için burada elle silinecek bir satır kalmıyor. */
+  var sel={};
+  document.querySelectorAll('.pm-panel .fgroup[data-group]').forEach(function(g){
+    sel[g.getAttribute('data-group')]=new Set();
+  });
 
   function matches(card){
     var q=search && search.value.trim().toLocaleLowerCase('tr');

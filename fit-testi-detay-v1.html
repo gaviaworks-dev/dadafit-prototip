@@ -46,6 +46,73 @@
 .ft-blk-h p{font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
 .ft-lead{font-size:15px;font-weight:500;color:var(--slate-2);line-height:1.65}
 
+/* ---- E6/it2 · OKUNABİLİRLİK: SATIR ÖLÇÜSÜ VE YASLAMA ----------------
+ ÖLÇÜM (it1, 1440px): sol kolon akan metninde satır ölçüsü 47–157 karakter,
+ 11 paragraf 80 karakteri aşıyordu. Tipografide okunur aralık 45–75 karakter;
+ 157 karakterlik satırda göz satır başını kaybediyor.
+ Çözüm: akan metne 68ch ölçü sınırı. Kart ızgaraları ve kutular etkilenmez —
+ sınır YALNIZ sol kolonun akan metnine uygulanır. */
+.ft-col .ft-lead,
+.ft-col .ft-ul li,
+.ft-col .ft-safe li,
+.ft-col .ft-scr-note,
+.ft-col > .ft-blk > p,
+.ft-coach-in p{max-width:var(--measure)}
+
+/* ---- E6/it1 · AKIŞ RAYI ------------------------------------------
+ Sorun (it0 ölçümü): sol kolon altı eşit ağırlıklı bölüm olarak okunuyordu;
+ "bu testi yapmak için ne yapmam gerek" sorusunun cevabı hiçbir yerde yoktu
+ ve asıl eylem (uygunluk taraması) 700px kaydırmadan görünmüyordu.
+ Çözüm: bilgi blokları ile UYGULAMA blokları ayrıldı; uygulama üç numaralı
+ adıma indi ve sayfanın başında bir ray olarak gösteriliyor. */
+.ft-flow{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+  margin:0 0 30px;padding:0;list-style:none
+}
+.ft-flow a{
+  display:flex;align-items:flex-start;gap:12px;height:100%;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:14px 16px;transition:.2s var(--ease)
+}
+.ft-flow a:hover{border-color:var(--fit);box-shadow:var(--sh-sm);transform:translateY(-2px)}
+.ft-flow .n{
+  flex:none;width:26px;height:26px;border-radius:var(--radius-circle);
+  background:var(--fit-deep);color:#fff;display:grid;place-items:center;
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums
+}
+.ft-flow b{display:block;font-size:14px;color:var(--slate);letter-spacing:-.01em}
+.ft-flow span{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:3px;line-height:1.45}
+.ft-flow .st{
+  margin-top:7px;display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fit-deep)
+}
+/* it2 · kilitli adım YEŞİL görünmemeli — "açık" sinyali veriyordu */
+.ft-flow .st.is-locked{color:var(--muted)}
+.ft-flow a:has(.is-locked){background:var(--bg)}
+/* uygulama bloklarının başlığında ikon yerine ADIM NUMARASI */
+.ft-blk.is-step .ft-blk-h .ic{background:var(--fit-deep);color:#fff;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+/* bilgi blokları ile uygulama blokları arasına görünür bir eşik */
+.ft-tier{
+  display:flex;align-items:center;gap:12px;margin:46px 0 22px;
+  font-size:11.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)
+}
+.ft-tier::after{content:"";flex:1;height:1px;background:var(--line)}
+.ft-tier:first-child{margin-top:0}
+@media (max-width:900px){ .ft-flow{grid-template-columns:minmax(0,1fr);gap:9px} }
+
+/* ---- E6/it3 · MOBİLDE ASIL EYLEME ERİŞİM --------------------------
+ ÖLÇÜM (it2, 390px): testi başlatan birincil düğme yalnız sağ kolonda
+ duruyordu ve o kolon mobilde içeriğin SONUNA düşüyordu — düğmenin sayfa
+ üstünden uzaklığı 5514px, yani kullanıcı testi başlatmak için sayfanın
+ %60'ını kaydırmak zorundaydı.
+ Çözüm: akış rayının hemen altına, YALNIZ ≤900px'te görünen bir eylem
+ satırı. Masaüstünde sağ kolon zaten taşıdığı için tekrar basılmaz. */
+.ft-flow-act{display:none}
+@media (max-width:900px){
+  .ft-flow-act{display:flex;flex-direction:column;gap:9px;margin:0 0 30px}
+  .ft-flow-act .btn{width:100%}
+}
+
 /* madde listesi (amaç maddeleri) */
 .ft-ul{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:16px}
 .ft-ul li{display:flex;gap:11px;font-size:14px;font-weight:500;color:var(--slate-2);line-height:1.55}
@@ -254,7 +321,7 @@
       <a class="btn btn-ghost" href="fit-testleri-v1.html"><i class="fa-solid fa-list-ul"></i> Tüm Fit Testleri</a>
     </div>
     <div class="lib-stats">
-      <div class="lib-stat"><b data-tt="sureKisa">~10 dk</b><span>tahmini süre</span></div>
+      <div class="lib-stat"><b data-tt="sureKisa">8–10 dk</b><span>tahmini süre</span></div>
       <div class="lib-stat"><b data-tt="adimSayi">5</b><span>uygulama adımı</span></div>
       <div class="lib-stat"><b>7</b><span>tarama sorusu</span></div>
     </div>
@@ -278,6 +345,20 @@
 
       <!-- ======================= SOL KOLON ======================= -->
       <div class="ft-col">
+
+        <!-- E6/it1 · AKIŞ RAYI — testin üç adımı, sayfanın en başında -->
+        <nav class="ft-flow" aria-label="Test akışı">
+          <a href="#uygunluk"><span class="n">1</span><span><b>Uygunluk taraması</b><span>Yedi soru · yaklaşık 1 dakika</span><span class="st" id="ftFlowS1"><i class="fa-solid fa-hourglass-half"></i> Yapılmadı</span></span></a>
+          <a href="#adimlar"><span class="n">2</span><span><b>Adım adım uygulama</b><span>Beş adım · ısınma ve soğuma dahil</span><span class="st is-locked"><i class="fa-solid fa-lock"></i> Tarama sonrası açılır</span></span></a>
+          <a href="#sonuc"><span class="n">3</span><span><b>Sonucunu gir</b><span>Kendi başlangıcınla kıyaslanır</span><span class="st"><i class="fa-solid fa-flag-checkered"></i> Son adım</span></span></a>
+        </nav>
+
+        <div class="ft-flow-act">
+          <a class="btn btn-fit" href="#uygunluk"><i class="fa-solid fa-shield-heart"></i> Uygunluk taramasıyla başla</a>
+          <a class="btn btn-ghost" href="fit-testleri-v1.html"><i class="fa-solid fa-list-ul"></i> Diğer testler</a>
+        </div>
+
+        <p class="ft-tier">Önce oku</p>
 
         <!-- 1 · TEST AMACI -->
         <div class="ft-blk" id="amac">
@@ -329,9 +410,11 @@
         </div>
 
         <!-- 4 · FİZİKSEL AKTİVİTE UYGUNLUK TARAMASI (§8 — kapı) -->
-        <div class="ft-blk" id="uygunluk">
+        <p class="ft-tier">Sonra uygula</p>
+
+        <div class="ft-blk is-step" id="uygunluk">
           <div class="ft-blk-h">
-            <span class="ic"><i class="fa-solid fa-shield-heart"></i></span>
+            <span class="ic" aria-hidden="true">1</span>
             <div>
               <h2>Fiziksel aktivite uygunluk taraması</h2>
               <p>Test adımları bu tarama tamamlanmadan açılmaz.</p>
@@ -454,9 +537,9 @@
         </div>
 
         <!-- 5 · ADIM ADIM UYGULAMA — TARAMA GEÇİLMEDEN AÇILMAZ -->
-        <div class="ft-blk" id="adimlar">
+        <div class="ft-blk is-step" id="adimlar">
           <div class="ft-blk-h">
-            <span class="ic"><i class="fa-solid fa-list-ol"></i></span>
+            <span class="ic" aria-hidden="true">2</span>
             <div>
               <h2>Adım adım uygulama</h2>
               <p>Kendi temponda ilerle; hiçbir adımı zorlayarak tamamlama.</p>
@@ -479,9 +562,9 @@
         </div>
 
         <!-- 6 · SONUÇ ÖZETİ — adımlarla birlikte açılır -->
-        <div class="ft-blk" id="sonuc">
+        <div class="ft-blk is-step" id="sonuc">
           <div class="ft-blk-h">
-            <span class="ic"><i class="fa-solid fa-chart-simple"></i></span>
+            <span class="ic" aria-hidden="true">3</span>
             <div>
               <h2>Sonuç özeti</h2>
               <p>Ölçtüğün değeri gir; özet, başlangıç seviyen ve önerilen program burada oluşur.</p>
@@ -714,7 +797,7 @@
       ],
       uygun:['Uzun süredir düzenli hareket etmeyenler','Ara verip yeniden başlamak isteyenler','Hangi programa gireceğine karar veremeyenler'],
       uygunDegil:['Şu an ağrılı ya da yeni bir yaralanman varsa','Hekimin hareketine sınır koyduysa','Bugün hasta, ateşli ya da çok yorgunsan'],
-      sure:'8–10 dakika', sureKisa:'~10 dk', sureNot:'Isınma ve soğuma dahil.',
+      sure:'8–10 dakika', sureKisa:'8–10 dk', sureNot:'Isınma ve soğuma dahil.',
       ekipman:['Kaymayan bir zemin ya da mat','Sabit, kolçaksız bir sandalye','Kronometre veya telefon saati','Yanında su'],
       guvenlikEk:['Sandalyenin sabit durduğundan emin ol; tekerlekli sandalye kullanma.'],
       adimlar:[
@@ -819,7 +902,7 @@
       ],
       uygun:['Kuvvet çalışmasına başlamak isteyenler','Programının yükünü ayarlamak isteyenler','Ara verdikten sonra nereden devam edeceğini bilmeyenler'],
       uygunDegil:['Omuz, dirsek ya da bilekte ağrın varsa','Yakın zamanda üst vücut yaralanması geçirdiysen','Tansiyonun kontrolsüzse ya da baş dönmen varsa'],
-      sure:'8–10 dakika', sureKisa:'~10 dk', sureNot:'Isınma, deneme seti ve soğuma dahil.',
+      sure:'8–10 dakika', sureKisa:'8–10 dk', sureNot:'Isınma, deneme seti ve soğuma dahil.',
       ekipman:['Kaymayan zemin ya da mat','Sağlam bir duvar veya masa kenarı (kolay varyasyon için)','Kronometre veya telefon saati'],
       guvenlikEk:['Formun bozulduğu ilk tekrarda dur — bozuk formla yapılan tekrar sayılmaz ve risk üretir.','Nefesini tutma; itişte ver, inişte al.'],
       adimlar:[

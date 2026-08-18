@@ -144,7 +144,7 @@ var BOTTOM = [
   {label:'Ana Sayfa',  href:'dadafit-hub-v1.html',        icon:'fa-solid fa-house',           match:['dadafit-hub-v1']},
   {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','challenge-merkezi-v1','challenge-v1']},
-  {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
+  {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
 
@@ -259,6 +259,12 @@ var PLAN_TABS = [
    yalnız banner/breadcrumb çözümü ve eski data-plan-page anahtarlarının
    kırılmaması için burada dururlar. */
 var PLAN_EXTRA = [
+  /* G2 — Enerji Defteri dört ayrı sayfaya bölündü; üçü ray dışı alt sayfa.
+     Ray'da yalnız 'Enerji Defteri' (bugun) kalemi görünür, alt sekmeler
+     sayfanın kendi .fit-tabs şeridinden gezinilir. */
+  {key:'defter-dengele',  label:'Dengele',        href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced', desc:'Yediğini hareketle dengele'},
+  {key:'defter-su',       label:'Su Takibi',      href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet',        desc:'Günlük su hedefin'},
+  {key:'defter-haftalik', label:'Haftalık Özet',  href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week',  desc:'Haftanın hareket ve enerji tablosu'},
   {key:'aktivite',  label:'Aktivite Günlüğü',           href:'aktivite-gunlugu-v1.html',         icon:'fa-solid fa-shoe-prints',            desc:'Adım, süre, mesafe, yaklaşık enerji'},
   {key:'cihazlar',  label:'Bağlı Uygulamalar',          href:'bagli-uygulamalar-v1.html',        icon:'fa-solid fa-plug-circle-check',      desc:'Apple Health · Health Connect · saat'},
   {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
@@ -759,10 +765,14 @@ if(_plan){
   /* Başlık/breadcrumb çözümü TÜM plan sayfalarından (ray dışındakiler dahil),
      ray ise YALNIZ altı sekmeden üretilir (belge §4). */
   for(var pi=0;pi<PLAN_PAGES.length;pi++){ if(PLAN_PAGES[pi].key===pk) cur=PLAN_PAGES[pi]; }
+  /* G2 — sekme rayı B1'de sabitlenen ORTAK bileşene geçti (.fit-tabs).
+     Sayfa geçişi kipi: kalemler <a>, aktif olan aria-selected="true" +
+     aria-current="page" taşır; bileşen JS'i bu kipte panel yönetmez,
+     yalnız rolleri kurar (bkz. fit-shell.js → [data-fit-tabs]). */
   var tabs = PLAN_TABS.map(function(it){
     var on = it.key===pk;
-    return '<a class="dt'+(on?' active':'')+'" href="'+it.href+'"'+(on?' aria-current="page"':'')+
-           '><i class="'+it.icon+'"></i> '+it.label+'</a>';
+    return '<a class="fit-tab" href="'+it.href+'" aria-selected="'+(on?'true':'false')+'"'+
+           (on?' aria-current="page"':'')+'><i class="'+it.icon+'"></i> '+it.label+'</a>';
   }).join('\n        ');
   _plan.outerHTML =
    '<section class="lib-top fp-top">\n'+
@@ -785,7 +795,7 @@ if(_plan){
    '</section>\n'+
    '<div class="pf-tabbar fp-tabbar">\n'+
    '  <div class="wrap">\n'+
-   '    <nav class="pf-tabs" aria-label="Fit Planım bölümleri">\n        '+tabs+'\n    </nav>\n'+
+   '    <nav class="fit-tabs" data-fit-tabs="planim" aria-label="Fit Planım bölümleri">\n        '+tabs+'\n    </nav>\n'+
    '  </div>\n'+
    '</div>\n'+
    '<div class="wrap fp-gate" data-lg-only>\n'+
@@ -828,6 +838,20 @@ var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
 var OVER_MODE = HERO_MODE || !!document.querySelector(
   '.lib-top, .fp-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top');
 if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
+
+/* ------------------------------------------------------------------
+ BANNER AİLESİ — liste mi, detay mı? (Beyar: "liste ve detay sayfalarındaki
+ bannerların dikeydeki uzunlukları KENDİ İÇLERİNDE tutarlı olsun, belli bir
+ uzunluğa fixle")
+ Sınıf adı ayırmıyor: `video-seans-detay` ve `fit-testi-detay` de `.lib-top`
+ kullanıyor, yani `.lib-top` = liste demek değil. Ayrım DOSYA ADINDAN
+ yapılıyor — repodaki tek istikrarlı işaret bu:
+   *-detay-*  ya da bilinen detay sayfaları → detay ailesi
+   geri kalan banner'lı sayfalar           → liste ailesi
+ CSS iki token okuyor: --hero-h-list / --hero-h-detail. */
+var DETAY_PAGES = ['challenge-v1','egzersiz-detay-v1','antrenor-detay-v1','program-detay-v1'];
+var IS_DETAY = /-detay(-|$)/.test(PAGE) || DETAY_PAGES.indexOf(PAGE) > -1;
+document.body.setAttribute('data-fit-hero-kind', IS_DETAY ? 'detay' : 'liste');
 
 /* ============================================================
  4b · TEK KAYDIRMA KİLİDİ — "layout sağa kayıyor" bug'ının kökü
@@ -2260,11 +2284,17 @@ setTimeout(function(){
       head.innerHTML = '<b>'+label+'</b><button class="ff-pop-clear" type="button">Temizle</button>';
       pop.appendChild(head);
 
-      /* ---- ARAMA ALANI — seçenek sayısı SEKİZİ GEÇEN eksende (C3) ----
-         "Tümü" bir seçenek değil, seçimin yokluğu → eşiğe girmez. */
+      /* ---- ARAMA ALANI — uzun eksende (C3) ----
+         "Tümü" bir seçenek değil, seçimin yokluğu → eşiğe girmez.
+         EŞİK 8 → 5 İNDİ: Beyar arama alanını göremediğini bildirdi; ölçüm
+         sebebi gösterdi — alan duruyordu ama YALNIZ 8'i geçen iki eksende
+         (Kas Grubu 10, Ekipman 15) çıkıyordu, baktığı challenge sayfasında
+         eksenlerin hepsi üç seçenekli. Eşik 5'e indi: altı ve üstü seçeneği
+         olan her eksen arama alanı alır. Üç-dört kalemlik listede arama
+         kutusu hâlâ basılmaz — orada göz zaten tek bakışta tarıyor. */
       var realChips = chips.filter(function(c){ return !isAll(c); });
       var search = null, empty = null;
-      if(realChips.length > 8){
+      if(realChips.length > 5){
         search = document.createElement('div');
         search.className = 'ff-search';
         search.innerHTML =

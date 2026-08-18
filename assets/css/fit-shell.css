@@ -54,6 +54,14 @@
      karakter; ölçümde .hr-note paragrafı 1098px genişlikte 119 karakter/satır
      veriyordu. Tek token, akan metin kutularına uygulanır. */
   --measure:78ch;
+  /* ---- BANNER AİLE YÜKSEKLİKLERİ ----
+     Beyar: "liste ve detay sayfalarındaki bannerların dikeydeki uzunlukları
+     kendi içlerinde tutarlı olsun, belli bir uzunluğa fixle."
+     İki aile, iki sabit taban. İçerik tabandan kısaysa banner yine bu boyda
+     kalır ve içerik dikeyde ortalanır; uzunsa taşar (kırpma yok — metin
+     kesmek kabul edilemez), o durumda sayfanın banner içeriği kısaltılır. */
+  --hero-h-list:344px;
+  --hero-h-detail:384px;
   --tomato-dark:#007a3d;     /* hover türevi (yeşil) */
   --tomato-deep:#006a35;     /* gradient ucu (yeşil) */
   --tomato-tint:#e8f6ee;     /* yeşil fısıltısı zemin */
@@ -1112,8 +1120,8 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
  Yeni sınıf adı üretilmedi — hepsi mevcut sayfalardan gelen adlardır.
  ===================================================================== */
 
-@media (max-width:1024px){ :root{ --hero-pt:14px; --hero-pb:16px; --hero-gap:9px; --sec-pad:42px } }
-@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:12px; --hero-pb:14px; --hero-gap:8px; --sec-pad:34px } }
+@media (max-width:1024px){ :root{ --hero-pt:14px; --hero-pb:16px; --hero-gap:9px; --sec-pad:42px; --hero-h-list:296px; --hero-h-detail:330px } }
+@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:12px; --hero-pb:14px; --hero-gap:8px; --sec-pad:34px; --hero-h-list:262px; --hero-h-detail:296px } }
 
 /* ---- BANNER + BREADCRUMB (belge §17: ikisi birlikte gelir) ----
  Sayfa yalnız görselini bildirir: .lib-top{--lib-img:url('…')}
@@ -1343,7 +1351,12 @@ body[data-fit-over="1"] .ol-top{margin-top:0 !important;padding-top:calc(var(--f
 .fp-who-txt{display:flex;flex-direction:column;line-height:1.3}
 .fp-name{color:#fff;font-size:15px;font-weight:800}
 .fp-state{color:rgba(255,255,255,.66);font-size:12.5px;font-weight:600}
-/* sekme rayı — hesabim-v1 .pf-tabbar kiti, DadaFit yeşiliyle */
+/* Sekme rayı G2'de ORTAK bileşene geçti (.fit-tabs / .fit-tab, B1·K13).
+   .pf-tabbar yalnız sticky kabuk olarak kaldı; .pf-tabs/.dt kuralları
+   Planım rayı için ARTIK KULLANILMIYOR (başka sayfalar hâlâ kullanıyor,
+   o yüzden kurallar silinmedi). */
+.pf-tabbar .fit-tabs{display:flex;flex-wrap:wrap;width:100%}
+@media (max-width:900px){ .pf-tabbar .fit-tabs{flex-wrap:nowrap} }
 .pf-tabbar{position:sticky;top:112px;z-index:40;background:rgba(249,249,249,.94);-webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);padding:12px 0;margin-bottom:0}
 /* Ray on bir kaleme çıktı (Enerji Köprüsü eklendi). Masaüstünde tek satıra
  sığmıyor; gizli kaydırma çubuğuyla yatay ray olarak bırakmak kalemleri
@@ -1688,6 +1701,55 @@ body[data-brand="fit"] .kp-top,
 body[data-brand="fit"] .df-top,
 body[data-brand="fit"] .ol-top{padding-bottom:var(--hero-pb)}
 
+/* ---- AİLE İÇİ SABİT BANNER YÜKSEKLİĞİ ----
+   Aile işaretini kabuk JS'i basar (body[data-fit-hero-kind]); dosya adında
+   "-detay" geçen sayfalar + dört bilinen detay sayfası "detay", geri kalan
+   banner'lı sayfalar "liste". Ana sayfanın tam-ekran perdesi (.df-top,
+   data-fit-hero="1") BU KURALIN DIŞINDA — kendi 100dvh'sini korur. */
+/* SABİT yükseklik (min-height değil): aile içinde tek değer.
+   Zengin ikincil panel taşıyan imza banner'ları (.kp-top · .ol-top ·
+   .chl-hero · .pd-hero · ana sayfa .df-top) bu kuralın DIŞINDA — onların
+   içinde ikinci bir kart var, sabit kutuya sığmaz ve kırpmak içerik kaybı
+   olur. Sabitlenen aile, sayfaların ezici çoğunluğunu oluşturan sade
+   .lib-top / .cp-top / .fs-top banner'ları. */
+/* SABİT yükseklik YALNIZ ≥901px'te. Dar ekranda aynı içerik 1.3–1.7 kat
+   daha uzun sarıyor (ölçüldü: 390px'te 12 liste sayfası sabit kutuyu aşıyor,
+   en kötüsü 434px içeriğe karşı 262px kutu); orada sabitlemek METİN KIRPMAK
+   demek. Mobilde taban yükseklik (min-height) korunur, tavan serbest. */
+body[data-fit-hero-kind="liste"] .lib-top,
+body[data-fit-hero-kind="liste"] .fs-top{min-height:var(--hero-h-list)}
+body[data-fit-hero-kind="detay"] .lib-top,
+body[data-fit-hero-kind="detay"] .cp-top{min-height:var(--hero-h-detail)}
+@media (min-width:901px){
+  body[data-fit-hero-kind="liste"] .lib-top,
+  body[data-fit-hero-kind="liste"] .fs-top{height:var(--hero-h-list)}
+  body[data-fit-hero-kind="detay"] .lib-top,
+  body[data-fit-hero-kind="detay"] .cp-top{height:var(--hero-h-detail)}
+}
+/* alt metin iki satıra kilitli — banner yüksekliğini kart kart değiştiren
+   asıl değişken buydu (ölçüm: 1–3 satır arası, 199px yayılım) */
+body[data-fit-hero-kind] .lib-top .lib-sub{
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden
+}
+/* içerik sabit kutuda dikeyde ortalanır — kısa banner'da metin tepeye
+   yapışmasın, uzun banner'da da aynı optik merkez korunsun */
+body[data-fit-hero-kind] .lib-top,
+body[data-fit-hero-kind] .cp-top,
+body[data-fit-hero-kind] .chl-hero,
+body[data-fit-hero-kind] .pd-hero,
+body[data-fit-hero-kind] .fs-top,
+body[data-fit-hero-kind] .ol-top{
+  display:flex;flex-direction:column;
+  /* `safe center` ŞART: düz `center`, içerik kutudan uzunsa taşmayı İKİ YANA
+     birden dağıtıyor ve içerik yukarı, ŞEFFAF HEADER'IN ALTINA kayıyordu
+     (ölçüldü: 4 sayfada ilk öğe top=64…100 < header.bottom=113 — kalite kapısı
+     bunu hata sayıyor). `safe` anahtarı taşma durumunda hizayı başa çevirir,
+     yani padding-top (header payı) her zaman korunur. */
+  justify-content:flex-start;
+  justify-content:safe center;
+}
+body[data-fit-hero="1"] .df-top{min-height:var(--hero-full)}
+
 /* Sayfa bazında kalan iki "rastgele" taban yükseklik de ölçeğe bağlandı:
    program-detay `.pd-hero{min-height:400px}` (≤1024'te 480px) ve
    antrenör detayda banner içi sabit boşluklar. Taban artık içerik belirler. */
@@ -1949,80 +2011,88 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
  olursa olsun sayfadaki konumlanmış kartların ALTINDA kalıyordu (ölçüldü:
  elementsFromPoint → .pr-media, .pr-card, sonra .ff-pop). Sticky bar zaten
  opak; cam efekti burada işlevsel bir şey kazandırmıyordu. */
+/* =====================================================================
+ FİLTRE ŞERİDİ — KART GERİ, RADIUS KESKİN
+ ---------------------------------------------------------------------
+ İki tur geri bildirim:
+ 1) "kart çok kötü, siteden kopuk ve eski usul" → kutu kaldırılmıştı.
+ 2) "önceki kart görünümünü geri istiyorum bu filtrele satırında, fakat
+    radius'unu daha modern keskin yap" → kart geri geldi, YUVARLAKLIK DÜŞTÜ.
+ Sonuç: kart var ama hap yok. Kabuk 12px, düğmeler 10px köşe — 999px'lik
+ hap dilinden çıkıldı, kartların (16px) ve panelin (16px) diliyle hizalandı.
+ Kutu ayrıca "eski usul" görünmesin diye ince kenarlık + tek katmanlı yumuşak
+ gölge; kalın çerçeve ve büyük yarıçap yok.
+ ===================================================================== */
 .ff-bar{
   position:sticky;top:112px;z-index:42;
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   background:var(--paper);
-  border:1px solid var(--line);border-radius:var(--radius-xl);
-  padding:9px 10px 9px 14px;
-  box-shadow:0 1px 2px rgba(20,18,12,.04), 0 8px 22px -14px rgba(20,18,12,.22);
-  transition:box-shadow .2s var(--ease),border-color .2s var(--ease);
+  border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;margin:0 0 22px;
+  box-shadow:0 1px 2px rgba(20,18,12,.04), 0 10px 24px -18px rgba(20,18,12,.28);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
 }
-/* seçim varken çubuk "canlı" görünür — kullanıcı bir filtre uyguladığını
-   çubuğa bakarak anlar, kart sayısını okumak zorunda kalmaz */
-.ff.has-sel .ff-bar{border-color:var(--fit-line);box-shadow:0 1px 2px rgba(0,106,53,.06), 0 10px 26px -14px rgba(0,106,53,.30)}
+.ff.has-sel .ff-bar{border-color:var(--fit-line);box-shadow:0 1px 2px rgba(0,106,53,.06), 0 12px 26px -18px rgba(0,106,53,.34)}
 
 .ff-bar-lbl{
-  flex:none;display:inline-grid;place-items:center;width:30px;height:30px;margin-right:2px;
-  border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);font-size:13px;
+  flex:none;display:inline-grid;place-items:center;width:32px;height:32px;margin-right:2px;
+  border-radius:9px;background:var(--fit-tint);color:var(--fit-deep);font-size:13px;
 }
 
-/* ---- facet düğmesi + paneli ---- */
+/* ---- eksen düğmesi: keskin köşeli kart dili ---- */
 .ff-facet{position:relative}
 .ff-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--slate);
-  background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);
-  padding:0 12px;height:38px;cursor:pointer;white-space:nowrap;transition:.18s var(--ease);
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;
+  padding:0 14px;height:40px;cursor:pointer;white-space:nowrap;
+  transition:.16s var(--ease);
 }
-.ff-btn:hover{background:var(--bg);color:var(--slate)}
+.ff-btn:hover{background:#fff;border-color:var(--slate-2)}
 .ff-btn:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
 .ff-btn .ff-car{font-size:9.5px;color:var(--muted);transition:transform .2s var(--ease)}
-.ff-facet.open .ff-btn{background:var(--bg);border-color:var(--line)}
+.ff-facet.open .ff-btn{background:#fff;border-color:var(--slate);box-shadow:var(--sh-sm)}
 .ff-facet.open .ff-btn .ff-car{transform:rotate(180deg)}
-/* SEÇİM VARSA: dolu yeşil hap + sayı — "kaç seçim yaptım" tek bakışta okunur */
-.ff-btn.has-sel{background:var(--fit-deep);border-color:var(--fit-deep);color:#fff;font-weight:700}
-.ff-btn.has-sel:hover{background:#00632f}
-.ff-btn.has-sel .ff-car{color:rgba(255,255,255,.7)}
-.ff-facet.open .ff-btn.has-sel{background:#00632f;border-color:#00632f}
+/* SEÇİM VARSA: koyu dolu — kart rozetleriyle aynı dil, aynı 10px köşe */
+.ff-btn.has-sel{background:var(--slate);border-color:var(--slate);color:#fff}
+.ff-btn.has-sel:hover{background:#000;border-color:#000}
+.ff-btn.has-sel .ff-car{color:rgba(255,255,255,.66)}
+.ff-facet.open .ff-btn.has-sel{background:#000;border-color:#000}
 .ff-btn .ff-n{
-  min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);
-  background:rgba(255,255,255,.24);color:#fff;font-size:11px;font-weight:800;
+  min-width:20px;height:20px;padding:0 6px;border-radius:6px;
+  background:var(--fit-bright,#34c47e);color:#0b2318;font-size:11px;font-weight:800;
   display:none;place-items:center;font-variant-numeric:tabular-nums;
 }
 .ff-btn.has-sel .ff-n{display:grid}
 
-/* ---- sağ uç: sonuç sayacı + sıralama (eskiden ayrı bir satırdı) ---- */
+/* ---- sağ uç: sonuç sayısı + sıralama ---- */
 .ff-spacer{flex:1 1 auto;min-width:0}
-.ff-total{display:none}
+.ff-total{display:none !important}
 .ff-reset{
   display:none;align-items:center;gap:6px;flex:none;
   font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);
-  background:transparent;border:none;border-radius:var(--radius-pill);
-  padding:0 10px;height:32px;cursor:pointer;transition:.18s var(--ease);
+  background:transparent;border:none;border-radius:8px;
+  padding:0 10px;height:34px;cursor:pointer;transition:.18s var(--ease);
 }
 .ff-reset:hover{background:var(--bg);color:var(--slate)}
 .ff-reset i{font-size:11px}
 .ff.has-sel .ff-reset{display:inline-flex}
 
 .ff-bar .ff-count{
-  flex:none;font-size:13px;font-weight:600;color:var(--muted);
-  padding-right:2px;white-space:nowrap
+  flex:none;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap
 }
-.ff-bar .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
-.ff-bar .ff-sort{flex:none;display:inline-flex;align-items:center;gap:8px}
-.ff-bar .ff-sort .lbl{display:none}
-
-/* ayraç: sol (filtre) ile sağ (sonuç) bölgeyi ayırır */
+.ff-bar .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums;font-size:15px}
 .ff-bar .ff-count::before{
   content:"";display:inline-block;width:1px;height:20px;background:var(--line);
   vertical-align:-5px;margin-right:14px
 }
+.ff-bar .ff-sort{flex:none;display:inline-flex;align-items:center;gap:10px}
+.ff-bar .ff-sort .lbl{display:none}
 
 .ff-pop{
-  position:absolute;top:calc(100% + 9px);left:0;z-index:60;
-  min-width:248px;max-width:min(420px,90vw);
-  background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);
+  position:absolute;top:calc(100% + 8px);left:0;z-index:60;
+  min-width:252px;max-width:min(420px,90vw);
+  background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh-lg);
   padding:9px;opacity:0;visibility:hidden;transform:translateY(6px);
   transition:opacity .14s var(--ease),transform .14s var(--ease),visibility .14s;
   max-height:min(60vh,420px);overflow-y:auto;overscroll-behavior:contain;

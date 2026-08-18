@@ -620,6 +620,65 @@ geçirildi; yukarıdaki tablo tam listedir.
 **Ekran görüntüsü:** `scratchpad/shots/r7-egzersiz-kutuphane-v1.png` ·
 `r7-challenge-merkezi-v1.png` (seçili çipler, 12 px köşe)
 # R8 — DİKEY TUTARSIZLIK
+
+**Beyar:** *"Diğer taraflarda dikeyde bir tutarsızlık var, hepsini fikslemeni
+istiyorum."*
+
+## R8.1 · Önce ölçüm — sapmaların listesi
+
+59 sayfada, banner dışındaki **üst düzey bölümlerin** `padding-top` /
+`padding-bottom` değerleri `getComputedStyle` ile okundu.
+
+**@1440 · bulunan tekil değer: 26 tane**
+
+```
+0 · 8 · 12 · 14 · 30 · 32 · 34 · 36 · 38 · 40 · 44 · 46 · 48 · 50
+52 · 54 · 56 · 58 · 60 · 64 · 66 · 68 · 70 · 72 · 74 · 78   (px)
+```
+
+**İkiden fazla sıfır-dışı değer taşıyan sayfa: 29 / 59.**
+En kötüleri: `pro-v1` (üst 48·50·52·56·32 / alt 8·56·58·30·70·32) ·
+`antrenor-ol` (üst 46·36·0·32 / alt 12·70·74·32) ·
+`egzersiz-detay` (üst 34·60·38·32 / alt 64·72·46·32) ·
+`reklam-ver` (50·56·74·32) · `rozetler` (44·34·46·32 / 14·64·66·32).
+
+Toplam **60 farklı (sınıf, üst, alt) kombinasyonu** sayıldı; ikisi baskındı
+(`.sec` 50/50 → 65 örnek · `.fit-health` 32/32 → 59 örnek), kalan **58'i
+sayfaya özgü tek kullanımlık** değerlerdi.
+
+## R8.2 · Ölçek — iki basamak, artı bilinçli sıfır
+
+```css
+--sec-pad:    50px;   /* ≤1024: 42px · ≤640: 34px */   normal bölüm nefesi
+--sec-pad-sm: 32px;   /* ≤1024: 26px · ≤640: 22px */   sıkı nefes (bilgi bandı, ara şerit)
+0                                                       bilerek yapışık bölüm
+```
+
+**Yuvarlama kuralı:** ölçülen değer ≥ 40 px → `--sec-pad` · 1–39 px →
+`--sec-pad-sm` · 0 → 0. Her sapma tek tek bu kurala göre çevrildi.
+
+**Dokunulan yerler:** 20 sayfanın `<style>` bloğu · `assets/css/fit-shell.css`
+(`.fp-body` · `.lib-body` · `.nt-body` · `.hs-body` · `.uf-body` ·
+`.fit-health` ve mobil kopyaları) · 4 sayfadaki **satır içi** `<section style="…">`
+dolgusu (`dadafit-kopru` · `fit-testi-detay` · `profil`).
+
+## R8.3 · ÖLÇÜM — sonuç
+
+| Ölçüm | ÖNCE | SONRA |
+|---|---|---|
+| **@1440** depodaki tekil bölüm dolgusu | **26 değer** | **3 değer** — `0` · `32px` · `50px` ✅ |
+| **@1440** ikiden fazla sıfır-dışı değeri olan sayfa | **29 / 59** | **0 / 59** ✅ |
+| **@390** depodaki tekil bölüm dolgusu | 7 değer (`0·22·24·26·34·40·44`) | **3 değer** — `0` · `22px` · `34px` ✅ |
+| **@390** ikiden fazla sıfır-dışı değeri olan sayfa | 29 / 59 | **0 / 59** ✅ |
+| `page-check` | — | 15 sayfa × 2 genişlik = **30/30 temiz** ✅ |
+
+**Hedef "sayfa başına ikiden fazla farklı değer kalmasın" — tutturuldu.**
+Sayımda `0` ayrı tutuldu: sıfır bir ölçek basamağı değil, "bu bölüm bilerek
+bir öncekine yapışık" demek (ör. `.cp-body` üstü, `.faq-cta-sec` üstü).
+Sıfır dahil edilse bile hiçbir sayfada **üçten fazla** değer yok.
+
+**Ekran görüntüsü:** `scratchpad/shots/r8-pro-v1-1440.png` ·
+`r8-rozetler-v1-1440.png` · `r8-hakkimizda-v1-1440.png`
 # R9 — AÇIK KALAN KONTROLLER
 # R10 — DOĞRULAMA BORCU
 # H0 — YENİ MODÜLLER İÇİN KONSEPT ÖNERİSİ (uygulama yok)

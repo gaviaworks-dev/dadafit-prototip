@@ -680,6 +680,86 @@ Sıfır dahil edilse bile hiçbir sayfada **üçten fazla** değer yok.
 **Ekran görüntüsü:** `scratchpad/shots/r8-pro-v1-1440.png` ·
 `r8-rozetler-v1-1440.png` · `r8-hakkimizda-v1-1440.png`
 # R9 — AÇIK KALAN KONTROLLER
+
+## R9-a · Enerji Defteri adlandırması — KAPANDI, bir daha açılmayacak
+
+**Beyar (4. tur):** *"Mevcut dörtlü bölünme (Bugün · Dengele · Su Takibi ·
+Haftalık Özet) DOĞRUDUR ve korunacak. Fit Planım rayının altı sayfası ayrı
+kalacak, iki küme birbirine karıştırılmayacak. Bu kararı KARARLAR.md dosyasına
+yaz ve bir daha soru olarak açma."*
+
+`KARARLAR.md` **K20** bu kararı zaten taşıyordu; **K25** ile *kesinleşti ve
+soru listesinden kalıcı olarak düştü* diye işaretlendi. Ölçüm (bu turda
+yeniden doğrulandı): Enerji Defteri alt şeridi **4 kalem**, Fit Planım rayı
+**7 kalem**, dört Enerji Defteri sayfası da **HTTP 200**.
+
+## R9-b · "Programımı Bul" sihirbazı — referans akışıyla karşılaştırıldı, iki blok eklendi
+
+**Referans doğrulandı (varsayım değil):** kardeş ekosistemin sihirbaz sayfası
+`dadacampus-sihirbaz-v1.html` **HTTP 200** ile indirildi ve okundu
+(başlık: *"Bana Uygun Başlangıcı Bul"*, H1: *"Nereden başlayacağını birlikte
+bulalım"*). Ayrıca `kesfet-v1.html` içindeki satır içi "Mekân Bul Sihirbazı"
+bölümü okundu — bizim E3'te geçtiğimiz **satır içi** kip aynı kalıp.
+
+**Referans akışı beş blok · bizdeki karşılığı:**
+
+| # | Referans bloğu | Bizde | Sonuç |
+|---|---|---|---|
+| 1 | "Sana uygun olanı nasıl bulacağız?" | panel başlığındaki giriş paragrafı | ✅ vardı |
+| 2 | **"Seçimlerin"** | — | ❌ **YOKTU → eklendi** |
+| 3 | "Sana göre sıralandı" | 4 sonuç kartı (rutin · program · rehber · antrenör) | ✅ vardı |
+| 4 | **"Bu sıralama nasıl kuruluyor?"** | tek cümlelik `.wz-why` | ⚠️ zayıftı → **blok oldu** |
+| 5 | "Bu sayfada" | sayfa içi gezinme — satır içi panelde karşılığı yok | — |
+
+**Eklenen:**
+- **Seçimlerin** — altı yanıtın tamamı soru ↔ seçim çiftleri hâlinde,
+  çoklu seçimler çip çip. Altında **"Yanıtları değiştir"** düğmesi ilk soruya
+  döndürüyor (yanıtlar silinmiyor).
+- **Bu öneri nasıl kuruldu?** — hangi yanıtın neyi belirlediğini tek tek
+  yazan dört maddelik şeffaflık bloğu + "sıralama kişisel veriye değil,
+  verdiğin altı yanıta bakar; hiçbir öneri teşhis ya da reçete değildir" notu.
+  Risk dalında **ayrı** iki madde (reçete üretilmez, yalnız okunacak içerik).
+
+**REFERANS KURALI:** alınan şey **akış ve blok sırası**. Renk token'ı, tema
+değişkeni ve tipografi paleti **kopyalanmadı** — hepsi DadaFit'in kendi
+ölçeğinden (`--sec-pad-sm` · `--radius-chip` · `--radius-md` · `--fit-deep`).
+
+**Ölçüm (satır içi kipte, `programlar-merkezi-v1`):**
+
+| Ölçüm | Sonuç |
+|---|---|
+| Satır içi kip | `wz-inline` ✅ · `role="region"` ✅ · `aria-modal` **yok** ✅ · örtü katmanı **yok** ✅ |
+| Adım sayısı | 7 (6 soru + sonuç) · sayaç `1 / 6 → Sonuç` ✅ |
+| Sonuç kartı | **4** ✅ |
+| **Seçimlerin** bloğu | var ✅ · **6 satır** · **6 seçim çipi** ✅ |
+| **Bu öneri nasıl kuruldu?** | var ✅ · **4 madde** ✅ |
+| "Yanıtları değiştir" | var ✅ · basınca sayaç `Sonuç → 1 / 6` ✅ |
+| Kaydet CTA | *"Kaydetmek için giriş yap"* (oturum yokken) ✅ |
+| Risk dalı | ayrı sonuç: uyarı bloğu + antrenör + sağlık bilgilendirmesi + okuma rehberi ✅ |
+| `page-check` | 6 sayfa × 2 genişlik = **12/12 temiz** ✅ |
+
+**Ekran görüntüsü:** `scratchpad/shots/r9b-wizard.png` (normal dal) ·
+`r9b-wizard-risk.png` (risk dalı)
+
+## R9-c · "Bu sayfadaki veriler örnektir" şeridi — görsel olarak doğrulandı
+
+**Ölçüm — 5 sayfa (4 Enerji Defteri + `fit-planim-v1` karşılaştırma):**
+
+| Ölçüm | Sonuç |
+|---|---|
+| Şerit var ve görünür (`offsetHeight > 0`) | **5/5** ✅ |
+| Viewport içinde (sayfa açılışında) | **5/5** — üst kenar 438.9 px ✅ |
+| Yükseklik | **86.5 px** — beşinde de aynı ✅ |
+| Bağlamdaki yeri | **Fit Planım sekme rayının hemen altı**, Enerji Defteri alt şeridinin (Bugün · Dengele · Su Takibi · Haftalık Özet) **hemen üstü** ✅ |
+| Metin | *"Bu sayfadaki veriler **örnektir** — Fit Planım'ın nasıl çalıştığını göstermek için. Giriş yaptığında burada kendi verin olur."* + `Giriş Yap` · `Ücretsiz hesap oluştur` ✅ |
+| Kontrast | **15.81:1** ✅ |
+
+**Yorum:** şerit doğru yerde duruyor — kullanıcı önce "burası Fit Planım'ın bir
+parçası" (ray), sonra "veriler örnek" (şerit), sonra "defterin hangi bölümü"
+(alt sekme) bilgisini alıyor. K14'ün öngördüğü davranış G1'den sonra gerçekten
+Enerji Defteri'nde.
+
+**Ekran görüntüsü:** `scratchpad/shots/r9c-enerji-defteri-v1.png` (+ üç alt sayfa)
 # R10 — DOĞRULAMA BORCU
 # H0 — YENİ MODÜLLER İÇİN KONSEPT ÖNERİSİ (uygulama yok)
 

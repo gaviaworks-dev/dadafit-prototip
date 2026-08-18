@@ -1820,6 +1820,51 @@ setTimeout(function(){
     return r.some(function(v){ return v!=='yok'; });
   }
 
+  /* ---- R9b (4. tur) · "SEÇİMLERİN" ÖZETİ + "BU ÖNERİ NASIL KURULDU?" ----
+     Referans: kardeş ürünün sihirbaz sayfası (dadacampus-sihirbaz-v1.html,
+     HTTP 200 ile indirildi ve okundu). Oradaki akış beş blok:
+       1) "Sana uygun olanı nasıl bulacağız?"  → bizde giriş paragrafı vardı ✓
+       2) "Seçimlerin"                          → bizde YOKTU  → eklendi
+       3) "Sana göre sıralandı"                 → bizde sonuç kartları ✓
+       4) "Bu sıralama nasıl kuruluyor?"        → bizde tek cümleydi → blok oldu
+       5) "Bu sayfada"                          → sayfa içi gezinme; satır içi
+                                                  panelde karşılığı yok
+     ALINAN: akış ve blok sırası. ALINMAYAN: renk token'ı, tema değişkeni,
+     tipografi paleti — hepsi DadaFit'in kendi ölçeğinden. */
+  function etiket(k, v){
+    var s = SORULAR.filter(function(x){ return x.k===k; })[0];
+    if(!s) return v;
+    var o = s.o.filter(function(x){ return x.v===v; })[0];
+    return o ? o.t : v;
+  }
+  function secimlerinHtml(){
+    var satir = SORULAR.map(function(s){
+      var c = cevap[s.k];
+      if(c===undefined || c===null || (Array.isArray(c) && !c.length)) return '';
+      var vals = Array.isArray(c) ? c : [c];
+      var cips = vals.map(function(v){ return '<span class="wz-pick">'+etiket(s.k, v)+'</span>'; }).join('');
+      return '<div class="wz-sum-row"><span class="wz-sum-k">'+s.q.replace(/\?$/,'')+'</span>'+
+             '<span class="wz-sum-v">'+cips+'</span></div>';
+    }).join('');
+    if(!satir) return '';
+    return '<div class="wz-sum"><h4>Seçimlerin</h4>'+satir+
+           '<button class="wz-sum-edit" type="button" data-wz-restart>'+
+           '<i class="fa-solid fa-rotate-left"></i> Yanıtları değiştir</button></div>';
+  }
+  function nasilHtml(risk){
+    var kural = risk
+      ? ['<b>Risk yanıtı</b> → kişisel egzersiz reçetesi üretilmez, uzman ve sağlık bilgilendirmesine yönlendirilir.',
+         '<b>Amacın</b> → yalnız <i>okunacak</i> rehber içeriği seçilir, uygulama önerilmez.']
+      : ['<b>Bugünkü süren</b> → hızlı rutin seçilir (5 · 10 · 15 · 20 · 30 dk karşılıkları sabittir).',
+         '<b>Amacın</b> → uzun dönem program ve rehber içeriği seçilir.',
+         '<b>Risk yanıtın</b> → hiçbiri işaretlenmediyse öneri listesi açılır; işaretlendiyse akış uzmana döner.',
+         '<b>Seviye · mekân · ekipman</b> → şu an sıralamayı değil, önerinin <i>tonunu</i> belirler; ileride filtreye bağlanacak.'];
+    return '<div class="wz-how"><h4>Bu öneri nasıl kuruldu?</h4><ul>'+
+           kural.map(function(k){ return '<li>'+k+'</li>'; }).join('')+
+           '</ul><p class="wz-how-note">Sıralama kişisel veriye değil, verdiğin altı yanıta bakar. '+
+           'Hiçbir öneri teşhis ya da reçete değildir.</p></div>';
+  }
+
   function sonuc(){
     var amac = cevap.amac || 'aliskanlik';
     var sure = cevap.sure || '10';
@@ -1841,7 +1886,9 @@ setTimeout(function(){
              '<a class="wz-card" href="'+rh.href+'"><span class="ico"><i class="fa-solid fa-book-open"></i></span>'+
              '<span class="txt"><b>'+rh.ad+'</b><small>Genel bilgi — uygulama değil, okuma</small></span>'+
              '<i class="fa-solid fa-arrow-right go"></i></a>'+
-             '</div>';
+             '</div>'+
+             secimlerinHtml()+
+             nasilHtml(true);
       return out;
     }
     out += '<div class="wz-res">'+
@@ -1859,7 +1906,9 @@ setTimeout(function(){
       '<i class="fa-solid fa-arrow-right go"></i></a>'+
       '</div>'+
       '<p class="wz-why">Bu öneriler amacın (<b>'+(SORULAR[0].o.filter(function(o){return o.v===amac;})[0]||{t:amac}).t+
-      '</b>) ve bugünkü sürene (<b>'+sure+' dk</b>) göre seçildi. Beğenmediysen soruları değiştirebilirsin.</p>';
+      '</b>) ve bugünkü sürene (<b>'+sure+' dk</b>) göre seçildi.</p>'+
+      secimlerinHtml()+
+      nasilHtml(false);
     return out;
   }
 
@@ -1915,6 +1964,9 @@ setTimeout(function(){
         modal.setAttribute('role','region');
       }
       modal.addEventListener('click', function(e){
+        /* R9b — "Yanıtları değiştir": sonuç ekranından ilk soruya döner.
+           Yanıtlar silinmez; kullanıcı ileri gidip tek tek değiştirebilsin. */
+        if(e.target.closest('[data-wz-restart]')){ adim = 0; goster(); return; }
         var o = e.target.closest('.wz-opt');
         if(o){
           var k=o.getAttribute('data-k'), v=o.getAttribute('data-v');

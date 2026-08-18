@@ -766,3 +766,78 @@ tamamı ölçek dışı mikro grafik (kaydırma çubuğu tutamağı, su bardağ�
 
 **Geri almak için:** tek token — `--radius-chip`. 16 px isteniyorsa
 `var(--radius-lg)` yazılır (ama o değer 32 px'lik çipte hap görünür).
+
+---
+
+## K25 · Enerji Defteri adlandırması KESİNLEŞTİ — soru listesinden kalıcı olarak düştü
+
+**Beyar (4. tur, R9-a):** *"Enerji Defteri: mevcut dörtlü bölünme (Bugün ·
+Dengele · Su Takibi · Haftalık Özet) DOĞRUDUR ve korunacak. Fit Planım rayının
+altı sayfası ayrı kalacak, iki küme birbirine karıştırılmayacak. Bu kararı
+KARARLAR.md dosyasına yaz ve bir daha soru olarak açma."*
+
+**Durum:** karar **K20**'de zaten yazılıydı; bu madde onu **kesin** hâle
+getiriyor. Bundan sonra hiçbir turda "Enerji Defteri'nin sayfa adları ne
+olmalı" diye **soru açılmayacak**.
+
+- **Enerji Defteri kümesi (4 sayfa):** `enerji-defteri-v1` (Bugün) ·
+  `enerji-defteri-dengele-v1` (Dengele) · `enerji-defteri-su-v1` (Su Takibi) ·
+  `enerji-defteri-haftalik-v1` (Haftalık Özet)
+- **Fit Planım rayı kümesi (6 sayfa):** `fit-planim-v1` (Bugün) ·
+  `-programim-` (Plan ve Takvim) · `-gecmis-` (Aktivite Kayıtlarım) ·
+  `-ilerleme-` (İlerlemem) · `-kaydettiklerim-` (Kaydettiklerim) ·
+  `-randevular-` (Antrenörüm)
+- İki kümede de "Bugün" adlı bir sayfa var ama **farklı şeyler**; adlar
+  birleştirilmeyecek, kümeler tek rayda toplanmayacak.
+
+**Bu turda yeniden ölçüldü:** Enerji Defteri alt şeridi **4 kalem**, Fit Planım
+rayı **7 kalem** (altı plan sayfası + Enerji Defteri girişi), dört Enerji
+Defteri sayfası da **HTTP 200**.
+
+**Soru listesi etkisi:** eski **S3** kapalı ve bir daha açılmayacak.
+
+---
+
+## K26 · Sihirbaz, kardeş üründeki sihirbaz sayfasının AKIŞINA hizalandı
+
+**Beyar (4. tur, R9-b):** *"'Programımı Bul' sihirbazı popup olmaktan çıktı;
+daha önce referans verilen sihirbaz sayfalarına içerik ve akış olarak uyup
+uymadığını ayrıca kontrol et, eksikse tamamla."*
+
+**Referans DOĞRULANDI (varsayım değil):** `dadacampus-sihirbaz-v1.html`
+**HTTP 200** ile indirildi ve okundu (title *"Bana Uygun Başlangıcı Bul"*,
+H1 *"Nereden başlayacağını birlikte bulalım"*). Ayrıca `kesfet-v1.html`
+içindeki satır içi "Mekân Bul Sihirbazı" bölümü okundu — E3'te geçtiğimiz
+satır içi kip aynı kalıp, yani kip seçimi doğruymuş.
+
+**Referans akışı beş blok. Karşılaştırma:**
+
+| Referans bloğu | Bizde | Sonuç |
+|---|---|---|
+| "Sana uygun olanı nasıl bulacağız?" | giriş paragrafı | vardı |
+| **"Seçimlerin"** | — | **YOKTU → eklendi** |
+| "Sana göre sıralandı" | 4 sonuç kartı | vardı |
+| **"Bu sıralama nasıl kuruluyor?"** | tek cümlelik `.wz-why` | **zayıftı → blok oldu** |
+| "Bu sayfada" | sayfa içi gezinme | satır içi panelde karşılığı yok |
+
+**Eklenen iki blok:**
+1. **Seçimlerin** — altı yanıtın tamamı soru ↔ seçim çiftleri hâlinde; çoklu
+   seçimler çip çip. Altında "Yanıtları değiştir" düğmesi ilk soruya döndürür
+   (yanıtlar silinmez, kullanıcı tek tek değiştirebilir).
+2. **Bu öneri nasıl kuruldu?** — hangi yanıtın neyi belirlediğini yazan dört
+   maddelik şeffaflık bloğu. Risk dalında iki ayrı madde (reçete üretilmez,
+   yalnız okunacak içerik). Altında sabit not: *"Sıralama kişisel veriye değil,
+   verdiğin altı yanıta bakar. Hiçbir öneri teşhis ya da reçete değildir."*
+
+**REFERANS KURALINA UYULDU:** alınan şey **akış ve blok sırası**. Renk token'ı,
+tema değişkeni ve tipografi paleti **kopyalanmadı** — yeni CSS DadaFit'in kendi
+token'larını kullanıyor (`--sec-pad-sm` · `--radius-chip` · `--radius-md` ·
+`--fit-deep` · `--line` · `--muted`).
+
+**Ölçüm:** satır içi kip `wz-inline` + `role="region"`, `aria-modal` yok, örtü
+yok · 7 adım (6 soru + sonuç) · 4 sonuç kartı · Seçimlerin **6 satır / 6 çip** ·
+Nasıl kuruldu **4 madde** · "Yanıtları değiştir" sayacı `Sonuç → 1 / 6` yapıyor ·
+risk dalı ayrı sonuç veriyor · `page-check` 12/12 temiz.
+
+**Geri almak için:** `assets/js/fit-shell.js` → `secimlerinHtml()` / `nasilHtml()`
+ve `assets/css/fit-shell.css` → `.wz-sum` / `.wz-how` blokları.

@@ -510,3 +510,35 @@ istiyorsan — sayfa adlarını ona göre değiştiririm.
 
 **Geri almak için:** üç yeni dosya silinir, `fit-shell.js` → `PLAN_TABS` /
 `PLAN_EXTRA` / `ACCOUNT_ITEMS` eski hâline döner.
+
+---
+
+## K19 · Faz A · B · D · E doğrulaması BAĞIMSIZ DEĞİL — sarı bırakıldı
+
+**Durum:** Her fazın sonunda bir doğrulama ajanı çalıştırıldı (`dogrula-A` …
+`dogrula-E`). Beşi de ölçüm script'lerini yazdı ve koştu; ham çıktılar
+`scratchpad/verify-*/` altında duruyor. **Ama yalnız `dogrula-C` rapor metni
+döndürdü.** Diğer dördü iki ayrı istek sonrasında da yalnız "boşta" bildirimi
+gönderdi.
+
+**Ne yapıldı:** ham çıktılarını **ana oturumda ben okudum ve yorumladım.**
+
+**Neden bu bir sorun:** ölçen ile yorumlayan aynı taraf olunca doğrulamanın
+işlevi kaybolur. Bağımsız gözün değeri tam olarak *benim göremediğimi*
+görmesidir. Nitekim rapor gönderen tek ajan (`dogrula-C`) benim **temiz**
+raporladığım bir noktada gerçek bir kusur buldu: 24 çipte `role="option"` ile
+`aria-pressed` çakışması. Benim ölçümüm temiz çıkmıştı çünkü kabuk özniteliği
+kuruluşta siliyordu ve sayfa motoru onu ancak **kullanıcı bir çipe tıkladıktan
+sonra** geri koyuyordu — yani yanlış anda ölçmüştüm.
+
+**Karar (Beyar'ın talimatı):** A · B · D · E fazları **yeşil işaretlenmedi,
+sarı bırakıldı**. `REVIZE-PLAN-3.md` içindeki madde tablolarında duran ✅
+işaretleri "ben ölçtüm ve geçti" anlamına gelir; "bağımsız doğrulandı"
+anlamına **gelmez**. F ve G fazlarında doğrulama ajanı **hiç çalıştırılmadı**.
+
+**Sonraki oturumun borcu:** A · B · D · E · F · G için doğrulamayı gerçekten
+bağımsız koştur ve raporu **metin olarak** al. Ajan metin döndürmüyorsa, ham
+çıktısını ana oturumda okuyup yeşile çevirme — sarı bırak ve bunu raporla.
+
+**Geri almak için:** bağımsız raporlar geldiğinde plandaki ⚠ bölümü ve bu
+karar güncellenir.

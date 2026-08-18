@@ -306,6 +306,37 @@ script'lerini yazdı ve benim sayılarımı yeniden üretti (ham çıktılar
 `scratchpad/verify-*/`). Ajanların **kırmızı bulgu raporları beklemede** —
 geldiklerinde bu bölüme işlenecek.
 
+### ⚠ DOĞRULAMA ZİNCİRİ KIRIK — A · B · D · E BAĞIMSIZ DEĞİL
+
+**Beyar'ın tespiti (18.08.2026, tur içinde):** `dogrula-A`, `dogrula-B`,
+`dogrula-D` ve `dogrula-E` ajanları **rapor metni döndürmedi**; yalnız "boşta"
+bildirimi gönderdiler. İki kez açıkça rapor istendi, ikisinde de metin gelmedi.
+Ben de ham çıktılarını (`scratchpad/verify-*/`) **kendim okuyup yorumladım**.
+
+**Bu bağımsız doğrulama SAYILMAZ.** Ölçen ve yorumlayan aynı taraf olduğunda
+doğrulamanın anlamı kalmaz: benim gözden kaçırdığım bir şeyi yine ben
+yakalayamam. Bu yüzden:
+
+| Faz | Doğrulama durumu |
+|---|---|
+| A | 🟡 **ana oturumda okundu, bağımsız değil** |
+| B | 🟡 **ana oturumda okundu, bağımsız değil** |
+| C | 🟢 **bağımsız** — `dogrula-C` rapor metni gönderdi, bir kırmızı buldurdu |
+| D | 🟡 **ana oturumda okundu, bağımsız değil** |
+| E | 🟡 **ana oturumda okundu, bağımsız değil** |
+| F · G | ⚪ **doğrulama ajanı hiç çalıştırılmadı** — turun sonunda üretildiler |
+
+**Bu fazlar YEŞİL DEĞİL, SARI.** Madde tablolarındaki ✅ işaretleri *"ben ölçtüm
+ve geçti"* demektir, *"bağımsız olarak doğrulandı"* demek değildir. Sonraki
+oturumun ilk işlerinden biri A · B · D · E · F · G için doğrulamayı gerçekten
+bağımsız koşturmak olmalı.
+
+**Farkın somut kanıtı:** tek metin raporu gönderen ajan (`dogrula-C`) benim
+gözden kaçırdığım gerçek bir kusuru buldu — 24 çipte `role="option"` ile
+`aria-pressed` çakışması. Benim kendi ölçümüm bunu **temiz** göstermişti,
+çünkü kabuk özniteliği kuruluşta siliyordu; sayfa motoru onu ancak kullanıcı
+bir çipe tıkladıktan **sonra** geri koyuyordu. Bağımsız göz olmasa kalırdı.
+
 ### dogrula-C · Faz C raporu (geldi)
 
 **Bir kırmızı buldu, düzeltildi:**

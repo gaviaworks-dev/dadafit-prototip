@@ -61,7 +61,7 @@ var ECO = {
 var FIT_LOGOUT = 'dadafit-hub-v1.html?auth=0';
 
 var NAV = [
-  /* 1 · HAREKET — Egzersiz Kütüphanesi ile Hareket Rehberi bu şemsiye altında (belge §3.1).
+  /* 1 · HAREKET — DadaFit Egzersizleri ile Hareket Rehberi bu şemsiye altında (belge §3.1).
  Rehberin yedi alt sayfası artık menüde: eskiden yalnız ?bolge= varyantlarıyla
  kütüphaneye giden dört kopya kalem vardı, gerçek sayfalar erişilemezdi. */
   { key:'hareket', label:'Hareket', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running',
@@ -78,7 +78,7 @@ var NAV = [
        derinleşti. Panel tek kolona indiği için `wide:true` de kalktı. */
     dd:[
       {label:'Hareket Merkezi', desc:'Hareket dünyasının giriş kapısı', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running'},
-      {label:'Egzersiz Kütüphanesi', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
+      {label:'DadaFit Egzersizleri', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
       {label:'Hareket Rehberi', desc:'Nasıl ve neden — yedi rehber konusu ve sözlük', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'}
     ] },
 
@@ -2203,15 +2203,52 @@ setTimeout(function(){
       head.className = 'ff-pop-h';
       head.innerHTML = '<b>'+label+'</b><button class="ff-pop-clear" type="button">Temizle</button>';
       pop.appendChild(head);
+
+      /* ---- ARAMA ALANI — seçenek sayısı SEKİZİ GEÇEN eksende (C3) ----
+         "Tümü" bir seçenek değil, seçimin yokluğu → eşiğe girmez. */
+      var realChips = chips.filter(function(c){ return !isAll(c); });
+      var search = null, empty = null;
+      if(realChips.length > 8){
+        search = document.createElement('div');
+        search.className = 'ff-search';
+        search.innerHTML =
+          '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>'+
+          '<input type="search" autocomplete="off" spellcheck="false" '+
+          'placeholder="'+label+' ara" aria-label="'+label+' seçenekleri içinde ara" '+
+          'aria-controls="'+popId+'-list">'+
+          '<button class="ff-search-x" type="button" aria-label="Aramayı temizle" hidden>'+
+          '<i class="fa-solid fa-xmark"></i></button>';
+        pop.appendChild(search);
+        empty = document.createElement('p');
+        empty.className = 'ff-empty';
+        empty.setAttribute('role','status');
+        empty.hidden = true;
+        empty.textContent = 'Eşleşen seçenek yok.';
+      }
+
       /* .fgroup KUTUSUYLA BİRLİKTE taşınır (yukarıdaki kısıt) — sayfa motoru
          hem grubu hem çipleri eskisi gibi bulur, listener'ları düşmez */
+      g.id = g.id || (popId + '-list');
+      g.setAttribute('role','listbox');
+      g.setAttribute('aria-multiselectable','true');
+      g.setAttribute('aria-label', label);
+      chips.forEach(function(c){
+        c.setAttribute('role','option');
+        /* aria-pressed ile aria-selected aynı öğede DURAMAZ (rol çakışır);
+           çoklu seçim listesinin doğru sözleşmesi option+aria-selected. */
+        c.removeAttribute('aria-pressed');
+        c.setAttribute('aria-selected', c.classList.contains('on') ? 'true':'false');
+      });
       pop.appendChild(g);
+      if(empty) pop.appendChild(empty);
 
       facet.appendChild(btn);
       facet.appendChild(pop);
 
       var allChip = chips.filter(isAll)[0] || null;
       return {key:key, label:label, el:facet, btn:btn, pop:pop, chips:chips, allChip:allChip,
+              realChips:realChips, group:g, search:search, empty:empty,
+              input: search ? search.querySelector('input') : null,
               clearBtn:head.querySelector('.ff-pop-clear')};
     });
 
@@ -2269,6 +2306,10 @@ setTimeout(function(){
     panel.querySelectorAll('.fclear').forEach(function(b){ b.style.display='none'; });
 
     /* =============== durum senkronu =============== */
+    /* URL yalnız KULLANICI bir şey değiştirdikten sonra yazılır. Açılıştaki
+       ilk senkronda yazsaydık ?bolge=ust-vucut gibi alias adresler kullanıcı
+       hiçbir şey yapmadan kanonik biçime çevrilir, paylaşılan bağlantı bozulurdu. */
+    var dirty = false;
     function selectedOf(f){
       return f.chips.filter(function(c){ return !isAll(c) && c.classList.contains('on'); });
     }
@@ -2298,24 +2339,145 @@ setTimeout(function(){
         });
       });
 
+      /* çiplerin aria-selected'i durumla birlikte yürür */
+      facets.forEach(function(f){
+        f.chips.forEach(function(c){
+          c.setAttribute('aria-selected', c.classList.contains('on') ? 'true':'false');
+        });
+      });
+
       panel.classList.toggle('has-sel', totalSel>0);
       total.querySelector('b').textContent = totalSel;
       openBtn.querySelector('.ff-n').textContent = totalSel;
       var applyBtn = sheet.querySelector('.ff-sheet-apply');
       if(applyBtn) applyBtn.textContent = totalSel ? ('Sonuçları gör ('+totalSel+' filtre)') : 'Sonuçları gör';
+
+      if(dirty) writeURL();
+    }
+
+    /* =============== TEK DURUM NESNESİ + URL =================
+       Tek gerçek kaynak DOM'daki çip durumudur; state onun okunmuş hâli.
+       İki motor (sayfa motoru + bu bileşen) aynı çipe bakar, ikinci bir
+       kopya durum tutulmaz — kopyalar ayrışır. */
+    function readState(){
+      var st = {};
+      facets.forEach(function(f){
+        var v = selectedOf(f).map(function(c){ return c.getAttribute('data-val'); });
+        if(v.length) st[f.key] = v;
+      });
+      return st;
+    }
+    /* eski/alias parametreler: yazarken düşürülür, yoksa kullanıcının
+       kaldırdığı seçim yeniden yüklemede geri gelir (ör. ?bolge=ust-vucut
+       egzersiz kütüphanesinde dört kas çipini açıyor) */
+    var LEGACY = (panel.getAttribute('data-ff-legacy')||'').split(/[,\s]+/).filter(Boolean);
+
+    function writeURL(){
+      var st = readState();
+      var q = new URLSearchParams(location.search);
+      facets.forEach(function(f){ q.delete(f.key); });
+      LEGACY.forEach(function(k){ q.delete(k); });
+      Object.keys(st).forEach(function(k){ q.set(k, st[k].join(',')); });
+      var qs = q.toString();
+      history.replaceState(null, '', location.pathname + (qs? '?'+qs : '') + location.hash);
+    }
+
+    /* URL → DOM. Sayfa motorunun kendi derin bağlantı okuması BİTTİKTEN
+       sonra çalışır (window load) ve YALNIZ FARKI tıklar; iki kez
+       tetiklenip seçimi geri almaz. */
+    function restoreFromURL(){
+      var q = new URLSearchParams(location.search);
+      facets.forEach(function(f){
+        var raw = q.get(f.key);
+        if(raw === null) return;
+        var want = raw.split(',').filter(Boolean);
+        f.chips.forEach(function(c){
+          if(isAll(c)) return;
+          var v = c.getAttribute('data-val');
+          var on = c.classList.contains('on');
+          if(want.indexOf(v) > -1 && !on) c.click();
+          else if(want.indexOf(v) < 0 && on) c.click();
+        });
+      });
+      sync();
     }
 
     /* çip tıklamaları sayfa motoruna ait; biz yalnız SONRASINDA durumu okuruz */
     facets.forEach(function(f){
-      f.chips.forEach(function(c){ c.addEventListener('click', function(){ setTimeout(sync,0); }); });
+      f.chips.forEach(function(c){ c.addEventListener('click', function(){ dirty = true; setTimeout(sync,0); }); });
       f.clearBtn.addEventListener('click', function(){
+        dirty = true;
         if(f.allChip){ f.allChip.click(); }
         else { selectedOf(f).forEach(function(c){ c.click(); }); }
         setTimeout(sync,0);
       });
+
+      /* ---- ARAMA (C3): yazdıkça süz, eşleşme yoksa boş durum ---- */
+      if(f.input){
+        var norm = function(t){ return (t||'').toLocaleLowerCase('tr').replace(/\s+/g,' ').trim(); };
+        var xBtn = f.search.querySelector('.ff-search-x');
+        var run = function(){
+          var q = norm(f.input.value);
+          var shown = 0;
+          f.chips.forEach(function(c){
+            /* "Tümü" aramada gizlenir: seçenek değil, sıfırlama kalemi */
+            var hide = isAll(c) ? !!q : (q && norm(c.textContent).indexOf(q) < 0);
+            c.hidden = !!hide;
+            if(!hide && !isAll(c)) shown++;
+          });
+          if(f.empty) f.empty.hidden = !(q && shown === 0);
+          if(xBtn) xBtn.hidden = !q;
+        };
+        f.input.addEventListener('input', run);
+        f.input.addEventListener('keydown', function(e){
+          if(e.key === 'Escape'){ e.stopPropagation(); if(f.input.value){ f.input.value=''; run(); } else closeFacets(null); return; }
+          if(e.key === 'ArrowDown'){ e.preventDefault(); focusChip(f, 0); }
+        });
+        if(xBtn) xBtn.addEventListener('click', function(){ f.input.value=''; run(); f.input.focus(); });
+        f.runSearch = run;
+      }
+
+      /* ---- KLAVYE: ok tuşlarıyla gezinme ----
+         Dinleyici POPOVER'a değil FACET'e bağlı: odak henüz açma düğmesindeyken
+         ArrowDown ile panele girilebilsin (arama alanı olmayan eksenlerde
+         tek giriş yolu bu). */
+      f.el.addEventListener('keydown', function(e){
+        if(['ArrowDown','ArrowUp','Home','End'].indexOf(e.key) < 0) return;
+        if(!f.el.classList.contains('open')){
+          if(e.key !== 'ArrowDown') return;
+          e.preventDefault();
+          f.btn.click();                                   /* kapalıyken ArrowDown açar */
+          return;
+        }
+        var vis = visibleChips(f);
+        if(!vis.length) return;
+        e.preventDefault();
+        if(document.activeElement === f.btn || (f.input && document.activeElement === f.input)){
+          if(e.key === 'ArrowDown'){ focusChip(f, 0); return; }
+          if(e.key === 'End'){ focusChip(f, vis.length-1); return; }
+          if(e.key === 'Home'){ focusChip(f, 0); return; }
+          return;
+        }
+        var i = vis.indexOf(document.activeElement);
+        if(i < 0){ focusChip(f, 0); return; }
+        var j = e.key === 'ArrowDown' ? Math.min(i+1, vis.length-1)
+              : e.key === 'ArrowUp'   ? (i<=0 ? -1 : i-1)
+              : e.key === 'Home'      ? 0 : vis.length-1;
+        if(j === -1){ (f.input || f.btn).focus(); return; }
+        focusChip(f, j);
+      });
     });
 
+    function visibleChips(f){
+      return f.chips.filter(function(c){ return !c.hidden && c.offsetParent !== null; });
+    }
+    function focusChip(f, i){
+      var vis = visibleChips(f);
+      if(vis[i]) vis[i].focus();
+    }
+
     function resetAll(){
+      dirty = true;
       if(pageClearEl){ pageClearEl.click(); }
       else{
         facets.forEach(function(f){
@@ -2334,7 +2496,63 @@ setTimeout(function(){
         if(f===except) return;
         f.el.classList.remove('open');
         f.btn.setAttribute('aria-expanded','false');
+        f.pop.style.maxHeight = '';
       });
+    }
+
+    /* ---- PANELİ GÖRÜNÜR ALANA KELEPÇELE ----
+       CSS'teki max-height:min(60vh,420px) yalnız panelin BOYUNU sınırlıyor;
+       çubuk ekranın altına yakınsa panel yine alt kenardan taşıyordu. Burada
+       gerçek kutu ölçülüp iki eksende de içeri alınıyor:
+       · sağ kenar  → .flip (sağa hizalı)
+       · alt kenar  → önce yukarı aç (.up), o da sığmıyorsa max-height kırp */
+    function placePop(f){
+      var pop = f.pop;
+      f.el.classList.remove('flip','up');
+      pop.style.maxHeight = '';
+      var vw = document.documentElement.clientWidth;
+      var vh = window.innerHeight;
+      var r  = pop.getBoundingClientRect();
+      if(r.right > vw - 12) f.el.classList.add('flip');
+
+      var br = f.btn.getBoundingClientRect();
+      var below = vh - br.bottom - 18;
+      var above = br.top - 18;
+      r = pop.getBoundingClientRect();
+      if(r.bottom > vh - 12){
+        if(above > below && above > 160){
+          f.el.classList.add('up');
+          pop.style.maxHeight = Math.floor(above) + 'px';
+        } else {
+          pop.style.maxHeight = Math.max(160, Math.floor(below)) + 'px';
+        }
+      }
+      /* odak panele: arama alanı varsa oraya, yoksa ilk seçeneğe (C3).
+         GECİKMELİ: .ff-pop `visibility:hidden` + `transition:… visibility`
+         ile açılıyor; görünmez öğede .focus() SESSİZCE NO-OP'tur (aynı tuzak
+         KARARLAR.md K1'de modal katmanları için ölçülmüştü). Sınırlı kare
+         yoklamasıyla gerçekten görünür olduğu karede odaklanıyoruz. */
+      var target = f.input || visibleChips(f)[0];
+      if(target) focusWhenVisible(target, f.el);
+      if(f.input && f.runSearch) f.runSearch();
+    }
+
+    var MAX_FRAMES = 20;
+    function reallyVisible(n){
+      if(!n) return false;
+      if(typeof n.checkVisibility === 'function') return n.checkVisibility({visibilityProperty:true});
+      var cs = getComputedStyle(n);
+      if(cs.visibility === 'hidden' || cs.display === 'none') return false;
+      return n.offsetWidth > 0 || n.offsetHeight > 0;
+    }
+    function focusWhenVisible(node, holder, tries){
+      tries = tries || 0;
+      if(!document.contains(node)) return;
+      if(!holder.classList.contains('open')) return;      /* bu arada kapandıysa bırak */
+      if(holder.contains(document.activeElement) && document.activeElement !== holder) return;
+      if(reallyVisible(node)){ node.focus(); return; }
+      if(tries >= MAX_FRAMES) return;
+      requestAnimationFrame(function(){ focusWhenVisible(node, holder, tries+1); });
     }
     facets.forEach(function(f){
       f.btn.addEventListener('click', function(e){
@@ -2343,12 +2561,7 @@ setTimeout(function(){
         closeFacets(f);
         f.el.classList.toggle('open', willOpen);
         f.btn.setAttribute('aria-expanded', willOpen?'true':'false');
-        if(willOpen){
-          /* sağ kenardan taşacaksa paneli sağa hizala */
-          f.el.classList.remove('flip');
-          var r = f.pop.getBoundingClientRect();
-          if(r.right > document.documentElement.clientWidth - 12) f.el.classList.add('flip');
-        }
+        if(willOpen) placePop(f);
       });
     });
     document.addEventListener('click', function(e){
@@ -2357,8 +2570,36 @@ setTimeout(function(){
     document.addEventListener('keydown', function(e){
       if(e.key!=='Escape') return;
       if(sheet.classList.contains('open')){ closeSheet(); return; }
+      var open = facets.filter(function(f){ return f.el.classList.contains('open'); })[0];
       closeFacets(null);
+      if(open) open.btn.focus();      /* odak kaybolmasın (§20 odak dönüşü) */
     });
+    /* panelden Tab ile çıkıldığında panel kapansın — açık kalan panel
+       arkadaki karta tıklamayı engelliyordu */
+    panel.addEventListener('focusout', function(e){
+      var open = facets.filter(function(f){ return f.el.classList.contains('open'); })[0];
+      if(!open) return;
+      setTimeout(function(){
+        if(!open.el.contains(document.activeElement)){
+          open.el.classList.remove('open');
+          open.btn.setAttribute('aria-expanded','false');
+        }
+      }, 0);
+    });
+    /* Çubuk sticky: sayfa kayınca açma düğmesinin ekrandaki yeri değişir,
+       panelin yön/kırpma hesabı bayatlar. Kaydırma ve yeniden boyutlandırmada
+       yeniden yerleştir (yalnız açık panel için, rAF ile tek kare). */
+    var placeQueued = false;
+    function replaceOpen(){
+      if(placeQueued) return;
+      placeQueued = true;
+      requestAnimationFrame(function(){
+        placeQueued = false;
+        facets.forEach(function(f){ if(f.el.classList.contains('open')) placePop(f); });
+      });
+    }
+    window.addEventListener('resize', replaceOpen);
+    window.addEventListener('scroll', replaceOpen, {passive:true});
 
     /* =============== mobil çekmece =============== */
     function openSheet(){
@@ -2391,7 +2632,9 @@ setTimeout(function(){
     sync();
     /* sayfa scriptleri bu dosyadan SONRA çalışır; bir tur daha oku */
     setTimeout(sync, 0);
-    window.addEventListener('load', sync);
+    /* URL'den geri yükleme load'da: sayfa motorunun kendi derin bağlantı
+       okuması bitmiş olur, biz yalnız farkı tıklarız (idempotent) */
+    window.addEventListener('load', function(){ restoreFromURL(); });
   }
 
   panels.forEach(build);

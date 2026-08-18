@@ -2313,3 +2313,63 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   .fit-note{align-items:flex-start;padding:11px 13px;gap:10px}
   .fit-note p{font-size:12.5px}
 }
+
+/* =====================================================================
+ SEKME BİLEŞENİ — .fit-tabs / .fit-tab / .fit-pane (ORTAK · TEK KAYNAK)
+ ---------------------------------------------------------------------
+ GÖRSEL KALIP: DadaGastro'nun segment hapı (ölçülerek alındı, bkz.
+ KARARLAR.md K13). Kaynak kurallar birebir:
+   .disc-tabs{display:flex;gap:4px;background:var(--paper);
+              border:1px solid var(--line);border-radius:var(--radius-md);padding:4px}
+   .dt{font-weight:700;font-size:13.5px;color:var(--muted);background:transparent;
+       border:none;border-radius:var(--radius-sm);padding:10px 18px;gap:8px;
+       transition:.2s var(--ease)}
+   .dt.active{background:<aksan>;color:#fff}          ← aktif gösterge DOLU HAP
+   .dt:hover{color:<aksan>}
+   .disc-pane{animation:fadeUp .35s var(--ease)}  .disc-pane[hidden]{display:none}
+   ≤mobil: .dt{padding:9px 14px;font-size:12.5px}
+ Aksan DadaFit tarafında --fit-deep (#007a3d): beyaz metinle 5.45:1
+ (--fit #009d4f ile 3.54:1 ölçüldü, AA altı kalıyordu).
+
+ KAYNAKTA OLMAYIP EKLENEN: ARIA (role=tab/tablist/tabpanel, aria-selected,
+ aria-controls) ve klavye (ok tuşları · Home/End · roving tabindex).
+ DadaGastro'nun üç sekme kullanımının hiçbirinde role="tab" YOK (ölçüldü:
+ dört sayfada 0 eşleşme). Erişilebilirlik eksiği kopyalanmadı — görsel
+ kalıp birebir, davranış üstüne eklendi.
+
+ İKİ KİP:
+ · <button data-tab="x">  → sayfa içi panel değişimi (JS yönetir)
+ · <a href="…">           → sayfa geçişi; JS dokunmaz, aktif sekme
+                            aria-selected="true" ile markup'ta işaretlenir
+ ===================================================================== */
+.fit-tabs{
+  display:inline-flex;gap:4px;max-width:100%;
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-md);padding:4px;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch
+}
+.fit-tabs::-webkit-scrollbar{display:none}
+.fit-tab{
+  flex:0 0 auto;font-family:inherit;font-weight:700;font-size:13.5px;
+  color:var(--muted);background:transparent;border:none;
+  border-radius:var(--radius-sm);padding:10px 18px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  transition:.2s var(--ease)
+}
+.fit-tab i{font-size:12px;transition:color .2s var(--ease)}
+.fit-tab .cnt{
+  font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);
+  padding:2px 8px;border-radius:var(--radius-pill);transition:.2s var(--ease)
+}
+.fit-tab:hover{color:var(--fit-deep)}
+.fit-tab:hover i{color:var(--fit-deep)}
+.fit-tab:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.fit-tab[aria-selected="true"]{background:var(--fit-deep);color:#fff}
+.fit-tab[aria-selected="true"] i{color:#fff}
+.fit-tab[aria-selected="true"] .cnt{background:rgba(255,255,255,.22);color:#fff}
+.fit-pane{animation:fadeUp .35s var(--ease)}
+.fit-pane[hidden]{display:none}
+@media (max-width:640px){
+  .fit-tab{padding:9px 14px;font-size:12.5px}
+  .fit-tabs{display:flex;width:100%}
+}

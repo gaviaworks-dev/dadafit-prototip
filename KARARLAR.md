@@ -257,3 +257,53 @@ yaslamadan çıkarıldı, sola yaslı.
 iki satırlık bir uyarıda bu, metnin yarısında görünür "nehir" demek. Akan makale
 metni değil kısa uyarı metni oldukları için sola yaslı okunurluğu daha iyi.
 Makale/kart gövdelerinde yaslama korunuyor.
+
+---
+
+## K13 · Sekme kalıbı DadaGastro'dan birebir alındı, erişilebilirlik ÜSTÜNE eklendi
+
+**Belirsizlik:** Beyar "tab yapısı DadaGastro'yla tutarlı olacak" dedi ama hangi
+DadaGastro sekmesi olduğunu söylemedi; DadaGastro'da tek bir "sekme bileşeni" yok.
+
+**Referans DOĞRULANDI** (varsayım değil): `assets/js/fit-shell.js` içindeki
+`ECO_BASE` adresinden dört sayfa indirildi ve okundu —
+`anasayfa-portal-v3a.html` (HTTP 200) · `kesfet-v1.html` · `saglik-hub-v1.html` ·
+`akademi-v1.html`. Üç sekme kullanımı bulundu: `.search-tabs` · `.guide-tabs/.gt` ·
+`.disc-tabs/.dt`. Üçü de **aynı iskeleti** paylaşıyor:
+
+| Boyut | DadaGastro değeri |
+|---|---|
+| konteyner | `display:flex; gap:4px; padding:4px; border-radius:--radius-md; background:--paper; border:1px solid --line` |
+| sekme | `font-weight:700; font-size:13.5px; color:--muted; background:transparent; border:none; border-radius:--radius-sm; padding:10px 18px; gap:8px; transition:.2s --ease` |
+| hover | `color:<aksan>` |
+| **aktif gösterge** | **`background:<aksan>; color:#fff`** — dolu hap, alt çizgi DEĞİL |
+| panel | `[hidden]{display:none}` + `animation:fadeUp .35s --ease` |
+| ≤mobil | `padding:9px 14px; font-size:12.5px` |
+
+**Seçilen:** bu iskelet DadaFit'e birebir taşındı (`.fit-tabs` / `.fit-tab` /
+`.fit-pane`, `assets/css/fit-shell.css` + `assets/js/fit-shell.js`). Aksan rengi
+`--fit-deep` (#007a3d) — `--fit` (#009d4f) beyaz metinle **3.54:1** ölçüldü (AA altı),
+`--fit-deep` ile **5.45:1**.
+
+**Kaynakta OLMAYIP eklenen — bilinçli sapma:** DadaGastro'nun hiçbir sekmesinde
+`role="tab"` yok (dört sayfada **0 eşleşme** ölçüldü) ve klavye gezinmesi yok.
+Erişilebilirlik eksiği **kopyalanmadı**: `role=tablist/tab/tabpanel`, `aria-selected`,
+`aria-controls`, roving `tabindex` ve ok tuşu / Home / End gezinmesi üstüne eklendi.
+Beyar'ın kendi ölçüm sözleşmesi ("ok tuşları ve Tab ile gezinme çalışıyor") zaten
+bunu istiyordu. Görsel kalıp birebir, davranış daha iyi.
+
+**Kaldırılan:** eski `.cp-tab` alt çizgi göstergesi ve sekme değişiminde
+`window.scrollTo({behavior:'smooth'})` çağrısı — o çağrı sayfayı zıplatıyordu,
+ölçüm sözleşmesi "içerik kapsayıcısının boundingBox.top değişmiyor" diyor.
+
+**Uygulandı:** `antrenor-detay-v1.html`. Ölçüm (1440 ve 390): içerik kapsayıcısı
+`boundingBox.top` sapması **0 px**, sekme yükseklikleri tek değer (37 / 35 px),
+aktif hap etiketi kapsıyor (113.5 ≥ 77.5 px), ok/Home/End gezinmesi çalışıyor,
+konsol hatası yok.
+
+**KAPSAM NOTU:** DadaFit'te başka sekme kalıpları da var (`.pf-tabs` ×5,
+`.rp-tabs`, `.fs-tabs`, `.flw-tabs`). Bu turun kapsam kilidi onların sayfalarını
+kapsamadığı için **dokunulmadı**; `.fit-tabs` onların da hedef kalıbıdır.
+
+**Geri almak için:** `assets/css/fit-shell.css` `.fit-tabs` bloğu ve
+`assets/js/fit-shell.js` `[data-fit-tabs]` IIFE'si.

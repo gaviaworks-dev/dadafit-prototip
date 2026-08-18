@@ -2483,4 +2483,114 @@ setTimeout(function(){
 })();
 
 
+
+/* =====================================================================
+ SEKME BİLEŞENİ — [data-fit-tabs]  (ORTAK · TEK KAYNAK · CSS eşi .fit-tabs)
+ ---------------------------------------------------------------------
+ Sözleşme:
+ <div class="fit-tabs" data-fit-tabs="<ad>" aria-label="…">
+   <button class="fit-tab" data-tab="hakkinda">Hakkında</button>
+   <button class="fit-tab" data-tab="yorumlar">Yorumlar</button>
+ </div>
+ …
+ <div class="fit-pane" data-pane="hakkinda">…</div>
+ <div class="fit-pane" data-pane="yorumlar" hidden>…</div>
+
+ · role=tablist / role=tab / role=tabpanel, aria-selected, aria-controls
+   ve roving tabindex BURADA kurulur — sayfa markup'ında tekrarlanmaz.
+ · Klavye: ← → ile komşu sekme, Home/End ile uç sekme, seçilen odaklanır.
+   Tab tuşu sekme şeridinden ÇIKAR (roving tabindex: yalnız aktif olan 0).
+ · SAYFA ZIPLAMASI YOK: bileşen scrollTo/scrollIntoView ÇAĞIRMAZ.
+   (Eski antrenör detay sekmesi geçişte window.scrollTo yapıyordu; ölçüm
+   sözleşmesi "içerik kapsayıcısının boundingBox.top değişmiyor" diyor.)
+ · <a href> kipinde JS hiç devreye girmez: sekmeler sayfa geçişidir,
+   aktif olan markup'ta aria-selected="true" taşır.
+ ===================================================================== */
+(function(){
+  var bars = document.querySelectorAll('[data-fit-tabs]');
+  if(!bars.length) return;
+
+  bars.forEach(function(bar){
+    var tabs = Array.prototype.slice.call(bar.querySelectorAll('.fit-tab'));
+    if(!tabs.length) return;
+
+    /* ---- sayfa geçişi kipi: <a> sekmeler ---- */
+    var linkMode = tabs.every(function(t){ return t.tagName === 'A'; });
+    bar.setAttribute('role', linkMode ? 'navigation' : 'tablist');
+    if(linkMode){
+      tabs.forEach(function(t){
+        var on = t.getAttribute('aria-selected') === 'true';
+        if(on) t.setAttribute('aria-current','page');
+      });
+      return;
+    }
+
+    /* ---- panel kipi ---- */
+    var name  = bar.getAttribute('data-fit-tabs') || 'ft';
+    var scope = bar.closest('[data-fit-tabs-scope]') || document;
+    var panes = Array.prototype.slice.call(scope.querySelectorAll('.fit-pane[data-pane]'));
+
+    tabs.forEach(function(t, i){
+      var key = t.getAttribute('data-tab');
+      var pane = panes.filter(function(p){ return p.getAttribute('data-pane') === key; })[0];
+      t.setAttribute('role','tab');
+      t.id = t.id || (name + '-tab-' + key);
+      if(pane){
+        pane.id = pane.id || (name + '-pane-' + key);
+        pane.setAttribute('role','tabpanel');
+        pane.setAttribute('aria-labelledby', t.id);
+        t.setAttribute('aria-controls', pane.id);
+      }
+      /* açılış durumu: markup'ta aria-selected ya da .active varsa o, yoksa ilki */
+      var on = t.getAttribute('aria-selected') === 'true' || t.classList.contains('active');
+      if(!tabs.some(function(x){ return x.getAttribute('aria-selected')==='true' || x.classList.contains('active'); })) on = (i===0);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      t.classList.toggle('active', on);
+      if(pane) pane.hidden = !on;
+    });
+
+    function select(tab, focus){
+      tabs.forEach(function(t){
+        var on = (t === tab);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.setAttribute('tabindex', on ? '0' : '-1');
+        t.classList.toggle('active', on);
+        var key = t.getAttribute('data-tab');
+        panes.forEach(function(p){
+          if(p.getAttribute('data-pane') === key) p.hidden = !on;
+        });
+      });
+      if(focus) tab.focus();
+      /* mobilde seçilen sekme şeridin dışındaysa YALNIZ şeridi kaydır —
+         sayfa scroll'una dokunulmaz (dikey zıplama olmaz) */
+      if(bar.scrollWidth > bar.clientWidth){
+        var br = bar.getBoundingClientRect(), tr = tab.getBoundingClientRect();
+        if(tr.left < br.left)       bar.scrollLeft += (tr.left - br.left) - 8;
+        else if(tr.right > br.right) bar.scrollLeft += (tr.right - br.right) + 8;
+      }
+      if(window.__bnUpdate) window.__bnUpdate();
+      bar.dispatchEvent(new CustomEvent('fit:tabchange',{bubbles:true,detail:{key:tab.getAttribute('data-tab')}}));
+    }
+
+    tabs.forEach(function(t){
+      t.addEventListener('click', function(){ select(t, false); });
+    });
+
+    bar.addEventListener('keydown', function(e){
+      var i = tabs.indexOf(document.activeElement);
+      if(i < 0) return;
+      var j = null;
+      if(e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i+1) % tabs.length;
+      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i-1+tabs.length) % tabs.length;
+      else if(e.key === 'Home') j = 0;
+      else if(e.key === 'End')  j = tabs.length-1;
+      else return;
+      e.preventDefault();
+      select(tabs[j], true);
+    });
+  });
+})();
+
+
 })();

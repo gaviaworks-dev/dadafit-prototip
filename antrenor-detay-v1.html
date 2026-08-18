@@ -181,23 +181,11 @@ html,body{overflow-x:clip}
   -webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);
   border-bottom:1px solid var(--line);margin-bottom:38px;
 }
-.cp-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
-.cp-tabs::-webkit-scrollbar{display:none}
-.cp-tab{
-  flex:none;position:relative;display:inline-flex;align-items:center;gap:9px;
-  font-family:inherit;font-size:14.5px;font-weight:700;color:var(--slate-2);
-  background:none;border:none;padding:18px 16px;cursor:pointer;white-space:nowrap;transition:color .2s var(--ease);
-}
-.cp-tab i{font-size:13px;color:var(--muted);transition:color .2s var(--ease)}
-.cp-tab .cnt{font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:var(--radius-pill)}
-.cp-tab:hover{color:var(--fit-deep)}
-.cp-tab:hover i{color:var(--fit-deep)}
-.cp-tab.active{color:var(--fit-deep)}
-.cp-tab.active i{color:var(--fit-deep)}
-.cp-tab.active .cnt{color:var(--fit-deep);background:var(--fit-tint)}
-.cp-tab.active::after{content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:3px;background:var(--fit);border-radius:3px 3px 0 0}
-
-.cp-pane{animation:fadeUp .35s var(--ease)}
+/* SEKME ŞERİDİ ORTAK BİLEŞENE GEÇTİ — .fit-tabs / .fit-tab / .fit-pane
+   (assets/css/fit-shell.css + fit-shell.js, görsel kalıp DadaGastro'nun
+   segment hapı; KARARLAR.md K13). Sayfaya özgü kalan tek şey sticky
+   çubuğun kendisi (.cp-tabbar) ve şeridin dikey nefesi. */
+.cp-tabbar .fit-tabs{margin:12px 0}
 
 /* ---- HAKKINDA: ana metin + yan bilgi kartları ---- */
 .ab-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:40px;align-items:start}
@@ -355,7 +343,6 @@ html,body{overflow-x:clip}
   .cp-cta .cta-price{justify-content:space-between}
   .cp-cta .btn,.cp-cta .cta-row{width:100%}
   .cp-tabbar{top:62px}
-  .cp-tab{padding:15px 13px;font-size:13.5px}
   .cp-body{padding-bottom:60px}
   .prog-grid{grid-template-columns:1fr}
   .sim-grid{grid-template-columns:1fr 1fr;gap:14px}
@@ -438,10 +425,10 @@ html,body{overflow-x:clip}
   <!-- STICKY SEKME ÇUBUĞU -->
   <div class="cp-tabbar">
     <div class="wrap">
-      <div class="cp-tabs" role="tablist" aria-label="Antrenör profili bölümleri">
-        <button class="cp-tab active" type="button" data-tab="hakkinda"><i class="fa-solid fa-user"></i> Hakkında</button>
-        <button class="cp-tab" type="button" data-tab="programlar"><i class="fa-solid fa-dumbbell"></i> Antrenörün Programları <span class="cnt">3</span></button>
-        <button class="cp-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
+      <div class="fit-tabs" data-fit-tabs="antrenor" aria-label="Antrenör profili bölümleri">
+        <button class="fit-tab" type="button" aria-selected="true" data-tab="hakkinda"><i class="fa-solid fa-user"></i> Hakkında</button>
+        <button class="fit-tab" type="button" data-tab="programlar"><i class="fa-solid fa-dumbbell"></i> Antrenörün Programları <span class="cnt">3</span></button>
+        <button class="fit-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
       </div>
     </div>
   </div>
@@ -449,7 +436,7 @@ html,body{overflow-x:clip}
   <div class="wrap">
 
     <!-- ===== HAKKINDA ===== -->
-    <div class="cp-pane" data-pane="hakkinda">
+    <div class="fit-pane" data-pane="hakkinda">
       <div class="ab-grid">
         <div class="ab-main">
           <h2>Çalışma şeklim</h2>
@@ -506,7 +493,7 @@ html,body{overflow-x:clip}
     </div>
 
     <!-- ===== PROGRAMLAR ===== -->
-    <div class="cp-pane" data-pane="programlar" hidden>
+    <div class="fit-pane" data-pane="programlar" hidden>
       <div class="sec-head"><div>
         <span class="eyebrow"><i class="fa-solid fa-dumbbell"></i> Selin'in Programları</span>
         <h2>Sunduğu programlar &amp; seanslar</h2>
@@ -557,7 +544,7 @@ html,body{overflow-x:clip}
     </div>
 
     <!-- ===== DANIŞAN YORUMLARI ===== -->
-    <div class="cp-pane" data-pane="yorumlar" hidden>
+    <div class="fit-pane" data-pane="yorumlar" hidden>
       <div class="rev-layout">
         <aside class="rev-summary">
           <div class="rev-score"><b>4.9</b><span>/ 5</span></div>
@@ -788,26 +775,10 @@ html,body{overflow-x:clip}
 <script>
 /* ===== SAYFA JS — ANTRENÖR DETAY ===== */
 (function(){
- // sekme geçişi
-  var tabbar=document.querySelector('.cp-tabbar');
-  if(tabbar){
-    var tabs=Array.prototype.slice.call(tabbar.querySelectorAll('.cp-tab'));
-    var panes=Array.prototype.slice.call(document.querySelectorAll('.cp-pane'));
-    tabs.forEach(function(tab){
-      tab.addEventListener('click',function(){
-        var key=tab.getAttribute('data-tab');
-        tabs.forEach(function(t){t.classList.toggle('active',t===tab);});
-        panes.forEach(function(p){p.hidden=p.getAttribute('data-pane')!==key;});
- // sticky çubuğun altında kalan paneli görünür hizaya getir
-        var top=tabbar.getBoundingClientRect().bottom;
-        if(top<0||window.scrollY> (document.querySelector('.cp-top').offsetHeight)){
-          window.scrollTo({top:document.querySelector('.cp-body').offsetTop - (window.matchMedia('(max-width:640px)').matches?62:112) - 4,behavior:'smooth'});
-        }
-        if(window.__bnUpdate)window.__bnUpdate();
-      });
-    });
-  }
-
+ /* SEKME MOTORU KALDIRILDI — ortak bileşen (fit-shell.js · [data-fit-tabs])
+    devraldı. Eskisi sekme değişiminde window.scrollTo({behavior:'smooth'})
+    çağırıyordu; B1 ölçüm sözleşmesi "içerik kapsayıcısının boundingBox.top
+    değişmiyor" diyor, o zıplama bilerek kaldırıldı. */
  // CTA'lar → giriş kapısı (logged-out)
   function gate(title,desc){
     if(window.__lgGate){var ok=window.__lgGate(title,desc);return ok;}

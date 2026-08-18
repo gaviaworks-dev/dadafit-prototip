@@ -48,10 +48,16 @@ const BANNER = [
   'arama-fit-v1.html',              // .fs-top
   'dadafit-kopru-v1.html',          // .kp-top
   'challenge-v1.html',              // .chl-hero
-  'program-detay-v1.html'           // .pd-hero
+  'program-detay-v1.html',          // .pd-hero
+  /* 4. TUR (R2): egzersiz-detay PLAIN listesinden BANNER listesine TAŞINDI.
+     `.ed-top` diğer koyu banner'larla birebir aynı dili kullanıyor (aynı
+     radial yeşil + üç katman + fotoğraf + #1b1913 taban) ama over-mode
+     listesinde yoktu; header koyu görselin üstünde KATI kalıyordu — K11'in
+     beş sınıf için düzelttiği kusurun altıncısı. Detay: KARARLAR K23. */
+  'egzersiz-detay-v1.html'          // .ed-top
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
-const PLAIN = ['egzersiz-detay-v1.html', 'giris-v1.html', 'profil-v1.html'];
+const PLAIN = ['giris-v1.html', 'profil-v1.html'];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;
 let fail = 0; const bad = [];
@@ -104,7 +110,7 @@ for(const width of WIDTHS){
         wordColor: (() => { const w = document.querySelector('.header .fit-word b');
                             return w ? getComputedStyle(w).color : null; })(),
         /* koyu bant seçicisi over-mode'un kapsadığı TÜM sınıfları içerir */
-        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top'))
+        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top'))
       };
     });
 

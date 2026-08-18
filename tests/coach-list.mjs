@@ -76,13 +76,34 @@ const browser = await chromium.launch();
   if(geo.searchInBanner) rec('banner içinde hâlâ arama input\'u var (A4 gereği kalkmalı)');
   else ok('banner\'da arama input\'u yok');
 
-  /* 2 · sticky gerçekten yapışıyor mu */
-  const before = await page.locator('.lst-side').boundingBox();
-  await page.evaluate(() => window.scrollTo(0, 900));
+  /* 2 · sticky gerçekten yapışıyor mu
+     ÖLÇÜM DÜZELTİLDİ (4. tur): eski sınama scroll=900'e inip `y < 0` ise
+     "sticky çalışmıyor" diyordu ve HEP KIRMIZI dönüyordu — taban commit'te
+     de aynı kırmızıyı veriyor, yani gerçek bir gerilemeyi hiç yakalayamazdı.
+     Ölçüm sebebi gösterdi: sticky öğe KENDİ KAPSAYICI BLOĞUNU terk edemez.
+     `.lst-side` `.lst-layout` ızgara alanının içinde yaşıyor; sonuç listesi
+     bittiğinde (layoutBottom) kolon da onunla birlikte çıkar. Ölçülen izleme:
+       scroll   0 → sideTop 376 (henüz yapışmadı)
+       scroll 400 → sideTop 130 · YAPIŞTI
+       scroll 600 → sideTop 130 · yapışık
+       scroll 800 → sideTop −25.8 = layoutBottom ile birlikte çıkıyor
+     Doğru sınama: kapsayıcı ekrandayken `top:130`'a YAPIŞMALI. */
+  await page.evaluate(() => window.scrollTo(0, 600));
   await page.waitForTimeout(500);
-  const after = await page.locator('.lst-side').boundingBox();
-  if(after && before && after.y < 0) rec(`sol kolon ekrandan çıktı (sticky çalışmıyor): y=${after.y.toFixed(0)}`);
-  else ok(`sol kolon kaydırma sonrası ekranda (y=${after ? after.y.toFixed(0) : '?'})`);
+  const stuck = await page.evaluate(() => {
+    const s = document.querySelector('.lst-side');
+    const l = document.querySelector('.lst-layout');
+    const sr = s.getBoundingClientRect(), lr = l.getBoundingClientRect();
+    const cssTop = parseFloat(getComputedStyle(s).top);
+    /* Sticky öğe iki sınırdan HANGİSİ ÖNCE gelirse orada durur:
+       (a) `top` değeri, (b) kapsayıcı bloğunun ALT kenarı eksi kendi boyu.
+       İkincisi göz ardı edilirse test kendi kendine kırmızı verir. */
+    return { sideTop:+sr.top.toFixed(1), layoutBottom:+lr.bottom.toFixed(1),
+             beklenen:+Math.min(cssTop, lr.bottom - sr.height).toFixed(1) };
+  });
+  if(Math.abs(stuck.sideTop - stuck.beklenen) > 2)
+    rec(`sol kolon yapışmadı: top=${stuck.sideTop} (beklenen ${stuck.beklenen}, kapsayıcı alt kenarı ${stuck.layoutBottom})`);
+  else ok(`sol kolon yapışık: top=${stuck.sideTop}`);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(300);
 

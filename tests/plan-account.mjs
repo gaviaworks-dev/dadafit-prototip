@@ -25,7 +25,11 @@ const REPO = new URL('..', import.meta.url).pathname;
 const ONDISK = new Set(readdirSync(REPO).filter(f => f.endsWith('.html')));
 
 const BEKLENEN_SEKME = ['Bugün','Plan ve Takvim','Aktivite Kayıtlarım','İlerlemem','Kaydettiklerim','Antrenörüm'];
-const RAYDA_OLMAMALI = ['Enerji Defteri','Enerji Köprüsü','Sağlık ve Hareket Profilim','Veri ve İzinlerim','Challenge ve Rozetler'];
+/* "Enerji Defteri" bu listeden ÇIKARILDI (4. tur). G1'de Enerji Defteri üst
+   menüden alınıp profile/Planım bağlamına taşındı ve raya 7. kalem olarak
+   BİLEREK kondu — erişimin üç kapısından biri. Karar: KARARLAR K18 · K20 ·
+   K25 (K25 bunu kalıcı olarak kapattı, bir daha soru açılmayacak). */
+const RAYDA_OLMAMALI = ['Enerji Köprüsü','Sağlık ve Hareket Profilim','Veri ve İzinlerim','Challenge ve Rozetler'];
 /* §5'in saydığı on dört modül */
 const HESAP_MODULLERI = ['Profil Bilgilerim','Sağlık ve Hareket Profilim','Veri ve İzinlerim',
   'Bildirim Tercihlerim','Bağlı Uygulamalar','Üyelik ve Paketim','Ödeme Geçmişim','Faturalarım',
@@ -49,11 +53,17 @@ const page = await ctx.newPage();
 /* ---------------- 1·2 · sekme rayı ---------------- */
 await page.goto(`${BASE}/fit-planim-v1.html`, { waitUntil:'load' });
 await page.waitForTimeout(700);
+/* SEÇİCİ GÜNCELLENDİ (4. tur): ray 3. turda ortak sekme bileşenine geçti
+   (B1/G2) — `.pf-tabs .dt` → `.pf-tabbar .fit-tabs .fit-tab`. Eski seçici
+   0 kalem döndürüyordu, yani test SESSİZCE hep kırmızıydı ve gerçek bir
+   gerilemeyi artık yakalayamıyordu. Ayrıca G1'de raya 7. kalem eklendi
+   (Enerji Defteri girişi), o yüzden beklenen sayı 6 → 7. */
 const tabs = await page.evaluate(() =>
-  [...document.querySelectorAll('.pf-tabs .dt')].map(a => ({ t:a.textContent.trim(), href:a.getAttribute('href') })));
+  [...document.querySelectorAll('.pf-tabbar .fit-tab, .pf-tabs .dt')]
+    .map(a => ({ t:a.textContent.trim(), href:a.getAttribute('href') })));
 
-if(tabs.length !== 6) rec(`Planım rayı ${tabs.length} kalem — belge §4 ALTI istiyor: ${tabs.map(t=>t.t).join(' · ')}`);
-else ok(`Planım rayı 6 kalem: ${tabs.map(t=>t.t).join(' · ')}`);
+if(tabs.length !== 7) rec(`Planım rayı ${tabs.length} kalem — altı plan sayfası + Enerji Defteri girişi = YEDİ olmalı: ${tabs.map(t=>t.t).join(' · ')}`);
+else ok(`Planım rayı 7 kalem: ${tabs.map(t=>t.t).join(' · ')}`);
 
 for(const beklenen of BEKLENEN_SEKME)
   if(!tabs.some(t => t.t === beklenen)) rec(`rayda "${beklenen}" sekmesi yok (belge §4)`);

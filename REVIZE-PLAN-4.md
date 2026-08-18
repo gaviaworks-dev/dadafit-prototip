@@ -544,6 +544,81 @@ en altında açıldı, ikisi de **aşağı**) ·
 
 `page-check`: 7 sayfa × 2 genişlik = **14/14 temiz** ✅
 # R7 — ÇİP RADIUS'U
+
+**Beyar:** *"Seçili tag'lerdeki çiplerdeki radiuslar fazla yuvarlak. Kartlardaki
+radius piksellerine kadar o şekilde tutarlı yap. Şu an kart 12, düğme 10, rozet 6
+kullanılıyor; çip bu ölçekten sapıyorsa kart değerine çek."*
+
+## R7.1 · Tespit
+
+`.ff-chip` (seçili etiket çipi) `--radius-pill` = **999 px** kullanıyordu.
+Çip **32 px** yüksekliğinde → tam hap. Beyar'ın gördüğü "fazla yuvarlak" bu.
+
+> **BEKLENMEDİK BULGU B6 — depodaki gerçek ölçek Beyar'ın saydığından farklı.**
+> Ölçüldü (`getComputedStyle`, 8 sayfa):
+>
+> | Öğe | Beyar'ın dediği | **ÖLÇÜLEN** |
+> |---|---|---|
+> | Kart | 12 px | **16 px** (`--radius-lg`) — `ex-card` · `pr-card` · `hub-card` · `coach-card` · `ag-tile` · `fp-card` |
+> | Kart — TİP B (tam görsel örtülü) | — | **24 px** (`--radius-xl`) — `cc-card` · `ed-altcard` |
+> | Düğme | 10 px | **12 px** (`.btn`) · **10 px** (eksen düğmesi `.ff-btn`) |
+> | Rozet | 6 px | **6 px** (`.ff-n` sayaç) · 8 px / 50% (diğer rozetler) |
+> | Panel seçenek çipi | — | **12 px** |
+> | Filtre çubuğu | — | **12 px** |
+
+## R7.2 · Seçilen değer ve gerekçesi — **12 px**
+
+Talimat "kart değerine çek" diyor ama **ölçülen kart değeri 16 px** ve çip
+32 px yüksekliğinde: **16 px = tam hap** — yani 16'ya çekmek görsel olarak
+hiçbir şeyi değiştirmez, şikâyeti çözmez.
+
+**Seçilen: 12 px.** Üç gerekçe:
+1. Beyar'ın *saydığı* "kart" değeri zaten 12.
+2. Çipin geldiği **panel seçenek çipi 12 px**, filtre çubuğu 12 px, `.btn` 12 px
+   — çip artık kendi bileşen ailesiyle birebir aynı.
+3. Görünür biçimde daha az yuvarlak → şikâyet çözülüyor.
+
+**16 px isteniyorsa tek token:** `--radius-chip`. Karar `KARARLAR.md` **K24**.
+
+## R7.3 · Tek token, sıfır ölçek-içi literal
+
+Kabukta üç yeni token — Beyar'ın saydığı ölçeğin üç basamağı:
+
+```css
+--radius-chip: var(--radius-md);  /* 12px — seçili etiket çipi */
+--radius-ctl:  10px;              /* eksen düğmesi / küçük kontrol */
+--radius-badge:6px;               /* sayaç ve fiyat rozeti */
+```
+
+## R7.4 · ÖLÇÜM
+
+| Ölçüm | Önce | Sonra |
+|---|---|---|
+| `.ff-chip` yarıçapı — 7 sayfa | **999 px** (tam hap) | **12 px** — 7/7 ✅ |
+| Panel seçenek çipi (`.df-fchip`) | 12 px | 12 px — **çip ile eşit** ✅ |
+| Filtre çubuğu (`.ff-bar`) | 12 px | 12 px — **çip ile eşit** ✅ |
+| `.btn` | 12 px | 12 px — **çip ile eşit** ✅ |
+| Kart (`ex-card` vb.) | 16 px | 16 px — **çipten 4 px farklı** (gerekçe R7.2) |
+| Depodaki `border-radius:<n>px` literali | **50** | **21** |
+| — bunlardan **ölçek içi** (8·12·16·24·999) | **29** | **0** ✅ |
+| — kalan 21 | — | **hepsi ölçek dışı mikro grafik** (aşağıda) |
+| `page-check` | — | 11 sayfa × 2 genişlik = **22/22 temiz** ✅ |
+
+**Kalan 21 literalin tamamı — kart/düğme/çip/rozet DEĞİL, çizim:**
+
+| Öğe | Değer | Ne |
+|---|---|---|
+| `.fgroup::-webkit-scrollbar-thumb` · `.acct-menu::-webkit-scrollbar-thumb` | 3 px | kaydırma çubuğu tutamağı (2) |
+| `.glass` · `.wk-bar` (4 Enerji Defteri sayfası) | 6 px | su bardağı ve haftalık çubuk grafiği (8) |
+| `.cv-chip` | 6 px | kredi kartı çip **çizimi** (1) |
+| `.yw-head` · `.yw-line` · `.yw-video` · `.yw-pretag` · `.pg-head` · `.pg-line` · `.pg-card` · `.pg-foot` | 3–7 px | `reklam-ver`'deki minyatür sayfa maketleri (10) |
+
+**Tarama — 3 varyant:** `border-radius:<n>px` · `border-radius: <n>px` (boşluklu) ·
+tüm köşe kısayolları (`border-top-left-radius` vb.). Eşleşmeler tek tek gözden
+geçirildi; yukarıdaki tablo tam listedir.
+
+**Ekran görüntüsü:** `scratchpad/shots/r7-egzersiz-kutuphane-v1.png` ·
+`r7-challenge-merkezi-v1.png` (seçili çipler, 12 px köşe)
 # R8 — DİKEY TUTARSIZLIK
 # R9 — AÇIK KALAN KONTROLLER
 # R10 — DOĞRULAMA BORCU

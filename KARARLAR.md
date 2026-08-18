@@ -725,3 +725,44 @@ listele ve hangi aileye alınacağına karar ver."*
 
 **Geri almak için:** `.ed-top` her iki listeden çıkarılır; banner 216.3 px'e,
 header katı hâline döner.
+
+---
+
+## K24 · Çip yarıçapı 12 px seçildi — kart 16 px ölçüldüğü hâlde
+
+**Beyar'ın talimatı (4. tur, R7):** *"Seçili tag'lerdeki çiplerdeki radiuslar
+fazla yuvarlak. Kartlardaki radius piksellerine kadar o şekilde tutarlı yap.
+Şu an kart 12, düğme 10, rozet 6 kullanılıyor; çip bu ölçekten sapıyorsa kart
+değerine çek."*
+
+**Belirsizlik — ölçüm talimatla uyuşmadı.** Talimat "kart değerine çek" diyor
+ama ölçülen kart değeri **12 değil 16 px** (`--radius-lg`; `ex-card` · `pr-card` ·
+`hub-card` · `coach-card` · `ag-tile` · `fp-card` — 8 sayfada doğrulandı).
+Ayrıca ikinci bir kart tipi var: tam görsel örtülü kartlar (`cc-card` ·
+`ed-altcard`) **24 px** (`--radius-xl`).
+
+**Asıl sorun:** `.ff-chip` **32 px** yüksekliğinde. 32 px'lik bir kutuda
+**16 px yarıçap = tam hap** — yani "kart değerine çek" harfiyen uygulansaydı
+çip 999 px'ten 16 px'e inerdi ve **görsel olarak hiçbir şey değişmezdi**,
+şikâyet çözülmezdi.
+
+**Seçilen: 12 px** (`--radius-chip: var(--radius-md)`).
+
+**Gerekçe:**
+1. Beyar'ın kendi saydığı "kart" değeri zaten 12.
+2. Çipin geldiği panel seçenek çipi (`.df-fchip`) **12 px**, filtre çubuğu
+   (`.ff-bar`) **12 px**, `.btn` **12 px** — çip artık kendi bileşen ailesiyle
+   birebir aynı.
+3. Görünür biçimde daha az yuvarlak → şikâyet gerçekten çözülüyor.
+
+**Yan karar — ölçeğin üç basamağı token oldu** ("sayfa bazında literal bırakma"
+kuralının ölçülebilmesi için): `--radius-chip` (12) · `--radius-ctl` (10, eksen
+düğmesi) · `--radius-badge` (6, sayaç ve fiyat rozeti).
+
+**Ölçüm:** depodaki `border-radius:<n>px` literali **50 → 21**; kalan 21'in
+tamamı ölçek dışı mikro grafik (kaydırma çubuğu tutamağı, su bardağı ve haftalık
+çubuk grafiği, kredi kartı çip çizimi, `reklam-ver`'deki minyatür sayfa maketleri).
+**Ölçek içi (8·12·16·24·999 px) literal: 29 → 0.**
+
+**Geri almak için:** tek token — `--radius-chip`. 16 px isteniyorsa
+`var(--radius-lg)` yazılır (ama o değer 32 px'lik çipte hap görünür).

@@ -123,8 +123,9 @@ tarama çıktısıyla birlikte aşağıya yazılır.
 
 | # | İş | Ölçüm | Durum |
 |---|---|---|---|
-| D1 | `demo-tag` rozeti ve aynı aileden "ÖRNEK GÖRÜNÜM" rozeti tüm depodan kalkar — işaretleme, stil, üreten kod dahil. **İSTİSNA:** Enerji Defteri'ndeki "Bu sayfadaki veriler örnektir" bilgi şeridi KALIR (giriş yapmamış kullanıcıya bağlam veriyor); tercih `KARARLAR.md`'ye yazılır | tüm HTML/CSS/JS'te `demo`, `veri`, `örnek görünüm` ifadeleri büyük/küçük harf duyarsız, ≥3 varyantla taranır; rozet sonuçları 0; her taramanın çıktısı rapora | ⬜ |
-| D2 | Hero ve perde bloklarının dikey yüksekliği kısalır; ilk anlamlı içerik daha erken görünür. Kabukta **tek hero yükseklik ölçeği** tanımlanır, tüm sayfalar onu kullanır; sayfa bazında rastgele değer kalmaz | her sayfa için hero `boundingBox` yüksekliği 1440 px ve 390 px'te ölçülür, önce/sonra tabloya; ilk içerik kartının `boundingBox.top` masaüstünde < 900 px; ekran görüntüsü | ⬜ |
+| D1 | 48 `.demo-tag` rozeti + 4 `.fc-step` "Demo veri" çipi + 18 CSS kuralı + kabuk JS üreticisi (`.demo-tag.fp-demo`) ve `.fp-demo` senkronu silindi. `yasal-v1`'in "DEMO METİN — PROTOTİP" hapı `.fit-note` şeridine dönüştürüldü (§22 açıklaması kaybolmasın). 12 açıklama şeridinden "Demo veri —" ön eki düştü, cümleler kaldı (KARARLAR **K14**) | **Kaynak taraması (harf duyarsız, 3+ varyant):** `demo-tag` **93 → 1** (tek kalan: kaldırmayı anlatan yorum) · `Demo veri` **52 → 0** · `Örnek görünüm` **2 → 0** · `örnek görünüm` **5 → 4** (dördü de yorum) · `demo veri` **7 → 6** (altısı da yorum) · `Örnek metrik` **0** · `fp-demo` **1** (yorum) — **kullanıcıya görünen metinde 0** · **DOM taraması: 57 sayfa açıldı, `.demo-tag,.fp-demo` düğüm sayısı 0, `innerText`'te dört ifadenin hiçbiri eşleşmedi** ✅ · İstisna şeridi (`.fp-gate` "veriler **örnektir**") yerinde ✅ | ✅ |
+| D2 | Kabukta yedi token: `--fit-header-h` · `--hero-pt` · `--hero-pb` · `--hero-gap` · `--hero-min` · `--hero-full` · `--sec-pad`. Over-mode padding'leri **12 sabit sayıdan** (152·142·133·131·147·153·125·129·139·73·83·93) **tek `calc()`e** indi. `.sec{padding:74px}` da token'a bağlandı, 6 sayfadaki kopyası dahil | **53 sayfa, 1440 ve 390:** hero yüksekliği ortalama **−58.0 px** / **−43.3 px** · `dadafit-hub` 900→666 · `dadafit-kopru` 666→614 · `aktivite-gunlugu` 523→458 · İlk içerik kartı < 900 px: **56 sayfanın 46'sı** (4'ünde kart yok, 6'sında araya tam bölüm giriyor — 2'si Faz E'de düzeldi) · 18 sayfada `page-check`: header örtüşmesi ve yatay taşma **yok** · **SONRADAN GERİ ALINDI:** ana sayfa perdesi 74dvh→**100dvh** (Beyar "ana sayfa herosunu bozmuşsun, düzelt" dedi; `.df-top` yeniden **900 px** — KARARLAR **K15**). D2'nin geri kalanı yürürlükte | ✅ |
+| D3 *(sonradan eklendi — Beyar)* | Liste ve detay banner'ları **kendi içlerinde** sabit yüksekliğe çekildi. Aile işareti kabukta dosya adından türüyor (`body[data-fit-hero-kind]`). `.lib-sub` iki satıra kilitlendi; banner içi arama formu üç sayfadan kaldırıldı | **@1440:** liste ailesi **47 sayfanın 47'si 344 px** (yayılım **199 → 0 px**) · detay ailesi **4 sayfanın 4'ü 384 px** (yayılım **92 → 0 px**) · **taşan/kırpılan içerik 0** · ≤900 px'te `min-height` (dar ekranda içerik 1.3–1.7 kat uzun sarıyor; sabitlemek metin kırpmak olurdu) · `justify-content:safe center` şart oldu — düz `center` taşmayı iki yana dağıtıp içeriği şeffaf header'ın altına kaydırıyordu, **4 sayfada ölçüldü ve kalite kapısı yakaladı** | ✅ |
 
 ---
 
@@ -241,9 +242,14 @@ okuduğu **karar noktasında** bir eylemdi. it3 onu ekledi; iddia buna göre dü
 
 | # | İş | Ölçüm | Durum |
 |---|---|---|---|
-| F1 | Kabuk navigasyonundaki Challenge açılır menüsü kalkar, tek bağlantıya iner | dropdown DOM'da yok; bağlantı challenge merkezine gidiyor; klavye gezinmesi bozulmadı; tüm sayfalarda aynı | ⬜ |
-| F2 | Durum bazlı ayrı sayfa/ayrı bağlantı yapısı kalkar; challenge merkezinde hepsi tek listede, durum yalnızca kart rozeti (istenirse filtre ekseni) | `?durum=` eski adresler kırık bağlantı üretmiyor (aynı sayfaya düşüyor); üç durumun kartları aynı ızgarada; sayılar rapora | ⬜ |
-| F3 | `challenge-v1.html` zaman çizelgesi ve aşama göstergesi düzelir: başlangıç · süre · bitiş tek okunur bileşende; katılım ve geri dönüş bağlantıları görünür ve erişilebilir | zaman bileşeni 390 px ve 1440 px'te `scrollWidth` ile taşmıyor; tüm bağlantıların HTTP durumu; ekran görüntüsü. Tarif belirsiz kaldıysa yorum tek cümleyle plana | ⬜ |
+| F1 | Challenge paneli (5 kalem) kaldırıldı, başlık düz bağlantı oldu (KARARLAR **K17**) | **4 sayfada ölçüldü:** panel **yok**, chevron **yok**, hedef `challenge-merkezi-v1.html`, drawer'da tek kalem ✅ · nav başlıklarının `tabIndex` değerleri **hepsi 0** — klavye gezinmesi bozulmadı ✅ | ✅ |
+| F2 | Durum bazlı ayrı kalem/adres yapısı kalktı; durum yalnız kart rozeti (`.cm-state`) + merkez sayfasının Durum filtre ekseni | `?durum=aktif` · `?durum=yaklasan` · `?durum=gecmis` → **üçü de HTTP 200**, aynı sayfaya düşüyor ve doğru çipi işaretliyor ✅ · parametresiz açılışta **üç durum aynı ızgarada** (`#cmGrid`): aktif **1** · yaklaşan **1** · tamamlanan **1** ✅ | ✅ |
+| F3 | Zaman çizelgesi tek okunur bileşene indi (`.chl-time`): başlangıç · ilerleme rayı · bitiş + toplam/kalan/günlük süre/katılımcı. Ekmek kırıntısındaki "Programlar" ara basamağı kaldırıldı (F1'den sonra yanlıştı) | **3 challenge × 2 genişlik:** `scrollWidth == clientWidth` (taşma **yok**), kutu viewport içinde, katıl düğmesi görünür, geri dönüş bağlantıları **HTTP 200**, konsol hatası **0** ✅ · durum başına doğru okuma: aktif → "Bugün · 18. gün / 12 gün kaldı / bar %60"; yaklaşan → "Henüz başlamadı / 7 gün / %0"; tamamlanan → "Tamamlandı / 0 gün / %100" | ✅ |
+
+**F3 · yorumum (tarif belirsizdi, tek cümle):** *"buradaki timi düzeltebilirsin"* ifadesini
+**zaman bilgisi** olarak okudum ve ölçüm bunu doğruladı — hero'da "30 gün / **gün bitime**"
+yazıyordu (değer TOPLAM süre, etiket KALAN süre), aşağıdaki şeritte "KALAN 23 gün" vardı ve
+**başlangıç–bitiş tarihi hiçbir yerde yoktu**; üçünü tek bileşende topladım.
 
 ---
 
@@ -251,8 +257,13 @@ okuduğu **karar noktasında** bir eylemdi. it3 onu ekledi; iddia buna göre dü
 
 | # | İş | Ölçüm | Durum |
 |---|---|---|---|
-| G1 | Enerji Defteri üst navigasyondan çıkar, Fit Planım / profil bağlamının altına taşınır | kabuk nav'ında üst düzey öğe değil; profil bağlamından erişiliyor; eski adres kırık bağlantı üretmiyor | ⬜ |
-| G2 | Tek sayfadaki sekmeler ayrı sayfalara bölünür: Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim · Antrenörüm. Her biri kendi HTML dosyası; aralarında B1'de sabitlenen sekme bileşeniyle gezinilir | her yeni sayfa HTTP 200; sekme bileşeni her sayfada aktif durumu doğru gösteriyor; eski tek sayfa adresi ve içindeki çapalar kırık bağlantı üretmiyor; her sayfa için ekran görüntüsü | ⬜ |
+| G1 | `defter` kalemi üst menüden çıktı; erişim üç kapıya taşındı — Fit Planım sekme rayı · hesap (profil) menüsü · footer. Alt kalemleri sahiplerine gitti (KARARLAR **K18**) | üst nav artık **Hareket · Programlar · Challenge · Antrenörler**, `ustDuzeydeDefterVar=false` ✅ · Planım rayında 7. kalem, hesap menüsünde ve footer'da var ✅ · eski adres **HTTP 200**, ekmek kırıntısı `DadaFit › Fit Planım › Enerji Defteri`, ray aktif ✅ | ✅ |
+| G2 | **(a)** Fit Planım rayı B1'in ortak bileşenine geçti (`.pf-tabs/.dt` → `.fit-tabs/.fit-tab`, sayfa geçişi kipi). **(b)** Enerji Defteri **dörde bölündü**: Bugün · Dengele · Su Takibi · Haftalık Özet; aralarında aynı bileşen. Eski çapalar köprüyle karşılanıyor | 4 sayfa **HTTP 200** ✅ · alt sekme şeridi 4 kalem, aktif kalem doğru + `aria-current="page"` ✅ · üst rayda **"Enerji Defteri"** aktif (ilk ölçümde rayda hiçbir kalem aktif değildi → düzeltildi) ✅ · eski çapalar: `#dengele`→`-dengele-`, `#su`→`-su-`, `#haftalik`→`-haftalik-`, `#yediklerim` yerinde ✅ · `page-check` **8/8 temiz** (1440+390), konsol hatası 0, yatay taşma yok ✅ · ekran görüntüleri `shots/G2-*.png` | ✅ |
+
+**G2 · TESPİT (KARARLAR K18):** Beyar'ın saydığı altı ad Enerji Defteri'nin bölümleri
+**değil**, Fit Planım rayının kalemleri — ve o altı sayfa **zaten ayrı dosya olarak vardı**.
+Tek uzun sayfa olan Enerji Defteri'ydi (911 satır, yedi modül); bölünen o oldu.
+Kastedilen bu değilse sayfa adları değiştirilir → **Beyar'a soru S3**.
 
 ---
 
@@ -266,18 +277,59 @@ okuduğu **karar noktasında** bir eylemdi. it3 onu ekledi; iddia buna göre dü
 
 # DOĞRULAMA TABLOSU
 
-Her faz bittiğinde bağımsız doğrulama ajanının ölçümleri buraya yazılır.
+## Teslim taraması — 60 sayfa, tarayıcıda
 
-| Faz | Madde | Ölçüm | Beklenen | Ölçülen | Sonuç |
-|---|---|---|---|---|---|
-| — | — | — | — | henüz çalıştırılmadı | — |
+| Ölçüm | Beklenen | Ölçülen | Sonuç |
+|---|---|---|---|
+| Sayfa sayısı | — | **60** (3'ü bu turda üretildi) | — |
+| HTTP durumu | hepsi 200 | **60 / 60** | ✅ |
+| Taranan iç bağlantı | — | **3.575** | — |
+| Kırık bağlantı | 0 | **0** | ✅ |
+| Kırık çapa | 0 | **0** | ✅ |
+| 4xx alt kaynak | 0 | **0** | ✅ |
+| Konsol hatası / JS istisnası | 0 | **0** | ✅ |
+
+**Bu tarama iki gerçek kusur yakaladı, ikisi de düzeltildi:**
+
+1. `uyelik-faturalandirma-v1.html` → `SyntaxError: Unexpected identifier 'Bu'`.
+   **Sebep bendim:** D1'de "Demo veri — " ön ekini bir **JS dizesinin içinde**
+   değiştirmişim, tırnak kaçmış ve sayfanın script'i tamamen çökmüştü.
+   Tek tek `page-check` koşularında görünmüyordu çünkü o sayfa listemde yoktu.
+2. `enerji-defteri-v1.html` → `#dengele` çapası. G2'de bölüm başka sayfaya
+   taşındı; bir CTA hâlâ eski çapaya bakıyordu. Doğrudan yeni sayfaya bağlandı.
+
+## Faz doğrulama ajanları
+
+Her fazın sonunda bağımsız bir doğrulama ajanı çalıştırıldı: **dogrula-A ·
+dogrula-B · dogrula-C · dogrula-D · dogrula-E**. Beşi de kendi ölçüm
+script'lerini yazdı ve benim sayılarımı yeniden üretti (ham çıktılar
+`scratchpad/verify-*/`). Ajanların **kırmızı bulgu raporları beklemede** —
+geldiklerinde bu bölüme işlenecek.
+
+**Ajanların bağımsız olarak doğruladığı ölçümlerden örnekler (Faz A):**
+`offsetHeight` tek değer (435 / 462) · isim `boundingBox.top` sapması 0 px ·
+etiket rayı `scrollHeight = clientHeight = 30 px` · `+N` rozeti ile gizlenen
+etiket sayısı **4 kartta birebir** (2/2 · 2/2 · 1/1 · 1/1) · rozet `SPAN` +
+`aria-hidden` + `pointer-events:none`, tabindex yok.
 
 # BEKLENMEDİK BULGULAR
 
 | # | Bulgu | Nerede | Ne yapıldı |
 |---|---|---|---|
+| B1 | **`?sure=N` için eksen yoktu.** `hareket-merkezi`'nden **8 bağlantı** `?sure=5/10/15/20/30` ile kütüphaneye geliyordu; sayfada süre ekseni ve `sure` derin bağlantı okuması yoktu → sekizi de sessizce **filtresiz** açılıyordu | `egzersiz-kutuphane-v1` | Süre ekseni eklendi, kartlara çok değerli `data-sure` verildi, motor token tabanlı eşleşmeye geçti. `?sure=5` → 5 kart, `?sure=30` → 10 kart (C2) |
+| B2 | **İlk eksen sayımım yanlıştı.** `grep -c 'data-group='` filtre dışı satırları da sayıyordu; kütüphane 5 eksen sanılmıştı, gerçek 3 | C0 tespiti | `class="fgroup" data-group=` ile yeniden sayıldı, plandaki tablo düzeltildi |
+| B3 | **Tipografi katmanı kendi sözünü tutmuyordu.** `fit-type.css` "yaslama yalnız yeterince geniş kutuda" diyor ve `--jt-min` eşiğini tanımlıyor, ama kural koşulsuz uygulanıyor; dar kutu istisnası **elle sayılan bir sınıf listesi** — listede olmayan her yeni dar kutuda yaslama sessizce geri geliyor | `assets/css/fit-type.css` | Fit testi detayının kutuları listeye eklendi; kalıcı çözüm (eşiğin gerçekten uygulanması) rapor edildi, bu turda yapılmadı |
+| B4 | **Marka yeşili düğme metninde AA altı.** `--fit` (#009d4f) üzerinde beyaz metin **3.54:1** — WCAG AA eşiği 4.5:1 | site geneli `.btn-fit` / birincil düğmeler | Bu turda dokunulan yerlerde `--fit-deep` (#007a3d, **5.45:1**) kullanıldı. Site geneli `.btn-fit` **değiştirilmedi** → **Beyar'a soru S4** |
+| B5 | **Ana sayfa perdesinde 315 px boş alan.** `min-height:100dvh` ile perde 900 px, içerik yalnız 585 px | `dadafit-hub-v1` | D2'de 74dvh'ye indirilmişti; **Beyar geri istedi**, 100dvh'ye döndü (K15) |
+| B6 | **Kendi düzenlemem bir sayfanın JS'ini çökertti.** D1'in metin değişimi `uyelik-faturalandirma-v1` içinde bir JS dizesinde tırnak kaçırdı | `uyelik-faturalandirma-v1` | Teslim taramasında yakalandı ve onarıldı; sayfa artık konsol hatasız |
+| B7 | **`.demo-tag` ailesi tek sınıf değildi.** Rozet üç ayrı adla dağılmıştı: `.demo-tag` (48), `.fc-step` "Demo veri" çipi (4), `.lg-demo` "DEMO METİN" hapı (1) | 23 HTML + kabuk | Üçü de kaldırıldı; `.lg-demo` §22 açıklaması olduğu için silinmedi, `.fit-note` şeridine dönüştürüldü (K14) |
 
 # BEYAR'A SORU DÖNEN MADDELER
 
 | # | Madde | Soru |
 |---|---|---|
+| **S1** | E1 | Erişim **bölümünü** ve **filtre eksenini** kaldırdım. Ama kartların üstündeki altın **PRO rozeti** ve kart altındaki "Başlangıç · Ücretsiz" etiketi **duruyor** — bunlar site geneli bir kural (`sss-v1` de "kart üzerinde altın PRO işaretiyle gösterilir" diyor) ve tek sayfada kaldırmak tutarsızlık üretirdi. E1'in ölçümü "ücretsiz ve pro ibareleri sayfada kalmadı" diyordu. **Kart rozetleri de gitsin mi, yoksa yalnız bölüm mü kalkacaktı?** |
+| **S2** | C4 | Kütüphane sayaçlarını gerçek veriye çektim: **140+ → 12 hareket · 6 → 8 kas grubu · 3 seviye**. Ama kabuğun **üst bandında site geneli "140+ hareket"** iddiası duruyor ve `dadafit-hub`, `giris`, `hareket-merkezi` de aynı sayıyı söylüyor. **"140+" hedef sayı mı (kalsın), yoksa gerçek veriye mi çekilsin (o zaman dört yerde daha değişir)?** |
+| **S3** | G2 | Saydığın altı ad (Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem · Kaydettiklerim · Antrenörüm) **Fit Planım rayının kalemleri** ve o altı sayfa zaten ayrı dosyaydı. Tek uzun sayfa **Enerji Defteri**'ydi; onu kendi içeriğine göre dörde böldüm (Bugün · Dengele · Su Takibi · Haftalık Özet). **Doğru okuma bu mu, yoksa Enerji Defteri'nin de tam o altı adı taşımasını mı istiyordun?** |
+| **S4** | (beklenmedik bulgu B4) | Marka yeşili `--fit` (#009d4f) üzerinde beyaz metin **3.54:1** — AA altı. Bu turda dokunduğum düğmelerde `--fit-deep`'e (5.45:1) geçtim. **Site genelindeki `.btn-fit` de koyulaşsın mı?** Marka tonunu bir gölge koyulaştırır, erişilebilirlik eşiğini geçer. |
+| **S5** | D3 | Banner yüksekliklerini aile içinde sabitledim (liste 344 px, detay 384 px, **yayılım 0**). Ama **içinde ikinci bir kart taşıyan beş imza banner'ı** kural dışında: `dadafit-kopru` (614) · `antrenor-ol` (602) · `challenge-v1` (697) · `program-detay` (570) · ana sayfa (900). **Bunlar da sadeleşip aileye katılsın mı, yoksa imza olarak kalsın mı?** |

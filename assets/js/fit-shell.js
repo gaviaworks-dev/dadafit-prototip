@@ -2602,12 +2602,25 @@ setTimeout(function(){
       });
     }
 
-    /* ---- PANELİ GÖRÜNÜR ALANA KELEPÇELE ----
-       CSS'teki max-height:min(60vh,420px) yalnız panelin BOYUNU sınırlıyor;
-       çubuk ekranın altına yakınsa panel yine alt kenardan taşıyordu. Burada
-       gerçek kutu ölçülüp iki eksende de içeri alınıyor:
-       · sağ kenar  → .flip (sağa hizalı)
-       · alt kenar  → önce yukarı aç (.up), o da sığmıyorsa max-height kırp */
+    /* ---- PANELİ GÖRÜNÜR ALANA KELEPÇELE (R6, 4. tur) ----
+       Beyar: "Bazen bu drop yukarıda çıkıyor, arama kısmını aktif hale
+       getiremiyorum. Olabildiğince aşağıdan çıkması lazım."
+
+       ESKİ DAVRANIŞ: alt kenar taşınca `above > below` ise DOĞRUDAN yukarı
+       çevriliyordu. Filtre çubuğu sayfanın ortasında olduğu için `above`
+       çoğu zaman `below`dan büyük çıkıyor ve panel varsayılan olarak yukarı
+       açılıyordu (ölçüldü: challenge-merkezi'nin üç ekseninde de yukarı).
+
+       YENİ SIRA — üç kademe:
+       1. AŞAĞI AÇ (varsayılan). Yer varsa hiçbir şey yapılmaz.
+       2. Yer yoksa SAYFAYI KAYDIRARAK YER AÇ. Filtre çubuğu `sticky top:112`
+          olduğu için sayfa aşağı kaydıkça çubuk yukarı gidip altında yer
+          açılıyor. Kaydırma anlık (`behavior:auto`) — yumuşak kaydırmada
+          ölçüm hareket hâlindeki kutuyu okur.
+       3. O da yetmiyorsa YUKARI ÇEVİR (son çare) ya da yükseklikten kırp;
+          hangisi daha çok yer veriyorsa. Yukarı açıldığında bile arama alanı
+          panelin en üstünde ve yapışkan kaldığı için görünür ve odaklanabilir
+          durumda kalır. */
     function placePop(f){
       var pop = f.pop;
       f.el.classList.remove('flip','up');
@@ -2617,16 +2630,41 @@ setTimeout(function(){
       var r  = pop.getBoundingClientRect();
       if(r.right > vw - 12) f.el.classList.add('flip');
 
+      /* panelin doğal boyu — CSS tavanı (min(60vh,420px)) zaten uygulanmış */
+      var need = Math.min(pop.scrollHeight, r.height || pop.scrollHeight);
       var br = f.btn.getBoundingClientRect();
       var below = vh - br.bottom - 18;
+
+      /* 2. kademe — aşağıda yer yoksa sayfayı kaydırıp yer aç */
+      if(below < need){
+        var doc = document.documentElement;
+        var room = Math.max(0, doc.scrollHeight - (window.scrollY + vh));
+        var delta = Math.min(need - below, room);
+        if(delta > 1){
+          window.scrollTo({top: window.scrollY + delta, behavior: 'auto'});
+          br = f.btn.getBoundingClientRect();
+          below = vh - br.bottom - 18;
+        }
+      }
+
       var above = br.top - 18;
-      r = pop.getBoundingClientRect();
-      if(r.bottom > vh - 12){
-        if(above > below && above > 160){
+      if(below < need){
+        /* 3. kademe — SON ÇARE.
+           `above > below` yeterli ölçüt DEĞİL: filtre çubuğu sayfanın
+           ortasındayken üstte hep daha çok yer olur ve panel varsayılan
+           olarak yukarı açılırdı (ölçüldü: sayfa başındayken 23 eksenin
+           11'i yukarı). Beyar'ın kuralı "olabildiğince aşağı".
+           Bu yüzden aşağıda KULLANILABİLİR bir yer kaldığı sürece
+           (MIN_DOWN) panel aşağı açılır ve yalnız BOYUNDAN kırpılır;
+           panel kendi içinde kaydırılır, arama alanı yapışkan olduğu için
+           tepede kalır. Yukarı çevirme yalnız aşağısı gerçekten
+           kullanılamayacak kadar darsa devreye girer. */
+        var MIN_DOWN = 200;   /* başlık 34 + arama 48 + ~3 seçenek + dolgu */
+        if(below < MIN_DOWN && above > below){
           f.el.classList.add('up');
-          pop.style.maxHeight = Math.floor(above) + 'px';
+          pop.style.maxHeight = Math.floor(Math.min(above, need)) + 'px';
         } else {
-          pop.style.maxHeight = Math.max(160, Math.floor(below)) + 'px';
+          pop.style.maxHeight = Math.max(MIN_DOWN, Math.floor(below)) + 'px';
         }
       }
       /* odak panele: arama alanı varsa oraya, yoksa ilk seçeneğe (C3).

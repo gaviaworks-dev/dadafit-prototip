@@ -469,6 +469,80 @@ arama alanı yerinde) · `r5-kutuphane-seviye.png`
 > aşağıda yer olmadığı için **yukarı** açılıyor ve sayfa içeriğinin üstüne
 > biniyor. R6'da düzeltildi.
 # R6 — DROPDOWN YÖNÜ
+
+**Beyar:** *"Bazen bu drop yukarıda çıkıyor, arama kısmını aktif hale
+getiremiyorum. Olabildiğince aşağıdan çıkması lazım, aşağı doğru çıkması lazım."*
+
+## R6.1 · Tespit — neden yukarı açılıyordu
+
+Eski kural tek satırdı: alt kenar taşınca **`above > below` ise doğrudan yukarı
+çevir.** Filtre çubuğu sayfanın ortasında olduğu için `above` çoğu zaman
+`below`'dan büyük — yani "taşma" değil, **konum** karar veriyordu.
+
+**Ölçüm (önce, @1440, sayfa başındayken):** 23 eksenin **11'i yukarı** açılıyordu
+(`challenge-merkezi` üç eksenin üçü de · `hareket-merkezi` üçü de ·
+`fit-testleri` üçü de · `aktivite-gunlugu` ikisi de).
+Ayrıca **4 eksende panel viewport'un altından taşıyordu**
+(`hareket-merkezi` üç eksen: alt kenar **1098.2** / viewport **900**;
+`aktivite-gunlugu` Aktivite türü: **961.2** / 900).
+
+## R6.2 · Yeni sıra — üç kademe
+
+```
+1. AŞAĞI AÇ (varsayılan)          → yer varsa hiçbir şey yapma
+2. SAYFAYI KAYDIRARAK YER AÇ      → filtre çubuğu sticky top:112 olduğu için
+                                     sayfa aşağı kaydıkça çubuk yukarı gider
+                                     ve altında yer açılır (behavior:'auto')
+3. SON ÇARE                        → aşağıda kullanılabilir yer (MIN_DOWN=200px)
+                                     kaldığı sürece panel AŞAĞI açılır ve yalnız
+                                     boyundan kırpılır; yukarı çevirme yalnız
+                                     aşağısı 200px'in altındaysa
+```
+
+`MIN_DOWN = 200 px` = başlık 34 + arama alanı 48 + ~3 seçenek + dolgu.
+Panel kırpıldığında kendi içinde kaydırılır; **arama alanı `position:sticky`
+olduğu için panelin tepesinde kalır** — yukarı açılsa bile görünür ve odaklanabilir.
+
+## R6.3 · ÖLÇÜM
+
+### @1440 — masaüstü açılır panel, 7 sayfa × 23 eksen
+
+| Senaryo | Aşağı | Yukarı | Panel viewport içinde | Arama odaklanabilir + görünür |
+|---|---|---|---|---|
+| **ÖNCE** — sayfa başında | 12 | **11** | 19/23 | — |
+| **SONRA** — sayfa başında | **23** | **0** | **23/23** ✅ | **23/23** ✅ |
+| **SONRA** — sayfanın **en altında** (kritik senaryo) | **23** | **0** | **23/23** ✅ | **23/23** ✅ |
+
+Sayfanın en altına inildikten sonra bile paneller aşağı açılıyor: kabuk
+gereken kadar geri kaydırıp yer açıyor (ölçülen kaydırma örnekleri
+`0 → 139` · `0 → 613` · `452 → 1618`).
+
+### @390 — mobil çekmece, 7 sayfa
+
+390'da açılır panel **kullanılmıyor**: `.ff-facet` düğmeleri `offsetHeight = 0`,
+gerçek arayüz **"Filtrele" alt çekmecesi** (`.ff-sheet`). Yön sorunu orada
+tanımsız; ölçülen şey çekmecenin viewport içinde kalması ve arama alanları.
+
+| Ölçüm | Sonuç |
+|---|---|
+| Çekmece viewport içinde + yatay taşma yok (sayfa **en altındayken**) | **7/7 sayfa** ✅ |
+| Çekmecedeki eksen | **23** |
+| Çekmecede arama alanı olan eksen | **23 / 23** ✅ |
+| Arama alanı odaklanabilir **ve** viewport içinde | **23 / 23** ✅ |
+
+> **BEKLENMEDİK BULGU B5 — mobilde odak bilerek arama alanına gitmiyor.**
+> Çekmece açılınca `document.activeElement` ilk **seçenek çipi** oluyor,
+> arama alanı değil. Masaüstünde tersi (arama alanına gidiyor).
+> **Değiştirilmedi:** mobilde bir metin alanına otomatik odaklanmak ekran
+> klavyesini açar ve çekmecenin yarısını kapatır. Arama alanı görünür ve
+> dokununca odaklanıyor — ölçüldü, 23/23.
+
+**Ekran görüntüsü:**
+`r6-1440-challenge-durum.png` · `r6-1440-aktivite-tur.png` (ikisi de sayfanın
+en altında açıldı, ikisi de **aşağı**) ·
+`r6-390-challenge.png` · `r6-390-aktivite.png` (çekmece)
+
+`page-check`: 7 sayfa × 2 genişlik = **14/14 temiz** ✅
 # R7 — ÇİP RADIUS'U
 # R8 — DİKEY TUTARSIZLIK
 # R9 — AÇIK KALAN KONTROLLER

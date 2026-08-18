@@ -2398,4 +2398,89 @@ setTimeout(function(){
 })();
 
 
+
+/* =====================================================================
+ TEK SATIR ETİKET RAYI — [data-tagrow]  (ORTAK YARDIMCI · TEK KAYNAK)
+ ---------------------------------------------------------------------
+ Sözleşme: <div class="… " data-tagrow><span>…</span><span>…</span></div>
+ · Kutuya sığmayan etiketler GİZLENİR (display:none), sona "+N" rozeti gelir.
+ · N = gizlenen etiket sayısına BİREBİR eşittir (uydurma sayı yok).
+ · Rozet tıklanabilir DEĞİL: <span aria-hidden="true">, tabindex yok,
+   pointer-events:none (CSS). Kart bağlantısının içinde durduğu için
+   tıklanabilir olsaydı ikinci bir hedef üretirdi.
+ · Genişlik değişince yeniden hesaplanır (ResizeObserver varsa o, yoksa resize).
+ Ölçüm sözleşmesi: hesap bittiğinde scrollWidth <= clientWidth ve
+ scrollHeight == tek satır yüksekliği olur.
+ ===================================================================== */
+(function(){
+  var rows = document.querySelectorAll('[data-tagrow]');
+  if(!rows.length) return;
+
+  function layout(row){
+    /* 1 · her şeyi geri aç, rozeti kaldır → temiz ölçüm zemini */
+    var more = row.querySelector('.tagrow-more');
+    if(more) more.remove();
+    var items = Array.prototype.filter.call(row.children, function(c){
+      return !c.classList.contains('tagrow-more');
+    });
+    items.forEach(function(c){ c.style.display=''; });
+    if(!items.length) return;
+
+    var avail = row.clientWidth;
+    if(!avail) return;
+
+    /* gap'i CSS'ten oku — sabit sayı gömmek kart genişliği değişince tutmuyor */
+    var cs  = getComputedStyle(row);
+    var gap = parseFloat(cs.columnGap || cs.gap || '0') || 0;
+
+    /* 2 · sığanları say */
+    var used = 0, fit = 0, i;
+    for(i=0;i<items.length;i++){
+      var w = items[i].getBoundingClientRect().width;
+      var next = used + (fit? gap:0) + w;
+      if(next > avail + .5) break;
+      used = next; fit++;
+    }
+    if(fit === items.length) return;           /* hepsi sığdı → rozet yok */
+
+    /* 3 · rozet için yer aç: rozeti bas, sığmayana kadar geri çekil */
+    var badge = document.createElement('span');
+    badge.className = 'tagrow-more';
+    badge.setAttribute('aria-hidden','true');
+    row.appendChild(badge);
+
+    while(fit > 0){
+      badge.textContent = '+' + (items.length - fit);
+      for(i=0;i<items.length;i++) items[i].style.display = (i<fit? '' : 'none');
+      if(row.scrollWidth <= row.clientWidth + .5) break;
+      fit--;
+    }
+    if(fit === 0){                              /* tek etiket bile sığmadı */
+      badge.textContent = '+' + items.length;
+      items.forEach(function(c){ c.style.display='none'; });
+    }
+    /* ekran okuyucu için gerçek metin kart bağlantısının aria-label'ında değil,
+       gizlenen etiketlerde kalıyor; rozet yalnız görsel özet olduğu için
+       aria-hidden — bilgi kaybı yok, tekrar yok. */
+  }
+
+  function all(){ Array.prototype.forEach.call(rows, layout); }
+
+  all();
+  /* yazı tipi geç yüklenirse genişlikler değişir → bir tur daha */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(all);
+  window.addEventListener('load', all);
+
+  if(window.ResizeObserver){
+    var ro = new ResizeObserver(function(ents){
+      ents.forEach(function(e){ layout(e.target); });
+    });
+    Array.prototype.forEach.call(rows, function(r){ ro.observe(r); });
+  } else {
+    var t=null;
+    window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(all,120); });
+  }
+})();
+
+
 })();

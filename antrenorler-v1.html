@@ -168,23 +168,52 @@
 .coach-status.busy .dot{background:#c4c8c4}
 /* görsel altı: isim + uzmanlık (overlay) */
 .coach-id{position:absolute;left:16px;bottom:14px;right:16px;z-index:2}
-.coach-id b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
-.coach-id span{display:block;color:rgba(255,255,255,.82);font-size:12.5px;font-weight:600;margin-top:3px}
-.coach-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1}
-/* etiket pill'leri */
-.coach-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm)}
-/* mini istatistik şeridi */
-.coach-meta{display:flex;align-items:center;gap:16px;font-size:12.5px;color:var(--muted);font-weight:500;margin-bottom:14px}
-.coach-meta .m{display:inline-flex;align-items:center;gap:6px}
-.coach-meta .m i{color:var(--fit-deep);font-size:12px}
+/* İSİM VE UZMANLIK TEK SATIRA KİLİTLİ (A2).
+   Kart genişliği 275px'e indiğinde uzun ad iki satıra düşüyor ve görselin
+   içindeki isim çizgisi kartlar arasında kayıyordu. Tek satır + ellipsis
+   ile aynı satırdaki her kartın isim üst kenarı AYNI y'de kalır. */
+.coach-id b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coach-id span{display:block;color:rgba(255,255,255,.82);font-size:12.5px;font-weight:600;margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- GÖVDE: SABİT DİKEY RİTİM (A1) ----
+   Üç şerit de SABİT yükseklikte: etiket rayı 30px · meta 20px · alt bant.
+   Böylece içerik uzunluğundan bağımsız olarak her kartta aynı iskelet
+   oluşur ve aynı satırdaki kartların meta çizgisi aynı y'ye oturur.
+   (Ölçüm öncesi: metaTopSpread 36.8px — etiketler iki satıra taşıyordu.) */
+.coach-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1;gap:12px}
+
+/* etiket pill'leri — TEK SATIR, sığmayan gizlenir + "+N" (A3, kabuk yardımcısı) */
+.coach-tags{display:flex;gap:7px;height:30px;align-items:center}
+.coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm);line-height:1.5}
+.coach-tags .tagrow-more{background:#f1f2f1;border-color:var(--line);color:var(--slate-2);padding:5px 9px;line-height:1.5}
+
+/* mini istatistik şeridi — TEK SATIR, ortak taban çizgisi (A4).
+   nowrap: "142 değerlendirme" ve "Yüz yüze" dar kartta alt satıra düşüp
+   meta yüksekliğini kart kart farklılaştırıyordu. min-width:0 + ellipsis
+   ile şerit taşmadan kısalır, yüksekliği sabit kalır. */
+.coach-meta{display:flex;align-items:center;gap:14px;height:20px;font-size:12.5px;color:var(--muted);font-weight:500;
+  white-space:nowrap;overflow:hidden;min-width:0}
+.coach-meta .m{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.coach-meta .m:last-child{flex:0 0 auto}
+.coach-meta .m i{flex:0 0 auto;color:var(--fit-deep);font-size:12px;line-height:20px}
 .coach-meta .m b{color:var(--slate);font-weight:800}
-.coach-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
-.coach-foot .price{font-size:12.5px;color:var(--muted);font-weight:500}
-.coach-foot .price b{color:var(--slate);font-weight:800;font-size:14px}
-.coach-foot .go{display:inline-flex;align-items:center;gap:7px;color:var(--fit-deep);font-weight:700;font-size:13.5px}
-.coach-foot .go i{transition:transform .2s var(--ease)}
-.coach-card:hover .coach-foot .go i{transform:translateX(3px)}
+
+/* alt bant — TEK BASKIN EYLEM: tam genişlikte "Profili Gör" (A5).
+   Seans fiyatı ve para birimi kaldırıldı; kartın çağrısı tek. */
+.coach-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.coach-cta{
+  display:flex;width:100%;align-items:center;justify-content:center;gap:8px;
+  /* zemin --fit değil --fit-deep: beyaz metin #009d4f üstünde 3.54:1 ölçüldü
+     (AA altı), #007a3d üstünde 5.45:1. Marka yeşili ailesi korunuyor. */
+  background:var(--fit-deep);color:#fff;font-weight:700;font-size:13.5px;
+  padding:11px 14px;border-radius:var(--radius-md);
+  transition:background .2s var(--ease)
+}
+.coach-cta i{transition:transform .2s var(--ease)}
+.coach-card:hover .coach-cta{background:#00632f}
+.coach-card:hover .coach-cta i{transform:translateX(3px)}
 
 /* ---- ANTRENÖR OL CTA PANELİ (diyetisyen-ol / hub join pattern) ---- */
 .coach-join{
@@ -459,13 +488,10 @@
     </div>
 
     <!-- DOĞRULAMA + SAĞLIK NOTU — kaldırılan eşleştirme kartından taşındı -->
-    <p class="dz-vnote">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span><b>DadaFit Onaylı</b> rozeti yalnız sertifikası doğrulanmış ve geçerliliği süren
-      antrenörlerde görünür. Ağrı ya da sakatlık sonrası çalışacaksan sana kişisel egzersiz
-      önerisi üretmeyiz — önce hekimine danış.
-      Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</span>
-    </p>
+    <div class="fit-note">
+      <span class="fn-ic"><i class="fa-solid fa-shield-halved"></i></span>
+      <p><b>DadaFit Onaylı</b> — rozet yalnız sertifikası doğrulanmış antrenörlerde görünür. Ağrı ya da sakatlıkta önce hekimine danış: <a href="saglik-bilgilendirme-v1.html">Sağlık notu</a>.</p>
+    </div>
 
     <!-- ANTRENÖR GRID -->
     <div class="lib-grid" id="libGrid">
@@ -479,9 +505,9 @@
           <div class="coach-id"><b>Selin Aksoy</b><span>Güç &amp; Kondisyon · Evde Antrenman</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Evde antrenman</span><span>Kilo yönetimi</span><span>Başlangıç dostu</span></div>
+          <div class="coach-tags" data-tagrow><span>Evde antrenman</span><span>Kilo yönetimi</span><span>Başlangıç dostu</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 120 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺450</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -494,9 +520,9 @@
           <div class="coach-id"><b>Derya Yıldız</b><span>Mobilite &amp; Pilates · Postür</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Esneklik</span><span>Postür</span><span>Düşük tempo</span></div>
+          <div class="coach-tags" data-tagrow><span>Esneklik</span><span>Postür</span><span>Düşük tempo</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>5.0</b> · 86 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺500</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -509,9 +535,9 @@
           <div class="coach-id"><b>Ayşe Kaplan</b><span>Kilo Yönetimi · Başlangıç</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Sürdürülebilir alışkanlık</span><span>Beden-pozitif</span><span>Evde</span></div>
+          <div class="coach-tags" data-tagrow><span>Sürdürülebilir alışkanlık</span><span>Beden-pozitif</span><span>Evde</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.8</b> · 64 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺400</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -524,9 +550,9 @@
           <div class="coach-id"><b>Merve Tan</b><span>Güç &amp; Kondisyon · Kilo Yönetimi</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Kuvvet temeli</span><span>Form odaklı</span><span>Stüdyo</span></div>
+          <div class="coach-tags" data-tagrow><span>Kuvvet temeli</span><span>Form odaklı</span><span>Stüdyo</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 142 değerlendirme</span><span class="m"><i class="fa-solid fa-people-group"></i> Yüz yüze</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺550</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -539,9 +565,9 @@
           <div class="coach-id"><b>Zeynep Arı</b><span>Koşu &amp; Dayanıklılık · Başlangıç</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>İlk 5K</span><span>Tempo planı</span><span>Kademeli</span></div>
+          <div class="coach-tags" data-tagrow><span>İlk 5K</span><span>Tempo planı</span><span>Kademeli</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.7</b> · 53 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺380</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -554,9 +580,9 @@
           <div class="coach-id"><b>Burak Demir</b><span>Güç &amp; Kondisyon · Dayanıklılık</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Performans</span><span>Periyotlama</span><span>Stüdyo</span></div>
+          <div class="coach-tags" data-tagrow><span>Performans</span><span>Periyotlama</span><span>Stüdyo</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.8</b> · 98 değerlendirme</span><span class="m"><i class="fa-solid fa-people-group"></i> Yüz yüze</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺520</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -569,9 +595,9 @@
           <div class="coach-id"><b>Elif Şahin</b><span>Mobilite &amp; Pilates · Esneklik</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Masa başı dostu</span><span>Nefes &amp; core</span><span>Online</span></div>
+          <div class="coach-tags" data-tagrow><span>Masa başı dostu</span><span>Nefes &amp; core</span><span>Online</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 77 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺420</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 
@@ -584,9 +610,9 @@
           <div class="coach-id"><b>Naz Erdem</b><span>Evde Antrenman · Başlangıç</span></div>
         </div>
         <div class="coach-body">
-          <div class="coach-tags"><span>Ekipmansız</span><span>15 dk rutin</span><span>Yeni başlayan</span></div>
+          <div class="coach-tags" data-tagrow><span>Ekipmansız</span><span>15 dk rutin</span><span>Yeni başlayan</span></div>
           <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.7</b> · 41 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
-          <div class="coach-foot"><span class="price">Seans <b>₺360</b>'den</span><span class="go">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
       </a>
 

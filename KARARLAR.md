@@ -423,3 +423,39 @@ Site genelinde "Tüm Programlar" yazan **9 bağlantının 9'u** da
 `program-liste-v1.html`'e gidiyor.
 
 **Geri almak için:** `assets/js/fit-shell.js` → `NAV[programlar].dd`.
+
+---
+
+## K17 · Challenge paneli kaldırıldı, durum yalnız rozet ve filtre ekseni oldu
+
+**Belirsizlik yoktu, talimat netti** — ama iki talimat birbirine bağlıydı ve
+sırayla uygulanması gerekti: *"header'daki challenge'da dropdown'lar var, hepsi
+aynı yere, tek bir buton olsun"* (F1) ve *"aktif challenge, yaklaşan challenge,
+tamamlanan challenge olarak sunmana gerek yok, hepsi tek bir yerde"* (F2).
+
+**Ölçüm (öncesi):** panelde beş kalem vardı — Challenge Merkezi (başlıkla aynı
+hedef) + üç DURUM kalemi (`?durum=aktif` · `?durum=yaklasan` · `?durum=gecmis`)
++ örnek detay sayfası. Yani "aynı yere giden dropdown" iddiası **doğruydu**:
+beş kalemin dördü `challenge-merkezi-v1.html`'e, biri örnek bir detaya gidiyordu.
+
+**Seçilen:** panel tamamen kaldırıldı, başlık düz bağlantı oldu.
+Durum bilgisi **iki yerde kaldı, ikisi de merkez sayfasının içinde**:
+kart üzerindeki rozet (`.cm-state` → Aktif / Yaklaşan / Tamamlandı) ve
+filtre çubuğunun **Durum ekseni**. Ayrı sayfa ya da ayrı menü kalemi yok.
+
+**Ölçüm (sonrası):**
+· 4 sayfada kabuk kontrolü → Challenge kalemi **panelsiz**, chevron yok,
+  tek bağlantı `challenge-merkezi-v1.html`, drawer'da da tek kalem ✅
+· Nav başlıklarının `tabIndex` değerleri **hepsi 0** — klavye gezinmesi bozulmadı ✅
+· Eski durum adresleri **kırık bağlantı üretmiyor**: `?durum=aktif`,
+  `?durum=yaklasan`, `?durum=gecmis` üçü de **HTTP 200**, aynı sayfaya düşüyor
+  ve ilgili çipi işaretliyor ✅
+· Parametresiz açılışta **üç durumun üçü de aynı ızgarada** (`#cmGrid`):
+  aktif **1** · yaklaşan **1** · tamamlanan **1** — toplam 3 kart ✅
+
+**Yan düzeltme (F3):** challenge detayının ekmek kırıntısında
+`DadaFit › Programlar › Challenge Merkezi` yazıyordu. Challenge artık
+Programlar'ın altında olmadığı için ara basamak kaldırıldı:
+`DadaFit › Challenge Merkezi › <challenge adı>`.
+
+**Geri almak için:** `assets/js/fit-shell.js` → `NAV[challenge]`.

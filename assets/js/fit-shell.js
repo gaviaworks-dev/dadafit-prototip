@@ -2291,17 +2291,18 @@ setTimeout(function(){
       head.innerHTML = '<b>'+label+'</b><button class="ff-pop-clear" type="button">Temizle</button>';
       pop.appendChild(head);
 
-      /* ---- ARAMA ALANI — uzun eksende (C3) ----
-         "Tümü" bir seçenek değil, seçimin yokluğu → eşiğe girmez.
-         EŞİK 8 → 5 İNDİ: Beyar arama alanını göremediğini bildirdi; ölçüm
-         sebebi gösterdi — alan duruyordu ama YALNIZ 8'i geçen iki eksende
-         (Kas Grubu 10, Ekipman 15) çıkıyordu, baktığı challenge sayfasında
-         eksenlerin hepsi üç seçenekli. Eşik 5'e indi: altı ve üstü seçeneği
-         olan her eksen arama alanı alır. Üç-dört kalemlik listede arama
-         kutusu hâlâ basılmaz — orada göz zaten tek bakışta tarıyor. */
+      /* ---- ARAMA ALANI — HER EKSENDE (R5, 4. tur) ----
+         "Tümü" bir seçenek değil, seçimin yokluğu → sayıma girmez.
+         EŞİK TAMAMEN KALKTI. Tarihçe: C3'te eşik 8'di (yalnız Kas Grubu 10 ve
+         Ekipman 15 arama alıyordu), sonra 5'e indi. Beyar 4. turda kararı
+         netleştirdi: *"Seviye için de bir arama yapalım, çünkü o da tutarlı
+         olsun."* Yani ölçüt seçenek sayısı DEĞİL, aynı sayfadaki eksenlerin
+         aynı iç düzeni kullanması. Dört seçenekli bir eksende arama kutusu
+         işlevsel olarak gereksiz olabilir ama panelin anatomisi tek olur ve
+         kullanıcı hangi ekseni açarsa açsın aynı şeyi görür. */
       var realChips = chips.filter(function(c){ return !isAll(c); });
       var search = null, empty = null;
-      if(realChips.length > 5){
+      if(realChips.length > 0){
         search = document.createElement('div');
         search.className = 'ff-search';
         search.innerHTML =

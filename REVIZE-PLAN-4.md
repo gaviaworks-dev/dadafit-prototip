@@ -429,6 +429,45 @@ Panel ölçüleri **zaten birebir aynıydı** (C1'de tek kaynağa çıkmış); s
 > Ölçüler artık birebir aynı; kalan tek görsel fark bu. Sıralama o üç sayfaya da
 > eklensin mi? Uydurmadım — sormayı seçtim.
 # R5 — HER EKSENDE ARAMA
+
+**Beyar:** *"Seviye için de bir arama yapalım, çünkü o da tutarlı olsun."*
+
+## R5.1 · Uygulama
+
+Arama alanının **seçenek sayısı eşiği tamamen kaldırıldı**.
+Tarihçe: C3'te eşik **8**'di (yalnız Kas Grubu 10 ve Ekipman 15 arama alıyordu),
+sonra **5**'e indi, şimdi **0**. Ölçüt artık seçenek sayısı değil, **aynı sayfadaki
+eksenlerin aynı iç düzeni kullanması**.
+
+`assets/js/fit-shell.js` → `realChips.length > 5` **→** `realChips.length > 0`.
+Tek satır; 7 sayfanın 23 ekseni birden etkilendi.
+
+## R5.2 · ÖLÇÜM — 7 sayfa, 23 eksen
+
+| Ölçüm | Önce | Sonra |
+|---|---|---|
+| Arama alanı **olan** eksen | **3 / 23** | **23 / 23** ✅ |
+| Panel açılınca odak arama alanında (`document.activeElement`) | — | **23 / 23** ✅ |
+| Arama alanı görünür (`offsetHeight > 0` + viewport içinde) | — | **23 / 23** ✅ |
+| **Üç harf** yazınca liste süzülüyor | — | **23 / 23** ✅ |
+| Aramayı silince liste eski hâline dönüyor | — | **23 / 23** ✅ |
+| Eşleşme yoksa (`zzqqxx`) görünen seçenek | — | **0 — 23/23 eksende** ✅ |
+| Eşleşme yoksa **boş durum** görünüyor (`role="status"`) | — | **23 / 23** ✅ |
+| `page-check` | — | 7 sayfa × 2 genişlik = **14/14 temiz** ✅ |
+
+Arama sorgusu her eksende **o eksenin kendi ilk seçeneğinin ilk üç harfi** ile
+üretildi (uydurma sorgu değil), sonra `zzqqxx` ile boş durum sınandı.
+
+**Önce arama alanı olan üç eksen:** `egzersiz-kutuphane` Kas Grubu (10) ·
+Ekipman (15) · `hareket-merkezi`'nin bir ekseni. Kalan **20 eksen** arama alanı
+almıyordu — Beyar'ın "Seviye"de göremediği şey buydu.
+
+**Ekran görüntüsü:** `scratchpad/shots/r5-challenge-durum.png` (4 seçenekli eksen,
+arama alanı yerinde) · `r5-kutuphane-seviye.png`
+
+> Bu ekran görüntüsü **R6'nın kanıtını da veriyor**: challenge sayfasında panel
+> aşağıda yer olmadığı için **yukarı** açılıyor ve sayfa içeriğinin üstüne
+> biniyor. R6'da düzeltildi.
 # R6 — DROPDOWN YÖNÜ
 # R7 — ÇİP RADIUS'U
 # R8 — DİKEY TUTARSIZLIK

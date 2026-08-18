@@ -1951,38 +1951,73 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
  opak; cam efekti burada işlevsel bir şey kazandırmıyordu. */
 .ff-bar{
   position:sticky;top:112px;z-index:42;
-  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   background:var(--paper);
-  border:1px solid var(--line);border-radius:var(--radius-lg);
-  padding:10px 12px;box-shadow:var(--sh-sm);
+  border:1px solid var(--line);border-radius:var(--radius-xl);
+  padding:9px 10px 9px 14px;
+  box-shadow:0 1px 2px rgba(20,18,12,.04), 0 8px 22px -14px rgba(20,18,12,.22);
+  transition:box-shadow .2s var(--ease),border-color .2s var(--ease);
 }
+/* seçim varken çubuk "canlı" görünür — kullanıcı bir filtre uyguladığını
+   çubuğa bakarak anlar, kart sayısını okumak zorunda kalmaz */
+.ff.has-sel .ff-bar{border-color:var(--fit-line);box-shadow:0 1px 2px rgba(0,106,53,.06), 0 10px 26px -14px rgba(0,106,53,.30)}
+
 .ff-bar-lbl{
-  display:inline-flex;align-items:center;gap:8px;margin-right:2px;
-  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  flex:none;display:inline-grid;place-items:center;width:30px;height:30px;margin-right:2px;
+  border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);font-size:13px;
 }
-.ff-bar-lbl i{font-size:13px;color:var(--tomato)}
 
 /* ---- facet düğmesi + paneli ---- */
 .ff-facet{position:relative}
 .ff-btn{
-  display:inline-flex;align-items:center;gap:9px;
+  display:inline-flex;align-items:center;gap:8px;
   font-family:inherit;font-size:13.5px;font-weight:600;color:var(--slate);
-  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
-  padding:0 13px;height:42px;cursor:pointer;white-space:nowrap;transition:.18s var(--ease);
+  background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);
+  padding:0 12px;height:38px;cursor:pointer;white-space:nowrap;transition:.18s var(--ease);
 }
-.ff-btn:hover{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
+.ff-btn:hover{background:var(--bg);color:var(--slate)}
 .ff-btn:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
-.ff-btn .ff-car{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
-.ff-facet.open .ff-btn{border-color:var(--tomato);color:var(--tomato-dark);background:var(--tomato-tint)}
-.ff-facet.open .ff-btn .ff-car{transform:rotate(180deg);color:var(--tomato)}
-/* seçim sayacı — facet başlığında kaç seçenek aktif */
+.ff-btn .ff-car{font-size:9.5px;color:var(--muted);transition:transform .2s var(--ease)}
+.ff-facet.open .ff-btn{background:var(--bg);border-color:var(--line)}
+.ff-facet.open .ff-btn .ff-car{transform:rotate(180deg)}
+/* SEÇİM VARSA: dolu yeşil hap + sayı — "kaç seçim yaptım" tek bakışta okunur */
+.ff-btn.has-sel{background:var(--fit-deep);border-color:var(--fit-deep);color:#fff;font-weight:700}
+.ff-btn.has-sel:hover{background:#00632f}
+.ff-btn.has-sel .ff-car{color:rgba(255,255,255,.7)}
+.ff-facet.open .ff-btn.has-sel{background:#00632f;border-color:#00632f}
 .ff-btn .ff-n{
   min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);
-  background:var(--tomato);color:#fff;font-size:11px;font-weight:800;
+  background:rgba(255,255,255,.24);color:#fff;font-size:11px;font-weight:800;
   display:none;place-items:center;font-variant-numeric:tabular-nums;
 }
-.ff-btn.has-sel{border-color:var(--tomato);color:var(--tomato-dark)}
 .ff-btn.has-sel .ff-n{display:grid}
+
+/* ---- sağ uç: sonuç sayacı + sıralama (eskiden ayrı bir satırdı) ---- */
+.ff-spacer{flex:1 1 auto;min-width:0}
+.ff-total{display:none}
+.ff-reset{
+  display:none;align-items:center;gap:6px;flex:none;
+  font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);
+  background:transparent;border:none;border-radius:var(--radius-pill);
+  padding:0 10px;height:32px;cursor:pointer;transition:.18s var(--ease);
+}
+.ff-reset:hover{background:var(--bg);color:var(--slate)}
+.ff-reset i{font-size:11px}
+.ff.has-sel .ff-reset{display:inline-flex}
+
+.ff-bar .ff-count{
+  flex:none;font-size:13px;font-weight:600;color:var(--muted);
+  padding-right:2px;white-space:nowrap
+}
+.ff-bar .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
+.ff-bar .ff-sort{flex:none;display:inline-flex;align-items:center;gap:8px}
+.ff-bar .ff-sort .lbl{display:none}
+
+/* ayraç: sol (filtre) ile sağ (sonuç) bölgeyi ayırır */
+.ff-bar .ff-count::before{
+  content:"";display:inline-block;width:1px;height:20px;background:var(--line);
+  vertical-align:-5px;margin-right:14px
+}
 
 .ff-pop{
   position:absolute;top:calc(100% + 9px);left:0;z-index:60;
@@ -2058,23 +2093,11 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 .ff-pop .df-fchip.on::after{opacity:1}
 .ff-pop .df-fchip i{color:currentColor}
 
-/* ---- bar sağ blok: aktif sayaç + sıfırla + mobil düğmesi ---- */
-.ff-spacer{flex:1 1 auto;min-width:0}
-.ff-reset{
-  display:none;align-items:center;gap:8px;
-  font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);
-  background:none;border:none;cursor:pointer;padding:9px 8px;height:42px;
-  transition:color .2s var(--ease);white-space:nowrap;
-}
-.ff-reset:hover{color:var(--tomato-dark)}
-.ff.has-sel .ff-reset{display:inline-flex}
-.ff-total{
-  display:none;align-items:center;gap:7px;height:42px;padding:0 12px;
-  border-radius:var(--radius-md);background:var(--tomato-tint);border:1px solid var(--fit-line,#d8ebe0);
-  font-size:12.5px;font-weight:700;color:var(--tomato-dark);white-space:nowrap;
-}
-.ff.has-sel .ff-total{display:inline-flex}
-.ff-total b{font-variant-numeric:tabular-nums}
+/* NOT — bu blokta duran ESKİ .ff-spacer/.ff-reset/.ff-total kuralları
+   kaldırıldı: yenileri yukarıda, .ff-bar bloğunun içinde. "N filtre" rozeti
+   tamamen çıktı — her facet düğmesi zaten kendi sayısını taşıyor, ikinci bir
+   toplam rozet aynı bilgiyi ikinci kez söylüyordu. */
+.ff-total{display:none !important}
 
 /* mobil "Filtrele" düğmesi ve çekmecesi — masaüstünde YOK.
  (Çekmece markup'ı panelin içine basıldığı için gizlenmezse ≥901px'te
@@ -2083,15 +2106,15 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 .ff-sheet,.ff-sheet-ov{display:none}
 
 /* ---- aktif filtre çipleri ---- */
-.ff-chips{display:none;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.ff-chips{display:none;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
 .ff.has-sel .ff-chips{display:flex}
 .ff-chips .ff-chips-lbl{font-size:12px;font-weight:600;color:var(--muted);margin-right:2px}
 .ff-chip{
   display:inline-flex;align-items:center;gap:8px;
-  font-family:inherit;font-size:12.5px;font-weight:600;color:var(--tomato-dark);
-  background:var(--tomato-tint);border:1px solid var(--fit-line,#d8ebe0);
+  font-family:inherit;font-size:12.5px;font-weight:700;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);
   border-radius:var(--radius-pill);padding:6px 8px 6px 13px;cursor:pointer;
-  transition:.18s var(--ease);
+  transition:.18s var(--ease);box-shadow:0 1px 2px rgba(20,18,12,.04);
 }
 .ff-chip:hover{background:#fff;border-color:var(--tomato)}
 .ff-chip:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
@@ -2103,14 +2126,9 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 }
 .ff-chip:hover .ff-x{background:var(--tomato);color:#fff}
 
-/* ---- sonuç satırı: sayı + sıralama aynı hizada ---- */
-.ff-res{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  margin-top:16px;
-}
-.ff-res .ff-count{font-size:14px;font-weight:600;color:var(--slate-2)}
-.ff-res .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
-.ff-res .ff-sort{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+/* Sonuç satırı (.ff-res) ARTIK KULLANILMIYOR: sayaç ve sıralama çubuğun
+   sağ ucuna taşındı. Boş kalırsa yer kaplamasın. */
+.ff-res:empty{display:none}
 
 /* =========================== RESPONSIVE =========================== */
 @media (max-width:1024px){
@@ -2182,10 +2200,37 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   .ff-sheet-foot .btn{flex:1}
 }
 
+/* ---- ≤900: çubuk iki satıra iner ----
+ Satır 1: "Filtrele" düğmesi (sol) + sonuç sayacı (sağ)
+ Satır 2: sıralama şeridi, tam genişlik
+ Eskiden sıralama şeridi ikinci satırda sola yapışıp ortada boşluk
+ bırakıyordu; ölçüm ekranında da öyle görünüyordu. */
+@media (max-width:900px){
+  .ff-bar{gap:10px;padding:10px 12px;row-gap:10px}
+  .ff-bar-lbl{display:none}
+  .ff-open{
+    order:1;flex:0 0 auto;display:inline-flex;align-items:center;gap:9px;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate);
+    background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-pill);
+    padding:0 16px;height:40px;cursor:pointer;
+  }
+  .ff.has-sel .ff-open{background:var(--fit-deep);border-color:var(--fit-deep);color:#fff}
+  .ff-open .ff-n{
+    min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);
+    background:rgba(255,255,255,.24);color:#fff;font-size:11px;font-weight:800;
+    display:none;place-items:center
+  }
+  .ff.has-sel .ff-open .ff-n{display:grid}
+  .ff-spacer{order:2;flex:1 1 auto}
+  .ff-bar .ff-count{order:3;flex:0 0 auto}
+  .ff-bar .ff-count::before{display:none}
+  .ff-reset{order:4}
+  .ff-bar .ff-sort{order:5;flex:1 0 100%;justify-content:space-between}
+  .ff-bar .ff-sort .sort-seg{flex:1;justify-content:space-between}
+  .ff-bar .ff-sort .sort-seg button{flex:1}
+}
 @media (max-width:640px){
-  .ff-bar{top:62px;border-radius:var(--radius-md)}
-  .ff-res{margin-top:14px}
-  .ff-res .ff-sort{width:100%;justify-content:space-between}
+  .ff-bar{top:62px;border-radius:var(--radius-lg)}
 }
 
 /* ---- ESKİ PANEL KABUKLARI BİLEŞENE DEVREDİLDİ ----

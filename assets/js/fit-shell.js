@@ -107,20 +107,16 @@ var NAV = [
       {label:'Video Seansları', desc:'Eğitmen eşliğinde çalış', href:'video-seanslari-v1.html', icon:'fa-solid fa-circle-play'}
     ] },
 
-  /* 3 · ENERJİ DEFTERİ — belge §2: "Enerji Defteri'ni Planım alanından çıkararak
- ana menüde doğrudan erişilebilir hâle getir." Faz 4'te Planım rayından çıkarılmıştı;
- asıl sahibi burası. Beş kalem belgenin saydıklarının aynısı.
- Çapalar bu tur enerji-defteri-v1.html'e eklendi (#su, #haftalik); #dengele ve
- #yediklerim zaten vardı. */
-  { key:'defter', label:'Enerji Defteri', href:'enerji-defteri-v1.html', icon:'fa-solid fa-bolt',
-    match:['enerji-defteri-v1','aktivite-gunlugu-v1','bagli-uygulamalar-v1','dadafit-kopru-v1'],
-    dd:[
-      {label:'Bugünkü Denge', desc:'Bugün ne yaptın, dengen nerede', href:'enerji-defteri-v1.html#dengele', icon:'fa-solid fa-scale-balanced'},
-      {label:'Aktivite Günlüğü', desc:'Adım, süre, mesafe, yaklaşık enerji', href:'aktivite-gunlugu-v1.html', icon:'fa-solid fa-shoe-prints'},
-      {label:'Su Takibi', desc:'Günlük su hedefin', href:'enerji-defteri-v1.html#su', icon:'fa-solid fa-droplet'},
-      {label:'Haftalık Denge Özeti', desc:'Haftanın hareket ve enerji tablosu', href:'enerji-defteri-v1.html#haftalik', icon:'fa-solid fa-calendar-week'},
-      {label:'Bağlı Uygulamalar ve Cihazlar', desc:'Apple Health · Health Connect · saat', href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check'}
-    ] },
+  /* 3 · ENERJİ DEFTERİ ÜST MENÜDEN ÇIKTI (G1 · KARARLAR.md K18).
+ Beyar: "Enerji defterini profile koyabilirsin."
+ Kalem beş alt kalemle üst düzeydeydi; artık Fit Planım / profil bağlamının
+ altında. Erişim üç kapıdan sürüyor ve hiçbiri kırılmadı:
+   · Fit Planım sekme rayı (PLAN_TABS'ta kendi kalemi)
+   · Hesap menüsü (ACCOUNT_ITEMS · "profil" bağlamı)
+   · Footer "DadaFit" kolonu
+ Alt kalemlerinin hedefleri de kayboldu değil, sahiplerine taşındı:
+   Aktivite Günlüğü ve Bağlı Uygulamalar → Planım kabuğu + hesap menüsü,
+   #dengele / #su / #haftalik çapaları → G2'de kendi sayfalarına dönüştü. */
 
   /* 4 · CHALLENGE — PANELSİZ DÜZ BAĞLANTI (kullanıcı kararı, KARARLAR.md K17).
  Panel beş kalemdi: merkez + üç DURUM kalemi (?durum=aktif / yaklasan / gecmis)
@@ -252,14 +248,19 @@ var PLAN_TABS = [
   /* anahtar 'randevular' KALIYOR: sayfa kendi data-plan-page="randevular"
      değerini bildiriyor. Değişen yalnız görünen ad — anahtarı değiştirmek
      sayfanın banner/breadcrumb çözümünü kırardı. */
-  {key:'randevular',    label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'}
+  {key:'randevular',    label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
+  /* G1 — Enerji Defteri üst menüden çıkıp buraya geldi. Beyar'ın G2'de saydığı
+     altı sayfa (Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem ·
+     Kaydettiklerim · Antrenörüm) yerinde duruyor; defter yedinci kalem. */
+  {key:'defter',        label:'Enerji Defteri',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'}
 ];
 
 /* Ray dışında kalan ama Planım kabuğunu kullanan sayfalar. Ray'da GÖRÜNMEZLER;
    yalnız banner/breadcrumb çözümü ve eski data-plan-page anahtarlarının
    kırılmaması için burada dururlar. */
 var PLAN_EXTRA = [
-  {key:'defter',    label:'Enerji Defteri',             href:'enerji-defteri-v1.html',           icon:'fa-solid fa-bolt',                   desc:'Günlük denge · su · aktivite'},
+  {key:'aktivite',  label:'Aktivite Günlüğü',           href:'aktivite-gunlugu-v1.html',         icon:'fa-solid fa-shoe-prints',            desc:'Adım, süre, mesafe, yaklaşık enerji'},
+  {key:'cihazlar',  label:'Bağlı Uygulamalar',          href:'bagli-uygulamalar-v1.html',        icon:'fa-solid fa-plug-circle-check',      desc:'Apple Health · Health Connect · saat'},
   {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
   {key:'rozetler',  label:'Challenge ve Rozetler',      href:'fit-planim-rozetler-v1.html',      icon:'fa-solid fa-medal',                  desc:'Kilometre taşların'},
   {key:'saglik',    label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',            desc:'Kısıt, hedef, tercih'},
@@ -300,6 +301,10 @@ var ACCOUNT_ITEMS = [
        Destek Taleplerim → destek-talepleri-v1.html
      hesabim-v1 içindeki eski çapa bölümleri yerinde duruyor; menü artık belgenin
      saydığı gerçek sayfalara gidiyor. */
+  /* G1 — Beyar "Enerji defterini profile koyabilirsin" dedi; profil bağlamının
+     header'daki karşılığı bu menü. Planım rayında da duruyor, ikisi AYNI hedefe
+     gidiyor ama farklı bağlamlar (biri kişisel alan rayı, biri hesap menüsü). */
+  {label:'Enerji Defteri',              href:'enerji-defteri-v1.html',    icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
   {label:'Bağlı Uygulamalar',           href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check', desc:'Apple Health · Health Connect · saat'},
   {sep:true},
   {label:'Üyelik ve Paketim',           href:'uyelik-faturalandirma-v1.html#paket',    icon:'fa-solid fa-crown',         desc:'Aktif paket, yenileme, iptal'},
@@ -2189,7 +2194,7 @@ setTimeout(function(){
     /* ---- iskelet ---- */
     var bar = document.createElement('div');
     bar.className = 'ff-bar';
-    bar.innerHTML = '<span class="ff-bar-lbl"><i class="fa-solid fa-sliders"></i> Filtrele</span>';
+    bar.innerHTML = '<span class="ff-bar-lbl" aria-hidden="true"><i class="fa-solid fa-sliders"></i></span>';
 
     var chipsRow = document.createElement('div');
     chipsRow.className = 'ff-chips';
@@ -2243,7 +2248,7 @@ setTimeout(function(){
       btn.setAttribute('aria-haspopup','true');
       btn.setAttribute('aria-expanded','false');
       btn.setAttribute('aria-controls', popId);
-      btn.innerHTML = '<span class="ff-btn-t">'+label+'</span><span class="ff-n">0</span><i class="fa-solid fa-chevron-down ff-car"></i>';
+      btn.innerHTML = '<span class="ff-btn-t">'+label+'</span><span class="ff-n">0</span><i class="fa-solid fa-chevron-down ff-car" aria-hidden="true"></i>';
 
       var pop = document.createElement('div');
       pop.className = 'ff-pop';
@@ -2311,13 +2316,13 @@ setTimeout(function(){
 
     var total = document.createElement('span');
     total.className = 'ff-total';
-    total.innerHTML = '<i class="fa-solid fa-filter"></i> <b>0</b> filtre';
+    total.innerHTML = '<b>0</b> filtre';
     bar.appendChild(total);
 
     var reset = document.createElement('button');
     reset.type = 'button';
     reset.className = 'ff-reset';
-    reset.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla';
+    reset.innerHTML = '<i class="fa-solid fa-xmark"></i> Temizle';
     bar.appendChild(reset);
 
     var openBtn = document.createElement('button');
@@ -2331,8 +2336,11 @@ setTimeout(function(){
     var sortSel  = panel.getAttribute('data-ff-sort');
     var countHost = countSel ? document.querySelector(countSel) : null;
     var sortHost  = sortSel  ? document.querySelector(sortSel)  : null;
-    if(countHost){ countHost.classList.add('ff-count'); res.appendChild(countHost); }
-    if(sortHost){ sortHost.classList.add('ff-sort'); res.appendChild(sortHost); }
+    /* YENİ YERLEŞİM: sayaç ve sıralama ayrı bir satırda değil, çubuğun SAĞ
+       UCUNDA. Eski kurguda çubuğun sağı boş kalıyor, altına ikinci bir satır
+       daha geliyordu; iki satır arasındaki ölü alan bileşeni "yarım" gösteriyordu. */
+    if(countHost){ countHost.classList.add('ff-count'); bar.appendChild(countHost); }
+    if(sortHost){ sortHost.classList.add('ff-sort'); bar.appendChild(sortHost); }
 
     /* eski .lib-bar kabuğu boşaldıysa yer kaplamasın */
     document.querySelectorAll('.lib-bar').forEach(function(lb){

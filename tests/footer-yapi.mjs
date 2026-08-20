@@ -14,7 +14,7 @@
       @1440 tek satır, @1024 iki satır (geometriyle ölçülür). Doküman
       "Çözüm Merkezi ile Öneri ve Şikâyet geri plana atılmamalıdır"
       diyor → sekiz kalemin punto/ağırlık/renk değerleri EŞİT olmalı.
-   5  TÜM footer hedefleri 200. Tek istisna `enerji-ihtiyaci-v1.html`:
+   5  TÜM footer hedefleri 200 — istisna YOK (7. oturumda kapandı):
       paralel bir dalda üretiliyor, bu dalda henüz yok → SORUN sayılmaz,
       NOT olarak raporlanır ("birleştirme sonrası doğrulanacak").
    6  MAĞAZA BUTONLARI <a href> DEĞİL: doküman "uygulama henüz
@@ -55,7 +55,11 @@ const SAYFALAR = readdirSync(ROOT).filter(f => f.endsWith('.html') && f !== 'ind
 const ORNEK = 'hakkimizda-v1.html';          /* yapı ölçümlerinin sayfası */
 
 /* Paralel dalda üretilen sayfa — bu dalda 404 vermesi BEKLENEN. */
-const BEKLEYEN_HEDEF = 'enerji-ihtiyaci-v1.html';
+/* 7. oturum: enerji-ihtiyaci-v1.html ÜRETİLDİ ve birleştirildi, artık
+   istisna değil — footer'ın TÜM hedefleri 200 dönmek zorunda.
+   Boş bırakmak istisnayı kapatır; yeni bir bekleyen hedef çıkarsa
+   buraya yazılır ve docs/icerik-bekleyen.md'ye de kalem düşülür. */
+const BEKLEYEN_HEDEF = null;
 
 /* --- dokümandan birebir: üç orta sütun ------------------------------- */
 const SUTUNLAR = [
@@ -547,6 +551,44 @@ console.log('\n--- 11 · R11 perdesi · 12 · .fit-health nöbeti (tüm sayfalar
   await ctx.close();
 }
 
+/* ==============================================================
+   14 · SAĞ KOLON × "GÖRÜŞ BİLDİR" SEKMESİ ÇAKIŞMASI  (7. oturum)
+   .feedback-tab position:fixed, right:0, 41px, ≤640px'te gizli.
+   .wrap 1240px olduğu için >1303px viewport'ta serbest kenar var.
+   Arada kalan aralıkta footer'ın SON kolonu sekmenin altına giriyordu.
+   #pageMain her zaman 0 çakışma veriyor — ölçüt bu: footer da 0 versin.
+   ============================================================== */
+async function olcut14(browser){
+  for(const w of [1440, 1024, 900, 700]){
+    const ctx = await browser.newContext({ viewport:{ width:w, height:900 } });
+    await ctx.addInitScript(() => { try{ localStorage.setItem('dm-cookie-consent','accepted'); }catch(e){} });
+    const page = await ctx.newPage();
+    await page.goto(BASE + '/hareket-merkezi-v1.html', { waitUntil:'networkidle' });
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(500);
+    const d = await page.evaluate(() => {
+      const tab = document.querySelector('.feedback-tab');
+      if(!tab || tab.offsetParent === null) return { gizli:true };
+      const t = tab.getBoundingClientRect();
+      const kesisiyor = r => r.width > 0 && r.right > t.left && r.left < t.right
+                                         && r.bottom > t.top && r.top < t.bottom;
+      const foot = [...document.querySelectorAll('footer a, footer p, footer span, footer button')]
+        .filter(e => kesisiyor(e.getBoundingClientRect()))
+        .map(e => e.tagName + ':' + e.textContent.trim().slice(0,30));
+      const ana = [...document.querySelectorAll('#pageMain p, #pageMain h2, #pageMain a')]
+        .filter(e => kesisiyor(e.getBoundingClientRect())).length;
+      return { foot, ana, tabW:+t.width.toFixed(0) };
+    });
+    if(d.gizli){ ok(`@${w}: "Görüş Bildir" sekmesi gizli — çakışma ölçümü gereksiz`); }
+    else if(d.foot.length){
+      rec('footer sekmenin altına giriyor', `@${w}: ${d.foot.length} öğe — ${d.foot.slice(0,3).join(' · ')}`);
+    } else {
+      ok(`@${w}: footer "Görüş Bildir" sekmesiyle çakışmıyor (sekme ${d.tabW}px · #pageMain çakışma ${d.ana})`);
+    }
+    await ctx.close();
+  }
+}
+
 /* =====================================================================
    13 · KONSOL + YATAY TAŞMA
    ===================================================================== */
@@ -580,6 +622,8 @@ console.log('\n--- 13 · konsol hatası + yatay taşma ---');
   if (!existsSync(dosya)) rec('7 · yer tutucu kaydı', 'docs/icerik-bekleyen.md yok');
   else ok('docs/icerik-bekleyen.md var — yer tutucular kayıtlı');
 }
+
+await olcut14(browser);
 
 await browser.close();
 

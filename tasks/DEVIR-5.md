@@ -1,7 +1,7 @@
 # DEVİR 5 — YENİ OTURUMUN TEK BİLGİ KAYNAĞI
 
 **Depo:** `~/Developer/Projects/dadafit-prototip` · **Canlı:** `gaviaworks-dev.github.io/dadafit-prototip`
-**Taban commit:** `44633fb` · **Son commit:** `686f749` · **Branch:** `main`
+**Taban commit:** `44633fb` · **Son commit:** `7703804` (R13) · **Branch:** `main`
 **Brief:** `tasks/REVIZYON-5.md` · **Plan:** `REVIZE-PLAN-5.md` · **Kararlar:** `KARARLAR.md`
 
 > Bu dosya bağlam temizlendikten sonra tek referanstır. Ölçümler yeniden
@@ -14,13 +14,147 @@ cd ~/Developer/Projects/dadafit-prototip
 git log --oneline -3 && git status --short
 python3 -m http.server 8811 &          # zaten çalışıyorsa atla
 export PW_HOME=~/.pw                   # playwright-core 1.62.1
+gh auth status                         # aktif hesap gaviaworks-dev olmalı (K36)
 ```
 
 ---
 
-# 1 · BU TURDA BİTENLER
+# 1 · BİTENLER
 
-Dördü de ayrı commit, hepsi **push edildi**.
+Beşi de ayrı commit, hepsi **push edildi**. R11 · R12 · R14 · R15 beşinci turda,
+**R13 altıncı oturumda** kapandı.
+
+## R13 — "Programını Bul" tam sayfa · `7703804` (6. oturum)
+
+**İstek (brief R13):** *"Pop-up tamamen kalksın; sihirbaz kendi tam sayfası
+olsun."* Referans `dadadiet.com/diyetisyen-bul`. Karar kaydı `KARARLAR.md` **K33**.
+
+### Ne değişti — dosya dosya
+
+| Dosya | Değişiklik |
+|---|---|
+| **`programini-bul-v1.html`** | **YENİ.** Sihirbazın tamamı burada: sayfa CSS'i (`pb-*` ailesi) + sayfa JS'i (sorular, katalog, puanlama, sonuç). Banner `.lib-top` → dosya adında `-detay-` geçmediği için kabuk otomatik **liste** ailesine yazıyor (§3b) |
+| **`assets/js/fit-shell.js`** | Sihirbaz IIFE'si **silindi** (−344 satır). Menü kalemi `href:'#' + wizard:true` → `href:'programini-bul-v1.html'`. `navHtml()` ve `drawerNavHtml()`'deki `data-fit-wizard` üretimi kaldırıldı. `programini-bul-v1` iki `match` listesine eklendi (üst menü + alt bar → "Programlar" aktif kalıyor) |
+| **`assets/css/fit-shell.css`** | `.wz-*` ailesi **silindi** (−112 satır). Odak kuralındaki `.wz-opt:focus-visible` → `.pb-opt:focus-visible` |
+| **`programlar-merkezi-v1.html`** | E3'ün satır içi barındırıcısı (`[data-fit-wizard-host]` + `.wz-host-sec` CSS'i) kaldırıldı; banner düğmesi yeni sayfaya bağlandı |
+| `dadafit-hub-v1` · `fit-testleri-v1` · `antrenorler-v1` · `hareket-merkezi-v1` | `data-fit-wizard` düğmeleri düz bağlantıya çevrildi |
+| `sss-v1` · `destek-talepleri-v1` · `destek-talebi-detay-v1` | Metinlerde ad birleştirildi |
+| **`tests/wizard-page.mjs`** | **YENİ** sınama (§4) |
+
+### Kabuktan SİLİNEN sihirbaz IIFE'si — ne taşıyordu
+
+Eski blok `fit-shell.js`'te **1725–2047** satırları arasındaydı ve 60 sayfanın
+hepsine yükleniyordu. İçinde şunlar vardı, **hepsi gitti**:
+
+| Silinen | Neydi |
+|---|---|
+| `.wz-overlay` üretimi | `position:fixed; inset:0` örtü katmanı + `lockScroll()` |
+| `.wz-modal` üretimi | `role="dialog"` + `aria-modal="true"` + `aria-labelledby` taşıyan katman |
+| `data-fit-wizard` dinleyicisi | Belge düzeyinde `click` yakalayıcı; tetikleyicilerin `aria-expanded` senkronu |
+| `[data-fit-wizard-host]` satır içi kipi (E3) | Aynı paneli `programlar-merkezi`'nin içine basan ikinci kip |
+| `wizard=1` derin bağlantısı | `location.search` okuyup 120 ms sonra katmanı açan otomatik tetik |
+| `FIT_SHELL.wizard` API'si | Dışarıdan sihirbazı açan genel giriş noktası |
+| Esc kapatma + odak yönetimi | Yalnız modal kipte anlamlıydı, kipsiz kaldı |
+
+**`.wz-*` CSS ailesi** de aynı gerekçeyle `fit-shell.css`'ten çıkarıldı: örtü
+katmanı, sabit konumlu modal kutusu, `wz-inline` kipi, `wz-head/wz-close/wz-foot`,
+adım ve sonuç blokları. Karşılıkları yeni sayfanın `pb-*` ailesinde — ama
+**akış öğesi olarak**, `position:fixed` olan tek bir kural bile taşımadan.
+
+> **Neden E3 (satır içi kip) de kaldırıldı:** E3, "pop-up olmasın" isteğinin
+> 4. turdaki ara çözümüydü — panel modal yerine programlar merkezinin içine
+> basılıyordu. R13 aynı isteğin nihai biçimi. İkisini birlikte tutmak **aynı
+> motorun iki kopyası** demekti; tek kaynak yeni sayfadır. Kapı kaybolmadı,
+> merkezin banner düğmesi oraya gidiyor.
+
+### Altı soru → üç adım
+
+Motorun altı sorusu **atılmadı**, referansın üç kalemli adım rayına gruplandı:
+
+| Adım | Sorular |
+|---|---|
+| **1 · Hedefin** | amaç · seviye |
+| **2 · Ortam** | mekân (çoklu) · ekipman (çoklu) |
+| **3 · Tercih** | seans süresi · dikkate alınacak durum (çoklu) |
+
+Alt bar "Adım n / 3" yazıyor. Çoklu sorularda **"Yok" seçeneği diğerlerini
+temizliyor**, diğerleri "Yok"u temizliyor. Bir adımdaki her soru yanıtlanmadan
+"İleri" ilerletmiyor; uyarı satırı çıkıyor. Geri dönünce **yanıtlar duruyor**.
+
+### Yeni puanlama motoru — sonuç artık hesap, sabit eşleme değil
+
+**Eskiden:** çıktı iki sabit eşlemeden geliyordu — `süre → hızlı rutin` ve
+`amaç → uzun program` + `amaç → rehber`. Seviye, mekân ve ekipman yanıtları
+sonucu **hiç değiştirmiyordu**; sihirbazın kendi metni bile bunu itiraf
+ediyordu ("şu an sıralamayı değil, önerinin tonunu belirler").
+
+**Şimdi:** yedi kalemlik katalog beş eksende puanlanıp **ilk üçü** gösteriliyor.
+
+**Katalog (7 kalem, hepsi diskte var olan gerçek slug):**
+
+| Kalem | Hedef | Slug kaynağı |
+|---|---|---|
+| 4 Hafta Ev Antrenmanı · 8 Hafta Mobilite Planı · 12 Hafta Güç Temeli · 8 Hafta Salon Kondisyon | `program-detay-v1.html?slug=…` | `program-detay-v1.html` içindeki `VERI` tablosu |
+| 30 Günde Hareket Alışkanlığı · 7 Gün Sabah Esneme Ritüeli · 21 Gün Adım Adım Yürüyüş | `challenge-v1.html?slug=…` | `challenge-v1.html` içindeki `VERI` tablosu |
+
+**Beş eksen:**
+
+| Eksen | Puan |
+|---|---|
+| **Hedef ağırlığı** | Her kalem `hedef:{amaç:ağırlık}` haritası taşır — birincil **40**, ikincil **26**, dolaylı **14** |
+| **Seviye yakınlığı** | Birebir **+16** · bir basamak fark **+8** · iki basamak **0** |
+| **Mekân kesişimi** | Kullanıcının seçtiği mekânlardan biri kalemin mekânlarındaysa **+14** |
+| **Ekipman uyumu** | Kalem ekipman istemiyorsa **+10** · istediğini kullanıcı taşıyorsa **+18** · **taşımıyorsa −25** |
+| **Seans süresi** | Fark ≤5 dk **+12** · ≤10 dk **+6** · üstü **0** |
+
+**Kritik kural — eksik ekipman ELEME değil, PUAN DÜŞÜŞÜ.** Hiçbir eksen
+katalogdan kalem çıkarmıyor; en kötü ihtimalle sıralamada geriye düşürüyor.
+Bu yüzden **hiçbir yanıt bileşimi boş sonuç döndüremiyor** — kabul
+ölçütündeki "karşılıksız kombinasyon 0" şartı mimarinin kendisinden geliyor,
+sonradan eklenen bir yedek listeden değil. Eşitlik bozucu **sabit**: katalog
+sırası (`KATALOG.indexOf`), yani aynı yanıtlar her zaman aynı sıralamayı verir.
+
+Her kart **"Neden bu:"** satırıyla geliyor; gerekçeler puanı üreten eksenlerin
+kendisinden türüyor (uydurulmuş metin değil), ilk ikisi gösteriliyor. Eksik
+ekipman durumu da dürüstçe yazılıyor: *"ekipman uyumu sınırlı"*.
+
+**Risk dalı korundu:** ağrı / özel sağlık durumu / gebelik / uzun süreli
+hareketsizlik yanıtında **kişisel egzersiz reçetesi üretilmiyor**; antrenör
+dizinine, sağlık bilgilendirmesine ve *okunacak* rehbere yönlendiriliyor.
+
+### Etiket birleştirildi
+
+**"Programımı Bul" → "Programını Bul".** Brief'in kırıntısı ve dosya adı
+"Programını" diyordu, menü "Programımı" — ikisi bir arada duramazdı. Menü
+kalemi, beş sayfadaki düğme, SSS metni ve iki destek talebi metni aynı ada
+çekildi. `antrenorler-v1`'deki düğme 4. turda da **bu program sihirbazını**
+açıyordu ama etiketi "Sana Uygun Antrenörü Bul"du; hedef ile etiket bu
+oturumda doğrulandı.
+
+### Ölçüm — `tests/wizard-page.mjs`, @1440 ve @390, **canlıda koşturuldu**
+
+| Kabul ölçütü | Sonuç |
+|---|---|
+| Sayfa HTTP 200 | ✅ |
+| Pop-up düğümü (`.wz-overlay`/`.wz-modal`/`#wzModal`/`[data-fit-wizard]`/`[data-fit-wizard-host]`) | **60/60 sayfada 0** |
+| Sihirbaz içeriği taşıyan `role="dialog"`/`aria-modal` | **0** · `FIT_SHELL.wizard` API'si de yok |
+| 3 adım ileri-geri | ✅ · geri dönüşte yanıtlar korunuyor |
+| Yanıtsız adımda "İleri" | **ilerletmiyor**, uyarı çıkıyor |
+| Sonuç kartları | **3/3 gerçek program slug'ına** gidiyor |
+| Karşılıksız kombinasyon | **0** — 15/15 amaç×seviye bileşimi 3 kart döndürdü |
+| "Baştan başla" | adım 1'e dönüyor, yanıtları siliyor |
+| Risk dalı | kişisel program önerilmiyor, uzmana yönlendiriyor |
+| Banner ailesi | **liste** · **544 / 607 / 587** — üç genişlikte de birebir |
+| Konsol hatası · yatay taşma | **0 · 0** |
+| Katalogdaki 7 hedef | hepsi **HTTP 200** |
+
+**Tam site taraması (61 sayfa × @1440 ve @390):** HTTP dışı 200 **0** ·
+kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
+**Test süiti: 9/9 temiz.** `tools/page-check.mjs` dokunulan sekiz sayfada temiz.
+
+**K27:** `tests/wizard-page.mjs` taban commit `44633fb`'ye karşı koşturuldu ve
+**kırmızıya döndü** — üç ayrı kırmızı: sayfa 404 · 60 sayfada pop-up kalıntısı ·
+sihirbaz sayfası kurulmadı.
 
 ## R14 — Fit testi cevap kilidi · `8b5921a`
 
@@ -436,33 +570,13 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 
 # 5 · KALAN ÜÇ MADDE (R13 kapandı)
 
-## R13 — "Programını Bul" tam sayfa · ✅ **BİTTİ** (6. oturum)
+> **R13 kapandı** (`7703804`, 6. oturum) — ayrıntı **§1**'in ilk bloğunda,
+> karar kaydı `KARARLAR.md` **K33**. Aşağıdaki üç madde kaldı.
 
-Ayrıntı `KARARLAR.md` **K33**. Özet: motor kabuktan çıkıp
-`programini-bul-v1.html`'e taşındı; kabuktaki sihirbaz IIFE'si, `.wz-*` CSS
-ailesi, `data-fit-wizard` tetikleyicileri ve E3'ün satır içi barındırıcısı
-silindi. Altı soru üç adıma gruplandı (Hedefin · Ortam · Tercih). Sonuç sabit
-eşleme değil, yedi kalemlik katalogdan beş eksende puanlanan ilk üç program.
-
-**Ölçüm (`tests/wizard-page.mjs`, @1440 ve @390):**
-
-| Kabul ölçütü | Sonuç |
-|---|---|
-| Sayfa HTTP 200 | ✅ |
-| Pop-up düğümü (`.wz-overlay`/`.wz-modal`/`[data-fit-wizard]`/`[data-fit-wizard-host]`) | **61/61 sayfada 0** |
-| Sihirbaz içeriği taşıyan `role="dialog"`/`aria-modal` | **0** · `FIT_SHELL.wizard` API'si de yok |
-| 3 adım ileri-geri | ✅ · geri dönüşte yanıtlar korunuyor |
-| Yanıtsız adımda "İleri" | **ilerletmiyor**, uyarı çıkıyor |
-| Sonuç kartları | **3/3 gerçek program slug'ına** gidiyor |
-| Karşılıksız kombinasyon | **0** — 15/15 amaç×seviye bileşimi 3 kart döndürdü |
-| "Baştan başla" | adım 1'e dönüyor, yanıtları siliyor |
-| Risk dalı | kişisel program önerilmiyor, uzmana yönlendiriyor |
-| Banner ailesi | **liste** · 544 / 607 / 587 — üç genişlikte de birebir |
-| Konsol hatası · yatay taşma | **0 · 0** |
-
-**Tam site taraması (61 sayfa × @1440 ve @390):** HTTP dışı 200 **0** ·
-kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
-**Test süiti: 9/9 temiz.**
+**Üçü de ayrı branch'te yürüyecek** — kabuğa (`fit-shell.css` · `fit-shell.js` ·
+menü markup'ı) **yalnız H2 dokunacak**, birleştirme sırası **H1 → H2 → H3**.
+Kuralın tamamı ve gerekçesi §6'da. Menü kalemi de karara bağlandı: üçü birden
+**"Hareketi Anlamak"** kaleminin altına girecek, menü 3 kalemde kalacak.
 
 ## H1 — Spor Sözlüğü (~180 terim)
 
@@ -470,7 +584,8 @@ kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
 |---|---|
 | **Hazır** | Yapı referansı `dadagastro.com/mutfak-sozlugu` (brief'te iskelet çıkarılmış) · terim aileleri ve alan şeması brief §H1'de · 4. turdaki `tasks/H0-YENI-MODUL-KONSEPT.md` sözlük şemasını zaten taşıyor |
 | **Eksik** | Her şey. `spor-sozlugu-v1.html` + `spor-sozlugu-detay-v1.html?slug=` · ~180 terim içeriği (sıfırdan yazılacak) · harf rayı + kategori filtresi |
-| **Bağımlılık** | Menü kalemi **S-F**'yi bekliyor (yalnız menü, sayfa değil) |
+| **Bağımlılık** | Yok — S-F kapandı: kalem **"Hareketi Anlamak"** altına girecek, menü satırını **H2 oturumu** yazacak |
+| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunmayacak** — gerekiyorsa sayfa içi `<style>` + kendi sınıf öneki. İlk birleşen o |
 | **Kabul ölçütü** | Arama 3 harfte süzüyor · boş durum var · her kategori ≥8 terim · karşılıksız harf/kategori 0 · sayaç gerçek sayıyı yazıyor · tüm köprüler 200 · banner **liste ailesi** |
 
 ## H2 — İnteraktif Anatomi / Kas Haritası
@@ -480,6 +595,7 @@ kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
 | **Hazır** | Kaynak PDF yerelde: `/Users/gaviaworks/Desktop/Dada Fit Sources/Muscle.pdf` (23 MB) · `pdftotext` · `pdfinfo` · `pdfimages` · `pdftoppm` **kurulu ve çalışıyor** (`/opt/homebrew/bin/`) |
 | **Eksik** | PDF'ten veri çıkarımı (kas adları, Latince, köken/yapışma, fonksiyon) · **ön ve arka gövde SVG'si — sıfırdan çizilecek** · erkek/kadın varyantı · panel içeriği · hareket eşleştirmeleri |
 | **Bağımlılık** | Yok — **en uzun kalem, erken başlamalı** |
+| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunma yetkisi yalnız burada**: `fit-shell.css` · `fit-shell.js` · menü markup'ı ("Hareketi Anlamak" kalemi). H1'den sonra birleşir |
 | **Telif sınırı** | PDF'in **verisi** kullanılır. MuscleWiki'nin görselleri, videoları, açıklama metinleri **kopyalanmaz**; oradan yalnız etkileşim deseni alınır |
 | **Kabul ölçütü** | Her bölge tıklanabilir · panel her kasta dolu · karşılıksız bölge 0 · hareket köprüleri 200 · @390 yatay taşma 0 |
 
@@ -490,13 +606,20 @@ kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
 | **Hazır** | Hiçbir şey |
 | **Eksik** | **Önce** Playwright keşfi: `musclewiki.com/tr-tr/workout-generator` üzerinde **en az 8–9 tam tur** (brief'te tur matrisi var) → `tasks/H3-MUSCLEWIKI-AKIS.md`. Sonra `antrenman-olusturucu-v1.html` + `tasks/H3-KURALLAR.md` (kural tablosu) |
 | **Bağımlılık** | **H2'nin SVG'sine bağlı** — vücut modeli görselleri H2'de çizilen SVG'den gelecek. Ama **Playwright keşfi H2'ye paralel yürütülebilir** ve yürütülmeli |
+| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunmayacak** — sayfa içi stil, kendi sınıf öneki. En son birleşir |
 | **Kural** | `tasks/H3-MUSCLEWIKI-AKIS.md` yazılmadan koda başlanmayacak (brief'in şartı) |
 | **Kabul ölçütü** | HTTP 200 · pop-up/`aria-modal` yok · her adım ileri-geri · üretilen plandaki her hareket köprüsü 200 · "Baştan başla" adım 1'e döner · @390 yatay taşma 0 · **karşılıksız kombinasyon 0** |
+| **Desen** | **R13 çalışan örnek**: `programini-bul-v1.html` — tam sayfa sihirbaz, üç adım, alt bar, puanlama motoru, "eleme değil puan düşüşü" kuralı. H3 aynı iskeleti kendi sınıf önekiyle kurabilir |
 | **Not** | Mantık gerçekten çalışacak: ekipman hareket havuzunu süzecek, gün sayısı bölünmeyi belirleyecek (3 gün full body · 4 gün üst/alt · 5–6 gün push/pull/legs), seviye set/tekrar aralığını değiştirecek |
 
 ## Önerilen sıra
 
 ~~R13~~ ✅ → **(H2 başlat + H3 keşfi paralel) → H1 → H3 kodu**
+
+**Birleştirme sırası bundan ayrı ve sabit: H1 → H2 → H3.** Çalışma sırası
+H2'yi öne alıyor (en uzun kalem), birleştirme sırası H1'i öne alıyor (kabuğa
+hiç dokunmayan, en temiz birleşen). İkisi çelişmiyor: H2 uzun sürdüğü için
+H1 zaten daha erken hazır olur.
 
 ---
 
@@ -508,13 +631,74 @@ kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
 |---|---|
 | **S-G** | ✅ **KARAR: `antrenor-detay` ve `program-detay` TEK KOLONA çekilecek, istisna 0'a inecek.** Şu an h1 sol kenarı 348 ve 165 (başlığın yanında portre/medya var); hedef **56/56 sayfada 132 px**. CTA hizası da 21/21 olacak. |
 | **S-H** | ✅ **KARAR: ana sayfa perdesi (`dadafit-hub`, 900 px) aileye GİRMEYECEK.** K15 gereği bilinçli istisna — 3. turda perde 74dvh'ye indirilmiş, Beyar *"ana sayfa herosunu bozmuşsun, düzelt"* demiş ve 100dvh'ye geri alınmıştı. `KARARLAR.md`'ye tek satır not düşüldü. Aile ölçümünde "üçüncü değer 1" olarak raporlanmaya devam edecek — bu bir kusur değil. |
+| **S-F** | ✅ **KARAR: H1 · H2 · H3 menüye TEK KALEM altında girecek — "Hareketi Anlamak".** Menü **3 kalemde kalır**, K7 korunur. Ayrıntı aşağıda, karar kaydı **K34**. |
+
+### S-F · Menü kalemi: "Hareketi Anlamak" — `KARARLAR.md` **K34**
+
+**KARAR:** Spor Sözlüğü (H1), İnteraktif Anatomi (H2) ve Antrenman Oluşturucu
+(H3) **ayrı menü başlığı almayacak**. Üçü de tek bir kalemin — **"Hareketi
+Anlamak"** — altına girecek. Üst menü **3 kalemde kalıyor**; 4. turda 11'den
+3'e indiren **K7 kuralı korunuyor**.
+
+Menü markup'ına bu kalemi **yalnız H2 oturumu** ekleyecek (aşağıdaki paralel
+çalışma kuralı). H1 ve H3, sayfaları hazır olsa bile menüye kendileri
+dokunmayacak; kalem H2'nin birleşmesiyle üçünü birden açacak.
+
+### Paralel çalışma kuralı — H1 · H2 · H3 ayrı branch — `KARARLAR.md` **K35**
+
+**KARAR:** Üç modül **ayrı branch'lerde** yürüyecek. Çakışma riski tek bir
+yerde toplanıyor: **paylaşılan kabuk**. Kural bu yüzden dosya bazlı.
+
+| Dosya | Kim dokunabilir |
+|---|---|
+| `assets/css/fit-shell.css` | **YALNIZ H2** |
+| `assets/js/fit-shell.js` | **YALNIZ H2** |
+| **Menü markup'ı** (`NAV` / `BOTTOM` / drawer dizileri) | **YALNIZ H2** |
+| Kendi sayfa dosyaları (`*-v1.html`) | Her oturum kendininkine |
+| `tests/*.mjs` · `tasks/*.md` | Her oturum kendi yeni dosyasına |
+
+**H1 ve H3 kabuğa dokunmayacak.** İhtiyaçları varsa **kendi sayfa içi
+stillerini** yazacaklar (`<style>` bloğu, kendi sınıf öneki — R13'ün `pb-*`
+ailesi gibi). Kabukta bir eksik görürlerse **kendileri düzeltmeyecek**, notu
+devir dosyasına yazacak; H2 oturumu uygulayacak.
+
+**Birleştirme sırası: H1 → H2 → H3.**
+Gerekçe: H1 kabuğa hiç dokunmadığı için en temiz birleşme; H2 kabuk
+değişikliğini ve menü kalemini onun üstüne getirir; H3 en son gelir çünkü
+**H2'nin SVG gövde modeline bağımlı** (§5) ve kabuk o noktada zaten
+oturmuş olur.
+
+> **Neden bu kural:** 5. tur R15 tek başına `fit-shell.css`'te 1843–1960
+> aralığını yeniden yazdı, R13 ise `fit-shell.js`'ten 344 satır sildi. İki
+> oturum aynı anda kabukta çalışsaydı çakışma kaçınılmazdı — ve kabuk
+> çakışması 60 sayfayı birden bozar.
+
+### gh hesabı — push'tan önce kontrol et — `KARARLAR.md` **K36**
+
+**KARAR / ortam notu:** Makinede **iki gh hesabı** kayıtlı: `By4r` ve
+`gaviaworks-dev`. Bu depoya **yalnız `gaviaworks-dev` yazabiliyor**.
+
+`By4r` aktifken `git push` şunu döndürüyor:
+```
+remote: Permission to gaviaworks-dev/dadafit-prototip.git denied to By4r.
+fatal: ... The requested URL returned error: 403
+```
+Bu bir depo izni ya da remote URL sorunu **değil**, aktif hesap sorunu. Çözüm:
+
+```bash
+gh auth status                          # aktif hesabı gör
+gh auth switch --user gaviaworks-dev    # gerekiyorsa geç
+git push origin main
+```
+
+R13 push'u (6. oturum) ilk denemede bu yüzden düştü; hesap değiştirilip
+geçildi. **Aktif hesap şu an `gaviaworks-dev`.**
 
 ## Hâlâ açık — Beyar'ı bekliyor
 
 | # | Konu | Soru |
 |---|---|---|
 | **S-C** | R15.4 | `video-seanslari-v1.html`'deki **"Seans Kütüphanesi"** başlığında tam olarak ne rahatsız ediyor — kelimenin kendisi mi, tipografi/konum mu, yoksa banner başlığıyla çakışması mı? *(R15.4'ü — sayfa içi bölüm başlığı tipografi kuralını — bekletiyor)* |
-| **S-F** | H1/H2/H3 | Sözlük, anatomi ve antrenman oluşturucu **menüye nasıl girsin?** 4. turda menü 11 kalemden 3'e indirilmişti (K7). **Öneri:** tek kalem altında ("Hareketi Anlamak"), menü 3 kalemde kalır. |
 | **S1** | 4. tur | Kart **PRO rozetleri** — rozetler mi kalksın, filtre ekseni mi geri gelsin? Programlar merkezinde `#pro` bölümü ve "Erişim" ekseni kalktı ama kart rozeti duruyor; video kartlarında da 4'ten 1'i Pro. Kullanıcı farkı **görüyor ama süzemiyor**. |
 | **S2** | 4. tur | **"140+ hareket"** ifadesi — gerçek **12**, H0 planı sonrası 38. Kabuk üst bandında ve üç sayfada daha duruyor. Gerçeğe mi çekilsin, hedef olarak mı etiketlensin, kalksın mı? |
 | **S4** | 4. tur | `.btn-fit` kontrastı **3.54:1** (AA altı, ölçüldü). `--fit-deep` ile **5.45:1**. Site geneli birincil düğme koyulaşsın mı? |

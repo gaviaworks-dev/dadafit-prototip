@@ -1112,3 +1112,76 @@ etiketi "Sana Uygun Antrenörü Bul"du — hedef ile etiket bu turda doğruland�
 **Sınama:** `tests/wizard-page.mjs` (K27 gereği taban commit `44633fb`'ye karşı
 koşturuldu, kırmızıya döndü: sayfa 404 · 60 sayfada pop-up kalıntısı ·
 sihirbaz sayfası yok).
+
+---
+
+## K34 · S-F cevaplandı — H1/H2/H3 tek menü kalemi altında: "Hareketi Anlamak"
+
+**Beyar (6. oturum):** Spor Sözlüğü (H1), İnteraktif Anatomi (H2) ve Antrenman
+Oluşturucu (H3) **ayrı menü başlığı almayacak**; üçü de tek kalemin —
+**"Hareketi Anlamak"** — altına girecek.
+
+**Sonuç:** üst menü **3 kalemde kalıyor**. 4. turda menüyü 11 kalemden 3'e
+indiren **K7 korunuyor**; üç yeni modül menüyü yeniden şişirmiyor.
+
+**Kim yazacak:** menü markup'ına (`fit-shell.js` içindeki `NAV` / `BOTTOM` /
+drawer dizileri) bu kalemi **yalnız H2 oturumu** ekleyecek — K35'teki paralel
+çalışma kuralı gereği. H1 ve H3, sayfaları hazır olsa bile menüye kendileri
+dokunmayacak; kalem H2'nin birleşmesiyle üçünü birden açacak.
+
+---
+
+## K35 · H1 · H2 · H3 ayrı branch'te — kabuğa yalnız H2 dokunur
+
+**Beyar (6. oturum):** üç modül paralel yürüyecek, her biri kendi branch'inde.
+
+**Kural dosya bazlı**, çünkü çakışma riski tek yerde toplanıyor: paylaşılan
+kabuk.
+
+| Dosya | Kim dokunabilir |
+|---|---|
+| `assets/css/fit-shell.css` | **YALNIZ H2** |
+| `assets/js/fit-shell.js` | **YALNIZ H2** |
+| Menü markup'ı (`NAV` / `BOTTOM` / drawer dizileri) | **YALNIZ H2** |
+| Kendi sayfa dosyaları (`*-v1.html`) | Her oturum kendininkine |
+| `tests/*.mjs` · `tasks/*.md` | Her oturum kendi yeni dosyasına |
+
+**H1 ve H3 kabuğa dokunmayacak.** İhtiyaçları varsa kendi **sayfa içi**
+stillerini yazacaklar: `<style>` bloğu + kendi sınıf öneki. Çalışan örnek
+R13'ün `pb-*` ailesi — sihirbazın tamamı kabuğa tek satır eklemeden kuruldu
+(K33). Kabukta bir eksik görürlerse **kendileri düzeltmeyecek**, notu devir
+dosyasına yazacak; H2 oturumu uygulayacak.
+
+**Birleştirme sırası: H1 → H2 → H3.**
+H1 kabuğa hiç dokunmadığı için en temiz birleşme; H2 kabuk değişikliğini ve
+"Hareketi Anlamak" menü kalemini (K34) onun üstüne getirir; H3 en son gelir
+çünkü **H2'nin SVG gövde modeline bağımlı** ve kabuk o noktada oturmuş olur.
+
+> **Neden bu kural gerekti:** 5. turda R15 tek başına `fit-shell.css`'te
+> 1843–1960 aralığını yeniden yazdı; R13 ise `fit-shell.js`'ten 344 satır
+> sildi. İki oturum aynı anda kabukta çalışsaydı çakışma kaçınılmazdı — ve
+> kabuk çakışması 60 sayfayı birden bozar.
+
+---
+
+## K36 · Push'tan önce gh aktif hesabı kontrol edilir
+
+**Ortam kuralı (6. oturumda ölçüldü).** Makinede iki gh hesabı kayıtlı:
+`By4r` ve `gaviaworks-dev`. Bu depoya **yalnız `gaviaworks-dev` yazabiliyor**.
+
+`By4r` aktifken `git push`:
+```
+remote: Permission to gaviaworks-dev/dadafit-prototip.git denied to By4r.
+fatal: ... The requested URL returned error: 403
+```
+
+Bu bir **depo izni ya da remote URL sorunu değil**, aktif hesap sorunu — hata
+metni bunu açıkça söylemediği için yanlış yere bakılmasın. Çözüm:
+
+```bash
+gh auth status                          # aktif hesabı gör
+gh auth switch --user gaviaworks-dev    # gerekiyorsa geç
+git push origin main
+```
+
+R13 push'u ilk denemede bu yüzden düştü. **Aktif hesap şu an `gaviaworks-dev`.**

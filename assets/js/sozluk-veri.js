@@ -98,6 +98,9 @@
     /* hareket ve teknik */
     'drop-set':'İngilizce', 'set':'İngilizce', 'superset':'İngilizce',
     'form':'İngilizce', 'tempo':'İtalyanca',
+    'plank':'İngilizce', 'dead-bug':'İngilizce', 'kettlebell-swing':'İngilizce',
+    'biceps-curl':'İngilizce', 'omuz-press':'İngilizce', 'bench-press':'İngilizce',
+    'burpee':'İngilizce', 'barfiks':'Fransızca',
     /* ekipman */
     'dambil':'İngilizce', 'foam-roller':'İngilizce', 'kettlebell':'İngilizce',
     'olimpik-bar':'İngilizce', 'plyo-kutu':'İngilizce', 'smith-makinesi':'İngilizce',
@@ -126,7 +129,7 @@
     'negatif-split':'İngilizce', 'taper':'İngilizce', 'kadans':'Fransızca',
     'maraton':'Fransızca', 'yari-maraton':'Fransızca', 'ultra-maraton':'Fransızca',
     /* esneklik ve mobilite */
-    'mobilite':'İngilizce', 'pnf-germe':'İngilizce',
+    'mobilite':'İngilizce', 'pnf-germe':'İngilizce', 'aktivasyon':'Fransızca',
     'miyofasyal-gevsetme':SCI, 'torasik-hareketlilik':SCI,
     /* beslenme */
     'protein':SCI, 'karbonhidrat':SCI, 'elektrolit':SCI, 'kreatin':SCI, 'kafein':SCI,
@@ -147,7 +150,10 @@
     'kimura':'ki-mu-ra', 'kata':'ka-ta', 'kumite':'ku-mi-te', 'tatami':'ta-ta-mi',
     'rice-ilkesi':'ra-yıs ilkesi', 'pnf-germe':'pe-ne-fe germe',
     'biceps':'bi-seps', 'triceps':'tri-seps', 'soleus':'so-le-us',
-    'plantar-fasiit':'plan-tar fa-si-it', 'drop-set':'drop set'
+    'plantar-fasiit':'plan-tar fa-si-it', 'drop-set':'drop set',
+    'plank':'plenk', 'dead-bug':'ded bag', 'kettlebell-swing':'ket-l-bel sving',
+    'biceps-curl':'bi-seps körl', 'omuz-press':'omuz pres', 'bench-press':'benç pres',
+    'burpee':'bör-pi'
   };
 
   /* SIK ARANAN SORULAR — referanstaki "Püf Noktası Aramaları" bloğunun
@@ -271,7 +277,7 @@
     ornek:'Boş barla iki ısınma seti yap, sonra çalışma yüküne geç.' },
 
   { terim:'Şınav', ingilizce:'Push-up', kategori:'hareket-teknik',
-    tanim:'Gövdenin düz bir çizgi hâlinde tutulup kolların büküldüğü, vücut ağırlığıyla yapılan itiş hareketidir. Göğüs, omuz ön kısmı ve triceps birlikte çalışır, gövde merkezi ise duruşu korumak için sürekli gerilim altındadır. Yükseklikten yapıldığında kolaylaşır, ayakları yükselterek zorlaşır.',
+    tanim:'Gövde düz bir çizgi hâlinde tutulurken kolların büküldüğü, vücut ağırlığıyla yapılan itiş hareketidir. Göğüs, ön deltoid ve triceps birlikte çalışır. Hareketin adım adım anlatımı kütüphanedeki Şınav kartındadır.',
     ornek:'Tam şınav zorsa elleri bir sehpaya koyup açıyı azalt.',
     hareket:'sinav', kas:'gogus' },
 
@@ -291,7 +297,99 @@
   { terim:'Çekiş hareketi', ingilizce:'Pulling movement', kategori:'hareket-teknik',
     tanim:'Yükün gövdeye doğru yaklaştırıldığı hareket ailesidir. Sırt, kol bükücüleri ve kürek kemiği çevresindeki kaslar birlikte çalışır. Programlarda itiş hareketleriyle dengelenmesi, omuz sağlığı açısından önemli kabul edilir.',
     ornek:'Haftalık planında itiş ve çekiş hareketlerinin sayısını birbirine yakın tut.',
-    hareket:'dambil-kurek', kas:'latissimus' }
+    hareket:'dambil-kurek', kas:'latissimus' },
+
+  /* --- KATALOG HAREKETLERİ ---------------------------------------------
+     Aşağıdaki kayıtlar egzersiz kütüphanesindeki GERÇEK kartlarla aynı
+     hareketi adlandırıyor. Bu yüzden tanımları BİLEREK kısa: terimin ne
+     olduğunu söyleyip okuyucuyu kartın kendisine gönderiyorlar, "nasıl
+     yapılır" anlatmıyorlar — o iş kütüphanenin. Sınama bu kayıtların
+     tanımını 260 karakterle sınırlar (tests/sozluk-kapalilik.mjs). */
+
+  { terim:'Çömelme', ingilizce:'Squat', kategori:'hareket-teknik',
+    tanim:'Kalçanın ve dizlerin birlikte bükülüp gövdenin dik tutularak alçaltıldığı temel alt vücut hareketidir. Uyluk ön kası, kalça ve gövde merkezi birlikte çalışır. Adım adım anlatımı kütüphanedeki Goblet Squat kartındadır.',
+    ornek:'Isınmadan sonra ağırlıksız çömelme yaparak kalıbı oturt.',
+    hareket:'goblet-squat', kas:'quadriceps',
+    karistirilanlar:{ slug:'comelme-kalibi', not:'Çömelme yapılan hareketin adıdır; çömelme kalıbı o hareketin altında yatan genel desendir.' } },
+
+  { terim:'Hamle', ingilizce:'Lunge', kategori:'hareket-teknik',
+    tanim:'Bir adım öne ya da geriye atılıp arka dizin yere yaklaştırıldığı, tek bacağın öne çıktığı alt vücut hareketidir. İki taraf sırayla yüklendiği için denge de sınanır. Hareketin anlatımı kütüphanedeki Hamle kartındadır.',
+    ornek:'Bacak gününe her tarafta on hamle ekle.',
+    hareket:'hamle', kas:'gluteus-medius' },
+
+  { terim:'Köprü', ingilizce:'Glute bridge', kategori:'hareket-teknik',
+    tanim:'Sırt üstü yatarken kalçanın yerden yukarı itildiği hareketin adıdır. Kalça büyük kası ve arka uyluk çalışır, bel yerine kalçadan güç üretmek öğrenilir. Anlatımı kütüphanedeki Köprü kartındadır.',
+    ornek:'Isınmaya on beş tekrar köprü koy, kalçayı tepede bir saniye sık.',
+    hareket:'kopru', kas:'gluteus-maximus' },
+
+  { terim:'Plank', ingilizce:'Plank', kategori:'hareket-teknik',
+    tanim:'Dirsek ya da el üstünde, gövde düz bir çizgi hâlinde tutularak beklenen duruştur. Kas boyu değişmeden gövde merkezi sürekli gerilim altında kalır. Duruşun ayrıntısı kütüphanedeki Plank kartındadır.',
+    ornek:'Plankta bel çukurlaşmaya başladığı anda seti bitir.',
+    hareket:'plank', kas:'karin-duz',
+    karistirilanlar:{ slug:'izometrik-kasilma', not:'Plank tek bir hareketin adıdır; izometrik kasılma o hareketin ait olduğu kasılma biçimidir.' } },
+
+  { terim:'Kürek çekme', ingilizce:'Row', kategori:'hareket-teknik',
+    tanim:'Yükün gövdeye doğru çekildiği sırt hareketinin genel adıdır. Geniş sırt kası ve kürek kemiği çevresindeki kaslar birlikte çalışır. Dambılla yapılan biçimi kütüphanedeki Dambıl Kürek Çekme kartındadır.',
+    ornek:'Kürek çekerken dirseği gövdeye yakın tut, omzu öne düşürme.',
+    hareket:'dambil-kurek', kas:'latissimus',
+    karistirilanlar:{ slug:'ergometre', not:'Kürek çekme bir sırt hareketidir; ergometredeki kürek ise dayanıklılık çalışmasıdır.' } },
+
+  { terim:'Omuz press', ingilizce:'Shoulder press', kategori:'hareket-teknik',
+    tanim:'Yükün omuz hizasından baş üstüne doğru itildiği hareketin adıdır. Deltoid ve triceps birlikte çalışır, gövde merkezi omurgayı sabit tutar. Kütüphanedeki Dambıl Omuz Press kartı hareketi gösterir.',
+    ornek:'Omuz press sırasında kaburgaları öne çıkarma, karnını sık.',
+    hareket:'dambil-omuz-press', kas:'deltoid-on' },
+
+  { terim:'Biceps curl', ingilizce:'Biceps curl', kategori:'hareket-teknik',
+    tanim:'Dirseğin bükülerek yükün omuza doğru getirildiği izolasyon hareketidir. Yükü kolun ön yüzündeki biceps taşır. Dambılla yapılan biçimi kütüphanedeki Dambıl Biceps Curl kartındadır.',
+    ornek:'Biceps curl\'de gövdeyi sallamadan yalnız dirseği çalıştır.',
+    hareket:'dambil-biceps', kas:'biceps' },
+
+  { terim:'Yana açma', ingilizce:'Lateral raise', kategori:'hareket-teknik',
+    tanim:'Kolların gövdenin yanından yukarı doğru açıldığı izolasyon hareketidir. Yükü büyük ölçüde yan deltoid taşır. Bantla yapılan biçimi kütüphanedeki Bant Yana Açma kartındadır.',
+    ornek:'Omuz gününün sonuna iki set yana açma ekle.',
+    hareket:'bant-yana-acma', kas:'deltoid-yan' },
+
+  { terim:'Dead bug', ingilizce:'Dead bug', kategori:'hareket-teknik',
+    tanim:'Sırt üstü yatarken karşı kol ile karşı bacağın kontrollü biçimde uzatıldığı gövde merkezi hareketidir. Bel yere yapışık kaldığı sürece karın kasları sabitleme görevini sürdürür. Anlatımı kütüphanedeki Dead Bug kartındadır.',
+    ornek:'Dead bug yaparken bel yerden kalkıyorsa hareketin genliğini azalt.',
+    hareket:'dead-bug', kas:'karin-duz' },
+
+  { terim:'Kettlebell swing', ingilizce:'Kettlebell swing', kategori:'hareket-teknik',
+    tanim:'Kettlebell\'in kalça menteşesiyle iki bacak arasından öne savrulduğu hareketin adıdır. Gücü kollar değil kalça üretir. Adım adım anlatım kütüphanedeki Kettlebell Swing kartındadır.',
+    ornek:'Kettlebell swing\'de kolu çekiştirme, gücü kalçadan al.',
+    hareket:'kettlebell-swing', kas:'gluteus-maximus' },
+
+  /* --- KÜTÜPHANEDE KARŞILIĞI OLMAYAN HAREKETLER ------------------------
+     Bunlar sözlüğün kendi metinlerinde geçtiği (ya da alanın temel kalemi
+     olduğu) için tanımlı; egzersiz kütüphanesinde kartları YOK, bu yüzden
+     "hareket" alanı bilerek boş — uydurma slug yazılmadı. */
+
+  { terim:'Ölü kaldırış', ingilizce:'Deadlift', kategori:'hareket-teknik',
+    tanim:'Yerde duran yükün kalça ve diz açılarak ayakta doğrulur biçimde kaldırılmasıdır. Arka zincirin tamamını, özellikle kalçayı ve omurga dikleştiricilerini yükler. Yük ağırlaştıkça omurganın nötr kalması ve barın gövdeye yakın seyretmesi tekniğin iki ölçütüdür.',
+    ornek:'Ölü kaldırışta bar bacaktan uzaklaşıyorsa yükü düşür ve mesafeyi kapat.',
+    kas:'erector-spinae',
+    karistirilanlar:{ slug:'kalca-mentesesi', not:'Kalça menteşesi hareketin desenidir; ölü kaldırış o desenle yapılan kaldırışın adıdır.' } },
+
+  { terim:'Barfiks', ingilizce:'Pull-up', kategori:'hareket-teknik',
+    tanim:'Bir bara asılıp gövdenin kol gücüyle yukarı çekildiği vücut ağırlığı hareketidir. Geniş sırt kası ve kol bükücüleri birlikte çalışır; tutuş genişliği ile avuç yönü yükün dağılımını değiştirir. Henüz yapılamıyorsa bantla destek ya da negatif tekrarla ilerlenir.',
+    ornek:'Tam barfiks çıkamıyorsan bara asılıp beş saniyede inerek başla.',
+    kas:'latissimus',
+    karistirilanlar:{ slug:'barfiks-bari', not:'Barfiks hareketin adıdır; barfiks barı o hareketin yapıldığı ekipmandır.' } },
+
+  { terim:'Bench press', ingilizce:'Bench press', kategori:'hareket-teknik',
+    tanim:'Sehpada sırt üstü yatarken yükün göğüs hizasından yukarı itilmesidir. Göğüs, ön deltoid ve triceps birlikte çalışır. Ağır setlerde barın göğse düşme ihtimali olduğu için spotçuyla çalışılması önerilir.',
+    ornek:'Ağır bench press setine tek başına girme, spotçu iste.',
+    kas:'gogus' },
+
+  { terim:'Burpee', ingilizce:'Burpee', kategori:'hareket-teknik',
+    tanim:'Ayakta başlayıp yere şınav pozisyonuna inilen, sonra ayağa kalkılıp sıçranarak tamamlanan tam vücut hareketidir. Tek tekrarda itiş, çömelme ve sıçrama birleştiği için nabzı hızla yükseltir. CrossFit ve kondisyon devrelerinin en çok kullanılan kalemlerinden biridir.',
+    ornek:'On dakikalık AMRAP\'a on burpee koy, nabzın nereye çıktığını gör.',
+    karistirilanlar:{ slug:'metcon', not:'Burpee tek bir harekettir; metcon o hareketin içine yerleştiği kondisyon çalışmasının adıdır.' } },
+
+  { terim:'Mekik', ingilizce:'Sit-up', kategori:'hareket-teknik',
+    tanim:'Sırt üstü yatarken gövdenin karın kaslarıyla dizlere doğru kaldırılmasıdır. Düz karın kası ve kalça bükücüleri birlikte çalışır. Bel şikâyeti olanlarda kalça bükücülerinin baskın çalışması sorun yaratabildiği için çoğu programda yerini sabit gövde duruşları almıştır.',
+    ornek:'Mekik yaparken boynu elle çekiştirme, hareketi karından başlat.',
+    kas:'karin-duz' }
   ]);
 
   /* ===== 2 · EKİPMAN ===== */
@@ -531,7 +629,22 @@
   { terim:'Sabitleyici kas', ingilizce:'Stabilizer muscle', kategori:'anatomi',
     tanim:'Hareketi kendisi üretmeyen ama eklemi ya da gövdeyi sabit tutan kaslara sabitleyici denir. Ayakta yapılan tek kol press sırasında karın ve kalça kasları bu görevi üstlenir. Serbest ağırlığın makineye üstünlüğü büyük ölçüde bu kasların devreye girmesinden gelir.',
     ornek:'Tek kol dambıl press yaparken gövdenin yana kaçmaması sabitleyici kasların işidir.',
-    kas:'karin-yan' }
+    kas:'karin-yan' },
+
+  { terim:'Kürek kemiği', ingilizce:'Scapula', kategori:'anatomi',
+    tanim:'Sırtın üst kısmında, kaburga kafesinin üzerinde kayan üçgen kemiktir. Omuz ekleminin çukurunu taşıdığı için kolun her hareketinde birlikte döner ve kayar. Trapez, romboid ve ön testere kasları bu kemiğin konumunu yönetir.',
+    ornek:'Barfikste önce kürek kemiklerini aşağı çek, sonra kolları büküp yukarı çık.',
+    kas:'romboid' },
+
+  { terim:'Omurga', ingilizce:'Vertebral column', kategori:'anatomi',
+    tanim:'Boyundan kuyruk sokumuna kadar uzanan, omurlardan oluşan kemik sütundur. Boyun, sırt ve bel bölümleri farklı yönlerde eğrilik taşır ve bu eğrilikler yükü yayar. Antrenmanda amaç omurgayı hareketsiz kılmak değil, yük altında nötr aralıkta tutmaktır.',
+    ornek:'Ağır kaldırışta omurgayı nötr tut, bel ne çukurlaşsın ne yuvarlaklaşsın.',
+    kas:'erector-spinae',
+    karistirilanlar:{ slug:'notr-omurga', not:'Omurga yapının kendisidir; nötr omurga o yapının yük altında korunan doğal duruşudur.' } },
+
+  { terim:'Bağ dokusu', ingilizce:'Connective tissue', kategori:'anatomi',
+    tanim:'Tendonları, bağları ve fasyayı kapsayan destek dokusunun genel adıdır. Kuvvet üretmez ama üretilen kuvveti aktarır ve eklemleri bir arada tutar. Kasa göre daha yavaş uyum sağladığı için yük artışının kademeli olması büyük ölçüde bu doku yüzünden önemlidir.',
+    ornek:'Yükü hızlı artırdığında ilk zorlanan çoğunlukla kas değil bağ dokusudur.' }
   ]);
 
   /* ===== 4 · ANTRENMAN KÜLTÜRÜ VE METODOLOJİ ===== */
@@ -756,7 +869,17 @@
   { terim:'Kardiyo', ingilizce:'Cardio', kategori:'fizyoloji',
     tanim:'Kalbi ve solunumu bir süre boyunca yükselmiş tempoda çalıştıran hareketlerin genel adıdır. Yürüyüş, koşu, bisiklet ve yüzme gibi süreklilik içeren aktiviteler bu başlığa girer. Şiddeti ve süresi değiştikçe hangi enerji sistemini zorladığı da değişir.',
     ornek:'Kuvvet çalışmasının ardından yirmi dakikalık rahat bir kardiyo ekleyebilirsin.',
-    karistirilanlar:{ slug:'kondisyon', not:'Kardiyo bir çalışma biçimidir; kondisyon ise o çalışmayla gelişen kapasitedir.' } }
+    karistirilanlar:{ slug:'kondisyon', not:'Kardiyo bir çalışma biçimidir; kondisyon ise o çalışmayla gelişen kapasitedir.' } },
+
+  { terim:'Kuvvet', ingilizce:'Strength', kategori:'fizyoloji',
+    tanim:'Kasın bir dirence karşı üretebildiği en yüksek gerilimdir. Kaldırılan yükle ölçülür ve hareketin hızından bağımsızdır. Kuvvet arttıkça aynı işi yapmak için harcanan göreli çaba düşer.',
+    ornek:'Kuvvet gelişimi için düşük tekrarlı ve yüksek yüklü setler kullanılır.',
+    karistirilanlar:{ slug:'guc', not:'Kuvvet ne kadar yük kaldırıldığını, güç ise o yükün ne kadar hızlı hareket ettirildiğini anlatır.' } },
+
+  { terim:'Güç', ingilizce:'Power', kategori:'fizyoloji',
+    tanim:'Kuvvetin birim zamanda ortaya konmasıdır; hem yükün büyüklüğünü hem hareketin hızını birlikte içerir. Sıçrama, atış ve sprint çıkışı gibi kısa süreli işlerin belirleyicisidir. Aynı yükü daha hızlı hareket ettiren sporcu daha çok güç üretmiş olur.',
+    ornek:'Güç çalışmasında yükü orta tut ama her tekrarı olabildiğince hızlı yap.',
+    karistirilanlar:{ slug:'kuvvet', not:'Güç hıza bağlıdır; kuvvet ise hızdan bağımsız olarak kaldırılabilen en yüksek yüktür.' } }
   ]);
 
   /* ===== 6 · DÖVÜŞ SANATLARI ===== */
@@ -863,7 +986,12 @@
 
   { terim:'Teslim işareti', ingilizce:'Tap out', kategori:'dovus',
     tanim:'Sporcunun devam edemeyeceğini bildirmek için rakibe ya da mindere elle vurmasıdır. Sesli olarak da verilebilir. Verildiği anda teknik derhal bırakılır; bu kural dövüş salonlarının en katı güvenlik kuralıdır.',
-    ornek:'Teslim işaretini geç vermek yerine erken vermek her zaman daha güvenlidir.' }
+    ornek:'Teslim işaretini geç vermek yerine erken vermek her zaman daha güvenlidir.' },
+
+  { terim:'Karma dövüş sanatları', ingilizce:'Mixed martial arts (MMA)', kategori:'dovus',
+    tanim:'Boks, güreş, jiu-jitsu ve tekme temelli stilleri tek kural setinde birleştiren dövüş sporudur. Ayakta vuruş, klinç ve yer mücadelesi aynı müsabakada geçerlidir. Türkçede de çoğunlukla İngilizce kısaltmasıyla, MMA olarak anılır.',
+    ornek:'Karma dövüş sanatlarında yalnız tek bir alanda iyi olmak yetmez.',
+    karistirilanlar:{ slug:'kafes', not:'Karma dövüş sanatları sporun adıdır; kafes o sporun yapıldığı alandır.' } }
   ]);
 
   /* ===== 7 · KOŞU VE DAYANIKLILIK ===== */
@@ -1050,7 +1178,13 @@
   { terim:'Eklem stabilitesi', ingilizce:'Joint stability', kategori:'mobilite',
     tanim:'Eklemin yük altında istenen konumu koruyabilme kapasitesidir. Çevredeki kasların zamanında ve doğru şiddette kasılmasıyla sağlanır. Hareketliliği artırırken stabiliteyi ihmal etmek yaralanma riskini artırabilir.',
     ornek:'Omuz hareketliliğini açtıktan sonra bantla stabilite çalışması ekle.',
-    hareket:'bant-yana-acma', kas:'rotator-manset' }
+    hareket:'bant-yana-acma', kas:'rotator-manset' },
+
+  { terim:'Aktivasyon', ingilizce:'Muscle activation', kategori:'mobilite',
+    tanim:'Asıl çalışmadan önce hedef kasın hafif hareketlerle devreye sokulmasıdır. Amaç yormak değil, sinir sistemine o kasın görevini hatırlatmaktır. Kalça orta kası ve kürek kemiği çevresi gibi uykuda kalmaya eğilimli bölgelerde sık kullanılır.',
+    ornek:'Bacak gününden önce iki set köprü ile kalça aktivasyonu yap.',
+    hareket:'kopru', kas:'gluteus-medius',
+    karistirilanlar:{ slug:'isinma', not:'Isınma bütün vücudu hazırlar; aktivasyon o hazırlığın tek bir kası hedefleyen parçasıdır.' } }
   ]);
 
   /* ===== 9 · BESLENME VE TOPARLANMA ===== */

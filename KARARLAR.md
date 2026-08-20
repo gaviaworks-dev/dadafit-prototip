@@ -1046,3 +1046,23 @@ K15 o durumda güncellenir.
 
 **Ölçüm sonrası durum:** LİSTE 49 sayfa tek değer · DETAY 6 sayfa tek değer ·
 üçüncü değer **yalnız 1** (`dadafit-hub` 900).
+
+---
+
+## K32 · S-G ve S-H cevaplandı (Beyar, 5. tur devri)
+
+**S-G — KARAR: `antrenor-detay` ve `program-detay` tek kolona çekilecek.**
+R15 sonrası bu iki sayfada `h1` sol kenarı 132 px değil (348 ve 165), çünkü
+başlığın yanında portre/medya duruyor. İkisi de R15.2'nin tek kolonlu sırasına
+(kırıntı → eyebrow → H1 → alt metin → istatistik → CTA) çekilecek; hedef
+**56/56 sayfada h1 sol kenarı 132 px** ve **CTA hizası 21/21**. Sonraki oturumda
+uygulanacak.
+
+**S-H — KARAR: ana sayfa perdesi aileye GİRMEYECEK.**
+`dadafit-hub` (`.df-top`, `body[data-fit-hero="1"]`, 900 px) banner ailelerinin
+**dışında kalır** — **K15 gereği bilinçli istisna**. 3. turda perde 74dvh'ye
+indirilmiş, Beyar *"ana sayfa herosunu bozmuşsun, düzelt"* demiş ve değer
+100dvh'ye geri alınmıştı; tam-ekran perde ana sayfanın imzasıdır. 5. tur
+brief'inin R15.3'ü onu da listeliyordu, bu karar o maddeyi **kapatıyor**.
+Aile ölçümünde "üçüncü değer: 1" olarak raporlanmaya devam edecek — bu bir
+kusur değil, kayda geçmiş istisnadır.

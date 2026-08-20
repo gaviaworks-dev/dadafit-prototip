@@ -506,8 +506,21 @@
     'dead-bug':         { ad:'Dead Bug (Ölü Böcek)',   alt:'Core · Kontrol',            ekipman:'Ekipmansız',          sure:'~5 dk', ikon:'fa-solid fa-bug' },
     'kettlebell-swing': { ad:'Kettlebell Swing',       alt:'Tüm vücut · Güç',           ekipman:'Kettlebell',          sure:'~9 dk', ikon:'fa-solid fa-kitchen-set' },
     'kopru':            { ad:'Köprü (Glute Bridge)',   alt:'Alt vücut · Aktivasyon',    ekipman:'Ekipmansız',          sure:'~5 dk', ikon:'fa-solid fa-bridge' },
-    'bant-cekme':       { ad:'Bant ile Çekme',         alt:'Sırt · Direnç',             ekipman:'Direnç bandı',        sure:'~6 dk', ikon:'fa-solid fa-grip-lines' },
-    'bant-yana-acma':   { ad:'Bant ile Yana Açma',     alt:'Omuz · Direnç',             ekipman:'Direnç bandı',        sure:'~5 dk', ikon:'fa-solid fa-arrows-left-right' },
+    /* HAREKET ADLARI · 7. oturum hizalaması — KANONİK KAYNAK
+       `egzersiz-kutuphane-v1.html`'in kart `data-name` değerleridir: kartların
+       kataloğu 12 hareketin hepsini kapsar ve kullanıcının gezdiği yer orasıdır.
+       Bu tabloda "Bant ile Çekme" / "Bant ile Yana Açma" yazıyordu; kütüphane
+       "Bant Çekme (Band Row)" / "Bant Yana Açma" diyor — köprü etiketi vardığı
+       kartla aynı şeyi söylesin diye kütüphaneye çekildi. Aynı ilke K40'ın
+       kas adları için kurduğu ilkedir.
+       BİLİNEN AÇIK (bu turdan DEĞİL): `goblet-squat` kütüphane kartında
+       "Squat (Çömelme)", `egzersiz-detay-v1.html`'in VERI tablosunda
+       "Goblet Squat". İki kaynak birbirini tutmuyor; burada varış sayfasının
+       adı korundu. Ayrıca 12 slug'ın 4'ü (bant-cekme · bant-yana-acma ·
+       dambil-biceps · dambil-omuz-press) detay VERI'sinde yok, o sayfa
+       goblet-squat'a düşüyor. İkisi de devir notunda açık kalem. */
+    'bant-cekme':       { ad:'Bant Çekme (Band Row)',         alt:'Sırt · Direnç',             ekipman:'Direnç bandı',        sure:'~6 dk', ikon:'fa-solid fa-grip-lines' },
+    'bant-yana-acma':   { ad:'Bant Yana Açma',     alt:'Omuz · Direnç',             ekipman:'Direnç bandı',        sure:'~5 dk', ikon:'fa-solid fa-arrows-left-right' },
     'dambil-biceps':    { ad:'Dambıl Biceps Curl',     alt:'Kol · Kuvvet',              ekipman:'Dambıl',              sure:'~6 dk', ikon:'fa-solid fa-dumbbell' },
     'dambil-omuz-press':{ ad:'Dambıl Omuz Press',      alt:'Omuz · Kuvvet',             ekipman:'Dambıl',              sure:'~7 dk', ikon:'fa-solid fa-dumbbell' }
   };

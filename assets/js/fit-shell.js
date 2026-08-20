@@ -85,7 +85,7 @@ var NAV = [
   /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
  Faz 5'te üretildi; menüye ancak sayfalar diskte olduğu için bağlandı. */
   { key:'programlar', label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-clipboard-list',
-    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1',
+    match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1',
            'fit-testleri-v1','fit-testi-detay-v1','fit-testi-sonuc-v1',
            'video-seanslari-v1','video-seans-detay-v1'],
     /* E5 — "Programlar" ile "Tüm Programlar" ayrımı netleşti.
@@ -102,7 +102,8 @@ var NAV = [
        (KARARLAR.md K16). */
     dd:[
       {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların filtrelenebilir tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
-      {label:'Programımı Bul', desc:'Altı soruyla sana uygun başlangıç', href:'#', icon:'fa-solid fa-wand-magic-sparkles', wizard:true},
+      /* R13 — pop-up kalktı: kalem artık kendi tam sayfasına gidiyor */
+      {label:'Programını Bul', desc:'Altı soruyla sana uygun üç program', href:'programini-bul-v1.html', icon:'fa-solid fa-wand-magic-sparkles'},
       {label:'Fit Testleri', desc:'Seviyeni kendi ölçümünle belirle', href:'fit-testleri-v1.html', icon:'fa-solid fa-clipboard-check'},
       {label:'Video Seansları', desc:'Eğitmen eşliğinde çalış', href:'video-seanslari-v1.html', icon:'fa-solid fa-circle-play'}
     ] },
@@ -143,7 +144,7 @@ var NAV = [
 var BOTTOM = [
   {label:'Ana Sayfa',  href:'dadafit-hub-v1.html',        icon:'fa-solid fa-house',           match:['dadafit-hub-v1']},
   {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1']},
-  {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','challenge-merkezi-v1','challenge-v1']},
+  {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
   {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
@@ -369,8 +370,7 @@ function navHtml(){
     if(!it.dd) return '<div class="nav-item"><a href="'+it.href+'"'+act+'>'+it.label+'</a></div>';
     var items = it.dd.map(function(d){
       if(d.group) return '<div class="dd-group">'+d.group+'</div>';
-      var extra = d.wizard ? ' data-fit-wizard' : '';
-      return '<a href="'+d.href+'"'+extra+'><i class="'+d.icon+'"></i> <span>'+d.label+(d.desc?'<small>'+d.desc+'</small>':'')+'</span></a>';
+      return '<a href="'+d.href+'"><i class="'+d.icon+'"></i> <span>'+d.label+(d.desc?'<small>'+d.desc+'</small>':'')+'</span></a>';
     }).join('\n            ');
     return '<div class="nav-item">\n          <a href="'+it.href+'"'+(act||' class=""')+' aria-haspopup="true" aria-expanded="false">'+it.label+' <i class="fa-solid fa-chevron-down"></i></a>\n          <div class="dropdown">\n            '+items+'\n          </div>\n        </div>';
   }).join('\n        ');
@@ -385,7 +385,7 @@ function drawerNavHtml(){
     var act = isActive(it) ? ' active' : '';
     if(!it.dd) return '<div class="d-item"><a class="d-link'+act+'" href="'+it.href+'"><i class="'+it.icon+'"></i> '+it.label+'</a></div>';
     var subs = it.dd.filter(function(d){return !d.group && !d.ddOnly;}).map(function(d){
-      return '<a href="'+d.href+'"'+(d.wizard?' data-fit-wizard':'')+'><i class="'+d.icon+'"></i> '+d.label+'</a>';
+      return '<a href="'+d.href+'"><i class="'+d.icon+'"></i> '+d.label+'</a>';
     }).join('\n        ');
     /* Satırın kendisi GERÇEK BAĞLANTI, chevron ayrı bir aç/kapa düğmesi.
        (Eskiden tüm satır <button> idi; panelden "… Merkezi" kalemi kalkınca
@@ -1723,328 +1723,18 @@ setTimeout(function(){
 })();
 
 /* ============================================================
- BANA UYGUN BAŞLANGICI BUL — ortak yönlendirme sihirbazı (belge §6)
- Altı soru → bir hızlı rutin, bir uzun program, ilgili rehber içeriği,
- gerekliyse antrenör yönlendirmesi ve "Fit Planım'a kaydet / giriş yap".
- Güvenlik kuralı: riskli yanıtta KİŞİSEL EGZERSİZ ÖNERİLMEZ; sağlık
- profesyoneline yönlendirilir. Yeni ana menü başlığı üretilmez.
- Tetikleyici: herhangi bir öğede data-fit-wizard.
+ SİHİRBAZ KABUKTAN ÇIKTI — R13 (5. tur)
+ "Bana Uygun Başlangıcı Bul / Programını Bul" sihirbazı 4. turda burada,
+ kabuğun içinde duruyordu: modal kipte örtü katmanı + role="dialog" +
+ aria-modal üretiyor, satır içi kipte aynı paneli programlar merkezine
+ basıyordu. Beyar (5. tur): "Pop-up tamamen kalksın; sihirbaz kendi tam
+ sayfası olsun." Referans: dadadiet.com/diyetisyen-bul.
+
+ ARTIK: motorun tamamı `programini-bul-v1.html` içinde, sayfa JS'i olarak.
+ Kabukta ne örtü katmanı ne modal ne de `data-fit-wizard` tetikleyicisi
+ var; menü kalemi ve sayfalardaki düğmeler düz bağlantı olarak o sayfaya
+ gidiyor. `.wz-*` CSS ailesi de fit-shell.css'ten kaldırıldı.
  ============================================================ */
-(function(){
-  var SORULAR = [
-    {k:'amac', q:'Amacın nedir?', h:'Bir tane seç — sonucu en çok bu belirler.', o:[
-      {v:'guc',        t:'Güçlenmek',                     i:'fa-solid fa-dumbbell'},
-      {v:'esneklik',   t:'Esnemek',                       i:'fa-solid fa-child-reaching'},
-      {v:'dayaniklilik',t:'Dayanıklılık',                 i:'fa-solid fa-heart-pulse'},
-      {v:'aliskanlik', t:'Hareket alışkanlığı',           i:'fa-solid fa-seedling'},
-      {v:'kilo',       t:'Kilo yönetimini desteklemek',   i:'fa-solid fa-scale-balanced'}
-    ]},
-    {k:'seviye', q:'Seviyen nedir?', h:'Kendini nasıl görüyorsan o.', o:[
-      {v:'yeni',  t:'Yeni başlayan'}, {v:'orta', t:'Düzenli hareket eden'}, {v:'ileri', t:'İleri'}
-    ]},
-    {k:'mekan', q:'Nerede hareket edeceksin?', h:'Birden fazla seçebilirsin.', çok:true, o:[
-      {v:'ev',   t:'Ev',        i:'fa-solid fa-house'},
-      {v:'ofis', t:'Ofis',      i:'fa-solid fa-chair'},
-      {v:'acik', t:'Açık alan', i:'fa-solid fa-tree'},
-      {v:'salon',t:'Salon',     i:'fa-solid fa-building'}
-    ]},
-    {k:'ekipman', q:'Hangi ekipmanların var?', h:'Yoksa "yok" de — ekipmansız da her şey yapılır.', çok:true, o:[
-      {v:'yok',       t:'Yok'}, {v:'bant', t:'Bant'}, {v:'dambil', t:'Dambıl'},
-      {v:'kettlebell',t:'Kettlebell'}, {v:'salon', t:'Salon ekipmanı'}
-    ]},
-    {k:'sure', q:'Bugün ne kadar vaktin var?', h:'Beş dakika da bir şeydir.', o:[
-      {v:'5',t:'5 dakika'},{v:'10',t:'10 dakika'},{v:'15',t:'15 dakika'},{v:'20',t:'20 dakika'},{v:'30',t:'30+ dakika'}
-    ]},
-    {k:'risk', q:'Dikkate alınması gereken bir durum var mı?', h:'Doğru yönlendirme için önemli. Hiçbiri yoksa "yok" de.', çok:true, o:[
-      {v:'yok',      t:'Yok',                          i:'fa-solid fa-check'},
-      {v:'agri',     t:'Ağrı veya hareket kısıtı',     i:'fa-solid fa-triangle-exclamation'},
-      {v:'saglik',   t:'Özel sağlık durumu',           i:'fa-solid fa-notes-medical'},
-      {v:'gebelik',  t:'Gebelik / doğum sonrası',      i:'fa-solid fa-person-pregnant'},
-      {v:'hareketsiz',t:'Uzun süredir hareketsizim',   i:'fa-solid fa-bed'}
-    ]}
-  ];
-
-  var RUTIN = {
-    '5' :{ad:'Sabah 5 Dakika Esneme', not:'Ekipmansız · mobilite', href:'egzersiz-kutuphane-v1.html?sure=5'},
-    '10':{ad:'Masa Başı Molası',      not:'Ekipmansız · günlük aktivite', href:'hareket-masa-basi-v1.html'},
-    '15':{ad:'Evde Kondisyon Devresi',not:'Ekipmansız · zıplamasız tempo', href:'hareket-merkezi-v1.html#sure'},
-    '20':{ad:'Akşam Toparlanma Akışı',not:'Ekipmansız · esneme', href:'hareket-merkezi-v1.html#sure'},
-    '30':{ad:'Salonda Tam Vücut',     not:'Salon · ısınma + üç ana hareket + soğuma', href:'hareket-merkezi-v1.html#sure'}
-  };
-  var PROGRAM = {
-    guc:         {ad:'12 Hafta Güç Temeli',    not:'Orta seviye · dambıl ve bant',  href:'program-detay-v1.html?slug=12-hafta-guc-temeli'},
-    esneklik:    {ad:'8 Hafta Mobilite Planı', not:'Başlangıç · ekipmansız',        href:'program-detay-v1.html?slug=8-hafta-mobilite'},
-    dayaniklilik:{ad:'8 Hafta Salon Kondisyon',not:'İleri · salon ekipmanı',        href:'program-detay-v1.html?slug=8-hafta-salon-kondisyon'},
-    aliskanlik:  {ad:'4 Hafta Ev Antrenmanı',  not:'Başlangıç · haftada 3 gün',     href:'program-detay-v1.html?slug=4-hafta-ev-antrenmani'},
-    kilo:        {ad:'4 Hafta Ev Antrenmanı',  not:'Başlangıç · hareketle denge',   href:'program-detay-v1.html?slug=4-hafta-ev-antrenmani'}
-  };
-  var REHBER = {
-    guc:         {ad:'Doğru Form Rehberi',        not:'Temel hareketlerde teknik ve sık hatalar', href:'hareket-dogru-form-v1.html'},
-    esneklik:    {ad:'Isınma, Soğuma ve Esneme',  not:'Hazırlık ve toparlanma',                   href:'hareket-isinma-soguma-v1.html'},
-    dayaniklilik:{ad:'Süreye Göre Hareketler',    not:'5–30 dakikalık rutin mantığı',             href:'hareket-sureye-gore-v1.html'},
-    aliskanlik:  {ad:'Yeni Başlayanlar İçin Hareket',not:'İlk 7 gün ve rutine dönüş',             href:'hareket-yeni-baslayanlar-v1.html'},
-    kilo:        {ad:'Hedefe Göre Hareket',       not:'Güç, mobilite, kondisyon, günlük hareket', href:'hareket-hedefe-gore-v1.html'}
-  };
-
-  var cevap = {}, adim = 0, ov, modal;
-
-  function html(){
-    var steps = SORULAR.map(function(s,ix){
-      var opts = s.o.map(function(o){
-        return '<button class="wz-opt" type="button" data-k="'+s.k+'" data-v="'+o.v+'">'+
-               (o.i?'<i class="'+o.i+'"></i> ':'')+o.t+'</button>';
-      }).join('');
-      return '<div class="wz-step" data-ix="'+ix+'">'+
-             '<p class="wz-q">'+s.q+'</p><p class="wz-hint">'+s.h+(s['çok']?' Birden fazla seçilebilir.':'')+'</p>'+
-             '<div class="wz-opts">'+opts+'</div></div>';
-    }).join('');
-    return ''+
-    '<div class="wz-overlay" id="wzOverlay"></div>'+
-    '<div class="wz-modal" id="wzModal" role="dialog" aria-modal="true" aria-labelledby="wzTitle">'+
-    '  <div class="wz-panel">'+
-    '    <div class="wz-head">'+
-    '      <div><h3 id="wzTitle">Bana Uygun Başlangıcı Bul</h3>'+
-    '      <p>Altı kısa soru. Sonunda bir rutin, bir program ve bir rehber önerisi çıkar — hepsi öneridir, karar senindir.</p></div>'+
-    '      <button class="wz-close" id="wzClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>'+
-    '    </div>'+
-    '    <div class="wz-prog" id="wzProg" aria-hidden="true">'+SORULAR.map(function(){return '<i></i>';}).join('')+'</div>'+
-    '    <div class="wz-body" id="wzBody">'+steps+
-    '      <div class="wz-step" data-ix="'+SORULAR.length+'" id="wzResult"></div>'+
-    '    </div>'+
-    '    <div class="wz-foot">'+
-    '      <button class="wz-back" id="wzBack" type="button"><i class="fa-solid fa-arrow-left"></i> Geri</button>'+
-    '      <span class="wz-step-no" id="wzNo">1 / '+SORULAR.length+'</span>'+
-    '      <button class="btn btn-primary" id="wzNext" type="button">Devam <i class="fa-solid fa-arrow-right"></i></button>'+
-    '    </div>'+
-    '  </div>'+
-    '</div>';
-  }
-
-  function riskli(){
-    var r = cevap.risk || [];
-    return r.some(function(v){ return v!=='yok'; });
-  }
-
-  /* ---- R9b (4. tur) · "SEÇİMLERİN" ÖZETİ + "BU ÖNERİ NASIL KURULDU?" ----
-     Referans: kardeş ürünün sihirbaz sayfası (dadacampus-sihirbaz-v1.html,
-     HTTP 200 ile indirildi ve okundu). Oradaki akış beş blok:
-       1) "Sana uygun olanı nasıl bulacağız?"  → bizde giriş paragrafı vardı ✓
-       2) "Seçimlerin"                          → bizde YOKTU  → eklendi
-       3) "Sana göre sıralandı"                 → bizde sonuç kartları ✓
-       4) "Bu sıralama nasıl kuruluyor?"        → bizde tek cümleydi → blok oldu
-       5) "Bu sayfada"                          → sayfa içi gezinme; satır içi
-                                                  panelde karşılığı yok
-     ALINAN: akış ve blok sırası. ALINMAYAN: renk token'ı, tema değişkeni,
-     tipografi paleti — hepsi DadaFit'in kendi ölçeğinden. */
-  function etiket(k, v){
-    var s = SORULAR.filter(function(x){ return x.k===k; })[0];
-    if(!s) return v;
-    var o = s.o.filter(function(x){ return x.v===v; })[0];
-    return o ? o.t : v;
-  }
-  function secimlerinHtml(){
-    var satir = SORULAR.map(function(s){
-      var c = cevap[s.k];
-      if(c===undefined || c===null || (Array.isArray(c) && !c.length)) return '';
-      var vals = Array.isArray(c) ? c : [c];
-      var cips = vals.map(function(v){ return '<span class="wz-pick">'+etiket(s.k, v)+'</span>'; }).join('');
-      return '<div class="wz-sum-row"><span class="wz-sum-k">'+s.q.replace(/\?$/,'')+'</span>'+
-             '<span class="wz-sum-v">'+cips+'</span></div>';
-    }).join('');
-    if(!satir) return '';
-    return '<div class="wz-sum"><h4>Seçimlerin</h4>'+satir+
-           '<button class="wz-sum-edit" type="button" data-wz-restart>'+
-           '<i class="fa-solid fa-rotate-left"></i> Yanıtları değiştir</button></div>';
-  }
-  function nasilHtml(risk){
-    var kural = risk
-      ? ['<b>Risk yanıtı</b> → kişisel egzersiz reçetesi üretilmez, uzman ve sağlık bilgilendirmesine yönlendirilir.',
-         '<b>Amacın</b> → yalnız <i>okunacak</i> rehber içeriği seçilir, uygulama önerilmez.']
-      : ['<b>Bugünkü süren</b> → hızlı rutin seçilir (5 · 10 · 15 · 20 · 30 dk karşılıkları sabittir).',
-         '<b>Amacın</b> → uzun dönem program ve rehber içeriği seçilir.',
-         '<b>Risk yanıtın</b> → hiçbiri işaretlenmediyse öneri listesi açılır; işaretlendiyse akış uzmana döner.',
-         '<b>Seviye · mekân · ekipman</b> → şu an sıralamayı değil, önerinin <i>tonunu</i> belirler; ileride filtreye bağlanacak.'];
-    return '<div class="wz-how"><h4>Bu öneri nasıl kuruldu?</h4><ul>'+
-           kural.map(function(k){ return '<li>'+k+'</li>'; }).join('')+
-           '</ul><p class="wz-how-note">Sıralama kişisel veriye değil, verdiğin altı yanıta bakar. '+
-           'Hiçbir öneri teşhis ya da reçete değildir.</p></div>';
-  }
-
-  function sonuc(){
-    var amac = cevap.amac || 'aliskanlik';
-    var sure = cevap.sure || '10';
-    var rt = RUTIN[sure] || RUTIN['10'], pr = PROGRAM[amac], rh = REHBER[amac];
-    var out = '';
-    if(riskli()){
-      out += '<div class="wz-risk"><i class="fa-solid fa-triangle-exclamation"></i><div>'+
-             '<b>Önce bir uzmana danışman gerekiyor</b>'+
-             '<p>Verdiğin yanıtlar (ağrı, özel sağlık durumu, gebelik ya da uzun süreli hareketsizlik) için '+
-             '<b>sana özel egzersiz reçetesi üretmiyoruz</b>. Bu bir teşhis değil, bir sınır: doğru başlangıcı '+
-             'seni tanıyan biri belirlemeli.</p></div></div>'+
-             '<div class="wz-res" style="margin-top:14px">'+
-             '<a class="wz-card" href="antrenorler-v1.html"><span class="ico"><i class="fa-solid fa-user-tie"></i></span>'+
-             '<span class="txt"><b>DadaFit onaylı antrenörler</b><small>Belgesi doğrulanmış uzmanlar · online ve yüz yüze</small></span>'+
-             '<i class="fa-solid fa-arrow-right go"></i></a>'+
-             '<a class="wz-card" href="saglik-bilgilendirme-v1.html"><span class="ico"><i class="fa-solid fa-shield-heart"></i></span>'+
-             '<span class="txt"><b>Sağlık Bilgilendirmesi</b><small>Durma kriterleri ve uzmana danışma koşulları</small></span>'+
-             '<i class="fa-solid fa-arrow-right go"></i></a>'+
-             '<a class="wz-card" href="'+rh.href+'"><span class="ico"><i class="fa-solid fa-book-open"></i></span>'+
-             '<span class="txt"><b>'+rh.ad+'</b><small>Genel bilgi — uygulama değil, okuma</small></span>'+
-             '<i class="fa-solid fa-arrow-right go"></i></a>'+
-             '</div>'+
-             secimlerinHtml()+
-             nasilHtml(true);
-      return out;
-    }
-    out += '<div class="wz-res">'+
-      '<a class="wz-card" href="'+rt.href+'"><span class="ico"><i class="fa-solid fa-bolt"></i></span>'+
-      '<span class="txt"><b>Hızlı rutin: '+rt.ad+'</b><small>'+rt.not+' · bugün '+sure+' dakikan var</small></span>'+
-      '<i class="fa-solid fa-arrow-right go"></i></a>'+
-      '<a class="wz-card" href="'+pr.href+'"><span class="ico"><i class="fa-solid fa-clipboard-list"></i></span>'+
-      '<span class="txt"><b>Uzun dönem program: '+pr.ad+'</b><small>'+pr.not+'</small></span>'+
-      '<i class="fa-solid fa-arrow-right go"></i></a>'+
-      '<a class="wz-card" href="'+rh.href+'"><span class="ico"><i class="fa-solid fa-book-open"></i></span>'+
-      '<span class="txt"><b>Rehber: '+rh.ad+'</b><small>'+rh.not+'</small></span>'+
-      '<i class="fa-solid fa-arrow-right go"></i></a>'+
-      '<a class="wz-card" href="antrenorler-v1.html"><span class="ico"><i class="fa-solid fa-user-tie"></i></span>'+
-      '<span class="txt"><b>Yalnız ilerlemek istemiyorsan</b><small>Sana uygun antrenörü bul — isteğe bağlı</small></span>'+
-      '<i class="fa-solid fa-arrow-right go"></i></a>'+
-      '</div>'+
-      '<p class="wz-why">Bu öneriler amacın (<b>'+(SORULAR[0].o.filter(function(o){return o.v===amac;})[0]||{t:amac}).t+
-      '</b>) ve bugünkü sürene (<b>'+sure+' dk</b>) göre seçildi.</p>'+
-      secimlerinHtml()+
-      nasilHtml(false);
-    return out;
-  }
-
-  function goster(){
-    var steps = modal.querySelectorAll('.wz-step');
-    steps.forEach(function(st){ st.classList.toggle('on', +st.getAttribute('data-ix')===adim); });
-    modal.querySelectorAll('#wzProg i').forEach(function(el,ix){ el.classList.toggle('on', ix<=adim-0 && adim<SORULAR.length ? ix<=adim : true); });
-    if(adim<SORULAR.length){
-      modal.querySelectorAll('#wzProg i').forEach(function(el,ix){ el.classList.toggle('on', ix<=adim); });
-    }
-    var son = adim===SORULAR.length;
-    document.getElementById('wzNo').textContent = son ? 'Sonuç' : (adim+1)+' / '+SORULAR.length;
-    document.getElementById('wzBack').style.visibility = adim===0 ? 'hidden' : 'visible';
-    var nx = document.getElementById('wzNext');
-    if(son){
-      document.getElementById('wzResult').innerHTML = sonuc();
-      nx.innerHTML = document.body.classList.contains('is-auth')
-        ? '<i class="fa-solid fa-bookmark"></i> Fit Planım\'a kaydet'
-        : '<i class="fa-regular fa-user"></i> Kaydetmek için giriş yap';
-      nx.setAttribute('data-son','1');
-    } else {
-      nx.innerHTML = 'Devam <i class="fa-solid fa-arrow-right"></i>';
-      nx.removeAttribute('data-son');
-    }
-  }
-
-  /* ---- SATIR İÇİ KİP (E3) ----------------------------------------
-     Beyar: "Programımı bul wizard'ı popup şeklinde çıkmayacak, programlar
-     merkezinin içerisinde banner'da bir buton olarak sunabiliriz."
-     Sayfa bir barındırıcı bildirirse (<div data-fit-wizard-host>) sihirbaz
-     MODAL OLARAK AÇILMAZ: aynı panel o kutunun içine basılır, örtü katmanı
-     üretilmez, scroll kilitlenmez, Esc bağlanmaz. Soru/yanıt/sonuç mantığı
-     birebir aynı kalır — iki ayrı sihirbaz kopyası oluşmaz. */
-  var HOST = document.querySelector('[data-fit-wizard-host]');
-  var INLINE = !!HOST;
-
-  function ac(){
-    if(!modal){
-      var holder = document.createElement('div');
-      holder.innerHTML = html();
-      var target = INLINE ? HOST : document.body;
-      while(holder.firstChild){
-        var node = holder.firstChild;
-        /* satır içi kipte örtü katmanı hiç DOM'a girmez */
-        if(INLINE && node.nodeType===1 && node.classList.contains('wz-overlay')){ holder.removeChild(node); continue; }
-        target.appendChild(node);
-      }
-      modal = document.getElementById('wzModal');
-      ov = document.getElementById('wzOverlay');
-      if(INLINE){
-        modal.classList.add('wz-inline');
-        modal.removeAttribute('aria-modal');
-        modal.setAttribute('role','region');
-      }
-      modal.addEventListener('click', function(e){
-        /* R9b — "Yanıtları değiştir": sonuç ekranından ilk soruya döner.
-           Yanıtlar silinmez; kullanıcı ileri gidip tek tek değiştirebilsin. */
-        if(e.target.closest('[data-wz-restart]')){ adim = 0; goster(); return; }
-        var o = e.target.closest('.wz-opt');
-        if(o){
-          var k=o.getAttribute('data-k'), v=o.getAttribute('data-v');
-          var s = SORULAR.filter(function(x){return x.k===k;})[0];
-          if(s && s['çok']){
-            cevap[k] = cevap[k]||[];
-            var ix = cevap[k].indexOf(v);
-            if(ix>-1){ cevap[k].splice(ix,1); o.classList.remove('on'); }
-            else { cevap[k].push(v); o.classList.add('on'); }
-          } else {
-            cevap[k] = v;
-            o.parentElement.querySelectorAll('.wz-opt').forEach(function(x){ x.classList.toggle('on', x===o); });
-          }
-        }
-      });
-      document.getElementById('wzClose').addEventListener('click', kapat);
-      if(ov) ov.addEventListener('click', kapat);
-      document.getElementById('wzBack').addEventListener('click', function(){ if(adim>0){adim--;goster();} });
-      document.getElementById('wzNext').addEventListener('click', function(){
-        if(this.getAttribute('data-son')){
-          if(!document.body.classList.contains('is-auth')){ location.href='giris-v1.html'; return; }
-          location.href='fit-planim-v1.html';
-          return;
-        }
-        if(adim<SORULAR.length){ adim++; goster(); }
-      });
-      /* Esc yalnız MODAL kipte anlamlı — satır içi bölüm bir katman değil,
-         sayfanın parçası; Esc bağlamak kullanıcıyı şaşırtır. */
-      if(!INLINE){
-        document.addEventListener('keydown', function(e){
-          if(e.key==='Escape' && modal.classList.contains('show')) kapat();
-        });
-      }
-    }
-    adim=0; goster();
-    if(modal.classList.contains('show')) return;
-    modal.classList.add('show');
-    if(ov) ov.classList.add('show');
-    if(!INLINE) lockScroll();
-    if(window.__bnUpdate) window.__bnUpdate();
-    if(INLINE && HOST.scrollIntoView) HOST.scrollIntoView({block:'start'});
-    var f = modal.querySelector('.wz-step.on .wz-opt'); if(f) f.focus();
-  }
-  function kapat(){
-    if(!modal.classList.contains('show')) return;
-    modal.classList.remove('show');
-    if(ov) ov.classList.remove('show');
-    if(!INLINE) unlockScroll();
-    if(window.__bnUpdate) window.__bnUpdate();
-    document.querySelectorAll('[data-fit-wizard][aria-expanded]').forEach(function(b){
-      b.setAttribute('aria-expanded','false');
-    });
-  }
-
-  function syncTriggers(){
-    var on = !!(modal && modal.classList.contains('show'));
-    document.querySelectorAll('[data-fit-wizard][aria-expanded]').forEach(function(b){
-      b.setAttribute('aria-expanded', on ? 'true':'false');
-    });
-  }
-  document.addEventListener('click', function(e){
-    var t = e.target.closest('[data-fit-wizard]');
-    if(!t) return;
-    e.preventDefault();
-    /* satır içi kipte düğme AÇ/KAPA anahtarıdır (modal kipte yalnız açar) */
-    if(INLINE && modal && modal.classList.contains('show')) kapat();
-    else ac();
-    syncTriggers();
-  });
-  if(location.search.indexOf('wizard=1')>-1) setTimeout(ac,120);
-  window.FIT_SHELL = window.FIT_SHELL || {};
-  window.FIT_SHELL.wizard = ac;
-})();
 
 /* ============================================================
  SAĞLIK ŞERİDİ + ERİŞİLEBİLİRLİK + TERCİHLER (belge §14)

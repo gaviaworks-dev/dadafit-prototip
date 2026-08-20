@@ -1066,3 +1066,49 @@ indirilmiş, Beyar *"ana sayfa herosunu bozmuşsun, düzelt"* demiş ve değer
 brief'inin R15.3'ü onu da listeliyordu, bu karar o maddeyi **kapatıyor**.
 Aile ölçümünde "üçüncü değer: 1" olarak raporlanmaya devam edecek — bu bir
 kusur değil, kayda geçmiş istisnadır.
+
+---
+
+## K33 · Sihirbaz pop-up'tan çıkıp kendi tam sayfası oldu (R13)
+
+**Beyar (5. tur, R13):** *"Pop-up tamamen kalksın; sihirbaz kendi tam sayfası
+olsun."* Referans: `dadadiet.com/diyetisyen-bul`.
+
+**Yapılan:** motorun tamamı kabuktan çıkarıldı ve `programini-bul-v1.html`
+içine, sayfa JS'i olarak taşındı. `assets/js/fit-shell.js`'teki sihirbaz IIFE'si
+(örtü katmanı + `role="dialog"` + `aria-modal` + `data-fit-wizard` tetikleyicisi
++ `wizard=1` derin bağlantısı + `FIT_SHELL.wizard` API'si) ve
+`assets/css/fit-shell.css`'teki `.wz-*` ailesi **silindi**. 4. turun E3 satır
+içi kipi (`programlar-merkezi`'ndeki `[data-fit-wizard-host]`) de kaldırıldı:
+sihirbazın iki kopyası olamaz, tek kaynak yeni sayfadır.
+
+**Neden E3 geri alındı:** E3, "pop-up olmasın" isteğinin ara çözümüydü — panel
+modal yerine programlar merkezinin içine basılıyordu. R13 aynı isteğin nihai
+biçimi: kendi sayfası. İkisini birlikte tutmak aynı motorun iki kopyası
+demekti. Kapı kaybolmadı; merkezin banner düğmesi yeni sayfaya gidiyor.
+
+**Altı soru → üç adım.** Referansın adım rayı üç kalemli (1 Hedefin ·
+2 Ortam · 3 Tercih) ve alt barı "Adım 1 / 3" yazıyor; motorun altı sorusu
+atılmadı, ikişerli gruplandı: Hedefin (amaç + seviye) · Ortam (mekân +
+ekipman) · Tercih (süre + durum).
+
+**Sonuç artık gerçekten hesaplanıyor.** Eskiden çıktı sabit eşlemelerdi
+(süre → rutin, amaç → program). Şimdi yedi kalemlik katalog (4 program +
+3 challenge, hepsi diskte var olan gerçek slug) beş eksende puanlanıp ilk üçü
+gösteriliyor: hedef ağırlığı · seviye yakınlığı · mekân kesişimi · ekipman
+uyumu · seans süresi yakınlığı. **Eksik ekipman eleme değil puan düşüşüdür** —
+bu yüzden hiçbir yanıt bileşimi boş sonuç döndüremiyor (karşılıksız
+kombinasyon 0, 15/15 amaç×seviye bileşiminde ölçüldü).
+
+**Risk dalı korundu:** ağrı / özel sağlık durumu / gebelik / uzun süreli
+hareketsizlik yanıtında **kişisel egzersiz reçetesi üretilmiyor**; uzman,
+sağlık bilgilendirmesi ve okunacak rehbere yönlendiriliyor.
+
+**Etiket birleştirildi:** "Programımı Bul" → **"Programını Bul"**. Menü kalemi,
+beş sayfadaki düğme, SSS metni ve iki destek talebi metni aynı ada çekildi.
+`antrenorler-v1`'deki düğme 4. turda da bu program sihirbazını açıyordu ama
+etiketi "Sana Uygun Antrenörü Bul"du — hedef ile etiket bu turda doğrulandı.
+
+**Sınama:** `tests/wizard-page.mjs` (K27 gereği taban commit `44633fb`'ye karşı
+koşturuldu, kırmızıya döndü: sayfa 404 · 60 sayfada pop-up kalıntısı ·
+sihirbaz sayfası yok).

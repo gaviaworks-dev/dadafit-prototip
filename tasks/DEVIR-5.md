@@ -392,7 +392,7 @@ yoksa sayfa hiçbir aileye bağlanmaz ve ölçüm "üçüncü değer" olarak yak
 
 ---
 
-# 4 · TEST SÜİTİ — 8 sınama
+# 4 · TEST SÜİTİ — 9 sınama
 
 **Konum:** `tests/*.mjs` · **Ortak yardımcı:** `tests/_pw.mjs`
 
@@ -402,10 +402,10 @@ cd ~/Developer/Projects/dadafit-prototip
 python3 -m http.server 8811 &
 export PW_HOME=~/.pw
 for t in a11y-focus coach-list dropdown-position header-banner plan-account \
-         fit-test-lock footer-curtain crumb-home; do
+         fit-test-lock footer-curtain crumb-home wizard-page; do
   echo "=== $t ==="; node tests/$t.mjs
 done
-# beklenen: 8/8 · "0 sorun"
+# beklenen: 9/9 · "0 sorun"
 ```
 
 Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
@@ -421,6 +421,7 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 | **`fit-test-lock`** | **R14** — yanıt kilidi üç katman, geri alınamıyor, kapı hâlâ açılıyor | **5. tur** |
 | **`footer-curtain`** | **R11** — perde footer'a yapışık, sağlık şeridi perdenin içinde | **5. tur** |
 | **`crumb-home`** | **R3 + R12** — yalnız ikon, ölçü referansla birebir, ayraçla eşit | **5. tur** |
+| **`wizard-page`** | **R13** — sihirbaz tam sayfa, pop-up site genelinde 0, 3 adım, 3 gerçek program | **6. oturum** |
 
 > **K27 kuralı:** yeni sınama yazıldığında **taban commit'e karşı koşturulup
 > kırmızıya döndüğü kanıtlanır.** Bu turun üçü de kanıtlandı (`44633fb`).
@@ -433,17 +434,35 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 
 ---
 
-# 5 · KALAN DÖRT MADDE
+# 5 · KALAN ÜÇ MADDE (R13 kapandı)
 
-## R13 — "Programını Bul" tam sayfa (pop-up kalkacak)
+## R13 — "Programını Bul" tam sayfa · ✅ **BİTTİ** (6. oturum)
 
-| | |
+Ayrıntı `KARARLAR.md` **K33**. Özet: motor kabuktan çıkıp
+`programini-bul-v1.html`'e taşındı; kabuktaki sihirbaz IIFE'si, `.wz-*` CSS
+ailesi, `data-fit-wizard` tetikleyicileri ve E3'ün satır içi barındırıcısı
+silindi. Altı soru üç adıma gruplandı (Hedefin · Ortam · Tercih). Sonuç sabit
+eşleme değil, yedi kalemlik katalogdan beş eksende puanlanan ilk üç program.
+
+**Ölçüm (`tests/wizard-page.mjs`, @1440 ve @390):**
+
+| Kabul ölçütü | Sonuç |
 |---|---|
-| **Hazır** | Referans iskeleti ve ölçüleri **§2e**'de · banner token'ı (R15) oturdu · sihirbaz **motoru** `assets/js/fit-shell.js` içinde çalışır durumda: altı soru + sonuç + "Seçimlerin" bloğu + "Bu öneri nasıl kuruldu?" bloğu + risk dalı (4. turda eklendi) |
-| **Eksik** | Yeni sayfa `programini-bul-v1.html` · overlay/modal katmanının ve tetikleyicilerinin silinmesi · menü ve tüm dahili bağlantıların yeni sayfaya yönlendirilmesi · sonuç kartlarının gerçek program slug'larına bağlanması |
-| **Bağımlılık** | Yok — hemen başlanabilir |
-| **Kabul ölçütü** | HTTP 200 · pop-up düğümü 0 · `role="dialog"`/`aria-modal` yok · 3 adım ileri-geri · sonuç kartları 3/3 doğru programa · "Baştan başla" adım 1'e döner |
-| **Not** | Sihirbaz şu an `programlar-merkezi-v1.html`'de **satır içi** kipte çalışıyor (`[data-fit-wizard-host]`), diğer dört sayfada hâlâ modal. Tam sayfaya taşınınca modal kipi tamamen kalkacak |
+| Sayfa HTTP 200 | ✅ |
+| Pop-up düğümü (`.wz-overlay`/`.wz-modal`/`[data-fit-wizard]`/`[data-fit-wizard-host]`) | **61/61 sayfada 0** |
+| Sihirbaz içeriği taşıyan `role="dialog"`/`aria-modal` | **0** · `FIT_SHELL.wizard` API'si de yok |
+| 3 adım ileri-geri | ✅ · geri dönüşte yanıtlar korunuyor |
+| Yanıtsız adımda "İleri" | **ilerletmiyor**, uyarı çıkıyor |
+| Sonuç kartları | **3/3 gerçek program slug'ına** gidiyor |
+| Karşılıksız kombinasyon | **0** — 15/15 amaç×seviye bileşimi 3 kart döndürdü |
+| "Baştan başla" | adım 1'e dönüyor, yanıtları siliyor |
+| Risk dalı | kişisel program önerilmiyor, uzmana yönlendiriyor |
+| Banner ailesi | **liste** · 544 / 607 / 587 — üç genişlikte de birebir |
+| Konsol hatası · yatay taşma | **0 · 0** |
+
+**Tam site taraması (61 sayfa × @1440 ve @390):** HTTP dışı 200 **0** ·
+kırık bağlantı **0** · konsol hatası **0** · yatay taşma **0**.
+**Test süiti: 9/9 temiz.**
 
 ## H1 — Spor Sözlüğü (~180 terim)
 
@@ -477,7 +496,7 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 
 ## Önerilen sıra
 
-**R13 → (H2 başlat + H3 keşfi paralel) → H1 → H3 kodu**
+~~R13~~ ✅ → **(H2 başlat + H3 keşfi paralel) → H1 → H3 kodu**
 
 ---
 
@@ -508,7 +527,8 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 |---|---|
 | **`dadafit-hub` kırıntısındaki "Dada Gastro"** | Kırıntının ilk kalemi kardeş marka portalı, DadaFit ana sayfası **değil** (sayfanın kendisi ana sayfa). Ev ikonuna çevrilmesi yanlış olur. 4. turda bilerek bırakıldı, 5. tur brief'i de dokunulmamasını söylüyor. `tests/crumb-home.mjs` bu sayfayı **istisna** olarak atlıyor. |
 | **Ana sayfa herosu — `.df-top` 100dvh / 900 px** | `KARARLAR.md` **K15**. Bir kez kısaltıldı, Beyar açık cümleyle geri aldırdı. **S-H kararı: aileye girmeyecek.** |
-| **R11 · R12 · R14 · R15 — bu turda kapananlar** | Dördü de ölçüldü, sınamaya bağlandı ve push edildi. Yeniden açılmaz; sınamalar kırmızıya dönerse **gerileme** demektir, yeni bir tercih değil. |
+| **R13 — sihirbaz tam sayfası** | Motor `programini-bul-v1.html`'e taşındı; kabuktaki modal/örtü katmanı ve `.wz-*` CSS ailesi silindi (K33). Kabuğa sihirbaz geri konmaz; `tests/wizard-page.mjs` kırmızıya dönerse gerileme demektir. |
+| **R11 · R12 · R14 · R15 — 5. turda kapananlar** | Dördü de ölçüldü, sınamaya bağlandı ve push edildi. Yeniden açılmaz; sınamalar kırmızıya dönerse **gerileme** demektir, yeni bir tercih değil. |
 | **Banner ailesi token'ları** (`--banner-h-liste` / `--banner-h-detay`) | Referanstan ölçülmüş değerler (§2a). "Sayı uydurulmayacak" kuralı gereği tahminle değiştirilmez; değişecekse yeniden ölçülür. |
 | **Kırıntı ev ikonu rengi** (`--fit-bright`) | Referanstan **ölçü** alındı, **palet** alınmadı (K29). Renk DadaFit'in. |
 | **Sağlık şeridinin perdedeki yeri** | B10'un çözümü. `#pageMain`'in son çocuğu olmaktan çıkarılırsa 60 sayfada yeniden görünmez olur. |

@@ -166,6 +166,37 @@
 .ft-opt input[data-risk="1"]:checked+span{border-color:#d9a441;background:#fff6e6;color:#7a5608}
 .ft-opt input[data-risk="1"]:checked+span i{color:#8a6410}
 .ft-opt input:focus-visible+span{outline:3px solid var(--fit);outline-offset:2px}
+
+/* ---- R14 (5. tur) · YANITLANAN SORU KİLİTLENİR ----------------------
+   Beyar: "Bir seçenek tıklandığında yanlış olduğu gösteriliyor ama diğer
+   seçenekler hâlâ tıklanabiliyor — kullanıcı yanlışı gördükten sonra
+   doğruyu da tıklayıp puanını değiştirebiliyor."
+   Ölçüldü (7 test slug'ında): 14 şıktan KİLİTLİ 0; riskli yanıt geri
+   alınıp test açılabiliyordu. Kapı kapı değildi.
+   Kilit yalnız görsel değil: input `disabled` + `aria-disabled` + odak
+   sırasından çıkarılıyor. Seçilmeyen şık soluyor, seçilen tam opak kalıyor
+   ki kullanıcı ne yanıtladığını okumaya devam edebilsin. */
+.ft-q.is-locked .ft-opt span{cursor:default}
+.ft-q.is-locked .ft-opt input:disabled+span{opacity:.5}
+.ft-q.is-locked .ft-opt input:disabled:checked+span{opacity:1}
+.ft-q.is-locked .ft-opt span:hover{border-color:var(--line);color:var(--slate);background:var(--paper)}
+.ft-q.is-locked .ft-opt input:disabled:checked+span:hover{border-color:var(--fit);background:var(--fit);color:#fff}
+.ft-q.is-locked .ft-opt input[data-risk="1"]:disabled:checked+span:hover{border-color:#d9a441;background:#fff6e6;color:#7a5608}
+/* riskli yanıt verildiğinde GÜVENLİ şık ayrıca işaretlenir — kullanıcı
+   neyin "temiz yanıt" sayıldığını görsün diye. */
+.ft-q .ft-opt.is-safe{position:relative}
+.ft-q .ft-opt.is-safe span{border-style:dashed;border-color:var(--fit)}
+.ft-q .ft-opt.is-safe::after{
+  content:"Temiz yanıt";position:absolute;left:0;top:calc(100% + 5px);
+  font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--fit-deep);white-space:nowrap
+}
+.ft-q.is-locked .ft-opts{margin-bottom:20px}
+.ft-q.is-risk .ft-lockmsg{color:#7a5608}
+.ft-lockmsg{
+  display:flex;align-items:flex-start;gap:8px;margin:10px 0 0;
+  font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.5
+}
+.ft-lockmsg i{flex:none;font-size:11px;margin-top:3px}
 /* yanıtlanmayan soru: sol şerit + ikonlu metin (yalnız renkle anlatılmıyor — §20) */
 .ft-q.is-err{border-left:3px solid #a8391c;padding-left:14px;background:#fff8f6}
 .ft-qerr{display:none;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#a8391c;margin-top:10px}
@@ -428,7 +459,8 @@
                 <b>Yedi soru · yaklaşık 1 dakika</b>
                 <small>Bu bir teşhis aracı değildir. Yalnız bugün bu testi güvenle yapıp yapamayacağını
                 anlamak için soruluyor. Bir soruya bile <b>“Evet”</b> dersen test başlamaz ve seni uzman
-                desteğine yönlendiririz.</small>
+                desteğine yönlendiririz. <b>Her soruyu bir kez yanıtlarsın</b> — yanıt kilitlenir.
+                Değiştirmen gerekirse “Taramayı sıfırla” ile baştan başla.</small>
               </div>
             </div>
 
@@ -1129,6 +1161,69 @@
     formErr.classList.remove('show');
   }
 
+  /* ==================================================================
+     R14 · YANIT KİLİDİ — ilk tıklama cevabı sabitler
+     ------------------------------------------------------------------
+     Beyar: "Bir seçenek tıklandığında yanlış olduğu gösteriliyor ama
+     diğer seçenekler hâlâ tıklanabiliyor." Ölçüldü: yedi test slug'ının
+     hepsinde 14 şıktan kilitli 0; riskli yanıt geri alınıp test
+     açılabiliyordu — yani güvenlik kapısı kapı değildi.
+
+     Kilit üç katmanlı, çünkü yalnız görsel kilit kilit değildir:
+       1. `disabled`          → tıklama ve klavye seçimi biter
+       2. `aria-disabled`     → ekran okuyucu durumu duyurur
+       3. `tabindex="-1"`     → odak sırasından çıkar
+     `disabled` bir radyoyu `:checked` olmaktan ÇIKARMAZ, bu yüzden
+     gönderim mantığı (`input:checked` + `data-risk`) olduğu gibi çalışır.
+
+     Riskli şık seçilirse GÜVENLİ şık ayrıca işaretlenir ("Temiz yanıt") —
+     kullanıcı neyin temiz sayıldığını görmeden kilitlenmiş olmasın.
+     ================================================================== */
+  function kilitle(name){
+    var fs = form.querySelector('.ft-q[data-q="' + name.slice(1) + '"]');
+    if(!fs || fs.classList.contains('is-locked')) return;
+    var sel = form.querySelector('input[name="' + name + '"]:checked');
+    if(!sel) return;
+    var riskli = sel.getAttribute('data-risk') === '1';
+
+    form.querySelectorAll('input[name="' + name + '"]').forEach(function(i){
+      i.disabled = true;
+      i.setAttribute('aria-disabled','true');
+      i.tabIndex = -1;
+    });
+    fs.classList.add('is-locked');
+    fs.setAttribute('aria-readonly','true');
+
+    var msg = document.createElement('p');
+    msg.className = 'ft-lockmsg';
+    if(riskli){
+      fs.classList.add('is-risk');
+      var safe = form.querySelector('input[name="' + name + '"]:not([data-risk])');
+      if(safe && safe.closest('.ft-opt')) safe.closest('.ft-opt').classList.add('is-safe');
+      msg.innerHTML = '<i class="fa-solid fa-lock"></i><span>Yanıtın kilitlendi. Bu yanıt taramayı ' +
+                      'durdurur; temiz yanıt yukarıda işaretli. Değiştirmek için taramayı sıfırla.</span>';
+    } else {
+      msg.innerHTML = '<i class="fa-solid fa-lock"></i><span>Yanıtın kilitlendi. Değiştirmek için ' +
+                      'taramayı sıfırla.</span>';
+    }
+    fs.appendChild(msg);
+  }
+
+  /* sıfırlama: kilit üç katmanıyla birlikte kalkar */
+  function kilitleriAc(){
+    form.querySelectorAll('.ft-q').forEach(function(fs){
+      fs.classList.remove('is-locked','is-risk');
+      fs.removeAttribute('aria-readonly');
+      var m = fs.querySelector('.ft-lockmsg'); if(m) m.remove();
+      fs.querySelectorAll('.ft-opt.is-safe').forEach(function(o){ o.classList.remove('is-safe'); });
+    });
+    form.querySelectorAll('input[type="radio"]').forEach(function(i){
+      i.disabled = false;
+      i.removeAttribute('aria-disabled');
+      i.removeAttribute('tabindex');
+    });
+  }
+
   /* akışı kapat: adım ve ölçüm içeriği DOM'dan da SİLİNİR */
   function closeFlow(){
     steps.hidden = true;
@@ -1195,6 +1290,7 @@
   });
 
   el('ftScrReset').addEventListener('click', function(){
+    kilitleriAc();          /* R14 · önce kilit kalkar, sonra reset */
     form.reset();
     clearErrors();
     stop.hidden = true;
@@ -1210,6 +1306,7 @@
     if(e.target.name && QN.indexOf(e.target.name) > -1){
       var fs = e.target.closest('.ft-q');
       if(fs){ fs.classList.remove('is-err'); fs.removeAttribute('aria-invalid'); }
+      kilitle(e.target.name);   /* R14 · ilk tıklama cevabı sabitler */
       if(!steps.hidden || !stop.hidden){
         closeFlow();
         stop.hidden = true;

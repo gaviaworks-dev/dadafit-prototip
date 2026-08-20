@@ -428,10 +428,18 @@ for (const w of [1440, 1024, 390]) {
   else rec('kırık menü hedefi', gercekYok.join(' · '));
   if (beklenenYok.length) not(`BİLİNEN AÇIK — H1 branch'inde üretiliyor, birleştirme sonrası doğrulanacak: ${beklenenYok.join(' · ')}`);
 
-  /* "antrenman-olusturucu" bu turda BAĞLANMAMALI */
-  const erken = yerel.filter(h => h.includes('antrenman-olusturucu'));
-  if (!erken.length) ok('antrenman-olusturucu-v1.html menüye BAĞLANMAMIŞ (H3 için yorum satırı bırakıldı)');
-  else rec('erken bağlantı', `H3 sayfası henüz yokken menüde: ${erken.join(' · ')}`);
+  /* H3 · 7. OTURUMDA BEKLENTİ TERSİNE ÇEVRİLDİ.
+     Bu blok önceki turda "antrenman-olusturucu MENÜDE OLMAMALI" diyordu —
+     çünkü o tur H3 yalnız keşif yapıyordu, sayfa yoktu ve bağlanırsa 60
+     sayfada kırık bağlantı olurdu. Sayfa artık diskte ve menü kalemi açıldı;
+     bekleyiş bayatladı ve sınamayı yanlış yere kırmızıya döndürüyordu
+     (kırılan bir şey yoktu — bir üstteki kontrol "yerel hedeflerin hepsi
+     diskte" diye zaten geçiyordu). Beklenti şimdi doğru yönde: kalem menüde
+     OLMALI ve hedefi diskte OLMALI. Kalem geri alınırsa bu kırmızıya döner. */
+  const h3Kalem = yerel.filter(h => h.includes('antrenman-olusturucu'));
+  if (!h3Kalem.length) rec('eksik menü kalemi', '"Hareketi Anlamak" grubunda antrenman-olusturucu-v1.html yok');
+  else if (yok.some(h => h.includes('antrenman-olusturucu'))) rec('kırık menü hedefi', 'antrenman-olusturucu-v1.html menüde ama diskte yok');
+  else ok(`antrenman-olusturucu-v1.html menüde ve hedefi diskte (${h3Kalem.length} kalem)`);
 
   await ctx.close();
 }

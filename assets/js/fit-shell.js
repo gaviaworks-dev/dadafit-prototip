@@ -178,59 +178,102 @@ var BOTTOM = [
 ];
 
 /* ============================================================
- FOOTER — belge §16, DÖRT kolon ve saydığı kalemlerin tamamı
+ FOOTER — 9. tur revizyonu · BEŞ ALAN
  ------------------------------------------------------------
- Kolon adları ve sıraları belgeden birebir: DadaFit · Kurumsal ·
- İletişim · Yasal ve Sağlık.
+ Revizyon dokümanının mimarisi, birebir:
+   Marka Alanı | Hareket ve Öğren | Programlar ve Uzman Desteği |
+   Enerji ve Denge | Uygulama
+ Marka (sol) ve uygulama (sağ) alanları FOOTER_RAW'da sabit durur;
+ ARADAKİ ÜÇ MENÜ bu dizidedir. Kalem eklemek = TEK SATIR.
 
- Bu kolonlar Faz 5'i BEKLİYORDU: §16 "Destek Merkezi" istiyor ve o
- sayfa (destek-talepleri-v1) Faz 5'te üretildi. Footer 56 sayfanın
- hepsinde basıldığı için var olmayan bir hedefe bağlamak tek hamlede
- site geneli kırık link üretirdi — nihai kabul kriteri "yerel
- bağlantılarda kırık hedef bulunmamalı" diyor.
-
- "Eksik" sanılan diğer beş hedef aslında vardı, ölçülerek bulundu:
-   Sponsorlar ve Partnerler   → hakkimizda-v1.html#partnerler
-   Künye                      → hakkimizda-v1.html#kunye
-   Çerez Politikası           → yasal-v1.html?metin=cerez
-   Üyelik ve İptal Koşulları  → yasal-v1.html?metin=uyelik
-   Veri ve İzin Politikası    → yasal-v1.html?metin=veri-izin
- yasal-v1 on bir hukuki metni ?metin= parametresiyle tek sayfada
- sunuyor; ayrı sayfa üretmeye gerek yok (belge sonu "gereksiz sayfa
- çoğaltacak değişiklikler yapma").
+ · Doküman "Dada Fit Egzersizleri" (boşluklu) yazıyor; depo markası
+   bitişik ("DadaFit") ve üst menüde de `DadaFit Egzersizleri` geçiyor
+   → tutarlılık için bitişik yazıldı.
+ · "Planım" kalemi footer'dan KALDIRILDI. Doküman: "Planım ve
+   İlerlemem footer'a eklenmeyecek, header'da kalacak."
+ · Enerji Defteri günlük kayıt ekranını, Haftalık Özet son yedi günün
+   özetini açar — iki AYRI sayfa, işlevleri aynı değil (doküman şartı).
+ · `enerji-ihtiyaci-v1.html` paralel bir dalda üretiliyor; bu dalda
+   henüz yok, birleştirmeden sonra 200 dönecek. Bağlantı bilerek yazıldı.
  ============================================================ */
 var FOOTER_COLS = [
-  { title:'DadaFit', links:[
-      {label:'Hareket',        href:'hareket-merkezi-v1.html'},
-      {label:'Programlar',     href:'programlar-merkezi-v1.html'},
-      {label:'Enerji Defteri', href:'enerji-defteri-v1.html'},
+  { key:'hareket', title:'Hareket ve Öğren', links:[
+      {label:'Hareket Merkezi',      href:'hareket-merkezi-v1.html'},
+      {label:'DadaFit Egzersizleri', href:'egzersiz-kutuphane-v1.html'},
+      {label:'Hareket Rehberi',      href:'hareket-rehberi-v1.html'},
+      {label:'Spor Sözlüğü',         href:'sozluk-v1.html'},
+      {label:'Anatomi Haritası',     href:'anatomi-v1.html'},
+      {label:'Antrenman Oluşturucu', href:'antrenman-olusturucu-v1.html'}
+  ]},
+  { key:'programlar', title:'Programlar ve Uzman Desteği', links:[
+      {label:'Tüm Programlar', href:'program-liste-v1.html'},
+      {label:'Programını Bul', href:'programini-bul-v1.html'},
+      {label:'Fit Testleri',   href:'fit-testleri-v1.html'},
       {label:'Challenge',      href:'challenge-merkezi-v1.html'},
       {label:'Antrenörler',    href:'antrenorler-v1.html'},
-      {label:'Planım',         href:'fit-planim-v1.html'}
+      {label:'Antrenör Ol',    href:'antrenor-ol-v1.html'}
   ]},
-  { title:'Kurumsal', links:[
-      {label:'Hakkımızda',              href:'hakkimizda-v1.html'},
-      {label:'Antrenör Ol',             href:'antrenor-ol-v1.html'},
-      {label:'Künye',                   href:'hakkimizda-v1.html#kunye'},
-      {label:'Sponsorlar ve Partnerler',href:'hakkimizda-v1.html#partnerler'},
-      {label:'Sıkça Sorulan Sorular',   href:'sss-v1.html'}
-  ]},
-  { title:'İletişim', links:[
-      {label:'Bize Ulaşın',       href:'iletisim-v1.html'},
-      {label:'Öneri ve Şikâyet',  href:'#', fb:true},
-      {label:'Destek Merkezi',    href:'destek-talepleri-v1.html'},
-      {label:'İş Birliği',        href:'reklam-ver-v1.html#isbirligi'},
-      {label:'Reklam Vermek İçin',href:'reklam-ver-v1.html#reklam'}
-  ]},
-  { title:'Yasal ve Sağlık', links:[
+  { key:'enerji', title:'Enerji ve Denge', links:[
+      {label:'Enerji Defteri',                   href:'enerji-defteri-v1.html'},
+      {label:'Enerji Köprüsü',                   href:'dadafit-kopru-v1.html'},
+      {label:'Günlük Enerji İhtiyacını Hesapla', href:'enerji-ihtiyaci-v1.html'},
+      {label:'Aktivite Günlüğü',                 href:'aktivite-gunlugu-v1.html'},
+      {label:'Su Takibi',                        href:'enerji-defteri-su-v1.html'},
+      {label:'Haftalık Özet',                    href:'enerji-defteri-haftalik-v1.html'}
+  ]}
+];
+
+/* ============================================================
+ KURUMSAL BANT — sütunların İÇİNDE değil, AYRI YATAY BANT.
+ ------------------------------------------------------------
+ Doküman: "Çözüm Merkezi ile Öneri ve Şikâyet geri plana
+ atılmamalıdır" → ikisi de bandın ortasında (4. ve 5. sıra) ve
+ diğer altı kalemle AYNI biçimde (aynı punto, ağırlık, renk).
+
+ Hedefler diskte doğrulandı, hiçbiri uydurulmadı:
+   Çözüm Merkezi    → destek-talepleri-v1.html   (destek talebi akışı)
+   Öneri ve Şikâyet → iletisim-v1.html#conForm   (ayrı sayfası YOK;
+     iletişim formu "Öneri ve şikâyetlerini de bu formdan iletebilirsin"
+     diyor ve konu seçimine göre ilgili ekibe yönlendiriyor)
+ ============================================================ */
+var FOOTER_CORP = [
+  {label:'Hakkımızda',                    href:'hakkimizda-v1.html'},
+  {label:'Künye',                         href:'hakkimizda-v1.html#kunye'},
+  {label:'İletişim',                      href:'iletisim-v1.html'},
+  {label:'Çözüm Merkezi',                 href:'destek-talepleri-v1.html'},
+  {label:'Öneri ve Şikâyet',              href:'iletisim-v1.html#conForm'},
+  {label:'İş Birliği',                    href:'reklam-ver-v1.html#isbirligi'},
+  {label:'Reklam ve Marka İş Birlikleri', href:'reklam-ver-v1.html#reklam'},
+  {label:'Sponsorlar ve Partnerler',      href:'hakkimizda-v1.html#partnerler'}
+];
+
+/* ============================================================
+ YASAL BANT — DOKUNULMAZ
+ ------------------------------------------------------------
+ Revizyon dokümanının dipnotu: "Dada Fit'in mevcut yasal bandına
+ hiçbir şekilde müdahale edilmeyecektir. Yasal bağlantıların
+ metinleri, sıralaması, yönlendirmeleri, renkleri ve görsel yapısı
+ mevcut haliyle korunacaktır."
+
+ Aşağıdaki altı kalem eski FOOTER_COLS'un "Yasal ve Sağlık"
+ kolonundan KARAKTER KARAKTER kopyalandı: metin, sıra ve hedef aynı.
+ Punto (14px), ağırlık (500) ve renk (rgba(255,255,255,.92)) de
+ CSS'te aynı bırakıldı.
+
+ Kolon yerine yatay bant: mimari beş alana indi (doküman §Mimari) ve
+ dokümanın mobil sıralaması yasal bandı 7. — yani EN ALT — sıraya
+ koyuyor. @1440'ta altı kalemin toplam genişliği 707 px, wrap içi
+ alan 1176 px olduğu için bant TEK SATIR kalıyor (ölçüldü).
+ `tests/footer-yapi.mjs` §10 bu altı kalemi nöbette tutuyor.
+ ============================================================ */
+var FOOTER_LEGAL = { title:'Yasal ve Sağlık', links:[
       {label:'Kullanım Koşulları',      href:'yasal-v1.html?metin=kullanim'},
       {label:'Gizlilik ve KVKK',        href:'yasal-v1.html?metin=kvkk'},
       {label:'Çerez Politikası',        href:'yasal-v1.html?metin=cerez'},
       {label:'Üyelik ve İptal Koşulları',href:'yasal-v1.html?metin=uyelik'},
       {label:'Sağlık Bilgilendirmesi',  href:'saglik-bilgilendirme-v1.html'},
       {label:'Veri ve İzin Politikası', href:'yasal-v1.html?metin=veri-izin'}
-  ]}
-];
+  ]};
 
 /* ============================================================
  FİT PLANIM — kişisel alan alt menüsü (belge §9.1, on kalem)
@@ -448,14 +491,38 @@ function bottomNavHtml(){
   }).join('\n  ');
 }
 
+/* Üç orta menü. Başlık GERÇEK <button> — mobilde accordion, masaüstünde
+   `disabled` (kalem listesi hep açık). aria-expanded/aria-controls ikilisi
+   kurulum sırasında (bkz. "FOOTER ACCORDION" IIFE) genişliğe göre boyanır. */
 function footerColsHtml(){
   return FOOTER_COLS.map(function(c){
     var links = c.links.map(function(l){
-      var on = l.fb ? ' onclick="document.getElementById(\'fbTab\').click();return false;"' : '';
-      return '<a href="'+l.href+'"'+on+'>'+l.label+'</a>';
-    }).join('\n        ');
-    return '<div class="foot-col">\n        <h5>'+c.title+'</h5>\n        '+links+'\n      </div>';
+      return '<a href="'+l.href+'">'+l.label+'</a>';
+    }).join('\n          ');
+    return '<div class="foot-col" data-foot-col="'+c.key+'">\n'+
+      '        <h5 class="fc-head"><button type="button" class="fc-toggle" id="fcb-'+c.key+'"'+
+      ' aria-expanded="true" aria-controls="fcp-'+c.key+'">'+
+      '<span class="fc-title">'+c.title+'</span>'+
+      '<i class="fa-solid fa-chevron-down fc-chev" aria-hidden="true"></i></button></h5>\n'+
+      '        <div class="fc-links" id="fcp-'+c.key+'" role="region" aria-labelledby="fcb-'+c.key+'">\n          '+
+      links+'\n        </div>\n      </div>';
   }).join('\n      ');
+}
+
+/* Kurumsal bant — sekiz kalem, aralarında ince dikey ayraç (@1440 tek satır). */
+function footerCorpHtml(){
+  return FOOTER_CORP.map(function(l){
+    return '<a href="'+l.href+'">'+l.label+'</a>';
+  }).join('<span class="sep" aria-hidden="true"></span>');
+}
+
+/* Yasal bant — DOKUNULMAZ. Metin, sıra, hedef ve renk mevcut haliyle. */
+function footerLegalHtml(){
+  var links = FOOTER_LEGAL.links.map(function(l){
+    return '<a href="'+l.href+'">'+l.label+'</a>';
+  }).join('<span class="sep" aria-hidden="true"></span>');
+  return '<nav class="foot-lawband" aria-label="'+FOOTER_LEGAL.title+'">'+
+         '<h5 class="fl-head">'+FOOTER_LEGAL.title+'</h5>'+links+'</nav>';
 }
 
 var TOPBAR = ''+
@@ -744,20 +811,44 @@ var LGGATE_HTML = `<div class="lg-overlay" id="lgOverlay"></div>
 var FOOTER_RAW = `<footer class="footer orange">
   <div class="wrap">
     <div class="foot-grid">
+      <!-- 1 · MARKA ALANI (sol sabit) -->
       <div class="foot-brand">
         <div class="foot-lockup"><span class="fl-mark"><i class="fa-solid fa-bolt"></i></span><span class="fl-word"><span class="bd">Dada</span><span class="sf">Fit</span></span></div>
-        <!-- belge §16 "Footer logo altı metni" — birebir -->
-        <p class="foot-tag">Günlük hareketini, enerjini ve ilerlemeni kendi ritminde yönet.</p>
+        <!-- Marka açıklaması — revizyon dokümanından BİREBİR -->
+        <p class="foot-tag">Bilimsel temelli hareket içerikleri, uygulanabilir programlar ve ölçülebilir takip araçlarıyla aktif yaşamı herkes için erişilebilir kılıyoruz.</p>
+        <!-- SOSYAL — Beyar kararı: YALNIZ Instagram ve YouTube.
+             X · Facebook · LinkedIn footer'dan kaldırıldı, geri eklenmez. -->
         <div class="foot-soc">
-          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <!-- YER TUTUCU — gerçek hesap adresi gelince değişecek · docs/icerik-bekleyen.md -->
+          <a href="#" data-yer-tutucu="instagram" aria-label="Instagram — hesap adresi henüz yok, yakında"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+          <!-- YER TUTUCU — gerçek hesap adresi gelince değişecek · docs/icerik-bekleyen.md -->
+          <a href="#" data-yer-tutucu="youtube" aria-label="YouTube — hesap adresi henüz yok, yakında"><i class="fa-brands fa-youtube" aria-hidden="true"></i></a>
         </div>
       </div>
+      <!-- 2·3·4 · HAREKET VE ÖĞREN / PROGRAMLAR VE UZMAN DESTEĞİ / ENERJİ VE DENGE -->
       <!--FOOT-COLS-->
+      <!-- 5 · UYGULAMA ALANI (sağ sabit)
+           Doküman şartı: "Uygulama henüz yayımlanmadıysa mağaza butonları
+           aktif indirme bağlantısı gibi çalışmamalıdır." Uygulama YOK →
+           mağaza kutuları <a href> DEĞİL, <span aria-disabled="true">:
+           tıklanamaz, odak sırasına GİRMEZ (tabindex yok), yanıltmaz.
+           QR kod KONMADI — gerçek bir indirme adresi olmadığı için sahte
+           QR üretilmedi. Adres gelince docs/icerik-bekleyen.md'deki kalem
+           işlenecek. -->
+      <div class="foot-app">
+        <h5>DadaFit'i İndir</h5>
+        <p class="ap-tag">Antrenmanını yanında taşı. Programların, günlük aktiviten ve enerji takibin tek uygulamada.</p>
+        <div class="ap-stores" role="group" aria-label="Mobil uygulama mağazaları — yakında">
+          <span class="ap-store" aria-disabled="true"><i class="fa-brands fa-apple" aria-hidden="true"></i><span class="fs-txt"><small>Yakında</small><b>App Store</b></span></span>
+          <span class="ap-store" aria-disabled="true"><i class="fa-brands fa-google-play" aria-hidden="true"></i><span class="fs-txt"><small>Yakında</small><b>Google Play</b></span></span>
+        </div>
+        <p class="ap-soon"><span class="ap-soon-tag">Yakında</span> Uygulama henüz yayımlanmadı.</p>
+      </div>
     </div>
+    <!-- 6 · KURUMSAL BANT — sütunların içinde değil, ayrı yatay bant -->
+    <nav class="foot-corp" aria-label="Kurumsal bağlantılar"><!--FOOT-CORP--></nav>
+    <!-- 7 · YASAL BANT — DOKUNULMAZ (metin · sıra · hedef · renk aynı) -->
+    <!--FOOT-LEGAL-->
     <div class="foot-bottom">
       <span class="fb-left">© 2026 <b><span class="bd">Dada</span><span class="sf">Fit</span></b> · Tüm hakları saklıdır.</span>
       <a href="https://gaviaworks.com" target="_blank" rel="noopener"><span class="gw-code">&lt;/&gt;</span> GaviaWorks</a>
@@ -767,7 +858,10 @@ var FOOTER_RAW = `<footer class="footer orange">
 `;
 
 function footerHtml(){
-  return FOOTER_RAW.replace('<!--FOOT-COLS-->', footerColsHtml());
+  return FOOTER_RAW
+    .replace('<!--FOOT-COLS-->',  footerColsHtml())
+    .replace('<!--FOOT-CORP-->',  footerCorpHtml())
+    .replace('<!--FOOT-LEGAL-->', footerLegalHtml());
 }
 
 /* ============================================================
@@ -1478,6 +1572,64 @@ document.addEventListener('click',function(e){
   window.addEventListener('resize',fit);
   window.addEventListener('load',fit);          // logo/font yüklenince yükseklik oturur
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+  /* R11 · PERDEYİ DIŞARIDAN YENİDEN ÖLÇTÜRME KAPISI.
+     Footer yüksekliğini ölçümden SONRA değiştiren tek şey accordion'un
+     açılıp kapanması. Ölçüm o an bayatlıyor; aşağıdaki accordion IIFE'si
+     her geçişten sonra bunu çağırıyor. Başka hiçbir yerden çağrılmıyor. */
+  window.FIT_SHELL = window.FIT_SHELL || {};
+  window.FIT_SHELL.perdeyiOlc = fit;
+})();
+
+/* ---- FOOTER ACCORDION — YALNIZ ÜÇ ORTA MENÜ, YALNIZ MOBİLDE ----
+   Doküman: "Üç orta menü mobilde açılır-kapanır accordion olarak
+   çalışmalıdır." Marka alanı, uygulama alanı, kurumsal bant ve yasal
+   bant accordion DEĞİL — onlar hep açık.
+
+   Masaüstünde (≥641px) üç sütun AÇIK durur ve başlık düğmesi `disabled`
+   olur: odak sırasına girmez, tıklamayla kapanamaz. Mobilde (≤640px)
+   üçü de KAPALI başlar, düğme etkinleşir; klavyede Enter/Space gerçek
+   <button> olduğu için tarayıcıdan gelir.
+
+   R11: açılış/kapanış footer yüksekliğini değiştirir → geçiş bittiğinde
+   perde YENİDEN ÖLÇÜLÜR (FIT_SHELL.perdeyiOlc). */
+(function(){
+  var kolonlar = [].slice.call(document.querySelectorAll('.foot-col[data-foot-col]'));
+  if(!kolonlar.length) return;
+  var mq = window.matchMedia('(max-width:640px)');
+
+  function olc(){ if(window.FIT_SHELL && window.FIT_SHELL.perdeyiOlc) window.FIT_SHELL.perdeyiOlc(); }
+
+  function boya(kol, acik){
+    var btn = kol.querySelector('.fc-toggle');
+    kol.classList.toggle('is-open', acik);
+    if(btn) btn.setAttribute('aria-expanded', acik ? 'true' : 'false');
+  }
+
+  function kur(){
+    var mobil = mq.matches;
+    kolonlar.forEach(function(kol){
+      var btn = kol.querySelector('.fc-toggle');
+      if(!btn) return;
+      btn.disabled = !mobil;                    /* masaüstünde etkin değil */
+      boya(kol, mobil ? false : true);          /* masaüstü: hep açık */
+    });
+    olc();
+  }
+
+  kolonlar.forEach(function(kol){
+    var btn = kol.querySelector('.fc-toggle');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      if(btn.disabled) return;
+      boya(kol, btn.getAttribute('aria-expanded') !== 'true');
+      olc();                                    /* geçiş başlarken */
+      setTimeout(olc, 240);                     /* geçiş bittikten sonra */
+    });
+  });
+
+  kur();
+  if(mq.addEventListener) mq.addEventListener('change', kur);
+  else if(mq.addListener) mq.addListener(kur);
 })();
 
 // ---- GÖRÜŞ BİLDİR (kenar etiketi → modal) ----

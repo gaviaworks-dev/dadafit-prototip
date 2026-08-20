@@ -947,3 +947,38 @@ adın eşleştiği** ayrıca ölçülmeli.
 
 **Geri almak için:** `antrenorler-v1.html` beş `href` + `antrenor-detay-v1.html`
 `VERI` haritasındaki dört yeni kayıt ve `.cp-spec` / `.cta-price` bağlamaları.
+
+---
+
+## K29 · Referanstan ÖLÇÜ alınır, PALET alınmaz — 5. turda sınırın çizildiği yer
+
+**Bağlam:** 5. tur brief'i `dadadiet.com`'u banner, kırıntı ve sihirbaz için
+referans ilan ediyor ve R15.1'de *"sayı uydurulmayacak, referans canlıdan
+ölçülüp birebir alınacak"* diyor — ölçülecekler listesinde `font-size` ve
+`line-height` de var. Kalıcı REFERANS kuralı ise (4. tur) *"başka bir markanın
+renk token'ını, tema değişkenini veya tipografi paletini KOPYALAMA"* diyor.
+
+**Görünürdeki çelişki, çizilen sınır:**
+
+| Alınır | Alınmaz |
+|---|---|
+| Bir bileşenin **boyutları**: yükseklik, iç dolgu, bloklar arası dikey boşluk, ikon kutusu, ikon–ayraç mesafesi | **Renk token'ları** ve tema değişkenleri |
+| O bileşene ait **tek tek tipografi ölçüleri** (banner `h1` boyu, eyebrow harf aralığı) | **Global tipografi paleti** — gövde metni, bağlantı, buton, kart ölçekleri |
+| **İskelet ve blok sırası** | Marka sesi, ikon dili, görsel varlıklar |
+
+**İlk uygulama — R12 (kırıntı ev ikonu):**
+- **Alındı:** `font-size` 13 → **9 px**, kutu 10.1 × 9, ikon–ayraç boşluğu 9 px,
+  ikonun ayraçla **eşit boyutta** olması. Hepsi `dadadiet.com/beslenme` ve
+  `/diyetisyen-bul` üzerinden @1440 ve @390 ölçüldü.
+- **Alınmadı:** ikon rengi. Referans `rgba(255,255,255,.4)` kullanıyor; DadaFit
+  `--fit-bright` yeşilinde kaldı. Üç gerekçe: (a) bu kuralın tam olarak
+  yasakladığı şey, (b) bu, metni olmayan **tek** kırıntı kalemi — renk onu
+  ayırt edilebilir kılıyor, (c) 13 → 9 px küçülme optik ağırlığı zaten
+  referans seviyesine indiriyor (oran 0.67 → 0.46, referans 0.45).
+
+**Referansın kendi tutarsızlığı da kayda geçti:** ev ikonu liste ve sihirbaz
+sayfalarında 9 px, bir rehber detayında 13 px. İki sayfa 9 px olduğu ve Beyar
+"daha minimal ve compact" dediği için 9 px alındı — referans körlemesine değil,
+**gerekçeyle** izlendi.
+
+**Geri almak için:** `assets/css/fit-shell.css` → `.crumb-home i{font-size:…}`.

@@ -41,7 +41,7 @@ scratchpad/m/*.mjs                                     → ölçüm script'leri
 |---|---|---|
 | **R14** | Fit testi cevap mantığı kilitlenmiyor | ✅ **tamam** |
 | **R11** | Footer üstündeki perde footer'dan kopuk | ✅ **tamam** |
-| **R12** | Breadcrumb ana sayfa ikonu referansa göre iri | ⏳ |
+| **R12** | Breadcrumb ana sayfa ikonu referansa göre iri | ✅ **tamam** |
 | **R15** | Banner standardı — tek kural, imza banner'ları kalkıyor | ⏳ |
 | **R13** | "Programını Bul" sihirbazı kendi sayfası olsun | ⏳ |
 | **H1** | Spor Sözlüğü (~180 terim) | ⏳ |
@@ -211,6 +211,63 @@ footer'a yapışık) · `r11-diet-alt.png` (referans)
 kaybolur"* ve *"perdeden sonra 310.3 px kuyruk kaldı"* bildiriyor; HEAD'de
 **0 sorun**.
 # R12 — BREADCRUMB ANA SAYFA İKONU
+
+**Beyar:** *"DadaFit'in `crumb-home` ikonu referansa göre iri; kırıntı satırının
+ritmini bozuyor. İkon boyutu, optik ağırlığı ve ikon–ayraç boşluğu DadaDiet ile
+eşitlensin. `.sr-only` erişilebilir ad korunacak."*
+
+## R12.0 · Referans ölçümü — dadadiet.com
+
+| Ölçüm @1440 **ve** @390 | `/beslenme` | `/diyetisyen-bul` | *(detay sayfası)* |
+|---|---|---|---|
+| Ev ikonu `font-size` | **9 px** | **9 px** | 13 px |
+| Ev ikonu kutusu | **10.1 × 9** | **10.1 × 9** | 14.6 × 13 |
+| Chevron ayracı `font-size` | **9 px** | **9 px** | 13 px |
+| İkon → ayraç boşluğu | **9 px** | **9 px** | 3.3 px |
+| İkon / satır yüksekliği oranı | **0.45** | **0.45** | 0.65 |
+
+> **Referansın kendi içinde tutarsızlığı var:** liste ve sihirbaz sayfalarında
+> 9 px, bir rehber detayında 13 px. Beyar "daha minimal ve compact" olanı
+> gösterdiği ve üç sayfanın ikisi 9 px olduğu için **9 px alındı.**
+
+**DadaFit'in önceki hâli:** ikon **13 px** (kutu 14.6 × 13), ayraç **9 px** —
+yani ev ikonu **kendi ayracından %44 daha iri**. Referansta ikisi **eşit**.
+Beyar'ın gördüğü ritim bozukluğu tam olarak bu.
+
+## R12.1 · Uygulama
+
+`assets/css/fit-shell.css` → `.crumb-home i{font-size:9px}` — **tek satır**,
+58 sayfayı birden etkiliyor.
+
+**RENK çekilmedi.** Referans `rgba(255,255,255,.4)` kullanıyor; DadaFit kendi
+yeşilinde kaldı. Gerekçe: (a) kalıcı REFERANS kuralı ölçüyü alır, paleti almaz;
+(b) bu, metni olmayan **tek** kırıntı kalemi — renk onu ayırt edilebilir kılan
+şey; (c) 13 → 9 px küçülme optik ağırlığı zaten referans seviyesine indiriyor
+(oran 0.67 → **0.46**, referans 0.45). Karar: `KARARLAR.md` **K29**.
+
+## R12.2 · ÖLÇÜM — 58 sayfa × 2 genişlik
+
+| Ölçüm | ÖNCE | SONRA | Referans |
+|---|---|---|---|
+| İkon `font-size` | 13 px | **9 px — 58/58 tek değer** ✅ | 9 px |
+| İkon kutusu | 14.6 × 13 | **10.1 × 9 — 58/58 tek değer** ✅ | 10.1 × 9 |
+| İkon ↔ ayraç boyut eşitliği | 13 ≠ 9 (**%44 iri**) | **eşit (9 = 9)** ✅ | eşit |
+| İkon → ayraç boşluğu | 9 px | **9 px — 58/58** ✅ | 9 px |
+| İkon / satır yüksekliği | 0.67 | **0.46** ✅ | 0.45 |
+| **R3 garantisi** (metin düğümü 0 · erişilebilir ad · `.sr-only` 1 px · ikon ≤ satır) | — | **58/58 bozulmadı** ✅ | — |
+| `page-check` | — | 4 sayfa × 2 genişlik = **8/8 temiz** | — |
+
+**İstisna (brief'in söylediği gibi dokunulmadı):** `dadafit-hub-v1` kırıntısının
+ilk kalemi **"Dada Gastro"** — kardeş marka portalı, DadaFit ana sayfası değil.
+
+**Ekran görüntüsü:** `scratchpad/shots/r12-fit.png` ↔ `r12-diet.png`
+
+## R12.3 · K27 — sınama
+
+`tests/crumb-home.mjs` R3 **ve** R12 garantilerini birlikte koruyor.
+**Kırmızıya döndüğü görüldü:** taban `44633fb`'de *"ikon yüksekliği 13 px —
+referans 9 px"* ve *"ev ikonu (13) ile ayraç (9) aynı boyutta değil"*.
+HEAD'de **0 sorun**.
 # R15 — BANNER STANDARDI
 # R13 — "PROGRAMINI BUL" TAM SAYFA
 # H1 — SPOR SÖZLÜĞÜ

@@ -587,9 +587,20 @@ html.reduce-motion .row-track{scroll-behavior:auto}
 
 /* ============ FOOTER ============ */
 .footer{background:var(--slate);color:#aebcc6;padding:70px 0 0}
-/* kolon ritmi: logo bloğu geniş, 4 link kolonu eşit dağılır → sağ kenara kadar dengeli */
-.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.05fr;gap:44px 28px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.1)}
-.foot-col a{white-space:nowrap}
+/* ---------------------------------------------------------------
+ BEŞ ALAN (9. tur revizyonu):
+   Marka | Hareket ve Öğren | Programlar ve Uzman Desteği |
+   Enerji ve Denge | Uygulama
+ fr oranları ÖLÇÜLEREK seçildi (@1440, wrap içi 1176 px, gap 28×4):
+   1 fr = 177.3 px →  marka 257 · hareket 168 · programlar 204 ·
+                      enerji 213 · uygulama 222
+ En uzun kalem "Günlük Enerji İhtiyacını Hesapla" 200.3 px < 213,
+ en uzun başlık "Programlar ve Uzman Desteği" 203.7 px < 204 →
+ @1440'ta hiçbiri sarmıyor.
+ --------------------------------------------------------------- */
+.foot-grid{display:grid;grid-template-columns:1.45fr .95fr 1.15fr 1.2fr 1.25fr;gap:44px 28px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.1)}
+/* Kalemler dar ekranda sarabilsin — yasal bandın kalemleri nowrap kalır. */
+.foot-col a{white-space:normal}
 .foot-brand img{height:42px;width:auto;margin-bottom:22px}
 .foot-soc{display:flex;gap:11px}
 .foot-soc a{width:42px;height:42px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);display:grid;place-items:center;color:#cdd8e0;font-size:16px;transition:.2s var(--ease)}
@@ -601,6 +612,60 @@ html.reduce-motion .row-track{scroll-behavior:auto}
 .foot-legal{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;padding:24px 0 0;font-size:12px;font-weight:500}
 .foot-legal a{white-space:nowrap;transition:.2s}
 .foot-legal .sep{width:1px;height:11px;background:rgba(255,255,255,.28);flex:none}
+
+/* ---- ORTA SÜTUNLAR · ACCORDION BAŞLIĞI ------------------------
+ Başlık gerçek <button>. Masaüstünde `disabled` → odak sırasına
+ girmez, tıklanamaz; görünüm eski <h5> ile aynı kalsın diye
+ opaklık/imleç sıfırlanıyor ve chevron gizleniyor. */
+.foot-col .fc-head{margin:0 0 18px}
+.fc-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  padding:0;background:none;border:0;font:inherit;color:#fff;font-size:15px;font-weight:700;
+  text-align:left;cursor:pointer}
+.fc-toggle:disabled{cursor:default;opacity:1;color:#fff}
+.fc-chev{font-size:12px;transition:transform .2s var(--ease);flex:none}
+.foot-col.is-open .fc-chev{transform:rotate(180deg)}
+@media (min-width:641px){ .foot-col .fc-chev{display:none} }
+
+/* ---- 5 · UYGULAMA ALANI --------------------------------------
+ Mağaza kutuları <a href> DEĞİL (uygulama yayımlanmadı): <span>,
+ tıklanamaz, odaklanamaz, aria-disabled. */
+.foot-app h5{color:#fff;font-size:15px;font-weight:700;margin:0 0 12px}
+.foot-app .ap-tag{font-size:14px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.6;margin:0 0 16px;text-align:left}
+.ap-stores{display:flex;flex-direction:column;gap:10px}
+.ap-store{display:flex;align-items:center;gap:11px;padding:9px 14px;border-radius:var(--radius-md);
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);
+  color:rgba(255,255,255,.72);cursor:default;user-select:none}
+.ap-store>i{font-size:22px;flex:none}
+.ap-store .fs-txt{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.ap-store .fs-txt small{font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.ap-store .fs-txt b{font-size:15px;font-weight:700;color:rgba(255,255,255,.86)}
+.ap-soon{margin:12px 0 0;font-size:12.5px;font-weight:500;line-height:1.5;color:rgba(255,255,255,.78);text-align:left}
+.ap-soon-tag{display:inline-block;margin-right:6px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.18);
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em}
+
+/* ---- 6 · KURUMSAL BANT — ayrı yatay bant ----------------------
+ Sekiz kalemin toplam metin genişliği 733.6 px, ayraç payı 147 px →
+ @1440 (1176 px) ve @1025+ tek satır. ≤1024'te 4 sütunlu ızgara =
+ İKİ DENGELİ SATIR. Sekiz kalem AYNI punto/ağırlık/renk taşır:
+ doküman "Çözüm Merkezi ile Öneri ve Şikâyet geri plana atılmamalı"
+ diyor, bu yüzden hiçbiri zayıflatılmadı. */
+.foot-corp{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;
+  padding:22px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.foot-corp a{font-size:14px;font-weight:500;color:rgba(255,255,255,.92);white-space:nowrap;transition:.2s}
+.foot-corp a:hover{color:#fff}
+.foot-corp .sep{width:1px;height:12px;background:rgba(255,255,255,.28);flex:none}
+
+/* ---- 7 · YASAL BANT — DOKUNULMAZ ------------------------------
+ Kalem metinleri, sırası, hedefleri ve RENGİ eski "Yasal ve Sağlık"
+ kolonuyla birebir aynı: 14px / 500 / rgba(255,255,255,.92).
+ Altı kalemin toplam genişliği 707 px + 105 px ayraç → @1440 ve
+ @1024 tek satır. */
+.foot-lawband{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:20px 0 4px}
+.foot-lawband .fl-head{margin:0 4px 0 0;color:#fff;font-size:15px;font-weight:700;white-space:nowrap}
+.foot-lawband a{font-size:14px;font-weight:500;color:rgba(255,255,255,.92);white-space:nowrap;transition:.2s}
+.foot-lawband a:hover{color:#fff}
+.foot-lawband .sep{width:1px;height:12px;background:rgba(255,255,255,.28);flex:none}
+
 .foot-bottom{display:flex;align-items:center;justify-content:space-between;padding:16px 0 26px;font-size:13px;font-weight:500;color:#7e8e9a}
 .foot-bottom a:hover{color:#cdd8e0}
 
@@ -887,6 +952,9 @@ body.scroll-locked{overflow:hidden}
 
   .foot-grid{grid-template-columns:1fr 1fr;gap:36px 28px}
   .foot-brand{grid-column:1/-1}
+  /* kurumsal bant: 4 sütun → İKİ DENGELİ SATIR (ayraçlar kalkar) */
+  .foot-corp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 24px;justify-items:start}
+  .foot-corp .sep{display:none}
   .sec-head h2{font-size:30px}
 }
 
@@ -938,6 +1006,18 @@ body.scroll-locked{overflow:hidden}
   /* footer — floating pill nav'ı örtmesin */
   .footer.orange{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
   .foot-grid{grid-template-columns:1fr;gap:30px}
+  /* accordion: üç orta menü kapalı başlar, açılınca kalemler görünür */
+  .foot-col .fc-links{display:none}
+  .foot-col.is-open .fc-links{display:block}
+  .foot-col .fc-head{margin:0}
+  .foot-col.is-open .fc-head{margin:0 0 12px}
+  .fc-toggle{padding:4px 0;min-height:44px}
+  /* kurumsal bant: 2 sütun (8 kalemin en genişi 174.6 px, dar ekranda
+     dört sütun sığmıyor — ölçüldü) */
+  .foot-corp{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px;justify-items:start;padding:18px 0}
+  .foot-corp .sep{display:none}
+  .foot-lawband{justify-content:center;text-align:center;gap:8px 10px}
+  .foot-lawband .fl-head{flex:0 0 100%;margin:0 0 4px;text-align:center}
   .foot-legal{justify-content:center;text-align:center}
   .foot-bottom{flex-direction:column;gap:14px;text-align:center}
 
@@ -1081,7 +1161,7 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 .foot-lockup .fl-mark{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--tomato);display:grid;place-items:center;font-size:17px;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.16)}
 .foot-lockup .fl-word{font-weight:800;font-size:23px;letter-spacing:-.015em;color:#fff;line-height:1}
 .foot-lockup .fl-word .bd,.foot-lockup .fl-word .sf{color:#fff}
-.foot-brand .foot-tag{font-size:14px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.6;max-width:34ch;margin:0 0 18px}
+.foot-brand .foot-tag{font-size:14px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.6;max-width:34ch;margin:0 0 18px;text-align:left}
 .foot-bottom .fb-left b{color:#fff;font-weight:700}
 .foot-bottom .fb-left b .bd,.foot-bottom .fb-left b .sf{color:#fff}
 

@@ -40,7 +40,7 @@ scratchpad/m/*.mjs                                     → ölçüm script'leri
 | # | Konu | Durum |
 |---|---|---|
 | **R14** | Fit testi cevap mantığı kilitlenmiyor | ✅ **tamam** |
-| **R11** | Footer üstündeki perde footer'dan kopuk | ⏳ |
+| **R11** | Footer üstündeki perde footer'dan kopuk | ✅ **tamam** |
 | **R12** | Breadcrumb ana sayfa ikonu referansa göre iri | ⏳ |
 | **R15** | Banner standardı — tek kural, imza banner'ları kalkıyor | ⏳ |
 | **R13** | "Programını Bul" sihirbazı kendi sayfası olsun | ⏳ |
@@ -132,6 +132,84 @@ açılıyor mu" karşı-kontrolünü koşturuyor.
 > (sessizce kırmızı süit) tekrar etmiyor.
 
 # R11 — FOOTER PERDESİ
+
+**Beyar:** *"Footer'ın hemen üstündeki perde/geçiş katmanı DadaFit'te fazla yukarı
+çıkıyor ve footer'dan kopuk duruyor. Diğer markalarda perde footer'a yapışık."*
+
+## R11.0 · Referans ölçümü — dadadiet.com
+
+Perde mekanizması **iki markada da aynı**: footer `position:fixed; z-index:1`,
+`main` `position:relative; z-index:2` ve `main`e footer yüksekliği kadar
+`margin-bottom` verilir; kaydırma sonunda içerik kalkar, footer alttan çıkar.
+
+| Ölçüm @1440, sayfa sonunda | DadaDiet | DadaFit (önce) |
+|---|---|---|
+| footer konumu / z-index | `fixed` / 1 | `fixed` / 1 |
+| `main` konumu / z-index | `relative` / 2 | `relative` / 2 |
+| `main` `margin-bottom` | 612 px | 440 px |
+| footer yüksekliği | 612.2 px | 439.5 px |
+| **perde boşluğu** (`main.bottom − footer.top`) | **−0.3 px** *(yapışık)* | **−310.3 px** *(kopuk)* |
+
+@390'da iki markada da perde kipi **kapalı** (footer normal akışta) — o yüzden
+mobil için ayrı bir hedef yok.
+
+## R11.1 · Kök neden — ölçümle bulundu
+
+Fark `margin-bottom` değerinde değil (ikisi de footer yüksekliğine eşit),
+**perdenin neyi içerdiğinde.**
+
+`body`nin çocukları sıralandığında görüldü: **`<section class="fit-health">`
+(310 px) `#pageMain`'in DIŞINDA**, footer'dan hemen önce basılıyordu
+(`ftr.parentNode.insertBefore(sec, ftr)`).
+
+Bunun **iki** sonucu vardı:
+
+1. **Beyar'ın gördüğü kopukluk.** Perde `main`de bitiyor, `margin-bottom`
+   boşluğu açılıyor, sonra 310 px'lik şerit o boşluğun **altına** düşüyor.
+   Perdenin alt kenarı footer'ın üstünden **310 px** yukarıda kalıyor →
+   ölü gri şerit.
+2. **BEKLENMEDİK BULGU B10 — sağlık ve güvenlik şeridi masaüstünde HİÇ
+   GÖRÜNMÜYORDU.** Şerit `position:static` (z-index `auto`); `z-index:1`
+   taşıyan **sabit** footer'ın altına boyanıyor. Ölçüldü: şerit belge
+   konumu 2325–2635, sayfa sonunda viewport'ta 590–900, footer 460.5–900 →
+   **tamamen footer'ın arkasında.** Yani her sayfada basılan sağlık uyarısı,
+   durma kriterleri, hazırlayan/kontrol eden uzman ve son kontrol tarihi
+   masaüstünde kimseye görünmüyordu. Ekran görüntüsüyle doğrulandı.
+
+## R11.2 · Düzeltme
+
+| # | Değişiklik | Neyi çözer |
+|---|---|---|
+| 1 | Sağlık şeridi `#pageMain`'in **son çocuğu** olur (`perde.appendChild(sec)`); `#pageMain` yoksa eski davranış korunur | Şerit perdenin içine girer → hem görünür olur hem `margin-bottom` doğrudan footer'a dayanır |
+| 2 | `main.style.marginBottom` artık `foot.offsetHeight` yerine `foot.getBoundingClientRect().height` | `offsetHeight` tam sayıya yuvarlıyor (439.5 → 440) ve boşluk 0.1–1 px sapıyordu; 59 sayfada **11 farklı değer** üretiyordu |
+
+İkisi de **kabukta**, sayfa sayfa yama yok.
+
+## R11.3 · ÖLÇÜM
+
+Kaydırma konumu tarayıcıda tam sayıya yuvarlandığı için ölçüm **kaydırmadan
+bağımsız** iki değişmezden okundu.
+
+| Ölçüm | ÖNCE | SONRA |
+|---|---|---|
+| `margin-bottom` − footer yüksekliği @1440 | 11 farklı değer | **0 — 59 sayfanın 59'unda tek değer** ✅ |
+| Perdeden sonra kalan kuyruk @1440 | **310.3–310.5 px** | **0** (\|kuyruk\| ≤ 1 px) ✅ |
+| Sağlık şeridi perdenin içinde @1440 | **0 / 59** | **59 / 59** ✅ |
+| Sağlık şeridi **görünür** @1440 | **0 / 59** | **59 / 59** ✅ |
+| @390 perde kipi | kapalı | kapalı (değişmedi) · şerit perdenin içinde **59/59** ✅ |
+| Referansla fark | −310.3 vs −0.3 | **aynı davranış** |
+| `page-check` | — | 6 sayfa × 2 genişlik = **12/12 temiz** |
+
+**Ekran görüntüsü:** `scratchpad/shots/r11-fit-alt.png` (önce — 310 px ölü gri
+şerit, sağlık şeridi yok) · `r11-fit-sonra-alt.png` (sonra — şerit görünür,
+footer'a yapışık) · `r11-diet-alt.png` (referans)
+
+## R11.4 · K27 — kabul ölçütü sınamaya çevrildi
+
+`tests/footer-curtain.mjs`. **Kırmızıya döndüğü görüldü:** taban commit
+`44633fb`'de her sayfa için *"sağlık şeridi perdenin DIŞINDA — footer altında
+kaybolur"* ve *"perdeden sonra 310.3 px kuyruk kaldı"* bildiriyor; HEAD'de
+**0 sorun**.
 # R12 — BREADCRUMB ANA SAYFA İKONU
 # R15 — BANNER STANDARDI
 # R13 — "PROGRAMINI BUL" TAM SAYFA

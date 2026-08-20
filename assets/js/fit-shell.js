@@ -1430,7 +1430,12 @@ document.addEventListener('click',function(e){
   if(!main||!foot)return;
   function fit(){
     if(window.matchMedia('(min-width:641px)').matches){
-      main.style.marginBottom=foot.offsetHeight+'px';
+      /* R11 · KESİRLİ yükseklik. `offsetHeight` tam sayıya yuvarlar; footer
+         439.5px iken 440 döner ve perde alt kenarı footer'ın üstünden
+         0.1–1 px sapar. 60 sayfada "tek değer" istenen ölçümde bu sapma
+         11 farklı değer üretiyordu. `getBoundingClientRect()` kesirli
+         okur, boşluk tam 0'a oturur. */
+      main.style.marginBottom=foot.getBoundingClientRect().height+'px';
     }else{
       main.style.marginBottom='';
     }
@@ -2094,7 +2099,28 @@ setTimeout(function(){
    '    <p class="fh-date"><i class="fa-regular fa-calendar-check"></i> Son kontrol: 11 Ağustos 2026</p>'+
    '  </div>'+
    '</div></div>';
-  ftr.parentNode.insertBefore(sec, ftr);
+  /* ---- R11 (5. tur) · ŞERİT PERDENİN İÇİNE GİRER --------------------
+     Beyar: "Footer'ın hemen üstündeki perde footer'dan kopuk duruyor;
+     diğer markalarda perde footer'a yapışık."
+
+     ÖLÇÜLEN KÖK NEDEN: bu şerit `body`nin çocuğu olarak footer'dan hemen
+     önce basılıyordu — yani PERDENİN (`#pageMain`) DIŞINDA. Perde efekti
+     `main`e footer yüksekliği kadar `margin-bottom` verip footer'ı alttan
+     ortaya çıkarıyor; şerit o boşluğun ALTINA düştüğü için iki sonuç
+     doğuyordu:
+       1. Perdenin alt kenarı footer'ın üst kenarından 310 px yukarıda
+          kalıyordu → ölü gri şerit (Beyar'ın gördüğü "kopukluk").
+       2. Şerit `position:static` (z-index auto) olduğu için `z-index:1`
+          taşıyan sabit footer'ın ALTINA boyanıyordu → **sağlık ve
+          güvenlik şeridi masaüstünde hiç görünmüyordu.**
+     Referans ölçümü (dadadiet.com/diyetisyen-bul @1440, sayfa sonunda):
+     perde boşluğu **−0.3 px**, yani yapışık. DadaFit'te **−310.3 px**.
+
+     Çözüm: şerit perdenin SON ÇOCUĞU olur. Böylece hem görünür hâle
+     gelir hem de `margin-bottom` doğrudan footer'a dayanır. */
+  var perde = document.getElementById('pageMain');
+  if(perde) perde.appendChild(sec);
+  else ftr.parentNode.insertBefore(sec, ftr);
 
   /* sayaç/zamanlayıcı ses ve titreşim tercihi + hareket azaltma (§14.3) */
   function pref(id, key, apply){

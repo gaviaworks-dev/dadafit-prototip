@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anatomi Haritası — DadaFit · Hangi hareket hangi kası çalıştırıyor</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — İNTERAKTİF ANATOMİ / KAS HARİTASI          (H2 · 6. oturum)
+
+ BANNER: dosya adında "-detay-" GEÇMİYOR → kabuk body'ye
+ data-fit-hero-kind="liste" yazıyor → .lib-top yüksekliği
+ --banner-h-liste'ten geliyor (544 / 607 / 587). Burada banner ölçüsüne
+ dair TEK SATIR YOK; yalnız arka plan görseli bildiriliyor. (R15 · DEVIR-5 §3b)
+
+ Sınıf öneki `an-`. Kabuğa (fit-shell.css) anatomi kuralı YAZILMADI —
+ 60 sayfa o dosyaya bağlı, bu sayfanın stili bu blokta kalıyor.
+
+ KONUMLANDIRMA (REVIZYON-5 §2 · H2): kabuk modern, içerik ansiklopedik.
+ ===================================================================== */
+.lib-top{--lib-img:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1680&q=80&auto=format&fit=crop&exp=8&gam=8&sat=-22');--lib-pos:center 38%}
+
+/* banner istatistik şeridi — sayılar VERİDEN hesaplanıp JS ile basılır */
+.lib-stats .an-fact{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.74)}
+.lib-stats .an-fact i{color:var(--fit-bright);font-size:13px}
+.lib-stats .an-fact b{color:#fff;font-weight:800;font-size:15px}
+
+/* ---------------------------------------------------------------
+ 1 · İKİ KOLON — SOL harita · SAĞ panel
+ Mobil (≤900px) tek kolon; harita DOM'da ZATEN önce geldiği için
+ sırayı bozacak bir `order` kuralına gerek yok (@390 harita üstte).
+ --------------------------------------------------------------- */
+.an-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:30px;align-items:start}
+@media (max-width:900px){ .an-grid{grid-template-columns:1fr;gap:22px} }
+
+/* ---- SOL: harita kutusu ---- */
+.an-map{position:sticky;top:104px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:16px 16px 10px;min-width:0}
+@media (max-width:900px){ .an-map{position:static;top:auto} }
+
+/* geçiş rayları — ÖN/ARKA ve Erkek/Kadın */
+.an-switches{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.an-seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px;gap:3px}
+.an-seg button{appearance:none;border:0;background:transparent;cursor:pointer;font:inherit;
+  padding:8px 15px;border-radius:calc(var(--radius-md) - 3px);font-size:13px;font-weight:700;color:var(--muted);
+  display:inline-flex;align-items:center;gap:7px;transition:.18s var(--ease);min-height:36px}
+.an-seg button i{font-size:12px}
+.an-seg button:hover{color:var(--fit-deep)}
+.an-seg button[aria-pressed="true"]{background:var(--fit);color:#fff;box-shadow:var(--sh-sm)}
+.an-seg button[aria-pressed="true"]:hover{background:var(--fit-deep);color:#fff}
+.an-seg button:focus-visible{outline:2px solid var(--fit-deep);outline-offset:2px}
+
+/* çizim alanı */
+.an-stage{position:relative;background:linear-gradient(180deg,#f7f8f7,#eef1ef);border-radius:var(--radius-md);padding:10px 6px}
+.an-harita{display:block;width:100%;height:auto;max-height:min(62vh,620px);margin:0 auto}
+@media (max-width:900px){ .an-harita{max-height:none} }
+
+/* siluet: nötr gövde — kas bölgelerinin altında */
+.an-siluet .an-govde{fill:#d9ded9;stroke:#b9c1b9;stroke-width:1.2;stroke-linejoin:round}
+.an-cizgi path{fill:none;stroke:#b9c1b9;stroke-width:1;stroke-dasharray:3 4;opacity:.38}
+
+/* KAS BÖLGELERİ — renk sayfadan sürülüyor, SVG'de sabit renk yok */
+.an-bolge{color:var(--fit);fill:currentColor;fill-opacity:.30;stroke:#8f9a8f;stroke-width:1;
+  cursor:pointer;transition:fill-opacity .16s var(--ease),stroke .16s var(--ease)}
+.an-bolge:hover{color:var(--fit-deep);fill-opacity:.62;stroke:var(--fit-deep)}
+.an-bolge:focus-visible{outline:none;stroke:var(--fit-deep);stroke-width:2.4;fill-opacity:.55}
+.an-bolge[aria-pressed="true"]{color:var(--fit);fill-opacity:.92;stroke:var(--fit-deep);stroke-width:1.8}
+
+.an-hint{margin:9px 2px 0;font-size:12px;color:var(--muted);font-weight:600;text-align:center;line-height:1.5}
+.an-hint kbd{font-family:inherit;font-size:11px;font-weight:800;background:var(--bg);border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;padding:1px 5px;color:var(--slate-2)}
+
+/* ---- SAĞ: ansiklopedik panel ---- */
+.an-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden;min-width:0}
+.an-panel-head{padding:22px 26px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--fit-tint),transparent)}
+.an-eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--fit-deep);margin-bottom:8px}
+.an-panel-head h2{font-size:24px;line-height:1.2;margin:0 0 6px}
+.an-latin{font-size:14px;font-style:italic;color:var(--muted);font-weight:600;margin:0}
+.an-panel-body{padding:6px 26px 24px}
+
+.an-sec{padding:19px 0;border-bottom:1px solid var(--line)}
+.an-sec:last-child{border-bottom:none;padding-bottom:4px}
+.an-sec > h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.an-sec > h3 i{color:var(--fit);font-size:12px;width:14px;text-align:center}
+.an-sec p{font-size:14.5px;line-height:1.72;color:var(--slate-2);margin:0}
+
+/* köken / yapışma — iki satırlık künye */
+.an-kunye{display:grid;gap:10px}
+.an-kunye div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:start}
+.an-kunye dt,.an-kunye .k{font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fit-deep);padding-top:3px}
+.an-kunye .v{font-size:14px;line-height:1.68;color:var(--slate-2)}
+@media (max-width:520px){ .an-kunye div{grid-template-columns:1fr;gap:3px} }
+
+/* çip listeleri — komşu kaslar ve ekipman */
+.an-chips{display:flex;flex-wrap:wrap;gap:8px}
+.an-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;border-radius:999px;
+  border:1px solid var(--line);background:var(--bg);font-size:13px;font-weight:700;color:var(--slate-2);
+  cursor:pointer;transition:.18s var(--ease);font-family:inherit;appearance:none}
+.an-chip i{font-size:11px;color:var(--fit)}
+.an-chip:hover{border-color:var(--fit);background:var(--fit-tint);color:var(--fit-deep)}
+.an-chip:hover i{color:var(--fit-deep)}
+.an-chip:focus-visible{outline:2px solid var(--fit-deep);outline-offset:2px}
+
+/* güvenlik notu */
+.an-uyari{display:flex;gap:13px;align-items:flex-start;background:#fff6ec;border:1px solid #f0d9bd;
+  border-radius:var(--radius-md);padding:15px 17px}
+.an-uyari i{color:#c97a19;font-size:15px;margin-top:2px;flex:none}
+.an-uyari p{font-size:13.5px;line-height:1.68;color:#6b4a1c;margin:0}
+
+.an-kaynak{margin-top:16px;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.6}
+.an-kaynak i{color:var(--fit);margin-right:6px}
+
+/* ---------------------------------------------------------------
+ 2 · ALT — seçili kasla ilgili hareket kartları ızgarası
+ --------------------------------------------------------------- */
+.an-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.an-card{display:flex;flex-direction:column;gap:9px;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-lg);padding:19px 20px;box-shadow:var(--sh-sm);transition:.2s var(--ease)}
+.an-card:hover{border-color:var(--fit);transform:translateY(-3px);box-shadow:var(--sh-md)}
+.an-card .an-card-ico{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;
+  background:var(--fit-tint);color:var(--fit-deep);font-size:16px}
+.an-card b{font-size:15.5px;color:var(--slate);line-height:1.3}
+.an-card:hover b{color:var(--fit-deep)}
+.an-card span{font-size:12.5px;color:var(--muted);font-weight:600}
+.an-card .an-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:auto;padding-top:6px;font-size:12px;color:var(--muted);font-weight:600}
+.an-card .an-card-meta i{color:var(--fit);margin-right:5px;font-size:11px}
+
+.an-sec-head{margin-bottom:20px}
+.an-sec-head .eyebrow{margin-bottom:9px}
+.an-sec-head h2{font-size:26px;margin:0 0 7px}
+.an-sec-head p{font-size:14.5px;color:var(--muted);font-weight:500;line-height:1.65;margin:0;max-width:70ch}
+
+/* ekran okuyucu bildirimi */
+.an-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+<!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
+     boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="anatomi-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== 1 · BANNER + BREADCRUMB (LİSTE AİLESİ · R15) ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hareket-merkezi-v1.html">Hareket</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Anatomi Haritası</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-person-rays"></i> Hareketi Anlamak</span>
+    <h1>Anatomi Haritası</h1>
+    <p class="lib-sub">Gövdenin üzerinde bir bölgeye dokun: o kasın Latince adını, ne iş yaptığını, hangi kemikten çıkıp nereye tutunduğunu ve hangi hareketlerin onu çalıştırdığını oku. Ansiklopedik bir başvuru — vaat değil, bilgi.</p>
+    <div class="lib-stats" id="anStats"><!-- veriden hesaplanır --></div>
+  </div>
+</section>
+
+<!-- ===== 2 · HARİTA + PANEL ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="an-grid">
+
+      <!-- SOL: etkileşimli SVG harita (DOM'da panelden ÖNCE — mobilde üstte kalır) -->
+      <div class="an-map" id="anMap">
+        <div class="an-switches">
+          <div class="an-seg" role="group" aria-label="Görünüm seçimi">
+            <button type="button" data-gorunum="on"   aria-pressed="true"><i class="fa-solid fa-user"></i> Ön</button>
+            <button type="button" data-gorunum="arka" aria-pressed="false"><i class="fa-solid fa-user-large"></i> Arka</button>
+          </div>
+          <div class="an-seg" role="group" aria-label="Vücut modeli seçimi">
+            <button type="button" data-cinsiyet="erkek" aria-pressed="true"><i class="fa-solid fa-mars"></i> Erkek</button>
+            <button type="button" data-cinsiyet="kadin" aria-pressed="false"><i class="fa-solid fa-venus"></i> Kadın</button>
+          </div>
+        </div>
+        <div class="an-stage" id="anStage"><!-- SVG buraya yüklenir --></div>
+        <p class="an-hint">Bölgeye tıkla ya da <kbd>Tab</kbd> ile gez, <kbd>Enter</kbd> ile seç. Ok tuşları komşu bölgeye geçer.</p>
+      </div>
+
+      <!-- SAĞ: ansiklopedik panel -->
+      <article class="an-panel" id="anPanel" aria-live="polite">
+        <!-- JS basar -->
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 · SEÇİLİ KASI ÇALIŞTIRAN HAREKETLER ===== -->
+<section class="sec sec-fit" id="anCardsSec">
+  <div class="wrap">
+    <div class="an-sec-head">
+      <span class="eyebrow"><i class="fa-solid fa-dumbbell"></i> Kütüphaneden</span>
+      <h2 id="anCardsTitle">Bu kası çalıştıran hareketler</h2>
+      <p id="anCardsLead">Seçili kası doğrudan hedefleyen ya da belirgin biçimde devreye sokan hareketler. Her kart egzersiz kütüphanesindeki tam anlatıma gider.</p>
+    </div>
+    <div class="an-cards" id="anCards"><!-- JS basar --></div>
+  </div>
+</section>
+
+<!-- ===== 4 · KAYNAK VE YASAL ŞERİT ===== -->
+<section class="sec sec-fit" style="background:var(--bg-white);padding-top:0">
+  <div class="wrap">
+    <div class="hr-note">
+      <i class="fa-solid fa-shield-heart"></i>
+      <p>Bu sayfa <b>anatomik bilgilendirme</b> amaçlıdır; teşhis, tedavi ya da kişiye özel antrenman reçetesi değildir. Ağrı, sakatlık geçmişi, özel bir sağlık durumu, gebelik ya da uzun süreli hareketsizlik varsa çalışmaya başlamadan önce bir hekime ya da fizyoterapiste danış. Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
+    </div>
+  </div>
+</section>
+
+<p class="an-live" id="anLive" role="status"></p>
+
+</main>
+
+<!-- KABUK: alt katman (giris kapisi + footer + basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<!-- Anatomi verisi — H3 de aynı dosyayı okuyabilsin diye sayfadan AYRI -->
+<script src="assets/js/anatomi-veri.js"></script>
+<script>
+/* =====================================================================
+ ANATOMİ HARİTASI — ETKİLEŞİM
+
+ Veri `assets/js/anatomi-veri.js`ten geliyor (window.ANATOMI_VERI); bu
+ sayfa hiçbir kas metnini kendi içinde tutmuyor. SVG'ler dört ayrı
+ dosyadan fetch ediliyor — sayfaya gömülmüyor, çünkü H3 (Antrenman
+ Oluşturucu) aynı dosyaları kullanacak.
+
+ Derin bağlantı: ?kas=<slug> [&cinsiyet=erkek|kadin]
+   · doğru görünümü (ön/arka) kasın kendi `gorunum` alanından açar
+   · seçim değişince URL history.replaceState ile güncellenir
+   · popstate'te URL'den yeniden okunur (geri tuşu bozulmaz)
+ ===================================================================== */
+(function () {
+  'use strict';
+
+  var V = window.ANATOMI_VERI;
+  if (!V) return;
+
+  var KAS = V.kaslar, HRK = V.hareketler, HARITA = V.haritalar;
+  var stage = document.getElementById('anStage');
+  var panel = document.getElementById('anPanel');
+  var kartlar = document.getElementById('anCards');
+  var kartBaslik = document.getElementById('anCardsTitle');
+  var live = document.getElementById('anLive');
+  var statlar = document.getElementById('anStats');
+
+  var durum = { gorunum: 'on', cinsiyet: 'erkek', kas: null };
+  var onbellek = {};                 /* svg metni: anahtar → SVGElement */
+  var sirali = { on: [], arka: [] }; /* ok tuşu gezinme sırası */
+
+  /* ---- yardımcılar ---- */
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function slugListe(gorunum) {
+    var out = [], s;
+    for (s in KAS) if (Object.prototype.hasOwnProperty.call(KAS, s) && KAS[s].gorunum === gorunum) out.push(s);
+    return out;
+  }
+
+  /* ---- banner istatistik şeridi: sayı VERİDEN ---- */
+  (function stat() {
+    var c = V.sayim();
+    statlar.innerHTML =
+      '<span class="an-fact"><i class="fa-solid fa-person-rays"></i> <b>' + c.toplam + '</b>&nbsp;kas bölgesi</span>' +
+      '<span class="an-fact"><i class="fa-solid fa-repeat"></i> Ön (' + c.on + ') ve arka (' + c.arka + ') görünüm</span>' +
+      '<span class="an-fact"><i class="fa-solid fa-venus-mars"></i> Erkek ve kadın gövde modeli</span>';
+  })();
+
+  /* =================================================================
+     1 · SVG YÜKLEME
+     ================================================================= */
+  function anahtar() { return durum.cinsiyet + '-' + durum.gorunum; }
+
+  function haritaYukle() {
+    var k = anahtar();
+    if (onbellek[k]) { bagla(onbellek[k]); return Promise.resolve(); }
+    return fetch(HARITA[k]).then(function (r) {
+      if (!r.ok) throw new Error(HARITA[k] + ' → HTTP ' + r.status);
+      return r.text();
+    }).then(function (txt) {
+      var doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+      var svg = doc.querySelector('svg');
+      if (!svg) throw new Error('SVG kökü yok: ' + HARITA[k]);
+      var node = document.importNode(svg, true);
+      onbellek[k] = node;
+      bagla(node);
+    });
+  }
+
+  /* SVG'yi sahneye koy ve bölgeleri etkileşime aç.
+     role/tabindex/aria-pressed SVG dosyasında DEĞİL, burada ekleniyor:
+     dosyanın kendisi bağımsız bir görsel, odak davranışı sayfaya ait. */
+  function bagla(svg) {
+    stage.innerHTML = '';
+    stage.appendChild(svg);
+
+    var bolgeler = svg.querySelectorAll('[data-kas]');
+    var sira = [];
+    Array.prototype.forEach.call(bolgeler, function (el) {
+      var slug = el.getAttribute('data-kas');
+      var veri = KAS[slug];
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-pressed', slug === durum.kas ? 'true' : 'false');
+      el.setAttribute('aria-label', (veri ? veri.ad : slug) + ' — bölgeyi seç');
+      sira.push(slug);
+    });
+    sirali[durum.gorunum] = sira;
+    isaretle();
+  }
+
+  /* =================================================================
+     2 · SEÇİM
+     ================================================================= */
+  function isaretle() {
+    var svg = stage.querySelector('svg');
+    if (!svg) return;
+    Array.prototype.forEach.call(svg.querySelectorAll('[data-kas]'), function (el) {
+      el.setAttribute('aria-pressed', el.getAttribute('data-kas') === durum.kas ? 'true' : 'false');
+    });
+  }
+
+  function urlYaz() {
+    var q = '?kas=' + encodeURIComponent(durum.kas) +
+            (durum.cinsiyet !== 'erkek' ? '&cinsiyet=' + durum.cinsiyet : '');
+    history.replaceState({ kas: durum.kas, cinsiyet: durum.cinsiyet },
+                         '', location.pathname + q);
+  }
+
+  /* sec(slug, odakla) — kas seçer; gerekiyorsa görünümü de değiştirir */
+  function sec(slug, odakla) {
+    var veri = KAS[slug];
+    if (!veri) return;
+    var gorunumDegisti = veri.gorunum !== durum.gorunum;
+    durum.kas = slug;
+    durum.gorunum = veri.gorunum;
+    segGuncelle();
+
+    var sonra = function () {
+      isaretle();
+      if (odakla) {
+        var el = stage.querySelector('[data-kas="' + slug + '"]');
+        if (el && el.focus) el.focus();
+      }
+    };
+    if (gorunumDegisti) haritaYukle().then(sonra); else sonra();
+
+    panelBas(slug);
+    kartBas(slug);
+    urlYaz();
+    live.textContent = veri.ad + ' seçildi. ' +
+      (veri.gorunum === 'on' ? 'Ön' : 'Arka') + ' görünüm.';
+  }
+
+  function segGuncelle() {
+    document.querySelectorAll('[data-gorunum]').forEach(function (b) {
+      if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', b.dataset.gorunum === durum.gorunum ? 'true' : 'false');
+    });
+    document.querySelectorAll('button[data-cinsiyet]').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.cinsiyet === durum.cinsiyet ? 'true' : 'false');
+    });
+  }
+
+  /* =================================================================
+     3 · PANEL — ansiklopedik altı alan + kaynak
+     ================================================================= */
+  function panelBas(slug) {
+    var k = KAS[slug];
+    if (!k) return;
+
+    var komsu = (k.komsu || []).filter(function (s) { return !!KAS[s]; }).map(function (s) {
+      return '<button type="button" class="an-chip" data-git="' + esc(s) + '">' +
+             '<i class="fa-solid fa-arrow-right-long"></i>' + esc(KAS[s].ad) + '</button>';
+    }).join('');
+
+    var hareket = (k.hareketler || []).filter(function (s) { return !!HRK[s]; }).map(function (s) {
+      return '<a class="an-chip" href="egzersiz-detay-v1.html?slug=' + esc(s) + '">' +
+             '<i class="' + esc(HRK[s].ikon) + '"></i>' + esc(HRK[s].ad) + '</a>';
+    }).join('');
+
+    var ekipman = (k.ekipman || []).map(function (e) {
+      return '<a class="an-chip" href="' + esc(V.sozlukHref) + '">' +
+             '<i class="fa-solid fa-book-open"></i>' + esc(e) + '</a>';
+    }).join('');
+
+    panel.innerHTML =
+      '<div class="an-panel-head">' +
+        '<span class="an-eyebrow"><i class="fa-solid fa-location-crosshairs"></i> ' + esc(k.bolge) + '</span>' +
+        '<h2 id="anAd">' + esc(k.ad) + '</h2>' +
+        '<p class="an-latin" id="anLatin">' + esc(k.latin) + '</p>' +
+      '</div>' +
+      '<div class="an-panel-body">' +
+
+        '<div class="an-sec" data-alan="fonksiyon">' +
+          '<h3><i class="fa-solid fa-bolt"></i> Ne yapar</h3>' +
+          '<p>' + esc(k.fonksiyon) + '</p>' +
+        '</div>' +
+
+        '<div class="an-sec" data-alan="koken">' +
+          '<h3><i class="fa-solid fa-bone"></i> Köken ve yapışma</h3>' +
+          '<div class="an-kunye">' +
+            '<div><span class="k">Köken</span><span class="v">' + esc(k.koken) + '</span></div>' +
+            '<div><span class="k">Yapışma</span><span class="v">' + esc(k.yapisma) + '</span></div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="an-sec" data-alan="komsu">' +
+          '<h3><i class="fa-solid fa-diagram-project"></i> Komşu ve birlikte çalışan kaslar</h3>' +
+          '<div class="an-chips">' + komsu + '</div>' +
+        '</div>' +
+
+        '<div class="an-sec" data-alan="hareketler">' +
+          '<h3><i class="fa-solid fa-dumbbell"></i> Bu kası çalıştıran hareketler</h3>' +
+          '<div class="an-chips">' + hareket + '</div>' +
+        '</div>' +
+
+        '<div class="an-sec" data-alan="ekipman">' +
+          '<h3><i class="fa-solid fa-toolbox"></i> Kullanılabilecek ekipman</h3>' +
+          '<div class="an-chips">' + ekipman + '</div>' +
+        '</div>' +
+
+        '<div class="an-sec" data-alan="guvenlik">' +
+          '<h3><i class="fa-solid fa-triangle-exclamation"></i> Sık yapılan hata ve güvenlik notu</h3>' +
+          '<div class="an-uyari"><i class="fa-solid fa-circle-exclamation"></i><p>' + esc(k.guvenlik) + '</p></div>' +
+          '<p class="an-kaynak"><i class="fa-solid fa-book"></i>Anatomik veri kaynağı: Delavier, <i>Krachttraining — Een anatomische benadering</i> · ' + esc(k.kaynak) + '</p>' +
+        '</div>' +
+
+      '</div>';
+  }
+
+  /* =================================================================
+     4 · ALT IZGARA — hareket kartları
+     ================================================================= */
+  function kartBas(slug) {
+    var k = KAS[slug];
+    if (!k) return;
+    kartBaslik.textContent = k.ad + ' — çalıştıran hareketler';
+    kartlar.innerHTML = (k.hareketler || []).filter(function (s) { return !!HRK[s]; })
+      .map(function (s) {
+        var h = HRK[s];
+        return '<a class="an-card" href="egzersiz-detay-v1.html?slug=' + esc(s) + '">' +
+               '<span class="an-card-ico"><i class="' + esc(h.ikon) + '"></i></span>' +
+               '<b>' + esc(h.ad) + '</b>' +
+               '<span>' + esc(h.alt) + '</span>' +
+               '<span class="an-card-meta">' +
+                 '<span><i class="fa-solid fa-toolbox"></i>' + esc(h.ekipman) + '</span>' +
+                 '<span><i class="fa-solid fa-stopwatch"></i>' + esc(h.sure) + '</span>' +
+               '</span></a>';
+      }).join('');
+  }
+
+  /* =================================================================
+     5 · OLAYLAR
+     ================================================================= */
+  /* bölge tıklama + klavye — SVG yeniden yüklendiği için delege dinleyici */
+  stage.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-kas]') : null;
+    if (el) sec(el.getAttribute('data-kas'), false);
+  });
+
+  stage.addEventListener('keydown', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-kas]') : null;
+    if (!el) return;
+    var sira = sirali[durum.gorunum] || [];
+    var ix = sira.indexOf(el.getAttribute('data-kas'));
+
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      sec(el.getAttribute('data-kas'), true);
+      return;
+    }
+    var yon = 0;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') yon = 1;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') yon = -1;
+    if (!yon || ix < 0) return;
+    e.preventDefault();
+    var hedef = sira[(ix + yon + sira.length) % sira.length];
+    sec(hedef, true);
+  });
+
+  /* komşu kas çipi → o kasa geç */
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-git]') : null;
+    if (b) sec(b.getAttribute('data-git'), false);
+  });
+
+  /* ÖN / ARKA geçişi — görünümdeki ilk kası seçili getirir */
+  document.querySelectorAll('button[data-gorunum]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var g = b.dataset.gorunum;
+      if (g === durum.gorunum) return;
+      var liste = slugListe(g);
+      sec(liste[0], false);
+    });
+  });
+
+  /* Erkek / Kadın geçişi — seçili kas ve görünüm korunur */
+  document.querySelectorAll('button[data-cinsiyet]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.cinsiyet === durum.cinsiyet) return;
+      durum.cinsiyet = b.dataset.cinsiyet;
+      segGuncelle();
+      haritaYukle().then(function () { isaretle(); urlYaz(); });
+    });
+  });
+
+  /* =================================================================
+     6 · AÇILIŞ + DERİN BAĞLANTI
+     ================================================================= */
+  function urldenOku() {
+    var q = new URLSearchParams(location.search);
+    var c = q.get('cinsiyet');
+    if (c === 'erkek' || c === 'kadin') durum.cinsiyet = c;
+    var slug = q.get('kas');
+    return (slug && KAS[slug]) ? slug : slugListe('on')[0];
+  }
+
+  window.addEventListener('popstate', function () {
+    var slug = urldenOku();
+    durum.gorunum = KAS[slug].gorunum;
+    segGuncelle();
+    haritaYukle().then(function () { isaretle(); });
+    durum.kas = slug;
+    panelBas(slug); kartBas(slug);
+  });
+
+  var ilk = urldenOku();
+  durum.kas = ilk;
+  durum.gorunum = KAS[ilk].gorunum;
+  segGuncelle();
+  panelBas(ilk);
+  kartBas(ilk);
+  haritaYukle().then(function () { isaretle(); }).catch(function (err) {
+    stage.innerHTML = '<p class="an-hint">Gövde haritası yüklenemedi: ' + esc(err.message) + '</p>';
+  });
+})();
+</script>
+</body>
+</html>

@@ -68,7 +68,10 @@ var NAV = [
     match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1',
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
-           'hareket-isinma-soguma-v1','hareket-sozluk-v1'],
+           'hareket-isinma-soguma-v1','hareket-sozluk-v1',
+           /* K34 · "Hareketi Anlamak" grubunun sayfaları — aktif durum bu kalemde
+              toplanıyor, üst menüde AYRI bir kalem açılmıyor. */
+           'sozluk-v1','sozluk-detay-v1','anatomi-v1'],
     /* PANEL ÜÇ KALEM, TEK KOLON (kullanıcı kararı — KARARLAR.md K7).
        Panel önce iki kolonlu 11 kalemdi (belge §2'nin listesi). Yedi "rehber
        konusu" + sözlük panelden çıkarıldı: bunlar zaten Hareket Rehberi
@@ -79,7 +82,28 @@ var NAV = [
     dd:[
       {label:'Hareket Merkezi', desc:'Hareket dünyasının giriş kapısı', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running'},
       {label:'DadaFit Egzersizleri', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
-      {label:'Hareket Rehberi', desc:'Nasıl ve neden — yedi rehber konusu ve sözlük', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'}
+      {label:'Hareket Rehberi', desc:'Nasıl ve neden — yedi rehber konusu ve sözlük', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
+      /* ---- K34 · "HAREKETİ ANLAMAK" — ETİKETLİ GRUP, AYRI MENÜ KALEMİ DEĞİL ----
+         Karar: üç yeni modül (sözlük · anatomi · antrenman oluşturucu) üst
+         menüde kendi başlıklarını ALMAZ; Hareket kaleminin altında tek bir
+         etiketli grup olur. Böylece üst menü kalem sayısı beşte kalır ve
+         panelin tek kolonlu yapısı (K7) bozulmaz.
+
+         NASIL ÇÖZÜLDÜ: dizi zaten düz kalemi destekliyordu — `navHtml()`
+         `d.group` gelirse `<div class="dd-group">` basıyor (fit-shell.js
+         satır ~373) ve `.dd-group` biçimi CSS'te hazırdı (fit-shell.css
+         satır 466 ve 1054). Yani üreticiye masaüstü tarafında hiçbir ek
+         yapılmadı. Tek değişiklik drawer tarafında: `drawerNavHtml()` grubu
+         eskiden FİLTRELEYİP atıyordu, artık `.d-sub-group` olarak basıyor
+         (biçimi de CSS'te zaten vardı — satır 1055). */
+      {group:'Hareketi Anlamak'},
+      {label:'Spor Sözlüğü', desc:'Salon dilinin tam karşılığı — terim terim', href:'sozluk-v1.html', icon:'fa-solid fa-spell-check'},
+      {label:'Anatomi Haritası', desc:'Gövde üzerinden kas kas — ne yapar, nereye tutunur', href:'anatomi-v1.html', icon:'fa-solid fa-person-rays'}
+      /* H3 · Antrenman Oluşturucu — sayfa üretilince bu satırı aç:
+         {label:'Antrenman Oluşturucu', desc:'Birkaç seçimle gün gün antrenman planı', href:'antrenman-olusturucu-v1.html', icon:'fa-solid fa-wand-magic-sparkles'},
+         Bu turda ÜRETİLMİYOR (H3 yalnız keşif yapıyor); şimdi bağlanırsa 60
+         sayfanın hepsinde kırık bağlantı olur. Açarken `match` dizisine ve
+         BOTTOM "Hareket" kalemine de 'antrenman-olusturucu-v1' eklenmeli. */
     ] },
 
   /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
@@ -143,7 +167,10 @@ var NAV = [
 /* Mobil alt bar — belge §3.2 / §19: BEŞTEN FAZLA sabit öğe olamaz. */
 var BOTTOM = [
   {label:'Ana Sayfa',  href:'dadafit-hub-v1.html',        icon:'fa-solid fa-house',           match:['dadafit-hub-v1']},
-  {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1']},
+  /* K34: "Hareketi Anlamak" sayfaları (sozluk-v1 · sozluk-detay-v1 · anatomi-v1)
+     alt barda da Hareket kalemini aktif etsin — ayrı bir alt bar kalemi
+     açılmıyor, §3.2'nin "beşten fazla sabit öğe olamaz" kuralı korunuyor. */
+  {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
   {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
@@ -384,7 +411,13 @@ function drawerNavHtml(){
   var out = NAV.map(function(it){
     var act = isActive(it) ? ' active' : '';
     if(!it.dd) return '<div class="d-item"><a class="d-link'+act+'" href="'+it.href+'"><i class="'+it.icon+'"></i> '+it.label+'</a></div>';
-    var subs = it.dd.filter(function(d){return !d.group && !d.ddOnly;}).map(function(d){
+    /* K34 · GRUP BAŞLIĞI DRAWER'DA DA GÖRÜNÜR.
+       Eskiden `d.group` filtrelenip atılıyordu; "Hareketi Anlamak" grubu
+       mobilde etiketsiz kalıyordu. Artık `.d-sub-group` olarak basılıyor —
+       biçimi fit-shell.css satır 1055'te zaten tanımlıydı, CSS'e ekleme
+       YAPILMADI. `ddOnly` davranışı aynen korunuyor. */
+    var subs = it.dd.filter(function(d){return !d.ddOnly;}).map(function(d){
+      if(d.group) return '<div class="d-sub-group">'+d.group+'</div>';
       return '<a href="'+d.href+'"><i class="'+d.icon+'"></i> '+d.label+'</a>';
     }).join('\n        ');
     /* Satırın kendisi GERÇEK BAĞLANTI, chevron ayrı bir aç/kapa düğmesi.

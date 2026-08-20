@@ -1143,3 +1143,621 @@ doğrudan navigasyonda store boş başlıyor (§7). Sonuç ekranını görmek i�
 **altı adımın da aynı oturumda** tamamlanması gerekir — ki bu, her adımda
 403 riski taşıyan altı ardışık SPA geçişi demektir. **§5 ve §6'nın
 boşluklarının kapanması bu yüzden en zor kısım.**
+
+---
+
+## 11 · İKİNCİ KEŞİF TURU (7. oturum, tamamlayıcı) — Tur A · Tur B
+
+> **Kapsam:** bu oturumda 9 turun tamamı değil, yalnız **iki tur** hedeflendi:
+> **Tur A · Determinizm** (eski Tur 9) ve **Tur B · Uç kombinasyonlar**
+> (eski Tur 5 + Tur 6).
+>
+> **Sonuç, tek cümleyle: sonuç ekranına bu oturumda da ULAŞILAMADI.**
+> Site oturumun ilk dakikalarından sonra Cloudflare ile **kalıcı olarak**
+> blokladı; 49,5 dakikalık kasıtlı beklemenin ardından bile blok kalkmadı.
+> **Tur A ve Tur B ekranda ölçülemedi.**
+>
+> Buna karşılık, **hiç yeni istek atmadan** — önceki oturumun *zaten
+> indirmiş olduğu* sayfa dosyaları yeniden okunarak — iki turun sorduğu
+> soruların bir kısmı **[KAYNAK]** düzeyinde cevaplandı, ve **§10 AS-1'in
+> (Haftalık Rutin kolu) iskeleti çıkarıldı.** Bu bölüm neyin ölçüldüğünü
+> ve neyin yalnız okunduğunu **satır satır ayırıyor.**
+
+## 11.1 · Yöntem — ne yapıldı, ne yapılmadı
+
+| Kalem | Değer |
+|---|---|
+| Tarih | 2026-08-20, 17:37 – 18:50 |
+| Tarayıcı | Gerçek Google Chrome (`channel:'chrome'`), **`headless:false`**, kalıcı profil |
+| Bağlam | `launchPersistentContext`, `locale:'tr-TR'`, `timezoneId:'Europe/Istanbul'`, 1440×900, DPR 2 |
+| Desen | **Tek oturum**, tek sekme, sıralı istek. Adımlar arası düzensiz 1–3 sn; tıklamadan önce fare hedefe götürülüp bekletiliyor |
+| Isınma | Her denemede önce `musclewiki.com/tr-tr` ana sayfası, kademeli kaydırma, birkaç saniye durma |
+| Betikler | Scratchpad'te; **repoya bırakılmadı** |
+
+**Denenmeyenler — bilerek, brief'in sınırı:** proxy / IP rotasyonu, UA
+rotasyonu, istek hızlandırma, CAPTCHA çözme, stealth yaması yükseltmesi.
+**Koruma aşılmaya çalışılmadı.** Site "yeter" dedi, yeter kabul edildi.
+
+### Blok sayacı — bu oturum
+
+| # | Saat | İstek | Sonuç |
+|---|---|---|---|
+| — | 17:41 | `GET /tr-tr` (**ilk fırlatma**) | ✅ **200** — sayfa tam render oldu, ekran görüntüsü alındı |
+| 1 | 17:44 | `GET /tr-tr` (tarayıcı yeniden fırlatıldıktan sonra) | 🚫 **403** · "Sorry, you have been blocked" |
+| 2 | 17:55 | `GET /tr-tr` (10,6 dk bekleme sonrası) | 🚫 **403** |
+| 3 | 18:10 | `GET /tr-tr` (15,1 dk bekleme sonrası) | 🚫 **403** |
+| 4 | 18:32 | `GET /tr-tr` (20 dk bekleme sonrası) | 🚫 **403** |
+| 5 | 18:37 | `GET /tr-tr/generator` (4 dk bekleme sonrası) | 🚫 **403** |
+
+| Kalem | Sayı |
+|---|---|
+| **Bu oturumda alınan 403 / blok sayfası** | **5** |
+| **Başarılı sayfa yükü** | **1** (ana sayfa, 200) |
+| **`musclewiki.com`'a atılan üst düzey istek** | **6** |
+| **Kasıtlı bekleme (tamamlanan çevrimler)** | **49,5 dakika** (10,5 + 15 + 20 + 4) |
+| Yarıda kesilen 6. bekleme çevrimi | ~12 dk (tarayıcı düştü) |
+| **Blok tipi** | Cloudflare **sert blok** — `Attention Required! \| Cloudflare`, "Sorry, you have been blocked". **JS meydan okuması ("Just a moment") DEĞİL** — yani beklenerek geçilebilecek bir doğrulama değil, WAF kuralı |
+
+### 🔑 Bu oturumun tek yeni yöntem bulgusu
+
+> **Blok, tarayıcının yeniden fırlatılmasıyla başladı ve bir daha kalkmadı.**
+> İlk fırlatmanın **ilk isteği 200 aldı**; tarayıcı kapanıp aynı kalıcı
+> profille yeniden açıldıktan sonra **aynı URL 403** döndü ve 49,5 dakikalık
+> beklemeye rağmen açılmadı. Bu, §1'deki *"tarayıcıyı kapatıp yeniden
+> fırlatmak → 403"* ölçümünü **bağımsız olarak doğruluyor** ve bir adım
+> ileri götürüyor: **blok bu kez hız tabanlı değil, kalıcıydı.**
+>
+> **Sonraki oturum için kural:** oturum bir kez açıldıysa **asla
+> kapatılmayacak** — tüm turlar o tek oturumun içinde atılacak. Tarayıcı
+> düşerse tur biter; yeniden fırlatmak yeni blok demektir.
+
+### ⚠️ Oturumun düşme sebebi — keşif hatası değil, ortam
+
+Tarayıcı iki kez, keşifle ilgisiz bir sebeple kapandı: sürücü betiğini
+tutan arka plan görevi harness tarafından sonlandırıldığında Chrome de
+onunla birlikte gitti. **Blok bunun sonucu değil** (blok ilk yeniden
+fırlatmada, düşmeden önce başlamıştı), ama **turların tamamlanamamasının
+doğrudan sebebi** budur: 25 dakikalık son bekleme çevrimi, sonunda
+yapılacak koşuya varamadan kesildi.
+
+---
+
+## 11.2 · Bu oturumda EKRANDA görülen tek sayfa — ana sayfa **[EKRAN]**
+
+![MuscleWiki ana sayfası — kas haritası, cinsiyet/gelişmiş/eklem anahtarları, ekipman süzgeci](h3-akis/o7-anasayfa-kas-haritasi.png)
+
+Önceki oturumda ana sayfa **hiç açılamamıştı** (§1: *"Ana sayfa `/tr-tr` ve
+tüm `/api-next/*` uçları 403 kaldı"*). Bu oturumun tek kazancı bu:
+**ana sayfa bir kez tam olarak yüklendi ve görüntülendi.**
+
+| Kalem | Gözlem **[EKRAN]** |
+|---|---|
+| **Kas haritası** | **ÖN + ARKA yan yana**, tek ekranda, çizgisel (outline) gövde, açık gri dolgu — **sihirbaz adım 6'daki haritanın aynısı** (§3 adım 6). Ana sayfanın **ana içeriği** bu harita |
+| **Sağ üst üç anahtar** | **`Erkek`** · **`Gelişmiş`** · **`Eklemler`** — üçü de aç/kapa anahtarı (toggle), koyu mavi şeritte |
+| 🔴 **`Eklemler` anahtarı** | §8'deki `bodymap` / `joints` **ikili katman** bulgusunun **kullanıcıya açık karşılığı**. Eklem katmanı bir geliştirici ayrıntısı değil, **arayüzde açılıp kapanan bir kip** |
+| **Ekipman süzgeci** | Haritanın altında, **2 sütun, onay kutulu** liste. **18 kalem:** `Öne Çıkan` (✅ varsayılan işaretli) · Halter · Dambıllar · Vücut Ağırlığı · Makine · Medicine Ball · Kettlebelller · Esnetme Egzersizleri · Kablolar · Bant · Tabak · TRX · Yoga · Bosu Ball · Kardiyovasküler · Smith Makinesi · İyileşme · Pilates |
+| **Sol dikey ray** | Anasayfa · Antrenmanlar · **Rutinler** · Araçlar · Makaleler · Giriş · Kayıt Ol · **Oluştur** (en altta, **kırmızı dolgu** ile vurgulu) |
+| **Üst çubuk** | MUSCLEWIKI logosu · **`Oluşturucu \| Şimdi dene →`** hap düğmesi (beyaz, mor halkalı) · 🇹🇷 Türkçe · Ara · kullanıcı ikonu |
+| **Öne çıkanlar** | 3 kart: `Strength Training Basics` · `Nutrition Guide` · `Mobility Exercises` |
+| **Alt bilgi** | "antrenmanını basitleştir" · © 2026 MuscleWiki SEZC · Şartlar \| Gizlilik Politikası \| API \| Hakkımızda · App Store + Google Play rozetleri · YouTube/Instagram/X/Facebook |
+| **Reklam** | Sayfada en az 2 reklam yuvası, her birinin üstünde **"× Reklamları kaldır"** düğmesi |
+
+### 🔴 Dördüncü çeviri boşluğu
+
+Belge şimdiye kadar üç çeviri hatası kaydetmişti (§3: iki kez "Yeni
+başlayan" · "0 selected" · "Kettlebelller"). **Dördüncüsü:** ana sayfanın
+**"Featured"** bölüm başlığı ve üç kart başlığı (`Strength Training
+Basics`, `Nutrition Guide`, `Mobility Exercises`) ile açıklamaları
+**tamamen İngilizce kalmış.** Ekipman listesindeki `Medicine Ball`,
+`Bosu Ball`, `TRX` de çevrilmemiş.
+
+> **§9'un "referansın metnini kopyalamayacağız" kuralı böylece dördüncü
+> kez doğrulandı.** MuscleWiki'nin Türkçesi yer yer eksik; DadaFit'in
+> metinleri kendi editoryal kararıyla yazılacak.
+
+### ⭐ AS-4'ün mekanizması çözüldü — 7 mi, 17 mi? **[KAYNAK]**
+
+Sihirbazın adım 5'i **7 ekipman** gösteriyor (§3 adım 5); ana sayfanın
+süzgeci **17 ekipman + "Öne Çıkan"**. Çelişki değil — sebebi kodda:
+
+```
+GET /api-next/exercises/equipment?include_in_workout_generator=true
+```
+
+Ekipman kaleminin **`include_in_workout_generator` bayrağı** var.
+Oluşturucu yalnız bu bayrağı taşıyan kalemleri istiyor; kütüphane süzgeci
+hepsini gösteriyor. **Yani "oluşturucuda gösterilecek ekipman" ile
+"kütüphanede süzülebilecek ekipman" MuscleWiki'de ayrı iki kümedir.**
+
+> **H3 için doğrudan ders:** DadaFit'in ekipman kataloğunda da bu ayrım
+> gerekebilir — *kütüphanede aranabilir* ekipman ile *plan üretiminde
+> sorulacak* ekipman aynı liste olmak zorunda değil. Sihirbazı 17 kalemle
+> boğmak yerine 7 kaleme indirmek MuscleWiki'nin bilinçli kararı.
+
+---
+
+## 11.3 · TUR A · DETERMİNİZM
+
+### 🚫 Ekranda ERİŞİLEMEDİ — kaç deneme, nerede düştü
+
+**Hedef:** aynı seçimlerle iki plan üretip hareket hareket diff almak.
+
+| Deneme | Nerede düştü |
+|---|---|
+| 1 | Isınma isteği (`/tr-tr`) **403** — sihirbaza hiç girilemedi |
+| 2 | 10,6 dk bekleme sonrası ısınma **403** |
+| 3 | 15,1 dk bekleme sonrası ısınma **403** |
+| 4 | 20 dk bekleme sonrası ısınma **403** — bu deneme **tam zinciri** (ısınma → `/generator` → mod seçimi → 6 adım → sonuç) tek komutta koşacak şekilde kurulmuştu, **ilk adımda düştü** |
+| 5 | `/tr-tr/generator`'a doğrudan yoklama **403** |
+| 6 | 25 dk beklemeli son zincir — **bekleme dolmadan tarayıcı ortam sebebiyle düştü** (§11.1) |
+
+**Üretilen plan sayısı: 0. Diff: yok. Eşleşme oranı: ölçülemedi.**
+**§6'daki durum değişmedi: MuscleWiki'nin deterministik olup olmadığı
+hâlâ ÖLÇÜLMEDİ.**
+
+### ✅ Yine de kazanılan: soru daraltıldı — **[KAYNAK]**
+
+Önceki oturumun indirdiği JS paketleri yeniden okundu (**yeni istek
+atılmadan**). Determinizm sorusu için üç yeni, somut bulgu:
+
+**① İstemcide plan üretim yolunda HİÇBİR rastgelelik yok.**
+
+İndirilmiş 11 JS chunk'ının tamamında `Math.random` **yalnız iki yerde**
+geçiyor ve ikisi de kütüphane iç işi:
+
+| Yer | Ne yapıyor |
+|---|---|
+| `chunk_0e8w5vft564ml.js` | **SWR** veri katmanının hata sonrası yeniden deneme gecikmesi (exponential backoff jitter) |
+| `chunk_3g-uxma5_i8y5.js` | **axios**'un `setImmediate` yoksunu için ürettiği benzersiz mesaj anahtarı |
+
+Egzersiz seçimi, sıralama veya karıştırma yolunda **tek bir rastgelelik
+çağrısı yok.**
+
+**② Üretim isteğinin gövdesinde tohum (seed) veya nonce yok.**
+
+Kodun birebir ürettiği gövde:
+
+```js
+{ equipment_id_list, muscles_id_list, gender,
+  age: parseInt(age,10), fitness_level, mobile, goal }
+// POST /api-next/workout/generator   ·   başlık: X-Skip-Retry: true
+```
+
+Yedi alan; hepsi **kullanıcı seçimi**. Zaman damgası yok, tohum yok,
+istek kimliği yok.
+
+> **Bunun anlamı — ve anlamadığı:** İstemci aynı seçimler için **birebir
+> aynı isteği** gönderir. Dolayısıyla iki üretim farklı çıkarsa, farkın
+> kaynağı **kesinlikle sunucudur**. Bu, MuscleWiki'nin deterministik
+> olduğunu **kanıtlamaz** — sunucunun ne yaptığı hâlâ bilinmiyor — ama
+> soruyu ikiye bölünmüş hâlden **tek bir bilinmeyene** indirger.
+
+**③ "Karıştır" tek hareketi değiştiriyor ve mevcut hareketin id'sini gönderiyor.**
+
+```js
+POST /api-next/exercises/shuffle
+  { id, equipment_id_list, fitness_level, gender, sets }
+```
+
+`id` = **o an listede duran hareketin kimliği**. Sunucudan "bunun yerine
+başka bir tane ver" deniyor. Arayüz metni bunu doğruluyor:
+
+| Anahtar | Değer |
+|---|---|
+| `shuffleTip` | **"Bir alternatifle değiştirmek için herhangi bir egzersize dokunun"** |
+| `shuffleExercise` | "Egzersizi değiştir" |
+
+> **§6'nın dolaylı göstergesi böylece netleşti.** "Karıştır", planın
+> tamamını yeniden üreten bir düğme **değil**; **tek hareketi alternatifiyle
+> değiştiren** bir kullanıcı eylemi. Yani §6'da yazılan ihtiyat doğruymuş:
+> *"'Karıştır' tek hareketi değiştiren bir kullanıcı eylemi de olabilir ve
+> ilk üretim yine de deterministik olabilir."* — **bu ihtimal artık
+> ihtimal değil, kodda görülen davranış.** Dolayısıyla §6'daki üç dolaylı
+> göstergeden **birincisi rastgelelik kanıtı olarak zayıflıyor.**
+>
+> Geriye kalan tek şey: bir hareket için **birden çok uygun aday** var
+> (yoksa "alternatifle değiştir" işlemsiz kalırdı). Bu bir **havuz**
+> kanıtıdır, **rastgele seçim** kanıtı değil.
+
+**④ Üretilmiş plan sunucuda kimlikli olarak duruyor ve birebir geri yükleniyor.**
+
+```js
+GET /api-next/workout/generator?id={id}      // getWorkout(id)
+```
+
+Ve ödeme duvarı metni (`shuffle` anahtarı):
+
+> "Zor kısmı zaten tamamladın. Hareketleri yeniden düzenleyip bu antrenmanı
+> korumak için Premium'a geç. Ödeme tamamlanınca **aynı antrenmanı otomatik
+> olarak geri yükleriz**."
+
+> Üretilen plan **saklanan bir nesne**; kullanıcı ödeme akışına gidip
+> döndüğünde **yeniden üretilmiyor, geri yükleniyor**. Bu da determinizm
+> kanıtı değil — ama MuscleWiki'nin planı "her istekte yeniden hesaplanan
+> bir şey" değil, **"bir kez üretilip kimliklenen bir kayıt"** olarak
+> gördüğünü gösteriyor.
+
+### Tur A — özet hüküm
+
+| Soru | Cevap |
+|---|---|
+| Aynı girdiyle iki üretim yapıldı mı | ❌ **Hayır** — hiç plan üretilemedi |
+| Diff / eşleşme oranı | ❌ **Ölçülemedi** |
+| "Karıştır" aynı girdiyle farklı çıktı veriyor mu | ⚠️ **Soru yanlış kurulmuş:** "Karıştır" planı yeniden üretmiyor, **tek hareketi alternatifiyle değiştiriyor** **[KAYNAK]**. Ücretsiz kullanıcıda ayrıca **ödeme duvarının arkasında** (§11.4) |
+| "Yeniden Oluştur" davranışı | 🚫 **Ölçülemedi.** Sözlükte var (`regenerateWorkout` = "Antrenmanı Yeniden Oluştur"); istemci aynı 7 alanlı gövdeyi yeniden göndermekten başka bir şey yapamaz — **çıktının değişip değişmediği sunucuya bağlı, bilinmiyor** |
+| İstemci tarafı rastgelelik | ✅ **YOK** — kanıtlı **[KAYNAK]** |
+| **DadaFit kararına etkisi** | **Yok.** K41/AS-2 zaten verildi: DadaFit deterministik olacak. Bu bulgular kararı **değiştirmiyor**, yalnız MuscleWiki'nin ne yaptığını kayda geçiriyor |
+
+---
+
+## 11.4 · TUR B · UÇ KOMBİNASYONLAR
+
+### 🚫 Ekranda ERİŞİLEMEDİ
+
+Alt sınır koşusu (`Erkek · 29 · Kilo Ver · Yeni başlayan · yalnız "Vücut
+Ağırlığı" · tek kas grubu`) ve üst sınır koşusu (`Tümünü Seç` ekipman +
+tüm kas grupları) **tam olarak kurulmuş**, komut zinciri yazılmış ve
+kuyruğa alınmıştı; **ikisi de ısınma isteğinde 403 alarak başlayamadı.**
+**Üretilen plan: 0. Hareket sayısı, gün sayısı, süzülen hareketler:
+ölçülemedi.**
+
+### ✅ Kaynaktan çıkan sınır kuralları — **[KAYNAK]**
+
+Bu turun asıl sorusu *"boş plan dönüyor mu"* idi. Ölçülemedi; ama sitenin
+kendi sözlüğü ve Redux dilimi, **sınırların nerede olduğunu** açıkça
+söylüyor.
+
+#### Alt sınır — zorunluluk kuralları
+
+| Kural | Kaynak metin | Hangi kolda |
+|---|---|---|
+| **En az 2 antrenman günü** | `selectAtLeast2Days` = **"Lütfen en az 2 antrenman günü seçin"** | Haftalık Rutin |
+| Gün seçilmeden ilerlenemez | `validationPickTrainingDays` = "Antrenman günlerini seçin." · `noTrainingDaysSelected` = "Antrenman günü seçilmedi" · `goBackSelectDays` = "Lütfen geri dönün ve hangi günler antrenman yapmak istediğinizi seçin." | Haftalık Rutin |
+| Bölünme seçilmeden ilerlenemez | `validationPickSplit` = "Bir antrenman bölünmesi seçin." | Haftalık Rutin |
+| Ekipman seçilmeden ilerlenemez | `validationChooseEquipment` = "Ekipman seçin." | Haftalık Rutin |
+| Hedef ve seviye zorunlu | `validationPickGoal` = "Bir hedef belirleyin." · `validationPickFitnessLevel` = "Fitness seviyenizi seçin." | Haftalık Rutin |
+
+> 🔑 **`selectAtLeast2Days` bu turun en somut kazancı.** Brief'in
+> *"en az gün"* alt sınırı MuscleWiki'de **2 gündür** — 1 günlük haftalık
+> rutin **üretilemiyor**, arayüz izin vermiyor. Kart rozetindeki
+> "Haftada 3-6 gün" (`daysPerWeek`) bir **pazarlama aralığı**; gerçek
+> teknik alt sınır **2**.
+
+#### Üst sınır — kapasite kuralları
+
+| Kural | Kaynak metin |
+|---|---|
+| **Bir antrenmandaki hareket sayısı sınırlı** | `capacityBlocked` = **"Limit reached — a workout holds up to {max} exercises."** |
+| **Hareket başına set sayısı sınırlı** | `maxSetsReason` = **"Max {max} sets per exercise"** |
+| Her harekette en az bir set kalmalı | `deleteSetBlocked` = "Every exercise keeps at least one set" |
+| Ücretsiz kayıt sınırı | `limit` = "3 adede kadar kaydet" · `limit_exceeded` = "Ücretsiz antrenman limiti (3) aşıldı…" |
+
+> `{max}` değerleri **bu oturumda elde edilemedi** — sabitler, indirilmemiş
+> olan antrenman düzenleyici (`workout_builder`) paketinde. **Sayılar
+> bilinmiyor, sınırın var olduğu biliniyor.**
+
+#### 🔴 BOŞ PLAN SORUSU — dürüst cevap
+
+**Ölçülemedi.** Ama üç şey kesin:
+
+| Bulgu | Kanıt |
+|---|---|
+| **Boş durum metni VAR** | `noExercises` = **"Egzersiz yok"** · `no_exercises_found` = "Egzersiz bulunamadı" |
+| **Üretim başarısızlığı metni VAR** | `failedToGenerate` = **"Rutin oluşturulamadı"** · `validationGenerateFailed` = "Rutin oluşturulamadı." · `missingRequiredData` = "Gerekli veriler eksik" |
+| **Veri yükleme boşlukları ayrı** | `equipmentEmpty` = "Şu anda kullanılabilir ekipman koleksiyonu yok." · `musclesEmpty` = "Kas kategorileri geçici olarak kullanılamıyor." — bunlar **API arızası** metinleri, karşılıksız kombinasyon metni değil |
+
+> **Ne söylenebilir:** MuscleWiki'nin arayüzünde **hem boş liste hem
+> üretim başarısızlığı için hazır metin var**. Yani ürün ekibi bu iki
+> durumun **olabileceğini varsaymış**.
+> **Ne söylenemez:** hangi kombinasyonun bunları tetiklediği — ya da
+> herhangi birinin gerçekten tetiklenip tetiklenmediği. **Karşılıksız
+> kombinasyon var mı, ÖLÇÜLMEDİ.**
+
+#### ⚠️ Üçüncü bir "boşluk" türü keşfedildi: ödeme duvarı
+
+Uç kombinasyonlardan bağımsız olarak, MuscleWiki'de **plan eksik
+gösterilebiliyor** — ve sebebi süzme değil, **ücretlendirme**:
+
+| Anahtar | Değer |
+|---|---|
+| `lockedExerciseTitle` | **"Egzersiz {index} hazır"** |
+| `lockedExerciseBody` | "Mevcut antrenmanını kaybetmeden görmek için kilidini aç." |
+| `viewExercise` | "Zor kısmı zaten tamamladın. **Bu antrenmanın geri kalanını** görmek için Premium'a geç…" |
+| `viewDay` | "Zor kısmı zaten tamamladın. **Bu programın kalan günlerini** açmak için Premium'a geç…" |
+| `unlock` / `unlockFallback` | "{name} planının kilidini aç" / "Antrenmanının kilidini aç" |
+
+Ve kodda, hangi ekranda hangi eylemin duvarı tetiklediğini belirleyen
+kapı **[KAYNAK]**:
+
+```js
+case "workout_results":  // view_exercise (sayaç>0 ise) · shuffle · save · start
+case "routine_results":  // view_day      (sayaç>0 ise) · save · start
+case "workout_builder":  // save · start
+case "share":            // save · import · track · customize
+```
+
+> 🔴 **Tur B'nin sorusuna beklenmedik bir cevap:** MuscleWiki'de plan
+> **boş dönmüyor olabilir ama TAM da gösterilmiyor.** Ücretsiz kullanıcı
+> ilk hareketleri / ilk günü görüyor, **kalanı kilitli.** `shuffle` da
+> ücretsiz kullanıcıda duvarın arkasında.
+>
+> **Bu, sonuç ekranına ulaşılamamasının ikinci ve bağımsız sebebi olabilir:**
+> ulaşılsaydı bile **tam plan görülemeyecekti** — giriş yapılmamış bir
+> oturumda hareketlerin bir kısmı kilitli gelecekti. Sonraki oturum bunu
+> hesaba katmalı.
+>
+> **H3'e etkisi:** DadaFit'in oluşturucusunda böyle bir kısıt **yok**;
+> plan tam gösterilecek. Ama *"kabul ölçütü: karşılıksız kombinasyon 0"*
+> sınanırken MuscleWiki'nin çıktısı **referans alınamaz** — onun eksikliği
+> süzmeden değil, ücretlendirmeden geliyor olabilir.
+
+### Tur B — özet hüküm
+
+| Soru | Cevap |
+|---|---|
+| Alt sınır ekranda denendi mi | ❌ Hayır — 403 |
+| Üst sınır ekranda denendi mi | ❌ Hayır — 403 |
+| **Boş plan dönüyor mu** | 🚫 **ÖLÇÜLEMEDİ.** Boş durum ve üretim hatası metinleri **var** **[KAYNAK]**; tetiklendikleri kombinasyon bilinmiyor |
+| Uç durumda hareket / gün sayısı | 🚫 Ölçülemedi |
+| **Yine de kesinleşen sınırlar** | **En az 2 antrenman günü** · hareket başına **max set** kuralı var · antrenman başına **max hareket** kuralı var · her harekette **en az 1 set** · ücretsiz kayıt **3 plan** |
+
+---
+
+## 11.5 · ⭐ Beklenmedik kazanç — HAFTALIK RUTİN kolunun iskeleti (**AS-1**)
+
+> §10'un **en yüksek öncelikli açık sorusu** AS-1'di: *"keşfedilen kol
+> yanlış kol olabilir; Haftalık Rutin hiç keşfedilmedi."*
+> Bu oturumda **ekranda yine görülemedi** — ama önceki oturumun indirdiği
+> dosyalarda **kolun Redux dilimi, adım etiketleri, doğrulama kuralları ve
+> route'u bulundu.** Aşağıdakilerin tamamı **[KAYNAK]**.
+
+### Route — artık biliniyor
+
+```js
+['/generator', '/gopremium', '/pricing', '/routine-generator']
+```
+
+Sayfanın kritik-CSS listesinde geçen üst düzey route dizisi.
+**`/routine-generator`** — Haftalık Rutin kolunun kendi route'u.
+(§2.2'de yalnız giriş kapısı `/generator` biliniyordu; kolun nereye
+gittiği **bilinmiyordu**.)
+
+### Redux dilimi — kolun TAM durum şeması
+
+```js
+name: "routineGenerator"
+initialState = {
+  gender: "M",            age: 25,
+  fitness_level_id: null, goal_id: null,
+  days_of_week: [],       split_type: null,
+  equipment_mode: "full", equipment_id_list: [], home_equipment_ids: [],
+  muscles: [],
+  routine_result: null,   isLoading: false, error: null
+}
+reducers: updateField · setMuscles · setEquipmentMode · setRoutineResult
+        · setLoading · setError · resetRoutineGenerator · restoreRoutineGenerator
+```
+
+**Bu şemadan çıkan altı bulgu:**
+
+| # | Bulgu | Neden önemli |
+|---|---|---|
+| 1 | 🔴 **`days_of_week` bir DİZİ — sayı değil** | Kullanıcı *"haftada kaç gün"* demiyor, **hangi günler** diyor. Sözlük doğruluyor: `daysQuestion` = **"Hangi günler sizin için uygun?"** · `daysSelected` = "{count} gün seçildi". **Brief'in "3/4/5-6 gün" ekseni MuscleWiki'de gün SAYISI değil, HAFTA GÜNÜ seçimi** |
+| 2 | 🔴 **`equipment_mode`: `"full"` / `"bodyweight"` / (+ `home_equipment_ids`)** | **Brief'in "ev / salon" ekseni BU KOLDA VAR.** §2.1 *"ev/salon kısayolu yok"* demişti — **Tekli kol için doğru, Haftalık Rutin için değil** |
+| 3 | `setEquipmentMode` mantığı: `"full"` → `home_equipment_ids` temizlenir; **`"bodyweight"` → hem `home_equipment_ids` hem `equipment_id_list` temizlenir** | "Vücut ağırlığı" kipi **tüm ekipmanı sıfırlıyor** — yani gerçek bir *ekipmansız* kipi. Alt sınır kurulumu tam olarak bu |
+| 4 | **`split_type`** ayrı bir alan | Bölünme **kullanıcı seçimi**, türetilmiş değer değil |
+| 5 | Varsayılanlar **`gender:"M"`, `age:25`** | Tekli koldaki varsayılan yaş **29**'du (§3 adım 2). **İki kol farklı varsayılan taşıyor** |
+| 6 | `restoreRoutineGenerator` | Ödeme akışından dönünce **tüm sihirbaz durumu geri yükleniyor** (§11.4'teki duvar davranışıyla tutarlı) |
+
+### Adım etiketleri — 4 adım
+
+| Anahtar | Türkçe |
+|---|---|
+| `stepProfile` | **Profil** |
+| `stepTraining` | **Antrenman** |
+| `stepEquipment` | **Ekipman** |
+| `stepSplit` | **Bölünme** |
+
+> Tekli kol **6 adım** (§2); Haftalık Rutin **4 etiketli adım**. Doğrulama
+> metinleri beş ayrı alanı zorunlu tutuyor (hedef · seviye · ekipman ·
+> günler · bölünme) — yani bir adımda birden çok alan soruluyor olmalı.
+> **Adım sırası ve her adımın içeriği hâlâ bilinmiyor** (ekranda görülmedi).
+
+### Bölünme (split) kataloğu — dört seçenek
+
+| Anahtar | Etiket | Açıklama |
+|---|---|---|
+| `splitFullBody` | **Tüm Vücut** | "Maksimum verimlilik için her seansta tüm vücudu çalıştırın" |
+| `splitLPP` | **Bacak / İtme / Çekme** | "Hareket kalıplarına odaklanan **klasik 3 günlük bölüm**" |
+| `splitUpperLower` | **Üst / Alt** | "Dengeli antrenman için üst ve alt vücut dönüşümü" |
+| `splitBodybuilding` | **Vücut Geliştirme Bölümü** | "Hedefli kas gelişimi için **geleneksel 4 günlük bölüm**" |
+
+### 🔑 Bölünme, gün sayısına göre OTOMATİK öneriliyor
+
+> `optimalSplitSelected` = **"Mükemmel! {days} günlük programınıza göre en
+> uygun bölümü seçtik."**
+
+Bu tek satır, brief'in *"3 gün → full body, 5–6 gün → push/pull/legs"*
+kuralının MuscleWiki'deki karşılığının **var olduğunu** ve **kullanıcıya
+otomatik seçilmiş olarak sunulduğunu** gösteriyor. Açıklamalardaki
+"klasik **3 günlük** bölüm" (LPP) ve "geleneksel **4 günlük** bölüm"
+(Vücut Geliştirme) eşlemenin yönünü de veriyor.
+
+> ⚠️ **Ama tam eşleme tablosu (kaç gün → hangi bölünme) elde EDİLMEDİ** —
+> o mantık `/routine-generator` sayfasının kendi paketinde, ve o paket
+> indirilmedi. **Tahmin edilmeyecek.**
+
+### Sonuç ekranı ve kaydetme — Haftalık Rutin
+
+| Anahtar | Değer |
+|---|---|
+| `routineIsReady` | **"Rutininiz Hazır!"** |
+| `yourWeeklyRoutine` | "Haftalık Rutininiz" |
+| `routineName` | **"{goal} Programı"** — plan adı hedeften türetiliyor |
+| `dayOf` | **"Gün {current} / {total}"** |
+| `dayOneFullBody` | **"1. Gün - Tüm Vücut"** — gün başlığı deseni: `N. Gün - <bölüm parçası>` |
+| `daysPerWeekStat` | "Haftada {days} Gün" |
+| `splitFormat` / `splitLabel` | "{split} Bölümü" / "Bölüm" |
+| `progressiveOverload` | "Yerleşik artan yüklenme" |
+| `saveRoutineNamePlaceholder` | "örn. 3 Günlük Rutinim" |
+| `generateNewRoutine` | "Yeni bir rutin oluştur" |
+| `copyRoutineLink` | 🔴 **"Rutin Bağlantısını Kopyala"** |
+| Kaydetme ucu | `POST /api-next/routines/save-generated` · gövde: **`{ name, workouts }`** |
+
+**Yükleme aşama metinleri** (dördü de sözlükte var; sıra anlamdan
+çıkarılmıştır, ekranda doğrulanmadı):
+`buildingRoutine` "Rutininiz Oluşturuluyor" → `selectingExercises`
+**"En uygun egzersizler seçiliyor..."** → `finalizingRoutine`
+"Rutininiz tamamlanıyor..." → `routineIsReady` "Rutininiz Hazır!"
+
+> 🔴 **`workouts` çoğul.** Haftalık rutin sunucuya **antrenman dizisi**
+> olarak kaydediliyor — yani **rutin = günlerin listesi, her gün bir
+> antrenman**. §5'teki *"muhtemelen tek seans"* çıkarımı **Tekli kol için**
+> geçerli; Haftalık Rutin **gerçekten çok günlü**.
+
+### 🔴 §7'nin paylaşılabilirlik hükmüne düzeltme
+
+§7 şöyle demişti: *"Üretilen plan URL'e yazılmıyor. Plan paylaşılabilir
+değil."* Kodda bulunan iki şey bunu **niteliyor**:
+
+```js
+// plan türleri — dört tane
+new Set(["generated_workout", "generated_routine", "workout_builder", "shared_workout"])
+
+// paylaşım adresi
+"string" == typeof e.sharing_hash && (s = `/share/${e.sharing_hash}`)
+```
+
+| Bulgu | Anlamı |
+|---|---|
+| **`sharing_hash` → `/share/{hash}`** | Kaydedilmiş bir plan **paylaşılabilir bir adrese** sahip oluyor |
+| `copyRoutineLink` = "Rutin Bağlantısını Kopyala" | Ve arayüzde **bağlantıyı kopyalama düğmesi** var |
+| `case "share": save · import · track · customize` | Paylaşılan planın kendi ekranı ve eylemleri var |
+
+> **Düzeltilmiş hüküm:** MuscleWiki'de plan **sihirbaz durumu üzerinden**
+> paylaşılamıyor (§7 bu kısımda doğru — seçimler URL'de değil, Redux'ta) —
+> **ama kaydedildikten sonra `/share/{hash}` ile paylaşılabiliyor.**
+> Yani paylaşım **kayıt sonrası**, DadaFit'in `?plan=` yaklaşımı ise
+> **kayıtsız**. §7'nin *"DadaFit bu noktada MuscleWiki'den daha ileri
+> gidiyor"* sonucu **geçerliliğini koruyor**, ama gerekçesi değişiyor:
+> MuscleWiki paylaşımı yapmıyor değil — **hesap ve kayıt şartına
+> bağlıyor.**
+
+---
+
+## 11.6 · §5'e eklenen sonuç ekranı alanları — **[KAYNAK]**
+
+§5'in alan listesinde **olmayan**, bu turda bulunan alanlar:
+
+| Anahtar | Değer | Ne demek |
+|---|---|---|
+| `estMinutes` / `estMinutesValue` / `estMinutesEmpty` | "Est. min" / "~{minutes}" / "—" | **Tahmini süre** göstergesi var; boşken "—" |
+| `totalSets` | "Total sets" | **Toplam set** sayacı |
+| `volumeTitle` | **"Volume by muscle"** | **Kasa göre hacim** dökümü |
+| `volume` / `volumeSets` | "Hacim" / "{sets} weighted sets for {muscle}" | Kas başına **ağırlıklı set** sayısı |
+| `volumeEmpty` | "Add exercises to see which muscles this workout trains." | Hacim bloğunun boş durumu |
+| `exerciseCount` / `nExercises` | "{count} egzersiz" | Hareket sayacı |
+| `restTime` | **"{seconds}sn dinlenme"** | Dinlenme **saniye** cinsinden gösteriliyor |
+| `setCount` | "{count, plural, one {# set} other {# sets}}" | ICU çoğul biçimi |
+| `quickStartDefaults` | 🔴 **"Başlangıç · Kas Yap · Haftada 3 gün"** | **Hazır başlangıç ön ayarı** — `quickStart` = "Hızlı Başlangıç" |
+
+> 🔴 **`quickStartDefaults` H3 için doğrudan alınabilir bir desen:**
+> sihirbazı hiç doldurmak istemeyen kullanıcıya **tek tıkla makul bir
+> varsayılan** sunuluyor — *Başlangıç · Kas Yap · Haftada 3 gün*.
+> Bu, R13'ün "Programını Bul" akışına da uyarlanabilir.
+>
+> 🔴 **Bu alanlar `estMinutes`, `totalSets`, `Volume by muscle` — hepsi
+> İNGİLİZCE kalmış.** Beşinci çeviri boşluğu.
+
+**AS-3 (set/tekrar/dinlenme değerleri) hâlâ AÇIK.** Alan adları ve
+biçimleri artık daha ayrıntılı biliniyor; **değerler ve seviye/hedefe göre
+nasıl değiştiği hâlâ bilinmiyor** — sonuç ekranı görülmedi.
+
+---
+
+## 11.7 · §10 açık sorularına etki
+
+| # | Önceki durum | Bu turdan sonra |
+|---|---|---|
+| **AS-1** 🔴 Haftalık Rutin kolu | Hiç bilinmiyordu | ⚠️ **Büyük ölçüde ilerledi ama kapanmadı.** Artık biliniyor: route (`/routine-generator`) · tam Redux şeması · 4 adım etiketi · 5 doğrulama kuralı · **en az 2 gün** · gün seçimi **hafta günü** olarak · **`equipment_mode` ile ev/vücut ağırlığı ekseni** · 4 bölünme + otomatik öneri · `{name, workouts}` kayıt gövdesi · `/share/{hash}`. **Bilinmeyen:** adım sırası, ekran düzeni, gün→bölünme eşleme tablosu, hareket sayıları, set/tekrar değerleri. **Ekranda hiç görülmedi** |
+| **AS-2** Determinizm | ✅ Karar verilmişti (K41) | ✅ **Karar aynen geçerli.** MuscleWiki'nin davranışı **hâlâ ölçülmedi**; yeni bilgi: **istemcide rastgelelik yok**, tohum gönderilmiyor, "Karıştır" **tek hareketi** değiştiriyor. §6'daki üç dolaylı göstergeden **birincisi zayıfladı** |
+| **AS-3** Set/tekrar/dinlenme değerleri | Açık | ⚠️ **Açık.** Yeni: `restTime` **saniye** cinsinden · `maxSetsReason` (hareket başına max set) · `deleteSetBlocked` (en az 1 set) · `totalSets` · "Volume by muscle". **Değerler hâlâ yok** |
+| **AS-4** Ekipman listesinin içeriği | Açık (API 403) | ✅ **Mekanizması çözüldü:** `?include_in_workout_generator=true` bayrağı. Kütüphane süzgeci **17 ekipman + "Öne Çıkan"** olarak **[EKRAN]** sayıldı (§11.2). Oluşturucunun 7 kalemi bunun alt kümesi |
+| **AS-5** Gövde haritası id listesi | H2'ye devredilmişti | ➕ **Ek kanıt:** ana sayfada **`Eklemler` anahtarı [EKRAN]** — `joints` katmanı kullanıcıya açık bir kip |
+| **AS-6** Hover / panel davranışı | Açık | ⚠️ **Kısmen:** ana sayfadaki panelin **yapısı** görüldü (üç anahtar + 2 sütunlu ekipman süzgeci) **[EKRAN]**; **hover ve tıklama davranışı yine görülemedi** (blok) |
+| **AS-7** Adım 2–6 görsel düzeni | Açık | Değişmedi |
+| **AS-8** Yaş widget'ı | Açık | ➕ Haftalık Rutin kolunda yaş varsayılanı **25** (Tekli kolda 29) **[KAYNAK]** |
+| **AS-9** Yeniden deneme | "Denenmeyecek" kararıydı | ✅ **Bu oturumda denendi ve sonuç alınamadı.** 5 blok, 49,5 dk bekleme |
+
+### ➕ Bu turun açtığı YENİ açık sorular
+
+| # | Soru | Kime |
+|---|---|---|
+| **AS-10** 🔴 | **Ödeme duvarı sonuç ekranını ne kadar kısıtlıyor?** Giriş yapılmamış bir oturumda üretilen planın **kaç hareketi / kaç günü** görünüyor? Sonraki keşif sonuç ekranına ulaşsa bile **tam planı göremeyebilir** | Keşif — sonraki oturumun planlaması bunu hesaba katmalı |
+| **AS-11** | **Gün sayısı → bölünme eşleme tablosu** (`optimalSplitSelected` mantığı). 2 gün ne veriyor? 5 gün? 6 gün? | Keşif · yoksa DadaFit kendi tablosunu yazar |
+| **AS-12** | `equipment_mode`'un **üçüncü değeri** ne? (`full` ve `bodyweight` kodda görüldü; `home_equipment_ids` alanı bir **"ev"** kipini ima ediyor ama adı doğrulanmadı) | Keşif |
+| **AS-13** | `capacityBlocked` / `maxSetsReason` içindeki **`{max}` sayıları** | Keşif — `workout_builder` paketinde |
+
+---
+
+## 11.8 · Düzeltilmiş bilanço
+
+> **Eski bilanço tabloları (§1) SİLİNMEDİ** — aşağıdaki, bu tur sonrasındaki
+> **güncel** durumdur.
+
+### Tur bazında
+
+| Tur | Konu | 6. oturum sonu | **7. oturum sonu (bu tur)** |
+|---|---|---|---|
+| 1 | Erkek · başlangıç · kilo verme · ev | ⚠️ adım envanteri, sonuç yok | ⚠️ **değişmedi** |
+| 2 | Kadın · aynı yol | 🚫 | 🚫 **değişmedi** |
+| 3 | Erkek · ileri · kas kazanma · salon | 🚫 | 🚫 **değişmedi** |
+| 4 | Kadın · orta · güç · salon | 🚫 | 🚫 **değişmedi** |
+| **5 + 6 → TUR B** | **Uç kombinasyonlar / boş plan** | 🚫 ERİŞİLEMEDİ | 🚫 **Ekranda yine ERİŞİLEMEDİ** · ➕ **sınır kuralları [KAYNAK] ile çıkarıldı** (en az 2 gün, max set, max hareket, boş/hata metinlerinin varlığı) |
+| 7 | Geri dön / durum korunuyor mu | ⚠️ kısmen | ⚠️ ➕ `restoreRoutineGenerator` ile **ödeme akışından dönüşte durum geri yükleniyor** [KAYNAK] |
+| 8 | @390 mobil | ⚠️ yalnız adım 1 | ⚠️ **değişmedi** |
+| **9 → TUR A** | **Determinizm** | 🚫 ERİŞİLEMEDİ | 🚫 **Ekranda yine ERİŞİLEMEDİ** · ➕ **istemcide rastgelelik olmadığı kanıtlandı**, "Karıştır"ın tek hareketi değiştirdiği kanıtlandı [KAYNAK] |
+
+**Tamamlanan kesintisiz tam tur: hâlâ 0. Üretilmiş plan ekranı: hâlâ hiç görülmedi.**
+
+### Kol bazında
+
+| Kol | Route | Durum |
+|---|---|---|
+| **Tekli Antrenman** | `/tr-tr/workout-generator/*` | 6 adımın 6'sı **[ROUTE]** (6. oturum) · sonuç ekranı 🚫 |
+| **Haftalık Rutin** | **`/tr-tr/routine-generator`** ⭐ *(bu turda bulundu)* | Ekranda 🚫 **hiç görülmedi** · **iskeleti [KAYNAK] ile çıkarıldı** (§11.5) |
+| Oluşturucu giriş kapısı | `/tr-tr/generator` | **[ROUTE]** (6. oturum) |
+| **Ana sayfa** | `/tr-tr` | ⭐ **[EKRAN]** *(bu turda, ilk kez)* |
+
+### Ekran görüntüsü
+
+| Dosya | İçerik | Etiket |
+|---|---|---|
+| `h3-akis/o7-anasayfa-kas-haritasi.png` | ⭐ **YENİ** — MuscleWiki ana sayfası, 1440×1788: ön+arka kas haritası, `Erkek`/`Gelişmiş`/`Eklemler` anahtarları, 18 kalemlik ekipman süzgeci, sol dikey ray, alt bilgi | **[EKRAN]** |
+
+*(Önceki 10 dosya yerinde duruyor; hiçbiri değiştirilmedi.)*
+
+---
+
+## 11.9 · Sonraki oturuma — bu turdan çıkan yöntem notları
+
+1. **Oturumu asla kapatma.** Tarayıcı bir kez açıldıysa tüm turlar onun
+   içinde atılacak. Bu turda blok **tam olarak yeniden fırlatmayla** başladı
+   ve bir daha kalkmadı.
+2. **Sürücü sürecini harness'in sonlandırmayacağı biçimde çalıştır.**
+   Bu turda tarayıcı iki kez, keşifle ilgisiz olarak, arka plan görevi
+   sonlandırıldığı için düştü.
+3. **Blok kalıcı olabilir.** Bu turda 49,5 dakikalık bekleme yetmedi.
+   Blok "Just a moment" değil **"you have been blocked"** ise, bu bir JS
+   meydan okuması değil **WAF kuralıdır**; beklemekle geçmeyebilir.
+4. **Sonuç ekranına ulaşılsa bile plan eksik gelebilir** (AS-10, ödeme
+   duvarı). Determinizm ölçümü planlanırken bu hesaba katılmalı — kilitli
+   hareketler diff'i bozar.
+5. **Öncelik sırası hâlâ AS-1:** `/tr-tr/routine-generator`. Artık route
+   biliniyor, doğrudan gidilebilir.
+6. **Zaten indirilmiş dosyalar hâlâ verimli.** Bu turun bulgularının
+   tamamı — Haftalık Rutin şeması dahil — **tek bir yeni istek atılmadan**,
+   önceki oturumun indirdiği `wg.html` (içinden **1105 anahtar/değer
+   çifti** ayrıştırıldı; büyük kısmı i18n sözlüğü — 6. oturumun okuduğu
+   131 anahtardan çok daha fazlası) ve 11 JS chunk'ından çıkarıldı. Siteye gitmeden önce **eldeki dosyalar
+   tüketilmeli**.

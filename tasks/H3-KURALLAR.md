@@ -19,7 +19,7 @@ her eksenin kaynağı yazılıdır.
 
 | Eksen | Kaynak | Not |
 |---|---|---|
-| **Hareket havuzu** — slug, ad, zorluk, ekipman gereği | ✅ **Ölçüldü** — `egzersiz-kutuphane-v1.html` kart öznitelikleri (`data-name`, `data-seviye`, `data-ekipman`) | 12 kalem, kütüphanenin tamamı |
+| **Hareket havuzu** — slug, ad, zorluk, ekipman gereği | ✅ **Ölçüldü** — `egzersiz-kutuphane-v1.html` kart öznitelikleri (`data-name`, `data-seviye`, `data-ekipman`) | 25 kalem, kütüphanenin tamamı |
 | **Kas grubu / kalıp ataması** | ✍️ **DadaFit editoryal** — `egzersiz-detay-v1.html`'in `bolge` alanı ve kütüphanenin `data-kas`'ı temel alındı, ikincil gruplar hareket kalıbından türetildi | Kaynağı §3'te kalem kalem yazılı |
 | **Gün sayısı → bölünme** | ✍️ **Brief'in şartı** (REVIZYON-5 §2 · H3) | MuscleWiki'nin gün eksenli kolu **hiç keşfedilmedi** (KARARLAR K41 · AS-1), kopyalanacak bir şey zaten yoktu |
 | **Set / tekrar / dinlenme** | ✍️ **DadaFit editoryal** — yaygın kuvvet antrenmanı pratiğinin genel aralıkları | 🔴 **MuscleWiki'den ALINMADI.** Keşif §5 ve AS-3: sonuç ekranına hiç erişilemedi, bu değerler **elde yok**. MuscleWiki'den alınmış gibi gösterilmiyor |
@@ -54,66 +54,102 @@ okunuyor.
 
 ---
 
-## 3 · A · Hareket havuzu — 12 kalem
+## 3 · A · Hareket havuzu — 25 kalem
 
-Kütüphanede **12 gerçek hareket** var; havuz bunların tamamıdır.
+Kütüphanede **25 gerçek hareket** var; havuz bunların tamamıdır.
 Uydurma slug yoktur; her satır `egzersiz-detay-v1.html?slug=` ile
-gerçek bir karta gider.
+gerçek bir karta gider. (8. oturumda kütüphane 12'den 25'e çıktı;
+13 yeni kalem ve `goblet-squat`'ın düzeltilmesi aşağıda işaretli.)
 
-| slug | ad | kalıp | birincil | ikincil | gerek | zorluk | ölçüm |
-|---|---|---|---|---|---|---|---|
-| `goblet-squat` | Squat (Çömelme) | bacak | bacak | kalca | — | 1 | tekrar |
-| `plank` | Plank (Şınav Duruşu) | core | core | — | — | 2 | **süre** |
-| `dambil-kurek` | Dambıl Kürek Çekme | cekis | sirt | kol | dambil | 2 | tekrar |
-| `sinav` | Şınav (Push-up) | itis | gogus | omuz · core | — | 2 | tekrar |
-| `hamle` | Hamle (Lunge) | bacak | bacak | kalca | — | 1 | tekrar |
-| `dambil-omuz-press` | Dambıl Omuz Press | itis | omuz | kol | dambil | 2 | tekrar |
-| `dambil-biceps` | Dambıl Biceps Curl | cekis | kol | — | dambil | 1 | tekrar |
-| `dead-bug` | Dead Bug (Ölü Böcek) | core | core | — | — | 1 | tekrar |
-| `kettlebell-swing` | Kettlebell Swing | bacak | kalca | sirt · core | kettlebell | 3 | tekrar |
-| `bant-cekme` | Bant Çekme (Band Row) | cekis | sirt | kol | bant | 1 | tekrar |
-| `kopru` | Köprü (Glute Bridge) | bacak | kalca | core | — | 2 | tekrar |
-| `bant-yana-acma` | Bant Yana Açma | itis | omuz | — | bant | 2 | tekrar |
+| slug | ad | kalıp | birincil | ikincil | gerek | zorluk | ölçüm | not |
+|---|---|---|---|---|---|---|---|---|
+| `goblet-squat` | Goblet Squat | bacak | bacak | kalca | dambil | 2 | tekrar | yeni: ad+ekipman düzeltildi |
+| `plank` | Plank (Şınav Duruşu) | core | core | — | — | 2 | **süre** |  |
+| `dambil-kurek` | Dambıl Kürek Çekme | cekis | sirt | kol | dambil | 2 | tekrar |  |
+| `sinav` | Şınav (Push-up) | itis | gogus | omuz · core | — | 2 | tekrar |  |
+| `hamle` | Hamle (Lunge) | bacak | bacak | kalca | — | 1 | tekrar |  |
+| `dambil-omuz-press` | Dambıl Omuz Press | itis | omuz | kol | dambil | 2 | tekrar |  |
+| `dambil-biceps` | Dambıl Biceps Curl | cekis | kol | — | dambil | 1 | tekrar |  |
+| `dead-bug` | Dead Bug (Ölü Böcek) | core | core | — | — | 1 | tekrar |  |
+| `kettlebell-swing` | Kettlebell Swing | bacak | kalca | sirt · core | kettlebell | 3 | tekrar |  |
+| `bant-cekme` | Bant Çekme (Band Row) | cekis | sirt | kol | bant | 1 | tekrar |  |
+| `kopru` | Köprü (Glute Bridge) | bacak | kalca | core | — | 2 | tekrar |  |
+| `bant-yana-acma` | Bant Yana Açma | itis | omuz | — | bant | 2 | tekrar |  |
+| `hava-squat` | Hava Squat (Bodyweight Squat) | bacak | bacak | kalca | — | 1 | tekrar | **yeni** |
+| `ters-sinav` | Ters Şınav (Inverted Row) | cekis | sirt | kol | — | 2 | tekrar | **yeni · ekipmansız çekiş** |
+| `superman` | Superman (Yüzüstü Uzanma) | cekis | sirt | kalca · core | — | 1 | tekrar | **yeni · ekipmansız çekiş** |
+| `yuzucu` | Yüzücü (Y-T-W Kaldırış) | cekis | sirt | omuz | — | 1 | tekrar | **yeni · ekipmansız çekiş** |
+| `barfiks` | Barfiks (Pull-up) | cekis | sirt | kol | barfiksbari | 3 | tekrar | **yeni · yeni ekipman** |
+| `sehpa-dips` | Sehpa Dips (Bench Dips) | itis | kol | omuz · gogus | — | 2 | tekrar | **yeni** |
+| `bulgar-split-squat` | Bulgar Split Squat | bacak | bacak | kalca · core | — | 3 | tekrar | **yeni** |
+| `tek-bacak-kopru` | Tek Bacak Köprü | bacak | kalca | core | — | 2 | tekrar | **yeni** |
+| `yan-plank` | Yan Plank | core | core | omuz | — | 2 | **süre** | **yeni** |
+| `dag-tirmanisi` | Dağ Tırmanışı (Mountain Climber) | core | core | omuz · bacak | — | 2 | tekrar | **yeni** |
+| `burpee` | Burpee | core | core | bacak · gogus | — | 3 | tekrar | **yeni** |
+| `dambil-gogus-press` | Dambıl Göğüs Press | itis | gogus | omuz · kol | dambil | 2 | tekrar | **yeni** |
+| `dambil-romanya` | Dambıl Romanya Deadlift | bacak | bacak | kalca · sirt | dambil | 2 | tekrar | **yeni** |
 
 **`zorluk` ölçüldü:** kütüphane kartlarının `data-seviye` değeri (1 · 2 · 3).
 **`gerek` ölçüldü:** kütüphane kartlarının `data-ekipman` değeri
 (`ekipmansiz` → `[]`, `dambil` → `['dambil']`, `kettlebell` →
-`['kettlebell']`, `direncbandi` → `['bant']`).
+`['kettlebell']`, `direncbandi` → `['bant']`, `barfiksbari` →
+`['barfiksbari']`).
 
-### 🔴 Kütüphane ile detay sayfası `goblet-squat`'ta çelişiyor — çözüm ve gerekçe
+**Kalıp dağılımı (25 kalem):** 8 bacak · 5 itiş · **7 çekiş** · 5 core.
+**Ekipman dağılımı:** 15 ekipmansız · 6 dambıl · 2 bant · 1 kettlebell ·
+1 barfiks barı.
 
-| Kaynak | Ad | Ekipman |
+**Yeni ekipman: barfiks barı.** `barfiks` kütüphanede
+`data-ekipman="barfiksbari"` taşıyor; bu değer için adım 4'e beşinci bir
+seçenek eklendi (`KURALLAR.ekipman.barfiksbari`). Eklenmeseydi kataloğun
+bir kalemi hiçbir seçimle plana giremezdi — havuzda görünüp asla
+çıkmayan bir hareket, kural tablosunun dürüstlüğünü bozardı.
+
+### ✅ `goblet-squat` çelişkisi kapandı — kütüphane düzeltildi
+
+7. oturumda kütüphane kartı bu hareketi **"Squat (Çömelme)" ·
+Ekipmansız**, detay sayfası **"Goblet Squat" · Dambıl/Kettlebell**
+diyordu (K43'ün açık bıraktığı iki çelişkiden biri). 8. oturumda
+**detayın haklı olduğu** kabul edildi: hareket tanımı gereği ağırlık
+ister.
+
+| | 7. oturum | 8. oturum |
 |---|---|---|
-| `egzersiz-kutuphane-v1.html` (kart) | **Squat (Çömelme)** | **Ekipmansız** (`data-ekipman="ekipmansiz"`, kartın görünen etiketi de "Ekipmansız") |
-| `egzersiz-detay-v1.html` (`VERI` tablosu) | Goblet Squat | Dambıl / Kettlebell |
+| ad | Squat (Çömelme) | **Goblet Squat** |
+| gerek | `[]` | **`['dambil']`** |
+| zorluk | 1 | **2** |
 
-**Karar: kütüphane kanoniktir**, `goblet-squat` havuzda `gerek:[]` ile duruyor.
-Üç gerekçe: ① kütüphane sitenin **süzme kaynağıdır** — "Ekipmansız" filtresini
-seçen kullanıcı bu kartı zaten görür, plan onunla çelişemez; ② kartın
-**görünen** ekipman etiketi "Ekipmansız"; ③ H3 brief'inin kendi hareket
-tablosundaki **ad sütunu da** kütüphanenin adını ("Squat (Çömelme)")
-kullanıyor, yani vücut ağırlığı varyantını.
+Ekipmansız havuzdaki yerini **`hava-squat`** (Hava Squat / Bodyweight
+Squat) aldı — yani ekipmansız plan hâlâ gerçek bir squat kalıbı
+taşıyor, ama artık doğru adla. Sınamanın 19. ölçütü `goblet-squat`'ın
+ekipmansız planda **çıkmadığını** ayrıca nöbet tutuyor.
 
-> ⚠️ **Koordinatöre:** bu bir veri tutarsızlığıdır ve H3'ün dışında.
-> `egzersiz-detay-v1.html`'in `VERI` tablosundaki `goblet-squat` satırı
-> ya kütüphaneye hizalanmalı ya da kütüphane kartı düzeltilmeli.
-> H3 hiçbir sayfayı değiştirmedi, yalnız kanonik kaynağını seçip yazdı.
+### ✅ Ekipmansız havuzda çekiş kalıbı AÇILDI — sınır kapandı
 
-### Ekipmansız havuzda çekiş kalıbı yok — bilinen sınır
+7. oturumun bilinen sınırı şuydu: `gerek:[]` olan 6 hareketin hiçbiri
+çekiş değildi, yani **ekipmansız planda sırt çalışmıyordu**.
 
-`gerek:[]` olan 6 hareket: `goblet-squat` · `hamle` · `kopru` · `sinav` ·
-`plank` · `dead-bug`. Bunların **hiçbiri çekiş (pull) hareketi değil** —
-kütüphanedeki dört çekiş hareketinin dördü de dambıl ya da bant istiyor.
-Bu bir motor kusuru değil, **kütüphanenin kapsam eksiğidir**.
+**Kapandı.** Ekipmansız havuz artık **15 hareket** ve **üçü çekiş**:
 
-Motor bunu gizlemiyor, **iki yerde birden söylüyor**:
-① sonucun en üstünde bir bildirim şeridi — *"… havuzda Çekiş kalıbında hiç
-hareket yok; o günler tamamlayıcı hareketlerle kuruldu. Direnç bandı ya da
-dambıl eklersen bu kalıp açılır"*; ② o günün gerekçesinde
-*"⚠ elindeki havuzda Çekiş kalıbında hiç hareket yok"* satırı.
-Gün yine **dolu** dönüyor — karşılıksız kombinasyon 0 bozulmuyor.
-Kütüphaneye ekipmansız bir çekiş hareketi (ör. ters şınav / masa altı
-row, süperman) eklendiğinde bu satır kendiliğinden kaybolur.
+| slug | ad | birincil | zorluk |
+|---|---|---|---|
+| `ters-sinav` | Ters Şınav (Inverted Row) | sirt | 2 |
+| `superman` | Superman (Yüzüstü Uzanma) | sirt | 1 |
+| `yuzucu` | Yüzücü (Y-T-W Kaldırış) | sirt | 1 |
+
+Ekipmansız havuzun kalıp dağılımı: **5 bacak · 2 itiş · 3 çekiş · 5 core**.
+
+Sonuç: §11'in *"⚠ elindeki havuzda Çekiş kalıbında hiç hareket yok"*
+satırı ve sonuç ekranının bildirim şeridi ekipmansız seçimde **artık
+çıkmıyor** — kaldırılmadılar, çünkü kural hâlâ doğru ve genel: bir
+kalıbın havuzda gerçekten karşılığı yoksa motor bunu söylemeyi
+sürdürüyor. Şeridin metnindeki *"kütüphanedeki dört çekiş hareketinin
+dördü de bant veya dambıl istiyor"* cümlesi ise artık **yanlış olduğu
+için kaldırıldı**; yerine hangi ekipmanın o kalıbı açtığı **havuzdan
+sayılarak** yazılıyor.
+
+Sınamanın 18. ölçütü bunun nöbetçisi: ekipmansız seçildiğinde planda en
+az bir çekiş hareketi bulunmak zorunda (12 bileşimde ölçülüyor).
 
 ---
 
@@ -179,7 +215,7 @@ değerini alır: 20-30 sn / 30-45 sn / 45-60 sn.
 
 ---
 
-## 7 · E · Ekipman → havuz süzme + F · kas dengesi
+## 7 · E · Ekipman → havuz süzme + F · gün içi denge
 
 ### Ekipman — motorun **tek** sert süzgeci, ve boş plan üretemez
 
@@ -188,18 +224,19 @@ Brief "eleme değil puan düşüşü" diyor; ekipman **bunun tek istisnası**,
 kettlebell / bant hareketi yok"* diyor — bunu puan düşüşüyle **garanti
 etmek imkânsız**.
 
-**Karşılıksız kombinasyon 0 mimariden geliyor:** `gerek:[]` olan **6**
-hareket hiçbir seçimde havuzdan düşmez, yani havuz asla 6'nın altına
+**Karşılıksız kombinasyon 0 mimariden geliyor:** `gerek:[]` olan **15**
+hareket hiçbir seçimde havuzdan düşmez, yani havuz asla 15'in altına
 inmez. Sonradan eklenmiş bir yedek liste yok; taban havuzun kendisi
-garantidir.
+garantidir. (7. oturumda bu taban 6'ydı.)
 
 | Seçim | Havuz büyüklüğü |
 |---|---|
-| Yok (vücut ağırlığı) | **6** |
-| Yok + dambıl | 6 + 3 = 9 |
-| Yok + bant | 6 + 2 = 8 |
-| Yok + kettlebell | 6 + 1 = 7 |
-| Hepsi | **12** |
+| Yok (vücut ağırlığı) | **15** |
+| Yok + dambıl | 15 + 6 = 21 |
+| Yok + bant | 15 + 2 = 17 |
+| Yok + kettlebell | 15 + 1 = 16 |
+| Yok + barfiks barı | 15 + 1 = 16 |
+| Hepsi | **25** |
 
 *(Kural: `gerek` boşsa hareket her zaman havuzda; değilse seçilen
 ekipmanlardan en az biri `gerek`te olmalı. "Yok" seçimi diğerlerini temizler.)*
@@ -214,66 +251,120 @@ N = min( seviye.hareket,
 
 | Tavan | Ne zaman bağlayıcı | Örnek |
 |---|---|---|
-| `seviye.hareket` | havuz bol, gün geniş kalıplı | 12 havuz · tüm vücut · ileri → **6** |
-| `max(3, havuz − 2)` | ekipmansız havuz | 6 havuz · tüm vücut · ileri → **4** |
-| `max(3, kalıptaki)` | push/pull/legs bölünmesi | 12 havuz · itiş günü · ileri → **3** |
+| `seviye.hareket` | havuz bol, gün geniş kalıplı | 25 havuz · tüm vücut · ileri → **6** |
+| `max(3, havuz − 2)` | 25 kalemde **hiç bağlamıyor** | en küçük havuz 15 → 13 > 6 |
+| `max(3, kalıptaki)` | push/pull/legs bölünmesi | ekipmansız · itiş günü · ileri → **3** |
 
-Üçüncü tavan **12 hareketlik havuzun doğrudan sonucudur** ve önemlidir:
-havuzda yalnız **3 itiş**, **3 çekiş**, **4 bacak**, **2 core** hareketi var.
-Bu tavan olmasa motor "İtiş Günü"ne çekiş ve bacak hareketi doldururdu —
-ölçüldü, düzeltilmeden önce tam olarak bu oluyordu. Günler artık farklı
-uzunlukta olabiliyor; bu bir kusur değil, **havuzun dürüst yansıması**,
-ve gün gerekçesinde açıkça yazıyor
-(*"gün 3 harekete ölçeklendi: seviye 6 isterdi, havuzda bu kalıpta 3 hareket var"*).
+Üçüncü tavan hâlâ bağlayıcıdır ve önemlidir: ekipmansız havuzda yalnız
+**2 itiş** hareketi var. Bu tavan olmasa motor "İtiş Günü"ne çekiş ve
+bacak hareketi doldururdu. Günler farklı uzunlukta olabiliyor; bu bir
+kusur değil, **havuzun dürüst yansıması**, ve gün gerekçesinde açıkça
+yazıyor (*"gün 3 harekete ölçeklendi: seviye 6 isterdi, havuzda bu
+kalıpta 2 hareket var"*).
 
-### Kas dengesi
+### Gün içi denge — iki tavan
 
-Aynı gün içinde aynı **birincil kas grubundan en fazla 2** hareket
-(`puan.gunIciGrupTavan`). Tavan dolduğunda sıradaki aday atlanır;
-gün doldurulamayacak hale gelirse tavan gevşetilir — plan asla eksik dönmez.
+**① Kas grubu tavanı.** Aynı gün içinde aynı **birincil kas grubundan en
+fazla 2** hareket (`puan.gunIciGrupTavan`).
+
+**② Kalıp tavanı — 8. oturumda eklendi.** Çok kalıplı bir günde (tüm
+vücut, üst/alt) tek bir kalıptan en fazla
+
+```
+kalipTavan = ceil( N × puan.gunIciKalipPay / günün kalıp sayısı )
+```
+
+hareket alınır. Tek kalıplı günde (İtiş / Çekiş / Bacak) tavan N'e eşit
+olur, yani bağlamaz.
+
+**Neden gerekti — ölçüldü.** Havuz 25'e çıkınca bacak+kalça arzı 4'ten
+8'e çıktı ve puanlama tek başına dengeyi tutamaz oldu: *3 gün ·
+ekipmansız · başlangıç · kilo verme* seçiminde **"Tüm Vücut A" dört
+bacak hareketiyle** doluyordu (hamle · hava-squat · köprü · tek bacak
+köprü) — adı "tüm vücut" olan bir günde ne itiş ne çekiş vardı. Kalıp
+tavanıyla aynı gün **hamle · şınav · superman · yan plank** oluyor:
+dört kalıbın dördü de var.
+
+Tavanlar **eleyici değil**: dolduklarında sıradaki aday atlanır, gün
+dolmazsa tavan gevşetilir (§8'deki TUR 2 ve TUR 4) — plan asla eksik
+dönmez.
 
 ---
 
-## 8 · 🔴 12 hareket ↔ "aynı hareket iki güne düşmesin" çelişkisi
+## 8 · ✅ "Aynı hareket iki güne düşmesin" — ceza YASAĞA döndü
 
-Brief *"aynı hareket iki güne düşmeyecek"* diyor. **Havuz 12 kalem.**
-6 günlük bölünmede bu ancak gün başına 2 hareketle mümkün olurdu —
-seans o kadar ince olur ki plan işe yaramaz. Ekipmansız havuzda (6 kalem)
-kural zaten **3 günde bile** ihlal edilmek zorunda.
+7. oturumda havuz **12 kalemdi** ve brief'in *"aynı hareket iki güne
+düşmeyecek"* şartı matematiksel olarak karşılanamıyordu; kural ikiye
+bölünmüştü: gün içi tekrar **yasak**, günler arası tekrar
+**cezalandırılır** (`puan.tekrarCeza` = 9). O bölümün sonunda şu eşik
+yazılıydı:
 
-### Karar — kural iki parçaya bölündü
+> **≥ 24 hareket** → Aynı hareket **haftada en fazla 1** gün.
 
-1. **Aynı hareket aynı GÜN içinde tekrarlanmaz.** Bu **mutlak**tır ve
-   mimariden gelir: gün seçimi ayrık kalemlerden yapılır.
-2. **Günler arası tekrar kaçınılmazdır** ve **cezalandırılır, yasaklanmaz.**
-   Bir hareket önceki günlerde kaç kez kullanıldıysa, o gün
-   `puan.tekrarCeza` (9) × kullanım sayısı kadar puan kaybeder. Yani
-   motor önce hiç kullanılmamış hareketleri dağıtır; havuz tükendiğinde
-   en az kullanılana döner.
+**Havuz 25 oldu — eşik geçildi, uygulandı.**
 
-### Neden bu çözüm
+### Yasak nasıl kuruldu — puanla DEĞİL, seçim turlarıyla
 
-- **Sessizce görmezden gelmek yok.** Kural burada yazılı, kodda da bu
-  şekilde uygulanıyor, arayüzde de görünüyor: bir hareket haftada birden
-  fazla geçiyorsa gün gerekçesinde *"havuz {n} kalem olduğu için bazı
-  hareketler haftada birden fazla geçiyor — aynı hareket aynı GÜN içinde
-  tekrarlanmaz"* satırı çıkıyor ({n} = seçilen ekipmanla süzülmüş havuz).
-- **Alternatif — gün başına hareketi 2'ye indirmek** — kabul ölçütlerini
-  teknik olarak sağlardı ama ürünü bozardı: 6 günlük "plan" 12 harekete
-  bölünmüş 2'şerlik seanslar olurdu.
-- Ölçekleme kuralı (§7) zaten havuza saygı duyuyor: küçük havuzda gün
-  başına hareket sayısı düşüyor, yani tekrar en aza indiriliyor.
+İlk uygulama belgede yazdığı gibi `tekrarCeza`yı 9'dan 999'a çıkarmaktı
+(999, olası en büyük puan farkı olan 134'ten büyük olduğu için
+kullanılmış bir hareket kullanılmamış hiçbir hareketin önüne geçemez).
+**Ölçüldü ve geri alındı** — çünkü yasağı havuz geneline yaymak günün
+kalıbını yıkıyordu:
 
-### Kütüphane büyüdüğünde kural nasıl sıkılır
+| Ölçüm — *6 gün · dambıl+bant · ileri · kas* | `tekrarCeza:999` | seçim turları |
+|---|---|---|
+| İtiş Günü B'nin hareketleri | bulgar split squat · ters şınav · yüzücü · yan plank · plank — **tek bir itiş hareketi yok** | şınav · dambıl omuz press · sehpa dips · dambıl göğüs press · bant yana açma |
+| Gerekçe satırı | *"⚠ havuzda İtiş kalıbında hiç hareket yok"* — **YANLIŞ**, havuzda 5 itiş hareketi vardı, hepsi A gününde kullanılmıştı | *"⚠ tekrar yasağı bu günde esnedi: … kullanılmamış hareket kalmadı"* — doğru |
+| Çekiş Günü A | 3 çekiş + 3 bacak | 6 çekiş |
+| §7'nin "itiş gününe bacak doldurulmaz" sözü | **bozuluyor** | korunuyor |
+
+Kullanıcıya yanlış cümle kuran bir yasak, yasak olarak da işe yaramaz.
+Bu yüzden yasak **günün kalıbı içinde** mutlak kılındı ve seçim dört
+tura ayrıldı:
+
+| Tur | Küme | Tavanlar | Anlamı |
+|---|---|---|---|
+| **1** | günün kalıbındaki **kullanılmamış** hareketler | geçerli | normal hâl |
+| **2** | aynı küme | gevşek | kalıp havuzu bitmeden gün dışarıdan hareket almaz |
+| **3** | kalan havuz (tamamlayıcılar + kullanılmışlar), puanda `tekrarCeza` var → **en az kullanılan önce** | geçerli | **ZARİF DÜŞÜŞ** |
+| **4** | kalan havuz | gevşek | plan asla eksik dönmez |
+
+**TUR 1–2 dolduğu sürece hiçbir hareket haftada ikinci kez geçmez —
+yasak MUTLAK.** Gün TUR 3'e ancak o günün kalıbındaki hareketler
+gerçekten tükendiğinde iner.
+
+### Düşüş neden kaçınılmaz — ve neden gizlenmiyor
+
+*"Karşılıksız kombinasyon 0"* MUTLAK ölçüttür. Sert yasak bazı
+bileşimlerde planı boş bırakırdı: 6 gün × ekipmansız havuzda **2 itiş**
+hareketi var ama **iki** itiş günü; İtiş Günü B'ye yeni hareket kalmaz.
+Böyle bir günde motor en az kullanılana döner ve **üç yerde birden
+söyler**:
+
+1. **Kural tablosu** — `KURALLAR.tekrarYasagi` ve E2 notu (§9);
+2. **Kod** — seçim turları, dört tur da adıyla yorumlanmış;
+3. **Arayüz** — sonuç ekranının üstünde *"… kural **{n} yerde esnedi**"*
+   şeridi, o günün gerekçesinde de *"⚠ tekrar yasağı bu günde esnedi:
+   {hareketler} haftada ikinci kez geçiyor — {havuz} hareketlik havuzda
+   bu günün kalıbında ({kalıp}) kullanılmamış hareket kalmadı"*.
+
+Kullanıcı planında bir hareketi iki gün görüyorsa **sebebini de
+görüyor**. Sınamanın 17. ölçütü bunu nöbete bağladı: düşüş sayılıyor,
+ve **arayüzde yazmayan bir düşüş süiti kırmızıya döndürüyor**.
+
+### Ölçülen sonuç — 40 bileşim
+
+`tests/workout-generator.mjs`, 4 gün sayısı × 10 ekipman bileşimi = **40
+seçim** üzerinde yasağı ölçüyor. Sonuçlar sınamanın çıktısında
+sayılarla duruyor; gün **içi** tekrar her koşulda **0**.
+
+### Kütüphane daha da büyürse
 
 | Havuz | Kural | Nasıl uygulanır |
 |---|---|---|
-| **≥ 24 hareket** | Aynı hareket **haftada en fazla 1** gün | `puan.tekrarCeza` 9 → 999 yapılır; ceza fiilen yasak olur, mimari değişmez |
-| **≥ 18 hareket** | Ekipmansız havuza çekiş hareketi girdiğinde §3'teki "çekiş yok" sınırı kalkar | Ek kod gerekmez, havuz verisi yeter |
-| **≥ 40 hareket** | Gün başına hareket seviyeye göre 5/6/8'e çıkarılabilir | `seviye.*.hareket` değerleri |
-
-Tek satır değişikliğiyle sıkılabilmesi, kuralın **veri** olmasının
-doğrudan kazancıdır.
+| **≥ 25** ✅ | Aynı hareket haftada en fazla 1 gün | **yapıldı** — seçim turları |
+| **≥ 40** | Gün başına hareket seviyeye göre 5/6/8'e çıkarılabilir | `seviye.*.hareket` değerleri |
+| **≥ 2 itiş × gün sayısı** | 6 günlük ekipmansız planda düşüş de biter | ek kod gerekmez, havuz verisi yeter |
 
 ---
 
@@ -286,28 +377,44 @@ doğrudan kazancıdır.
 ```js
 var KURALLAR = {
 
-  /* ---- A · HAREKET HAVUZU (12 kalem — kütüphanenin tamamı) ----
+  /* ---- A · HAREKET HAVUZU (25 kalem — kütüphanenin tamamı) ----
      slug/ad/zorluk/gerek alanları egzersiz-kutuphane-v1.html'in kart
      özniteliklerinden (data-name · data-seviye · data-ekipman) ÖLÇÜLEREK
-     alındı. birincil/ikincil grup ve kalıp DadaFit'in editoryal ataması. */
+     alındı. birincil/ikincil grup ve kalıp DadaFit'in editoryal ataması.
+     Kalıp dağılımı: 8 bacak · 5 itiş · 7 çekiş · 5 core.
+     Ekipman istemeyen (gerek:[]) 15 hareketin 3'ü ÇEKİŞ kalıbında
+     (ters-sinav · superman · yuzucu) — ekipmansız planda sırt çalışır. */
   havuz: [
-    {slug:'goblet-squat',      ad:'Squat (Çömelme)',        kalip:'bacak', birincil:'bacak', ikincil:['kalca'],        gerek:[],             zorluk:1, olcum:'tekrar'},
-    {slug:'plank',             ad:'Plank (Şınav Duruşu)',   kalip:'core',  birincil:'core',  ikincil:[],               gerek:[],             zorluk:2, olcum:'sure'},
-    {slug:'dambil-kurek',      ad:'Dambıl Kürek Çekme',     kalip:'cekis', birincil:'sirt',  ikincil:['kol'],          gerek:['dambil'],     zorluk:2, olcum:'tekrar'},
-    {slug:'sinav',             ad:'Şınav (Push-up)',        kalip:'itis',  birincil:'gogus', ikincil:['omuz','core'],  gerek:[],             zorluk:2, olcum:'tekrar'},
-    {slug:'hamle',             ad:'Hamle (Lunge)',          kalip:'bacak', birincil:'bacak', ikincil:['kalca'],        gerek:[],             zorluk:1, olcum:'tekrar'},
-    {slug:'dambil-omuz-press', ad:'Dambıl Omuz Press',      kalip:'itis',  birincil:'omuz',  ikincil:['kol'],          gerek:['dambil'],     zorluk:2, olcum:'tekrar'},
-    {slug:'dambil-biceps',     ad:'Dambıl Biceps Curl',     kalip:'cekis', birincil:'kol',   ikincil:[],               gerek:['dambil'],     zorluk:1, olcum:'tekrar'},
-    {slug:'dead-bug',          ad:'Dead Bug (Ölü Böcek)',   kalip:'core',  birincil:'core',  ikincil:[],               gerek:[],             zorluk:1, olcum:'tekrar'},
-    {slug:'kettlebell-swing',  ad:'Kettlebell Swing',       kalip:'bacak', birincil:'kalca', ikincil:['sirt','core'],  gerek:['kettlebell'], zorluk:3, olcum:'tekrar'},
-    {slug:'bant-cekme',        ad:'Bant Çekme (Band Row)',  kalip:'cekis', birincil:'sirt',  ikincil:['kol'],          gerek:['bant'],       zorluk:1, olcum:'tekrar'},
-    {slug:'kopru',             ad:'Köprü (Glute Bridge)',   kalip:'bacak', birincil:'kalca', ikincil:['core'],         gerek:[],             zorluk:2, olcum:'tekrar'},
-    {slug:'bant-yana-acma',    ad:'Bant Yana Açma',         kalip:'itis',  birincil:'omuz',  ikincil:[],               gerek:['bant'],       zorluk:2, olcum:'tekrar'}
+    {slug:'goblet-squat',       ad:'Goblet Squat',                     kalip:'bacak', birincil:'bacak', ikincil:['kalca'],         gerek:['dambil'],      zorluk:2, olcum:'tekrar'},
+    {slug:'plank',              ad:'Plank (Şınav Duruşu)',             kalip:'core',  birincil:'core',  ikincil:[],                gerek:[],              zorluk:2, olcum:'sure'},
+    {slug:'dambil-kurek',       ad:'Dambıl Kürek Çekme',               kalip:'cekis', birincil:'sirt',  ikincil:['kol'],           gerek:['dambil'],      zorluk:2, olcum:'tekrar'},
+    {slug:'sinav',              ad:'Şınav (Push-up)',                  kalip:'itis',  birincil:'gogus', ikincil:['omuz','core'],   gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'hamle',              ad:'Hamle (Lunge)',                    kalip:'bacak', birincil:'bacak', ikincil:['kalca'],         gerek:[],              zorluk:1, olcum:'tekrar'},
+    {slug:'dambil-omuz-press',  ad:'Dambıl Omuz Press',                kalip:'itis',  birincil:'omuz',  ikincil:['kol'],           gerek:['dambil'],      zorluk:2, olcum:'tekrar'},
+    {slug:'dambil-biceps',      ad:'Dambıl Biceps Curl',               kalip:'cekis', birincil:'kol',   ikincil:[],                gerek:['dambil'],      zorluk:1, olcum:'tekrar'},
+    {slug:'dead-bug',           ad:'Dead Bug (Ölü Böcek)',             kalip:'core',  birincil:'core',  ikincil:[],                gerek:[],              zorluk:1, olcum:'tekrar'},
+    {slug:'kettlebell-swing',   ad:'Kettlebell Swing',                 kalip:'bacak', birincil:'kalca', ikincil:['sirt','core'],   gerek:['kettlebell'],  zorluk:3, olcum:'tekrar'},
+    {slug:'bant-cekme',         ad:'Bant Çekme (Band Row)',            kalip:'cekis', birincil:'sirt',  ikincil:['kol'],           gerek:['bant'],        zorluk:1, olcum:'tekrar'},
+    {slug:'kopru',              ad:'Köprü (Glute Bridge)',             kalip:'bacak', birincil:'kalca', ikincil:['core'],          gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'bant-yana-acma',     ad:'Bant Yana Açma',                   kalip:'itis',  birincil:'omuz',  ikincil:[],                gerek:['bant'],        zorluk:2, olcum:'tekrar'},
+    {slug:'hava-squat',         ad:'Hava Squat (Bodyweight Squat)',    kalip:'bacak', birincil:'bacak', ikincil:['kalca'],         gerek:[],              zorluk:1, olcum:'tekrar'},
+    {slug:'ters-sinav',         ad:'Ters Şınav (Inverted Row)',        kalip:'cekis', birincil:'sirt',  ikincil:['kol'],           gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'superman',           ad:'Superman (Yüzüstü Uzanma)',        kalip:'cekis', birincil:'sirt',  ikincil:['kalca','core'],  gerek:[],              zorluk:1, olcum:'tekrar'},
+    {slug:'yuzucu',             ad:'Yüzücü (Y-T-W Kaldırış)',          kalip:'cekis', birincil:'sirt',  ikincil:['omuz'],          gerek:[],              zorluk:1, olcum:'tekrar'},
+    {slug:'barfiks',            ad:'Barfiks (Pull-up)',                kalip:'cekis', birincil:'sirt',  ikincil:['kol'],           gerek:['barfiksbari'], zorluk:3, olcum:'tekrar'},
+    {slug:'sehpa-dips',         ad:'Sehpa Dips (Bench Dips)',          kalip:'itis',  birincil:'kol',   ikincil:['omuz','gogus'],  gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'bulgar-split-squat', ad:'Bulgar Split Squat',               kalip:'bacak', birincil:'bacak', ikincil:['kalca','core'],  gerek:[],              zorluk:3, olcum:'tekrar'},
+    {slug:'tek-bacak-kopru',    ad:'Tek Bacak Köprü',                  kalip:'bacak', birincil:'kalca', ikincil:['core'],          gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'yan-plank',          ad:'Yan Plank',                        kalip:'core',  birincil:'core',  ikincil:['omuz'],          gerek:[],              zorluk:2, olcum:'sure'},
+    {slug:'dag-tirmanisi',      ad:'Dağ Tırmanışı (Mountain Climber)', kalip:'core',  birincil:'core',  ikincil:['omuz','bacak'],  gerek:[],              zorluk:2, olcum:'tekrar'},
+    {slug:'burpee',             ad:'Burpee',                           kalip:'core',  birincil:'core',  ikincil:['bacak','gogus'], gerek:[],              zorluk:3, olcum:'tekrar'},
+    {slug:'dambil-gogus-press', ad:'Dambıl Göğüs Press',               kalip:'itis',  birincil:'gogus', ikincil:['omuz','kol'],    gerek:['dambil'],      zorluk:2, olcum:'tekrar'},
+    {slug:'dambil-romanya',     ad:'Dambıl Romanya Deadlift',          kalip:'bacak', birincil:'bacak', ikincil:['kalca','sirt'],  gerek:['dambil'],      zorluk:2, olcum:'tekrar'}
   ],
 
   gruplar:  {bacak:'Bacak', kalca:'Kalça', sirt:'Sırt', gogus:'Göğüs', omuz:'Omuz', kol:'Kol', core:'Core'},
   kaliplar: {bacak:'Bacak', itis:'İtiş', cekis:'Çekiş', core:'Core'},
-  ekipman:  {yok:'Vücut ağırlığı', dambil:'Dambıl', kettlebell:'Kettlebell', bant:'Direnç bandı'},
+  ekipman:  {yok:'Vücut ağırlığı', dambil:'Dambıl', kettlebell:'Kettlebell', bant:'Direnç bandı', barfiksbari:'Barfiks barı'},
 
   /* ---- B · GÜN SAYISI → BÖLÜNME ----
      Brief'in şartı: 3 → full body · 4 → üst/alt · 5–6 → push/pull/legs.
@@ -364,7 +471,8 @@ var KURALLAR = {
 
   /* ---- E · PUAN EKSENLERİ ----
      Hiçbiri eleyici değil (ekipman hariç, bkz. F). Puan düşüşü sıralamayı
-     değiştirir, havuzdan kalem çıkarmaz. */
+     değiştirir, havuzdan kalem çıkarmaz. Haftalık tekrar YASAĞI puanla
+     değil, seçim turlarıyla kuruluyor — bkz. E2. */
   puan: {
     kalipUyum:50,      /* hareketin kalıbı günün kalıbındaysa */
     vurgu:14,          /* kalıp ayrıca günün vurgusundaysa */
@@ -372,15 +480,52 @@ var KURALLAR = {
     ikincilGrup:10,    /* ikincil kas grubu günün gruplarındaysa */
     odakUyum:12,       /* kullanıcı odak seçtiyse ve hareket odakla kesişiyorsa */
     zorlukCeza:8,      /* seviyenin üstündeki her zorluk basamağı için */
-    tekrarCeza:9,      /* hareketin önceki günlerde kaç kez kullanıldığı × bu */
-    gunIciGrupTavan:2  /* aynı gün içinde aynı birincil gruptan en fazla */
+    tekrarCeza:9,      /* YALNIZ düşüş turunda: en az kullanılan öne gelsin */
+    gunIciGrupTavan:2, /* aynı gün içinde aynı birincil gruptan en fazla */
+    gunIciKalipPay:1   /* çok kalıplı günde bir kalıptan en fazla
+                          ceil(N × pay / günün kalıp sayısı) hareket */
   },
+
+  /* ---- E2 · HAFTALIK TEKRAR YASAĞI + SEÇİM TURLARI ----
+     Havuz 12 kalemken tekrar bir CEZAYDI (9 puan) ve hareket haftada
+     birden fazla geçebiliyordu. Havuz 25 kaleme çıkınca §8'in kendi
+     eşiği (≥24) doldu: tekrar artık YASAK.
+
+     Yasak PUANLA kurulmuyor, SEÇİM TURLARIYLA kuruluyor. Nedeni
+     ölçüldü: cezayı 999'a çıkarmak yasağı havuz geneline yayıyor ve
+     günün kalıbını yıkıyordu — 6 gün · dambıl+bant planında "İtiş Günü
+     B" tek bir itiş hareketi bile içermeden bacak/core hareketleriyle
+     doluyor, üstelik gerekçe "havuzda İtiş kalıbında hiç hareket yok"
+     diye YANLIŞ bir cümle yazıyordu (havuzda 5 itiş hareketi vardı,
+     hepsi İtiş Günü A'da kullanılmıştı). §7'nin "itiş gününe bacak
+     doldurulmaz" sözü de bozuluyordu. Bu yüzden yasak GÜNÜN KALIBI
+     içinde mutlak:
+
+       TUR 1  günün kalıbındaki KULLANILMAMIŞ hareketler · iki tavan da
+              geçerli (grup tavanı ve kalıp tavanı)
+       TUR 2  aynı küme · tavanlar gevşek — kalıp havuzu bitmeden gün
+              dışarıdan hareket almaz
+       TUR 3  kalan havuz (tamamlayıcılar + kullanılmışlar) · puanda
+              tekrarCeza var, yani ÖNCE en az kullanılan · tavanlar
+              geçerli                                  ← ZARİF DÜŞÜŞ
+       TUR 4  kalan havuz · tavanlar gevşek — plan asla eksik dönmez
+
+     TUR 1–2 dolduğu sürece hareket haftada bir kez geçer: yasak
+     MUTLAK. Gün TUR 3'e düştüyse o günün kalıbındaki hareketler
+     gerçekten tükenmiştir (ör. 6 gün × ekipmansız: havuzda 2 itiş
+     hareketi var, İtiş Günü B'ye yenisi kalmaz). KARŞILIKSIZ
+     KOMBİNASYON 0 mutlak ölçütü hiçbir koşulda bozulmaz.
+
+     DÜŞÜŞ GİZLENMEZ: sonuç ekranında bildirim şeridi ("… yerde
+     esnedi"), o günün gerekçesinde de "⚠ tekrar yasağı bu günde
+     esnedi: {hareketler} … kullanılmamış hareket kalmadı" satırı. */
+  tekrarYasagi: {esik:24, kapsam:'gunKalibi', turlar:4, dususSirasi:'enAzKullanilan'},
 
   /* ---- F · EKİPMAN → HAVUZ SÜZME ----
      TEK SERT SÜZGEÇ BUDUR ve karşılıksız kombinasyon üretemez: gerek:[]
-     olan 6 hareket her zaman havuzdadır, yani havuz hiçbir seçimde
-     6'nın altına düşmez. "Yok" seçimi diğerlerini temizler. */
-  ekipmanSuzme: {tabanHavuz:6, kural:'gerek boşsa her zaman; değilse seçilen ekipmanlardan en az biri gerekte olmalı'},
+     olan 15 hareket her zaman havuzdadır, yani havuz hiçbir seçimde
+     15'in altına düşmez. "Yok" seçimi diğerlerini temizler. */
+  ekipmanSuzme: {tabanHavuz:15, kural:'gerek boşsa her zaman; değilse seçilen ekipmanlardan en az biri gerekte olmalı'},
 
   /* ---- G · HAVUZA GÖRE ÖLÇEKLEME + YUVARLAMA ----
      Gün başına hareket sayısı ÜÇ tavanın en küçüğüdür:
@@ -388,9 +533,19 @@ var KURALLAR = {
        (2) max(enAz, havuz - tabanEksi)          havuz küçüldükçe gün incelir
        (3) max(enAz, günün kalıbındaki hareket)  itiş gününe bacak hareketi
                                                  doldurulmaz
-     12 kalemlik kütüphanede (2) bağlayıcı değil; (3) push/pull/legs
-     bölünmesinde bağlayıcıdır — havuzda 3 itiş, 3 çekiş, 4 bacak, 2 core
-     hareketi var. Dinlenme `yuvarla`nın katına yuvarlanır. */
+     25 kalemlik havuzda (2) hiç bağlayıcı değil; (3) push/pull/legs
+     bölünmesinde bağlayıcı olmayı sürdürüyor — tam havuzda 8 bacak,
+     5 itiş, 7 çekiş, 5 core hareketi var; ekipmansız havuzda ise
+     5 bacak, 2 itiş, 3 çekiş, 5 core.
+
+     N belli olunca KALIP TAVANI da ondan çıkar:
+       kalipTavan = ceil(N × puan.gunIciKalipPay / günün kalıp sayısı)
+     Tek kalıplı günde (İtiş/Çekiş/Bacak) tavan N'dir, yani bağlamaz.
+     Çok kalıplı günde bağlar ve "Tüm Vücut A"nın dört bacak
+     hareketine dönüşmesini engeller — havuz 25'e çıkınca bacak+kalça
+     arzı arttığı için bu ölçüldü ve gerekti.
+
+     Dinlenme `yuvarla`nın katına yuvarlanır. */
   olcek: {tabanEksi:2, enAz:3},
   yuvarla: 5,
 
@@ -404,9 +559,10 @@ var KURALLAR = {
 
 ## 10 · Motorun kuralları nasıl uyguladığı — 5 adım
 
+
 ```
 1. HAVUZ SÜZ        ekipman → gerek karşılanmayan hareketler düşer
-                    (taban 6 hareket hep kalır → boş plan imkânsız)
+                    (taban 15 hareket hep kalır → boş plan imkânsız)
 2. GÜN ŞABLONU AL   gun → bolunme[gun].gunler
 3. HER GÜN İÇİN     her havuz kalemini puanla:
                       + kalipUyum      kalıbı günün kalıbındaysa
@@ -417,12 +573,19 @@ var KURALLAR = {
                       + odakUyum       kullanıcı odak seçtiyse ve kesişiyorsa
                       − zorlukCeza × max(0, zorluk − seviye.no)
                       − tekrarCeza × (önceki günlerdeki kullanım sayısı)
+                                     ← yalnız TUR 3–4'te anlam taşır:
+                                       düşüşte en az kullanılan öne gelsin
                     eşitlikte havuz sırası bozar  →  DETERMİNİSTİK
-4. SEÇ              puanı yüksekten N kalem; aynı gün içinde aynı birincil
-                    gruptan en fazla gunIciGrupTavan
-                    N = min( seviye.hareket,
+4. SEÇ              N = min( seviye.hareket,
                              max(olcek.enAz, havuz − olcek.tabanEksi),
                              max(olcek.enAz, günün kalıbındaki hareket) )
+                    kalipTavan = ceil(N × gunIciKalipPay / gün.kalip.length)
+                    DÖRT TUR — ilk ikisi HAFTALIK TEKRAR YASAĞI (§8):
+                      1) günün kalıbı ∩ kullanılmamış · tavanlı
+                      2) günün kalıbı ∩ kullanılmamış · tavansız
+                      3) kalan havuz · tavanlı        → ZARİF DÜŞÜŞ
+                      4) kalan havuz · tavansız       → plan hiç boş kalmaz
+                    tavanlar: gunIciGrupTavan (birincil grup) · kalipTavan
 5. REÇETE YAZ       set = seviye.set + hedef.setEk
                     tekrar = hedef.tekrar   (olcum:'sure' ise seviye.sure)
                     dinlenme = yuvarla(seviye.dinlenme × hedef.dinlenmeKat)
@@ -439,6 +602,12 @@ desenidir: `KURALLAR.havuz` dizisindeki sıra.
 Gerekçe **uydurma metin değil**; puanı üreten eksenlerden türetiliyor.
 Her gün için sırayla şunlar yazılıyor, yalnız gerçekten geçerli olanlar:
 
+Plan **düzeyinde** ayrıca iki bildirim şeridi var (sonucun en üstünde):
+bir kalıbın havuzda hiç karşılığı yoksa hangi ekipmanın onu açtığı
+(havuzdan sayılarak) yazılır; tekrar yasağı esnediyse *"kural **{n}
+yerde esnedi**"* şeridi çıkar ve kullanıcıyı ilgili günün gerekçesine
+yönlendirir.
+
 | Cümle | Ne zaman çıkar | Neden türetilebilir |
 |---|---|---|
 | "**{Kalıp}** kalıbı bu günün omurgası" | her zaman | `gun.kalip` |
@@ -447,9 +616,9 @@ Her gün için sırayla şunlar yazılıyor, yalnız gerçekten geçerli olanlar
 | "**{hedef}** hedefi {kalıp} kalıbına ağırlık verdiriyor" | hedefin en yüksek `kalipAgirlik`ı bu günün kalıbıysa | `hedef.kalipAgirlik` |
 | "**{seviye}** seviyesi: {set} × {tekrar}, {dinlenme} sn dinlenme" | her zaman | §6 tablosu |
 | "⚠ elindeki havuzda **{kalıp}** kalıbında hiç hareket yok" | günün hiçbir hareketi günün kalıbında değilse | ölçülüyor, sayılıyor |
+| "⚠ **tekrar yasağı bu günde esnedi**: {hareketler} haftada ikinci kez geçiyor — {n} hareketlik havuzda bu günün kalıbında ({kalıp}) kullanılmamış hareket kalmadı" | o günde daha önce kullanılmış bir hareket seçildiyse (TUR 3–4) | ölçülüyor, sayılıyor — **hangi hareketler olduğu adıyla yazılıyor** |
 | "havuz bu kalıpta sınırlı olduğu için gün tamamlayıcı hareketlerle dolduruldu ({n}/{N})" | günün hareketlerinin yarısından azı günün kalıbındaysa | ölçülüyor, sayılıyor |
 | "gün {N} harekete ölçeklendi: seviye {x} isterdi, havuzda bu kalıpta {k} hareket var" | gün sayısı seviye tabanının altına ölçeklendiyse | §7'deki üç tavan |
-| "havuz **{n}** kalem olduğu için bazı hareketler haftada birden fazla geçiyor — aynı hareket aynı GÜN içinde tekrarlanmaz" | planda tekrar eden hareket varsa (`{n}` = süzülmüş havuz) | ölçülüyor, sayılıyor |
 | "**{ekipman}** havuzuyla kuruldu" | her zaman | `cevap.ekipman` |
 
 ---

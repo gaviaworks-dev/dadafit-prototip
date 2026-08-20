@@ -6,8 +6,8 @@
       2. Pop-up yok — role="dialog" / aria-modal / örtü katmanı 0
       3. Her adım ileri-geri çalışıyor; geri dönünce seçimler korunuyor;
          yanıtsız adımda İleri ilerletmiyor
-      4. Üretilen plandaki her hareket köprüsü 200 ve 12 gerçek slug'dan
-      5. Karşılıksız kombinasyon 0 — 36 seçim bileşimi, hepsi dolu plan
+      4. Üretilen plandaki her hareket köprüsü 200 ve 25 gerçek slug'dan
+      5. Karşılıksız kombinasyon 0 — 40 seçim bileşimi, hepsi dolu plan
       6. Determinizm — aynı seçim iki kez, birebir aynı plan
       7. Gün sayısı → bölünme: 3 full body · 4 üst/alt · 5–6 push/pull/legs
       8. Ekipman süzme — "ekipmansız"da dambıl/kettlebell/bant hareketi yok
@@ -22,6 +22,22 @@
      16. HAREKET ADLARI KANONİK — KURALLAR.havuz'daki her `ad`,
          egzersiz-kutuphane-v1.html kartının `data-name`'i ile birebir
          (K40 ilkesi: köprü etiketi vardığı kartla aynı şeyi söylesin)
+     17. HAFTALIK TEKRAR YASAĞI — 40 bileşimde aynı hareket haftada
+         birden fazla geçmiyor. Havuzun tükendiği uç bileşimlerde zarif
+         düşüş serbesttir; AMA düşüş SAYILIR ve arayüzde görünür olmak
+         zorundadır (gün gerekçesinde "tekrar yasağı bu günde esnedi" +
+         sonuç şeridi). Görünmeyen düşüş = kırmızı.
+     18. EKİPMANSIZ PLANDA ÇEKİŞ VAR — "yok" seçildiğinde planda en az
+         bir `cekis` kalıbı hareketi bulunuyor (ters-sinav · superman ·
+         yuzucu). Beyar'ın "ekipmansız planda sırt çalışmıyor"
+         tespitinin nöbetçisi.
+     19. goblet-squat EKİPMANSIZ PLANDA YOK — dambıl/kettlebell ister;
+         ekipmansız havuzdaki yerini hava-squat aldı.
+     20. GÜNÜN KALIBI KORUNUYOR — bir güne kendi kalıbı dışından hareket
+         ancak o günün kalıbındaki KULLANILMAMIŞ hareketler gün boyunu
+         dolduramadığında girebilir. (§7'nin "itiş gününe bacak
+         doldurulmaz" sözünün nöbetçisi; tekrar yasağı bu sözü ezerse
+         "İtiş Günü B" bacak/core hareketleriyle dolar — ölçüldü.)
 
    Çalıştırma:
      python3 -m http.server 8833 &
@@ -35,15 +51,23 @@ const SAYFA = 'antrenman-olusturucu-v1.html';
 const ROOT  = new URL('..', import.meta.url);
 const PAGES = readdirSync(ROOT).filter(f => f.endsWith('.html') && f !== 'index.html').sort();
 
-/* egzersiz-kutuphane-v1.html'in kart özniteliklerinden okunan 12 gerçek slug */
+/* egzersiz-kutuphane-v1.html'in kart özniteliklerinden okunan 25 gerçek slug */
 const GERCEK = new Set([
   'goblet-squat','plank','dambil-kurek','sinav','hamle','dambil-omuz-press',
-  'dambil-biceps','dead-bug','kettlebell-swing','bant-cekme','kopru','bant-yana-acma'
+  'dambil-biceps','dead-bug','kettlebell-swing','bant-cekme','kopru','bant-yana-acma',
+  'hava-squat','ters-sinav','superman','yuzucu','barfiks','sehpa-dips',
+  'bulgar-split-squat','tek-bacak-kopru','yan-plank','dag-tirmanisi','burpee',
+  'dambil-gogus-press','dambil-romanya'
 ]);
-/* ekipman gerektiren hareketler — "ekipmansız" planda bunlardan HİÇBİRİ olamaz */
+/* ekipman gerektiren hareketler — "ekipmansız" planda bunlardan HİÇBİRİ olamaz.
+   `goblet-squat` burada: tanımı gereği dambıl/kettlebell ister, ekipmansız
+   havuzdaki yerini `hava-squat` aldı. */
 const EKIPMANLI = new Set([
-  'dambil-kurek','dambil-omuz-press','dambil-biceps','kettlebell-swing','bant-cekme','bant-yana-acma'
+  'goblet-squat','dambil-kurek','dambil-omuz-press','dambil-biceps','dambil-gogus-press',
+  'dambil-romanya','kettlebell-swing','bant-cekme','bant-yana-acma','barfiks'
 ]);
+/* ekipmansız havuzun çekiş hareketleri — 18. ölçüt bunları arıyor */
+const EKIPMANSIZ_CEKIS = new Set(['ters-sinav','superman','yuzucu']);
 /* R15 banner aile ölçüleri — liste ailesi */
 const BANNER = { 1440:544, 1024:607, 390:587 };
 
@@ -61,7 +85,9 @@ async function ac(page){
     await page.waitForFunction(() => !!document.querySelector('.wg-step.on .wg-opt'), null, { timeout:8000 });
   } catch { /* kuruldu kapısı raporlayacak */ }
 }
-const sec    = (page,k,v) => page.click(`.wg-step.on .wg-opt[data-k="${k}"][data-v="${v}"]`);
+/* Seçenek yoksa 30 sn beklemek yerine 4 sn'de düşsün: K27 taban koşusunda
+   (havuz 12, "barfiksbari" seçeneği yok) süit temiz kırmızı yazsın, kilitlenmesin. */
+const sec    = (page,k,v) => page.click(`.wg-step.on .wg-opt[data-k="${k}"][data-v="${v}"]`, { timeout:4000 });
 const ileri  = async page => { await page.click('#wgNext'); await page.waitForTimeout(20); };
 const geri   = async page => { await page.click('#wgBack'); await page.waitForTimeout(20); };
 
@@ -76,8 +102,10 @@ async function durum(page){
     secili: [...document.querySelectorAll('.wg-opt[aria-pressed="true"]')]
               .map(b => b.getAttribute('data-k') + ':' + b.getAttribute('data-v')),
     url: location.search,
+    serit: [...document.querySelectorAll('.wg-uyari')].map(e => e.textContent.replace(/\s+/g,' ').trim()).join(' ~ '),
     gunler: [...document.querySelectorAll('.wg-gun')].map(g => ({
       ad: g.querySelector('.wg-gun-ad').textContent.trim(),
+      nicin: [...g.querySelectorAll('.wg-nicin li')].map(li => li.textContent.replace(/\s+/g,' ').trim()),
       hrk: [...g.querySelectorAll('.wg-hrk a')].map(a => ({
         slug: a.getAttribute('data-slug'),
         href: a.getAttribute('href'),
@@ -87,21 +115,28 @@ async function durum(page){
   }));
 }
 
-/* tek tam tur — beş adımı yanıtla, plana çık */
+/* tek tam tur — beş adımı yanıtla, plana çık.
+   Bir seçenek ya da düğme yoksa (taban koşusu) yığın izi fırlatmak yerine
+   BOŞ plan dönüyor: ölçütler bunu kendi diliyle kırmızı yazsın. */
 async function tur(page, o){
   const {cinsiyet='erkek', hedef='kas', seviye='orta',
          ekipman=['yok'], odak=[], gun='3', durumlar=['yok']} = o || {};
-  await ac(page);
-  await sec(page,'cinsiyet',cinsiyet); await ileri(page);
-  await sec(page,'hedef',hedef);       await ileri(page);
-  await sec(page,'seviye',seviye);     await ileri(page);
-  for (const e of ekipman) await sec(page,'ekipman',e);
-  for (const d of odak)    await sec(page,'odak',d);
-  await ileri(page);
-  await sec(page,'gun',String(gun));
-  for (const d of durumlar) await sec(page,'durum',d);
-  await ileri(page);
-  return durum(page);
+  try {
+    await ac(page);
+    await sec(page,'cinsiyet',cinsiyet); await ileri(page);
+    await sec(page,'hedef',hedef);       await ileri(page);
+    await sec(page,'seviye',seviye);     await ileri(page);
+    for (const e of ekipman) await sec(page,'ekipman',e);
+    for (const d of odak)    await sec(page,'odak',d);
+    await ileri(page);
+    await sec(page,'gun',String(gun));
+    for (const d of durumlar) await sec(page,'durum',d);
+    await ileri(page);
+    return durum(page);
+  } catch (e) {
+    return { adim:null, no:'', rayOn:[], uyari:false, footGizli:false, risk:0,
+             secili:[], url:'', serit:'', gunler:[], hata:e.message.split('\n')[0] };
+  }
 }
 const duz = d => d.gunler.map(g => g.ad + '|' + g.hrk.map(h => h.slug + '@' + h.recete).join(',')).join(' || ');
 
@@ -344,6 +379,33 @@ for (const width of [1440, 390]) {
     else rec('ekipman süzme', hata.join('\n      '));
   }
 
+  /* --- 18 · EKİPMANSIZ PLANDA ÇEKİŞ VAR ----------------------------------
+     Beyar'ın tespiti: "ekipmansız planda sırt çalışmıyor". Kataloğa üç
+     ekipmansız çekiş hareketi girdi (ters-sinav · superman · yuzucu);
+     bu ölçüt onların planda GERÇEKTEN göründüğünün nöbetçisidir.
+     --- 19 · goblet-squat ekipmansız planda YOK (dambıl/kettlebell ister) */
+  {
+    const KALIP = await page.evaluate(() =>
+      Object.fromEntries(window.AO_KURALLAR.havuz.map(h => [h.slug, h.kalip])));
+    const hata = [], bulunan = new Set();
+    for (const gun of ['3','4','5','6'])
+      for (const seviye of ['baslangic','orta','ileri']) {
+        const d = await tur(page, { gun, seviye, ekipman:['yok'] });
+        const slug = d.gunler.flatMap(g => g.hrk.map(h => h.slug));
+        const cekis = slug.filter(x => KALIP[x] === 'cekis');
+        if (!cekis.length) hata.push(`${gun} gün · ${seviye} · ekipmansız → planda hiç çekiş hareketi yok`);
+        cekis.forEach(x => bulunan.add(x));
+        if (slug.includes('goblet-squat'))
+          hata.push(`${gun} gün · ${seviye} · ekipmansız → goblet-squat planda (dambıl/kettlebell ister)`);
+        const dis = cekis.filter(x => !EKIPMANSIZ_CEKIS.has(x));
+        if (dis.length) hata.push(`ekipmansız planda beklenmeyen çekiş: ${[...new Set(dis)].join(' · ')}`);
+      }
+    if (!hata.length) {
+      ok(`ekipmansız planda çekiş var — 12 bileşimin 12'sinde (${[...bulunan].sort().join(' · ')})`);
+      ok('goblet-squat ekipmansız planda hiç çıkmıyor (12 bileşim)');
+    } else rec('ekipmansız çekiş / goblet-squat', hata.join('\n      '));
+  }
+
   /* --- 9 · seviye set/tekrar/dinlenme aralığını değiştiriyor --- */
   {
     const cikti = {};
@@ -382,28 +444,108 @@ for (const width of [1440, 390]) {
     else rec('determinizm', 'farklı gün sayısı aynı planı verdi — motor seçimleri okumuyor olabilir');
   }
 
-  /* --- 5 · karşılıksız kombinasyon 0 --- */
+  /* --- 5 · karşılıksız kombinasyon 0 (40 bileşim)
+         + 17 · HAFTALIK TEKRAR YASAĞI (aynı koşuda ölçülüyor) --------------
+     Havuz 12'den 25'e çıkınca uç durumlar arttı; bileşim sayısı 24'ten
+     40'a çıkarıldı. Aynı turlarda tekrar yasağı da ölçülüyor:
+       · gün İÇİ tekrar → MUTLAK, bir tane bile olsa kırmızı
+       · günler ARASI tekrar → havuz tükendiğinde serbest (zarif düşüş),
+         ama SAYILIR ve arayüzde görünmek zorundadır                        */
   {
-    const EK = [['yok'],['dambil'],['bant'],['kettlebell'],['dambil','bant'],['yok','dambil','kettlebell','bant']];
+    const EK = [['yok'],['dambil'],['bant'],['kettlebell'],['barfiksbari'],
+                ['dambil','bant'],['bant','kettlebell'],['dambil','barfiksbari'],
+                ['yok','dambil','kettlebell','bant'],
+                ['yok','dambil','kettlebell','bant','barfiksbari']];
     const bos = []; const slugSet = new Set(); let sayi = 0;
+    const yasakHata = [];
+    let tuttu = 0, dustu = 0, dususYerlesim = 0, gunIci = 0;
+    const dususDetay = [];
+    /* 20 · günün kalıbı — kural tablosundan okunuyor, teste kopyalanmıyor */
+    const K20 = await page.evaluate(() => ({
+      havuz: window.AO_KURALLAR.havuz.map(h => ({slug:h.slug, kalip:h.kalip, gerek:h.gerek})),
+      bolunme: Object.fromEntries(Object.entries(window.AO_KURALLAR.bolunme)
+        .map(([g,v]) => [g, v.gunler.map(x => x.kalip)]))
+    }));
+    const kalipHata = []; let disariCikan = 0;
+
     for (const gun of ['3','4','5','6'])
       for (const ek of EK) {
         const hedef = ['kilo','kas','guc'][sayi % 3];
         const seviye = ['baslangic','orta','ileri'][sayi % 3];
         const d = await tur(page, { gun, ekipman:ek, hedef, seviye });
         sayi++;
+        const etiket = `${gun}g/${ek.join('+')}/${hedef}/${seviye}`;
         const toplam = d.gunler.reduce((a,g) => a + g.hrk.length, 0);
         if (d.gunler.length !== +gun || d.gunler.some(g => g.hrk.length === 0))
-          bos.push(`${gun}g/${ek.join('+')}/${hedef}/${seviye} → ${d.gunler.length} gün, ${toplam} hareket`);
+          bos.push(`${etiket} → ${d.gunler.length} gün, ${toplam} hareket`);
         d.gunler.forEach(g => g.hrk.forEach(h => slugSet.add(h.slug)));
+
+        /* --- tekrar sayımı + kalıp koruması: gün sırasıyla yürü --- */
+        const ekEtkin = ek.filter(x => x !== 'yok');
+        const kalipli = K20.havuz.filter(h =>
+          !h.gerek.length || h.gerek.some(x => ekEtkin.includes(x)));
+        const kalipOf = Object.fromEntries(kalipli.map(h => [h.slug, h.kalip]));
+        const kullanilmis = new Set();
+        let tekrar = 0; const gunlerTekrarli = [];
+        for (let gi = 0; gi < d.gunler.length; gi++) {
+          const g = d.gunler[gi];
+          const bugun = g.hrk.map(h => h.slug);
+
+          /* --- 20 · günün kalıbı dışından hareket ne zaman meşru --- */
+          const gunKalip = K20.bolunme[gun][gi];
+          const disari = bugun.filter(x => !gunKalip.includes(kalipOf[x]));
+          if (disari.length) {
+            disariCikan++;
+            const taze = kalipli.filter(h => gunKalip.includes(h.kalip) && !kullanilmis.has(h.slug)).length;
+            if (taze >= bugun.length)
+              kalipHata.push(`${etiket} · "${g.ad}" → kalıp dışı ${disari.join(', ')} girdi ama günün kalıbında ${taze} kullanılmamış hareket duruyordu (gün ${bugun.length} hareket)`);
+          }
+
+          if (new Set(bugun).size !== bugun.length) {
+            gunIci++;
+            yasakHata.push(`${etiket} · "${g.ad}" → aynı hareket AYNI GÜN içinde iki kez: ${bugun.join(', ')}`);
+          }
+          const yineleyen = bugun.filter(x => kullanilmis.has(x));
+          if (yineleyen.length) {
+            tekrar += yineleyen.length;
+            gunlerTekrarli.push(g);
+            /* düşüş GİZLENEMEZ — o günün gerekçesinde yazmak zorunda */
+            if (!g.nicin.some(c => /tekrar yasağı bu günde esnedi/.test(c)))
+              yasakHata.push(`${etiket} · "${g.ad}" → ${yineleyen.join(', ')} haftada ikinci kez geçiyor ama gün gerekçesinde yazmıyor`);
+          }
+          bugun.forEach(x => kullanilmis.add(x));
+        }
+
+        if (!tekrar) tuttu++;
+        else {
+          dustu++; dususYerlesim += tekrar;
+          dususDetay.push(`${etiket} → ${tekrar} yerleşim (${gunlerTekrarli.map(g => g.ad).join(' · ')})`);
+          /* sonuç şeridi de aynı sayıyı söylemeli */
+          const m = /(\d+) yerde esnedi/.exec(d.serit || '');
+          if (!m) yasakHata.push(`${etiket} → ${tekrar} tekrar var ama sonuç şeridinde "… yerde esnedi" uyarısı yok`);
+          else if (+m[1] !== tekrar) yasakHata.push(`${etiket} → şerit "${m[1]} yerde esnedi" diyor, ölçülen ${tekrar}`);
+        }
       }
+
     if (!bos.length) ok(`karşılıksız kombinasyon 0 — ${sayi} bileşimin ${sayi}'si dolu plan döndürdü (${slugSet.size} farklı hareket)`);
     else rec('karşılıksız kombinasyon', bos.join('\n      '));
 
-    /* --- 4 · plandaki her hareket 12 gerçek slug'dan --- */
+    /* --- 4 · plandaki her hareket 25 gerçek slug'dan --- */
     const sahte = [...slugSet].filter(s => !GERCEK.has(s));
-    if (!sahte.length) ok(`plandaki ${slugSet.size} hareketin hepsi 12 gerçek slug'dan`);
+    if (!sahte.length) ok(`plandaki ${slugSet.size} hareketin hepsi 25 gerçek slug'dan`);
     else rec('uydurma slug', sahte.join(' · '));
+
+    /* --- 20 · günün kalıbı korunuyor mu --- */
+    if (!kalipHata.length)
+      ok(`günün kalıbı korunuyor — kalıp dışı hareket ${disariCikan} günde girdi, hepsinde günün kalıbı gerçekten tükenmişti`);
+    else rec('günün kalıbı bozuldu', kalipHata.join('\n      '));
+
+    /* --- 17 · tekrar yasağı raporu --- */
+    if (!tuttu) yasakHata.push(`${sayi} bileşimin HİÇBİRİNDE yasak tutmadı — 999 cezası uygulanmamış olabilir`);
+    if (!yasakHata.length) {
+      ok(`haftalık tekrar yasağı: ${sayi} bileşimin ${tuttu}'sinde MUTLAK tuttu · ${dustu}'sinde zarif düşüş (${dususYerlesim} yerleşim) · gün içi tekrar ${gunIci}`);
+      if (dustu) console.log('      düşüş gereken bileşimler (hepsi arayüzde yazılı):\n      · ' + dususDetay.join('\n      · '));
+    } else rec('tekrar yasağı', yasakHata.join('\n      '));
   }
 
   /* --- risk dalı — kişisel plan üretilmiyor --- */

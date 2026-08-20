@@ -2,7 +2,8 @@
 
 **Depo:** `~/Developer/Projects/dadafit-prototip` · **Canlı:** `gaviaworks-dev.github.io/dadafit-prototip`
 **Taban commit:** `44633fb` · **Son commit:** 7. oturum (aşağıda) · **Branch:** `main`
-**Brief:** `tasks/REVIZYON-5.md` · **Plan:** `REVIZE-PLAN-5.md` · **Kararlar:** `KARARLAR.md`
+**Brief:** `tasks/REVIZYON-5.md` *(kapandı)* · **SIRADAKİ BRIEF:** `tasks/REVIZYON-6.md`
+**Plan:** `REVIZE-PLAN-5.md` · **Kararlar:** `KARARLAR.md`
 
 > Bu dosya bağlam temizlendikten sonra tek referanstır. Ölçümler yeniden
 > yapılmayacak; §2'deki sayılar canlı referanstan alınmış ve token'lara yazılmıştır.
@@ -678,7 +679,68 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 
 ---
 
-# 5 · SIRADAKİ İŞ — H1·H2·H3 ve R15.4 KAPANDI
+# 5 · SIRADAKİ İŞ
+
+## 🔜 REVİZYON 6 GELİYOR — maddeler `tasks/REVIZYON-6.md`'de
+
+**5. turun brief'i (`tasks/REVIZYON-5.md`) tamamen kapandı.** Beyar yeni bir
+revizyon turu veriyor; maddeler **tek tek** gelecek ve **`tasks/REVIZYON-6.md`**
+dosyasına yazılacak. O dosya bir sonraki turun tek bilgi kaynağıdır.
+
+### Maddeleri alma biçimi — Beyar'ın kuralı
+
+Her madde için üç alan: **sorun · yapılacak · ÖLÇÜLEBİLİR kabul ölçütü.**
+Belirsizse **sorulacak, varsayılmayacak.** Karşılığı olmayan sayfa/bağlantı
+**uydurulmayacak.** Bağımlılık varsa işaretlenecek.
+
+**Liste tamamlanmadan hiçbir maddeye dokunulmayacak** — Beyar "başla" diyene
+kadar yalnız yazım.
+
+### 🔴 O TURUN ANA KURALI — ÜÇ GEÇİŞ
+
+Tur büyük ölçüde **arayüz** işi. Hiçbir ajan tek geçişte "bitti" demeyecek;
+her arayüz maddesi **en az üç geçişten** geçecek:
+
+| Geçiş | Ne yapılır |
+|---|---|
+| **1 · Kur** | `frontend-design` skill'i **okunur**, sonra uygulanır. Playwright ile @1440 ve @390 ekran görüntüsü alınır |
+| **2 · Kendi işini eleştir** | Ekran görüntülerine **bakılır** ve çıktı yargılanır: hizalama, dikey ritim, boşluk tutarlılığı, tipografik hiyerarşi, kontrast, dokunma hedefi, mobilde ne bozuluyor. **En az 3 somut kusur** bulunup düzeltilir. *"Kusur yok" cevabı kabul değil.* Yeniden görüntü alınır |
+| **3 · Referansla karşılaştır** | Çıktı `dadadiet.com`'daki muadille yan yana konur, referanstan zayıf kalan yerler tek tek yazılıp kapatılır. Üçüncü kez görüntü alınır |
+
+Rapor **ancak 3. geçişten sonra** verilir; üç geçişin de ekran görüntüleri ve
+her geçişte neyin değiştiği raporda olur. *"İlk denemede oldu"* diyen ajan
+geri gönderilir.
+
+### Ajan brief'ine konacaklar — 7. oturumda üç ajan sessizce takıldı
+
+- `frontend-design` skill'ini **okumadan koda başlama**
+- **Üç geçiş zorunlu**, tek geçişte bitirme
+- **Her 10 dakikada bir tek satır ilerleme notu** yaz, sessiz kalma
+- Ekran görüntülerini **ilerledikçe** diske yaz, sonda toplu yazma
+- Rapor serbest metin değil, **şema doldur**
+- **Commit atma** — commit'leri lead atar
+- **Ana oturumun iddialarına güvenme, kendin ölç**
+
+### Lead'in kuralları
+
+- Boş bekleme döngüsüne girme; aynı `git status`'ü tekrar çekme
+- Ajan ilerliyor mu: dosya **sayısı** değil, **son değişme zamanı**.
+  10 dakikadır yazmıyorsa durdur, işi kendin al
+- Her ajanın çıktısını **bağımsız denetle**, raporuna güvenme
+- **Ekran görüntülerine lead de bakacak**, yalnız ölçüm sayılarına değil
+- Yeni her davranış için sınama yaz, **taban commit'te kırmızıya dönsün (K27)**
+- **Banner ailesi 544/607/587** ve **R11 footer perdesi** bozulmayacak
+
+### Kabuk sahipliği — baştan belirlenecek
+
+`assets/css/fit-shell.css` · `assets/js/fit-shell.js` · **menü ve footer
+markup'ı** → **TEK ajan** dokunacak. Hangisi olduğu liste tamamlanınca
+belirlenip Beyar'a söylenecek. (K35'in aynı kuralı; 7. oturumda üç ayrı
+kabuk dokunuşu bu sayede çakışmadan yürüdü.)
+
+---
+
+## 5. turdan devreden — H1·H2·H3 ve R15.4 KAPANDI
 
 > **Brief'in (`tasks/REVIZYON-5.md`) revizyon maddelerinin tamamı kapandı:**
 > R11 · R12 · R13 · R14 · R15 (15.1–15.4) · H1 · H2 · H3.

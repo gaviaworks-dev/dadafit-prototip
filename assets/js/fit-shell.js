@@ -2243,6 +2243,27 @@ setTimeout(function(){
     return;
   }
 
+  /* ---- R15 (5. tur) · SABİT AİLE BANNER'INDA PANEL GERİ TAŞINMAZ ----
+     Bu mekanizma, banner'ın yüksekliği SERBEST olduğu dönemde yazıldı:
+     panel hero ızgarasının ikinci kolonuna geri taşınıyor, referans
+     kompozisyonu (metin solda, panel sağda) böyle kuruluyordu.
+
+     R15 ile banner iki aileye ve SABİT yüksekliğe bağlandı
+     (liste 544 · detay 560 @1440). Ölçüm: geri taşınan paneller kutuya
+     sığmıyor — `dadafit-kopru` enerji kartı tek başına 391.2 px, kutunun
+     verdiği içerik alanı 370 px; `challenge-v1` zaman çizelgesi 187.2 px
+     ve banner içeriğini 550.1 px'e çıkarıyordu. R15.3 bu durumda paneli
+     banner'ın ALTINA almayı söylüyor — yani bandın içinde bırakmayı.
+
+     Bu yüzden geri taşıma artık YALNIZ ana sayfanın tam-ekran hero'sunda
+     (`data-fit-hero="1"`, yukarıdaki erken dönüş) çalışıyor. Aileye bağlı
+     her banner'da panel bandın içinde kalır. */
+  if(document.body.hasAttribute('data-fit-hero-kind')){
+    if(panel.parentNode !== wrap) wrap.appendChild(panel);
+    sarmalayiciyiGuncelle();
+    return;
+  }
+
   var mq = window.matchMedia('(min-width:641px)');
   function place(){
     if(mq.matches){

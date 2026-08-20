@@ -42,7 +42,7 @@ scratchpad/m/*.mjs                                     → ölçüm script'leri
 | **R14** | Fit testi cevap mantığı kilitlenmiyor | ✅ **tamam** |
 | **R11** | Footer üstündeki perde footer'dan kopuk | ✅ **tamam** |
 | **R12** | Breadcrumb ana sayfa ikonu referansa göre iri | ✅ **tamam** |
-| **R15** | Banner standardı — tek kural, imza banner'ları kalkıyor | ⏳ |
+| **R15** | Banner standardı — tek kural, imza banner'ları kalkıyor | ✅ **tamam** (1 açık kalem: S-G) |
 | **R13** | "Programını Bul" sihirbazı kendi sayfası olsun | ⏳ |
 | **H1** | Spor Sözlüğü (~180 terim) | ⏳ |
 | **H2** | İnteraktif anatomi / kas haritası | ⏳ |
@@ -269,6 +269,85 @@ ilk kalemi **"Dada Gastro"** — kardeş marka portalı, DadaFit ana sayfası de
 referans 9 px"* ve *"ev ikonu (13) ile ayraç (9) aynı boyutta değil"*.
 HEAD'de **0 sorun**.
 # R15 — BANNER STANDARDI
+
+**Beyar:** iki aile, iki sabit yükseklik; **değer DadaDiet'ten ölçülüp birebir
+alınacak**; imza banner'ları kalkacak; içerik uzunluğu kutuyu büyütmeyecek.
+
+## R15.1 · Referans ölçümü — sayı uydurulmadı
+
+`dadadiet.com`, üç genişlikte, **iki bağımsız liste sayfası**:
+
+| Genişlik | `/beslenme` | `/diyetisyenler` | `/beslenme-rehberi/dengeli-tabak` |
+|---|---|---|---|
+| **1440** | **544** | **544** | **560** |
+| **1024** | **607** | **607** | **617** |
+| **390** | **587** | **587** | **726** |
+
+İki liste sayfası **her genişlikte birebir aynı** → değerler tasarım sabiti.
+Diğer ölçülenler (@1440 `/beslenme`): `padding-top` **128 px** · `padding-bottom`
+46 px · h1 **42px / 47.04 lh / 700 / −1.26 ls** · alt metin 16px/24.8 ·
+istatistik şeridi 16px/24.8 · **CTA sol kenarı = h1 sol kenarı (fark 0)**.
+Blok sırası: kırıntı → eyebrow → H1 → alt metin → **istatistik şeridi** → **CTA**.
+
+**Token'lar:** `--banner-h-liste` 544 / 607 / 587 · `--banner-h-detay` 560 / 617 / 726
+· `--banner-gap` 20 / 18 / 9 · `--hero-pt` 15 (113 header + 15 = **128**, referansla aynı).
+
+> 4. turun **344/384** değerleri atıldı: 344'ün gerçek içerik alanı yalnız
+> **231 px**'ti, zengin banner ~330 px sürüyordu ve 28 sayfada içerik
+> kırpılıyordu (B1). 544'te içerik alanı **370 px** — her şey tek kolonda sığıyor.
+
+## R15.2 · İç düzen
+
+| Değişiklik | Gerekçe |
+|---|---|
+| Sabit yükseklik artık **her genişlikte** (4. turda ≥901 px ile sınırlıydı) | Referans değerleriyle mobilde de sığıyor |
+| 4. turun **sütun-sarmalı iki kolonu kaldırıldı** | 344'e sığdırmak için eylem satırını sağa taşıyordu; R15.2 bunu açıkça yasaklıyor |
+| `.wrap` sütun flex **kutusu** oldu; `.lib-stats{order:1}`, `.chips/.lib-cta{order:2}` | İşaretleme sırası tersti (CTA önce). 21 sayfayı tek tek düzenlemek yerine iki blok sıralandı. **`.wrap` flex ITEM değil CONTAINER** — 4. turun B2 tuzağına düşmüyor |
+| Banner `h1` **42px / 1.12 / −.03em** | Referans ölçüsü |
+| `.pd-hero` · `.chl-hero` · `.kp-top` · `.ol-top` · `.cp-top` → `align-items:flex-start` | `.pd-hero`'da `flex-end` vardı; sabit kutuda içerik yukarı taşıp **şeffaf header'ın altına** kayıyordu (kırıntı top=96 < header 113 — kalite kapısı yakaladı) |
+
+## R15.3 · İmza banner'ları aileye girdi
+
+| Sayfa | Önce | Sonra | Nasıl |
+|---|---|---|---|
+| `dadafit-kopru` | 613.6 | **544** | Enerji defteri kartı (391.2 px — tek başına içerik alanından büyük) banner'ın altına |
+| `antrenor-ol` | 602.2 | **544** | Fayda paneli (`.ol-bene`) banner'ın altına |
+| `challenge-v1` | 697.1 | **560** | 30 günlük zaman çizelgesi (187.2 px) banner'ın altına |
+| `program-detay` | 570.4 | **560** | Üstten hizalama düzeltmesi yetti |
+| `antrenor-detay` | 477.2 | **560** | Randevu kartı banner'ın altına (@390'da 24.9 px kırpılıyordu) — Beyar'ın önerdiği yol |
+| `dadafit-hub` | 900 | **900 (DIŞARIDA)** | Ana sayfanın tam-ekran perdesi — gerekçe `KARARLAR.md` **K31**, Beyar'a soru |
+
+> **BEKLENMEDİK BULGU B11 — kabukta paneli banner'a GERİ TAŞIYAN bir mekanizma varmış.**
+> Önceki bir turda yazılan kod, `.fit-band-panel` içeriğini ≥641 px'te hero
+> ızgarasının ikinci kolonuna geri taşıyordu ("referans kompozisyonu"). Banner
+> yüksekliği serbestken doğruydu; sabit kutuda paneli kutuya geri sokup taşma
+> üretiyordu. Markup'ta paneli dışarı almak **yetmiyordu** — JS geri alıyordu.
+> Artık yalnız ana sayfanın tam-ekran hero'sunda çalışıyor.
+
+## R15.4 · ÖLÇÜM
+
+| Ölçüm | @1440 | @390 |
+|---|---|---|
+| **LİSTE ailesi** | **49 sayfa · tek değer 544** ✅ | **49 sayfa · tek değer 587** ✅ |
+| **DETAY ailesi** | **6 sayfa · tek değer 560** ✅ | **6 sayfa · tek değer 726** ✅ |
+| Üçüncü değer | **1** — `dadafit-hub` 900 (bilinçli, K31) | **1** — aynı |
+| Banner içi **kırpılan öğe** | **0 / 59** ✅ | **0 / 59** ✅ |
+| `h1` sol kenarı | **54/56 sayfada 132 px** | 55/56 sayfada 16 px |
+| **CTA sol kenarı = h1 sol kenarı** | **19 / 21** | **20 / 21** |
+| Test süiti | **8/8 temiz** | |
+| `page-check` | 9 sayfa × 2 genişlik = **18/18 temiz** | |
+
+**CTA hizası — iki istisna, ikisi de gerçek CTA değil:** `arama-fit`'te ölçülen
+düğme **arama kutusunun içindeki "Ara"** düğmesi; `bildirimler`'de üst satırdaki
+**"Tümünü Okundu İşaretle"** araç düğmesi (`.nt-tools`, tasarım gereği sağda).
+
+**`h1` sol kenarı — iki istisna:** `antrenor-detay` (348) ve `program-detay` (165);
+ikisinde de başlığın yanında portre/medya var. **Açık kalem:** bu iki banner tam
+tek kolona mı çekilsin? → soru **S-G**.
+
+**Ekran görüntüsü:** `scratchpad/shots/r15b-fit-testleri-v1-1440.png` (yeni sıra:
+kırıntı → eyebrow → H1 → alt metin → istatistik → CTA, hepsi 132'de) ·
+`r15-*` (altı banner)
 # R13 — "PROGRAMINI BUL" TAM SAYFA
 # H1 — SPOR SÖZLÜĞÜ
 # H2 — ANATOMİ / KAS HARİTASI

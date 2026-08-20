@@ -982,3 +982,67 @@ sayfalarında 9 px, bir rehber detayında 13 px. İki sayfa 9 px olduğu ve Beya
 **gerekçeyle** izlendi.
 
 **Geri almak için:** `assets/css/fit-shell.css` → `.crumb-home i{font-size:…}`.
+
+---
+
+## K30 · Banner yüksekliği referanstan ölçüldü — 344/384 atıldı, 544/560 alındı
+
+**Beyar (5. tur, R15.1):** *"Sayı uydurulmayacak. Referans canlıdan ölçülüp
+birebir alınacak."*
+
+**Ölçüm — `dadadiet.com`, üç genişlik, iki bağımsız liste sayfası:**
+
+| Genişlik | `/beslenme` | `/diyetisyenler` | `/beslenme-rehberi/dengeli-tabak` |
+|---|---|---|---|
+| 1440 | **544** | **544** | **560** |
+| 1024 | **607** | **607** | **617** |
+| 390 | **587** | **587** | **726** |
+
+İki liste sayfasının her genişlikte birebir aynı çıkması, değerlerin tesadüf
+değil **tasarım sabiti** olduğunu gösteriyor. Detay ölçüsü tek sayfadan
+(Beyar'ın gösterdiği URL).
+
+**Not — @390'daki 726 px:** liste ailesinin mobil büyümesi ölçülü (544 → 587,
++43), detayınki büyük (560 → 726, +166). Bu asimetri 726'nın içerik kaynaklı
+olabileceğini düşündürüyor. Yine de **birebir alındı**, çünkü (a) talimat açık,
+(b) fazla yüksek kutu yalnız boş alan riski taşır, **asla kırpma** üretmez.
+Beyar isterse tek token'la (`--banner-h-detay` @640) kısalır.
+
+**4. turun 344/384 değerleri atıldı.** Gerekçe ölçüm: 344'ün gerçek içerik alanı
+(üst 113 px şeffaf header'ın altında) yalnız **231 px**'ti; zengin banner
+~330 px sürüyordu ve 28 sayfada içerik `overflow:hidden` ile kırpılıyordu (B1).
+544'te içerik alanı **370 px** — her şey tek kolonda sığıyor, sütun-sarmalı
+çözüme gerek kalmıyor.
+
+**Alınan diğer ölçüler:** `padding-top` 128 px (= 113 header + 15) · h1
+42px/1.12/−.03em · blok sırası kırıntı → eyebrow → H1 → alt metin → istatistik
+→ CTA · CTA sol kenarı = h1 sol kenarı. **Alınmayan:** renk token'ları
+(K29'daki sınır).
+
+---
+
+## K31 · Ana sayfanın tam-ekran perdesi aileye ALINMADI — Beyar'a soru
+
+**Çatışma:** 5. tur brief'i R15.3'te kalkacak imza banner'larını sayarken
+`dadafit-hub` 900'ü de listeliyor. Ama `KARARLAR.md` **K15**, Beyar'ın 3. turda
+verdiği doğrudan talimatı kaydediyor: perde 74dvh'ye indirilmişti, Beyar
+*"ana sayfa herosunu bozmuşsun, düzelt"* dedi ve değer **100dvh**'ye geri
+alındı — *"Tam-ekran perde ana sayfanın imzası"*.
+
+**Seçilen:** ana sayfa perdesi (`.df-top`, `body[data-fit-hero="1"]`) aileye
+**alınmadı**, 900 px'te kaldı. Diğer **beş** imza banner'ı aileye girdi.
+
+**Gerekçe:**
+1. Aynı değişiklik bir kez yapıldı ve Beyar **açık bir cümleyle geri aldırdı**.
+   İkinci kez yapmak o talimatı yok saymak olurdu.
+2. `.df-top` bir "banner" değil, sitenin **açılış perdesi** — kırıntısı yok,
+   iki aileye de girmiyor, kendi tam-ekran kompozisyonu var.
+3. Bedeli düşük ve görünür: aile ölçümünde tek bir üçüncü değer olarak
+   raporlanıyor, saklanmıyor.
+
+**Beyar'a soru (S-H):** ana sayfa perdesi de aileye girsin mi? "Evet" derse tek
+satır: `.df-top`u `body[data-fit-hero-kind="liste"]` kuralına eklemek yeter.
+K15 o durumda güncellenir.
+
+**Ölçüm sonrası durum:** LİSTE 49 sayfa tek değer · DETAY 6 sayfa tek değer ·
+üçüncü değer **yalnız 1** (`dadafit-hub` 900).

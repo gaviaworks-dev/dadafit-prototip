@@ -40,8 +40,8 @@
      `calc(--fit-header-h + --hero-pt)` formülüyle türetiliyor. Sayfa bazında
      rastgele değer kalmadı; ölçeği değiştirmek için burası yeter. */
   --fit-header-h:113px;   /* üst bant 40 + header 72 (ölçüldü) */
-  --hero-pt:16px;         /* banner üst nefesi */
-  --hero-pb:18px;         /* banner alt nefesi */
+  --hero-pt:15px;         /* banner üst nefesi — 113 header + 15 = 128, referansla aynı */
+  --hero-pb:46px;         /* banner alt nefesi — referans /beslenme ile aynı */
   --hero-gap:10px;        /* banner içi dikey ritim (crumb ↔ h1 ↔ alt metin) */
   --hero-min:0px;         /* banner taban yüksekliği — içerik belirler */
   /* GERİ ALINDI (Beyar, aynı tur): D2'de 74dvh'ye indirilmişti, ana sayfa
@@ -60,14 +60,32 @@
      karakter; ölçümde .hr-note paragrafı 1098px genişlikte 119 karakter/satır
      veriyordu. Tek token, akan metin kutularına uygulanır. */
   --measure:78ch;
-  /* ---- BANNER AİLE YÜKSEKLİKLERİ ----
-     Beyar: "liste ve detay sayfalarındaki bannerların dikeydeki uzunlukları
-     kendi içlerinde tutarlı olsun, belli bir uzunluğa fixle."
-     İki aile, iki sabit taban. İçerik tabandan kısaysa banner yine bu boyda
-     kalır ve içerik dikeyde ortalanır; uzunsa taşar (kırpma yok — metin
-     kesmek kabul edilemez), o durumda sayfanın banner içeriği kısaltılır. */
-  --hero-h-list:344px;
-  --hero-h-detail:384px;
+  /* ---- BANNER AİLE YÜKSEKLİKLERİ (R15 · 5. tur) ----
+     Beyar: "Sayı uydurulmayacak. Referans canlıdan ölçülüp birebir alınacak."
+     ÖLÇÜM — dadadiet.com, üç genişlikte, İKİ BAĞIMSIZ LİSTE SAYFASI:
+
+       genişlik | /beslenme | /diyetisyenler | /beslenme-rehberi/dengeli-tabak
+       ---------|-----------|----------------|--------------------------------
+        1440    |   544     |      544       |   560
+        1024    |   607     |      607       |   617
+         390    |   587     |      587       |   726
+
+     İki liste sayfası her genişlikte BİREBİR aynı çıktı — değerler tesadüf
+     değil, tasarım sabiti. Detay ölçüsü tek sayfadan (Beyar'ın gösterdiği
+     URL); @390'daki 726 px içerik kaynaklı görünüyor, notu KARARLAR K30'da.
+
+     4. turun 344/384 değerleri referanstan DAR olduğu için atıldı: 344'ün
+     gerçek içerik alanı yalnız 231 px'ti ve zengin banner ~330 px sürüyordu
+     — 28 sayfada içerik kırpılıyordu (B1). 544'te içerik alanı 370 px,
+     her şey tek kolonda sığıyor. */
+  --banner-h-liste:544px;
+  /* banner içi dikey ritim — referans ölçüsü (kırıntı→H1 36.8 · H1→alt metin
+     12.1 · alt metin→istatistik 22 · istatistik→CTA 23) ortalaması */
+  --banner-gap:20px;
+  --banner-h-detay:560px;
+  /* geriye dönük diğer adlar (4. turdan kalan kurallar bunları okuyor) */
+  --hero-h-list:var(--banner-h-liste);
+  --hero-h-detail:var(--banner-h-detay);
   --tomato-dark:#007a3d;     /* hover türevi (yeşil) */
   --tomato-deep:#006a35;     /* gradient ucu (yeşil) */
   --tomato-tint:#e8f6ee;     /* yeşil fısıltısı zemin */
@@ -1136,8 +1154,8 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
  Yeni sınıf adı üretilmedi — hepsi mevcut sayfalardan gelen adlardır.
  ===================================================================== */
 
-@media (max-width:1024px){ :root{ --hero-pt:14px; --hero-pb:16px; --hero-gap:9px; --sec-pad:42px; --sec-pad-sm:26px; --hero-h-list:296px; --hero-h-detail:330px } }
-@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:12px; --hero-pb:14px; --hero-gap:8px; --sec-pad:34px; --sec-pad-sm:22px; --hero-h-list:262px; --hero-h-detail:296px } }
+@media (max-width:1024px){ :root{ --hero-pt:15px; --hero-pb:46px; --hero-gap:9px; --sec-pad:42px; --sec-pad-sm:26px; --banner-h-liste:607px; --banner-h-detay:617px; --banner-gap:18px } }
+@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:33px; --hero-pb:34px; --hero-gap:8px; --sec-pad:34px; --sec-pad-sm:22px; --banner-h-liste:587px; --banner-h-detay:726px; --banner-gap:9px } }
 
 /* ---- BANNER + BREADCRUMB (belge §17: ikisi birlikte gelir) ----
  Sayfa yalnız görselini bildirir: .lib-top{--lib-img:url('…')}
@@ -1798,163 +1816,100 @@ body[data-brand="fit"] .kp-top,
 body[data-brand="fit"] .df-top,
 body[data-brand="fit"] .ol-top{padding-bottom:var(--hero-pb)}
 
-/* ---- AİLE İÇİ SABİT BANNER YÜKSEKLİĞİ ----
-   Aile işaretini kabuk JS'i basar (body[data-fit-hero-kind]); dosya adında
-   "-detay" geçen sayfalar + dört bilinen detay sayfası "detay", geri kalan
-   banner'lı sayfalar "liste". Ana sayfanın tam-ekran perdesi (.df-top,
-   data-fit-hero="1") BU KURALIN DIŞINDA — kendi 100dvh'sini korur. */
-/* SABİT yükseklik (min-height değil): aile içinde tek değer.
-   Zengin ikincil panel taşıyan imza banner'ları (.kp-top · .ol-top ·
-   .chl-hero · .pd-hero · ana sayfa .df-top) bu kuralın DIŞINDA — onların
-   içinde ikinci bir kart var, sabit kutuya sığmaz ve kırpmak içerik kaybı
-   olur. Sabitlenen aile, sayfaların ezici çoğunluğunu oluşturan sade
-   .lib-top / .cp-top / .fs-top banner'ları. */
-/* SABİT yükseklik YALNIZ ≥901px'te. Dar ekranda aynı içerik 1.3–1.7 kat
-   daha uzun sarıyor (ölçüldü: 390px'te 12 liste sayfası sabit kutuyu aşıyor,
-   en kötüsü 434px içeriğe karşı 262px kutu); orada sabitlemek METİN KIRPMAK
-   demek. Mobilde taban yükseklik (min-height) korunur, tavan serbest. */
+/* ============================================================
+   R15 (5. tur) · BANNER STANDARDI — SİTE GENELİNDE TEK KURAL
+   ------------------------------------------------------------
+   Beyar: iki aile, iki sabit yükseklik; değer DadaDiet'ten ölçülüp
+   birebir alınacak; imza banner'ları kalkacak; içerik uzunluğu kutuyu
+   BÜYÜTMEYECEK, gerekirse tipografi küçülür.
+
+   NELER DEĞİŞTİ (4. tura göre):
+   · 344/384 atıldı → referanstan ölçülen 544/560 (@1024 607/617 · @390 587/726)
+   · Sabit yükseklik artık ≥901 px ile sınırlı DEĞİL — her genişlikte sabit.
+     4. turda mobilde serbest bırakılmıştı çünkü 262 px'lik kutuya içerik
+     sığmıyordu; referans değerleriyle (@390 587/726) sığıyor.
+   · Sütun-sarmalı iki kolon KALDIRILDI. 4. turda 344 px'e sığdırmak için
+     eylem satırı sağa taşınıyordu; R15.2 bunu açıkça yasaklıyor
+     ("butonlar sağ üstte / H1 hizasından kopuk"). 544 px'te içerik alanı
+     370 px ve zengin banner ~330 px sürüyor — tek kolonda sığıyor.
+   · İMZA BANNER'LARI AİLEYE GİRDİ: .kp-top · .ol-top · .chl-hero ·
+     .pd-hero · .cp-top. Ana sayfanın tam-ekran perdesi (.df-top,
+     data-fit-hero="1") DIŞARIDA — gerekçe KARARLAR K31.
+
+   İç düzen (referanstan çıkarılan sıra):
+     kırıntı → eyebrow → H1 → alt metin → istatistik şeridi → CTA
+   CTA H1 ile AYNI SOL HİZADA ve istatistik şeridinin ALTINDA.
+   ============================================================ */
 body[data-fit-hero-kind="liste"] .lib-top,
-body[data-fit-hero-kind="liste"] .fs-top{min-height:var(--hero-h-list)}
+body[data-fit-hero-kind="liste"] .fs-top,
+body[data-fit-hero-kind="liste"] .kp-top,
+body[data-fit-hero-kind="liste"] .ol-top{height:var(--banner-h-liste)}
 body[data-fit-hero-kind="detay"] .lib-top,
-body[data-fit-hero-kind="detay"] .ed-top{min-height:var(--hero-h-detail)}
-/* .cp-top (antrenör detayı) SABİT KUTUDAN ÇIKARILDI — R1, 4. tur.
-   3. turun kendi kuralı "içinde ikinci kart taşıyan imza banner'ları sabit
-   kutunun dışındadır" diyor ve beş banner'ı (kp-top · ol-top · chl-hero ·
-   pd-hero · df-top) dışarıda bırakıyor. `.cp-top` de tam olarak öyle bir
-   banner: içinde randevu kartı var (fiyat + üç eylem + not). Ama yanlışlıkla
-   sabit aileye alınmıştı ve ÖLÇÜM kartın 75.2 px'inin kırpıldığını gösterdi
-   (`overflow:hidden`). En sıkı makul ölçekle bile kart 226 px sürüyor,
-   kutunun verebildiği 207.6 px'i aşıyor. Taban yükseklik (384) korunuyor,
-   tavan içeriğe bırakıldı. Gerekçe: KARARLAR K22. */
-body[data-fit-hero-kind="detay"] .cp-top{min-height:var(--hero-h-detail)}
-@media (min-width:901px){
-  body[data-fit-hero-kind="liste"] .lib-top,
-  body[data-fit-hero-kind="liste"] .fs-top{height:var(--hero-h-list)}
-  body[data-fit-hero-kind="detay"] .lib-top,
-  body[data-fit-hero-kind="detay"] .ed-top{height:var(--hero-h-detail)}
-}
+body[data-fit-hero-kind="detay"] .ed-top,
+body[data-fit-hero-kind="detay"] .cp-top,
+body[data-fit-hero-kind="detay"] .chl-hero,
+body[data-fit-hero-kind="detay"] .pd-hero{height:var(--banner-h-detay)}
+/* imza banner'larının sayfa CSS'indeki kendi min-height'ları bu kuralı
+   eziyordu — sıfırlanır ki aile ölçüsü tek kaynak olsun */
+body[data-fit-hero-kind] .kp-top,
+body[data-fit-hero-kind] .ol-top,
+body[data-fit-hero-kind] .chl-hero,
+body[data-fit-hero-kind] .pd-hero,
+body[data-fit-hero-kind] .cp-top{min-height:0 !important}
+
 /* alt metin iki satıra kilitli — banner yüksekliğini kart kart değiştiren
-   asıl değişken buydu (ölçüm: 1–3 satır arası, 199px yayılım) */
+   asıl değişken buydu */
 body[data-fit-hero-kind] .lib-top .lib-sub{
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden
 }
-/* ---- R1 (4. tur) · DİKEY ORTALAMA GERİ ALINDI ----------------------
-   3. tur bu ailelere `display:flex; flex-direction:column;
-   justify-content:safe center` yazmıştı. Beyar geri istedi ve ölçüm iki
-   ayrı kırılma gösterdi:
 
-   1) YATAY — `.lib-top > .wrap` üzerinde `margin:0 auto` var. Blok akışında
-      bu kutuyu 1180px'e açıp ortalar (sol kenar sabit 132px). Kutu FLEX ITEM
-      olunca çapraz eksendeki `margin:auto`, `align-items:stretch`i İPTAL eder
-      → kutu shrink-to-fit olur. Ölçüldü: `.wrap` sol kenarı sayfa sayfa
-      234.2 / 296.3 / 348 / 408 / 466 px — yani banner metni her sayfada başka
-      yerden başlıyor ve altındaki içerik ızgarasıyla (132px) hizasız.
-
-   2) DİKEY — `.lib-top{overflow:hidden}` + sabit yükseklik + `safe center`:
-      içerik kutudan uzunsa `safe` hizayı başa çevirir, fazlalık ALT kenardan
-      taşar ve KIRPILIR. Ölçüldü: 51 banner sayfasının 28'inde taşma,
-      en kötüsü program-liste-v1 −112px (CTA satırı ve istatistikler
-      tamamen görünmez). 3. tur taşmayı yalnız ÜST kenardan ölçmüştü.
-
-   Yürürlükteki kural: banner içeriği BLOK AKIŞINDA, üstten hizalı.
-   Sabit yükseklik (344 / 384) korunur; içeriğin kutuya SIĞMASI
-   R1.2'deki sıkılaştırılmış dikey ritimle sağlanır. */
-
-/* ---- R1.2 · BANNER İÇ DÜZENİ — SABİT KUTUYA SIĞAN İKİ KOLON --------
-   ÖLÇÜLEN ZORLUK: sabit kutu 344px, üst 113px'i şeffaf header'ın altında
-   kalıyor → gerçek içerik alanı 231px. Zengin banner'ın altı bloğu
-   (kırıntı · eyebrow · h1 · açıklama · eylem satırı · istatistik) tek
-   kolonda en sıkı ölçekle bile ~330px sürüyor. Yani TEK KOLONDA SIĞMIYOR;
-   3. tur bunu `overflow:hidden` ile KIRPARAK "çözmüştü" (bkz. B1).
-
-   ÇÖZÜM: banner 1180px geniş ama metin ölçüsü 680px'te kapalı — sağda
-   ~440px boş duruyordu. Beyar'ın "banner başlık ve açıklama alanında boş
-   alan verimli kullanılsın" talimatı tam olarak burayı gösteriyor.
-   Açıklama satırından SONRAKİ her blok (eylem düğmeleri, istatistik
-   şeridi, arama kutusu, kapı notu…) SAĞ KOLONA geçiyor. Satır yüksekliği
-   iki kolonun büyüğü kadar olduğu için toplam yükseklik düşüyor ve
-   içerik kırpılmadan 344/384'e sığıyor.
-
-   Dar ekranda (≤900px) kutu zaten `min-height`; tek kolona dönüyor. */
-/* İKİ KOLON NASIL KURULUYOR — `flex-flow:column wrap`
-   ------------------------------------------------------
-   Denenen ve BIRAKILAN yol: CSS grid + `grid-column:2`. İki sorunu var —
-   (a) seyrek yerleşimde imleç geri gitmediği için sağ kolon boş satırlarla
-   başlıyordu (`dense` ile çözüldü), (b) asıl kırılma: satır yüksekliği iki
-   kolonun BÜYÜĞÜ kadar oluyor, eylem satırı sarınca sol kolondaki eyebrow
-   da 18.6 → 85.3 px'e geriliyordu (ölçüldü: hakkimizda-v1). Grid'de satır
-   paylaşımı kaçınılmaz.
-
-   Yürürlükteki yol: `.wrap` sabit yükseklikte bir sütun-sarmalı flex
-   kutusu. Kutu `height:100%` ile banner'ın İÇERİK KUTUSUNA (344 − üst
-   dolgu − alt dolgu) kilitli; bloklar yukarıdan aşağı dizilir, sığmayan
-   ilk blok KENDİLİĞİNDEN ikinci kolona geçer. Satır paylaşımı yok,
-   sayfa başına kural yok, işaretleme değişikliği yok. Sağdaki ~440 px'lik
-   boş alan da böylece kullanılmış oluyor (Beyar: "boş alan verimli
-   kullanılsın"). */
+/* ---- İÇ DÜZEN: TEK KOLON, ÜSTTEN HİZALI ----
+   `.wrap` blok akışında kalır (margin:0 auto ile 132 px'e oturur).
+   4. turun `flex-flow:column wrap` kutusu kaldırıldığı için eylem satırı
+   akışta kalır ve H1 ile aynı sol kenardan başlar. */
 @media (min-width:901px){
-  /* KİMLERE UYGULANIR: yalnız `.wrap` içinde DOĞRUDAN bir açıklama satırı
-     (.lib-sub / .fs-lead) taşıyan banner'lar — yani "kırıntı · eyebrow ·
-     başlık · açıklama · eylem · istatistik" desenini kullananlar.
-     Tek büyük blok taşıyan banner'lar (reklam-ver `.mk-hero`, bildirimler
-     `.nt-*`, antrenör detay `.cp-head`) DIŞARIDA: onlarda ikinci kolon
-     içeriği ortaya itip yeni bir hiza bozukluğu üretiyordu (ölçüldü:
-     reklam-ver'de `.mk-hero` sola 508px'e kaydı). Onlar kendi
-     sıkıştırmalarıyla kutuya oturuyor (aşağıda). */
-  body[data-fit-hero-kind] .lib-top:has(> .wrap > .lib-sub) > .wrap,
-  body[data-fit-hero-kind] .fs-top:has(> .wrap > .fs-lead) > .wrap{
-    height:100%;
-    display:flex; flex-flow:column wrap;
-    align-content:flex-start;
-    /* row-gap 10 → 8: destek-talebi-detay'da açıklama satırı kutuya
-       2 px farkla sığmayıp ikinci kolona düşüyor, oradaki 660 px'lik
-       genişliğiyle `.wrap`ı taşırıyordu (ölçüldü: sağ kenar 1504 > 1308). */
-    row-gap:calc(var(--hero-gap) - 2px); column-gap:52px;
-  }
-  /* dikey ritim artık row-gap'ten; blok marjları sıfırlanır */
-  body[data-fit-hero-kind] .lib-top:has(> .wrap > .lib-sub) > .wrap > *,
-  body[data-fit-hero-kind] .fs-top:has(> .wrap > .fs-lead) > .wrap > *{margin-top:0;margin-bottom:0;flex:none}
-  /* KOLON GENİŞLİĞİ KELEPÇESİ — sütun-sarmalı flex'te kolon genişliği
-     içindeki en geniş bloğa eşittir; kelepçesiz bırakılınca ikinci kolon
-     `.wrap`ı aşıp `overflow:hidden`e takılıyordu (ölçüldü: bildirimler
-     filtre çipleri ve fit-testi-sonuc istatistikleri sağdan kırpılmış).
-     660 + 52 + 380 = 1092 ≤ 1116 (wrap iç genişliği). */
-  body[data-fit-hero-kind] .lib-top:has(> .wrap > .lib-sub) > .wrap > *,
-  body[data-fit-hero-kind] .fs-top:has(> .wrap > .fs-lead) > .wrap > *{max-width:660px}
-  body[data-fit-hero-kind] .lib-top:has(> .wrap > .lib-sub) > .wrap > .lib-sub ~ *,
-  body[data-fit-hero-kind] .fs-top:has(> .wrap > .fs-lead) > .wrap > .fs-lead ~ *{max-width:380px}
-
-  /* Sabit kutuya oranlı banner tipografisi: 39px başlık 231 px'lik gerçek
-     içerik alanında iki-üç satıra sarıyordu. 34px'te başlıkların ezici
-     çoğunluğu tek satır. */
+  /* referans tipografisi — banner'a ÖZEL, global paleti değiştirmez */
   body[data-fit-hero-kind] .lib-top h1,
-  body[data-fit-hero-kind] .fs-top h1{font-size:34px;line-height:1.16;margin:0}
-  /* eylem satırı banner içinde kompakt: 44 px düğme → 38 px */
-  body[data-fit-hero-kind] .lib-top .chips .btn,
-  body[data-fit-hero-kind] .lib-top .lib-cta .btn{padding:10px 20px;font-size:13.5px}
-  /* sağ kolonda istatistik şeridi alt alta sarıyor; 26 px satır aralığı
-     üç kalemde 145 px sürüyor ve şeridi ÜÇÜNCÜ kolona itiyordu
-     (ölçüldü: fit-testi-sonuc sağ kenar 1598.5 > 1308). */
-  body[data-fit-hero-kind] .lib-top .lib-stats{gap:9px 24px}
-
-  /* ---- TEK BLOKLU İKİ İSTİSNA BANNER — kendi sıkıştırmasıyla oturuyor --
-     Bu ikisi sütun-sarmalının dışında (yukarıdaki `:has()` kelepçesi):
-     içerikleri tek büyük blok olduğu için ikinci kolona geçince banner
-     metni sağa kayıyor ve R1'in düzelttiği hiza bozukluğu geri geliyordu.
-     Onun yerine kendi dikey ritimleri kutuya göre sıkıldı. */
-  /* reklam-ver: ölçülen 231.4 px içerik / 197 px kutu → −34.4 px gerek */
-  body[data-fit-hero-kind] .lib-top .mk-hero{gap:36px;align-items:center}
-  body[data-fit-hero-kind] .lib-top .mk-hero .eyebrow-row{margin-bottom:0}
-  body[data-fit-hero-kind] .lib-top .mk-main h1{margin:8px 0 8px}
-  body[data-fit-hero-kind] .lib-top .mk-main .lib-sub{margin:0}
-  body[data-fit-hero-kind] .lib-top .mk-chips{margin-top:10px}
-  body[data-fit-hero-kind] .lib-top .mk-stats{gap:10px;padding-left:30px}
-  body[data-fit-hero-kind] .lib-top .mk-stats .st b{font-size:24px}
-  /* bildirimler: ölçülen 212.5 px / 197 px kutu → −15.5 px gerek */
-  body[data-fit-hero-kind] .lib-top .nt-demo{margin-bottom:8px;padding:4px 10px}
-  body[data-fit-hero-kind] .lib-top .nt-head{padding:0 0 8px;gap:14px}
-  body[data-fit-hero-kind] .lib-top .nt-head h1{margin:0 0 3px}
+  body[data-fit-hero-kind] .fs-top h1,
+  body[data-fit-hero-kind] .ed-top h1,
+  body[data-fit-hero-kind] .cp-top h1{
+    font-size:42px;line-height:1.12;letter-spacing:-.03em;max-width:none;margin:0
+  }
 }
+/* ---- BLOK SIRASI: istatistik şeridi ÖNCE, CTA SONRA ----
+   Referans sırası: kırıntı → eyebrow → H1 → alt metin → istatistik → CTA.
+   DadaFit sayfalarında işaretleme sırası tersti (CTA, istatistikten önce
+   geliyordu). İşaretleme 21 sayfada tek tek değiştirilmek yerine `.wrap`
+   bir sütun flex kutusuna çevrilip yalnız iki blok sıralanıyor.
+
+   DİKKAT — 4. turdaki tuzak: `.wrap`ı flex ITEM yapmak `margin:0 auto`yu
+   shrink-to-fit'e düşürüyordu (B2). Burada `.wrap` flex CONTAINER oluyor;
+   kendi blok akışındaki yeri ve ortalanması değişmiyor, `align-items:
+   stretch` ile çocuklar tam genişlikte kalıyor. */
+body[data-fit-hero-kind] .lib-top > .wrap,
+body[data-fit-hero-kind] .fs-top > .wrap,
+body[data-fit-hero-kind] .ed-top > .wrap{
+  display:flex;flex-direction:column;align-items:stretch;
+  row-gap:var(--banner-gap)
+}
+body[data-fit-hero-kind] .lib-top > .wrap > *,
+body[data-fit-hero-kind] .fs-top > .wrap > *,
+body[data-fit-hero-kind] .ed-top > .wrap > *{margin-top:0;margin-bottom:0}
+body[data-fit-hero-kind] .lib-top > .wrap > .lib-stats{order:1}
+body[data-fit-hero-kind] .lib-top > .wrap > .chips,
+body[data-fit-hero-kind] .lib-top > .wrap > .lib-cta{order:2}
+
+/* Sabit kutuda içerik ÜSTTEN hizalanır.
+   `.pd-hero` kendi CSS'inde `display:flex; align-items:flex-end` taşıyordu:
+   yükseklik serbestken bu "içeriği bandın altına yasla" demekti, ama sabit
+   560 px kutuda içerik yukarı taşıp ŞEFFAF HEADER'IN ALTINA kayıyordu
+   (ölçüldü: kırıntı top=96 < header alt kenarı 113; kalite kapısı yakaladı).
+   Üstten hizalama, üst dolgunun (header payı) her zaman korunmasını sağlar. */
+body[data-fit-hero-kind] .pd-hero,
+body[data-fit-hero-kind] .chl-hero,
+body[data-fit-hero-kind] .kp-top,
+body[data-fit-hero-kind] .ol-top,
+body[data-fit-hero-kind] .cp-top{align-items:flex-start !important}
 
 body[data-fit-hero="1"] .df-top{min-height:var(--hero-full)}
 

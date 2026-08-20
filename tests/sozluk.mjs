@@ -49,8 +49,13 @@ const ONDISK = new Set(readdirSync(new URL('..', import.meta.url)).filter(f => f
 
 /* egzersiz kütüphanesinde GERÇEKTEN var olan hareket slug'ları */
 const HAREKET_SLUG = new Set([
-  'goblet-squat','plank','dambil-kurek','sinav','hamle','dead-bug',
-  'kettlebell-swing','kopru','bant-cekme','bant-yana-acma','dambil-biceps','dambil-omuz-press'
+  'goblet-squat','plank','dambil-kurek','sinav',
+  'hamle','dambil-omuz-press','dambil-biceps','dead-bug',
+  'kettlebell-swing','bant-cekme','kopru','bant-yana-acma',
+  'hava-squat','ters-sinav','superman','yuzucu',
+  'barfiks','sehpa-dips','bulgar-split-squat','tek-bacak-kopru',
+  'yan-plank','dag-tirmanisi','burpee','dambil-gogus-press',
+  'dambil-romanya'
 ]);
 /* H2 oturumunun sabitlediği kas slug sözlüğü */
 const KAS_SLUG = new Set(('boyun trapez-ust trapez-orta-alt deltoid-on deltoid-yan deltoid-arka ' +

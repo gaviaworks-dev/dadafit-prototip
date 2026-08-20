@@ -42,8 +42,13 @@ const BIRLESTIRME_SONRASI = new Set(['sozluk-v1.html', 'sozluk-detay-v1.html']);
 
 /* Egzersiz kütüphanesinin GERÇEK slug'ları — uydurma slug yakalanır */
 const GERCEK_HAREKET = new Set([
-  'goblet-squat','plank','dambil-kurek','sinav','hamle','dead-bug',
-  'kettlebell-swing','kopru','bant-cekme','bant-yana-acma','dambil-biceps','dambil-omuz-press'
+  'goblet-squat','plank','dambil-kurek','sinav',
+  'hamle','dambil-omuz-press','dambil-biceps','dead-bug',
+  'kettlebell-swing','bant-cekme','kopru','bant-yana-acma',
+  'hava-squat','ters-sinav','superman','yuzucu',
+  'barfiks','sehpa-dips','bulgar-split-squat','tek-bacak-kopru',
+  'yan-plank','dag-tirmanisi','burpee','dambil-gogus-press',
+  'dambil-romanya'
 ]);
 
 /* Brief'in kanonik 27 slug sözlüğü — eksiği olamaz */

@@ -20,7 +20,7 @@
    karistirilanlar  (ops.) {slug, not} — sık karıştırılan terim + farkı
 
  KÖPRÜ KURALI — uydurma slug yok.
- · hareket → egzersiz-detay-v1.html?slug=…  · yalnız şu 12'si kullanılır:
+ · hareket → egzersiz-detay-v1.html?slug=…  · yalnız şu 25'i kullanılır (7. oturum: katalog 12 → 25):
    goblet-squat · plank · dambil-kurek · sinav · hamle · dead-bug ·
    kettlebell-swing · kopru · bant-cekme · bant-yana-acma ·
    dambil-biceps · dambil-omuz-press
@@ -307,9 +307,9 @@
      tanımını 260 karakterle sınırlar (tests/sozluk-kapalilik.mjs). */
 
   { terim:'Çömelme', ingilizce:'Squat', kategori:'hareket-teknik',
-    tanim:'Kalçanın ve dizlerin birlikte bükülüp gövdenin dik tutularak alçaltıldığı temel alt vücut hareketidir. Uyluk ön kası, kalça ve gövde merkezi birlikte çalışır. Adım adım anlatımı kütüphanedeki Goblet Squat kartındadır.',
+    tanim:'Kalçanın ve dizlerin birlikte bükülüp gövdenin dik tutularak alçaltıldığı temel alt vücut hareketidir. Uyluk ön kası, kalça ve gövde merkezi birlikte çalışır. Adım adım anlatımı kütüphanedeki Hava Squat (Bodyweight Squat) kartındadır.',
     ornek:'Isınmadan sonra ağırlıksız çömelme yaparak kalıbı oturt.',
-    hareket:'goblet-squat', kas:'quadriceps',
+    hareket:'hava-squat', kas:'quadriceps',
     karistirilanlar:{ slug:'comelme-kalibi', not:'Çömelme yapılan hareketin adıdır; çömelme kalıbı o hareketin altında yatan genel desendir.' } },
 
   { terim:'Hamle', ingilizce:'Lunge', kategori:'hareket-teknik',
@@ -367,13 +367,13 @@
   { terim:'Ölü kaldırış', ingilizce:'Deadlift', kategori:'hareket-teknik',
     tanim:'Yerde duran yükün kalça ve diz açılarak ayakta doğrulur biçimde kaldırılmasıdır. Arka zincirin tamamını, özellikle kalçayı ve omurga dikleştiricilerini yükler. Yük ağırlaştıkça omurganın nötr kalması ve barın gövdeye yakın seyretmesi tekniğin iki ölçütüdür.',
     ornek:'Ölü kaldırışta bar bacaktan uzaklaşıyorsa yükü düşür ve mesafeyi kapat.',
-    kas:'erector-spinae',
+    hareket:'dambil-romanya', kas:'erector-spinae',
     karistirilanlar:{ slug:'kalca-mentesesi', not:'Kalça menteşesi hareketin desenidir; ölü kaldırış o desenle yapılan kaldırışın adıdır.' } },
 
   { terim:'Barfiks', ingilizce:'Pull-up', kategori:'hareket-teknik',
     tanim:'Bir bara asılıp gövdenin kol gücüyle yukarı çekildiği vücut ağırlığı hareketidir. Geniş sırt kası ve kol bükücüleri birlikte çalışır; tutuş genişliği ile avuç yönü yükün dağılımını değiştirir. Henüz yapılamıyorsa bantla destek ya da negatif tekrarla ilerlenir.',
     ornek:'Tam barfiks çıkamıyorsan bara asılıp beş saniyede inerek başla.',
-    kas:'latissimus',
+    hareket:'barfiks', kas:'latissimus',
     karistirilanlar:{ slug:'barfiks-bari', not:'Barfiks hareketin adıdır; barfiks barı o hareketin yapıldığı ekipmandır.' } },
 
   { terim:'Bench press', ingilizce:'Bench press', kategori:'hareket-teknik',
@@ -384,6 +384,7 @@
   { terim:'Burpee', ingilizce:'Burpee', kategori:'hareket-teknik',
     tanim:'Ayakta başlayıp yere şınav pozisyonuna inilen, sonra ayağa kalkılıp sıçranarak tamamlanan tam vücut hareketidir. Tek tekrarda itiş, çömelme ve sıçrama birleştiği için nabzı hızla yükseltir. CrossFit ve kondisyon devrelerinin en çok kullanılan kalemlerinden biridir.',
     ornek:'On dakikalık AMRAP\'a on burpee koy, nabzın nereye çıktığını gör.',
+    hareket:'burpee',
     karistirilanlar:{ slug:'metcon', not:'Burpee tek bir harekettir; metcon o hareketin içine yerleştiği kondisyon çalışmasının adıdır.' } },
 
   { terim:'Mekik', ingilizce:'Sit-up', kategori:'hareket-teknik',

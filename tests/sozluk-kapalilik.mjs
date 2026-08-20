@@ -107,7 +107,7 @@ const ELENEN = [
   { ifade:'judo',         gecis:3,  neden:'sporun kendi adı; teknikleri (kimura · tatami) tanımlı.' },
   { ifade:'yüzme',        gecis:3,  neden:'genel bilinen etkinlik adı.' },
   { ifade:'atlama',       gecis:3,  neden:'fiil kökü; "atlama ipi" ekipman olarak tanımlı.' },
-  { ifade:'goblet',       gecis:2,  neden:'"Çömelme" kaydı goblet-squat kartına köprüyle bağlanıyor, ayrı kayıt gerekmiyor.' },
+  { ifade:'goblet',       gecis:2,  neden:'goblet squat ayrı bir hareket ve kendi kartı var; "Çömelme" kaydı ekipmansız hava-squat kartına bağlanıyor. Goblet için ayrı sözlük kaydı gerekmiyor.' },
   { ifade:'stabilite',    gecis:2,  neden:'"Eklem stabilitesi" kaydı karşılıyor.' },
   { ifade:'sakatlık',     gecis:2,  neden:'genel Türkçe; akut yaralanma · aşırı kullanım yaralanması ayrı ayrı tanımlı.' },
   { ifade:'merdiven',     gecis:2,  neden:'günlük yaşam örneği, terim değil.' },
@@ -115,10 +115,17 @@ const ELENEN = [
   { ifade:'tendon',       gecis:0,  neden:'metinlerde hiç geçmiyor; "tendinopati" ayrı kelime. "Bağ dokusu" kaydı kavramı kapsıyor.' }
 ];
 
-/* egzersiz kütüphanesindeki 12 GERÇEK hareket slug'ı */
+/* egzersiz kütüphanesindeki 25 GERÇEK hareket slug'ı
+   (7. oturum: katalog 12 → 25; goblet-squat artık dambıllı, ekipmansız
+   squat'ın slug'ı hava-squat) */
 const HAREKET_SLUG = new Set([
-  'goblet-squat','plank','dambil-kurek','sinav','hamle','dead-bug',
-  'kettlebell-swing','kopru','bant-cekme','bant-yana-acma','dambil-biceps','dambil-omuz-press'
+  'goblet-squat','plank','dambil-kurek','sinav',
+  'hamle','dambil-omuz-press','dambil-biceps','dead-bug',
+  'kettlebell-swing','bant-cekme','kopru','bant-yana-acma',
+  'hava-squat','ters-sinav','superman','yuzucu',
+  'barfiks','sehpa-dips','bulgar-split-squat','tek-bacak-kopru',
+  'yan-plank','dag-tirmanisi','burpee','dambil-gogus-press',
+  'dambil-romanya'
 ]);
 /* 27 kanonik kas slug'ı */
 const KAS_SLUG = ('boyun trapez-ust trapez-orta-alt deltoid-on deltoid-yan deltoid-arka ' +
@@ -138,7 +145,7 @@ const KAS_SLUG = ('boyun trapez-ust trapez-orta-alt deltoid-on deltoid-yan delto
    otomatik türetilmiyor, elle ve gerekçeli tutuluyor.
    ------------------------------------------------------------------- */
 const KATALOG_TERIM = {
-  'comelme':          'goblet-squat',
+  'comelme':          'hava-squat',
   'hamle':            'hamle',
   'kopru':            'kopru',
   'plank':            'plank',

@@ -1185,3 +1185,158 @@ git push origin main
 ```
 
 R13 push'u ilk denemede bu yüzden düştü. **Aktif hesap şu an `gaviaworks-dev`.**
+
+---
+
+## K37 · Sözlük deseni referanstan ÖLÇÜLEREK alındı — kart değil, açılır satır
+
+**H1, 7. oturum.** Brief `dadagastro.com/mutfak-sozlugu`'nu "terim kartı" diye
+tarif ediyordu. Referans **canlıdan Playwright ile gezilip tıklanınca** desenin
+kart olmadığı görüldü:
+
+```html
+<div class="term-row" role="button" tabindex="0" aria-expanded="false">
+  <span class="tr-ltr">A</span>
+  <span class="tr-name"><b>Adaçayı</b><span>sage</span></span>
+  <span class="tr-cat">Baharat</span>
+  <a class="tr-go-link" href="/mutfak-sozlugu/adacayi">…</a>
+</div>
+```
+
+Satır **yerinde açılıyor** (tanım + tırnaklı örnek + iki köprü), chevron ayrı bir
+`<a>` olarak tam terim sayfasına gidiyor. **İki katmanlı erişim.** 232 terimde
+ızgara taranamaz hâle gelirdi; satır rayı kalır.
+
+**Ölçülen üç sabit, birebir alındı:**
+
+| Ölçüm | Referans | DadaFit |
+|---|---|---|
+| Arama süzme eşiği | 1 harf 54 · 2 harf 54 · **3 harf 13** | 1 harf 232 · 2 harf 232 · **3 harf 52** |
+| Harf rayı | Tümü + **29 harf**, Q/W/X yok | aynı · tek boş harf **Ğ** (`is-empty`+`disabled`) |
+| İstatistik şeridi | 3 kalem (765 Terim · A–Z · 20 Kategori) | 3 kalem, sayılar **diziden hesaplanıyor** |
+
+**ALINMAYANLAR — gerekçeli:**
+
+- **Sayfalama (15 sayfa, ~54 satır).** Referans 765 terimi bölüyor, bizde 232 var.
+  Harf grupları + harf rayı gezinmeyi zaten karşılıyor; üstüne sayfalama koymak
+  iki ayrı gezinme mantığı demekti. Ayrıca kabul ölçütü "DOM'daki satır sayısı =
+  sayaç" diyor, sayfalama bu eşitliği bozardı. **Terim 400'ü aşarsa yeniden bakılır.**
+- **Banner 254.1 px.** R15 aile kuralı geçerli: liste **544/607/587**.
+- **"Kaynaklar" bloğu.** Referansta var (Oxford Companion to Food vb.).
+  **Üretilmedi** — bu sözlüğün arkasında atıf verilebilecek bir kitap/veritabanı
+  yok. Sahte kaynak yazmak "sayı/veri uydurulmaz" kuralının ihlali olurdu.
+
+**EKLENENLER** (referansın detay sayfasından, brief'te yoktu): **Künye**
+(kategori · harf · kaynak dil · İngilizce · okunuş) · **Sık aranan sorular**
+(SEO, terim başına 4 ifade) · **Etiketler** (hepsi gerçek hedefe gider).
+
+---
+
+## K38 · Anatomi verisi PDF'ten GÖZLE okundu — kaynak sayfası her kayıtta yazılı
+
+**H2, 7. oturum.** `Muscle.pdf`in **metin katmanı yok** — `pdftotext -layout`
+0 satır döndürdü; dosya salt görüntü (sayfa başına tek 200 ppi JPEG).
+Bu yüzden veri `pdftoppm` rasterleri **Read tool ile gözle okunarak** çıkarıldı.
+
+**Kitap:** Frédéric Delavier, *Guide des mouvements de musculation*
+(Hollandaca baskı, 2001). Sayfa eşlemesi: `pdf = kitap + 8`.
+Gözle incelenen 20 sayfa; ana plate'ler **s. 4 (arka)** ve **s. 5 (ön)**.
+
+**Kural:** her kas kaydı hangi plate'ten geldiğini `kaynak` alanında taşır
+(ör. `kaynak: 'PDF s. 5 · 31 · 46'`). İzlenebilirlik veriye gömülü.
+
+**PDF'in VERMEDİĞİ alan uydurulmadı.** Beş yapışma alanı (tibialis anterior ·
+üç deltoid + rotator manşet · kalça fleksörü · adduktor · latissimus) plate'te
+adlandırılmamış; panel metninde *"plate bu bilgiyi vermiyor"* diye **açıkça
+yazılı**. Boş bırakmak da uydurmak da değil — eksiği söylemek.
+
+**Telif:** PDF'in *verisi* kullanıldı; çizimleri, düzeni ve metni kopyalanmadı.
+Dört SVG sıfırdan DadaFit çizimi (`viewBox 0 0 400 900`, `fill=currentColor`).
+Erkek/kadın **ölçüyle** ayrıldı, ölçeklenmiş kopya değil: omuz:kalça oranı
+**1,71 ↔ 1,39**, gövde 320 ↔ 306 px, bacak 404 ↔ 424 px.
+
+---
+
+## K39 · Kanonik kas slug sözlüğü — paralel çalışmanın sözleşmesi
+
+**7. oturum, koordinatör kararı.** H1 ve H2 aynı anda, ayrı worktree'lerde
+çalışıyordu ve **birbirine köprü yazacaklardı** — H1'in "İlgili kas"ı H2'nin
+sayfasına, H2'nin "ekipman"ı H1'in sözlüğüne. Hiçbiri diğerinin dosyasını
+göremiyordu.
+
+**Çözüm: slug sözlüğü işe başlamadan koordinatör tarafından sabitlendi** —
+27 kalem, ön 14 / arka 13. İkisine de aynı liste verildi. Kural: *H1 yalnız
+bunlara köprü yazar; H2 hepsini hem SVG path'i hem panel verisi olarak karşılar,
+fazlasını ekleyebilir, eksiği olamaz.*
+
+**Sonuç (birleştirmede ölçüldü):** sözlükten çıkan **26 kas köprüsünün
+26'sı** doğru kası açtı — kırık 0, yanlış kas açan 0. H2 iki ekstra ekledi
+(`teres-major` · `tensor-fasya-lata`), sözleşme bozulmadı.
+
+**Genel kural:** paralel modüller birbirine bağlanacaksa **paylaşılan anahtar
+kümesi önce sabitlenir**. Sonradan hizalamak, 26 köprüyü tek tek düzeltmek demekti.
+
+---
+
+## K40 · Kas adlandırmasında ANATOMİ VERİSİ kanoniktir
+
+**Birleştirmede yakalandı, 7. oturum.** İki modül aynı 27 slug'a **farklı
+Türkçe ad** veriyordu — 27'nin **18'i farklı**, bazıları çelişkili:
+
+| slug | sözlük (köprü etiketi) | anatomi (panel başlığı) |
+|---|---|---|
+| `tibialis-on` | Ön **bacak** kası | Ön **Baldır** Kası |
+| `quadriceps` | Uyluk ön kası | Dört Başlı Uyluk Kası |
+| `soleus` | Soleus | Nalımsı Kas |
+
+Köprüye tıklayıp **başka başlıklı** bir panele düşmek kabul edilemez.
+
+**KARAR: `assets/js/anatomi-veri.js` kanoniktir.** Gerekçe: o adlar PDF'ten
+çıkarılmış anatomiye dayanıyor ve sayfa atfı taşıyor; sözlüğünkiler konum
+tarifiydi. `sozluk-veri.js`'teki `kasAdlari` tablosunun 27 kalemi, panel
+başlığının **parantez öncesi ana adına** hizalandı — etiket kısa kalır ama
+vardığı yerle aynı şeyi söyler. Gerekçe dosyaya yorum olarak yazıldı.
+
+**Anatomi verisi değişirse `kasAdlari` da güncellenir.**
+
+---
+
+## K41 · MuscleWiki bot korumalı — keşif sınırı ve "Haftalık Rutin" bulgusu
+
+**H3, 7. oturum.** `musclewiki.com` Cloudflare korumalı. Ölçülen davranış:
+
+| Yöntem | Sonuç |
+|---|---|
+| Headless chromium | ilk istek geçer, ardındakiler **403** |
+| Gerçek Chrome, headed, kalıcı profil | ilk tur **geçti** |
+| Tarayıcıyı kapatıp yeniden fırlatmak | **403** |
+| SPA içi tıklamayla adım geçişi | **her seferinde 403** (3 deneme) |
+| **Oturum başına tek istek + ~3,5 dk bekleme** | **çalıştı** — 6/6 adım alındı |
+
+Toplam **13 blok**, ~**45 dk** kasıtlı bekleme, ~30 istek.
+
+**SINIR — aşılmadı:** proxy/IP rotasyonu, UA rotasyonu, captcha çözme
+**denenmedi**. Site "yeter" dediğinde geri çekilindi. **Kısmi keşif,
+uydurulmuş keşiften iyidir** — belge neyin kanıtlandığını `[EKRAN]` /
+`[ROUTE]` / `[KAYNAK]` etiketleriyle ayırıyor, erişilemeyeni "ERİŞİLEMEDİ"
+diye işaretliyor.
+
+**Dürüst bilanço:** kesintisiz tam tur **0/9**. Elde edilen adım **envanteri**,
+tur kaydı değil. Sonuç ekranına hiç erişilemedi → **determinizm ölçülemedi**.
+
+### AS-1 — sonraki oturumun ilk işi
+
+`/tr-tr/generator` **iki kol** sunuyor:
+
+| | Tekli Antrenman | **Haftalık Rutin** |
+|---|---|---|
+| Etiket | hızlı ve odaklı | tam program · **★ önerilen** |
+| İçerik | bugünlük tek antrenman | **haftada 3-6 gün · dengeli kapsam · artan yüklenme** |
+| Keşif | ✅ 6 adım çıkarıldı | 🔴 **hiç keşfedilmedi** |
+
+Gezilen sihirbaz **hızlı kol**. Brief'in H3 için istediği her şey — gün gün
+liste, 3 gün full body / 5–6 gün push-pull-legs, artan yüklenme — **ikinci
+kolda**. **H3 kodu başlamadan o kol keşfedilmeli;** kalan 8 tur değil, öncelik bu.
+
+**AS-2 kapandı:** DadaFit'in oluşturucusu **deterministik** olacak — `?plan=`
+paylaşılabilirliği bunu gerektiriyor ve R13'ün puanlama motoru da deterministik.

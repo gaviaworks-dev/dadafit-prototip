@@ -1306,33 +1306,38 @@
      yalnız köprü kartında "Kas haritasında aç" yerine kasın adı yazıyor.
      H2 kendi adlandırmasını getirdiğinde bu tablo onunla hizalanmalı. */
   var kasAdlari = {
-    'boyun':'Boyun kasları',
-    'trapez-ust':'Trapez kası (üst)',
-    'trapez-orta-alt':'Trapez kası (orta ve alt)',
-    'deltoid-on':'Deltoid (ön)',
-    'deltoid-yan':'Deltoid (yan)',
-    'deltoid-arka':'Deltoid (arka)',
-    'gogus':'Göğüs kası',
-    'serratus':'Ön testere kası',
-    'latissimus':'Geniş sırt kası',
-    'romboid':'Romboid kaslar',
-    'rotator-manset':'Rotator manşet',
+    /* KAYNAK: assets/js/anatomi-veri.js — kanonik ad oradaki panel
+       başlığıdır (H2, Muscle.pdf'ten çıkarıldı). Burada o başlığın
+       parantez öncesi ANA ADI kullanılıyor: köprü etiketi ile
+       vardığı panelin başlığı aynı şeyi söylesin diye. Anatomi
+       verisi değişirse burası da güncellenir. */
+    'boyun':'Boyun',
+    'trapez-ust':'Üst Trapez',
+    'trapez-orta-alt':'Orta ve Alt Trapez',
+    'deltoid-on':'Ön Deltoid',
+    'deltoid-yan':'Yan Deltoid',
+    'deltoid-arka':'Arka Deltoid',
+    'gogus':'Göğüs',
+    'serratus':'Ön Dişli Kas',
+    'latissimus':'Geniş Sırt Kası',
+    'romboid':'Romboid Kaslar',
+    'rotator-manset':'Rotator Manşet',
     'biceps':'Biceps',
     'triceps':'Triceps',
-    'on-kol-fleksor':'Ön kol bükücüleri',
-    'on-kol-ekstansor':'Ön kol açıcıları',
-    'karin-duz':'Düz karın kası',
-    'karin-yan':'Yan karın kasları',
-    'erector-spinae':'Omurga dikleştirici kaslar',
-    'kalca-fleksor':'Kalça bükücüleri',
-    'gluteus-maximus':'Kalça büyük kası',
-    'gluteus-medius':'Kalça orta kası',
-    'adduktor':'İç bacak kasları',
-    'quadriceps':'Uyluk ön kası',
-    'hamstring':'Arka uyluk kası',
-    'gastrocnemius':'Baldır ikiz kası',
-    'soleus':'Soleus',
-    'tibialis-on':'Ön bacak kası'
+    'on-kol-fleksor':'Ön Kol Bükücüleri',
+    'on-kol-ekstansor':'Ön Kol Açıcıları',
+    'karin-duz':'Düz Karın Kası',
+    'karin-yan':'Yan Karın Kasları',
+    'erector-spinae':'Bel ve Sırt Dikleştiricileri',
+    'kalca-fleksor':'Kalça Bükücü',
+    'gluteus-maximus':'Büyük Kalça Kası',
+    'gluteus-medius':'Orta Kalça Kası',
+    'adduktor':'İç Uyluk Kasları',
+    'quadriceps':'Dört Başlı Uyluk Kası',
+    'hamstring':'Arka Uyluk Kasları',
+    'gastrocnemius':'İkiz Baldır Kası',
+    'soleus':'Nalımsı Kas',
+    'tibialis-on':'Ön Baldır Kası'
   };
 
   /* arama için sadeleştirilmiş metin — büyük/küçük ve Türkçe harf farkını

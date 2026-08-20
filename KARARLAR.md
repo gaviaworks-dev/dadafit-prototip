@@ -1340,3 +1340,150 @@ kolda**. **H3 kodu başlamadan o kol keşfedilmeli;** kalan 8 tur değil, öncel
 
 **AS-2 kapandı:** DadaFit'in oluşturucusu **deterministik** olacak — `?plan=`
 paylaşılabilirliği bunu gerektiriyor ve R13'ün puanlama motoru da deterministik.
+
+---
+
+## K42 · Sözlük KAPALI olmalı — kendi metninde geçen terim tanımlı olacak
+
+**7. oturum, Beyar'ın tespiti.** Sözlük kendi içinde kapalı değildi: tanım
+metinlerinde kullanılan terimlerin bir kısmının kaydı yoktu.
+
+**Ölçüm (232 kaydın 481 metin parçası, iki geçişli tarama):**
+
+| Terim | Metinde geçiş / kayıt | Durum |
+|---|---|---|
+| **Kuvvet** | **31 / 24** | tanımsızdı |
+| **Güç** | **26 / 24** | tanımsızdı |
+| Çömelme | 13 / 13 | tanımsızdı |
+| Omurga | 10 / 6 | tanımsızdı |
+| Ölü kaldırış | 6 / 5 | tanımsızdı |
+| Burpee · Mekik · Aktivasyon | 0 / 0 | alanın temel kalemi, hiç yoktu |
+
+43 aday → **22 eklendi, 21 gerekçeli elendi**. Toplam **232 → 254**.
+Yeni kategori açılmadı; hepsi hâlâ ≥8.
+
+**KURAL — katalog çakışması.** Kütüphanede kartı olan bir hareket sözlüğe
+girerse: tanım **kısa** kalır (≤250 karakter, sınır ölçümle seçildi), **nasıl
+yapılır anlatılmaz**, ve `hareket` alanı o kartın **gerçek slug'ına** köprü
+kurar. 11 kalem bu kurala uyuyor; mevcut **"Şınav" kaydı da geriye dönük
+çekildi** (287 → 211 karakter). Kütüphanede kartı **olmayanlarda** (ölü
+kaldırış · barfiks · bench press · burpee · mekik) `hareket` alanı **boş** —
+uydurma slug yazılmadı.
+
+**Eleme ölçütü:** *bir okuyucu bu ifadeyi görüp "bu ne demek?" diye sorabilir
+mi?* "eklem" (29 geçiş) elendi — genel Türkçe. "germe" elendi — çatı sözcük,
+dinamik/statik/PNF germe zaten ayrı ayrı tanımlı. Spor **adları** (boks,
+güreş, judo) elendi: sözlük o sporun **terimlerini** tanımlıyor. İstisna
+**"Karma dövüş sanatları"** — Türkçede kısaltmasıyla (MMA) anılıyor, okuyucu
+iki adı bağdaştırmayabilir. Asimetri bilinçli, sınamada gerekçesiyle yazılı.
+
+**`tests/sozluk-kapalilik.mjs` nöbetçi oldu.** KONTROL (22) ve ELENEN (21)
+tabloları betiğe gömülü; her kalemde geçiş sayısı ve gerekçe yazılı, böylece
+sonraki oturum **neyin bilerek dışarıda olduğunu** görüyor. Veriyi diskten
+değil **BASE üzerinden HTTP ile** çekiyor — K27'nin taban koşusunda gerçekten
+o sürümün verisi ölçülsün diye.
+
+---
+
+## K43 · Hareket adlarında KÜTÜPHANE kanonik — K40'ın ilkesi hareketlere de
+
+**7. oturum, birleştirmede yakalandı.** Aynı slug iki modülde farklı adla
+anılıyordu: `bant-cekme` kütüphanede **"Bant Çekme (Band Row)"**, anatomide
+**"Bant ile Çekme"**; `bant-yana-acma` benzer.
+
+**KARAR: `egzersiz-kutuphane-v1.html`'in kart `data-name` değerleri
+kanoniktir.** Gerekçe: kart kataloğu 12 hareketin **hepsini** kapsar ve
+kullanıcının gezdiği yer orasıdır. K40'ın kas adları için kurduğu ilkenin
+aynısı — **köprü etiketi vardığı yerle aynı şeyi söylemeli**.
+
+`anatomi-veri.js` kütüphaneye çekildi. H3'ün `KURALLAR.havuz` adları zaten
+kütüphaneden alınmıştı; `tests/workout-generator.mjs` **16. sınaması** bunu
+kalıcı nöbete bağladı — kütüphanede ad değişirse süit kırmızıya döner.
+
+**BU TURDAN DEĞİL, AÇIK KALAN İKİ ÇELİŞKİ:**
+1. `goblet-squat` kütüphane kartında **"Squat (Çömelme)"**, `egzersiz-detay-v1`
+   VERI'sinde **"Goblet Squat"**; ekipmanı kütüphanede **"Ekipmansız"**,
+   detayda **"Dambıl / Kettlebell"**. H3 kütüphaneyi kanonik aldı — aksi hâlde
+   ekipmansız havuz 6'dan 5'e düşer ve tek gerçek squat kalıbı kaybolurdu.
+2. `egzersiz-detay-v1`'in VERI tablosunda 12 slug'ın **yalnız 8'i** var;
+   `bant-cekme` · `bant-yana-acma` · `dambil-biceps` · `dambil-omuz-press`
+   sayfaya gidince **`goblet-squat`'a düşüyor**. HTTP 200 döndüğü için
+   sınamalar geçiyor — **ölçüt geçiyor, deneyim geçmiyor.**
+
+---
+
+## K44 · H3 motoru — kural VERİ, kod onu yorumluyor
+
+**7. oturum.** Brief'in şartı: *"Kural tablosu `tasks/H3-KURALLAR.md`'ye
+yazılacak; **kod bu tablodan okuyacak**, dağınık `if` bloklarına
+gömülmeyecek."*
+
+**Uygulama:** belgedeki `js` bloğu ile sayfadaki `==KURALLAR-BASLANGIC==` …
+`==BITIS==` arası **8244 karakter, karakter karakter aynı**. Sınamanın 14.
+maddesi bunu karşılaştırıyor — ayrışırlarsa süit kırmızıya döner. Seçenek
+listeleri de tablodan türetiliyor; elle yazılmış ikinci liste yok.
+
+**Karşılıksız kombinasyon 0 MİMARİDEN geliyor:** `gerek:[]` olan **6 hareket**
+hiçbir seçimde düşmez, havuz asla 6'nın altına inmez. Sonradan eklenen yedek
+liste **yok**. Ekipman motorun **tek sert süzgeci** (ölçüt "ekipmansızda dambıl
+çıkmasın" bunu gerektiriyor); hedef · seviye · odak · kas dengesi **puan
+düşüşü** — R13'ün deseni.
+
+**DETERMİNİSTİK** (K41/AS-2): `Math.random` yok, aynı seçim → aynı plan.
+
+### 12 hareket ↔ "aynı hareket iki güne düşmesin" — çelişki ikiye bölündü
+
+Brief bunu istiyor ama havuz **12 kalem**; 6 günlük bölünmede matematiksel
+olarak mümkün değil. **Sessizce geçilmedi:**
+
+1. **Aynı hareket aynı GÜN içinde tekrarlanmaz** — mutlak, mimariden.
+2. **Günler arası tekrar kaçınılmaz; cezalandırılır, yasaklanmaz** —
+   `tekrarCeza × önceki kullanım`. Motor önce hiç kullanılmamışı dağıtır.
+
+Üç yerde yazılı: kural tablosu · kod · **arayüzdeki gün gerekçesi**.
+Kütüphane **≥24 harekete** çıkarsa `tekrarCeza` 9 → 999 ile ceza fiilen
+yasağa döner — **tek satır**, mimari değişmez. Kuralın veri olmasının kazancı.
+
+**Gün başına hareket havuza göre ölçekleniyor**; üçüncü tavan **ölçümle**
+eklendi: onsuz 12 kalemlik havuzda "İtiş Günü"ne çekiş hareketleri
+dolduruluyordu.
+
+**Set/tekrar/dinlenme 9 hücre, dokuzu farklı — DadaFit EDİTORYAL.** Belgede
+`🔴 MuscleWiki'den ALINMADI` diye yazılı: keşif sonuç ekranına hiç erişemedi,
+o değerler elde yok (AS-3). **Alınmış gibi gösterilmedi.**
+
+**Bilinen sınır — gizlenmedi:** ekipmansız havuzda **çekiş hareketi yok**
+(kütüphanedeki dört çekiş hareketinin dördü de dambıl/bant istiyor). Sonuç
+ekranında bildirim şeridi ve gün gerekçesinde `⚠` satırı bunu söylüyor.
+Ekipmansız bir çekiş hareketi eklenince kendiliğinden düzelir.
+
+---
+
+## K45 · MuscleWiki bloğu KALICI hâle geldi — keşif burada duruyor
+
+**7. oturum, tamamlayıcı tur.** Site **kalıcı Cloudflare WAF bloğuna** geçti.
+
+| # | İstek | Sonuç |
+|---|---|---|
+| — | ilk fırlatma, ana sayfa | ✅ **200** — tam render, ekran görüntüsü alındı |
+| 1–5 | tarayıcı yeniden fırlatıldıktan sonra 5 istek | 🚫 **403** |
+
+**Toplam 49,5 dk kasıtlı bekleme** (10,5 + 15 + 20 + 4) — blok **kalkmadı**.
+Blok tipi *"Attention Required! | Cloudflare"* / *"Sorry, you have been
+blocked"* — **JS meydan okuması değil, WAF kuralı**; beklemekle geçmiyor.
+6. oturumun *"yeniden fırlatma → 403"* ölçümü bağımsız doğrulandı, üstüne
+**bu kez hız tabanlı değil, kalıcı** eklendi.
+
+**Denenmeyenler (bilerek):** proxy/IP rotasyonu · UA rotasyonu · istek
+hızlandırma · captcha · stealth yükseltmesi. **Koruma aşılmaya çalışılmadı.**
+
+**Tur A ve Tur B ekranda ÖLÇÜLEMEDİ** ve belgeye öyle yazıldı. Ama siteye
+**hiç yeni istek atmadan**, önceki oturumun indirdiği dosyalar yeniden
+okunarak AS-1'in iskeleti çıkarıldı (§11.5) — route, tam durum şeması,
+4 adım etiketi, doğrulama kuralları, `days_of_week` **dizi** bulgusu,
+`equipment_mode` ev/vücut ağırlığı ekseni.
+
+> **Ders:** blok keşfi bitirir ama **elde olan kaynağı** bitirmez. Ekranda
+> ölçülemeyen şeyin bir kısmı, zaten indirilmiş kaynaktan `[KAYNAK]`
+> etiketiyle çıkarılabilir — yeter ki hangi etikete ait olduğu dürüstçe
+> ayrılsın.

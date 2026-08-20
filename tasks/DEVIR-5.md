@@ -1,7 +1,7 @@
 # DEVİR 5 — YENİ OTURUMUN TEK BİLGİ KAYNAĞI
 
 **Depo:** `~/Developer/Projects/dadafit-prototip` · **Canlı:** `gaviaworks-dev.github.io/dadafit-prototip`
-**Taban commit:** `44633fb` · **Son commit:** `7703804` (R13) · **Branch:** `main`
+**Taban commit:** `44633fb` · **Son commit:** 7. oturum (aşağıda) · **Branch:** `main`
 **Brief:** `tasks/REVIZYON-5.md` · **Plan:** `REVIZE-PLAN-5.md` · **Kararlar:** `KARARLAR.md`
 
 > Bu dosya bağlam temizlendikten sonra tek referanstır. Ölçümler yeniden
@@ -21,8 +21,66 @@ gh auth status                         # aktif hesap gaviaworks-dev olmalı (K36
 
 # 1 · BİTENLER
 
+> **7. OTURUM (bu tur) — H1 · H2 · H3 ve R15.4 kapandı.** Ayrıntılar hemen
+> aşağıda; karar kayıtları `KARARLAR.md` **K37–K45**. Beşinci turun R11·R12·
+> R14·R15 kayıtları daha aşağıda olduğu gibi duruyor.
+
+
 Beşi de ayrı commit, hepsi **push edildi**. R11 · R12 · R14 · R15 beşinci turda,
 **R13 altıncı oturumda** kapandı.
+
+## H1 — Spor Sözlüğü · `fb4a289` (7. oturum)
+
+**İstek (brief §H1):** yapı `dadagastro.com/mutfak-sozlugu`'ndan, içerik sıfırdan,
+fit ağırlıklı ~180 terim. Karar kayıtları **K37** (desen) · **K39** (slug sözleşmesi).
+
+| Dosya | Ne |
+|---|---|
+| **`sozluk-v1.html`** | **YENİ.** Liste sayfası, `sz-*` öneki. Harf rayı (Tümü + 29 harf) + kategori seçici + arama + sayaç + boş durum. Banner **LİSTE** ailesi (544/607/587) |
+| **`sozluk-detay-v1.html`** | **YENİ.** `?slug=` ile terim sayfası. Dosya adında `-detay-` geçtiği için kabuk otomatik **DETAY** ailesine yazıyor (560/617/726) — §3b, karşı koyulmadı |
+| **`assets/js/sozluk-veri.js`** | **YENİ.** Tek kaynak; iki sayfa da bunu okuyor. Slug elle yazılmıyor, `slugla()` türetiyor |
+| **`tests/sozluk.mjs`** | **YENİ** sınama |
+
+**Referanstan ÖLÇÜLEREK alınan üç sabit** (canlı Playwright, K37):
+terim bir **açılır satır** (kart değil) · arama **3 harf** eşiği · harf rayı
+**29 harf, Q/W/X yok**. Sayfalama ve "Kaynaklar" bloğu **gerekçeli alınmadı**.
+
+**Ölçüm:** 232 terim · 10 kategori (en küçüğü 20, eşik 8) · 28/29 harf dolu
+(yalnız Ğ boş, `is-empty`+`disabled`) · **232/232 detay sayfası dolu** ·
+karşılıksız harf **0** · sayaç = DOM · hareket köprüsü 12 gerçek slug, **200** ·
+kas köprüsü 26 slug, hepsi kanondan · banner **6/6 birebir** · konsol **0**.
+
+## H2 — İnteraktif Anatomi · `c55a256` (7. oturum)
+
+**Kaynak:** `Muscle.pdf` (Delavier). Karar kayıtları **K38** (PDF) · **K34** (menü).
+
+| Dosya | Ne |
+|---|---|
+| **`anatomi-v1.html`** | **YENİ.** Sol harita / sağ panel, `an-*` öneki. ÖN-ARKA + Erkek-Kadın geçişi, `?kas=` derin bağlantı, klavye gezinme. Banner **LİSTE** (544/607/587) |
+| **`assets/svg/` × 4** | **YENİ.** Sıfırdan çizim. `viewBox 0 0 400 900`, `fill=currentColor`, her bölge ayrı `<path>` + `data-kas` |
+| **`assets/js/anatomi-veri.js`** | **YENİ.** 29 kas × 9 alan; her kayıt `kaynak: 'PDF s. …'` taşıyor |
+| **`assets/js/fit-shell.js`** | **+37 / −4.** Menü grubu "Hareketi Anlamak" + NAV/BOTTOM `match` dizileri + `drawerNavHtml()` grup başlığı. **`fit-shell.css`'e TEK KARAKTER yazılmadı** |
+| **`tests/anatomi.mjs`** | **YENİ** sınama |
+
+> **PDF'in metin katmanı YOK** — `pdftotext` 0 satır döndürdü. 20 sayfa rasteri
+> **gözle** okundu. PDF'in vermediği **beş yapışma alanı** panelde *"plate bu
+> bilgiyi vermiyor"* diye yazılı — uydurulmadı (K38).
+
+**Ölçüm:** kanonik 27 slug'ın **27'si** karşılandı (+2 ekstra) · **58/58 bölge**
+gerçek fare tıklamasıyla seçildi · panel **29/29 dolu** · `?kas=` **29/29** doğru
+kas + doğru görünüm · @390 harita panelin üstünde · banner **544/607/587** ·
+mevcut 9 sınama **9/9** — gerileme yok.
+
+## R15.4 — Bölüm başlığı çakışması · `b7a95cf` (7. oturum)
+
+**S-C ÖLÇÜMLE CEVAPLANDI.** Brief *"tam olarak ne rahatsız ediyor"* diyordu;
+64 sayfa tarandı, cevap **çakışma**: `video-seanslari-v1.html`'de banner eyebrow'u
+"Seans Kütüphanesi", sayfa içi h2 de "Seans kütüphanesi" — aynı ifade iki kez.
+**Site genelinde eyebrow ↔ h2 birebir çakışması yalnız bu sayfada (1/64).**
+
+**Tipografi kuralı zaten vardı:** `.sec-head` deseni (eyebrow + h2 + lead),
+**65 tam örnek**, yalnız 3'ünde opsiyonel `lead` yok. Yeni kural yazılmadı;
+kuralı ihlal eden tek örnek düzeltildi → h2 **"Tüm seansları süz"**.
 
 ## R13 — "Programını Bul" tam sayfa · `7703804` (6. oturum)
 
@@ -526,7 +584,7 @@ yoksa sayfa hiçbir aileye bağlanmaz ve ölçüm "üçüncü değer" olarak yak
 
 ---
 
-# 4 · TEST SÜİTİ — 9 sınama
+# 4 · TEST SÜİTİ — 13 sınama
 
 **Konum:** `tests/*.mjs` · **Ortak yardımcı:** `tests/_pw.mjs`
 
@@ -536,10 +594,11 @@ cd ~/Developer/Projects/dadafit-prototip
 python3 -m http.server 8811 &
 export PW_HOME=~/.pw
 for t in a11y-focus coach-list dropdown-position header-banner plan-account \
-         fit-test-lock footer-curtain crumb-home wizard-page; do
+         fit-test-lock footer-curtain crumb-home wizard-page \
+         sozluk sozluk-kapalilik anatomi workout-generator; do
   echo "=== $t ==="; node tests/$t.mjs
 done
-# beklenen: 9/9 · "0 sorun"
+# beklenen: 13/13 · "0 sorun"
 ```
 
 Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
@@ -568,60 +627,37 @@ Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
 
 ---
 
-# 5 · KALAN ÜÇ MADDE (R13 kapandı)
+# 5 · SIRADAKİ İŞ — H1·H2·H3 ve R15.4 KAPANDI
 
-> **R13 kapandı** (`7703804`, 6. oturum) — ayrıntı **§1**'in ilk bloğunda,
-> karar kaydı `KARARLAR.md` **K33**. Aşağıdaki üç madde kaldı.
+> **Brief'in (`tasks/REVIZYON-5.md`) revizyon maddelerinin tamamı kapandı:**
+> R11 · R12 · R13 · R14 · R15 (15.1–15.4) · H1 · H2 · H3.
+> **Bu turda açık bırakılan tek şey Beyar'ı bekleyen sorular (§6).**
 
-**Üçü de ayrı branch'te yürüyecek** — kabuğa (`fit-shell.css` · `fit-shell.js` ·
-menü markup'ı) **yalnız H2 dokunacak**, birleştirme sırası **H1 → H2 → H3**.
-Kuralın tamamı ve gerekçesi §6'da. Menü kalemi de karara bağlandı: üçü birden
-**"Hareketi Anlamak"** kaleminin altına girecek, menü 3 kalemde kalacak.
+## Sonraki oturumun ilk işi — AS-1 · "Haftalık Rutin" kolu
 
-## H1 — Spor Sözlüğü (~180 terim)
+`antrenman-olusturucu-v1.html` çalışıyor ve sınamalı (13. sınama), ama
+referansın **doğru kolu hiç ekranda görülmedi**. `tasks/H3-MUSCLEWIKI-AKIS.md`
+**§11.5** o kolun iskeletini `[KAYNAK]`'tan çıkardı; ekranda doğrulanması ve
+DadaFit'e uyarlanması sonraki tura kaldı. **Beş somut öneri belgenin sonunda**
+(gün seçimi "hangi günler" olsun · bölünme otomatik önerilsin · ekipman üç
+kipli olsun · katalog ikiye ayrılsın · sonuç ekranına üç özet göstergesi).
 
-| | |
+⚠️ **Site kalıcı WAF bloğunda** (K45). Yeni keşif denenecekse blok durumu
+önce yoklanmalı; kalkmadıysa zorlanmayacak.
+
+## Kütüphane darboğazı — H3'ün tavanı buraya bağlı
+
+Egzersiz kütüphanesinde **yalnız 12 hareket** var ve bu H3'ün kalitesini
+doğrudan sınırlıyor:
+
+| Sorun | Sonuç |
 |---|---|
-| **Hazır** | Yapı referansı `dadagastro.com/mutfak-sozlugu` (brief'te iskelet çıkarılmış) · terim aileleri ve alan şeması brief §H1'de · 4. turdaki `tasks/H0-YENI-MODUL-KONSEPT.md` sözlük şemasını zaten taşıyor |
-| **Eksik** | Her şey. `spor-sozlugu-v1.html` + `spor-sozlugu-detay-v1.html?slug=` · ~180 terim içeriği (sıfırdan yazılacak) · harf rayı + kategori filtresi |
-| **Bağımlılık** | Yok — S-F kapandı: kalem **"Hareketi Anlamak"** altına girecek, menü satırını **H2 oturumu** yazacak |
-| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunmayacak** — gerekiyorsa sayfa içi `<style>` + kendi sınıf öneki. İlk birleşen o |
-| **Kabul ölçütü** | Arama 3 harfte süzüyor · boş durum var · her kategori ≥8 terim · karşılıksız harf/kategori 0 · sayaç gerçek sayıyı yazıyor · tüm köprüler 200 · banner **liste ailesi** |
+| Havuz 12 kalem | 6 günlük bölünmede günler arası tekrar **kaçınılmaz** (K44) |
+| Ekipmansız havuzda **çekiş hareketi yok** | ekipmansız planlarda İtiş/Çekiş dengesi kurulamıyor |
+| `egzersiz-detay-v1` VERI'sinde **8/12 slug** | 4 hareket kartı `goblet-squat`'a düşüyor (K43) |
 
-## H2 — İnteraktif Anatomi / Kas Haritası
-
-| | |
-|---|---|
-| **Hazır** | Kaynak PDF yerelde: `/Users/gaviaworks/Desktop/Dada Fit Sources/Muscle.pdf` (23 MB) · `pdftotext` · `pdfinfo` · `pdfimages` · `pdftoppm` **kurulu ve çalışıyor** (`/opt/homebrew/bin/`) |
-| **Eksik** | PDF'ten veri çıkarımı (kas adları, Latince, köken/yapışma, fonksiyon) · **ön ve arka gövde SVG'si — sıfırdan çizilecek** · erkek/kadın varyantı · panel içeriği · hareket eşleştirmeleri |
-| **Bağımlılık** | Yok — **en uzun kalem, erken başlamalı** |
-| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunma yetkisi yalnız burada**: `fit-shell.css` · `fit-shell.js` · menü markup'ı ("Hareketi Anlamak" kalemi). H1'den sonra birleşir |
-| **Telif sınırı** | PDF'in **verisi** kullanılır. MuscleWiki'nin görselleri, videoları, açıklama metinleri **kopyalanmaz**; oradan yalnız etkileşim deseni alınır |
-| **Kabul ölçütü** | Her bölge tıklanabilir · panel her kasta dolu · karşılıksız bölge 0 · hareket köprüleri 200 · @390 yatay taşma 0 |
-
-## H3 — Antrenman Oluşturucu
-
-| | |
-|---|---|
-| **Hazır** | Hiçbir şey |
-| **Eksik** | **Önce** Playwright keşfi: `musclewiki.com/tr-tr/workout-generator` üzerinde **en az 8–9 tam tur** (brief'te tur matrisi var) → `tasks/H3-MUSCLEWIKI-AKIS.md`. Sonra `antrenman-olusturucu-v1.html` + `tasks/H3-KURALLAR.md` (kural tablosu) |
-| **Bağımlılık** | **H2'nin SVG'sine bağlı** — vücut modeli görselleri H2'de çizilen SVG'den gelecek. Ama **Playwright keşfi H2'ye paralel yürütülebilir** ve yürütülmeli |
-| **Branch kuralı** | Kendi branch'i. **Kabuğa dokunmayacak** — sayfa içi stil, kendi sınıf öneki. En son birleşir |
-| **Kural** | `tasks/H3-MUSCLEWIKI-AKIS.md` yazılmadan koda başlanmayacak (brief'in şartı) |
-| **Kabul ölçütü** | HTTP 200 · pop-up/`aria-modal` yok · her adım ileri-geri · üretilen plandaki her hareket köprüsü 200 · "Baştan başla" adım 1'e döner · @390 yatay taşma 0 · **karşılıksız kombinasyon 0** |
-| **Desen** | **R13 çalışan örnek**: `programini-bul-v1.html` — tam sayfa sihirbaz, üç adım, alt bar, puanlama motoru, "eleme değil puan düşüşü" kuralı. H3 aynı iskeleti kendi sınıf önekiyle kurabilir |
-| **Not** | Mantık gerçekten çalışacak: ekipman hareket havuzunu süzecek, gün sayısı bölünmeyi belirleyecek (3 gün full body · 4 gün üst/alt · 5–6 gün push/pull/legs), seviye set/tekrar aralığını değiştirecek |
-
-## Önerilen sıra
-
-~~R13~~ ✅ → **(H2 başlat + H3 keşfi paralel) → H1 → H3 kodu**
-
-**Birleştirme sırası bundan ayrı ve sabit: H1 → H2 → H3.** Çalışma sırası
-H2'yi öne alıyor (en uzun kalem), birleştirme sırası H1'i öne alıyor (kabuğa
-hiç dokunmayan, en temiz birleşen). İkisi çelişmiyor: H2 uzun sürdüğü için
-H1 zaten daha erken hazır olur.
-
----
+**Kütüphaneyi büyütmek bu turun en yüksek getirili tek işi.** Havuz ≥24
+harekete çıkarsa H3'ün tekrar kuralı tek satırla yasağa döner.
 
 # 6 · AÇIK SORULAR
 
@@ -698,7 +734,7 @@ geçildi. **Aktif hesap şu an `gaviaworks-dev`.**
 
 | # | Konu | Soru |
 |---|---|---|
-| **S-C** | R15.4 | `video-seanslari-v1.html`'deki **"Seans Kütüphanesi"** başlığında tam olarak ne rahatsız ediyor — kelimenin kendisi mi, tipografi/konum mu, yoksa banner başlığıyla çakışması mı? *(R15.4'ü — sayfa içi bölüm başlığı tipografi kuralını — bekletiyor)* |
+| ~~**S-C**~~ | R15.4 | ✅ **ÖLÇÜMLE CEVAPLANDI, R15.4 KAPANDI** (7. oturum). 64 sayfa tarandı: rahatsız eden **çakışma**ymış — banner eyebrow'u "Seans Kütüphanesi", sayfa içi h2 de "Seans kütüphanesi". Site genelinde eyebrow↔h2 birebir çakışması **yalnız o sayfada (1/64)**. Tipografi kuralı zaten vardı (`.sec-head` = eyebrow+h2+lead, **65 tam örnek**); yeni kural yazılmadı, kuralı ihlal eden tek örnek düzeltildi → h2 **"Tüm seansları süz"**. |
 | **S1** | 4. tur | Kart **PRO rozetleri** — rozetler mi kalksın, filtre ekseni mi geri gelsin? Programlar merkezinde `#pro` bölümü ve "Erişim" ekseni kalktı ama kart rozeti duruyor; video kartlarında da 4'ten 1'i Pro. Kullanıcı farkı **görüyor ama süzemiyor**. |
 | **S2** | 4. tur | **"140+ hareket"** ifadesi — gerçek **12**, H0 planı sonrası 38. Kabuk üst bandında ve üç sayfada daha duruyor. Gerçeğe mi çekilsin, hedef olarak mı etiketlensin, kalksın mı? |
 | **S4** | 4. tur | `.btn-fit` kontrastı **3.54:1** (AA altı, ölçüldü). `--fit-deep` ile **5.45:1**. Site geneli birincil düğme koyulaşsın mı? |
@@ -712,6 +748,10 @@ geçildi. **Aktif hesap şu an `gaviaworks-dev`.**
 | **`dadafit-hub` kırıntısındaki "Dada Gastro"** | Kırıntının ilk kalemi kardeş marka portalı, DadaFit ana sayfası **değil** (sayfanın kendisi ana sayfa). Ev ikonuna çevrilmesi yanlış olur. 4. turda bilerek bırakıldı, 5. tur brief'i de dokunulmamasını söylüyor. `tests/crumb-home.mjs` bu sayfayı **istisna** olarak atlıyor. |
 | **Ana sayfa herosu — `.df-top` 100dvh / 900 px** | `KARARLAR.md` **K15**. Bir kez kısaltıldı, Beyar açık cümleyle geri aldırdı. **S-H kararı: aileye girmeyecek.** |
 | **R13 — sihirbaz tam sayfası** | Motor `programini-bul-v1.html`'e taşındı; kabuktaki modal/örtü katmanı ve `.wz-*` CSS ailesi silindi (K33). Kabuğa sihirbaz geri konmaz; `tests/wizard-page.mjs` kırmızıya dönerse gerileme demektir. |
+| **H1 · H2 · H3 — 7. turda kapananlar** | Üçü de ölçüldü, sınamaya bağlandı ve push edildi. `tests/sozluk.mjs` · `tests/sozluk-kapalilik.mjs` · `tests/anatomi.mjs` · `tests/workout-generator.mjs` kırmızıya dönerse **gerileme** demektir. |
+| **Kanonik slug sözleşmeleri** (K39·K40·K43) | 27 kas slug'ı · 12 hareket slug'ı · kas adları anatomiden · hareket adları kütüphaneden. Bu dört sözleşme paralel çalışmanın taşıyıcısı; üç sınama nöbet tutuyor. Tek taraflı değiştirilmez. |
+| **Kural tablosu ↔ kod eşitliği** (K44) | `tasks/H3-KURALLAR.md` §9 ile sayfadaki `KURALLAR` bloğu **karakter karakter aynı** olmak zorunda. Biri değişirse ötekisi de değişecek; sınamanın 14. maddesi ayrışmayı yakalar. |
+| **`assets/svg/` gövde modelleri** | H2 sıfırdan çizdi, H3'ün cinsiyet adımı da bunları kullanıyor. Hazır/stok anatomi görseliyle değiştirilmez. |
 | **R11 · R12 · R14 · R15 — 5. turda kapananlar** | Dördü de ölçüldü, sınamaya bağlandı ve push edildi. Yeniden açılmaz; sınamalar kırmızıya dönerse **gerileme** demektir, yeni bir tercih değil. |
 | **Banner ailesi token'ları** (`--banner-h-liste` / `--banner-h-detay`) | Referanstan ölçülmüş değerler (§2a). "Sayı uydurulmayacak" kuralı gereği tahminle değiştirilmez; değişecekse yeniden ölçülür. |
 | **Kırıntı ev ikonu rengi** (`--fit-bright`) | Referanstan **ölçü** alındı, **palet** alınmadı (K29). Renk DadaFit'in. |
@@ -729,6 +769,8 @@ geçildi. **Aktif hesap şu an `gaviaworks-dev`.**
 | Bu turun planı | `REVIZE-PLAN-5.md` |
 | Kararlar (K1–K31) | `KARARLAR.md` |
 | 4. turun modül konsepti | `tasks/H0-YENI-MODUL-KONSEPT.md` |
+| **H3 kural tablosu** | `tasks/H3-KURALLAR.md` — kod bundan okuyor |
+| **H3 keşif kaydı** | `tasks/H3-MUSCLEWIKI-AKIS.md` (1763 satır) + `tasks/h3-akis/` (11 görüntü) |
 | Test süiti | `tests/*.mjs` |
 | Kalite kapısı | `tools/page-check.mjs` |
 | Kabuk | `assets/js/fit-shell.js` · `assets/css/fit-shell.css` · `assets/css/fit-type.css` |

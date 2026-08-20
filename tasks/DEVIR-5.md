@@ -21,9 +21,59 @@ gh auth status                         # aktif hesap gaviaworks-dev olmalı (K36
 
 # 1 · BİTENLER
 
-> **7. OTURUM (bu tur) — H1 · H2 · H3 ve R15.4 kapandı.** Ayrıntılar hemen
-> aşağıda; karar kayıtları `KARARLAR.md` **K37–K45**. Beşinci turun R11·R12·
+> **7. OTURUM (bu tur) — H1 · H2 · H3 · R15.4 · S1 · S2 · S4 · katalog · footer
+> kapandı.** Karar kayıtları `KARARLAR.md` **K37–K45**. Beşinci turun R11·R12·
 > R14·R15 kayıtları daha aşağıda olduğu gibi duruyor.
+
+## 7. oturumun ikinci yarısı — özet
+
+| İş | Sonuç |
+|---|---|
+| **S1** PRO rozetleri | tahmin 5'ti, **ölçülen 17**; 16'sı kalktı. Biri kasten kaldı (`#vsdProBadge` kart rozeti değil, oynatıcı posteri). "Erişim" ekseni geri gelmedi. Ayrıca S1'in **ters kutbu** kapatıldı: `programlar-merkezi`'nde süzülemeyen 3 "Ücretsiz" rozeti kaldırıldı |
+| **S2** "140+ hareket" | grep 7 yer buldu, sınama **8.'yi** yakaladı (`hakkimizda:335` markup'ta bölünmüştü). Hepsi **25**'e çekildi, "+" yok |
+| **S4** `.btn-fit` | 3.54:1 → **5.45:1** (AA). Hover için `--fit-deeper` (8.76:1) eklendi, ayrım 1.54 → **1.61**'e çıktı. `--fit` token'ı değişmedi |
+| **Katalog** | 12 → **25 hareket**. Dört slug `goblet-squat`'a düşüyordu, düzeldi. `goblet-squat` çelişkisi çözüldü (detay kanonik). Ekipmansız havuz **15**, içinde **3 çekiş** |
+| **H3 havuzu** | 25'e çıktı, **haftalık tekrar yasağı** devrede (dört seçim turu). Ekipmansız planda çekiş **12/12 bileşimde** var |
+| **Antrenör kapısı** | banner CTA'sı eşleştirmeye döndü (`#libFilters`), program bağlantısı sayfa altına indi. İkinci motor kurulmadı — kart 6→6, sayaç 8→8 |
+| **Hesaplayıcı** | `enerji-ihtiyaci-v1.html` üretildi (Mifflin-St Jeor, üç sağlık kapısı) |
+| **FOOTER** | revizyon dokümanı birebir uygulandı — aşağıda ayrı bölüm |
+
+## FOOTER REVİZYONU — `Dada_Fit_Footer_Ornek_Yapi.docx`
+
+**Beş alan:** Marka · Hareket ve Öğren · Programlar ve Uzman Desteği ·
+Enerji ve Denge · Uygulama. Üç sütunun kalem listesi dokümanla **birebir**.
+
+| Doküman şartı | Uygulama |
+|---|---|
+| "Planım ve İlerlemem footer'a eklenmemeli" | **kaldırıldı**, header'da |
+| Sosyal: yalnız aktif hesaplar | **Instagram + YouTube**; X·Facebook·LinkedIn yok |
+| Mağaza butonları aktif indirme gibi çalışmamalı | `<a href>` **değil**, `<span aria-disabled>`, "Yakında" |
+| Kurumsal bant ayrı yatay bantta, 8 kalem | ✅ @1440 tek satır · @1024 **iki dengeli satır** |
+| Çözüm Merkezi + Öneri ve Şikâyet geri plana atılmamalı | bandın ortasında, zayıflatılmadı |
+| Mobil 7 adımlık sıra | ✅ |
+| Üç orta menü accordion | ✅ gerçek `<button>` + `aria-expanded`, masaüstünde açık |
+| **Yasal banda dokunulmayacak** | **bayt bayt aynı** — sınama nöbet tutuyor |
+
+**İki koordinatör kararı (geri dönülebilir):**
+- *Öneri ve Şikâyet* → `iletisim-v1.html#conForm`. Ayrı sayfası yok; o form
+  zaten öneri/şikâyeti konu seçimiyle yönlendiriyor. `href="#"` yasaktı.
+- *Günlük Enerji İhtiyacını Hesapla* → `enerji-ihtiyaci-v1.html`, bu turda
+  üretildi. Mevcut "Dengele" sayfası hesaplayıcı değil.
+
+**Birleştirmede ekran görüntüsüne bakarak bulunan kusur:** `.feedback-tab`
+(41px, `position:fixed`) footer'ın sağ kolonunu örtüyordu — @1024'te 2,
+@900'de 3 öğe. `#pageMain` her genişlikte 0 veriyordu, yani footer'ın
+getirdiği gerileme. 641–1303px aralığına pay verildi, **çakışma 0**.
+`tests/footer-yapi.mjs` 14. ölçüt nöbetçi.
+
+**Bilinen sınır:** kurumsal bant @390'da **4 satır** (2 sütun) — 8 kalemin
+en genişi 174.6px, 358px'lik alanda iki satıra sığmıyor. Doküman "daha dar
+ekranlarda iki dengeli satır **gösterilebilir**" diyor; @1024'te iki satır.
+
+**Yer tutucular `docs/icerik-bekleyen.md`'de:** Instagram · YouTube adresleri ·
+mağaza adresleri · QR · üst bandın (`.tb-soc`) işaretsiz üç bağlantısı
+(orada **Pinterest** de var, footer'da yok — **karar bekliyor**).
+
 
 
 Beşi de ayrı commit, hepsi **push edildi**. R11 · R12 · R14 · R15 beşinci turda,
@@ -584,7 +634,7 @@ yoksa sayfa hiçbir aileye bağlanmaz ve ölçüm "üçüncü değer" olarak yak
 
 ---
 
-# 4 · TEST SÜİTİ — 13 sınama
+# 4 · TEST SÜİTİ — 17 sınama
 
 **Konum:** `tests/*.mjs` · **Ortak yardımcı:** `tests/_pw.mjs`
 
@@ -595,10 +645,11 @@ python3 -m http.server 8811 &
 export PW_HOME=~/.pw
 for t in a11y-focus coach-list dropdown-position header-banner plan-account \
          fit-test-lock footer-curtain crumb-home wizard-page \
-         sozluk sozluk-kapalilik anatomi workout-generator; do
+         sozluk sozluk-kapalilik anatomi workout-generator \
+         egzersiz-katalog kabuk-kalite enerji-hesap footer-yapi; do
   echo "=== $t ==="; node tests/$t.mjs
 done
-# beklenen: 13/13 · "0 sorun"
+# beklenen: 17/17 · "0 sorun"
 ```
 
 Tek tek: `node tests/<ad>.mjs [base] [genişlikler]`
@@ -645,7 +696,18 @@ kipli olsun · katalog ikiye ayrılsın · sonuç ekranına üç özet gösterge
 ⚠️ **Site kalıcı WAF bloğunda** (K45). Yeni keşif denenecekse blok durumu
 önce yoklanmalı; kalkmadıysa zorlanmayacak.
 
-## Kütüphane darboğazı — H3'ün tavanı buraya bağlı
+## ✅ Kütüphane darboğazı KAPANDI (7. oturum)
+
+Aşağıdaki üç sorun da çözüldü: havuz **12 → 25**, ekipmansız havuzda
+**3 çekiş hareketi** var (`ters-sinav` · `superman` · `yuzucu`), dört
+yanlış slug kendi sayfasına gidiyor, `goblet-squat` çelişkisi kapandı.
+H3'ün tekrar kuralı **yasağa** çevrildi.
+
+**Kalan yapısal sınır:** 5–6 günlük bölünmede yasak hiçbir bileşimde
+mutlak tutmuyor (5 itiş hareketine karşı 2 itiş günü). Kapanması için
+kataloğa itiş/çekiş hareketi gerekir — **kod değişmez**.
+
+## ~~Kütüphane darboğazı~~ — 7. oturumdan önceki durum (kayıt)
 
 Egzersiz kütüphanesinde **yalnız 12 hareket** var ve bu H3'ün kalitesini
 doğrudan sınırlıyor:
@@ -735,9 +797,9 @@ geçildi. **Aktif hesap şu an `gaviaworks-dev`.**
 | # | Konu | Soru |
 |---|---|---|
 | ~~**S-C**~~ | R15.4 | ✅ **ÖLÇÜMLE CEVAPLANDI, R15.4 KAPANDI** (7. oturum). 64 sayfa tarandı: rahatsız eden **çakışma**ymış — banner eyebrow'u "Seans Kütüphanesi", sayfa içi h2 de "Seans kütüphanesi". Site genelinde eyebrow↔h2 birebir çakışması **yalnız o sayfada (1/64)**. Tipografi kuralı zaten vardı (`.sec-head` = eyebrow+h2+lead, **65 tam örnek**); yeni kural yazılmadı, kuralı ihlal eden tek örnek düzeltildi → h2 **"Tüm seansları süz"**. |
-| **S1** | 4. tur | Kart **PRO rozetleri** — rozetler mi kalksın, filtre ekseni mi geri gelsin? Programlar merkezinde `#pro` bölümü ve "Erişim" ekseni kalktı ama kart rozeti duruyor; video kartlarında da 4'ten 1'i Pro. Kullanıcı farkı **görüyor ama süzemiyor**. |
-| **S2** | 4. tur | **"140+ hareket"** ifadesi — gerçek **12**, H0 planı sonrası 38. Kabuk üst bandında ve üç sayfada daha duruyor. Gerçeğe mi çekilsin, hedef olarak mı etiketlensin, kalksın mı? |
-| **S4** | 4. tur | `.btn-fit` kontrastı **3.54:1** (AA altı, ölçüldü). `--fit-deep` ile **5.45:1**. Site geneli birincil düğme koyulaşsın mı? |
+| ~~**S1**~~ | ✅ **KAPANDI** (7. oturum) — Beyar: *"rozetler kalksın, filtre ekseni geri gelmesin."* 17 rozet ölçüldü, 16 kaldırıldı; ters kutup (3 "Ücretsiz") da kaldırıldı. ~~Kart PRO rozetleri~~ — rozetler mi kalksın, filtre ekseni mi geri gelsin? Programlar merkezinde `#pro` bölümü ve "Erişim" ekseni kalktı ama kart rozeti duruyor; video kartlarında da 4'ten 1'i Pro. Kullanıcı farkı **görüyor ama süzemiyor**. |
+| ~~**S2**~~ | ✅ **KAPANDI** (7. oturum) — Beyar: *"gerçeğe çek."* 8 yerde bulundu, hepsi **25**. ~~"140+ hareket"~~ ifadesi — gerçek **12**, H0 planı sonrası 38. Kabuk üst bandında ve üç sayfada daha duruyor. Gerçeğe mi çekilsin, hedef olarak mı etiketlensin, kalksın mı? |
+| ~~**S4**~~ | ✅ **KAPANDI** (7. oturum) — Beyar: *"site geneli --fit-deep olsun."* 3.54:1 → **5.45:1**. ~~.btn-fit kontrastı~~ **3.54:1** (AA altı, ölçüldü). `--fit-deep` ile **5.45:1**. Site geneli birincil düğme koyulaşsın mı? |
 
 ---
 

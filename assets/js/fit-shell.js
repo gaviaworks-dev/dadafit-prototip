@@ -71,7 +71,7 @@ var NAV = [
            'hareket-isinma-soguma-v1','hareket-sozluk-v1',
            /* K34 · "Hareketi Anlamak" grubunun sayfaları — aktif durum bu kalemde
               toplanıyor, üst menüde AYRI bir kalem açılmıyor. */
-           'sozluk-v1','sozluk-detay-v1','anatomi-v1'],
+           'sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1'],
     /* PANEL ÜÇ KALEM, TEK KOLON (kullanıcı kararı — KARARLAR.md K7).
        Panel önce iki kolonlu 11 kalemdi (belge §2'nin listesi). Yedi "rehber
        konusu" + sözlük panelden çıkarıldı: bunlar zaten Hareket Rehberi
@@ -98,12 +98,12 @@ var NAV = [
          (biçimi de CSS'te zaten vardı — satır 1055). */
       {group:'Hareketi Anlamak'},
       {label:'Spor Sözlüğü', desc:'Salon dilinin tam karşılığı — terim terim', href:'sozluk-v1.html', icon:'fa-solid fa-spell-check'},
-      {label:'Anatomi Haritası', desc:'Gövde üzerinden kas kas — ne yapar, nereye tutunur', href:'anatomi-v1.html', icon:'fa-solid fa-person-rays'}
-      /* H3 · Antrenman Oluşturucu — sayfa üretilince bu satırı aç:
-         {label:'Antrenman Oluşturucu', desc:'Birkaç seçimle gün gün antrenman planı', href:'antrenman-olusturucu-v1.html', icon:'fa-solid fa-wand-magic-sparkles'},
-         Bu turda ÜRETİLMİYOR (H3 yalnız keşif yapıyor); şimdi bağlanırsa 60
-         sayfanın hepsinde kırık bağlantı olur. Açarken `match` dizisine ve
-         BOTTOM "Hareket" kalemine de 'antrenman-olusturucu-v1' eklenmeli. */
+      {label:'Anatomi Haritası', desc:'Gövde üzerinden kas kas — ne yapar, nereye tutunur', href:'anatomi-v1.html', icon:'fa-solid fa-person-rays'},
+      /* H3 · 7. oturum — kalem AÇILDI. Önceki turda yorumdaydı çünkü sayfa
+         henüz yoktu; artık `antrenman-olusturucu-v1.html` diskte. Yorumun
+         kendi talimatı uygulandı: slug yukarıdaki NAV `match` dizisine ve
+         BOTTOM "Hareket" kalemine de eklendi. */
+      {label:'Antrenman Oluşturucu', desc:'Birkaç seçimle gün gün antrenman planı', href:'antrenman-olusturucu-v1.html', icon:'fa-solid fa-wand-magic-sparkles'}
     ] },
 
   /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
@@ -167,10 +167,11 @@ var NAV = [
 /* Mobil alt bar — belge §3.2 / §19: BEŞTEN FAZLA sabit öğe olamaz. */
 var BOTTOM = [
   {label:'Ana Sayfa',  href:'dadafit-hub-v1.html',        icon:'fa-solid fa-house',           match:['dadafit-hub-v1']},
-  /* K34: "Hareketi Anlamak" sayfaları (sozluk-v1 · sozluk-detay-v1 · anatomi-v1)
-     alt barda da Hareket kalemini aktif etsin — ayrı bir alt bar kalemi
-     açılmıyor, §3.2'nin "beşten fazla sabit öğe olamaz" kuralı korunuyor. */
-  {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1']},
+  /* K34: "Hareketi Anlamak" sayfaları (sozluk-v1 · sozluk-detay-v1 · anatomi-v1
+     · antrenman-olusturucu-v1) alt barda da Hareket kalemini aktif etsin —
+     ayrı bir alt bar kalemi açılmıyor, §3.2'nin "beşten fazla sabit öğe
+     olamaz" kuralı korunuyor. */
+  {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
   {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}

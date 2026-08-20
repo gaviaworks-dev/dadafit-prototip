@@ -206,9 +206,22 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
    birincil vurgusunu kaybediyordu.
    ÖLÇÜM: hareket-merkezi-v1 (kopyası yok) → rgba(0,0,0,0) / rgb(33,30,22);
    antrenorler-v1 (kopyası var) → rgb(0,157,79) / rgb(255,255,255).
-   35 kopyanın hepsi bayt bayt aynıydı, buraya birebir taşındı. */
-.btn-fit{background:var(--fit);color:#fff}
-.btn-fit:hover{background:var(--fit-deep);transform:translateY(-2px)}
+   35 kopyanın hepsi bayt bayt aynıydı, buraya birebir taşındı.
+
+   S4 (8. oturum) — ZEMİN --fit'ten --fit-deep'e ÇEKİLDİ.
+   Beyar: "site geneli .btn-fit --fit-deep olsun, AA altında kalmasın."
+   Hesaplanan kontrast (WCAG 2.1, beyaz metinle):
+     --fit        #009d4f → 3.54:1   AA ALTI
+     --fit-deep   #007a3d → 5.45:1   AA ✓
+   Hover artık normalle çakışmasın diye ramp'in ÜÇÜNCÜ adımı eklendi:
+     --fit-deeper #00572b → 8.76:1 · normal↔hover ayrımı 1.61:1
+   (eski normal↔hover ayrımı 1.54:1 idi — ayrım azalmadı, arttı).
+   --fit token'ının KENDİSİ değişmedi: vurgular, ikonlar, çipler ve odak
+   halkası ondan beslenmeye devam ediyor (K29 — renk DadaFit'in).
+   Yukarıdaki "antrenorler-v1 → rgb(0,157,79)" ölçümü bu değişiklikten
+   ÖNCEKİ durumdur; bugün aynı düğme rgb(0,122,61) döner. */
+.btn-fit{background:var(--fit-deep);color:#fff}
+.btn-fit:hover{background:var(--fit-deeper);transform:translateY(-2px)}
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
@@ -946,7 +959,8 @@ body.scroll-locked{overflow:hidden}
 /* ---- DadaFit alt-marka token'ları (kabuk bileşenleri kullanır) ---- */
 :root{
   --fit:#009d4f;          /* DadaFit aksanı (Pantone 7482 C) */
-  --fit-deep:#007a3d;     /* hover / gradient ucu */
+  --fit-deep:#007a3d;     /* birincil düğme zemini + gradient ucu (beyazla 5.45:1 · AA) */
+  --fit-deeper:#00572b;   /* .btn-fit hover'ı — ramp'in üçüncü adımı (beyazla 8.76:1) */
   --fit-tint:#eaf6ef;     /* yumuşak yeşil yıkama (ikon çipi, açık band) */
   --fit-line:#d8ebe0;     /* yeşil-nötr hairline (açık yeşil kartlar) */
   --fit-bright:#34c47e;   /* koyu zeminde okunur aksan metni */

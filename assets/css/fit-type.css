@@ -15,16 +15,23 @@
  alanlar, rozet/çip/sekme, form kontrolleri, breadcrumb,
  istatistik blokları, ikon-metin satırları.
 
- YÖNTEM
+ YÖNTEM — R7'de VARSAYILAN TERSİNE DÖNDÜ: yaslama artık OPT-IN.
  Kör bir "p{text-align:justify}" bu arayüzde iş görmez: kartların çoğunda
  paragraf iki-üç satırlık ve dar; yaslama son satırdan önceki satırlarda
- kelime araları açıp "nehir" üretir. Bu yüzden yaslama YALNIZ yeterince
- uzun satır kutusuna sahip metne uygulanır (--jt-min eşiği) ve daima
- tireleme ile birlikte gelir; tireleme boşluk gerilimini emer.
+ kelime araları açıp "nehir" üretir. Dosya bunu ilk günden yazıyordu ama
+ kural listesi tersini yapıyordu — bkz. §2'deki R7 bloğu, ölçüm orada.
+ Artık hiçbir metin kendiliğinden yaslanmaz; yaslamak isteyen blok ya da
+ sarmalayıcı bunu AÇIKÇA ister (`.jt` / `.jt-flow`) ve `.jt-flow` içinde
+ --jt-min genişlik eşiği de ayrıca aranır. Tireleme (§1) her metinde açık
+ kalır; yaslamadan bağımsız olarak satır sonu gerilimini emer.
  ===================================================================== */
 
 :root{
-  /* yaslamanın açıldığı en küçük metin genişliği — bunun altında sola yaslı kalır */
+  /* `.jt-flow` içinde yaslamanın açıldığı en küçük KUTU genişliği.
+     DÜRÜST NOT: bu token doğrudan okunamaz — `@container` / `@media`
+     koşulları var() kabul etmez. Değer §2'deki sorguya ELLE aynalanmıştır;
+     R6 yorumu "token artık gerçekten okunuyor" diyordu, okunmuyordu.
+     İkisinin ayrışmaması `tests/hizalama-nobeti.mjs` ölçüt 1'in nöbetinde. */
   --jt-min: 30rem;   /* ~480px: iki kolonlu kart gövdesi bu eşiğin altında kalır */
 }
 
@@ -56,63 +63,102 @@ html[lang="tr"] p, html[lang="tr"] li, html[lang="tr"] dd, html[lang="tr"] block
  basit ve her yerde çalışan yöntem: minimum genişlik medya sorgusu
  (kart gövdeleri zaten ekran daraldıkça tek kolona iner).
  --------------------------------------------------------------------- */
-/* ---- 8. TUR (R6) · `--jt-min` EŞİĞİ NİHAYET UYGULANIYOR ------------
-   KÖK BULGU: yukarıdaki YÖNTEM bölümü "yaslama YALNIZ yeterince uzun satır
-   kutusuna sahip metne uygulanır (--jt-min eşiği)" diyor ve `:root`ta
-   `--jt-min: 30rem` (~480px) tanımlı. Ama **`--jt-min` dosyanın hiçbir
-   yerinde OKUNMUYOR** (grep: yalnız tanımlandığı satır ve yorumu).
-   Yani eşik hiç uygulanmamış; liste koşulsuz yaslıyor. Dosyanın kendi
-   uyarısı ("kartların çoğunda paragraf iki-üç satırlık ve dar; yaslama
-   kelime araları açıp NEHİR üretir") tam olarak gerçekleşmiş.
+/* ---- 8. TUR (R6) · EŞİK ONARILDI, AMA VARSAYILAN HÂLÂ TERSTİ ---------
+   R6 `--jt-min` eşiğini nihayet uygulattı ve beş seçiciyi listeden çıkardı.
+   Doğru adımdı, yetmedi: liste hâlâ çıplak `p` ve `li` ile başlıyordu, yani
+   varsayılan "yasla" idi ve her istisna bunu geri almak zorundaydı.
 
-   ÖLÇÜM (66 sayfa, @1440, yaslanan ve ≥6 kelimelik bloklar; genişlik
-   dağılımı ve gerçek kelime arası — kelimeler geçici span'lere alınıp
-   komşu kutular arası boşluk ölçüldü):
+   ---- 9. TUR (R7) · MADDE 5 + MADDE 6 · VARSAYILAN TERSİNE DÖNDÜ --------
+   R6 iki açık kalem bırakmıştı: (5) genişlik tarafı — çıplak `p`'nin yarısı
+   eşiğin altında ama `container-type` taşımayan sarmalayıcıda olduğu için
+   sorgu ona hiç ulaşmıyor; (6) satır sayısı tarafı — CSS satır sayısını
+   sorgulayamaz, yani "geniş kutudaki kısa blok" mekanik olarak yakalanamaz.
 
-     seçici          blok  min–medyan–max     <480px      en kötü kelime arası
-     .hub-body p      69   237 – 238 – 338    69/69 100%  3.4 → 43.3  (12.8×)
-     .ex-body p       25   238 – 238 – 238    25/25 100%  3.3 → 16.3  (5.0×)
-     .brg-card p      24   199 – 199 – 199    24/24 100%  3.4 → 64.8  (19.2×)
-     .pr-body p        9   338 – 338 – 338     9/9  100%  3.3 → 16.7  (5.1×)
-     dd                3   167 – 167 – 390     3/3  100%  3.5 → 22.6  (6.5×)
+   ÖLÇÜM (66 sayfa × 2 genişlik, yaslanan ve ≥6 kelimelik her blok; satır
+   sayısı Range'in ürettiği satır kutularından, kelime arası kelimeler
+   geçici span'lere alınıp komşu kutular arası boşluktan):
 
-   Beşi de eşiğin **%100 altında**; hiçbir örneği yaslamayı hak etmiyor.
-   Görsel doğrulama: `video-seanslari` kart gövdesinde tek satır üç kelimeye
-   düşüyor ("aralıklarıyla · kurulmuş · giriş", 237px kutuda 43px boşluk).
-   Beşi de listeden ÇIKARILDI — bu, dosyanın kendi kuralını uygulamaktır,
-   yeni bir tercih değil.
+     @1440 · yaslanan blok 803
+       satır dağılımı : 1×360 · 2×265 · 3×130 · 4×38 · 5×2 · 6×2 · 7×2 · 8+×4
+       ≤4 satır       : 793 / 803  = %99
+       kutu <480px    : 274 / 803  = %34   (eşik onarımının ulaşamadığı yer)
+       HEM ≥480px HEM ≥5 satır (yani yaslamayı hak eden): 9 / 803 = %1.1
+       görünür nehir (kelime arası ≥2×): 146
 
-   LİSTEDE KALANLAR ve gerekçesi (hepsi eşiğin ÜSTÜNDE):
-     .qa-body p   55 blok · 774–858px · <480 olan 0
-     .qa-body li 133 blok · 678px     · <480 olan 0 · hepsi tek satır
-     .art-wrap li 133 blok · 678px    · <480 olan 0 · hepsi tek satır
-     .pm-tier li · .fs-card p · .coach-body p — yaslanan örnek bulunamadı
-     li          201 blok · medyan 678 · %89'u eşik üstü, 200/201 tek satır
-                 (tek satır yaslanmaz — nehir üretemez)
+     @390  · yaslanan blok 746
+       ≤4 satır: 558 (%75) · kutu <480px: 734 (%98)
+       yaslamayı HAK EDEN: 0 · görünür nehir: 488
 
-   LEAD'E BIRAKILAN İKİ KALEM (tek başıma karar vermedim, bkz. A-RAPOR):
-     · çıplak `p` — 701 blok, **%52'si eşiğin altında**. Dosyanın "kör bir
-       p{justify} iş görmez" uyarısının birebir karşılığı, ama 66 sayfayı
-       ve beş ajanın açık dosyalarını ilgilendiriyor.
-     · `.art-wrap p` — 107 blok, %22'si eşiğin altında (medyan 774, en dar
-       199). Seçici düzeyinde ayrılamıyor; gerçek çözüm container query.
+   O 9 bloğun künyesi de kararı kendisi veriyor: 8'i `destek-talebi-detay`
+   sayfasındaki destek yazışması BALONLARI (`.tk-msg` / içindeki `.bd`),
+   1'i `egzersiz-detay`ta bir kutu. Akan makale metni DEĞİL.
+
+   MAKALE SAYFALARI AYRICA TARANDI — yaslamanın asıl yeri olması beklenen
+   dört sayfada ≥5 satırlık yaslanan paragraf sayısı SIFIR:
+     yasal-v1                16 blok · en çok 4 satır · medyan 788px
+     hakkimizda-v1           25 blok · en çok 4 satır · medyan 700px
+     saglik-bilgilendirme-v1 29 blok · en çok 3 satır · medyan 776px
+     sss-v1                   8 blok · en çok 4 satır · medyan 858px
+
+   SONUÇ: bu sitenin nesri 1–4 satırlık kısa paragraflarla yazılmış. Bu bir
+   CSS gerçeği değil, İÇERİK gerçeği — ve yaslama 803 bloğun 9'una hizmet
+   edip 146'sını bozuyordu. Varsayılanın yönü yanlıştı.
+
+   NEDEN "İŞARET SINIFI" DEĞİL DE "OPT-IN": iki seçenek de bir sınıf yazmayı
+   gerektiriyordu; fark, YANLIŞIN BEDELİNİ KİMİN ÖDEDİĞİ.
+     · işaret sınıfı (opt-out): varsayılan yaslar, KISA blok işaretlenir →
+       793 blok işaretlenecekti, ve her işaret yaslama listesindeki en özgül
+       karşılığını yenmek zorundaydı (bkz. aşağıdaki ÖZGÜLLÜK NOTU — aynı
+       tuzağa R6'da üç kez düşüldü, biri yıllardır oradaydı). Üstelik siteye
+       eklenen HER yeni sayfa yaslı doğar; hata sessizce geri gelir.
+     · opt-in: varsayılan yaslamaz, UZUN blok işaretlenir → bugün 0 blok
+       işaretlenecek, özgüllük yarışı biter (yenecek kural kalmadı), yeni
+       sayfa sola yaslı doğar. Yanlışın bedeli görünür ve ucuz.
+
+   DÜRÜST NOT — BU GÖRÜNÜR BİR DEĞİŞİKLİK: bugün hiçbir blok işaretli
+   olmadığı için site genelinde iki yana yaslama fiilen KAPANIYOR. Geri
+   almak ya da seçmece açmak tek satır: ilgili sarmalayıcıya `jt-flow`,
+   tek bloğa `jt` sınıfı. Kural listesine dönmek gerekmiyor.
+
+   MADDE 5 DE BURADA KAPANIYOR: `container-type` artık 12 kart
+   sarmalayıcısına toptan verilmiyor (sticky/overflow davranışını
+   etkileyebiliyordu), yalnız yaslamayı İSTEYEN `.jt-flow` kendi kutusuna
+   koyuyor. Genişlik eşiği tek yerde ve yalnız orada iş görüyor.
    -------------------------------------------------------------------- */
-p,
-li,
-blockquote,
-.lead,
-.lib-sub,
-.qa-body p,
-.qa-body li,
-.fp-card p,
-.coach-body p,
-.fs-card p,
-.pm-tier li,
-.art-wrap p,
-.art-wrap li{
-  text-align:justify;
-  text-justify:inter-word;
+
+/* Tek blok yaslanacaksa: <p class="jt">. Genişlik eşiği aranmaz — bunu
+   yazan kişi kutuyu görerek yazıyor.
+   KURALIN GÖVDESİ DOSYANIN SONUNDA (§5). Sebebi özgüllük: `.jt` (0,1,0)
+   §3'teki `p.lead` (0,1,1) gibi istisnalara KAYBEDERDİ ve açıkça istenen
+   yaslama sessizce çalışmazdı — dosyanın kendi ÖZGÜLLÜK NOTU'nun anlattığı
+   tuzağın aynısı. §5 eleman+sınıf biçimini kullanıp sonda duruyor. */
+
+/* Bir sarmalayıcının İÇİNDEKİ akan metnin tamamı yaslanacaksa: .jt-flow.
+   Burada eşik ARANIR; sarmalayıcı daraldığında (kolon inince, mobilde)
+   yaslama kendiliğinden düşer.
+   NOT: `@container` koşulu var() ALAMAZ — 30rem, aşağıdaki `--jt-min`in
+   elle aynalanmış hâli. İkisi ayrışmasın diye `tests/hizalama-nobeti.mjs`
+   birinci ölçütte bu iki sayıyı karşılaştırıyor. */
+.jt-flow{ container-type:inline-size; }
+@supports (container-type:inline-size){
+  @container (min-width:30rem){
+    .jt-flow p, .jt-flow li, .jt-flow dd, .jt-flow blockquote{
+      text-align:justify;
+      text-justify:inter-word;
+    }
+  }
 }
+/* container query yoksa (Chromium'da bu dal çalışmaz): medya sorgusuyla
+   yaklaş — kutu değil ekran ölçülür, ama hiç yaslamamaktan iyidir. */
+@supports not (container-type:inline-size){
+  @media (min-width:641px){
+    .jt-flow p, .jt-flow li, .jt-flow dd, .jt-flow blockquote{
+      text-align:justify;
+      text-justify:inter-word;
+    }
+  }
+}
+
 /* son satır sola yaslı kalsın (varsayılan davranış; bazı sayfalarda
  text-align-last miras alınıyordu, açıkça sıfırlanır) */
 p, li, dd, blockquote, .lead, .lib-sub{ text-align-last:start; }
@@ -290,58 +336,24 @@ input, select, textarea, option, ::placeholder{
   text-align-last:auto;
 }
 
-/* dar kolon güvenliği — çok dar kutuda yaslama nehir üretir, sola döner.
- Kart ızgaraları ≤640px'te zaten tek kolona iniyor; asıl risk 2–3 kolonlu
- orta genişlikler, o yüzden eşik kartın kendi kutusuna göre uygulanır. */
-@supports (container-type:inline-size){
-  .hub-body, .pr-body, .ex-body, .coach-body, .fs-card, .brg-card, .fp-card,
-  /* E6 ölçümünde bulundu: bu liste SAYFA SAYFA elle büyütülüyor ve yeni bir
-     dar kutu eklendiğinde yaslama sessizce geri geliyor. Fit testi detayının
-     348px'lik yan kolon kartı (.ft-side-body) ve iki kolonlu kutuları
-     (.ft-who/.ft-safe) tam bu yüzden yaslanmış "nehirli" metin gösteriyordu
-     (ölçüm: 17 paragrafın 16'sı yaslı, satır ölçüsü 47–157 karakter). */
-  .ft-side-body, .ft-who, .ft-safe, .ft-scr-body, .ft-step-body{
-    container-type:inline-size;
-  }
-  /* ---- 8. TUR (R6) · BU SORGU ÖZGÜLLÜK YÜZÜNDEN HİÇ ÇALIŞMIYORDU ----
-     İki kusur vardı, ikisi de ölçüldü:
+/* ---- R7 · BURADAKİ "DAR KOLON GÜVENLİĞİ" BLOĞU KALDIRILDI -------------
+   Blok şunu yapıyordu: 12 kart sarmalayıcısına toptan `container-type:
+   inline-size` verip, dar kutuda yaslamayı geri alan bir `@container
+   (max-width:30rem)` sorgusu koşturuyordu.
 
-     1) ÖZGÜLLÜK. Geçersiz kılma `p, li{text-align:left}` yani (0,0,1);
-        yaslama kuralı ise `.hub-body p` yani (0,1,1). Container sorgusu
-        özgüllüğü değiştirmez — dar kutuda sorgu EŞLEŞİYOR ama kural
-        kaybediyordu. Ölçüm: `.hub-body p` 237px kutuda computed
-        `text-align: justify`. Sorgu hiç iş görmemiş.
-     2) EŞİK. Sorgu 20rem (320px) diyordu, dosyanın kendi tanımladığı
-        eşik ise `--jt-min: 30rem` (480px). 320–480px arası bütün kart
-        gövdeleri iki kusurdan bağımsız olarak da açıkta kalıyordu.
+   İkisi de artık gereksiz ve ikisi de bedelliydi:
+   · Geri alma, geri alacak bir şey kalmadığı için ölü — varsayılan yaslama
+     §2'de kalktı.
+   · `container-type:inline-size` ise ÖLÜ DEĞİL: `contain: layout style
+     inline-size` demek ve sticky/overflow davranışını etkileyebiliyor.
+     R6'nın 5. açık kalemi tam olarak "bu listeyi büyütmek gerekir mi"
+     sorusuydu; cevap "hayır, küçültmek gerekiyordu" çıktı. Kapsama artık
+     yalnız yaslamayı İSTEYEN `.jt-flow` kendi kutusuna koyuyor.
 
-     Düzeltme: geçersiz kılma yaslama listesinin AYNI seçicilerini
-     tekrarlıyor (özgüllük eşit ya da üstün, dosyada sonra geliyor →
-     kazanıyor) ve eşik `--jt-min`e bağlandı. Token artık gerçekten
-     okunuyor; daha önce hiçbir yerde kullanılmıyordu. */
-  @container (max-width: 30rem){
-    p, li, blockquote,
-    .lead, .lib-sub,
-    .qa-body p, .qa-body li, .fp-card p, .hub-body p, .pr-body p,
-    .ex-body p, .coach-body p, .fs-card p, .brg-card p, .pm-tier li,
-    .art-wrap p, .art-wrap li{
-      text-align:left;
-      text-align-last:auto;
-    }
-  }
-}
-/* container query desteklemeyen tarayıcı: dar ekranda kartlarda sola yaslı.
-   (Bu dal Chromium'da hiç çalışmaz; yukarıdaki container sorgusu geçerli.
-   Yine de aynı seçici setine genişletildi ki iki dal aynı şeyi söylesin.) */
-@supports not (container-type:inline-size){
-  @media (max-width:640px){
-    .hub-body p, .pr-body p, .ex-body p, .coach-body p, .fs-card p, .brg-card p,
-    .fp-card p, .art-wrap p, .qa-body p{
-      text-align:left;
-      text-align-last:auto;
-    }
-  }
-}
+   Liste ayrıca sayfa sayfa elle büyütülüyordu (E6 ölçümü: yeni bir dar kutu
+   eklendiğinde yaslama sessizce geri geliyordu). Opt-in'de böyle bir liste
+   yok — bakım yükü sıfırlandı.
+   -------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------
  4 · ERİŞİLEBİLİRLİK
@@ -354,4 +366,25 @@ html.reduce-motion .lead, html.reduce-motion .lib-sub{
   text-align:left;
   hyphens:manual;
   -webkit-hyphens:manual;
+}
+
+/* ---------------------------------------------------------------------
+ 5 · OPT-IN KANCASININ SON SÖZÜ
+ `.jt` açık bir yazar isteğidir; §3'teki istisnalar onu yenmemeli.
+ §3 eleman+sınıf biçimi kullanıyor (`p.lead` = 0,1,1), bu yüzden kanca da
+ aynı biçimde ve dosyanın SONUNDA yazılır — eşit özgüllükte sıra karar
+ verir, sıra bunun lehine.
+
+ Kapsanmayan tek hâl: `.fp-card p.fpx-note` gibi (0,2,1) istisnalar. Kart
+ içi not sınıfını yaslamak gerçek bir kullanım değil; kapsam bilerek burada
+ kesildi. Gerekirse `.fp-card p.jt` eklenir.
+
+ `.jt-flow` tarafı bu sorunu yaşamıyor: `.jt-flow p` zaten (0,1,1).
+ --------------------------------------------------------------------- */
+.jt,
+p.jt, li.jt, dd.jt, blockquote.jt,
+.art-wrap p.jt, .qa-body p.jt, .hub-body p.jt{
+  text-align:justify;
+  text-justify:inter-word;
+  text-align-last:start;
 }

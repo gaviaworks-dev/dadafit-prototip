@@ -1,7 +1,7 @@
 # DEVİR 6 — YENİ OTURUMUN TEK BİLGİ KAYNAĞI
 
 **Depo:** `~/Developer/Projects/dadafit-prototip` · **Canlı:** `gaviaworks-dev.github.io/dadafit-prototip`
-**Taban commit:** `8bf5c66` · **Branch:** `main`
+**Taban commit:** `8bf5c66` · **Son commit:** `6eb59f5` · **Branch:** `main` · **push edildi**
 **Brief:** `tasks/REVIZYON-6.md` *(21 madde, kapandı)* · **Kararlar:** `KARARLAR.md` (K1–K51)
 **Önceki devir:** `tasks/DEVIR-5.md` — banner/footer/kabuk ölçüleri **hâlâ orada**, yeniden ölçülmeyecek
 
@@ -455,3 +455,65 @@ birden** üretilmeli (normalizasyon dörtlüye bağlı) → 8 kredi.
 | Playwright | `PW_HOME=~/.pw` |
 | Canlı | `https://gaviaworks-dev.github.io/dadafit-prototip` |
 | **Anatomi (canlı)** | `https://gaviaworks-dev.github.io/dadafit-prototip/anatomi-v1.html` |
+
+---
+
+# 8 · TURUN KAPANIŞ ÖLÇÜMLERİ
+
+## Tam süit — 20 sınama
+
+`node tests/<ad>.mjs http://localhost:8811` · **20/20 exit=0 · kırmızı 0**
+
+```
+a11y-focus ✓  coach-list ✓  dropdown-position ✓  header-banner ✓
+plan-account ✓  fit-test-lock ✓  footer-curtain ✓  crumb-home ✓
+wizard-page ✓  sozluk ✓  sozluk-kapalilik ✓  anatomi ✓
+workout-generator ✓  egzersiz-katalog ✓  kabuk-kalite ✓  enerji-hesap ✓
+footer-yapi ✓  plan-kayit ✓  plan-ozet ✓  arama-oneri ✓
+```
+
+## Tam site taraması
+
+`node tools/site-tarama.mjs http://localhost:8811 1440,390`
+**66 sayfa × 2 genişlik = 132 yükleme · 0 sorun**
+
+| Ölçüt | Sonuç |
+|---|---|
+| HTTP dışı 200 | **0** |
+| Konsol hatası | **0** |
+| Yatay taşma | **0** |
+| 4xx alt kaynak | **0** |
+| Kırık iç bağlantı | **0** |
+| Banner **liste** @1440 / @390 | **544 px ×54** / **587 px ×54** — tek değer |
+| Banner **detay** @1440 / @390 | **560 px ×8** / **726 px ×8** — tek değer |
+| **R11 perde sapması** (>0.5 px) | **0 sayfa** |
+
+## Canlı doğrulama — tıklayarak
+
+`https://gaviaworks-dev.github.io/dadafit-prototip` · **11/11 yeşil · konsol 0**
+
+| Ne denendi | Sonuç |
+|---|---|
+| Anatomi haritası yükleniyor | render katmanı + **18 bölge** |
+| Göğse **gerçek tıklama** | panel *"Göğüs (Büyük göğüs kası)"* · dolgu **rgb(0,122,61)** |
+| Ön → arka geçişi | çalışıyor |
+| `.fit-health` (3 sayfa) | **0**, yasal bantta sağlık bağlantısı **1–2** |
+| M4 istatistik şeridi | **sağda dikey** (`column`) · banner 544 |
+| M9 sözlükte sağ ok | **0** |
+| M20 `.fs-top` overflow | **visible** — panel kesilmiyor |
+| M18 `FIT_PLAN` API | canlıda **yüklü** |
+| M17 oluşturucu gövdeleri | **iki render** yüklendi |
+
+## Commit'ler
+
+| Commit | Kapsam |
+|---|---|
+| `463a412` | M1–M7 kabuk + banner |
+| `3906b4e` | M8–M10 sözlük |
+| `ee02c56` | M20 arama |
+| `3d39d6e` | M18–M19 plan kaydı |
+| `d3e1b1f` | M16–M17 oluşturucu |
+| `fe026b9` | M11–M15 + M21 anatomi |
+| `6eb59f5` | brief · kararlar · devir · site tarama aracı |
+
+**21 maddenin 21'i kapandı.**

@@ -1621,3 +1621,312 @@ R6'da altı ajan **278 ekran görüntüsü** üretti, toplam **139 MB**. Statik 
 prototip deposu ve GitHub Pages için taşınamaz. `.gitignore`'a `tasks/r6-shots/`
 eklendi. **Raporlar (`tasks/r6-ilerleme/*.md`) depoya giriyor** — kalıcı kayıt
 onlar; görüntüler turun kendi oturumunda diskte duruyor.
+
+---
+
+## K52 · R11 perdesinin @390'da KAPALI olması kasıtlı — "kaçmış" değil
+
+**Beyar (9. oturum, R7 madde 9):** *"R11 perdesinin @390'da kapalı olması
+kasıtlı — tek satır not düş, sonraki turda 'kaçmış' sanılmasın."*
+
+**Kayda geçen davranış:** perde (footer reveal) yalnız **≥641 px**'te açılır.
+`fit-shell.js` `matchMedia('(min-width:641px)')` ile ayırıyor, `fit-shell.css`
+aynı eşikte `.footer.orange{position:fixed}` veriyor ve CSS yorumu bunu
+zaten yazıyor: *"Mobil: statik."*
+
+**Ölçüldü (dadafit-hub, R7):**
+
+| Genişlik | `#pageMain` margin-bottom | footer position | footer yüksekliği |
+|---|---|---|---|
+| 1440 | 579.53 px | fixed | 579.53 |
+| 1024 | 1100.69 px | fixed | 1100.69 |
+| **641** | 1158.45 px | fixed | 1158.45 |
+| **640** | **0** | **static** | 1229.75 |
+| 390 | **0** | **static** | 1281.83 |
+
+641 ↔ 640 sınırı temiz: perde tam eşikte açılıp kapanıyor, ara değer yok.
+
+**Neden mobilde kapalı:** perde, footer'ı sayfanın ARKASINDA sabit tutup
+içeriğin altına kendi yüksekliği kadar boşluk açmakla çalışıyor. @390'da
+footer 1281.83 px — ekranın (844) bir buçuk katı. Sabitlenirse ekrana
+sığmaz, açılan boşluk da bir buçuk ekranlık boş kaydırma olurdu.
+
+**`tools/site-tarama.mjs` bunu neden kırmızıya döndürmüyor:** perde sapması
+ölçümü zaten `if (w === 1440)` koşuluyla yalnız masaüstünde koşuyor.
+Araç doğru yazılmış; @390'da ölçüm hiç yapılmıyor.
+
+**Geri almak için:** `fit-shell.js` FOOTER REVEAL IIFE'sindeki eşik ve
+`fit-shell.css`'teki `@media (min-width:641px)` bloğu — ikisi birlikte.
+
+---
+
+## K53 · Anatomi dokunma hedefi OLDUĞU GİBİ kalıyor — çip + klavye telafisi yeterli
+
+**Beyar (9. oturum, R7 madde 8):** *"Adduktor geometrik olarak 44px'e
+çıkamaz, çip + klavye telafisi yeterli. Olduğu gibi kalsın, kayda geç."*
+
+**Kapanan soru:** DEVIR-6 §2d'nin "bilinen sınır" başlığı bir sonraki tura
+açık kalem olarak devrediyordu. Beyar kapattı: **madde açık kalem değil,
+kabul edilmiş sınır.**
+
+**Kabul edilen tablo (R6'da ölçüldü, R7'de yeniden ölçülmedi):**
+@390'da 61, @1440'ta 54 bölgenin serbest çapı 24 px altında; en küçükleri
+`adduktor` · `boyun` · `tensor-fasya-lata` · `brachioradialis` (0–4 px).
+
+**Gerekçe — iki garanti aynı anda tutulamaz:** adduktor gerçek anatomide
+ince bir şerit. 44 px'e büyütmek komşu kasın üstüne taşmak demek; o zaman
+"yanlış kas seçilen tıklama 0" garantisi düşer. Harita **ikincil ve hassas**
+giriş olarak konumlandı.
+
+**Telafi, ölçülmüş hâliyle duruyor:** her kasın ≥44 px erişilebilir yolu var
+— haritanın üstündeki kas grubu çipleri (@390 44 px) ve klavye gezinmesi.
+Harita @390'da `min(52vh,470px)`'e büyütülmüş hâliyle kalıyor.
+
+**Sınama nöbeti aynen:** `tests/anatomi.mjs` "her bölge tıklanabilir +
+yanlış kas 0" nöbetini iki genişlikte tutmaya devam ediyor; çap ölçümü
+rapora yazılır ama **kırmızıya döndürmez**.
+
+**Bu kararı bozacak tek şey:** haritanın birincil giriş hâline gelmesi
+(çiplerin kaldırılması). O gün "kasa yakınlaştırma" seçeneği yeniden
+masaya gelir — ölçülmedi, önerilmiyor, not olarak duruyor.
+
+---
+
+## K54 · `--tomato` ailesi gerçek adını aldı — AD değişti, DEĞER değişmedi
+
+**R7 madde 3.** Token `--tomato` **#009d4f** yani kurumsal YEŞİL taşıyordu.
+Ad gastro paletinden kalmıştı; `fit-shell.css` başlığı bunu itiraf ediyordu
+bile: *"ad tarihseldir; sitenin diğer dosyalarında aynı ad domates
+kırmızısını gösterir."* Aynı depoda aynı adın iki farklı rengi göstermesi
+sonraki her turda yanlış okuma riski.
+
+**Kritik bulgu — ikizi zaten vardı.** `fit-shell.css`'te `--fit:#009d4f` ve
+`--fit-deep:#007a3d` **aynı değerlerle** ayrı bir `:root` bloğunda duruyordu.
+Yani `--tomato` yeni bir renk değil, var olan yeşilin ikinci adıydı.
+
+| Eski | Değer | Yeni | Nasıl |
+|---|---|---|---|
+| `--tomato` | #009d4f | **`--fit`** | ikizi vardı → **birleşti** |
+| `--tomato-dark` | #007a3d | **`--fit-deep`** | ikizi vardı → **birleşti** |
+| `--tomato-deep` | #006a35 | **`--fit-ink`** | ikizi yoktu → ramp'e adım |
+| `--tomato-tint` | #e8f6ee | **`--fit-wash`** | ikizi yoktu → ramp'e adım |
+
+`--fit-ink` adı işine göre verildi: 6 kullanımının 3'ü zorunlu-alan yıldızı
+(beyazla **6.75:1**, küçük metinde AA — `iletisim-v1`'de ölçülmüştü), 3'ü
+gradient koyu ucu. `--fit-deep` (5.45:1) ile `--fit-deeper` (8.76:1)
+arasında gerçek bir basamak.
+
+**Kapsam:** 672 geçiş · 47 dosya (`fit-shell.css` · `fit-shell.js` ·
+45 sayfa). Üstteki `:root`ta duran kopya tanımlar silindi; yeşil ailesinin
+tanımı artık **tek blokta**.
+
+**KANIT — hiçbir renk değişmedi:** 66 sayfa @1440 açıldı, her elemanın
+çözülmüş `color · background-color · background-image · border · outline ·
+fill · stroke · box-shadow` imzası önce/sonra karşılaştırıldı.
+**66/66 sayfa birebir aynı.** (Tek fark `challenge-v1`'de `livePulse`
+animasyonunun 1.9 sn'lik döngüsünden farklı kare yakalanmasıydı — token
+değil, zamanlama.)
+
+**BİLEREK BİRLEŞTİRİLMEYEN:** `--fit-wash` #e8f6ee ile `--fit-tint` #eaf6ef
+iki ayrı paletten gelen neredeyse aynı renk (ΔR2 · ΔG0 · ΔB1, ΔE00 ≈ 0.5 —
+gözle ayırt edilemez). Birleştirmek 127 kullanımın çözülmüş DEĞERİNİ
+değiştirirdi; bu tur **ad temizliğiydi, palet birleştirmesi değil**.
+Sonraki tur isterse tek adıma indirebilir — açık kalem.
+
+**Geri almak için:** ters yönde aynı yeniden adlandırma. Ama `--fit` ve
+`--fit-deep` birleşti; geri dönüş kopyaları da geri getirmek demek.
+
+---
+
+## K55 · Fit Planım CSS'i tek kaynağa çıktı — §0b "sayfa içi style" nasıl okunmalı
+
+**R7 madde 10.** R6'da 226 satırlık `fpx-` bloğu **yedi sayfaya birebir**
+kopyalanmıştı (7 × ~12 KB). Gerekçe §0b'nin "sayfa içi style" kuralıydı.
+
+**KARAR:** §0b tek sayfaya özgü ölçüler içindir. **Yedi sayfanın paylaştığı
+bir aile, tanım gereği sayfaya özgü değildir** — `assets/css/fit-planim.css`.
+Yedi dosyanın md5'i alındı: **7/7 birebir aynıydı**, yani zaten tek kaynaktı,
+yalnız yedi kopya hâlinde duruyordu.
+
+**Hiçbir seçici, hiçbir değer değişmedi.** `<style>` bloğu tam durduğu yerde
+`<link>` ile değişti — yükleme sırası korunmak ZORUNDA:
+
+    fit-shell.css  →  fit-planim.css  →  fit-type.css
+
+Kabuk önce (fpx kuralları kabuk token'larını okuyor), yaslama katmanı sonra.
+Sıra bozulursa `.fp-card p.fpx-note` ailesinin özgüllük dengesi de bozulur.
+
+**KANIT:** 7 sayfa × 2 genişlik (1440 · 390) = 14 imza; her `body *`
+elemanının kutusu · `text-align` · `text-align-last` · padding · margin ·
+tipografi · renk karşılaştırıldı → **14/14 birebir aynı**. Tek fark
+`<head>`teki 9. düğümün `STYLE` yerine `LINK` olması, yani değişikliğin
+kendisi.
+
+**Kazanç:** 7 sayfa toplam ~86 KB küçüldü (ör. `fit-planim-v1` 37.7 → 25.5 KB).
+
+**DEVIR-6'nın ifadesi DÜZELTİLDİ:** açık kalem *"`fpx-` CSS/**JS** bloğu"*
+diyordu. Yedi sayfanın `<script>` bloklarının md5'i tek tek alındı —
+**yedisi de FARKLI** (175–291 satır, her sayfanın kendi mantığı).
+Çoğaltılan yalnız CSS'ti; çıkarılacak ortak JS yok.
+
+---
+
+## K56 · `sozluk-v1` eyebrow'u "Terim Terim" değil, ÜST BAĞLAM yazar
+
+**R7 madde 4.** Eyebrow "Terim Terim" idi — hem kendi içinde tekrar, hem de
+kabuğun o sayfa için yazdığı **açıklama** metninin kopyası (`fit-shell.js`
+NAV: *"Salon dilinin tam karşılığı — terim terim"*).
+
+**Ölçüm — yuvanın sitedeki işi:** 29 banner'ın 29'unda eyebrow ya menü
+grubunu ya üst sayfayı yazıyor, sloganı değil. `anatomi-v1` — aynı K34
+grubunda, aynı yapıda (h1 = sayfa adı) — birebir **"Hareketi Anlamak"**
+diyor. `sozluk-detay-v1` üst sayfasını yazıyor: "Spor Sözlüğü".
+
+**Seçilen:** `Hareketi Anlamak`. Kırıntı zaten DadaFit → Hareket → Spor
+Sözlüğü diyor; K34 sayfayı bu grubun altına koymuş. Uydurulmadı, sitenin
+kendi menü kaleminden alındı. İkon (`fa-book-open`) değişmedi.
+
+---
+
+## K57 · Yaslama OPT-IN oldu — R6'nın 5. ve 6. maddesi tek kararla kapandı
+
+**Beyar (9. oturum, R7):** *"Madde 5 ve 6 birlikte: yaslama opt-in mi olacak,
+işaret sınıfı mı? İkisinin de maliyetini ve riskini çıkar, öner, sonra uygula."*
+
+R6 iki yarım kalem bırakmıştı: **(5) genişlik tarafı** — çıplak `p`'nin
+yarısı eşiğin altında ama `container-type` taşımayan sarmalayıcıda olduğu
+için sorgu ona hiç ulaşmıyor; **(6) satır sayısı tarafı** — CSS satır
+sayısını sorgulayamaz, yani "geniş kutudaki kısa blok" mekanik olarak
+yakalanamaz. İkisi de aynı kökten çıkıyordu: **varsayılanın yönü.**
+
+### Ölçüm — 66 sayfa × 2 genişlik, yaslanan ve ≥6 kelimelik her blok
+
+Satır sayısı `Range`'in ürettiği satır kutularından; kelime arası kelimeler
+geçici span'lere alınıp komşu kutular arası boşluktan.
+
+| | @1440 | @390 |
+|---|---|---|
+| yaslanan blok | **803** | **746** |
+| ≤4 satır | 793 (**%99**) | 558 (%75) |
+| kutu <480 px (eşiğin altı) | 274 (%34) | 734 (%98) |
+| **hem ≥480 px hem ≥5 satır — yaslamayı hak eden** | **9 (%1.1)** | **0** |
+| görünür nehir (kelime arası ≥2×) | **146** | **488** |
+
+@1440 satır dağılımı: 1×360 · 2×265 · 3×130 · 4×38 · 5×2 · 6×2 · 7×2 · 8+×4.
+
+O 9 bloğun künyesi kararı kendisi veriyor: **8'i `destek-talebi-detay`
+sayfasındaki yazışma BALONLARI** (`.tk-msg` / içindeki `.bd`), 1'i
+`egzersiz-detay`ta bir kutu. Akan makale metni değil.
+
+**Makale sayfaları ayrıca tarandı** — yaslamanın asıl yeri olması beklenen
+dört sayfada ≥5 satırlık yaslanan paragraf **sıfır**:
+`yasal-v1` 16 blok/en çok 4 satır · `hakkimizda-v1` 25/4 ·
+`saglik-bilgilendirme-v1` 29/3 · `sss-v1` 8/4.
+
+**Bu bir CSS gerçeği değil, İÇERİK gerçeği:** sitenin nesri 1–4 satırlık
+kısa paragraflarla yazılmış. Yaslama 803 bloğun 9'una hizmet edip 146'sını
+bozuyordu.
+
+### İki seçeneğin maliyeti ve riski
+
+| | **İşaret sınıfı (opt-out)** | **Opt-in** ✅ |
+|---|---|---|
+| İşaretlenecek blok | **793** (kısa olanlar) | **0** (bugün hak eden yok) |
+| Özgüllük yarışı | her işaret, yaslama listesindeki en özgül karşılığını yenmek zorunda | **biter** — yenecek kural kalmadı |
+| Yeni sayfa eklenince | **yaslı doğar**, hata sessizce geri gelir | sola yaslı doğar |
+| `container-type` yükü | 12 sarmalayıcıda kalır (sticky/overflow riski) | yalnız `.jt-flow` kendi kutusuna koyar |
+| Yanlışın bedelini kim öder | fark edilmezse **kullanıcı** | fark edilmezse **kimse** — sola yaslı okunur |
+
+**Belirleyici:** aynı özgüllük tuzağına R6'da **üç kez** düşüldü, biri
+yıllardır oradaydı (B21). Üçünün de ortak sebebi istisnanın yaslamayı
+yenmek zorunda olmasıydı. Opt-in bu yarışı kaldırıyor.
+
+### Uygulanan mekanizma
+
+    .jt                    tek blok — eşik aranmaz, yazan kişi kutuyu görüyor
+    .jt-flow               sarmalayıcı — içindeki p/li/dd/blockquote yaslanır,
+                           kendi kutusu --jt-min eşiğinin ÜSTÜNDEyse
+
+`.jt-flow` `container-type`ı **kendi** taşıyor; 12 kart sarmalayıcısına
+toptan verilen kapsama kalktı. `@container` koşulu `var()` alamadığı için
+30rem elle aynalanıyor — ikisinin ayrışmaması `tests/hizalama-nobeti.mjs`
+ölçüt 1'in nöbetinde (R6'da 30rem ↔ 20rem diye ayrışmıştı).
+
+### DÜRÜST NOT — bu GÖRÜNÜR bir değişiklik
+
+Bugün hiçbir blok işaretli olmadığı için **site genelinde iki yana yaslama
+fiilen kapandı**. Geri almak ya da seçmece açmak tek satır: sarmalayıcıya
+`jt-flow`, tek bloğa `jt` sınıfı. Kural listesine dönmek gerekmiyor.
+
+### KANIT — ne oynadı, ne oynamadı
+
+66 sayfa × 2 genişlik = 130 288 eleman, önce/sonra alan alan:
+
+| Alan | Değişen |
+|---|---|
+| `text-align` | 5 364 (justify → start/left) |
+| `text-align-last` | 417 (auto → start · yaslama yokken görsel etkisi yok) |
+| satır içi kutu genişliği/x | **299** — `A` 139 · `STRONG` 81 · `B` 72 · `EM` 2 · `SPAN` 2 · `CODE` 2 · `I` 1 |
+| **BLOK kutu (x · y · genişlik · yükseklik)** | **0** |
+
+Yani: yaslama kalkınca genişletilmiş kelime aralarıyla gerilen **satır içi**
+kutular doğal enine döndü; **hiçbir blok kutu, hiçbir sayfa yüksekliği,
+hiçbir kart yer değiştirmedi.** `container-type` kaldırılmasının da ölçülen
+etkisi sıfır — kapsama orada taşıyıcı değilmiş.
+
+**İstisna apparatı SİLİNMEDİ, ikinci savunma hattına düştü.** §3'teki
+kurallar (`text-align:center` kompozisyonlar · form kontrolleri · tablo
+hizası · `hyphens:manual` · `text-wrap:balance`) bağımsız iş görmeye devam
+ediyor; yalnız "yaslamayı geri alma" görevleri boşa çıktı. Ölü seçicilerin
+ayıklanması **R8'e açık kalem** — artık `tests/hizalama-nobeti.mjs` ölçüt 4
+o temizliği güvenli hâle getiriyor.
+
+---
+
+## K58 · Süite `text-align`/`padding` nöbeti eklendi — B20'nin kör noktası
+
+**R7 madde 7.** B20'de bir regex temizliği `.fpx-sum-sub,` seçicisini
+gövdesiz bıraktı; CSS onu sonraki kurala bağladı ve 7 sayfada iki hasar
+oluştu: `text-align` justify oldu (@390 kelime arası 3.8 → **40.4 px**,
+10.6×) ve boş durum kuralından **yabancı padding** bulaştı (48 → 104 px).
+**Yirmi sınamanın hiçbiri yakalamadı** — süitte bu iki özelliği ölçen nöbet
+yoktu.
+
+**`tests/hizalama-nobeti.mjs` · dört ölçüt:**
+
+1. **Eşik aynası** (statik) — `--jt-min` ile §2'deki `@container` sayısı
+   ayrışamaz. B21'in birebir nöbeti.
+2. **Yaslama opt-in sözleşmesi** — hiçbir eleman `.jt` taşımadan ve
+   `.jt-flow` içinde olmadan `justify` hesaplayamaz. *(B20 hasarı #1)*
+3. **Hesapsız dolgu** — bir `<p>` sıfırdan farklı padding hesaplıyorsa, onu
+   **eşleşen** bir CSS kuralı ya da satır içi style açıkça vermiş olmalı.
+   Kural eşleşmesi `document.styleSheets` gezilerek, koşullu gruplar
+   (`@media`/`@supports`) o an geçerliyse dahil edilerek kuruluyor.
+   *(B20 hasarı #2 — dolgu "hiçbir yerden" geldiyse bulaşmıştır.)*
+4. **"Sözünü tutuyor mu" sondası** — DEVIR-6 §6/7'nin açık kalemi.
+   `fit-type.css` bir elemana `text-align` vaat ediyorsa ve o vaadin
+   özgüllüğü, aynı elemana `text-align` veren **diğer bütün kuralların**
+   özgüllüğünden düşük değilse, vaat computed'da tutmak zorunda — çünkü
+   dosya en son yüklenir, eşit özgüllükte sırayla kazanır.
+
+**Ölçüt 4 neden özgüllük karşılaştırmalı:** ilk yazımda "vaat = computed"
+denmişti ve 2385 yanlış bulgu verdi — hepsi `button{text-align:center}`
+(0,0,1) vaadinin `.wg-opt{text-align:left}` (0,1,0) gibi **daha özgül ve
+kasıtlı** sayfa kurallarınca devralınmasıydı. Bu normal basamaklanma;
+sayılıyor ama kırmızıya döndürmüyor. Kırmızı olan **eşit ya da düşük**
+özgüllükte kaybetmek — R6'nın üç tuzağının üçü de o hâldi.
+Ölçüt aynı zamanda **yükleme sırası nöbeti**: `fit-type.css` sayfa
+stillerinden önce yüklenirse eşit özgüllükteki vaatler düşer ve kırmızı olur.
+
+**K27 — TABAN COMMIT'TE KIRMIZI (`8bf5c66`):**
+
+| Ölçüt | Taban commit |
+|---|---|
+| 1 · eşik aynası | ✗ `--jt-min` 30rem ama sorgu `max-width:20rem` |
+| 1 · opt-in kancaları | ✗ `.jt` / `.jt-flow` yok |
+| 2 · opt-in sözleşmesi | ✗ **6 989 eleman** izinsiz justify (1 389 tekil) |
+| 3 · hesapsız dolgu | ✓ (B20 hasarı R6'da doğdu, tabanda henüz yoktu) |
+| 4 · "sözünü tutuyor mu" | ✗ **4 606 eşleşmede** vaat tutmuyor (903 tekil) |
+
+**4 SORUN** · bugünkü ağaçta **0 sorun** (130 288 eleman · 3 946 paragraf ·
+23 123 vaat eşleşmesi tarandı).

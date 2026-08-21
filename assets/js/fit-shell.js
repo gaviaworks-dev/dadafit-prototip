@@ -529,7 +529,7 @@ var TOPBAR = ''+
 '<div class="topbar">\n'+
 '  <div class="wrap">\n'+
 '    <div class="tb-left">\n'+
-'      <a href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-dumbbell" style="color:var(--tomato)"></i> 25 hareket</a>\n'+
+'      <a href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-dumbbell" style="color:var(--fit)"></i> 25 hareket</a>\n'+
 '      <span class="tb-div"></span>\n'+
 '      <div class="tb-soc">\n'+
 '        <a href="#"><i class="fa-brands fa-instagram"></i></a>\n'+

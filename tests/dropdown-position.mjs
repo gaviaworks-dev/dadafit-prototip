@@ -33,11 +33,11 @@ const WIDTHS = (process.argv[3] || '1440,1280,1100').split(',').map(Number);
 
 /* Kabuğu yükleyen, farklı header durumlarını temsil eden sayfalar:
    · dadafit-hub-v1  → hero'lu sayfa (header şeffaf başlar)
-   · hareket-merkezi-v1 / programlar-merkezi-v1 → banner'lı liste sayfaları
+   · programlar-merkezi-v1 / egzersiz-kutuphane-v1 → banner'lı liste sayfaları
+     (hareket-merkezi-v1 R8 madde 4'te kaldırıldı)
    · fit-planim-v1  → Planım kabuğu (aktif buton durumu)               */
 const PAGES = [
   'dadafit-hub-v1.html',
-  'hareket-merkezi-v1.html',
   'programlar-merkezi-v1.html',
   'egzersiz-kutuphane-v1.html',
   'antrenorler-v1.html',

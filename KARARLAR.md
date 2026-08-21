@@ -1946,3 +1946,434 @@ stillerinden önce yüklenirse eşit özgüllükteki vaatler düşer ve kırmız
 
 **4 SORUN** · bugünkü ağaçta **0 sorun** (130 288 eleman · 3 946 paragraf ·
 23 123 vaat eşleşmesi tarandı).
+
+---
+
+## K59 · `--sec-pad` rampasının TAMAMI referansa çekildi — tek sayı değil, rampa
+
+**R8 · K-A.** DEVIR-6 ve DEVIR-7'de açık kalan madde 1 kapandı. Beyar
+**B seçeneğini** seçti: yalnız masaüstü değil, **rampanın tamamı**.
+
+| Genişlik | Referans | DadaFit önce | DadaFit sonra |
+|---|---|---|---|
+| 1440 | 74 | 50 | **74** |
+| 1024 | 74 | 42 | **74** |
+| 768 | 74 | 42 | **74** |
+| 390 | 44 | 34 | **44** |
+
+Referans `dadadiet.com/beslenme`, R7'de dört genişlikte ölçüldü (üst/alt
+dolgusu eşit olan geniş bölüm kutuları). **A seçeneği neden reddedildi:**
+yalnız masaüstünü 74'e çekmek 74→42 arası tek adımlık bir sıçrama
+bırakıyordu; referansta öyle bir sıçrama yok. K29'un ilkesi ("referanstan
+ölçü alınır, palet alınmaz") burada **ölçünün tek bir sayı değil, rampanın
+kendisi** olduğu anlamına geliyor.
+
+**Değişen tek yer:** `assets/css/fit-shell.css` — üç sayı
+(`:root` satır 53 · `@media max-width:1024` · `@media max-width:640`).
+`var(--sec-pad)` **118 kullanım**, hepsi bu tanımdan besleniyor.
+
+**`--sec-pad-sm` DEĞİŞMEDİ** (32 / 26 / 26 / 22 · **63 kullanım**) — bilgi
+bandı ve ara şeritlerin sıkı nefesi kasıtlı olarak ayrı token.
+
+**Kapatan ölçüm** (Playwright, `localhost:8811`, `.sec` computed padding-top):
+dört genişlikte **74 · 74 · 74 · 44**, hedefle birebir. Sayfa boyu @1440,
+R7'nin üç örnek sayfada yaptığı öngörüyle **sapma %0.00**:
+
+| Sayfa | Önce | Sonra | R7 öngörüsü |
+|---|---|---|---|
+| `dadafit-hub-v1` | 8 209 | **8 737** | 8 737 |
+| `hakkimizda-v1` | 5 588 | **5 924** | 5 924 |
+| `hareket-merkezi-v1` | 4 523 | **4 763** | 4 763 |
+
+Yatay taşma dört genişlikte de **0** (önce de 0). Banner aile
+yükseklikleri `--sec-pad` okumuyor, değişmedi.
+
+> `hareket-merkezi-v1` bu ölçümden **sonra** silindi (K61). Sayı, sayfa
+> dururken alındı — ölçüm sırası bilerek böyle kuruldu.
+
+---
+
+## K60 · "Hareket Merkezi" kalktı — üst menü kaleminin hedefi KATALOG oldu
+
+**R8 madde 4.** Brief "Hareket merkezi komple kaldırılacak" diyordu. Ölçüm,
+kalemin sanılandan geniş olduğunu gösterdi: `hareket-merkezi-v1` **25
+dosyada, 33 geçişte** duruyordu ve **`fit-shell.js:67`'de üst menü
+"Hareket" kaleminin kendi `href`'iydi** — yani 66/66 sayfayı ilgilendiren
+bir menü kararıydı, tek sayfalık bir silme değil.
+
+**Ölçümün açtığı iki soru ve cevapları:**
+
+1. **9 kardeş `hareket-*` sayfası hub'a bağımlı mı?** — **Hayır.**
+   Kırıntı zincirleri okundu: `Ana Sayfa → Hareket [hub] → Hareket Rehberi
+   → <sayfa>`. Dokuzunun **doğrudan ebeveyni `hareket-rehberi-v1`**; hub
+   yalnız üst bölüm kırıntısıydı ("Hareket" kelimesi). Tek istisna
+   `hareket-rehberi-v1`'in kendisi. **9 sayfa siliniyor gerekçesi yok, hepsi duruyor.**
+2. **Hub kalkınca menü nereye açılacak?** — Beyar:
+   **`egzersiz-kutuphane-v1.html`** (bölümün asıl varış noktası).
+
+**Uygulanan (5 nokta kabuk + 27 sayfa bağlantısı):**
+
+| Konum | Ne oldu |
+|---|---|
+| `fit-shell.js` üst menü `hareket` | `href` → `egzersiz-kutuphane-v1.html`, `match` dizisinden `hareket-merkezi-v1` çıktı |
+| `fit-shell.js` dropdown 1. kalem | "Hareket Merkezi · *Hareket dünyasının giriş kapısı*" **satırı silindi** |
+| `fit-shell.js` alt bar + drawer | aynı hedefe çevrildi |
+| 16 kırıntı "Hareket" | **kalem tamamen KALDIRILDI** — aşağıdaki nota bak |
+| 11 içerik bağlantısı | yeni hedef |
+| `programlar-merkezi-v1` **derin çapa** `#sure` | `hareket-sureye-gore-v1.html`'e çevrildi — **çapasız**, çünkü hedefte `id="sure"` yoktu ve uydurulmadı |
+
+### Kırıntıda "Hareket" kalemi RETARGET edilmedi, KALDIRILDI — Beyar onayladı
+
+Uygulayan ajan 16 sayfadaki kırıntıdan "Hareket" basamağını **yeni hedefe
+bağlamak yerine sildi** ve gerekçesini ölçümle verdi:
+
+- `egzersiz-kutuphane-v1`'e bağlansaydı o sayfa **kendi kırıntısında kendine
+  link** verirdi (`Ana Sayfa > Hareket > DadaFit Egzersizleri`, ikinci ve
+  üçüncü basamak aynı sayfa).
+- `sozluk-v1` · `anatomi-v1` zincirlerinde **yanlış ebeveyn** olurdu: sözlük
+  kataloğun altında değil.
+
+**Bugünkü zincirler:**
+```
+Ana Sayfa > Spor Sözlüğü
+Ana Sayfa > Hareket Rehberi > Yeni Başlayanlar
+Ana Sayfa > DadaFit Egzersizleri
+```
+**Kapatan ölçüm:** kırıntı ayraç bütünlüğü **65 sayfada** ölçüldü, kusur **0**.
+
+Beyar'a "K60 yeni hedefe bağla diyor, uygulayan kaldırdı — kapsam değişti"
+diye **ŞÜPHELİ** olarak soruldu; cevabı: *"Kaldırma doğru, K60'ı güncelle."*
+
+> **Kural:** bir karar uygulanırken uygulayan taraf **daha iyi bir çözüm**
+> ölçerse, sessizce uygulamaz ve sessizce de vazgeçmez — uygular, **kapsam
+> değiştiğini bildirir**, karar sahibine sorulur. Burada öyle oldu ve karar
+> güncellendi. Ölçüm olmadan sorulsaydı "kaçmış iş" sanılırdı.
+
+**Beyar teyit etti:** hub boş bir kabuk değildi — **28.8 KB, 5 bölüm, 16
+kart** ("Uygulamak ve öğrenmek ayrı iki kapı" · `#sure` "Bugün kaç dakikan
+var?" · "Neresini çalıştırmak istiyorsun?" · "Güvenli bir başlangıç…" ·
+"Son baktıkların ve kaydettiklerin"). *"Evet, gitsin."* İçerik git
+geçmişinde duruyor, geri alınabilir.
+
+**Kapatan ölçüm:** `hareket-merkezi-v1` geçişi **33 → 1**; kalan tek geçiş
+`fit-shell.js:67`'deki **yorum satırı**, kod değil. Sayfa sayısı 66 → 65
+(aynı turda `destek-v1.html` eklendiği için dizin yine 66 dosya sayar).
+
+---
+
+## K61 · "Planım" misafirde gizli — REFERANSTAN BİLİNÇLİ AYRIŞMA
+
+**R8 madde 1.** Brief iki şeyi birden istiyordu: *"Referans dadadiet.com —
+Playwright ile ölç, birebir al"* **ve** *"misafirde GÖRÜNMEZ, girişte
+görünür."* Ölçüm ikisinin çeliştiğini gösterdi.
+
+**Ölçülen referans** (`dadadiet.com`, @1440, misafir oturum): `head-actions`
+içinde görünür üç öğe — arama ikonu · **`a.btn-login` "Planım"** (`/planim`)
+· `a.btn-login` "Giriş Yap". Yani **referans misafirde de "Planım"ı
+gösteriyor.** (Giriş durumu kimlik olmadan ölçülemedi; `?auth=1` canlıda
+işlemiyor.)
+
+**Beyar'ın kararı: kendi talimatı geçerli.** DadaFit misafirde "Planım"ı
+**gizler**. Bu, referanstan **bilinçli bir ayrışmadır** — kaçmış bir kusur
+değil. Sonraki turda "referansla uyuşmuyor" diye açılmayacak.
+
+| | Misafir | Giriş |
+|---|---|---|
+| Referans | 🔍 · **Planım** · Giriş Yap | (ölçülemedi) |
+| DadaFit | 🔍 · Giriş Yap | 🔍 · **Planım** · Hesabım ▾ |
+
+Ayrıca kararlaştırıldı: **"Planım" kullanıcı dropdown'ına KONMAYACAK.**
+Header'da durur, dropdown içeriğinde **0**.
+
+> **K29'un sınırı burada çizildi:** "referanstan ölçü alınır" bir *ölçü*
+> kuralıdır — dolgu, yükseklik, tipografi. **Görünürlük mantığı ölçü
+> değildir**; ürün kararıdır ve Beyar'a aittir. K59'da referans kazandı
+> (rampa bir ölçü), burada kaybetti (kimin neyi göreceği bir karar).
+
+---
+
+## K62 · Sözlük gastro iskeletine çekildi — `sozluk.mjs` 11c sözleşmesi TERSİNE döndü
+
+**R8 madde 7 · 8 · 9 · 10.** Sözlük, kardeş marka `dadagastro.com/mutfak-sozlugu`
+ile hizalandı. Referans **giriş duvarına takılmadan** @1440 + @390'da tam
+ölçüldü (DOM ağacı + computed stil dökümü + açık kayıt durumu).
+
+**Kapatılan dört fark:**
+
+| | Gastro | Önce | Sonra |
+|---|---|---|---|
+| **a** harf avatarı | her satırda 46×46 · r12 · 19px/700 | **yok** (yalnız grup başlığında) | **254/254 satırda** |
+| **b** açık kartın sol dikey şeridi | yok | `inset 3px 0 0` | **0** — işaret satır zeminine geçti (`rgb(234,246,239)`) |
+| **c** terim sayacı | ayrı satırda | filtre bileşeninin içinde (sol kaçıklık **168.1 px**) | ayrı satırda, kart kolonuyla hizalı (**0 px**) |
+| **d** kategori chip'leri | açıkta satır hâlinde | `[data-ff]` dropdown'ında gizli | **11 çip açıkta**, dropdown kalıntısı **0 düğüm** |
+
+**Ölçü paritesi:** @1440 **42/42** · @390 **7/7** referansla birebir.
+**Tek fark renk token'ı:** `#E14827`/`#FBE9E3` → `--fit-deep`/`--fit-tint`.
+Nötrler (`#211E16`, `#ECECEC`) zaten ortaktı.
+
+**Sabitler korundu:** 254 terim · 29 harf · sağ ok 0 · `.sr-caret` 254 ·
+banner 544/607/587 · eyebrow "Hareketi Anlamak" (K56). Lead bağımsız ölçtü,
+üçü de tuttu.
+
+### `tests/sozluk.mjs` 11c — nöbet ZAYIFLAMADI, sözleşme değişti
+
+11c bloğu **R6 madde 10'un** sözleşmesini nöbetliyordu: *"kategori ekseni
+kabuğun `.ff` açılır bileşenini KULLANMALI"* (`#szCatFilter[data-ff].ff-ready`
++ panel içi arama). **R8 madde 7d bunu geçersiz kılıyor** — nöbet, kaldırılması
+istenen şeyi zorunlu kılar hâle gelmişti.
+
+**K62, R6 madde 10'un `.ff` sözleşmesini geçersiz kılar.** Blok R8
+sözleşmesine çevrildi ve **ölçüt sayısı arttı**: dropdown kalıntısı 0 · 11 çip
+açıkta · üst kenar farkı 0 · sol kenar farkı 0 · sticky 0 · harf rayı 29.
+Madde 10 ölçütü de tersine döndü (4 arama + ≥3 etiket → **0 ve 0**).
+
+> **Kural:** bir nöbet, sonraki turda kaldırılan bir deseni zorunlu kılıyorsa
+> **silinmez, çevrilir** — ve çevrilirken ölçüt sayısı düşmez. Nöbetin
+> zayıflamadığı, ölçüt sayısının önce/sonra karşılaştırmasıyla gösterilir.
+
+**K27:** `tests/sozluk-r8.mjs` (17 ölçüt) taban `654f353`'te **11 sorun**,
+bugünkü ağaçta **0**. Worktree yöntemiyle koşuldu, temizlendi.
+
+### Bilinçli sapma — harf grubu başlıkları KALDI
+
+Gastro'da grup başlığı **yok** (765 terim tek `.term-card`). DadaFit 28 karta
+bölüyor ve başlıkları **koruyor**: 29 harflik gezinme rayının çapası onlara
+bağlı, kaldırılırsa harf gezinmesi çöker. Brief kalem 7'de kapatılacak farkları
+**dört madde olarak sayıyordu**; beşincisi kapsam genişletmesi olurdu.
+Grup başlığının kare çipi kalktı (satır avatarıyla aynı motifin ikinci sürümü
+oluyordu), düz harfe döndü. Sapma sayfa CSS'inin başında yazılı.
+
+> **Ölçüm dürüstlüğü notu — kayda değer:** ajan, akordiyon kaydırma sıçraması
+> için yazdığı telafiyi **"düzeltilen kusur" saymadı**. İlk ölçüm 183 px
+> sapma gösteriyordu; temiz ölçümde telafisiz kayma **−1 px** çıktı, yani
+> Chromium'un `overflow-anchor`'ı zaten yutuyordu. 183 px, yumuşak kaydırmanın
+> oturmamasından doğan bir **ölçüm hatasıydı**. Kod WebKit için bırakıldı
+> (orada scroll anchoring yok), gerekçe yorumda yazılı, `>1 px` eşiği yüzünden
+> Chromium'da hiç devreye girmiyor. **Kusur sayısı şişirilmedi.**
+
+### R8'e açık kalan (bu turda bilerek yapılmadı)
+
+`assets/js/sozluk-veri.js:1515` **`S.aramalar()` artık çağrılmıyor** — madde
+10'dan sonra ölü kod. Silinmedi: paylaşılan veri modülünden dışa açık fonksiyon
+kaldırmak bu kalemin kapsamı değil ve bu turda ölçülmedi.
+
+---
+
+## K63 · Referanstan ÖLÇÜ alınır, KUSUR alınmaz — kardeş marka iki yerde GERİDE
+
+**R8 · kalem 37 · 39 ve kalem 11.** K61 bu sınırı ilk kez çizmişti (görünürlük
+mantığı ölçü değildir). R8'de sınır **üç kez daha** sınandı ve üçünde de
+referansı taşımamak doğru çıktı. Bu kez sebep farklı: **referansın kendisi
+kusurlu.**
+
+### Ölçüm 1 · Randevu modalı — `dadadiet.com/diyetisyen/dyt-elif-sahin`
+
+| Ölçüt | Referans `#aptModal` | DadaFit taban `654f353` | DadaFit sonra |
+|---|---|---|---|
+| Esc kapatıyor | ✅ | ⛔ | ✅ |
+| dışarı tıklama | **⛔** | ⛔ | ✅ |
+| kapat düğmesi | ✅ | ✅ | ✅ |
+| odak modala giriyor | **⛔** | ⛔ | ✅ |
+| odak tetikleyene dönüyor | **⛔** | ⛔ | ✅ |
+| odak tuzağı | **⛔** 30 Tab'ın **20**'si dışarı | ⛔ 30 Tab'ın 16'sı dışarı | ✅ 24 Tab'ın **0**'ı |
+
+**Aynı yapısal kök neden iki markada da var:** kap `position:fixed · inset:0`
+overlay'in üstünde duruyor, "dışarı" tıklaması overlay'e hiç ulaşmıyor
+(Playwright: `intercepts pointer events`). Referans da bu hatayı taşıyor.
+
+### Ölçüm 2 · Sekme deseni — aynı referans sayfası
+
+Referansın `.pf-tabs`'ı `role="tablist"` taşıyor **ama düğmelerinde
+`role="tab"`, `aria-selected`, `aria-controls` ve roving `tabindex` YOK.**
+DadaFit'in ortak sekme bileşeni bu konuda **kardeş markadan ileride**.
+
+### Karar
+
+**"Birebir taşı" bu iki yerde bilerek uygulanmadı.** Uygulansaydı DadaFit'te
+çalışan erişilebilirlik gerilerdi — yani referansa uymak **gerileme** olurdu.
+
+> **K29'un tam sınırı (K61 + K63 birlikte okunur):**
+> referanstan **ölçü** alınır — dolgu, yükseklik, tipografi, rampa (K59).
+> Referanstan **alınmaz**: ürün kararı (K61 · kimin neyi göreceği) ve
+> **kusur** (K63 · erişilebilirlik borcu). Ölçü kopyalanır, hata kopyalanmaz.
+> Referansın ileride olduğu yerde ona gidilir; geride olduğu yerde durulur ve
+> **fark ölçümüyle kayda geçer** — "kaçmış" sanılmasın.
+
+### Ödenen borç — `antrenor-detay-v1.html` `#aptModal`
+
+Altı ölçütün altısı da kapandı. `body` scroll kilidi computed ile ölçüldü:
+kapalı **`clip visible`** → açık **`hidden`** → kapanış **`clip visible`**,
+üç genişlikte ayrı ayrı.
+
+> **Kilit hiç borç değildi — sonradan düzeltilen kayıt.** İki ajan aynı modal
+> için farklı kilit sonucu raporladı ve ilk açıklama *"ölçüm noktası kayması:
+> satır içi `body.style.overflow` `''` döner, computed `clip visible` döner"*
+> oldu. **Bu açıklama yanlıştı** — ikisi de computed ölçmüştü. Fark
+> **senaryodaydı**:
+>
+> ```
+> ESC           → tabanda KAPATMIYOR  · overflow = hidden        ← "hidden→hidden" satırı bu
+> KAPAT DÜĞMESİ → tabanda KAPATIYOR   · overflow = clip visible  ← diğer ajanın satırı bu
+> ```
+>
+> Yani **kilit mantığı taban commit'te de sağlamdı**; kilidi tutan şey kilit
+> kodu değil, **kapanmayan modaldı**. Ölçümler baştan beri uyuşuyormuş.
+> Kaydı düzelten ajanın gerekçesi: *"altı borçtan biri hiç borç değilmiş;
+> 'kilit çözülmüyordu, düzelttik' diye yazılırsa DEVIR-8'de olmayan bir kusur
+> düzeltilmiş görünür."*
+>
+> **Kural:** iki ölçüm çeliştiğinde ilk akla gelen açıklama (araç farkı, ölçüm
+> noktası) **doğrulanmadan kütüğe yazılmaz**. Burada gerçek sebep senaryo
+> eşleşmesiydi ve yanlış açıklama, olmayan bir düzeltmeyi kayda geçirecekti.
+
+**K27:** `tests/antrenor-profil.mjs` taban `654f353`'te **84 sorun**, bugünkü
+ağaçta **0** (lead bağımsız koştu, 9 ölçüt × 3 genişlik, tam geçti).
+
+> **Nöbetin kendisinde bulunan kusur — kayda değer:** sınamanın ilk hâli taban
+> ağacında `TimeoutError` ile **çöküyordu**. Esc kapatmayınca modal açık
+> kalıyor, sonraki tıklama altında kalıyor, Playwright 30 sn deneyip patlıyor
+> ve **geri kalan 83 sorun hiç raporlanmıyordu**. Her alt ölçütten önce zorla
+> sıfırlayan `sifirla()` ve tıklama yerine klavyeyle açan `acKlavyeyle()`
+> eklendi. **Kural:** bir nöbetin kırmızı verirken *çökmesi* ile *sayması* ayrı
+> şeylerdir; K27 doğrulaması "exit 1 aldım" değil, **"kaç sorun saydı"**
+> ile yapılır.
+
+---
+
+## K64 · İki eski doküman şartı GEÇERSİZ kılındı — gerekçe ölçüm, tercih değil
+
+**R8 madde 2 ve 35.** Önceki turların dokümanlarında iki koruma vardı; ikisi de
+Beyar'ın R8 talimatıyla çelişti ve **açıkça** geçersiz kılındı. Sessizce
+delinmesin diye kayda geçiyor.
+
+### 1 · Yasal bant "DOKUNULMAZ" → görünür başlığı kalktı
+
+Şart: yasal bandın yapısına dokunulmayacaktı. R8 madde 2 başlığın kaldırılmasını
+istiyor. **Kapsam en dar hâlde tutuldu:**
+
+| Ne | Durum |
+|---|---|
+| Görünür `<h5 class="fl-head">` "Yasal ve Sağlık" | **kalktı** |
+| Altındaki altı bağlantının **metni · sırası · hedefi · rengi** | **aynen duruyor** |
+| `nav`'ın `aria-label`'ı | **"Yasal ve Sağlık" olarak KALDI** — ekran okuyucu bandın ne olduğunu duymaya devam ediyor |
+
+**Kapatan ölçüm:** görünür başlık taşıyan sayfa **0** (lead bağımsız sonda,
+tüm sayfalar) · yasal bağlantı sayısı **6 → 6**.
+**Aile gerekçesi:** iki kardeş markanın (`dadadiet.com` · `dadagastro.com`)
+footer'ında da bu başlık **yok** — madde 2 aileyi yakınlaştırdı, uzaklaştırmadı.
+
+### 2 · "Çözüm Merkezi geri plana atılmamalıdır" → footer kurumsal bandından kalktı
+
+Şart, destek girişinin footer'da görünür kalmasını koruyordu. R8 madde 35
+erişimin **avatar dropdown'ına** taşınmasını istiyor.
+
+**Ölçümle çözüldü (AJAN-F):** `dadagastro.com` footer'ındaki "Çözüm Merkezi"
+misafirde `/sss`'ye, girişte `/hesabim/destek`'e gidiyor — yani **taleplerim
+listesine değil destek hub'ına**. DadaFit'te de öyle yapıldı:
+
+| Konum | Önce | Sonra |
+|---|---|---|
+| footer kurumsal bant "Çözüm Merkezi" | `destek-talepleri-v1.html` | **`destek-v1.html`** |
+| avatar dropdown | "Destek Taleplerim" ×1 | **"Destek" → `destek-v1.html`** + **"Taleplerim" → `destek-talepleri-v1.html`** |
+
+Yani destek **geri plana atılmadı**, girişi ikiye çıktı: footer'da hub, menüde
+hem hub hem talep listesi. Kurumsal bant kalem sayısı 8 → 7.
+
+**Kapatan ölçüm (lead, bağımsız):** footer'da `destek-talepleri` bağlantısı
+**0** · dropdown'da `Destek→destek-v1.html` ve `Taleplerim→destek-talepleri-v1.html`
+**ikisi de var** · kırık bağlantı **0**.
+
+> **Kural:** önceki turdan gelen "dokunulmaz" şartı, sonraki turun talimatıyla
+> çeliştiğinde **sessizce delinmez**. İki şey yapılır: (a) kapsam en dar hâlde
+> tutulur — burada bağlantılar ve `aria-label` korunarak yalnız görünür başlık
+> kalktı; (b) geçersiz kılma **numarasıyla ve ölçümüyle** kütüğe yazılır.
+> Aksi hâlde sonraki tur şartı kütükte görür, koda bakar, ikisinin
+> çeliştiğini bulur ve hangisinin güncel olduğunu bilemez.
+
+---
+
+## K65 · Yaslama GERİ AÇILDI ama ölçüm kapsamı 18 bloğa indirdi — **K65, K57'yi geçersiz kılar**
+
+**R8 · K-B.** K57 yaslamayı opt-in yapmış ve sitede yaslanan blok **0**'a
+düşmüştü. Beyar bunu görüp **geri açılmasına** karar verdi ve iki seçenek
+arasından **A**'yı seçti: *`.jt` / `.jt-flow` kancası kalır, içerik
+paragrafları işaretlenir* — global açılmaz.
+
+### Neden A, B değil
+
+`--jt-min` eşiği (30rem ≈ 480px) **dar kutuda yaslamayı kendiliğinden
+kapatıyor**. Ölçüldü: `.faq-a` @1440'ta **758 px** → yaslanıyor, @390'da
+**356 px** → yaslanmıyor; `.isb-card` her iki genişlikte **377/358 px** →
+hiç yaslanmıyor. B (global) seçilseydi @390'daki **278 bloğu** yaslamamak
+için ayrı bir istisna listesi yazmak gerekirdi — yani R6'nın silinen hâline
+geri dönülürdü.
+
+### Kapsam kararı — brief "toplu işaretle" diyordu, ÖLÇÜM izin vermedi
+
+Brief *"içerik paragrafları toplu işaretlenir"* ve ayrıca *"eyebrow, etiket,
+rozet, kart alt metni, **≤2 satırlık her blok** dışarıda"* diyordu.
+**66 sayfa taranınca ikisi çelişti:**
+
+| Aile | 1 sat | 2 sat | 3 sat | 4 sat | ≥5 sat | toplam | **≤2 oranı** |
+|---|---|---|---|---|---|---|---|
+| `.hr-note` | 0 | 16 | 17 | 5 | 4 | 42 | **%38** |
+| `.qa-body` | 153 | 38 | 43 | 22 | 1 | 257 | **%74** |
+| `.faq-a` | 0 | 0 | 10 | 1 | 1 | 12 | **%0** |
+| `.isb-card` | 0 | 0 | 0 | 3 | 3 | 6 | **%0** |
+
+Aile bazlı toplu işaretleme **207 kısa bloğu** yaslardı — Beyar'ın kendi
+dışlama kuralını çiğnerdi. Beyar'a sayılarla soruldu, kararı:
+**yalnız ≤2 oranı %0 olan iki aile.**
+
+> **ÖRNEKLEM ÖLÇÜM DEĞİLDİR.** İlk turda üç sayfa örneklendi ve dört ailenin
+> **dördü de %0** çıktı; 66 sayfa taranınca `.hr-note` %38, `.qa-body` %74
+> oldu. Örnekleme dayanarak işaretlenseydi 207 blok sessizce yaslanacaktı.
+
+### Uygulanan
+
+`class="jt-flow"` **18 sarmalayıcıya**: `.faq-a` ×12 (`pro-v1` 7 ·
+`antrenor-ol-v1` 5) · `.isb-card` ×6 (`reklam-ver-v1`).
+**CSS'e tek satır eklenmedi** — `hyphens:auto` ve `text-wrap:pretty` zaten
+`fit-type.css` §1'de global (satır 45–51), Beyar'ın "zorunlu ikili" şartı
+kendiliğinden karşılanıyor.
+
+**Dışarıda bırakılanlar ve ÖLÇÜLMÜŞ gerekçeleri:**
+
+| Aile | Gerekçe |
+|---|---|
+| `.hr-note` · `.qa-body` | ≤2 satır oranı %38 / %74 |
+| `.tk-thread` | %40 ≤2 satır — yazışma balonları, içerik paragrafı değil |
+| `.ft-side-body` | %75 ≤2 satır |
+| `aside.vsd-side` | blokları **sayfa-yerel `hyphens:manual`** taşıyor; Beyar "ikisi beraber zorunlu" dedi |
+| çerez bandı | sabit katman, içerik değil (@390 taramasında 278 bloğun tepesi buydu) |
+
+### Kapatan ölçüm — Beyar'ın şartı: "blok kutusu 0 oynayacak"
+
+66 sayfa × 2 genişlik, her `p/li/dd/blockquote`'un `x,y,width,height`
+imzası önce/sonra: **`jt-flow` alan üç dosyada kutu 0 oynadı**
+(`pro-v1` · `reklam-ver-v1` · `antrenor-ol-v1`).
+Diff'te görünen 32 kayma (1–4 px) `jt-flow` **taşımayan** sayfalardaydı —
+render zamanlaması gürültüsü, K-B ile ilgisi yok.
+
+`tests/hizalama-nobeti.mjs` → **0 sorun** (130k eleman · 3 898 paragraf ·
+**22 640 vaadin tamamı tutuyor** · kanca 132/132 × 4 hâl).
+
+### Nöbette bulunan kusur — B23'ün doğrulanması
+
+Kanca **ilk kez gerçekten kullanılınca** ölçüt 4 sahte kırmızı verdi:
+`.jt-flow p` vaadini **koşulsuz** sanıyor, `@container (min-width:30rem)`
+dalında olduğunu görmüyordu; @390'da kutu eşiğin altına düşünce
+"vaat tutmuyor" diyordu.
+
+Düzeltildi: `@container` kuralları artık **eleman bazında** değerlendiriliyor
+— elemanın en yakın `container-type` atasının genişliği eşiğin altındaysa
+vaat zaten geçerli değildir, kusur değil. Davranışın çalıştığını **ölçüt 5**
+canlı probla ayrıca kanıtlıyor (geniş `.jt-flow` yaslanıyor / dar yaslanmıyor,
+132/132).
+
+> **B23 tam olarak buydu:** *"kullanılmayan kanca çürür."* Kanca 0 yerde
+> kullanılırken nöbet dört ölçütte yeşil görünüyordu; **18 yerde
+> kullanılınca** ölçüt 4'ün kör noktası bir turda ortaya çıktı.
+> Düzeltme nöbeti zayıflatmıyor: tabanda `.jt-flow` hiç yok, eklenen koşul
+> dalı orada tetiklenmez, ölçüt 2'nin **6 989 izinsiz justify**'ı aynen
+> kırmızı kalır.

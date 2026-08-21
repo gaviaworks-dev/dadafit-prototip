@@ -50,7 +50,7 @@
      KARARLAR K15 buna göre düzeltildi. */
   --hero-full:100dvh;     /* tam-bleed hero (ana sayfa) — perde yüksekliği */
   --hero-full-fallback:100vh;
-  --sec-pad:50px;         /* bölüm dikey nefesi (eskiden sabit 74px) */
+  --sec-pad:74px;         /* bölüm dikey nefesi — R8/K-A: referans dadadiet.com/beslenme 74·74·74·44 */
   /* R8 (4. tur) — DİKEY ÖLÇEĞİN İKİNCİ BASAMAĞI.
      Ölçüm 59 sayfada 26 farklı bölüm dolgusu buldu (0·8·12·14·30·32·34·36·
      38·40·44·46·48·50·52·54·56·58·60·64·66·68·70·72·74·78 px). Ölçek ikiye
@@ -391,7 +391,13 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
  Bizde .btn-login zaten bu solid dili veriyor (--fit = #009d4f kurumsal
  yeşil) → .btn-plan artık onu EZMEZ, yalnız <a> olduğu için gereken
  düzeltmeleri ve aktif-sayfa durumunu ekler. */
-.btn-plan{text-decoration:none}
+/* R8 madde 1 — MİSAFİRDE GİZLİ, GİRİŞTE GÖRÜNÜR.
+ Eskiden her iki oturum durumunda da duruyordu (referans dadadiet.com hâlâ
+ öyle; ölçüldü, misafirde a.btn-login "Planım" görünür). Beyar misafirde
+ gösterilmesini kusur saydı → kapı yalnız girişte açılıyor.
+ Gizleme burada: .btn-plan (0,1,0) .btn-login'i (0,1,0) kaynak sırasıyla yener;
+ açma aşağıdaki body.is-auth .btn-login.btn-plan (0,3,0) kuralında. */
+.btn-plan{text-decoration:none;display:none}
 .btn-plan i{color:#fff}
 .btn-plan.active{background:var(--fit-deep);border-color:var(--fit-deep)}
 .btn-plan:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
@@ -429,11 +435,19 @@ body.is-auth .head-bell{display:grid}
 .acct-menu::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .acct-item:hover .acct-menu,.acct-item.open .acct-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .acct-menu::before{content:"";position:absolute;top:-7px;right:24px;width:13px;height:13px;background:#fff;border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
-.acct-menu>a{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:var(--radius-md);font-size:14px;font-weight:500;color:var(--slate);transition:.16s var(--ease)}
-.acct-menu>a i{width:18px;text-align:center;color:var(--fit);font-size:14px;margin-top:2px}
-.acct-menu>a span{display:block}
-.acct-menu>a small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
+.acct-menu>a,.acct-menu>.acct-soon{display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-radius:var(--radius-md);font-size:14px;font-weight:500;color:var(--slate);transition:.16s var(--ease)}
+.acct-menu>a i,.acct-menu>.acct-soon i{width:18px;text-align:center;color:var(--fit);font-size:14px;margin-top:2px}
+.acct-menu>a span,.acct-menu>.acct-soon span{display:block}
+.acct-menu>a small,.acct-menu>.acct-soon small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
 .acct-menu>a:hover{background:var(--fit-wash);color:var(--fit);padding-left:16px}
+/* R8 madde 6 — YER TUTUCU KALEM (hedef sayfa henüz yok).
+   Bağlantı DEĞİL: tıklanmaz, hover'da kaymaz, odak sırasına girmez.
+   Solgun ama okunur (--muted 4.6:1) + "Yakında" rozeti durumu yazıyla söyler. */
+.acct-menu>.acct-soon{color:var(--muted);cursor:default}
+.acct-menu>.acct-soon i{color:var(--muted)}
+.acct-soon-tag{display:inline-block;margin-left:7px;padding:1px 6px;border-radius:var(--radius-sm);
+  background:var(--fit-tint);color:var(--fit-deep);font-size:10px;font-weight:700;font-style:normal;
+  letter-spacing:.02em;vertical-align:1px}
 .acct-menu .acct-logout,.acct-menu .acct-logout i{color:var(--fit)}
 /* hesap menüsü kimlik başlığı */
 .acct-id{display:flex;align-items:center;gap:11px;padding:8px 11px 12px}
@@ -760,6 +774,9 @@ body.scroll-locked{overflow:hidden}
 .drawer-close:hover{border-color:var(--fit);color:var(--fit)}
 .drawer-nav{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .d-item{border-bottom:1px solid var(--line)}
+/* R8 madde 1 — drawer'daki Planım bölümü de oturuma bağlı. */
+.d-item.d-plan{display:none}
+body.is-auth .d-item.d-plan{display:block}
 /* Tüm kalemler aynı sol eksende hizalanır: [ikon] etiket …………… [chevron]
  (eskiden justify-content:space-between yüzünden panelsiz kalemlerin etiketi
  sağa yapışıyor, panelli olanlarınki solda kalıyordu) */
@@ -847,6 +864,15 @@ body.scroll-locked{overflow:hidden}
 .bn-item>span:last-child{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* aktif: yarı saydam domates (primary) — glass korunur, radius-lg pill ile uyumlu */
 .bn-item.active{color:var(--fit);background:rgba(0,157,79,.15)}
+/* R8 madde 1 — alt bardaki Planım kalemi de oturuma bağlı.
+   `display:none` DEĞİL `visibility:hidden`: kalem kapanınca bar beş yuvadan
+   dörde iniyordu ve `justify-content:space-around` yüzünden ortadaki kabarık
+   FAB (Programlar) 42px sağa kayıyordu — ölçüldü @390, misafir. Yuva yerinde
+   kalınca FAB tam ortada duruyor, iki durumda da bar ritmi aynı.
+   Erişilebilirlik: visibility:hidden öğe odak sırasına girmez ve ekran
+   okuyucuya okunmaz — gizleme gerçek, yalnız kutu ayrılmış durumda. */
+.bn-item.bn-plan{visibility:hidden;pointer-events:none}
+body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 .bn-item:active{transform:scale(.9)}
 /* orta FAB: bar'dan çıkık (raised) — düz domates, token radius, halka yok */
 .bn-center{width:auto;height:auto;background:none;transform:translateY(-14px)}
@@ -1007,6 +1033,11 @@ body.scroll-locked{overflow:hidden}
   .btn-login{display:none}                                   /* giriş → drawer + bottom-nav */
   /* logged-in header öğeleri mobilde drawer + bottom-nav'a devreder (kaynak sıra ile is-auth'u yener) */
   body.is-auth .head-add,body.is-auth .head-bell,body.is-auth .acct-wrap{display:none}
+  /* KUSUR (R8'de ölçüldü): .btn-login{display:none} (0,1,0) yukarıdaki
+     body.is-auth .btn-login.btn-plan (0,3,0) kuralını YENEMİYORDU → giriş
+     durumunda @390'da Planım düğmesi header'da kalıyordu (65/66 sayfa).
+     Mobilde Planım'ın yeri alt bar; header düğmesi burada da kapanır. */
+  body.is-auth .btn-login.btn-plan{display:none}
   .icon-btn{width:44px;height:44px;font-size:15px}
 
   /* fixed header offseti mobilde tek kat */
@@ -1323,8 +1354,8 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
  Yeni sınıf adı üretilmedi — hepsi mevcut sayfalardan gelen adlardır.
  ===================================================================== */
 
-@media (max-width:1024px){ :root{ --hero-pt:15px; --hero-pb:46px; --hero-gap:9px; --sec-pad:42px; --sec-pad-sm:26px; --banner-h-liste:607px; --banner-h-detay:617px; --banner-gap:18px } }
-@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:33px; --hero-pb:34px; --hero-gap:8px; --sec-pad:34px; --sec-pad-sm:22px; --banner-h-liste:587px; --banner-h-detay:726px; --banner-gap:9px } }
+@media (max-width:1024px){ :root{ --hero-pt:15px; --hero-pb:46px; --hero-gap:9px; --sec-pad:74px; --sec-pad-sm:26px; --banner-h-liste:607px; --banner-h-detay:617px; --banner-gap:18px } }
+@media (max-width:640px){  :root{ --fit-header-h:63px; --hero-pt:33px; --hero-pb:34px; --hero-gap:8px; --sec-pad:44px; --sec-pad-sm:22px; --banner-h-liste:587px; --banner-h-detay:726px; --banner-gap:9px } }
 
 /* ---- BANNER + BREADCRUMB (belge §17: ikisi birlikte gelir) ----
  Sayfa yalnız görselini bildirir: .lib-top{--lib-img:url('…')}
@@ -1502,8 +1533,14 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
 /* ---- ORTALANMIŞ NOT (is-center) — video erişilebilirlik uyarısı gibi
  tek başına duran, section'a ait olmayan bloklar için. Sayfa genişliğinde
  sola yaslı durmak yerine okuma kolonunda ortalanır. ---- */
+/* R8 madde 5 — KUTU İÇERİK KOLONUNA YAYILDI.
+ Eskiden `max-width:760px` ile daralıyordu: egzersiz-detay-v1'in sayfa altı
+ erişilebilirlik notu 760px kalırken içerik kolonu 1176px'ti (ölçüldü, @1440).
+ Sitedeki diğer 34 dipnot zaten kendi kolonunu dolduruyor; bu tek istisnaydı.
+ `margin:auto` ve ortalı hizalama korunuyor — daraltılmış kapsayıcı içinde
+ kullanılırsa hâlâ ortalanır; genişlik sınırı artık kapsayıcıdan gelir. */
 .hr-note.is-center{
-  max-width:760px;margin-left:auto;margin-right:auto;
+  max-width:none;margin-left:auto;margin-right:auto;
   align-items:center;text-align:left;
   background:var(--fit-wash);border-color:var(--fit-line,#d8ebe0);
 }
@@ -1536,7 +1573,17 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
  kolonuna geri taşınır — referans kompozisyonu (metin solda, panel sağda, ikisi de
  bandın İÇİNDE) aynen geri gelir. Negatif margin kaldırıldı: önceki -40px değeri
  mobilde paneli hero CTA'sının üstüne bindirip düğmeyi tıklanamaz yapıyordu. */
-.fit-band-panel{position:relative;z-index:3;margin-top:18px;margin-bottom:26px}
+/* R8 · E'nin yapışıklık taraması — ALT BOŞLUK TOKEN'A BAĞLANDI.
+ Sabit 26px, sitenin kendi kabul ettiği en dar meşru bölüm nefesinin
+ (--sec-pad-sm, @1440'ta 32px) ALTINDAYDI: beş yerde (antrenor-detay ·
+ antrenor-ol · challenge-v1 ×2 · dadafit-kopru) panel bir sonraki bloğa
+ 26px'te yapışıyordu. Sabit sayı yerine token: 32/26/26/22 — her genişlikte
+ o genişliğin en dar meşru nefesi kadar, bir daha eşiğin altına düşmez. */
+/* R8 kalem 27 (lead, birleştirme) — üst marj da eşiğe çekildi.
+   18px < --sec-pad-sm (32/22): AJAN-E'nin taraması bunu 4 sayfada
+   yapışık buluyordu. Alt marj daha önce token'a bağlanmıştı; üst marj
+   sabit kalınca kutu tek yandan nefes alıyordu. */
+.fit-band-panel{position:relative;z-index:3;margin-top:var(--sec-pad-sm);margin-bottom:var(--sec-pad-sm)}
 .fit-band-panel>*{max-width:100%;margin-left:0;margin-right:0}
 /* ≥641: JS taşımayı yaptığında sarmalayıcı boş kalır — yer kaplamasın */
 .fit-band-panel:empty{display:none}
@@ -1581,12 +1628,46 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
 .pf-tabs .dt.active i{opacity:1}
 .pf-tabs .dt:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
 
-/* ziyaretçi bilgi şeridi */
-.fp-gate{margin-top:20px}
-.fp-gate-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:16px 20px}
-.fp-gate-in>i{color:var(--fit-deep);font-size:17px;flex:none}
-.fp-gate-in p{flex:1;min-width:240px;font-size:14px;font-weight:500;color:var(--slate-2);margin:0}
-.fp-gate-acts{display:flex;gap:10px;flex-wrap:wrap}
+/* ---- MİSAFİR GİRİŞ BANDI (R8 madde 36'da bilgi şeridinden dönüştü) ----
+   Eskiden "ziyaretçi bilgi şeridi"ydi: ikon + "bu veriler örnektir"
+   paragrafı + iki düğme. Paragraf ve ikon kalktı (madde 36), geriye yalnız
+   giriş çağrısı kaldı — yani blok artık bir UYARI değil bir EYLEM bandı.
+
+   Biçim buna göre değişti; metin kalkınca eski kural iki düğmeyi geniş
+   kutunun SOLUNA yapıştırıp sağında boş alan bırakıyordu:
+     · düğmeler ortalandı (`justify-content:center`) — bant simetrik okunuyor
+     · dikey dolgu 16 → 14 px: kutu değil bant yüksekliği
+     · `>i` ve `p` kuralları SİLİNDİ (karşılıkları kalmadı, ölü CSS bırakılmaz)
+   Zemin ve kenarlık korundu: misafir durumunu işaretleyen tek görsel bu. */
+/* ALT BOŞLUK (R8 · E'nin taraması): `margin-bottom` HİÇ YOKTU — 9 fit-planim
+   sayfasında bant alttaki `section.fp-body`'ye 0px'te yapışıyordu, 4
+   enerji-defteri sayfasında 22px kalıyordu. CTA bandının altı da üstü kadar
+   nefes alır; token'a bağlandı (32/26/26/22). */
+/* HİZA: ORTA DEĞİL, SAYFANIN SOL EKSENİ.
+   Kutu içeriği kadar daraltılınca (aşağıdaki `.fp-gate-in`) ölü krem alan
+   kapandı ama bant ortalandığı için sayfanın TEK ortalanmış bloğu oldu:
+   ölçüm @1440 · fit-planim-v1 → diğer bütün blokların sol kenarı 132px,
+   bandınki 548px'ti. Sol eksene alındı; ≤640'ta bant zaten tam genişlik. */
+.fp-gate{margin-top:20px;margin-bottom:var(--sec-pad-sm);display:flex;justify-content:flex-start}
+/* KUTU İÇERİĞİ KADAR: ilk denemede bant `.wrap` genişliğini (1176 px)
+   koruyordu ve içindeki eylem 342 px'ti — iki yanda **417'şer px ölü krem
+   alan** kalıyordu (ölçüldü). Ortalamak sorunu çözmedi, boşluğu ikiye böldü;
+   lead'in "iki düğme geniş bir kutuda ortada asılı kalmasın" uyarısı tam
+   buydu. Kutu artık içeriği kadar geniş ve kendisi ortalanıyor. */
+.fp-gate-in{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:14px 20px;width:max-content;max-width:100%}
+.fp-gate-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+/* @390: iki düğme alt alta ve FARKLI genişlikteydi (133.2 / 198.9) —
+   ortalanınca kenarları tırtıklı okunuyordu. Mobilde ikisi de tam genişlik. */
+@media (max-width:640px){
+  .fp-gate-in{width:auto;padding:14px}
+  .fp-gate-acts{width:100%}
+  /* Tam genişlik yapınca ÜÇÜNCÜ kusur çıktı: iki düğme artık aynı genişlikte
+     (328 px) ama farklı yükseklikte — birincil 50.5, ikincil 52.5 (ghost'un
+     1 px kenarlığı). Yan yanayken bu site geneli desendir ve referansla da
+     uyumludur (dadadiet 50.5 / 52.5); ALT ALTA ve aynı genişlikteyken
+     görünür bir basamak üretiyor. Yalnız bu bağlamda eşitlenir. */
+  .fp-gate-acts .btn{width:100%;justify-content:center;min-height:52.5px}
+}
 
 /* kişisel alan gövde kitleri (mevcut adlardan) */
 .fp-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--bg-cream)}
@@ -1687,7 +1768,8 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
 }
 
 /* ---- Fit Planım sayfa aksiyon şeridi (Enerji Defteri hero CTA'sının yeni yeri) ---- */
-.fp-actions{margin-top:22px}
+/* R8 kalem 27 — margin-bottom YOKTU, alt boşluk 0 idi. */
+.fp-actions{margin-top:var(--sec-pad-sm);margin-bottom:var(--sec-pad-sm)}
 .fp-actions-in{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:16px 20px}
 .fp-actions-in .df-hcta{margin-top:0 !important;display:flex;gap:10px;flex-wrap:wrap}
 .fp-actions-in .df-htrust{margin-top:0 !important;display:flex;gap:16px;flex-wrap:wrap}
@@ -1718,7 +1800,15 @@ body.kcal-off .dl-row::after{content:"sayı gizli";font-size:11.5px;font-weight:
 
 /* Fit Planım kabuğundaki panel banda taşmaz — kabuk banner'ı zaten kısa,
  negatif üst boşluk üstteki aksiyon şeridini örtüyordu (tıklama probu yakaladı). */
-.fit-band-panel.fp-inflow{margin-top:22px;margin-bottom:0}
+/* `margin-bottom:0` üst kuralı eziyordu → enerji-defteri-v1'de panel alttaki
+   `section.sec`e 0px'te yapışıyordu (E'nin "−14px binişme" ölçümü reveal
+   animasyonu sırasında alınmıştı; animasyon oturunca gerçek değer 0px).
+   Üst boşluk 22px KASITLI (yorum yukarıda), alt boşluk token'a döndü. */
+/* R8 kalem 27 — üst marj 22px, eşiğin altındaydı.
+   NOT: bu blok için önce "−14px binişme" raporlanmıştı; o ölçüm
+   `.reveal` animasyonu oturmadan alınmış bir ARTEFAKTTI. Gerçek kusur
+   binişme değil, dar üst marjdı. */
+.fit-band-panel.fp-inflow{margin-top:var(--sec-pad-sm);margin-bottom:var(--sec-pad-sm)}
 .fit-band-panel.fp-inflow>*{max-width:none;margin-left:0}
 
 /* [hidden] her zaman gizler — .btn/.btn-line gibi display kuralları hidden'i yeniyordu */
@@ -2434,10 +2524,11 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   flex:none;margin:0;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap
 }
 .ff-bar .ff-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums;font-size:15px}
-.ff-bar .ff-count::before{
-  content:"";display:inline-block;width:1px;height:20px;background:var(--line);
-  vertical-align:-5px;margin-right:14px
-}
+/* R8 madde 20+28 (Beyar kararı) — sayacın solundaki dikey ayraç KALDIRILDI.
+   Kural kabuktaydı ve YEDİ sayfayı birden etkiliyordu; brief ayracı yalnız
+   iki kalemde istiyordu (20 · egzersiz-kutuphane · 28 · fit-testleri).
+   Beyar "7 sayfada da kalksın" dedi — yoksa site iki dil konuşuyordu.
+   Aşağıdaki @640 bloğundaki `display:none` karşılığı da bu yüzden kalktı. */
 .ff-bar .ff-sort{flex:none;display:inline-flex;align-items:center;gap:10px}
 .ff-bar .ff-sort .lbl{display:none}
 
@@ -2645,7 +2736,6 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   .ff.has-sel .ff-open .ff-n{display:grid}
   .ff-spacer{order:2;flex:1 1 auto}
   .ff-bar .ff-count{order:3;flex:0 0 auto}
-  .ff-bar .ff-count::before{display:none}
   .ff-reset{order:4}
   .ff-bar .ff-sort{order:5;flex:1 0 100%;justify-content:space-between}
   .ff-bar .ff-sort .sort-seg{flex:1;justify-content:space-between}

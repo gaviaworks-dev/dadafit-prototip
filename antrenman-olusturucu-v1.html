@@ -86,6 +86,29 @@
 .wg-opt[aria-pressed="true"]{border-color:var(--fit);background:var(--fit-tint);box-shadow:inset 0 0 0 1px var(--fit)}
 .wg-opt[aria-pressed="true"] .ico{background:var(--fit);color:#fff}
 .wg-opt:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+/* ================= R8/23 · DIKKAT DURUMU KIRMIZI VURGU =================
+ SORUN: "Agri", "Gebelik", "Ozel saglik durumu", "Uzun suredir hareketsiz"
+ secilince secenek her secenek gibi YESIL oluyordu — plan uretilmeyecegini
+ haber veren tek isaret yoktu.
+ RENK: #A32B10 · zemin #FFF5F2 uzerinde kontrast 6.73:1 (AA kucuk metin
+ 4.5:1 esigini gecer). Secilen secenegin basligi #8C2409 = 8.26:1 (AAA).
+ Rozet metni #FFFFFF uzerine #A32B10 zemin = 7.22:1 (AAA).
+ Uc oran da WCAG 2.1 relative-luminance formuluyle hesaplandi.
+ IKINCI ISARET (renk tek basina degil): (a) gorunur "Dikkat" rozeti + ucgen
+ ikon, (b) 1.5px yerine 2px kenarlik + sol 4px seritten ayri ic golge,
+ (c) ikon kutusu dolu kirmiziya donuyor. Renk gormeyen de ayirt eder. */
+.wg-opt[data-risk="1"]:hover{border-color:#A32B10;background:#FFF5F2}
+.wg-opt[data-risk="1"][aria-pressed="true"]{
+  border-color:#A32B10;background:#FFF5F2;
+  box-shadow:inset 0 0 0 1px #A32B10, inset 4px 0 0 #A32B10}
+.wg-opt[data-risk="1"][aria-pressed="true"] .ico{background:#A32B10;color:#fff}
+.wg-opt[data-risk="1"][aria-pressed="true"] b{color:#8C2409}
+.wg-opt[data-risk="1"]:focus-visible{outline-color:#A32B10}
+.wg-dikkat{display:inline-flex;align-items:center;gap:5px;margin-left:8px;
+  padding:2px 8px;border-radius:var(--radius-pill);background:#A32B10;color:#fff;
+  font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  vertical-align:middle;line-height:1.6}
+.wg-dikkat i{font-size:9.5px}
 /* sıkışık kip — gün sayısı ve odak kartları */
 /* ÇİP DİZİSİ — 7 kalemlik "odak" sorusu ızgarada son satırda BOŞ KUTU
    bırakıyordu (@1440 4+3, @390 2+2+2+1). Akan çip dizisinde satır
@@ -181,9 +204,11 @@
 .wg-hrk .go{flex:none;color:var(--fit-deep);font-size:13px}
 
 /* risk dalı — kişisel egzersiz reçetesi üretilmez */
-.wg-risk{display:flex;gap:14px;align-items:flex-start;background:#fff5f2;border:1px solid #f3cdc0;border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:16px}
-.wg-risk>i{color:#c3411f;font-size:18px;margin-top:2px;flex:none}
-.wg-risk b{display:block;font-size:15px;color:var(--slate);margin-bottom:5px}
+/* R8/23: sonuc blogu da ayni kirmiziyi kullanir — ikon zaten kirmiziydi,
+ BASLIK notrdu. Sol 4px serit = ikinci isaret (renk tek basina degil). */
+.wg-risk{display:flex;gap:14px;align-items:flex-start;background:#fff5f2;border:1px solid #f3cdc0;border-left:4px solid #A32B10;border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:16px}
+.wg-risk>i{color:#A32B10;font-size:18px;margin-top:2px;flex:none}
+.wg-risk b{display:block;font-size:15px;color:#8C2409;margin-bottom:5px}
 .wg-risk p{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.65;margin:0}
 .wg-list{display:flex;flex-direction:column;gap:12px}
 .wg-hit{display:flex;align-items:flex-start;gap:15px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:17px 19px;transition:.2s var(--ease)}
@@ -278,8 +303,6 @@
   <div class="wrap">
     <nav class="lib-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <a href="hareket-merkezi-v1.html">Hareket</a>
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Antrenman Oluşturucu</span>
     </nav>
@@ -642,8 +665,11 @@ var KURALLAR = {
     });
   }
   function opsDurum(){
+    /* R8/23: riskli olup olmadigi KURALLAR.riskli'den okunuyor — sunumda
+       ikinci bir liste tutulmuyor (K44: kural VERI, sunum kurali tekrar etmez). */
     return ['yok'].concat(KURALLAR.riskli).map(function(v){
-      return {v:v, t:META.durum[v].t, d:META.durum[v].d, i:META.durum[v].i};
+      return {v:v, t:META.durum[v].t, d:META.durum[v].d, i:META.durum[v].i,
+              risk: KURALLAR.riskli.indexOf(v) > -1};
     });
   }
   function opsCinsiyet(){
@@ -989,8 +1015,13 @@ var KURALLAR = {
       ? '<span class="wg-govde" data-svg="' + esc(o.svg) + '"></span>'
       : '<span class="ico"><i class="' + esc(o.i) + '" aria-hidden="true"></i></span>';
     return '<button class="' + sinif + '" type="button" aria-pressed="false" ' +
+           (o.risk ? 'data-risk="1" ' : '') +
            'data-k="' + esc(s.k) + '" data-v="' + esc(o.v) + '">' + gorsel +
-           '<span class="txt"><b>' + esc(o.t) + '</b>' +
+           '<span class="txt"><b>' + esc(o.t) +
+           /* R8/23 IKINCI ISARET — renk tek basina tasimasin (renk korlugu):
+              gorunur metinli rozet + ikon. Ekran okuyucu da duyar. */
+           (o.risk ? '<span class="wg-dikkat"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>Dikkat</span>' : '') +
+           '</b>' +
            (o.d ? '<small>' + esc(o.d) + '</small>' : '') +
            (o.m ? '<span class="meta">' + esc(o.m) + '</span>' : '') + '</span></button>';
   }

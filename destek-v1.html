@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Destek — Yardım Konuları ve Talep Açma | DadaFit</title>
+<meta name="description" content="DadaFit destek merkezi: üyelik, program, video seansı, cihaz bağlantısı ve veri izinleriyle ilgili hızlı çözümler; çözülmezse buradan destek talebi aç." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (TEK KAYNAK — token, header, footer, kart/çip/banner kitleri) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — DESTEK (hesap içi destek girişi)
+ ---------------------------------------------------------------------
+ R8 · madde 34. Kardeş marka `dadagastro.com/hesabim/destek` GİRİŞ
+ DUVARININ ARKASINDA (ölçüm: /hesabim/destek → /giris'e düşüyor, h1
+ "Tekrar hoş geldin"). İçerisi görülemediği için desen UYDURULMADI:
+ bu sayfanın iskeleti gastro'nun GÖRÜLEBİLEN destek yüzeyinden —
+ `dadagastro.com/sss` (footer'da "Çözüm Merkezi" bu adrese gidiyor) —
+ birebir alındı ve rengi DadaFit yeşiline çevrildi:
+
+   gastro /sss                    →  bu sayfa
+   section.lst-top.px-band        →  section.lib-top      (128/0/46)
+   div.faq-tabbar                 →  div.pf-tabbar        (12/0)
+   section.faq-sec                →  section.ds-body      (sec-pad-sm/0/sec-pad)
+   section.faq-cta-sec            →  section.ds-cta       (0/0/sec-pad)
+   div.qa > button.qa-head        →  aynı, birebir
+     + div.qa-body                   (r16 · 1px --line · --paper)
+   div.coll-cta                   →  aynı, birebir (38px 30px · r16)
+
+ Akordeon (.qa*) ve CTA (.coll-cta) kuralları `sss-v1.html`'den BİREBİR
+ kopyalandı; iki sayfa aynı iskeleti paylaşsın diye tek harf değişmedi.
+ Talep satırı kuralları (.tk-*) `destek-talepleri-v1.html`'den birebir
+ kopya — iki destek sayfası aynı satır kartını gösteriyor.
+
+ KABUKTAN GELİYOR, burada tekrar tanımlanmadı: .wrap · .lib-top +
+ .lib-crumb + .lib-sub + .lib-stats · .pf-tabbar/.pf-tabs/.dt · .chips ·
+ .btn/.btn-fit/.btn-ghost · .eyebrow · .sr-only · token'lar.
+ ===================================================================== */
+
+/* ---- banner görseli (kabuk .lib-top kiti; yükseklik/gradient kabukta) ---- */
+.lib-top{--lib-img:none}
+
+/* ===================== 1 · SEKME RAYI ===================== */
+/* Kabuk .dt kuralı <button> için yazılmış; burada iki akış arasında
+   GEZİNİLİYOR, o yüzden <a>. Görünüm birebir aynı kalsın diye yalnız
+   bağlantı sıfırlaması yazıldı — renk/dolgu/yuvarlaklık kabuktan. */
+.pf-tabs a.dt{text-decoration:none}
+.pf-tabs a.dt:focus-visible{outline:3px solid var(--fit-wash);outline-offset:2px}
+.pf-tabs a.dt .cnt{font-size:11px;font-weight:700;opacity:.6}
+
+/* ===================== 2 · GÖVDE ===================== */
+.ds-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--bg-white)}
+.ds-note{max-width:860px;margin:0 auto 18px;font-size:13.5px;color:var(--muted);font-weight:500;overflow-wrap:anywhere}
+.ds-note b{color:var(--slate);font-weight:700}
+.ds-list{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+
+/* ---- konu kartı — sss-v1.html ile BİREBİR aynı kurallar ---- */
+.qa{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.qa.open{border-color:rgba(0,157,79,.35);box-shadow:var(--sh-sm)}
+.qa[hidden]{display:none}
+.qa-head{display:flex;align-items:center;gap:14px;width:100%;background:none;border:none;font-family:inherit;font-size:15.5px;font-weight:700;line-height:var(--lh-body);color:var(--slate);padding:18px 22px;cursor:pointer;text-align:left;transition:color .2s var(--ease)}
+/* line-height ÖLÇÜLEREK eklendi: <button> line-height'ı miras almaz, `normal`a
+   düşüyordu. Gastro /sss'te .qa-head 15.5px/24.025px (=1.55). Bu satır olmadan
+   iki satıra taşan konu başlığı gastro'dan dar sarıyordu. sss-v1.html'de aynı
+   sapma DURUYOR — kapsamım dışı, raporda bildirildi. */
+.qa-head:hover{color:var(--fit)}
+.qa-head:focus-visible{outline:3px solid var(--fit-wash);outline-offset:-3px}
+.qa.open .qa-head{color:var(--fit)}
+.qa-ico{flex:none;width:34px;height:34px;border-radius:var(--radius-md);background:var(--fit-wash);color:var(--fit);display:grid;place-items:center;font-size:14px}
+.qa-car{margin-left:auto;flex:none;font-size:12px;color:var(--muted);transition:transform .25s var(--ease)}
+.qa.open .qa-car{transform:rotate(180deg);color:var(--fit)}
+.qa-body{max-height:0;overflow:hidden;transition:max-height .32s var(--ease)}
+.qa-body p{padding:0 24px 20px 70px;font-size:14.5px;color:var(--slate-2);font-weight:500;line-height:1.7}
+.qa-body p+p{padding-top:0;margin-top:-8px}
+.qa-body a{color:var(--fit);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+/* ---- açık taleplerin özeti ---- */
+.ds-open{max-width:860px;margin:34px auto 0}
+.tk-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:22px 24px}
+.tk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.tk-head h2{font-size:21px;display:flex;align-items:center;gap:11px}
+.tk-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.tk-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:6px;max-width:52ch}
+
+/* Satır kartı destek-talepleri-v1.html'den birebir; iki sayfada aynı kart. */
+.tk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tk-item, .tk-item h3, .tk-meta{text-align:left;text-align-last:auto}
+.tk-row{display:grid;grid-template-columns:152px minmax(0,1fr) 18px;align-items:center;gap:16px;
+  border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);
+  padding:15px 16px;transition:border-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)}
+.tk-row:hover{border-color:var(--fit);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.tk-row:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+.tk-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:.01em;padding:7px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.tk-badge i{font-size:10.5px}
+.st-acik{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-deep)}
+.tk-main{min-width:0}
+.tk-subject{font-size:15px;font-weight:700;color:var(--slate);line-height:1.35;margin:0 0 6px}
+.tk-row:hover .tk-subject{color:var(--fit-deep)}
+.tk-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--slate-2);font-weight:500}
+.tk-meta span{display:inline-flex;align-items:center;gap:6px}
+.tk-meta i{font-size:11px}
+.tk-no{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.tk-go{color:var(--muted);font-size:13px;justify-self:end}
+.tk-row:hover .tk-go{color:var(--fit-deep)}
+.ds-all{display:inline-flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;font-weight:700;color:var(--fit-deep)}
+.ds-all:hover{text-decoration:underline;text-underline-offset:3px}
+.ds-all:focus-visible{outline:3px solid var(--fit-wash);outline-offset:3px;border-radius:var(--radius-sm)}
+
+/* ===================== 3 · CTA BANDI ===================== */
+/* sss-v1.html'deki .faq-cta-sec / .coll-cta ile BİREBİR aynı kurallar. */
+.ds-cta{padding:0 0 var(--sec-pad);background:var(--bg-cream)}
+.ds-cta .wrap{padding-top:var(--sec-pad)}
+.coll-cta{text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:38px 30px;max-width:860px;margin:0 auto}
+.coll-cta .cc-ico{width:62px;height:62px;border-radius:var(--radius-lg);background:var(--fit-wash);color:var(--fit);display:grid;place-items:center;font-size:25px;margin:0 auto 16px}
+.coll-cta h3{font-size:21px;margin-bottom:8px}
+.coll-cta p{font-size:14px;color:var(--muted);font-weight:500;max-width:420px;margin:0 auto 20px;line-height:1.6}
+.coll-cta .cc-btns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+
+/* ===================== MOBİL (≤640px) ===================== */
+@media (max-width:640px){
+  .qa-head{font-size:14.5px;padding:15px 16px;gap:11px}
+  .qa-ico{width:30px;height:30px;font-size:12.5px}
+  .qa-body p{padding:0 16px 18px 57px;font-size:14px}
+  .ds-body{padding:var(--sec-pad-sm) 0 var(--sec-pad)}
+  .ds-cta{padding-bottom:var(--sec-pad)}
+  .ds-cta .wrap{padding-top:var(--sec-pad-sm)}
+  .coll-cta .cc-btns .btn{flex:1;min-width:0}
+  .tk-panel{padding:18px 16px;border-radius:var(--radius-md)}
+  .tk-head h2{font-size:18px}
+  .tk-row{grid-template-columns:minmax(0,1fr);gap:10px;padding:14px}
+  .tk-badge{justify-self:start}
+  .tk-go{display:none}          /* satırın tamamı zaten bağlantı */
+}
+</style>
+<!-- Metin yaslama katmanı (tek kaynak) — sayfa stillerinden SONRA yüklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="destek">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== BANNER + BREADCRUMB (kabuk .lib-top kiti) ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hesabim-v1.html">Hesap Ayarları</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur">Destek</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-headset"></i> Hesabım</span>
+    <h1>Destek</h1>
+    <p class="lib-sub">En sık takılınan konular burada adım adım yazılı. Çözülmezse aynı yerden talep açarsın.</p>
+    <div class="chips">
+      <a class="btn btn-fit" href="destek-talepleri-v1.html#yeni-talep"><i class="fa-solid fa-plus"></i> Talep aç</a>
+      <a class="btn btn-ghost" href="sss-v1.html"><i class="fa-solid fa-circle-question"></i> Sık sorulanlara bak</a>
+    </div>
+    <div class="lib-stats">
+      <div class="lib-stat"><b>6</b><span>yardım konusu</span></div>
+      <div class="lib-stat"><b>3</b><span>açık talebin</span></div>
+      <div class="lib-stat"><b>8</b><span>toplam talebin</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEKME RAYI — iki akış: Destek | Taleplerim ===== -->
+<div class="pf-tabbar">
+  <div class="wrap">
+    <div class="pf-tabs" role="group" aria-label="Destek akışları">
+      <a class="dt active" href="destek-v1.html" aria-current="page"><i class="fa-solid fa-headset" aria-hidden="true"></i> Destek</a>
+      <a class="dt" href="destek-talepleri-v1.html"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Taleplerim <span class="cnt">8</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== YARDIM KONULARI (akordeon) + AÇIK TALEPLER ===== -->
+<section class="ds-body">
+  <div class="wrap">
+    <p class="ds-note"><b id="dsBaslik">Hızlı çözümler</b> — bir konuya dokun, adımlar açılsın. Konu senin durumunu karşılamıyorsa sayfanın altından talep açabilirsin.</p>
+
+    <div class="ds-list" id="dsList" role="group" aria-labelledby="dsBaslik">
+
+      <div class="qa open">
+        <button class="qa-head" type="button" aria-expanded="true">
+          <span class="qa-ico"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
+          Üyelik, DadaFit Pro ve ödeme
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Paketini, yenileme tarihini ve ödeme kayıtlarını <a href="uyelik-faturalandirma-v1.html#paket">Üyelik ve Faturalandırma</a> ekranından görürsün; geçmiş tahsilatlar <a href="uyelik-faturalandirma-v1.html#odeme-gecmisi">Ödeme Geçmişi</a> sekmesinde tarih ve tutarla listelenir. Pro'nun neyi açtığını karşılaştırmak istersen <a href="pro-v1.html">DadaFit Pro</a> sayfasındaki kademe tablosuna bakabilirsin.</p>
+          <p>Pro'ya geçtiğin hâlde kilitli görünen bir bölüm varsa önce çıkış yapıp tekrar gir — üyelik durumu girişte tazelenir. Kilit sürüyorsa talebi <b>DadaFit Pro ve ödeme</b> konusuyla aç, hangi ekranda kilit gördüğünü yaz.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <button class="qa-head" type="button" aria-expanded="false">
+          <span class="qa-ico"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+          Programlar, planım ve ilerleme
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Sana atanmış program <a href="fit-planim-programim-v1.html">Planım → Programım</a>'da durur; tamamladığın seanslar <a href="fit-planim-ilerleme-v1.html">İlerleme</a> ekranına işlenir. Henüz bir programın yoksa <a href="programini-bul-v1.html">Programını Bul</a> birkaç soruyla seni uygun programa yönlendirir.</p>
+          <p>Seçtiğin program planına düşmediyse, programın kendi sayfasındaki <b>Planıma ekle</b> düğmesini kullandığından emin ol. Eklendiği hâlde görünmüyorsa talebi <b>Programlar ve planım</b> konusuyla aç, programın adını yaz.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <button class="qa-head" type="button" aria-expanded="false">
+          <span class="qa-ico"><i class="fa-solid fa-circle-play" aria-hidden="true"></i></span>
+          Video seansları
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Seanslar <a href="video-seanslari-v1.html">Video Seansları</a> altında hedefe, süreye ve seviyeye göre süzülür. Kaldığın yer ve tamamlama işareti bu tarayıcıda saklanır; başka bir cihazda açtığında ilerleme sıfırdan başlar.</p>
+          <p>Seans ortasında başa dönüyor ya da kilitli görünüyorsa tarayıcı sekmesini kapatıp yeniden aç. Sürerse talebi <b>Video seansları</b> konusuyla aç; seansın adını ve hangi bölümde takıldığını yazmak çözümü hızlandırır.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <button class="qa-head" type="button" aria-expanded="false">
+          <span class="qa-ico"><i class="fa-solid fa-plug-circle-check" aria-hidden="true"></i></span>
+          Bağlı uygulamalar ve aktivite verisi
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Adım, nabız ve süre verisi <a href="bagli-uygulamalar-v1.html">Bağlı Uygulamalar</a>'daki izinlerle gelir; gelen kayıtları <a href="aktivite-gunlugu-v1.html">Aktivite Günlüğü</a>'nde kaynağıyla birlikte görürsün. İzni kapattığında aktarım o an durur, geçmiş kayıtlar silinmez.</p>
+          <p>Veri iki günden uzun süredir gelmiyorsa önce bağlantı ekranından izni kapatıp yeniden aç, bir gün bekle ve son senkronizasyon zamanına bak. Değişmediyse talebi <b>Aktivite ve cihaz bağlantıları</b> konusuyla aç.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <button class="qa-head" type="button" aria-expanded="false">
+          <span class="qa-ico"><i class="fa-regular fa-user" aria-hidden="true"></i></span>
+          Hesap, giriş ve bildirimler
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Ad, e-posta ve şifre <a href="hesabim-v1.html">Hesap Ayarları</a>'nda; hangi bildirimi hangi kanaldan alacağın <a href="bildirimler-v1.html">Bildirimler</a> ekranında seçilir. Şifreni hatırlamıyorsan <a href="giris-v1.html">giriş sayfasındaki</a> sıfırlama bağlantısını kullan.</p>
+          <p>Bildirim tercihlerin her girişte eski hâline dönüyorsa tarayıcının site verilerini temizlemesi sebep olabilir. Temizlemeyi kapattığın hâlde sürerse talebi <b>Hesap ve giriş</b> konusuyla aç.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <button class="qa-head" type="button" aria-expanded="false">
+          <span class="qa-ico"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i></span>
+          Sağlık, veri ve izinler
+          <i class="fa-solid fa-chevron-down qa-car" aria-hidden="true"></i>
+        </button>
+        <div class="qa-body">
+          <p>Hangi veriyi kiminle paylaştığını <a href="fit-planim-veri-izin-v1.html">Veri ve İzinlerim</a>'de tek listede görür, her satırı tek tek geri alırsın. Hukuki çerçeve <a href="yasal-v1.html?metin=kvkk">KVKK Aydınlatma Metni</a>'nde, hareket içeriklerinin sınırları <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>'nde yazılı.</p>
+          <p>Bir hareketin sende ağrı yapması, mevcut bir rahatsızlıkla çakışması ya da içerikte hatalı bilgi görmen durumunda talebi <b>Diğer</b> konusuyla aç; ayrıca <a href="antrenorler-v1.html">antrenör dizininden</a> bire bir destek alabilirsin.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- açık taleplerin özeti — satır kartı destek-talepleri-v1.html ile birebir -->
+    <div class="ds-open">
+      <div class="tk-panel">
+        <div class="tk-head">
+          <div>
+            <h2 id="acikH"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Açık taleplerin</h2>
+            <p>Yanıt bekleyen talepler. Yazışmayı sürdürmek için satırına dokun.</p>
+          </div>
+        </div>
+        <ul class="tk-list" aria-labelledby="acikH">
+          <li class="tk-item" data-durum="acik" data-no="DF-2418">
+            <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2418">
+              <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+              <span class="tk-main">
+                <h3 class="tk-subject">Pro üyeliğim yenilendi ama video seansları kilitli görünüyor</h3>
+                <span class="tk-meta">
+                  <span><i class="fa-solid fa-tag" aria-hidden="true"></i> DadaFit Pro ve ödeme</span>
+                  <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-11">11 Ağustos 2026</time></span>
+                  <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2418</span>
+                </span>
+              </span>
+              <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+            </a>
+          </li>
+
+          <li class="tk-item" data-durum="acik" data-no="DF-2412">
+            <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2412">
+              <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+              <span class="tk-main">
+                <h3 class="tk-subject">Apple Health adım verisi iki gündür aktarılmıyor</h3>
+                <span class="tk-meta">
+                  <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
+                  <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-09">9 Ağustos 2026</time></span>
+                  <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2412</span>
+                </span>
+              </span>
+              <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+            </a>
+          </li>
+
+          <li class="tk-item" data-durum="acik" data-no="DF-2404">
+            <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2404">
+              <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+              <span class="tk-main">
+                <h3 class="tk-subject">Video seansı ortasında baştan başlıyor</h3>
+                <span class="tk-meta">
+                  <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Video seansları</span>
+                  <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-06">6 Ağustos 2026</time></span>
+                  <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2404</span>
+                </span>
+              </span>
+              <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+            </a>
+          </li>
+        </ul>
+        <a class="ds-all" href="destek-talepleri-v1.html">Tüm taleplerini gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== CTA BANDI ===== -->
+<section class="ds-cta">
+  <div class="wrap">
+    <div class="coll-cta">
+      <span class="cc-ico"><i class="fa-solid fa-headset" aria-hidden="true"></i></span>
+      <h3>Çözüm bulamadın mı?</h3>
+      <p>Destek ekibi hafta içi 09:00–18:00 arasında yanında. Talebini aç, yazışmayı talep numarası üzerinden sürdür.</p>
+      <div class="cc-btns">
+        <a class="btn btn-fit" href="destek-talepleri-v1.html#yeni-talep"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Talep aç</a>
+        <a class="btn btn-ghost" href="iletisim-v1.html"><i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim kanalları</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main><!-- /.page-main -->
+
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak) -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* ===== SAYFA JS — DESTEK: konu akordeonu =====
+   sss-v1.html'deki akordeonun aynısı: ölçülen max-height ile yumuşak
+   açılış, aynı anda tek konu açık, erişilebilirlik bağları elle değil
+   burada kuruluyor. */
+(function(){
+  var list=document.getElementById('dsList');
+  if(!list)return;
+  var items=Array.prototype.slice.call(list.querySelectorAll('.qa'));
+
+  items.forEach(function(qa,i){
+    var head=qa.querySelector('.qa-head'), body=qa.querySelector('.qa-body');
+    head.id='dsHead'+i; body.id='dsBody'+i;
+    head.setAttribute('aria-controls',body.id);
+    body.setAttribute('role','region');
+    body.setAttribute('aria-labelledby',head.id);
+  });
+
+  function openQa(qa){
+    qa.classList.add('open');
+    qa.querySelector('.qa-head').setAttribute('aria-expanded','true');
+    var b=qa.querySelector('.qa-body');
+    b.style.maxHeight=b.scrollHeight+'px';
+  }
+  function closeQa(qa){
+    qa.classList.remove('open');
+    qa.querySelector('.qa-head').setAttribute('aria-expanded','false');
+    qa.querySelector('.qa-body').style.maxHeight='0px';
+  }
+  items.forEach(function(qa){
+    qa.querySelector('.qa-head').addEventListener('click',function(){
+      var was=qa.classList.contains('open');
+      items.forEach(closeQa);
+      if(!was)openQa(qa);
+    });
+  });
+
+  /* genişlik değişince metin yeniden sarar → sabit max-height cevabı kırpar */
+  window.addEventListener('resize',function(){
+    items.forEach(function(qa){
+      if(qa.classList.contains('open')){
+        var b=qa.querySelector('.qa-body');
+        b.style.maxHeight=b.scrollHeight+'px';
+      }
+    });
+  });
+
+  /* ilk kart açık başlar — yüksekliği kabuk yerleştikten sonra ölç */
+  var ilk=items[0];
+  if(ilk&&ilk.classList.contains('open')){
+    requestAnimationFrame(function(){ openQa(ilk); });
+  }
+})();
+</script>
+</body>
+</html>

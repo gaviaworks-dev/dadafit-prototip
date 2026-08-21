@@ -99,14 +99,22 @@ const ORTAK = () => {
   window.__kurallar = function (filtreHref) {
     const out = [];
     let sira = 0;
+    let kapKosul = null;
     const gez = (kurallar) => {
       for (const r of kurallar) {
-        if (r.type === CSSRule.STYLE_RULE) { out.push({ sel: r.selectorText, style: r.style, sira: sira++ }); }
+        if (r.type === CSSRule.STYLE_RULE) { out.push({ sel: r.selectorText, style: r.style, sira: sira++, kap: kapKosul }); }
         else if (r.cssRules) {
           // koşullu grup: yalnız O AN geçerli olan dal sayılır
           if (r.type === CSSRule.MEDIA_RULE && !matchMedia(r.conditionText).matches) continue;
           if (r.type === CSSRule.SUPPORTS_RULE && !CSS.supports(r.conditionText)) continue;
+          /* @container ELEMAN BAZLI: burada global olarak değerlendirilemez —
+             koşul kurala iliştirilip ölçüt 4'te her eleman için ayrı bakılır.
+             (R8: K-B ile kanca ilk kez kullanılınca ortaya çıktı — nöbet
+             `.jt-flow p` vaadini koşulsuz sanıp @390'da sahte kırmızı veriyordu.) */
+          const oncekiKap = kapKosul;
+          if (window.CSSContainerRule && r instanceof CSSContainerRule) kapKosul = r.containerQuery || r.conditionText;
           gez(r.cssRules);
+          kapKosul = oncekiKap;
         }
       }
     };
@@ -197,7 +205,7 @@ for (const w of GEN) {
           const par = window.__eslesir(el, k.sel);
           if (!par) continue;
           const o = window.__ozgul(par);
-          if (!kaz || o > kaz.o || (o === kaz.o && k.sira >= kaz.sira)) kaz = { o, sira: k.sira, deger: k.deger, sel: par };
+          if (!kaz || o > kaz.o || (o === kaz.o && k.sira >= kaz.sira)) kaz = { o, sira: k.sira, deger: k.deger, sel: par, kap: k.kap };
         }
         if (!kaz) return;
 
@@ -216,6 +224,21 @@ for (const w of GEN) {
         // (c) daha özgül rakip varsa BASAMAKLANMA normaldir — sayılır, kırmızı değil
         if (rak && rak.o > kaz.o) { sonuc.nDevir++; return; }
 
+        /* vaat @container'a bağlıysa koşulu ELEMAN İÇİN değerlendir.
+           Kapsayıcı dar ise vaat zaten geçerli değildir — kusur değil, tasarım.
+           Bu davranışın ÇALIŞTIĞINI ölçüt 5 canlı probla ayrıca kanıtlıyor
+           (geniş .jt-flow yaslanıyor / dar .jt-flow yaslanmıyor, 132/132). */
+        if (kaz.kap) {
+          const m = /min-width\s*:\s*([\d.]+)(rem|px)/i.exec(kaz.kap);
+          if (m) {
+            const kok = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+            const esik = m[2].toLowerCase() === 'rem' ? parseFloat(m[1]) * kok : parseFloat(m[1]);
+            let c = el.parentElement, kutu = null;
+            while (c) { const ct = getComputedStyle(c).containerType;
+              if (ct && ct !== 'normal') { kutu = c.getBoundingClientRect().width; break; } c = c.parentElement; }
+            if (kutu === null || kutu < esik) { sonuc.nKosullu = (sonuc.nKosullu || 0) + 1; return; }
+          }
+        }
         sonuc.nVaat++;
         const bek = kaz.deger.trim();
         const ger = getComputedStyle(el).textAlign;

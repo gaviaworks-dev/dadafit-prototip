@@ -566,7 +566,9 @@ for (const w of [1440, 390]) {
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/hareket-merkezi-v1.html`, { waitUntil: 'networkidle', timeout: 30000 });
+  /* R8 madde 4 — hareket-merkezi-v1 kaldırıldı; ölçüm aynı kabuğu yükleyen
+     egzersiz-kutuphane-v1'e taşındı (dropdown markup'ı sayfadan bağımsız). */
+  await page.goto(`${BASE}/egzersiz-kutuphane-v1.html`, { waitUntil: 'networkidle', timeout: 30000 });
 
   const m = await page.evaluate(() => {
     const navItems = [...document.querySelectorAll('.nav > .nav-item')];
@@ -591,11 +593,20 @@ for (const w of [1440, 390]) {
   if (m.ustKalemSayisi === 4) ok(`üst menü kalem sayısı 4 — şişmedi (${m.ustKalemler.map(s => s.split(' ')[0]).join(' · ')})`);
   else rec('üst menü kalem sayısı', `${m.ustKalemSayisi}, beklenen 4 → ${m.ustKalemler.join(' | ')}`);
 
-  if (m.gruplar.includes('Hareketi Anlamak')) ok('üst menü: "Hareketi Anlamak" grup başlığı Hareket panelinde');
-  else rec('menü grubu', `üst menüde "Hareketi Anlamak" yok — bulunan gruplar: [${m.gruplar.join(', ') || 'yok'}]`);
+  /* ---- R8 MADDE 3 · NÖBET TERSİNE ÇEVRİLDİ, KALDIRILMADI ----------------
+     K34 bu iki ölçütü "grup başlığı GÖRÜNMELİ" diye kurmuştu (üç yeni modül
+     üst menüde kendi kalemini almasın, etiketli grup altında toplansın).
+     Beyar R8 madde 3'te ayracın kendisini kaldırdı: "Divider'ı kaldır,
+     altındaki maddeler kaybolmayacak."
+     K34'ün ASIL garantisi — üç modülün menüde kalması ve üst menünün
+     şişmemesi — aşağıdaki iki ölçütte (kalem sayısı 4 · grubun kalemleri
+     hem üstte hem drawer'da) AYNEN duruyor. Değişen yalnız görsel etiket:
+     artık VARLIĞI gerileme sayılıyor. */
+  if (!m.gruplar.length) ok('üst menü: "Hareketi Anlamak" ayracı yok (R8 madde 3)');
+  else rec('menü grubu', `Hareket panelinde ayraç hâlâ var: [${m.gruplar.join(', ')}] — R8 madde 3: 0 olmalı`);
 
-  if (m.drawerGrup.includes('Hareketi Anlamak')) ok('drawer: "Hareketi Anlamak" grup başlığı görünüyor');
-  else rec('drawer grubu', `drawer'da "Hareketi Anlamak" yok — bulunan: [${m.drawerGrup.join(', ') || 'yok'}]`);
+  if (!m.drawerGrup.length) ok('drawer: "Hareketi Anlamak" ayracı yok (R8 madde 3)');
+  else rec('drawer grubu', `drawer'da ayraç hâlâ var: [${m.drawerGrup.join(', ')}] — R8 madde 3: 0 olmalı`);
 
   const beklenenAlt = ['sozluk-v1.html', 'anatomi-v1.html'];
   const ustEksik = beklenenAlt.filter(h => !m.linkler.includes(h));

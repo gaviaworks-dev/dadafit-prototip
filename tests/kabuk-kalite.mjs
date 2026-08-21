@@ -74,7 +74,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SAYFALAR = readdirSync(ROOT).filter(f => f.endsWith('.html')).sort();
 const DOKUNULAN = [
   'programlar-merkezi-v1.html', 'video-seanslari-v1.html', 'dadafit-hub-v1.html',
-  'giris-v1.html', 'antrenorler-v1.html', 'hareket-merkezi-v1.html',
+  'giris-v1.html', 'antrenorler-v1.html',   /* R8/4: hareket-merkezi-v1 kaldırıldı */
   'hakkimizda-v1.html', 'video-seans-detay-v1.html', 'pro-v1.html'
 ].filter(f => SAYFALAR.includes(f));
 
@@ -82,7 +82,7 @@ const DOKUNULAN = [
 const BENIM_DOSYALARIM = [
   'assets/css/fit-shell.css', 'assets/js/fit-shell.js',
   'programlar-merkezi-v1.html', 'video-seanslari-v1.html', 'dadafit-hub-v1.html',
-  'giris-v1.html', 'antrenorler-v1.html', 'hareket-merkezi-v1.html',
+  'giris-v1.html', 'antrenorler-v1.html',   /* R8/4: hareket-merkezi-v1 kaldırıldı */
   'hakkimizda-v1.html', 'video-seans-detay-v1.html'
 ];
 const ESKI_AD = 'Squat (Çömelme)';

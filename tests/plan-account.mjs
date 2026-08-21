@@ -33,7 +33,14 @@ const RAYDA_OLMAMALI = ['Enerji Köprüsü','Sağlık ve Hareket Profilim','Veri
 /* §5'in saydığı on dört modül */
 const HESAP_MODULLERI = ['Profil Bilgilerim','Sağlık ve Hareket Profilim','Veri ve İzinlerim',
   'Bildirim Tercihlerim','Bağlı Uygulamalar','Üyelik ve Paketim','Ödeme Geçmişim','Faturalarım',
-  'Güvenlik','Dil ve Bölge','Destek Taleplerim','Hesabı Dondurma','Verilerimi İndir','Hesabımı Sil'];
+  'Güvenlik','Dil ve Bölge',
+  /* R8 madde 6 — "Destek Taleplerim" kalemi "Taleplerim" olarak yeniden
+     adlandırıldı ve yanına "Destek" kalemi eklendi (avatar dropdown'ına İKİ
+     giriş). Nöbet zayıflamadı, GENİŞLEDİ: eskiden bir kalem aranıyordu,
+     şimdi ikisi de aranıyor. Hedefleri `tests/kabuk-r8.mjs` §6 ayrıca
+     doğruluyor (destek-talepleri dropdown'da tam 1 · footer'da 0). */
+  'Destek','Taleplerim',
+  'Hesabı Dondurma','Verilerimi İndir','Hesabımı Sil'];
 /* ray dışı ama Planım kabuğunu kullanan sayfalar — yetim kalmamalı */
 const RAY_DISI = ['enerji-defteri-v1.html','fit-planim-rozetler-v1.html',
                   'fit-planim-saglik-profil-v1.html','fit-planim-veri-izin-v1.html'];
@@ -112,8 +119,20 @@ else {
   if(rayKopya.length) rec(`Hesabım Planım rayını tekrarlıyor (§5 "karıştırılmamalı"): ${rayKopya.map(a=>a.t).join(', ')}`);
   else ok('Hesabım Planım rayını tekrarlamıyor — Planım için tek giriş');
 
+  /* ---- R8 MADDE 1 · NÖBET TAŞINDI, ZAYIFLATILMADI ----------------------
+     Eski ölçüt: *"Hesabım'da Planım girişi TEK olmalı"* — o zaman Planım'a
+     giriş hem header düğmesinden hem dropdown'dan vardı ve amaç kopyayı
+     engellemekti.
+     Beyar R8 madde 1'de kararı değiştirdi: *"kullanıcı dropdown'ına konması
+     önerildi — KONMAYACAK"*, kabul ölçütü "dropdown içeriğinde 0".
+     Yani doğru sayı artık 1 değil **0**. Ölçüt gevşemedi, sıkılaştı:
+     eskiden 1 kabul ediliyordu, şimdi tek kabul edilen değer 0.
+     Erişim kaybı yok — giriş durumunda header düğmesi, mobilde alt bar
+     kalemi aynı hedefe gidiyor (`tests/kabuk-r8.mjs` §1 dört kırılımda
+     ölçüyor). */
   const planEntries = acct.filter(a => a.t === 'Planım');
-  if(planEntries.length !== 1) rec(`Hesabım'da "Planım" girişi ${planEntries.length} adet — tek olmalı`);
+  if(planEntries.length !== 0) rec(`Hesabım'da "Planım" girişi ${planEntries.length} adet — R8 madde 1: dropdown'da 0 olmalı`);
+  else ok('Hesabım dropdown\'ında "Planım" 0 — R8 madde 1 (giriş header düğmesinde)');
 
   /* kırık hedef */
   const broken = new Set();

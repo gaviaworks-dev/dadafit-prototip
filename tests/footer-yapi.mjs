@@ -14,6 +14,8 @@
       @1440 tek satır, @1024 iki satır (geometriyle ölçülür). Doküman
       "Çözüm Merkezi ile Öneri ve Şikâyet geri plana atılmamalıdır"
       diyor → sekiz kalemin punto/ağırlık/renk değerleri EŞİT olmalı.
+      (R8/6+35: "Çözüm Merkezi" kalemi yerinde, yalnız HEDEFİ destek
+      hub'ına döndü — `destek-talepleri-v1.html` footer'da 0 kez geçer.)
    5  TÜM footer hedefleri 200 — istisna YOK (7. oturumda kapandı):
       paralel bir dalda üretiliyor, bu dalda henüz yok → SORUN sayılmaz,
       NOT olarak raporlanır ("birleştirme sonrası doğrulanacak").
@@ -69,7 +71,7 @@ const BEKLEYEN_HEDEF = null;
 /* --- dokümandan birebir: üç orta sütun ------------------------------- */
 const SUTUNLAR = [
   { anahtar:'hareket', baslik:'Hareket ve Öğren', kalemler:[
-    ['Hareket Merkezi',      'hareket-merkezi-v1.html'],
+    /* R8 madde 4 — "Hareket Merkezi" kalemi kaldırıldı (sayfa silindi). */
     ['DadaFit Egzersizleri', 'egzersiz-kutuphane-v1.html'],
     ['Hareket Rehberi',      'hareket-rehberi-v1.html'],
     ['Spor Sözlüğü',         'sozluk-v1.html'],
@@ -99,7 +101,12 @@ const KURUMSAL = [
   ['Hakkımızda',                    'hakkimizda-v1.html'],
   ['Künye',                         'hakkimizda-v1.html#kunye'],
   ['İletişim',                      'iletisim-v1.html'],
-  ['Çözüm Merkezi',                 'destek-talepleri-v1.html'],
+  /* R8 madde 6+35 — kalem BANTTA, yalnız hedefi değişti:
+     destek-talepleri-v1.html → destek-v1.html (destek hub'ı).
+     Nöbet zayıflamadı: bant yine 8 kalem ve hedef yine birebir aranıyor;
+     değişen tek şey beklenen hedefin kendisi. Footer'da
+     `destek-talepleri-v1` bulunmaması ayrıca kalem 35'in şartı. */
+  ['Çözüm Merkezi',                 'destek-v1.html'],
   ['Öneri ve Şikâyet',              'iletisim-v1.html#conForm'],
   ['İş Birliği',                    'reklam-ver-v1.html#isbirligi'],
   ['Reklam ve Marka İş Birlikleri', 'reklam-ver-v1.html#reklam'],
@@ -615,7 +622,7 @@ async function olcut14(browser){
     const ctx = await browser.newContext({ viewport:{ width:w, height:900 } });
     await ctx.addInitScript(() => { try{ localStorage.setItem('dm-cookie-consent','accepted'); }catch(e){} });
     const page = await ctx.newPage();
-    await page.goto(BASE + '/hareket-merkezi-v1.html', { waitUntil:'networkidle' });
+    await page.goto(BASE + '/egzersiz-kutuphane-v1.html', { waitUntil:'networkidle' });   // R8/4: hareket-merkezi-v1 kaldırıldı
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(500);
     const d = await page.evaluate(() => {
@@ -646,7 +653,7 @@ async function olcut14(browser){
    ===================================================================== */
 console.log('\n--- 13 · konsol hatası + yatay taşma ---');
 {
-  const ORNEKLER = ['hakkimizda-v1.html','iletisim-v1.html','hareket-merkezi-v1.html',
+  const ORNEKLER = ['hakkimizda-v1.html','iletisim-v1.html','egzersiz-kutuphane-v1.html',
                     'enerji-defteri-v1.html','destek-talepleri-v1.html'].filter(f => SAYFALAR.includes(f));
   for (const w of [1440, 1024, 390]) {
     let temiz = 0;

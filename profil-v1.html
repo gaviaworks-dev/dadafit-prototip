@@ -2199,7 +2199,7 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
         <span class="pe-ico"><i class="fa-solid fa-book-open"></i></span>
         <h3>Defterin ilk sayfası seni bekliyor</h3>
         <p>Elif henüz hareket paylaşmamış. Sen de kendi hareket defterini doldurmaya ilk paylaşımınla başla.</p>
-        <a class="btn btn-primary" href="hareket-merkezi-v1.html"><i class="fa-solid fa-compass"></i> Hareket Merkezi</a>
+        <a class="btn btn-primary" href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-compass"></i> DadaFit Egzersizleri</a>
       </div>
     </div>
 
@@ -3557,6 +3557,9 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
 
 <!-- DadaFit ortak kabuk JS (tek kaynak) -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- R8 · kalem 11 — ortak modal iskeleti (Esc · dışarı · düğme · odak tuzağı
+     · odak dönüşü · scroll kilidi). fit-shell.js'e DOKUNULMADI, ayrı dosya. -->
+<script src="assets/js/fit-modal.js"></script>
 <script>
 /* ===== HAREKET DEFTERİ — sayfa JS =====
  Göç notu: bu blok, legacy dosyada ortak kabuk JS'i ile AYNI <script> etiketinin
@@ -4021,22 +4024,26 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
     return lbl+' · '+price;
   }
   function refreshSum(){ aptSum.textContent=svcInfo(); }
-  function openApt(presetPrice){
+  /* R8 · kalem 11 — açma/kapama artık FIT_MODAL'da. Elle yazılan üç ayrı
+     dinleyici (kapat düğmesi · overlay · keydown) kalktı; Esc + dışarı
+     tıklama + odak tuzağı + odak dönüşü + scroll kilidi iskeletten gelir.
+     Dışarı tıklama KAPA bağlanıyor: `.apt-modal` inset:0 ile overlay'i
+     örttüğü için overlay dinleyicisi hiç tetiklenmiyordu (ölçüldü). */
+  var aptH=FIT_MODAL.kur({kap:aptModal,panel:'.apt-panel',ortu:aptOv,kapat:'#aptClose'});
+  function openApt(presetPrice,tetik){
     if(presetPrice){
       var r=document.querySelector('#aptSvc input[data-price="'+presetPrice+'"]');
       if(r)r.checked=true;
     }
     aptBody.hidden=false; aptSuccess.hidden=true; refreshSum();
-    aptModal.classList.add('show');aptOv.classList.add('show');if(window.FIT_SHELL&&FIT_SHELL.lockScroll)FIT_SHELL.lockScroll();
+    aptH.ac(tetik);
   }
-  function closeApt(){aptModal.classList.remove('show');aptOv.classList.remove('show');if(window.FIT_SHELL&&FIT_SHELL.unlockScroll)FIT_SHELL.unlockScroll();}
+  function closeApt(){aptH.kapat();}
   var openAptBtn=document.getElementById('openApt');
-  if(openAptBtn)openAptBtn.addEventListener('click',function(){openApt();});
+  if(openAptBtn)openAptBtn.addEventListener('click',function(){openApt(null,openAptBtn);});
   document.querySelectorAll('.svc-book').forEach(function(b){
-    b.addEventListener('click',function(){openApt(b.getAttribute('data-price'));});
+    b.addEventListener('click',function(){openApt(b.getAttribute('data-price'),b);});
   });
-  document.getElementById('aptClose').addEventListener('click',closeApt);
-  aptOv.addEventListener('click',closeApt);
   document.querySelectorAll('#aptSvc input').forEach(function(i){i.addEventListener('change',refreshSum);});
   document.querySelectorAll('.apt-day').forEach(function(d){
     d.addEventListener('click',function(){
@@ -4061,14 +4068,13 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
   /* ---- MESAJ MODALI ---- */
   var msgModal=document.getElementById('msgModal'),msgOv=document.getElementById('msgOverlay');
   var msgForm=document.getElementById('msgForm'),msgSuccess=document.getElementById('msgSuccess');
-  function openMsg(){msgForm.hidden=false;msgSuccess.hidden=true;msgModal.classList.add('show');msgOv.classList.add('show');if(window.FIT_SHELL&&FIT_SHELL.lockScroll)FIT_SHELL.lockScroll();}
-  function closeMsg(){msgModal.classList.remove('show');msgOv.classList.remove('show');if(window.FIT_SHELL&&FIT_SHELL.unlockScroll)FIT_SHELL.unlockScroll();}
+  var msgH=FIT_MODAL.kur({kap:msgModal,panel:'.apt-panel',ortu:msgOv,kapat:'#msgClose'});
+  function openMsg(tetik){msgForm.hidden=false;msgSuccess.hidden=true;msgH.ac(tetik);}
   var openMsgBtn=document.getElementById('openMsg');
-  if(openMsgBtn)openMsgBtn.addEventListener('click',openMsg);
-  document.getElementById('msgClose').addEventListener('click',closeMsg);
-  msgOv.addEventListener('click',closeMsg);
+  if(openMsgBtn)openMsgBtn.addEventListener('click',function(){openMsg(openMsgBtn);});
   document.getElementById('msgSend').addEventListener('click',function(){msgForm.hidden=true;msgSuccess.hidden=false;});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeApt();closeMsg();}});
+  /* keydown dinleyicisi KALKTI — eski hâli iki modalı birden kapatıyordu.
+     FIT_MODAL tek global dinleyiciyle yalnız yığının tepesini kapatır. */
   if(params.get('msg')==='1')openMsg();
 })();
 
@@ -4086,17 +4092,16 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
     return lbl+' · '+price;
   }
   function refresh(){ sum.textContent=info(); }
-  function open(presetPrice){
+  var atH=FIT_MODAL.kur({kap:m,panel:'.apt-panel',ortu:ov,kapat:'#atAptClose'});
+  function open(presetPrice,tetik){
     if(presetPrice!=null){ var r=m.querySelector('#atAptSvc input[data-price="'+presetPrice+'"]'); if(r)r.checked=true; }
     body.hidden=false; succ.hidden=true; refresh();
-    m.classList.add('show');ov.classList.add('show');if(window.FIT_SHELL&&FIT_SHELL.lockScroll)FIT_SHELL.lockScroll();
+    atH.ac(tetik);
   }
-  function close(){m.classList.remove('show');ov.classList.remove('show');if(window.FIT_SHELL&&FIT_SHELL.unlockScroll)FIT_SHELL.unlockScroll();}
-  var ob=document.getElementById('atOpenApt'); if(ob)ob.addEventListener('click',function(){open();});
-  var cl=document.getElementById('atClient'); if(cl)cl.addEventListener('click',function(){open(0);});      // Danışan Ol → tanışma preset
-  var bc=document.getElementById('atBandClient'); if(bc)bc.addEventListener('click',function(){open(0);});
-  document.getElementById('atAptClose').addEventListener('click',close);
-  ov.addEventListener('click',close);
+  function close(){atH.kapat();}
+  var ob=document.getElementById('atOpenApt'); if(ob)ob.addEventListener('click',function(){open(null,ob);});
+  var cl=document.getElementById('atClient'); if(cl)cl.addEventListener('click',function(){open(0,cl);});      // Danışan Ol → tanışma preset
+  var bc=document.getElementById('atBandClient'); if(bc)bc.addEventListener('click',function(){open(0,bc);});
   m.querySelectorAll('#atAptSvc input').forEach(function(i){i.addEventListener('change',refresh);});
   m.querySelectorAll('.apt-day').forEach(function(d){
     d.addEventListener('click',function(){ m.querySelectorAll('.apt-day').forEach(function(x){x.classList.remove('sel');}); d.classList.add('sel'); });
@@ -4115,14 +4120,11 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
   /* ---- ANTRENÖR MESAJ MODALI ---- */
   var mm=document.getElementById('atMsgModal'),mov=document.getElementById('atMsgOverlay');
   var mf=document.getElementById('atMsgForm'),ms=document.getElementById('atMsgSuccess');
-  function openMsg(){mf.hidden=false;ms.hidden=true;mm.classList.add('show');mov.classList.add('show');if(window.FIT_SHELL&&FIT_SHELL.lockScroll)FIT_SHELL.lockScroll();}
-  function closeMsg(){mm.classList.remove('show');mov.classList.remove('show');if(window.FIT_SHELL&&FIT_SHELL.unlockScroll)FIT_SHELL.unlockScroll();}
-  var omb=document.getElementById('atOpenMsg'); if(omb)omb.addEventListener('click',openMsg);
-  var bmb=document.getElementById('atBandMsg'); if(bmb)bmb.addEventListener('click',openMsg);
-  document.getElementById('atMsgClose').addEventListener('click',closeMsg);
-  mov.addEventListener('click',closeMsg);
+  var atMsgH=FIT_MODAL.kur({kap:mm,panel:'.apt-panel',ortu:mov,kapat:'#atMsgClose'});
+  function openMsg(tetik){mf.hidden=false;ms.hidden=true;atMsgH.ac(tetik);}
+  var omb=document.getElementById('atOpenMsg'); if(omb)omb.addEventListener('click',function(){openMsg(omb);});
+  var bmb=document.getElementById('atBandMsg'); if(bmb)bmb.addEventListener('click',function(){openMsg(bmb);});
   document.getElementById('atMsgSend').addEventListener('click',function(){mf.hidden=true;ms.hidden=false;});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){close();closeMsg();}});
   if(params.get('atmsg')==='1')openMsg();
 })();
 
@@ -4132,13 +4134,10 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
   var mm=document.getElementById('islMsgModal'),mov=document.getElementById('islMsgOverlay');
   if(!mm||!mov)return;
   var mf=document.getElementById('islMsgForm'),ms=document.getElementById('islMsgSuccess');
-  function openMsg(){mf.hidden=false;ms.hidden=true;mm.classList.add('show');mov.classList.add('show');if(window.FIT_SHELL&&FIT_SHELL.lockScroll)FIT_SHELL.lockScroll();}
-  function closeMsg(){mm.classList.remove('show');mov.classList.remove('show');if(window.FIT_SHELL&&FIT_SHELL.unlockScroll)FIT_SHELL.unlockScroll();}
-  var omb=document.getElementById('islOpenMsg'); if(omb)omb.addEventListener('click',openMsg);
-  document.getElementById('islMsgClose').addEventListener('click',closeMsg);
-  mov.addEventListener('click',closeMsg);
+  var islH=FIT_MODAL.kur({kap:mm,panel:'.apt-panel',ortu:mov,kapat:'#islMsgClose'});
+  function openMsg(tetik){mf.hidden=false;ms.hidden=true;islH.ac(tetik);}
+  var omb=document.getElementById('islOpenMsg'); if(omb)omb.addEventListener('click',function(){openMsg(omb);});
   document.getElementById('islMsgSend').addEventListener('click',function(){mf.hidden=true;ms.hidden=false;});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMsg();});
   if(params.get('islmsg')==='1')openMsg();
 })();
 
@@ -4146,20 +4145,19 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
 (function(){
   var gate=document.getElementById('proGate'); if(!gate)return;
   var overlay=document.getElementById('pgOverlay'),
-      closeBtn=document.getElementById('pgClose'),
       later=document.getElementById('pgLater'),
       title=document.getElementById('pgTitle'),
       desc=document.getElementById('pgDesc');
-  function open(t,d){ if(t)title.textContent=t; if(d)desc.textContent=d; overlay.classList.add('show'); gate.classList.add('show'); }
-  function close(){ overlay.classList.remove('show'); gate.classList.remove('show'); }
-  closeBtn.addEventListener('click',close);
+  /* pro-gate scroll KİLİTLEMİYORDU (eski hâlde lockScroll çağrısı yoktu);
+     iskelete geçince kilit de geliyor — arka plan artık kaymıyor. */
+  var pgH=FIT_MODAL.kur({kap:gate,panel:'.pg-panel',ortu:overlay,kapat:'#pgClose'});
+  function open(t,d,tetik){ if(t)title.textContent=t; if(d)desc.textContent=d; pgH.ac(tetik); }
+  function close(){ pgH.kapat(); }
   if(later)later.addEventListener('click',close);
-  overlay.addEventListener('click',close);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&gate.classList.contains('show'))close();});
   document.addEventListener('click',function(e){
     var t=e.target.closest('[data-pro-gate]'); if(!t)return;
     e.preventDefault();e.stopPropagation();
-    open(t.getAttribute('data-pro-title'),t.getAttribute('data-pro-desc'));
+    open(t.getAttribute('data-pro-title'),t.getAttribute('data-pro-desc'),t);
   },true);
   if(location.search.indexOf('pro=1')>-1){open();}
 })();

@@ -700,7 +700,7 @@ for (const width of [1440, 390]) {
   }
   /* menü hedefi + alt aksiyon hedefleri */
   for (const h of ['antrenman-olusturucu-v1.html','egzersiz-kutuphane-v1.html',
-                   'programini-bul-v1.html','hareket-merkezi-v1.html',
+                   'programini-bul-v1.html',   /* R8/4: hareket-merkezi-v1 kaldırıldı */
                    'saglik-bilgilendirme-v1.html','antrenorler-v1.html',
                    'hareket-yeni-baslayanlar-v1.html','assets/svg/govde-erkek-on.svg',
                    'assets/svg/govde-kadin-on.svg']) {

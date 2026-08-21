@@ -64,8 +64,11 @@ var NAV = [
   /* 1 · HAREKET — DadaFit Egzersizleri ile Hareket Rehberi bu şemsiye altında (belge §3.1).
  Rehberin yedi alt sayfası artık menüde: eskiden yalnız ?bolge= varyantlarıyla
  kütüphaneye giden dört kopya kalem vardı, gerçek sayfalar erişilemezdi. */
-  { key:'hareket', label:'Hareket', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running',
-    match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1',
+  /* R8 madde 4 — `hareket-merkezi-v1` KALDIRILDI (sayfa silindi).
+     Bölümün kök hedefi artık DadaFit Egzersizleri: kalan sayfalar içinde
+     bölümün asıl varış noktası o (h1 "DadaFit Egzersizleri"). */
+  { key:'hareket', label:'Hareket', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-person-running',
+    match:['egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1',
            'hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1',
            'hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1',
            'hareket-isinma-soguma-v1','hareket-sozluk-v1',
@@ -80,7 +83,7 @@ var NAV = [
        Menüde tekrarlanmaları paneli şişiriyordu; erişim kaybı YOK, bir tık
        derinleşti. Panel tek kolona indiği için `wide:true` de kalktı. */
     dd:[
-      {label:'Hareket Merkezi', desc:'Hareket dünyasının giriş kapısı', href:'hareket-merkezi-v1.html', icon:'fa-solid fa-person-running'},
+      /* R8 madde 4 — "Hareket Merkezi" kalemi KALDIRILDI (sayfa silindi). */
       {label:'DadaFit Egzersizleri', desc:'Tek tek hareketleri bul ve uygula', href:'egzersiz-kutuphane-v1.html', icon:'fa-solid fa-dumbbell'},
       {label:'Hareket Rehberi', desc:'Nasıl ve neden — yedi rehber konusu ve sözlük', href:'hareket-rehberi-v1.html', icon:'fa-solid fa-book-open'},
       /* ---- K34 · "HAREKETİ ANLAMAK" — ETİKETLİ GRUP, AYRI MENÜ KALEMİ DEĞİL ----
@@ -96,7 +99,11 @@ var NAV = [
          yapılmadı. Tek değişiklik drawer tarafında: `drawerNavHtml()` grubu
          eskiden FİLTRELEYİP atıyordu, artık `.d-sub-group` olarak basıyor
          (biçimi de CSS'te zaten vardı — satır 1055). */
-      {group:'Hareketi Anlamak'},
+      /* R8 madde 3 — {group:'Hareketi Anlamak'} ayracı KALDIRILDI.
+         Altındaki üç kalem (Spor Sözlüğü · Anatomi Haritası · Antrenman
+         Oluşturucu) yerinde ve aynı sırada duruyor; panel tek kolon,
+         artık kesintisiz altı kalem. `.dd-group` / `.d-sub-group`
+         biçimleri CSS'te duruyor — başka kalem kullanabilir, silinmedi. */
       {label:'Spor Sözlüğü', desc:'Salon dilinin tam karşılığı — terim terim', href:'sozluk-v1.html', icon:'fa-solid fa-spell-check'},
       {label:'Anatomi Haritası', desc:'Gövde üzerinden kas kas — ne yapar, nereye tutunur', href:'anatomi-v1.html', icon:'fa-solid fa-person-rays'},
       /* H3 · 7. oturum — kalem AÇILDI. Önceki turda yorumdaydı çünkü sayfa
@@ -171,9 +178,10 @@ var BOTTOM = [
      · antrenman-olusturucu-v1) alt barda da Hareket kalemini aktif etsin —
      ayrı bir alt bar kalemi açılmıyor, §3.2'nin "beşten fazla sabit öğe
      olamaz" kuralı korunuyor. */
-  {label:'Hareket',    href:'hareket-merkezi-v1.html',    icon:'fa-solid fa-person-running',  match:['hareket-merkezi-v1','egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
+  {label:'Hareket',    href:'egzersiz-kutuphane-v1.html',    icon:'fa-solid fa-person-running',  match:['egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
-  {label:'Planım',     href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
+  /* R8 madde 1 — `cls` alanı: alt bar kalemi oturuma bağlandı (bn-plan). */
+  {label:'Planım',     cls:'bn-plan', href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
   {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
 
@@ -198,7 +206,7 @@ var BOTTOM = [
  ============================================================ */
 var FOOTER_COLS = [
   { key:'hareket', title:'Hareket ve Öğren', links:[
-      {label:'Hareket Merkezi',      href:'hareket-merkezi-v1.html'},
+      /* R8 madde 4 — "Hareket Merkezi" kalemi KALDIRILDI (sayfa silindi). */
       {label:'DadaFit Egzersizleri', href:'egzersiz-kutuphane-v1.html'},
       {label:'Hareket Rehberi',      href:'hareket-rehberi-v1.html'},
       {label:'Spor Sözlüğü',         href:'sozluk-v1.html'},
@@ -231,7 +239,7 @@ var FOOTER_COLS = [
  diğer altı kalemle AYNI biçimde (aynı punto, ağırlık, renk).
 
  Hedefler diskte doğrulandı, hiçbiri uydurulmadı:
-   Çözüm Merkezi    → destek-talepleri-v1.html   (destek talebi akışı)
+   Çözüm Merkezi    → destek-v1.html              (destek hub'ı — R8 madde 6+35)
    Öneri ve Şikâyet → iletisim-v1.html#conForm   (ayrı sayfası YOK;
      iletişim formu "Öneri ve şikâyetlerini de bu formdan iletebilirsin"
      diyor ve konu seçimine göre ilgili ekibe yönlendiriyor)
@@ -240,7 +248,19 @@ var FOOTER_CORP = [
   {label:'Hakkımızda',                    href:'hakkimizda-v1.html'},
   {label:'Künye',                         href:'hakkimizda-v1.html#kunye'},
   {label:'İletişim',                      href:'iletisim-v1.html'},
-  {label:'Çözüm Merkezi',                 href:'destek-talepleri-v1.html'},
+  /* R8 madde 6+35 — "Çözüm Merkezi" BANTTA KALIYOR, yalnız HEDEFİ değişti:
+     `destek-talepleri-v1.html` → `destek-v1.html`.
+     Ara bir turda kalem banttan tamamen kaldırılmıştı (bant 8→7); lead
+     bunu geri aldı ve F'nin ölçümüyle gerekçelendirdi:
+     gastro footer'ındaki "Çözüm Merkezi" misafirde `/sss`'ye, girişte
+     `/hesabim/destek`'e gidiyor — yani TALEP LİSTESİNE değil DESTEK
+     HUB'INA. Karşılığımız `destek-v1.html` (h1 "Destek", AJAN-F üretti).
+     Üç şart birden kapanıyor:
+       · kalem 35 → footer'da `destek-talepleri-v1` geçişi 0
+       · 9. tur dokümanı → "Çözüm Merkezi geri plana atılmamalıdır" korunur
+       · `tests/footer-yapi.mjs` → kurumsal bant 8 kalem kalır
+     K29 uyumlu: ölçü referanstan alındı, hedef DadaFit'in kendi sayfası. */
+  {label:'Çözüm Merkezi',                 href:'destek-v1.html'},
   {label:'Öneri ve Şikâyet',              href:'iletisim-v1.html#conForm'},
   {label:'İş Birliği',                    href:'reklam-ver-v1.html#isbirligi'},
   {label:'Reklam ve Marka İş Birlikleri', href:'reklam-ver-v1.html#reklam'},
@@ -391,7 +411,16 @@ var ACCOUNT_ITEMS = [
   {sep:true},
   {label:'Güvenlik',                    href:'hesabim-v1.html#guvenlik',         icon:'fa-solid fa-lock',          desc:'Şifre ve oturumlar'},
   {label:'Dil ve Bölge',                href:'hesabim-v1.html#dil',              icon:'fa-solid fa-globe',         desc:'Arayüz dili, birimler'},
-  {label:'Destek Taleplerim',           href:'destek-talepleri-v1.html',         icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},
+  /* R8 madde 6 — avatar dropdown'ına İKİ giriş. "Destek Taleplerim" kalemi
+     "Taleplerim" olarak yeniden adlandırıldı (ikinci kopya AÇILMADI —
+     kabul ölçütü destek-talepleri-v1.html'in dropdown'da tam 1 kez
+     geçmesini istiyor), yanına "Destek" kalemi eklendi.
+     Hedef AJAN-F'nin `destek-v1.html` sayfası (h1 "Destek", HTTP 200
+     doğrulandı) — yer tutucu kalkıp gerçek bağlantı bağlandı. */
+  {sep:true},   /* R8 madde 6 — destek ikilisi kendi grubunda: "Güvenlik / Dil ve
+                   Bölge" ayar kuyruğuna iliştirilmiş görünüyordu. */
+  {label:'Destek',                      href:'destek-v1.html',                   icon:'fa-solid fa-life-ring',     desc:'Yardım konuları ve iletişim'},
+  {label:'Taleplerim',                  href:'destek-talepleri-v1.html',         icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},
   {sep:true},
   {label:'Hesabı Dondurma',             href:'hesabim-v1.html#dondur',           icon:'fa-solid fa-circle-pause',  desc:'Geçici olarak ara ver'},
   {label:'Verilerimi İndir',            href:'fit-planim-veri-izin-v1.html#indir',icon:'fa-solid fa-download',     desc:'Kopyanı al'},
@@ -402,7 +431,10 @@ var ACCOUNT_ITEMS = [
    Planım'ın altı sekmesi burada TEKRARLANMAZ — ray zaten Planım sayfalarında
    duruyor ve "Planım ile Hesabım karıştırılmaz" kuralı bunu gerektiriyor. */
 var ACCOUNT = [
-  {label:'Planım', href:'fit-planim-v1.html', icon:'fa-solid fa-list-check', desc:'Bugünün özeti'},
+  /* R8 madde 1 — "Planım" kalemi buradan KALDIRILDI. Beyar: düğme header'da
+     kalır, dropdown'a KONMAZ. (Referans dadadiet.com'un hesap menüsünde hâlâ
+     duruyor — ölçüldü; bu bilinçli bir ayrışma.) Erişim kaybı yok: giriş
+     durumunda header düğmesi, mobilde alt bar kalemi aynı hedefe gider. */
   {label:'Bildirimler', href:'bildirimler-v1.html', icon:'fa-solid fa-bell'},
   {sep:true}
 ].concat(ACCOUNT_ITEMS).concat([
@@ -478,7 +510,7 @@ function drawerNavHtml(){
   var planSubs = PLAN_TABS.slice(1).map(function(p){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
-  out.push('<div class="d-item d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
+  out.push('<div class="d-item d-plan d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
   return out.join('\n    ');
 }
 
@@ -487,7 +519,7 @@ function bottomNavHtml(){
     var act = isActive(b) ? ' active' : '';
     var id  = b.id ? ' id="'+b.id+'"' : '';
     var ico = b.center ? '<span class="bn-fab"><i class="'+b.icon+'"></i></span>' : '<i class="'+b.icon+'"></i>';
-    return '<a href="'+b.href+'"'+id+' class="bn-item'+(b.center?' bn-center':'')+act+'">'+ico+'<span>'+b.label+'</span></a>';
+    return '<a href="'+b.href+'"'+id+' class="bn-item'+(b.center?' bn-center':'')+(b.cls?' '+b.cls:'')+act+'">'+ico+'<span>'+b.label+'</span></a>';
   }).join('\n  ');
 }
 
@@ -521,8 +553,12 @@ function footerLegalHtml(){
   var links = FOOTER_LEGAL.links.map(function(l){
     return '<a href="'+l.href+'">'+l.label+'</a>';
   }).join('<span class="sep" aria-hidden="true"></span>');
+  /* R8 madde 2 — GÖRÜNÜR BAŞLIK KALDIRILDI. Bağlantıların metni, sırası,
+     hedefi ve rengi AYNEN duruyor; kalkan yalnız <h5 class="fl-head">.
+     Bandın adı `aria-label`'da kalıyor — ekran okuyucu bandı hâlâ
+     "Yasal ve Sağlık" diye duyurur, görsel olarak başlık yok. */
   return '<nav class="foot-lawband" aria-label="'+FOOTER_LEGAL.title+'">'+
-         '<h5 class="fl-head">'+FOOTER_LEGAL.title+'</h5>'+links+'</nav>';
+         links+'</nav>';
 }
 
 var TOPBAR = ''+
@@ -561,6 +597,15 @@ var TOPBAR = ''+
 function accountHtml(){
   return ACCOUNT.map(function(a){
     if(a.sep) return '<div class="acct-div"></div>';
+    /* YER TUTUCU KALEM — hedef sayfa henüz üretilmedi.
+       <a href="#"> DEĞİL <span>: menüde tıklanınca sayfa başına zıplayan ölü
+       bağlantı bırakmıyoruz. Mağaza düğmelerinin deseni (footer-yapi §6:
+       "yayımlanmadıysa aktif bağlantı gibi çalışmamalı") burada da geçerli —
+       odak sırasına girmez, aria-disabled taşır, "Yakında" görünür yazar. */
+    if(a.yerTutucu) return '<span class="acct-soon" data-yer-tutucu="'+a.yerTutucu+
+      '" aria-disabled="true" aria-label="'+a.label+' — sayfa henüz yayında değil, yakında">'+
+      '<i class="'+a.icon+'"></i> <span>'+a.label+'<em class="acct-soon-tag">Yakında</em>'+
+      (a.desc?'<small>'+a.desc+'</small>':'')+'</span></span>';
     return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> <span>'+a.label+
            (a.desc?'<small>'+a.desc+'</small>':'')+'</span></a>';
   }).join('\n            ');
@@ -933,10 +978,17 @@ if(_plan){
    '    <nav class="fit-tabs" data-fit-tabs="planim" aria-label="Fit Planım bölümleri">\n        '+tabs+'\n    </nav>\n'+
    '  </div>\n'+
    '</div>\n'+
+   /* R8 madde 36 — PROTOTİP UYARISI ÇIKTI, GİRİŞ KAPISI KALDI.
+    Blok 13 sayfada görünüyordu (4 enerji-defteri + 9 fit-planim) ve iki işi
+    birden yapıyordu: "bu veriler örnektir" prototip uyarısı + misafirin
+    giriş CTA'sı. Beyar: cümle gitsin, düğmeler kalsın.
+    Çıkan: `<i class="fa-circle-info">` + "veriler örnektir" paragrafı.
+    Kalan: `.fp-gate-acts` (Giriş Yap · Ücretsiz hesap oluştur), `data-lg-only`
+    kapısı, `.fp-gate` sarmalayıcısı — yani 13 sayfada giriş CTA'sı korundu.
+    Blok artık info kutusu değil CTA bandı; biçimi de ona göre değişti
+    (fit-shell.css `.fp-gate-in`). */
    '<div class="wrap fp-gate" data-lg-only>\n'+
    '  <div class="fp-gate-in">\n'+
-   '    <i class="fa-solid fa-circle-info"></i>\n'+
-   '    <p>Bu sayfadaki veriler <b>örnektir</b> — Fit Planım\'ın nasıl çalıştığını göstermek için. Giriş yaptığında burada kendi verin olur.</p>\n'+
    '    <span class="fp-gate-acts"><a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a><a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz hesap oluştur</a></span>\n'+
    '  </div>\n'+
    '</div>';
@@ -2894,7 +2946,17 @@ setTimeout(function(){
       t.setAttribute('aria-selected', on ? 'true' : 'false');
       t.setAttribute('tabindex', on ? '0' : '-1');
       t.classList.toggle('active', on);
-      if(pane) pane.hidden = !on;
+      if(pane){
+        pane.hidden = !on;
+        /* R8 · WAI-ARIA APG: SEÇİLİ PANEL TAB SIRASINA GİRER.
+           Kusur (AJAN-G ölçtü, antrenor-detay-v1 "Hakkında" paneli):
+           panelin içinde odaklanabilir öğe yoksa Tab paneli tamamen
+           atlıyor, klavye kullanıcısı içeriğe hiç uğramadan alttaki
+           CTA'ya düşüyordu. APG "Tabs" deseni tam bu durum için
+           tabpanel'e tabindex="0" veriyor. Seçili olmayan panel zaten
+           `hidden`, odak sırasına girmez. */
+        pane.setAttribute('tabindex', on ? '0' : '-1');
+      }
     });
 
     function select(tab, focus){
@@ -2905,7 +2967,9 @@ setTimeout(function(){
         t.classList.toggle('active', on);
         var key = t.getAttribute('data-tab');
         panes.forEach(function(p){
-          if(p.getAttribute('data-pane') === key) p.hidden = !on;
+          if(p.getAttribute('data-pane') !== key) return;
+          p.hidden = !on;
+          p.setAttribute('tabindex', on ? '0' : '-1');   /* APG — bkz. açılış bloğu */
         });
       });
       if(focus) tab.focus();

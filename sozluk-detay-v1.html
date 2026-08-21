@@ -100,24 +100,9 @@
 .sz-kunye .k{flex:0 0 42%;font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.45}
 .sz-kunye .v{flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--slate);line-height:1.45}
 
-/* ---------- SIK ARANAN SORULAR (referanstaki "Püf Noktası Aramaları") ---------- */
-.sz-ask{display:flex;flex-wrap:wrap;gap:9px}
-.sz-ask li{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;
-  color:var(--slate-2);background:var(--bg);border:1px solid var(--line);
-  border-radius:var(--radius-pill);padding:8px 15px;list-style:none}
-.sz-ask li i{color:var(--muted);font-size:11px;flex:none}
-.sz-ask-note{margin-top:12px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.6}
-
-/* ---------- ETİKETLER ---------- */
-.sz-tags{display:flex;flex-wrap:wrap;gap:8px}
-.sz-tags a{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;
-  color:var(--fit-deep);background:var(--fit-tint);border:1px solid var(--fit-line);
-  border-radius:var(--radius-pill);padding:6px 13px;transition:.18s var(--ease)}
-.sz-tags a:hover{background:var(--fit);color:#fff;border-color:var(--fit)}
-.sz-tags a:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
-.sz-tags .fixed{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;
-  color:var(--slate-2);background:var(--bg);border:1px solid var(--line);
-  border-radius:var(--radius-pill);padding:6px 13px}
+/* R8 madde 10 — "Sık aranan sorular" (.sz-ask) ve "Etiketler" (.sz-tags)
+   bölümleri kalktı; stilleri de silindi. Geri alma: bu iki blok ve aşağıdaki
+   `aramalar` / `etiketler` üreticileri git geçmişinden geri gelir. */
 
 /* ---------- ÖNCEKİ / SONRAKİ ---------- */
 .sz-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
@@ -170,8 +155,6 @@
   <div class="wrap">
     <nav class="lib-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <a href="hareket-merkezi-v1.html">Hareket</a>
       <i class="fa-solid fa-chevron-right"></i>
       <a href="sozluk-v1.html">Spor Sözlüğü</a>
       <i class="fa-solid fa-chevron-right"></i>
@@ -297,31 +280,15 @@
            '<span class="v">' + esc(r.v) + '</span></div>';
   }).join('') + '</div>';
 
-  /* sık aranan sorular — kategori kalıbından üretiliyor, uydurma bilgi yok */
-  var aramalar = '<div class="sz-block">' +
-    '<h2><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i> Sık aranan sorular</h2>' +
-    '<ul class="sz-ask">' + S.aramalar(T).map(function(q){
-      return '<li><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' + esc(q) + '</li>';
-    }).join('') + '</ul>' +
-    '<p class="sz-ask-note">Bu terim en çok bu ifadelerle aranıyor. Aradığın karşılığı bulamadıysan ' +
-      'sözlükteki ' + S.TERIMLER.length + ' terim içinde arama yapabilirsin.</p>' +
-  '</div>';
-
-  /* etiketler — hepsi GERÇEK bir süzgece gidiyor ya da künyedeki bir alan.
-     Uydurma taksonomi üretilmedi. */
-  var etiketler = '<div class="sz-block">' +
-    '<h2><i class="fa-solid fa-tags" aria-hidden="true"></i> Etiketler</h2>' +
-    '<div class="sz-tags">' +
-      '<a href="sozluk-v1.html?kategori=' + encodeURIComponent(T.kategori) + '">' +
-        '<i class="' + K.ikon + '" aria-hidden="true"></i> ' + esc(K.ad) + '</a>' +
-      '<a href="sozluk-v1.html?harf=' + encodeURIComponent(T.harf) + '">' +
-        '<i class="fa-solid fa-arrow-down-a-z" aria-hidden="true"></i> ' + T.harf + ' harfi</a>' +
-      '<span class="fixed"><i class="fa-solid fa-language" aria-hidden="true"></i> ' +
-        esc(T.kunye.dil) + '</span>' +
-      (T.kas ? '<a href="' + S.kasAdres(T.kas) + '"><i class="fa-solid fa-person" aria-hidden="true"></i> ' +
-        esc(S.kasAdi(T.kas)) + '</a>' : '') +
-    '</div>' +
-  '</div>';
+  /* R8 MADDE 10 — İKİ BÖLÜM KALKTI.
+     · "Sık aranan sorular" (`.sz-ask`): kategori kalıbından türetilen dört
+       ifadeydi; gerçek bir arama verisi değildi, sayfaya bilgi eklemiyordu.
+     · "Etiketler" (`.sz-tags`): dört kalemden üçünün karşılığı sayfada zaten
+       vardı — kategori kırıntıda ve eyebrow'da, ilgili kas yan köprü
+       kartında, dil künye tablosunda. Tek benzersiz yol "H harfi" süzgeciydi;
+       ona da sözlük listesindeki harf rayı gidiyor.
+     Kaybolan benzersiz hedef YOK; `S.aramalar()` yardımcısı artık
+     çağrılmıyor (veri dosyasında duruyor, silinmedi). */
 
   /* yan köprü kartları */
   var yan = '';
@@ -353,10 +320,6 @@
       '</div>' +
 
       mix +
-
-      aramalar +
-
-      etiketler +
 
       '<div class="sz-block">' +
         '<h2><i class="' + K.ikon + '" aria-hidden="true"></i> Bunlar da bu ailede</h2>' +

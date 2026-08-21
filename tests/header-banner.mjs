@@ -36,7 +36,7 @@ const BANNER = [
   'antrenorler-v1.html',            // .lib-top
   'egzersiz-kutuphane-v1.html',
   'programlar-merkezi-v1.html',
-  'hareket-merkezi-v1.html',
+  /* R8/4: hareket-merkezi-v1 kaldırıldı */
   'challenge-merkezi-v1.html',
   'program-liste-v1.html',
   'hareket-rehberi-v1.html',

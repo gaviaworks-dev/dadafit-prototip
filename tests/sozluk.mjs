@@ -19,13 +19,16 @@
          (LİSTE), sozluk-detay-v1 = 560/617/726 (DETAY)
       9. Konsol hatası 0 · yatay taşma 0 — @1440 ve @390
      10. Detay sayfası HER terim slug'ında dolu — bütün terimler tek tek
-         geziliyor (h1, tanım, örnek, künye, sık aranan sorular, etiketler,
-         aile listesi, önceki/sonraki).
+         geziliyor (h1, tanım, örnek, künye, aile listesi, önceki/sonraki).
+         R8 madde 10: "sık aranan sorular" ve "etiketler" bölümleri KALKTI —
+         nöbet artık ikisinin de 0 olduğunu doğruluyor.
          Bilinmeyen slug'da sayfa 200 dönüp "bulunamadı" durumu basıyor.
      11. AÇILIR SATIR deseni çalışıyor (referans ölçümünden geldi): satır
          kapalı başlıyor, tıklayınca aria-expanded="true" olup gövde
-         görünüyor, yeniden tıklayınca kapanıyor; sağdaki ok terimin kendi
-         sayfasına gidiyor ve düğmenin içine gömülü değil.
+         görünüyor, yeniden tıklayınca kapanıyor; satırın sağında detay
+         sayfasına giden ok YOK (R6 madde 9).
+     12. R8 madde 7d + 8 — kategori çipleri açıkta, arama çip rayıyla aynı
+         satırda (üst kenar farkı 0), çip rayının solu boş değil.
 
    Çalıştırma:
      python3 -m http.server 8821 &
@@ -137,30 +140,22 @@ const OKU = () => {
 };
 
 
-/* R6 madde 10 — kategori ekseni sitenin ortak "Filtrele" bileşenine
-   (`.lib-filters.ff[data-ff]`, egzersiz-kutuphane ile aynı) taşındı: çipler
-   kapalı bir açılır menünün içinde duruyor. Nöbet ZAYIFLAMADI, aksine gerçek
-   kullanıcı yolunu koşturuyor — menü açılıyor, çip tıklanıyor. */
+/* R8 madde 7d — kategori ekseni AÇILIR MENÜDEN ÇIKTI. R6'da çipler kabuğun
+   `.lib-filters.ff[data-ff]` bileşeninin kapalı panelindeydi ve bu yardımcı
+   önce menüyü açıyordu; R8 kardeş markayla hizalanıp çipleri açık bir raya
+   çıkardı (referans: dadagastro.com/mutfak-sozlugu `.ke-filter`).
+   Çip artık doğrudan tıklanıyor — kullanıcının gerçek yolu bu. */
 async function katSec(page, kat){
-  const acik = await page.evaluate(() =>
-    !!document.querySelector('#szCatFilter .ff-facet.open'));
-  if (!acik) { await page.click('#szCatFilter .ff-btn'); await page.waitForTimeout(180); }
   await page.click(`#szCats .df-fchip[data-kat="${kat}"]`);
   await page.waitForTimeout(70);
 }
-async function menuKapat(page){
-  await page.keyboard.press('Escape');
-  await page.waitForTimeout(120);
-}
-/* sayfanın kanonik "filtreleri temizle" düğmesi (#szReset) bileşen tarafından
-   gizleniyor; kullanıcı çubuktaki "Temizle"ye basıyor, o da #szReset'i tetikliyor */
+/* R8: kapatılacak menü kalmadı. Çağrı yerleri korunuyor ki blokların
+   akışı ve numaralandırması aynı kalsın. */
+async function menuKapat(){ /* R8'de menü yok */ }
+/* "Filtreleri temizle" (#szReset) — R8'de çip rayının yanında, YALNIZ
+   temizlenecek bir süzgeç varken görünür. Nöbet gerçek düğmeyi tetikliyor. */
 async function hepsiniTemizle(page){
-  const varMi = await page.evaluate(() => {
-    const b = document.querySelector('#szCatFilter .ff-reset');
-    return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height > 0;
-  });
-  if (varMi) await page.click('#szCatFilter .ff-reset');
-  else await page.evaluate(() => document.getElementById('szReset').click());
+  await page.evaluate(() => document.getElementById('szReset').click());
   await page.waitForTimeout(140);
 }
 
@@ -406,39 +401,62 @@ async function hepsiniTemizle(page){
     else rec('madde 9 (sağ ok / detay bağlantısı)', s11.join('\n      '));
   }
 
-  /* --- 11c · R6 MADDE 10 — blok sırası · sticky yok · Filtrele bileşeni --- */
+  /* --- 11c · R8 MADDE 7d + 8 — çipler AÇIKTA · arama çip satırında · sticky yok
+     R6 madde 10 buraya "kategori ekseni kabuğun açılır Filtrele bileşeni
+     OLMALI" diye yazmıştı. R8 madde 7d o kararı geçersiz kıldı: kardeş marka
+     (dadagastro.com/mutfak-sozlugu) çipleri açık bir rayda tutuyor, DadaFit
+     de oraya döndü. Karar kütüğü: **K62** — "Sözlük gastro iskeletine
+     çekildi — sozluk.mjs 11c sözleşmesi TERSİNE döndü" (KARARLAR.md).
+     Nöbet yeni sözleşmeyi bekliyor:
+       · açılır menü kalıntısı 0
+       · çipler `#szCats` içinde açıkta ve tıklanabilir
+       · arama kutusu çip rayıyla AYNI satırda (üst kenar farkı 0 px)
+       · çip rayının solu boş değil (harf rayıyla aynı sol kenar)
+       · sıra: harf → çip+arama → sayaç → liste
+       · sticky 0 (R6 madde 10'un bu kısmı duruyor) · harf rayı 29 --- */
   {
     const r = await page.evaluate(() => {
       const R = e => e.getBoundingClientRect().top + scrollY;
       const q = s => document.querySelector(s);
       const ara = q('.sz-controls .sz-find'), harf = q('.sz-controls #szLetters'),
-            kat = q('.sz-controls #szCatFilter'), liste = q('#szList');
-      /* sayfa AKIŞINDA yapışkan öğe: açılır menünün kendi kaydırma kabında
-         yapışkan duran arama alanı (kabuğun bileşeni) sayılmaz */
+            chips = q('.sz-controls #szCats'), sayac = q('.sz-body .sz-count'),
+            liste = q('#szList');
       const sticky = [...document.querySelectorAll('main *')]
         .filter(e => getComputedStyle(e).position === 'sticky')
-        .filter(e => !e.closest('.ff-pop') && !e.closest('.ff-sheet'))
         .map(e => e.className);
+      const ok4 = !!(ara && harf && chips && sayac && liste);
+      const cr = chips && chips.getBoundingClientRect();
+      const ir = ara && ara.getBoundingClientRect();
+      const hr = harf && harf.getBoundingClientRect();
       return {
-        sira: !!(ara && harf && kat && liste) &&
-              R(ara) < R(harf) && R(harf) < R(kat) && R(kat) < R(liste),
+        sira: ok4 && R(harf) < R(chips) && R(chips) < R(sayac) && R(sayac) < R(liste),
         sticky,
-        bilesen: !!q('#szCatFilter[data-ff].ff-ready') && !!q('#szCatFilter .ff-bar .ff-btn'),
-        acilirArama: !!q('#szCatFilter .ff-pop .ff-search input'),
+        dropdownKalinti: document.querySelectorAll(
+          '#szCatFilter, .sz-controls [data-ff], .sz-controls .ff-bar, .sz-controls .ff-pop').length,
+        cipSayisi: document.querySelectorAll('#szCats .df-fchip').length,
+        gizliCip: [...document.querySelectorAll('#szCats .df-fchip')]
+                    .filter(c => c.getBoundingClientRect().height === 0).length,
+        ustFark: (ok4) ? Math.round(Math.abs(cr.top - ir.top) * 10) / 10 : -1,
+        solFark: (ok4) ? Math.round((cr.left - hr.left) * 10) / 10 : -1,
         harfSayisi: document.querySelectorAll('#szLetters .sz-ltr:not(.all)').length,
         bosHarf: [...document.querySelectorAll('#szLetters .sz-ltr.is-empty')]
-                   .map(b => ({ h: b.textContent.trim(), dis: b.disabled }))
+                   .map(b => ({ h: b.textContent.trim(), dis: b.disabled, on: b.classList.contains('on') }))
       };
     });
     const s12 = [];
-    if (!r.sira)            s12.push('blok sırası arama → harf → kategori → liste değil');
-    if (r.sticky.length)    s12.push('süzgeç bloğunda position:sticky: ' + r.sticky.join(', '));
-    if (!r.bilesen)         s12.push('kategori ekseni kabuğun .ff "Filtrele" bileşenini kullanmıyor');
-    if (!r.acilirArama)     s12.push('açılır menünün içinde arama alanı yok');
-    if (r.harfSayisi !== 29) s12.push(`harf rayı ${r.harfSayisi} harf (beklenen 29)`);
+    if (!r.sira)                 s12.push('blok sırası harf → çip+arama → sayaç → liste değil');
+    if (r.sticky.length)         s12.push('süzgeç bloğunda position:sticky: ' + r.sticky.join(', '));
+    if (r.dropdownKalinti !== 0) s12.push(`kategori açılır menü kalıntısı: ${r.dropdownKalinti} düğüm`);
+    if (r.cipSayisi !== 11)      s12.push(`çip sayısı ${r.cipSayisi} (beklenen 11 = Tümü + 10 kategori)`);
+    if (r.gizliCip !== 0)        s12.push(`gizli (yükseklik 0) çip: ${r.gizliCip}`);
+    if (r.ustFark !== 0)         s12.push(`arama ile çip rayının üst kenarı ${r.ustFark} px kaçık (beklenen 0)`);
+    if (r.solFark !== 0)         s12.push(`çip rayının sol kenarı harf rayından ${r.solFark} px içeride (beklenen 0)`);
+    if (r.harfSayisi !== 29)     s12.push(`harf rayı ${r.harfSayisi} harf (beklenen 29)`);
     if (!r.bosHarf.every(b => b.dis)) s12.push('karşılığı olmayan harf disabled değil');
-    if (!s12.length) ok(`madde 10: sıra arama→harf→kategori→liste · sticky 0 · Filtrele bileşeni (dropdown + içinde arama) · harf rayı 29, boş harf ${r.bosHarf.map(b=>b.h).join(',')||'-'} disabled`);
-    else rec('madde 10 (yerleşim / bileşen)', s12.join('\n      '));
+    /* karşılığı olmayan harf "seçili" görünmemeli — R8'de yakalanan kusur */
+    if (r.bosHarf.some(b => b.on)) s12.push('karşılığı olmayan harf SEÇİLİ (.on) basılıyor');
+    if (!s12.length) ok(`madde 7d+8: sıra harf→çip+arama→sayaç→liste · dropdown kalıntısı 0 · ${r.cipSayisi} çip açıkta · üst kenar farkı 0 · sol kenar farkı 0 · sticky 0 · harf rayı 29, boş harf ${r.bosHarf.map(b=>b.h).join(',')||'-'} disabled ve seçili değil`);
+    else rec('R8 madde 7d+8 (yerleşim / çip rayı)', s12.join('\n      '));
   }
 
   /* --- 11d · R6 MADDE 8 — kullanım talimatı kalktı, kütüphane bağlantısı duruyor --- */
@@ -601,8 +619,13 @@ ok('konsol hatası 0 (@390, iki sayfa)');
         aile: document.querySelectorAll('.sz-fam a').length,
         kunye: document.querySelectorAll('.sz-kunye .r').length,
         kunyeBos: [...document.querySelectorAll('.sz-kunye .v')].filter(v => !v.textContent.trim()).length,
-        aramalar: document.querySelectorAll('.sz-ask li').length,
-        etiket: document.querySelectorAll('.sz-tags a, .sz-tags .fixed').length,
+        /* R8 madde 10 — bu iki bölüm KALKTI, nöbet artık 0 bekliyor */
+        aramalar: document.querySelectorAll('.sz-ask, .sz-ask li, .sz-ask-note').length,
+        etiket: document.querySelectorAll('.sz-tags, .sz-tags a, .sz-tags .fixed').length,
+        /* GÖRÜNEN metin okunuyor: body.textContent <style>/<script> gövdesini de
+           içeriyor ve kaldırma gerekçesini anlatan YORUMLARA takılıyordu. */
+        araBaslik: ((document.querySelector('main')||{}).innerText || '').indexOf('Sık aranan sorular') > -1 ? 1 : 0,
+        etiketBaslik: /(^|\s)Etiketler(\s|$)/.test((document.querySelector('main')||{}).innerText || '') ? 1 : 0,
         prev: !!document.getElementById('szPrev'),
         next: !!document.getElementById('szNext'),
         geri: !!document.querySelector('a[href="sozluk-v1.html"]'),
@@ -621,8 +644,11 @@ ok('konsol hatası 0 (@390, iki sayfa)');
     if (r.aile < 1)                sorun.push('aile listesi boş');
     if (r.kunye < 4)               sorun.push(`künye ${r.kunye} satır (en az 4 bekleniyor)`);
     if (r.kunyeBos)                sorun.push(`künyede ${r.kunyeBos} boş değer`);
-    if (r.aramalar !== 4)          sorun.push(`sık aranan sorular ${r.aramalar} kalem (4 bekleniyor)`);
-    if (r.etiket < 3)              sorun.push(`etiket ${r.etiket} kalem (en az 3 bekleniyor)`);
+    /* R8 madde 10 — kaldırılan iki bölüm: düğüm de başlık metni de 0 olmalı */
+    if (r.aramalar !== 0)          sorun.push(`"sık aranan sorular" düğümü ${r.aramalar} (0 bekleniyor · R8 madde 10)`);
+    if (r.araBaslik !== 0)         sorun.push('"Sık aranan sorular" başlığı hâlâ sayfada (R8 madde 10)');
+    if (r.etiket !== 0)            sorun.push(`"etiketler" düğümü ${r.etiket} (0 bekleniyor · R8 madde 10)`);
+    if (r.etiketBaslik !== 0)      sorun.push('"Etiketler" başlığı hâlâ sayfada (R8 madde 10)');
     if (!r.prev || !r.next)        sorun.push('önceki/sonraki gezinme yok');
     if (!r.geri)                   sorun.push('"tüm sözlüğe dön" yok');
     if (!/Spor Sözlüğü/.test(r.baslik)) sorun.push('sayfa başlığı ayarlanmamış');

@@ -27,6 +27,28 @@
 .cm-len{position:absolute;top:12px;right:12px;z-index:2;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm)}
 @media (max-width:1024px){ .sec{padding:var(--sec-pad) 0} }
 @media (max-width:640px){ .cm-panel{padding:16px} .cm-panel .fgroup .lbl{min-width:100%} .sec{padding:var(--sec-pad) 0} }
+
+/* ================= R8/32 · SECTION İÇİ KART TUTARSIZLIĞI =================
+ ÖLÇÜM (düzeltmeden önce, iki genişlikte):
+   .cc-card  ×3 → 300 · 300 · 300 px  (maks−min 0)  ✓ zaten tutarlı
+   .fp-card  ×3 → 207 · 184 · 184 px @1440  (maks−min 23)
+                  199 · 176 · 176 px @390   (maks−min 23)
+   dolgu, görsel oranı ve başlık satır sayısı üç kartta da TEK değerdi —
+   tutarsızlık yalnız yükseklikte.
+ KÖK NEDEN: fit-shell.css:1630 `.fp-grid{align-items:start}`. Izgara öğeleri
+ esnemiyor, her kart kendi metni kadar oluyor; "Seri" kartının metni bir satır
+ uzun olduğu için +23 px.
+ KABUĞA DOKUNULMADI — .fp-grid'i 13 sayfa kullanıyor. Yalnız bu sayfadaki
+ üçlü ızgara esnetildi. */
+/* KAPSAM (Beyar/lead karari): esit yukseklik YALNIZ izgara varken anlamli.
+ <=640'ta .fp-grid tek kolona duser (fit-shell.css:1711); orada hizalanacak
+ bir komsu yok, esit yukseklik yalnizca kisa kartlarin altina 23 px olu
+ bosluk birakiyordu (olculdu: 199 vs kendi icerigi 176). Kural 641'den
+ itibaren gecerli — kirilma noktasi kabuk rampasiyla ayni (640). */
+@media (min-width:641px){
+  .cm-esit{align-items:stretch;grid-auto-rows:1fr}
+  .cm-esit>.fp-card{height:100%}
+}
 </style>
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
@@ -183,7 +205,7 @@
         <p class="lead">Baskı değil denge. Kurallar baştan açık olsun ki kaçırdığın gün sürpriz olmasın.</p>
       </div>
     </div>
-    <div class="fp-grid cols-3">
+    <div class="fp-grid cols-3 cm-esit">
       <div class="fp-card">
         <div class="fp-head"><h3><i class="fa-solid fa-fire"></i> Seri</h3></div>
         <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Seri, üst üste görevi tamamladığın gün sayısıdır. <b>Bir gün kaçırmak seriyi sıfırlamaz</b> — ay içinde iki telafi hakkın var. Üçüncü kaçırılan günde seri baştan başlar; challenge devam eder.</p>

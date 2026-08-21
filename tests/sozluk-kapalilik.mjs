@@ -338,13 +338,9 @@ if (an.veri) {
   {
     const kalemler = await page.$$eval('#szCats .df-fchip', bs =>
       bs.map(b => b.getAttribute('data-kat') || ''));
-    /* R6 madde 10 — kategori ekseni sitenin ortak "Filtrele" bileşenine
-       taşındı; çipler kapalı bir açılır menünün içinde. Menü açılıp
-       tıklanıyor, yani nöbet gerçek kullanıcı yolunu koşturuyor. */
+    /* R8 madde 7d — çipler açılır menüden çıkıp açık raya döndü (kardeş
+       marka `.ke-filter` deseni). Çip doğrudan tıklanıyor. */
     const katSec = async (kat) => {
-      const acikMi = await page.evaluate(() =>
-        !!document.querySelector('#szCatFilter .ff-facet.open'));
-      if (!acikMi) { await page.click('#szCatFilter .ff-btn'); await page.waitForTimeout(180); }
       await page.click(`#szCats .df-fchip[data-kat="${kat}"]`);
       await page.waitForTimeout(70);
     };

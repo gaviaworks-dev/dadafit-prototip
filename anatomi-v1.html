@@ -27,6 +27,8 @@
 
  KONUMLANDIRMA (REVIZYON-5 §2 · H2): kabuk modern, içerik ansiklopedik.
  ===================================================================== */
+/* sayfa token'ları — elle sayı yerine tek kaynak (R8 · kalem 14) */
+.an-grid{--an-chip-gap:12px}
 .lib-top{--lib-img:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1680&q=80&auto=format&fit=crop&exp=8&gam=8&sat=-22');--lib-pos:center 38%}
 
 /* banner istatistik şeridi — sayılar VERİDEN hesaplanıp JS ile basılır */
@@ -131,10 +133,38 @@
 
 .an-sec{padding:19px 0;border-bottom:1px solid var(--line)}
 .an-sec:last-child{border-bottom:none;padding-bottom:4px}
-.an-sec > h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:800;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--muted);margin:0 0 10px}
-.an-sec > h3 i{color:var(--fit);font-size:12px;width:14px;text-align:center}
+
+/* ---- R8 · kalem 13 — ORTA BAŞLIKLAR + ACCORDION ------------------
+   ÖNCE: `.an-sec > h3` 11.5 px / 800 / uppercase / --muted idi; yani
+   başlık gövde metninden (14.5 px / 500) KÜÇÜKTÜ ve daha soluktu.
+   Göz onu başlık değil, üstteki bloğun dipnotu gibi okuyordu — kalem
+   13'ün şikâyeti bu. ŞİMDİ başlık gövdeden hem BÜYÜK hem KOYU:
+       başlık 16 px / 800 / --slate   ·   gövde 14.5 px / 500 / --slate-2
+   Uppercase kalktı: 16 px büyük harf bir "etiket" gibi bağırırdı;
+   ayrışmayı boyut ve ağırlık taşıyor, harf biçimi değil.
+   Başlık artık <button aria-expanded> — bölüm klavyeyle katlanıyor. */
+.an-sec > h3{margin:0 0 10px;font-size:inherit;font-weight:inherit}
+.an-acc{display:flex;align-items:center;gap:9px;width:100%;padding:4px 0;margin:0;
+  background:none;border:0;font-family:inherit;text-align:left;cursor:pointer;
+  font-size:16px;font-weight:800;line-height:1.35;color:var(--slate);
+  transition:color .18s var(--ease)}
+.an-acc:hover{color:var(--fit-deep)}
+.an-acc:focus-visible{outline:2px solid var(--fit-deep);outline-offset:3px;border-radius:var(--radius-sm,6px)}
+.an-acc > i:first-child{color:var(--fit);font-size:13px;width:16px;text-align:center;flex:none}
+.an-acc .an-acc-ok{margin-left:auto;flex:none;font-size:11px;color:var(--muted);
+  transition:transform .2s var(--ease),color .18s var(--ease)}
+/* satırın tamamı tek düğme — imleç üstündeyken başlık YEŞİLE dönüp ok
+   soluk kalırsa satır yarı canlı görünüyor; ok da başlıkla birlikte döner */
+.an-acc:hover .an-acc-ok{color:var(--fit-deep)}
+.an-acc[aria-expanded="false"] .an-acc-ok{transform:rotate(-90deg)}
+.an-acc[aria-expanded="false"]{color:var(--slate-2)}
+/* Gövde, başlığın METNİYLE hizalanır (ikon 16px + gap 9px = 25px).
+   Öncesinde gövde ikonun altından başlıyordu; başlık kendi paragrafına
+   göre 25 px içeride duruyor, sol kenar iki kez kırılıyordu. */
+.an-acc-govde{padding-left:25px}
+.an-acc-govde[hidden]{display:none}
 .an-sec p{font-size:14.5px;line-height:1.72;color:var(--slate-2);margin:0}
+
 
 /* köken / yapışma — iki satırlık künye */
 .an-kunye{display:grid;gap:10px}
@@ -146,7 +176,13 @@
 /* çip listeleri — komşu kaslar ve ekipman
    R6 · M13: yarıçap 999 px (tam hap) idi; K24 uyarınca çip ailesi
    --radius-chip (12 px). Elle sayı yok, token. */
-.an-chips{display:flex;flex-wrap:wrap;gap:8px}
+/* R8 · kalem 14 — çip aralığı 8 px → 12 px, TEK token'dan.
+   8 px, 36–44 px yüksekliğindeki çiplerin yanında optik olarak yok
+   sayılıyordu: iki satıra sarınca çipler birbirine yapışık bir blok
+   gibi okunuyordu. Satır ve kolon aralığı tek değer (--an-chip-gap);
+   hem satır hem kolon aynı, elle ikinci sayı yok.
+   K53: dokunma hedefi çaplarına DOKUNULMADI — değişen yalnız aralık. */
+.an-chips{display:flex;flex-wrap:wrap;gap:var(--an-chip-gap)}
 .an-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;border-radius:var(--radius-chip);
   border:1px solid var(--line);background:var(--bg);font-size:13px;font-weight:700;color:var(--slate-2);
   cursor:pointer;transition:.18s var(--ease);font-family:inherit;appearance:none}
@@ -173,9 +209,12 @@
  --------------------------------------------------------------- */
 .an-hrk{background:var(--bg);border-bottom:1px solid var(--line);padding:18px 26px 20px}
 .an-hrk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px}
-.an-hrk-head h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:800;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--muted);margin:0}
-.an-hrk-head h3 i{color:var(--fit);font-size:12px;width:14px;text-align:center}
+/* R8 · kalem 13 — hareket bandı başlığı accordion DEĞİL (panelin birincil
+   içeriği, hep açık) ama accordion başlıklarıyla AYNI tipografiyi alır;
+   yoksa panelde iki ayrı "orta başlık" dili olurdu. */
+.an-hrk-head h3{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:800;letter-spacing:0;
+  text-transform:none;color:var(--slate);line-height:1.35;margin:0}
+.an-hrk-head h3 i{color:var(--fit);font-size:13px;width:16px;text-align:center}
 .an-hrk-head a{font-size:12.5px;font-weight:700;color:var(--fit-deep);white-space:nowrap;
   display:inline-flex;align-items:center;gap:6px;min-height:32px}
 .an-hrk-head a:hover{text-decoration:underline;text-underline-offset:2px}
@@ -229,6 +268,62 @@
    dikey dolgusuna (--sec-pad) eşitleniyor: üst boşluk = alt boşluk. */
 .an-note{margin-top:var(--sec-pad)}
 
+/* ---------------------------------------------------------------
+ R8 · kalem 12 — PANEL, DAR EKRANDA GERÇEK BİR DİYALOG
+ ---------------------------------------------------------------
+ Kalem 12 "panel açıkken Tab odağı dışarı kaçıyor, odak tuzağı yok"
+ diyordu. Ölçtük: @1440 ve @390'da panel bir MODAL DEĞİL — grid'in
+ içinde hep görünür duran inline bir kart. Inline bir karta odak
+ tuzağı kurmak hatayı düzeltmez, YENİ hata üretir: klavye kullanıcısı
+ panele girdikten sonra footer'a asla ulaşamaz. Kaçış doğru davranış.
+
+ Asıl sorun ölçümde başka yerden çıktı: @390'da bölgeye dokunduktan
+ sonra cevabın başladığı yer panelTop = 1219 px, viewport 844 px —
+ yani cevap katlamanın 375 px altında, panelin kendisi 1546 px.
+ Kullanıcı dokunuyor, ekranda hiçbir şey değişmiyor.
+
+ ÇÖZÜM: ≤900 px'te panel, bölgeye dokununca alttan gelen bir DİYALOG
+ olarak açılıyor. Diyalog olunca odak tuzağı, Esc ve odak dönüşü de
+ doğru davranış hâline geliyor — ve hepsi FIT_MODAL'dan, kalem 11'in
+ kullandığı AYNI iskeletten geliyor.
+
+ >900 px'te `.an-sheet` `display:contents` kalır: panel grid'in doğrudan
+ çocuğu, geometri değişmez, tuzak kurulmaz. Kapalıyken @390'da da
+ `display:contents` — böylece harita-panel dizilimi (tests/anatomi.mjs
+ §7) aynen duruyor.
+ --------------------------------------------------------------- */
+.an-sheet{display:contents}
+.an-sheet-ov{position:fixed;inset:0;background:rgba(15,23,32,.55);z-index:98;opacity:0;visibility:hidden;
+  transition:opacity .2s var(--ease),visibility .2s}
+.an-sheet-ov.show{opacity:1;visibility:visible}
+.an-kapat{display:none}
+
+@media (max-width:900px){
+  .an-sheet.show{display:grid;align-items:end;position:fixed;inset:0;z-index:99;padding:0}
+  .an-sheet.show .an-panel{max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:0;
+    box-shadow:0 -14px 40px rgba(15,23,32,.22);animation:an-sheet-in .24s var(--ease)}
+  @keyframes an-sheet-in{from{transform:translateY(28px);opacity:.4}to{transform:none;opacity:1}}
+  /* tutamak — bu kartın sürüklenip kapanacağını değil, alttan gelen bir
+     katman olduğunu söyler; başlığın üstünde tek nötr çizgi. */
+  .an-sheet.show .an-panel-head{position:sticky;top:0;z-index:2;background:var(--paper);
+    display:flex;align-items:flex-start;gap:12px;padding-top:20px}
+  .an-sheet.show .an-panel-head::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:38px;height:4px;border-radius:999px;background:var(--line)}
+  .an-sheet.show .an-panel-head > div{min-width:0;flex:1}
+  .an-sheet.show .an-kapat{display:grid;place-items:center;flex:none;width:44px;height:44px;margin:-4px -4px 0 0;
+    border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg);color:var(--slate-2);
+    font-size:15px;cursor:pointer;font-family:inherit}
+  .an-sheet.show .an-kapat:hover{border-color:var(--fit);color:var(--fit-deep)}
+  .an-sheet.show .an-kapat:focus-visible{outline:2px solid var(--fit-deep);outline-offset:2px}
+  /* diyalogda künye yeniden anlamlı: kullanıcı haritadan koptu */
+  .an-sheet.show .an-eyebrow{display:inline-flex}
+}
+@media (prefers-reduced-motion:reduce){
+  .an-sheet.show .an-panel{animation:none}
+  .an-sheet-ov{transition:none}
+}
+
 /* ekran okuyucu bildirimi */
 .an-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
@@ -248,8 +343,6 @@
   <div class="wrap">
     <nav class="lib-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <a href="hareket-merkezi-v1.html">Hareket</a>
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Anatomi Haritası</span>
     </nav>
@@ -285,11 +378,17 @@
            `aria-live` KALDIRILDI (R6 · M14): panelin tamamı canlı bölge
            olduğunda kas değişiminde ekran okuyucu bütün künyeyi baştan
            okuyordu. Bildirim tek yerden, #anLive'dan veriliyor. -->
-      <article class="an-panel" id="anPanel">
-        <!-- JS basar -->
-      </article>
+      <!-- R8 · kalem 12 — sarmalayıcı >900 px'te `display:contents`, yani
+           panel grid'in doğrudan çocuğu olarak kalır. ≤900 px'te bölgeye
+           dokununca `.show` alıp diyaloga dönüşür (FIT_MODAL). -->
+      <div class="an-sheet" id="anSheet">
+        <article class="an-panel" id="anPanel">
+          <!-- JS basar -->
+        </article>
+      </div>
 
     </div>
+    <div class="an-sheet-ov" id="anSheetOv"></div>
 
     <!-- ===== 3 · SAĞLIK NOTU (R6 · M15) =====
          Eskiden kendi section'ındaydı (`padding-top:0`) → üstünde 84 px,
@@ -313,6 +412,9 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- R8 · kalem 12 — kalem 11 ile AYNI modal iskeleti (Esc · dışarı tıklama
+     · kapat düğmesi · odak tuzağı · odak dönüşü · scroll kilidi). -->
+<script src="assets/js/fit-modal.js"></script>
 <!-- Anatomi verisi — H3 de aynı dosyayı okuyabilsin diye sayfadan AYRI -->
 <script src="assets/js/anatomi-veri.js"></script>
 <script>
@@ -426,8 +528,12 @@
                          '', location.pathname + q);
   }
 
-  /* sec(slug, odakla) — kas seçer; gerekiyorsa görünümü de değiştirir */
-  function sec(slug, odakla) {
+  /* sec(slug, odakla, tetik) — kas seçer; gerekiyorsa görünümü de değiştirir.
+     `tetik` verilirse seçim GERÇEK bir kullanıcı hareketinden geliyordur →
+     ≤900 px'te panel diyalog olarak açılır ve kapanınca odak `tetik`e döner.
+     Derin bağlantı (`?kas=`) ve ön/arka geçişi tetik VERMEZ: sayfa açılışında
+     kullanıcının önüne kapatması gereken bir katman çıkmaz. */
+  function sec(slug, odakla, tetik) {
     var veri = KAS[slug];
     if (!veri) return;
     var gorunumDegisti = veri.gorunum !== durum.gorunum;
@@ -445,7 +551,12 @@
     if (gorunumDegisti) haritaYukle().then(sonra); else sonra();
 
     panelBas(slug);
+    /* Diyalog açıkken komşu-kas çipinden başka bir kasa geçilirse içerik
+       değişiyor ama kaydırma konumu kalıyordu: kullanıcı yeni kasın
+       ortasından bir yere düşüyordu. Yeni künye baştan başlar. */
+    if (sayfaAcikMi()) panel.scrollTop = 0;
     urlYaz();
+    if (tetik && darEkran()) sayfaAc(tetik);
     var n = (veri.hareketler || []).filter(function (h) { return !!HRK[h]; }).length;
     live.textContent = veri.ad + ' seçildi. ' +
       (veri.gorunum === 'on' ? 'Ön' : 'Arka') + ' görünüm. ' +
@@ -493,11 +604,33 @@
              '<i class="fa-solid fa-book-open"></i>' + esc(e) + '</a>';
     }).join('');
 
+    /* R8 · kalem 13 — orta başlıklar accordion başlığı oldu.
+       Varsayılan AÇIK: panel bir ansiklopedi künyesi, kullanıcı bir kasa
+       dokunduğunda cevabı katlanmış bulmamalı. Katlama, uzun künyede
+       aradığı bölüme inmek isteyene verilen bir imkân — zorunluluk değil. */
+    var accN = 0;
+    function accSec(alan, ikon, baslik, govde) {
+      var id = 'an-acc-' + (++accN);
+      return '<div class="an-sec" data-alan="' + alan + '">' +
+        '<h3><button type="button" class="an-acc" aria-expanded="true" aria-controls="' + id + '">' +
+          '<i class="fa-solid ' + ikon + '"></i><span>' + baslik + '</span>' +
+          '<i class="fa-solid fa-chevron-down an-acc-ok" aria-hidden="true"></i>' +
+        '</button></h3>' +
+        '<div class="an-acc-govde" id="' + id + '">' + govde + '</div>' +
+      '</div>';
+    }
+
     panel.innerHTML =
       '<div class="an-panel-head">' +
-        '<span class="an-eyebrow"><i class="fa-solid fa-location-crosshairs"></i> ' + esc(k.bolge) + '</span>' +
-        '<h2 id="anAd">' + esc(k.ad) + '</h2>' +
-        '<p class="an-latin" id="anLatin">' + esc(k.latin) + '</p>' +
+        '<div>' +
+          '<span class="an-eyebrow"><i class="fa-solid fa-location-crosshairs"></i> ' + esc(k.bolge) + '</span>' +
+          '<h2 id="anAd">' + esc(k.ad) + '</h2>' +
+          '<p class="an-latin" id="anLatin">' + esc(k.latin) + '</p>' +
+        '</div>' +
+        /* yalnız ≤900 px'te diyalog başlığında görünür (CSS); FIT_MODAL
+           [data-fm-close]'u DELEGE dinliyor, panel yeniden basılsa da yaşar */
+        '<button type="button" class="an-kapat" data-fm-close aria-label="Kası kapat">' +
+          '<i class="fa-solid fa-xmark"></i></button>' +
       '</div>' +
 
       /* HAREKET BANDI — panelin ilk içerik alanı. Kas değişince başlık,
@@ -514,39 +647,88 @@
 
       '<div class="an-panel-body">' +
 
-        '<div class="an-sec" data-alan="fonksiyon">' +
-          '<h3><i class="fa-solid fa-bolt"></i> Ne yapar</h3>' +
-          '<p>' + esc(k.fonksiyon) + '</p>' +
-        '</div>' +
+        accSec('fonksiyon', 'fa-bolt', 'Ne yapar',
+          '<p>' + esc(k.fonksiyon) + '</p>') +
 
-        '<div class="an-sec" data-alan="koken">' +
-          '<h3><i class="fa-solid fa-bone"></i> Köken ve yapışma</h3>' +
+        accSec('koken', 'fa-bone', 'Köken ve yapışma',
           '<div class="an-kunye">' +
             '<div><span class="k">Köken</span><span class="v">' + esc(k.koken) + '</span></div>' +
             '<div><span class="k">Yapışma</span><span class="v">' + esc(k.yapisma) + '</span></div>' +
-          '</div>' +
-        '</div>' +
+          '</div>') +
 
-        '<div class="an-sec" data-alan="komsu">' +
-          '<h3><i class="fa-solid fa-diagram-project"></i> Komşu ve birlikte çalışan kaslar</h3>' +
-          '<div class="an-chips">' + komsu + '</div>' +
-        '</div>' +
+        accSec('komsu', 'fa-diagram-project', 'Komşu ve birlikte çalışan kaslar',
+          '<div class="an-chips">' + komsu + '</div>') +
 
-        '<div class="an-sec" data-alan="ekipman">' +
-          '<h3><i class="fa-solid fa-toolbox"></i> Kullanılabilecek ekipman</h3>' +
-          '<div class="an-chips">' + ekipman + '</div>' +
-        '</div>' +
+        accSec('ekipman', 'fa-toolbox', 'Kullanılabilecek ekipman',
+          '<div class="an-chips">' + ekipman + '</div>') +
 
-        '<div class="an-sec" data-alan="guvenlik">' +
-          '<h3><i class="fa-solid fa-triangle-exclamation"></i> Sık yapılan hata ve güvenlik notu</h3>' +
-          /* R6 · M11 — "Anatomik veri kaynağı: …" satırı EKRANA BASILMIYOR.
-             Verideki `kaynak` alanı DURUYOR (K38 sözleşmesi, 29/29 kayıt);
-             izlenebilirlik veride, künye ekranda değil. */
-          '<div class="an-uyari"><p>' + esc(k.guvenlik) + '</p></div>' +
-        '</div>' +
+        /* R6 · M11 — "Anatomik veri kaynağı: …" satırı EKRANA BASILMIYOR.
+           Verideki `kaynak` alanı DURUYOR (K38 sözleşmesi, 31/31 kayıt);
+           izlenebilirlik veride, künye ekranda değil. */
+        accSec('guvenlik', 'fa-triangle-exclamation', 'Sık yapılan hata ve güvenlik notu',
+          '<div class="an-uyari"><p>' + esc(k.guvenlik) + '</p></div>') +
 
       '</div>';
   }
+
+  /* =================================================================
+     4 · DAR EKRANDA DİYALOG (R8 · kalem 12) + ACCORDION (kalem 13)
+     ================================================================= */
+  /* KAPI: dar ekran VE dokunmatik. İkisi birden, çünkü çözdüğümüz sorun
+     dokunma sorunu — parmakla bölgeye dokunuyorsun, cevap 375 px aşağıda,
+     ekranda hiçbir şey kıpırdamıyor. Fareli dar pencerede (küçültülmüş
+     masaüstü) panel inline kalır: kullanıcının hem kaydırma tekerleği hem
+     pencereyi büyütme imkânı var, önüne kapatılacak bir katman çıkarmayız.
+     Böylece haritanın üstünü kapatan bir katman yalnız gerçekten gereken
+     yerde beliriyor. */
+  var DAR   = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+  var DOKUN = window.matchMedia ? window.matchMedia('(pointer:coarse)')  : null;
+  function darEkran() {
+    return (DAR ? DAR.matches : window.innerWidth <= 900) && (DOKUN ? DOKUN.matches : false);
+  }
+
+  /* kalem 11 ile AYNI iskelet — burada kap `#anSheet`, panel `#anPanel`.
+     FIT_MODAL yüklenmemişse sayfa eski hâlinde (inline panel) çalışır. */
+  var sheetEl = document.getElementById('anSheet');
+  var sayfa = window.FIT_MODAL ? FIT_MODAL.kur({
+    kap: '#anSheet', panel: '#anPanel', ortu: '#anSheetOv',
+    /* Diyalog rolü SADECE açıkken duruyor. Kalıcı `role="dialog"` yazmak
+       yanlış olurdu: >900 px'te ve kapalıyken bu bir diyalog değil,
+       sayfanın içeriği — ekran okuyucuya "iletişim kutusu" diye
+       duyurulması kullanıcıyı olmayan bir katmandan çıkmaya çalıştırır. */
+    acilinca: function () {
+      sheetEl.setAttribute('role', 'dialog');
+      sheetEl.setAttribute('aria-modal', 'true');
+      sheetEl.setAttribute('aria-labelledby', 'anAd');
+    },
+    kapaninca: function () {
+      sheetEl.removeAttribute('role');
+      sheetEl.removeAttribute('aria-modal');
+      sheetEl.removeAttribute('aria-labelledby');
+    }
+  }) : null;
+
+  function sayfaAc(tetik) { if (sayfa) sayfa.ac(tetik); }
+  function sayfaAcikMi() { return !!sayfa && sayfa.acikMi(); }
+
+  /* Ekran genişleyince açık diyalog kapanmalı: >900 px'te `.an-sheet`
+     yeniden `display:contents` olur, panel grid'e döner ama scroll kilidi
+     ve odak tuzağı üstünde kalırdı. */
+  if (DAR && DAR.addEventListener) {
+    DAR.addEventListener('change', function (e) {
+      if (!e.matches && sayfa && sayfa.acikMi()) sayfa.kapat();
+    });
+  }
+
+  /* accordion — delege: panel her kas seçiminde yeniden basılıyor */
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.an-acc') : null;
+    if (!b) return;
+    var acik = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', acik ? 'false' : 'true');
+    var govde = document.getElementById(b.getAttribute('aria-controls'));
+    if (govde) govde.hidden = acik;
+  });
 
   /* =================================================================
      5 · OLAYLAR
@@ -554,7 +736,7 @@
   /* bölge tıklama + klavye — SVG yeniden yüklendiği için delege dinleyici */
   stage.addEventListener('click', function (e) {
     var el = e.target.closest ? e.target.closest('[data-kas]') : null;
-    if (el) sec(el.getAttribute('data-kas'), false);
+    if (el) sec(el.getAttribute('data-kas'), false, el);
   });
 
   stage.addEventListener('keydown', function (e) {
@@ -565,7 +747,7 @@
 
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      sec(el.getAttribute('data-kas'), true);
+      sec(el.getAttribute('data-kas'), true, el);
       return;
     }
     var yon = 0;
@@ -577,10 +759,12 @@
     sec(hedef, true);
   });
 
-  /* komşu kas çipi → o kasa geç */
+  /* komşu kas çipi → o kasa geç. Diyalog açıksa `ac()` erken döner, yani
+     tetikleyici İLK dokunulan bölge olarak kalır — kapatınca odak haritaya
+     döner, panelin içinde kaybolmaz. */
   panel.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('[data-git]') : null;
-    if (b) sec(b.getAttribute('data-git'), false);
+    if (b) sec(b.getAttribute('data-git'), false, b);
   });
 
   /* ÖN / ARKA geçişi — görünümdeki ilk kası seçili getirir */

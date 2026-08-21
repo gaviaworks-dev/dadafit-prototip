@@ -33,12 +33,23 @@
 .sec-fit .eyebrow::before{background:var(--fit)}
 
 /* ---- İKİ KOLON: sol akış · sağ sabit özet ---- */
-.ft-body{padding:var(--sec-pad-sm) 0 0;background:var(--bg-white)}
+/* R8/29: alt dolgu 0'di — .ft-body → .ft-coach sinirinda ara 74 px cikiyor,
+ hemen altindaki .ft-coach → #diger sinirinda 148 px. Iki farkli deger.
+ Kabugun kendi ayni-isi-yapan idiomu kullanildi (fit-shell.css:1557 .note-band):
+ ust siki nefes, alt tam nefes. Sabit px yok → K-A rampasiyla birlikte hareket eder. */
+.ft-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--bg-white)}
 .ft-lay{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:40px;align-items:start;margin-top:26px}
 .ft-col{min-width:0}
 
 /* ---- BLOK BAŞLIĞI (sol kolon h2'leri) ---- */
-.ft-blk{margin-top:44px;scroll-margin-top:120px}
+/* R8/29: kolon ici dikey ritim TEK degiskene baglandi. Onceki hal olculdu:
+ .ft-blk 44/34 · .ft-tier 46 · .ft-flow 30 · .ft-flow-act 30 →
+ @1440 iki farkli ara (44·46), @768 uc (30·44·46), @390 uc (30·34·46).
+ Kirilma noktasi 900 degil 640: kabuk rampasi (--sec-pad) 640'ta dusuyor,
+ ritim de orada dussun ki ikisi ayni anda degissin (K-A ile tutarli). */
+.ft-col{--ft-ara:44px}
+@media (max-width:640px){ .ft-col{--ft-ara:34px} }
+.ft-blk{margin-top:var(--ft-ara);scroll-margin-top:120px}
 .ft-blk:first-child{margin-top:0}
 .ft-blk-h{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 .ft-blk-h .ic{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
@@ -67,7 +78,7 @@
  adıma indi ve sayfanın başında bir ray olarak gösteriliyor. */
 .ft-flow{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
-  margin:0 0 30px;padding:0;list-style:none
+  margin:0 0 var(--ft-ara);padding:0;list-style:none
 }
 .ft-flow a{
   display:flex;align-items:flex-start;gap:12px;height:100%;
@@ -93,7 +104,7 @@
 .ft-blk.is-step .ft-blk-h .ic{background:var(--fit-deep);color:#fff;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 /* bilgi blokları ile uygulama blokları arasına görünür bir eşik */
 .ft-tier{
-  display:flex;align-items:center;gap:12px;margin:46px 0 22px;
+  display:flex;align-items:center;gap:12px;margin:var(--ft-ara) 0 22px;
   font-size:11.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)
 }
 .ft-tier::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -109,7 +120,7 @@
  satırı. Masaüstünde sağ kolon zaten taşıdığı için tekrar basılmaz. */
 .ft-flow-act{display:none}
 @media (max-width:900px){
-  .ft-flow-act{display:flex;flex-direction:column;gap:9px;margin:0 0 30px}
+  .ft-flow-act{display:flex;flex-direction:column;gap:9px;margin:0 0 var(--ft-ara)}
   .ft-flow-act .btn{width:100%}
 }
 
@@ -309,7 +320,7 @@
 @media (max-width:640px){
   .ft-body{padding-top:var(--sec-pad-sm)}
   .ft-two,.ft-res-grid{grid-template-columns:1fr}
-  .ft-blk{margin-top:34px}
+  /* R8/29: .ft-blk margin-top artik --ft-ara token'inda (640 kirilimi) */
   .ft-blk-h h2{font-size:19px}
   .ft-scr-body,.ft-side-body{padding-left:16px;padding-right:16px}
   .ft-scr-h{padding:16px}
@@ -379,8 +390,8 @@
 
         <!-- E6/it1 · AKIŞ RAYI — testin üç adımı, sayfanın en başında -->
         <nav class="ft-flow" aria-label="Test akışı">
-          <a href="#uygunluk"><span class="n">1</span><span><b>Uygunluk taraması</b><span>Yedi soru · yaklaşık 1 dakika</span><span class="st" id="ftFlowS1"><i class="fa-solid fa-hourglass-half"></i> Yapılmadı</span></span></a>
-          <a href="#adimlar"><span class="n">2</span><span><b>Adım adım uygulama</b><span>Beş adım · ısınma ve soğuma dahil</span><span class="st is-locked"><i class="fa-solid fa-lock"></i> Tarama sonrası açılır</span></span></a>
+          <a href="#uygunluk"><span class="n">1</span><span><b>Uygunluk taraması</b><span>7 soru · 1 dakikadan kısa</span><span class="st" id="ftFlowS1"><i class="fa-solid fa-hourglass-half"></i> Yapılmadı</span></span></a>
+          <a href="#adimlar"><span class="n">2</span><span><b>Adım adım uygulama</b><span>5 adım · ısınma ve soğuma dahil</span><span class="st is-locked"><i class="fa-solid fa-lock"></i> Tarama sonrası açılır</span></span></a>
           <a href="#sonuc"><span class="n">3</span><span><b>Sonucunu gir</b><span>Kendi başlangıcınla kıyaslanır</span><span class="st"><i class="fa-solid fa-flag-checkered"></i> Son adım</span></span></a>
         </nav>
 
@@ -456,7 +467,7 @@
             <div class="ft-scr-h">
               <span class="ic"><i class="fa-solid fa-clipboard-question"></i></span>
               <div>
-                <b>Yedi soru · yaklaşık 1 dakika</b>
+                <b>7 soru · 1 dakikadan kısa</b>
                 <small>Bu bir teşhis aracı değildir. Yalnız bugün bu testi güvenle yapıp yapamayacağını
                 anlamak için soruluyor. Bir soruya bile <b>“Evet”</b> dersen test başlamaz ve seni uzman
                 desteğine yönlendiririz. <b>Her soruyu bir kez yanıtlarsın</b> — yanıt kilitlenir.

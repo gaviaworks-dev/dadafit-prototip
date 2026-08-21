@@ -1,0 +1,19 @@
+# AJAN-A ilerleme
+- 02:19 brief+devir okundu, frontend-design skill okundu; koda bakılıyor
+- 02:28 M1+M2: .fit-health IIFE ve CSS ailesi kaldırıldı, 3 tercih veri-izin sayfasına taşındı
+- 02:36 M1-3 geçiş2: fp-sw dokunma hedefi 26→44, yasal band dolgusu wg-foot ile eşitlendi, yazım kaydı düzeltildi
+- 02:47 M1-3 kapandı: footer-curtain + footer-yapi güncellendi, ikisi de 0 sorun. M4 başlıyor
+- 02:58 M4 geçiş1: .lib-main sarmalayıcı + iki kolonlu banner; 25/25 sayfada şerit sağda dikey, banner aile ölçüleri sabit
+- 03:08 M4 geçiş2: kırıntı iki kolonun üstüne alındı (.lib-row), etiket kontrastı 3.83→5.14 min, boş kalem temizlendi
+- 03:11 M4 geçiş3: oluk referansla eşitlendi (39→44). M5/6/7'ye geçiliyor
+- 03:17 M5 kapandı: .lib-cta kabuğa alındı (gap 9), ikincil buton camsı dile geçti, hiyerarşi ölçüldü. M6
+- 03:22 M6 kapandı: yetim not bölümü #tumu'nun kuyruğuna girdi, 3→2 section. M7 başlıyor
+- 03:32 M7: antrenor-detay tek kolon + sağ dikey şerit, program-detay cam panel kalktı; h1 132 → 63/64 sayfa
+- 03:39 M7 geçiş2 bitti; sınamalar koşturuluyor
+- 03:59 8 sınama yeşil (footer-curtain·footer-yapi·header-banner·crumb-home·kabuk-kalite·a11y-focus·coach-list·plan-account·dropdown-position·wizard-page)
+- 04:08 RAPOR yazıldı (tasks/r6-ilerleme/A-RAPOR.md). 7 madde kapandı, 11 sınama + 6 page-check yeşil.
+- 04:25 AJAN-E notları: .lib-row regresyonu zaten kapalıydı (doğrulandı); eyebrow --fit-deep (25 sayfa AA), --muted #717171 (66 sayfa AA), .fit-tab 44px; footer-yapi'ye 12b banner iki kolon nöbeti eklendi (12 sayfada kırmızıya döndüğü kanıtlandı)
+- 05:01 AJAN-E 2. tur: .lead yaslama istisnasına alındı (79 blok/34 sayfa, 4.6x'e kadar), .fp-act/.fp-actbtn/.see-all 44px örtü hedefi (AA kusuruydu), .see-all rengi --fit-deep
+- 05:54 AJAN-E 3. tur: --jt-min hiç uygulanmıyormuş (token okunmuyor + container sorgusu özgüllükten kaybediyor + eşik 320 değil 480). Mekanizma onarıldı; %100 eşik altı 5 seçici listeden çıktı. Nehirler kapandı (43px/65px).
+- 06:32 AJAN-E 4. tur: iddiam yarı doğruymuş (@390 evet, @1440 hayır). fpx sınıfları kabuğa alındı; AYNI özgüllük tuzağına 3. kez düşüldüğü tespit edildi (.lead de 16 blokta kaybediyormuş). 72 istisna seçicisi computed ile denetlendi: ihlal 0.
+- 07:06 AJAN-E 5. tur: regex silmem 7 sayfada .fpx-sum-sub'ı sarkık bıraktı (10.6x nehir + yabancı padding) - AJAN-E düzeltti. 68 dosyada sarkan seçici taraması: gerçek 0. 105 seçicilik 'left sözünü tutuyor mu' sondası: ihlal 0.

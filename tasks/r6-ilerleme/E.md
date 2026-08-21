@@ -1,0 +1,17 @@
+# AJAN-E ilerleme
+>> 02:21 AJAN-E başladı: skill okundu, REVIZYON-6 §F ve fit-plan-kayit.js sözleşmesi okundu.
+>> 02:23 Taban görüntüler alındı (g0 @1440/@390). Kusur: banner sağ yarısı tamamen boş, üst özet kartı yok, FIT_PLAN bağlantısı yok, veriler sabit uydurma. Referans keşfine geçiyorum.
+>> 02:25 Referans keşfi: dadadiet.com/planim ve dadagastro.com/mutfak-defterim SUNUCU TARAFINDA /giris'e yönlendiriyor (curl 200 -> /giris). Profil sayfaları ölçülemiyor; halka açık muadillerden tasarım dili ölçülecek.
+>> 02:33 Ortak fpx- CSS bloğu 7 sayfaya yazıldı; fit-planim-v1 gövdesi yeniden kuruldu (üst özet kartı + 3 sec-head bölümü). Şimdi FPX JS yardımcısı.
+>> 02:36 fit-planim-v1 kuruldu: üst özet kartı FIT_PLAN.ozet() okuyor, gün şeridi + hareket işaretleme çalışıyor, boş durum dürüst. g1 ve g1dolu görüntüleri alındı, taşma 0 konsol 0. Alt sayfalara geçiyorum.
+>> 02:42 6 alt sayfanın gövdesi yeniden kuruldu (üst özet kartı + sec-head bölümleri + inline style temizliği + FIT_PLAN bağı). Şimdi eksik CSS ve ölçüm.
+>> 02:50 GEÇİŞ 2 kapandı. Ölçülen 3 kusur: (1) yaslama nehiri .lead 26.1px→sola yaslı, (2) @390 dokunma hedefi .fp-act 13px/.df-fchip 35px→44px, (3) çift boş durum kartı 438px→299px. Nehir 0, ray dışı <44px hedef 0 (yalnız paragraf içi metin bağlantıları).
+>> 02:57 GEÇİŞ 3: referans tablosu çıkarıldı. Kendi ezmelerim (h2 26px, sec-head mb 22px, lead 14.5px) kaldırıldı — kabuğun .sec-head değerleri referansla ZATEN birebir (34px/-0.68px/34px/15.5px). Eyebrow kontrastı 3.36→5.18. İstatistik şeridi 9 ölçütün 9'unda eşit.
+>> 03:01 KABUK GERİLEMESİ bulundu: madde 4'ün .lib-top>.wrap flex-row kuralı .lib-main sarmalayıcısı bekliyor, #fitPlanTop üreticisi onu basmıyor → 9 plan sayfasının banner'ı @1440'ta yan yana diziliyor (yükseklik 544 sabit olduğu için nöbet yakalamıyor). AJAN-A'ya ölçümlerle bildirildi, dokunmadım.
+>> 03:06 tests/plan-ozet.mjs yazıldı: taban sayfalarda 3 kırmızı (K27), şimdi 7 adımın 7'si yeşil. plan-account.mjs yeşil, page-check 7/7 temiz.
+>> 03:16 Bitti. footer-curtain (65/65 perde 0), footer-yapi (yasal bant dokunulmamış), plan-account, plan-ozet: hepsi yeşil. page-check 7/7 temiz. Geçici test araçları silindi. Rapor yazılıyor.
+>> 03:21 Rapor tasks/r6-ilerleme/E-RAPOR.md'ye yazıldı. İş bitti.
+>> 04:52 AJAN-A kabuk tabanını düzeltti (.eyebrow --fit-deep, --muted #717171, .fit-tab 44px). Yerel .eyebrow yamamı kaldırdım (artık gereksiz). Her şey yeniden ölçüldü: 7/7 temiz, tüm sınamalar yeşil, nihai görüntüler yeni kabukla alındı.
+>> 05:35 AJAN-A .lead istisnasını ve ::after dokunma örtüsünü kabuğa koydu. İki yamamı daha kaldırdım (.lead ezmesi + min-height:44px bloğu + .df-fchip). Örtüyü elementFromPoint ile kendi sayfalarımda doğruladım: 46 kontrol, 0 ihlal, 0 komşu çalma. Yaslama: 0 yaslı blok, en geniş kelime arası 3.9px. Sınamalar yeşil, görüntüler yeniden alındı.
+>> 06:21 AJAN-A --jt-min eşiğini onardı. 'Ezmen gereksiz' iddiasını ölçtüm: @390'da doğru (kart 358px, mekanizma yakalıyor), @1440'ta DEĞİL (kart 577-1176px, eşiğin üstü, 8 blok yeniden yaslanıyor, 6.2px). Ezme geri kondu, gerekçesi ölçümle yazıldı. Sınamalar yeşil, görüntüler yeniden alındı.
+>> 07:01 AJAN-A üç sınıfı kabuğa aldı ve yerel ezmemi sildi, ama SARKAN SEÇİCİ bıraktı: '.fpx-sum-sub,' gövdesiz kalıp bir sonraki kuralla birleşmiş. Sonuç 7 sayfada: yaslama geri gelmiş (@390 kelime arası 40.4px = 10.6x, turun en şiddetli nehiri) + yabancı padding 30/20/26 bulaşmış (blok 48->104px). Düzelttim, .fpx-sum-sub kendi gövdesini aldı. Ölçüm: her iki kırılımda yaslı blok 0, aralık 3.8px. Sınamalar yeşil.

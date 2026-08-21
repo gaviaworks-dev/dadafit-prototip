@@ -1487,3 +1487,137 @@ okunarak AS-1'in iskeleti çıkarıldı (§11.5) — route, tam durum şeması,
 > ölçülemeyen şeyin bir kısmı, zaten indirilmiş kaynaktan `[KAYNAK]`
 > etiketiyle çıkarılabilir — yeter ki hangi etikete ait olduğu dürüstçe
 > ayrılsın.
+
+---
+
+## K46 · Anatomi haritası İKİ KATMANA ayrıldı — render görünür, vektör tıklar
+
+**Bağlam:** R6 madde 21. Beyar'ın ilk onayı "Yön 3" idi (Higgsfield yalnız
+çizim şablonu, siteye yalnız SVG girer). İlk trace onaylandıktan sonra yön
+değişti: **render görünen katman olacak**, soyut SVG ovalleri görünmeyecek.
+Referans `musclewiki.com/tr-tr`: gövde nötr, seçilen kas solid renkle dolar
+ve dolgu gerçek kas konturunu izler.
+
+**KARAR — `assets/svg/govde-*.svg` iki katman taşır:**
+
+| Katman | Ne | Davranış |
+|---|---|---|
+| `<image class="an-govde">` | `assets/img/anatomi/govde-*.png` — Higgsfield render'ı | **Boyanmaz.** Nötr kalır, seçimden etkilenmez |
+| `<path class="an-bolge">` | segmentlenmiş kas konturu | Dolgu **varsayılan saydam**. Hover hafif vurgu · seçili solid `fit-deep` |
+
+**Sonuç:** seçilmemiş kasın üstünde hiç boya yok; seçili kas gerçek konturunu
+izleyerek doluyor. Eski `.an-siluet` / `.an-cizgi` düğümleri ve CSS'i kalktı.
+
+**Neden raster tek başına yetmiyordu (Beyar'a ölçümle anlatıldı):** raster
+PNG'de kas parçası tıklanamaz ve seçili kas boyanamaz. "Üstteki kas
+gruplarıyla etkileşimli" şartı hangi yol seçilirse seçilsin bir **vektör
+bölge katmanı** gerektiriyor. Fark, o katmanın ALTINDA ne olduğu.
+
+**Geri dönüş:** `an-bolge` dolgusunu `currentColor` yapıp `<image>`'ı
+kaldırmak eski davranışa döner; üreteç depoda duruyor.
+
+---
+
+## K47 · Dört render ORTAK TUVALE normalize edildi — ölçek referansı gövde boyu
+
+**Sorun (Beyar ölçtü):** dört render farklı orandaydı — erkek-ön 2.011 ·
+erkek-arka 1.916 · kadın-ön 2.279 · kadın-arka 2.163. Bu hâliyle ön/arka ve
+kadın/erkek geçişinde gövde **zıplıyordu**.
+
+**KARAR:** dördü tek viewBox'a (`0 0 758 1380`) oturtuldu. Ölçek referansı
+**gövde yüksekliği** (baş tepesi → topuk = **1300 px**); genişlik
+**zorlanmadı** — omuz genişliği figürler arasında doğal olarak farklıdır.
+
+**Normalize sonrası nirengi kayması (ölçüldü, 1300 px gövdede):**
+
+| Nirengi | Değerler | Yayılım |
+|---|---|---|
+| omuz | 269 · 263 · 279 · 271 | **16 px** (%1.23) |
+| kalça | 737 · 751 · 730 · 743 | **21 px** (%1.62) |
+| kasık | 816 · 817 · 812 · 806 | **11 px** (%0.85) |
+| diz | 1178 · 1175 · 1175 · 1177 | **3 px** (%0.23) |
+
+> **Koltuk altı yayılımı 138 px ve bu bir kusur DEĞİL:** erkek-ön render'ında
+> kollar gövdeden daha açık duruyor. Poz farkı, ölçek hatası değil.
+
+**Nirengi tanımı sağlamlaştırıldı:** ilk ölçümde omuz 350 px sapmış
+görünüyordu; sebep tespit yöntemiydi (koltuk altını başın içinde buluyordu).
+Omuz artık "silüet genişliğinin ilk kez en geniş hâlin %50'sini aştığı satır".
+
+---
+
+## K48 · Kas path'leri ELLE ÇİZİLMEDİ — render'dan segmentlendi
+
+**KARAR:** kontur elle trace edilmedi. Render düz renkli plakalardan
+oluştuğu için görüntü segmentlendi: kontur çizgileri sınır kabul edilip
+`connectedComponents` ile plakalar etiketlendi, `findContours` ile sınır
+çıkarıldı, `approxPolyDP` ile 1.1 px toleransla sadeleştirildi.
+
+**Neden:** path render'ın **kendisinden** türüyor — hizasızlık matematiksel
+olarak mümkün değil. Elle trace'te kaçınılmaz olan kayma riski ortadan kalkıyor.
+
+**Segmentasyonun verdiği çözünürlük:** erkek-ön 48 · erkek-arka 45 ·
+kadın-ön 46 · kadın-arka 39 anlamlı plaka. Sol/sağ ayrı bileşen çıkıyor ve
+alanları birebir eşleşiyor — segmentasyonun temiz olduğunun kanıtı.
+
+**Plaka → slug eşleştirmesi ELLE yapıldı.** Önce kadın için geometrik aktarım
+denendi (erkek maskesiyle en çok örtüşen bileşen); **yetmedi** ve bırakıldı:
+kadın render'ında bazı plakalar birleşik geliyor. Ölçülen örnek —
+`kadin-arka` bileşen **22**, alan 38545, bbox y390..922: sağ lat ile sağ
+kalçayı tek parça yapmış, örtüşme kuralı hepsini `gluteus-maximus`'a atıyor
+ve **yeşil sırtın yarısını kaplıyordu**. Dört görünümün dördü de etiketli
+haritadan okunarak elle eşlendi; birleşik plakalar x/y aralığıyla kesildi.
+
+**Boyama sırası alandan büyükten küçüğe.** SVG'de sonraki path üste biner;
+ince kaslar en sonda kalırsa büyük komşusunun altında kaybolmaz.
+
+**Üreteç depoda:** `tasks/anatomi-uretim/bolgeler.py` + `svg-yaz.py`.
+Render değişirse yeniden koşturulur, elle düzeltme gerekmez.
+
+---
+
+## K49 · Bir kas İKİ GÖRÜNÜMDE birden bölge taşıyabilir — kural taşındı
+
+**Eski kural (`tests/anatomi.mjs`):** *"bölgenin `gorunum`'u bulunduğu
+görünümle aynı olmalı"*. Bu kural her slug'ın tek görünümde bulunduğu soyut
+haritaya göre yazılmıştı.
+
+**Sorun:** render'dan segmentlenen harita **gerçek anatomiyi** izliyor.
+Gastrocnemius hem önden hem arkadan görünür; trapez hem arkadan hem omuz
+üstünden. Eski kural bunları "yanlış görünümde" diye kırmızıya döndürüyordu.
+
+**KARAR — kural zayıflatılmadı, doğru yere taşındı:**
+1. Her bölgenin veri kaydı **olmak zorunda** (karşılıksız bölge 0)
+2. Her kas **kendi birincil görünümünde** bulunmak zorunda (karşılıksız kayıt 0)
+3. **İkincil görünüm serbest** — ama ikincilde varsa birincilde de olacak
+
+`gorunum` alanı artık "kasın birincil görünümü" demek; `?kas=` derin
+bağlantısı ve panel bu alanı okumaya devam ediyor. **16 ön · 15 arka = 31.**
+
+---
+
+## K50 · Sağlık-güvenlik şeridi kalktı, TERCİHLER kaybolmadı
+
+**R6 madde 1·2·3 tek değişikliktir.** Sayfa altındaki "Sağlık ve güvenlik"
+bloğu sayfa markup'ında değildi — `fit-shell.js`'teki bir IIFE onu 60 sayfaya
+basıyordu. IIFE (99 satır) ve `.fh-*` CSS ailesi (21 kural) silindi.
+
+**Kaybolmayanlar:**
+- **Yasal bant dokunulmadı** — `saglik-bilgilendirme-v1.html` bağlantısı 66/66
+  sayfada duruyor. Uyarı siteden kaybolmadı, section olarak basılmıyor.
+- **Üç tercih** (`#fhSound` · `#fhVibe` · `#fhMotion`) `fit-planim-veri-izin`e
+  taşındı. `dm_fit_sound` / `dm_fit_vibe` / `dm_fit_motion` anahtarları
+  **aynı** — kayıtlı tercih kaybolmadı. `FIT_SHELL.pref` API'si korundu.
+
+**Sınama nöbeti TAŞINDI, zayıflatılmadı:** `footer-curtain` ve `footer-yapi`
+artık `.fit-health` **0 olmalı** diye nöbet tutuyor; `footer-yapi`'ye
+"yasal bantta sağlık bağlantısı ≥1" ölçütü **eklendi**.
+
+---
+
+## K51 · Ajan ekran görüntüleri depoya GİRMİYOR
+
+R6'da altı ajan **278 ekran görüntüsü** üretti, toplam **139 MB**. Statik bir
+prototip deposu ve GitHub Pages için taşınamaz. `.gitignore`'a `tasks/r6-shots/`
+eklendi. **Raporlar (`tasks/r6-ilerleme/*.md`) depoya giriyor** — kalıcı kayıt
+onlar; görüntüler turun kendi oturumunda diskte duruyor.

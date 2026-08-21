@@ -152,6 +152,27 @@
       </div>
     </div>
 
+    <!-- R6 · MADDE 2 — sayfa altındaki "Sağlık ve güvenlik" şeridinden TAŞINDI.
+         Üç tercih aynı localStorage anahtarlarıyla burada yaşıyor:
+         dm_fit_sound · dm_fit_vibe · dm_fit_motion. Kayıtlı tercih kaybolmadı. -->
+    <div class="fp-card" style="margin-top:22px" id="uygulama">
+      <div class="fp-head"><h3><i class="fa-solid fa-sliders"></i> Uygulama tercihleri</h3>
+        <span class="fp-badge off">Bu cihazda saklanır</span></div>
+      <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-bottom:6px">Sayaç, zamanlayıcı ve animasyon davranışı. Hesabına değil, kullandığın tarayıcıya kaydedilir.</p>
+      <div class="fp-toggle">
+        <span class="txt"><b>Sayaç sesi</b><small>Set ve dinlenme sayacı bittiğinde kısa bir uyarı sesi çalar</small></span>
+        <span class="fp-sw-lbl">Açık</span><button class="fp-sw" data-fit-pref="dm_fit_sound" role="switch" aria-checked="true" aria-label="Sayaç sesi"></button>
+      </div>
+      <div class="fp-toggle">
+        <span class="txt"><b>Titreşim</b><small>Sayaç bittiğinde telefonun titrer. Titreşimi destekleyen cihazlarda çalışır</small></span>
+        <span class="fp-sw-lbl">Kapalı</span><button class="fp-sw" data-fit-pref="dm_fit_vibe" role="switch" aria-checked="false" aria-label="Titreşim"></button>
+      </div>
+      <div class="fp-toggle">
+        <span class="txt"><b>Hareketi azalt</b><small>Kaydırma animasyonlarını ve otomatik oynayan arka plan videolarını kapatır. Site genelinde geçerlidir</small></span>
+        <span class="fp-sw-lbl">Kapalı</span><button class="fp-sw" data-fit-pref="dm_fit_motion" role="switch" aria-checked="false" aria-label="Hareketi azalt"></button>
+      </div>
+    </div>
+
     <div class="hr-note">
       <i class="fa-solid fa-circle-info"></i>
       <p>Yasal metinler: <a href="yasal-v1.html?metin=kvkk">Gizlilik (KVKK)</a> · <a href="yasal-v1.html?metin=aydinlatma">Aydınlatma Metni</a> · <a href="yasal-v1.html?metin=kullanim">Kullanım Koşulları</a>. Sağlık içeriklerinin kapsamı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
@@ -168,16 +189,48 @@
 <script src="assets/js/fit-shell.js"></script>
 <script>
 /* açma-kapama düğmeleri — klavye ile de çalışır (belge §14.3) */
-document.querySelectorAll('.fp-sw').forEach(function(sw){
-  function flip(){
-    var on = sw.getAttribute('aria-checked') === 'true';
-    sw.setAttribute('aria-checked', on ? 'false' : 'true');
-    var lbl = sw.parentElement.querySelector('.fp-sw-lbl');
-    if(lbl) lbl.textContent = on ? 'Kapalı' : 'Açık';
-  }
+function fpBoya(sw, on){
+  sw.setAttribute('aria-checked', on ? 'true' : 'false');
+  var lbl = sw.parentElement.querySelector('.fp-sw-lbl');
+  if(lbl) lbl.textContent = on ? 'Açık' : 'Kapalı';
+}
+function fpBagla(sw, flip){
   sw.addEventListener('click', flip);
   sw.addEventListener('keydown', function(e){
     if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flip(); }
+  });
+}
+
+/* gösterim amaçlı anahtarlar (izinler, bildirimler) — kayıt tutmaz */
+document.querySelectorAll('.fp-sw:not([data-fit-pref])').forEach(function(sw){
+  fpBagla(sw, function(){ fpBoya(sw, sw.getAttribute('aria-checked') !== 'true'); });
+});
+
+/* R6 · MADDE 2 — kabuğun sağlık şeridinden taşınan üç uygulama tercihi.
+   localStorage anahtarları DEĞİŞMEDİ: dm_fit_sound · dm_fit_vibe · dm_fit_motion.
+   Eskiden `fit-shell.js`'teki pref() bu üçünü aynı anahtarlarla yazıyordu;
+   kayıtlı tercih burada aynı değerle okunuyor. `dm_fit_motion` ayrıca
+   html.reduce-motion sınıfını anında uyguluyor (eski davranışın aynısı). */
+document.querySelectorAll('.fp-sw[data-fit-pref]').forEach(function(sw){
+  var key = sw.getAttribute('data-fit-pref');
+  var on;
+  try{
+    var v = localStorage.getItem(key);
+    on = v === null ? (sw.getAttribute('aria-checked') === 'true') : v === '1';
+  }catch(e){ on = sw.getAttribute('aria-checked') === 'true'; }
+
+  function uygula(){
+    fpBoya(sw, on);
+    if(key === 'dm_fit_motion'){
+      document.documentElement.classList.toggle('reduce-motion', on);
+      if(on) document.documentElement.classList.remove('reveal-ready');
+    }
+  }
+  uygula();
+  fpBagla(sw, function(){
+    on = !on;
+    try{ localStorage.setItem(key, on ? '1' : '0'); }catch(e){}
+    uygula();
   });
 });
 </script>

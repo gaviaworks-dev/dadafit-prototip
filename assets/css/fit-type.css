@@ -56,21 +56,57 @@ html[lang="tr"] p, html[lang="tr"] li, html[lang="tr"] dd, html[lang="tr"] block
  basit ve her yerde çalışan yöntem: minimum genişlik medya sorgusu
  (kart gövdeleri zaten ekran daraldıkça tek kolona iner).
  --------------------------------------------------------------------- */
+/* ---- 8. TUR (R6) · `--jt-min` EŞİĞİ NİHAYET UYGULANIYOR ------------
+   KÖK BULGU: yukarıdaki YÖNTEM bölümü "yaslama YALNIZ yeterince uzun satır
+   kutusuna sahip metne uygulanır (--jt-min eşiği)" diyor ve `:root`ta
+   `--jt-min: 30rem` (~480px) tanımlı. Ama **`--jt-min` dosyanın hiçbir
+   yerinde OKUNMUYOR** (grep: yalnız tanımlandığı satır ve yorumu).
+   Yani eşik hiç uygulanmamış; liste koşulsuz yaslıyor. Dosyanın kendi
+   uyarısı ("kartların çoğunda paragraf iki-üç satırlık ve dar; yaslama
+   kelime araları açıp NEHİR üretir") tam olarak gerçekleşmiş.
+
+   ÖLÇÜM (66 sayfa, @1440, yaslanan ve ≥6 kelimelik bloklar; genişlik
+   dağılımı ve gerçek kelime arası — kelimeler geçici span'lere alınıp
+   komşu kutular arası boşluk ölçüldü):
+
+     seçici          blok  min–medyan–max     <480px      en kötü kelime arası
+     .hub-body p      69   237 – 238 – 338    69/69 100%  3.4 → 43.3  (12.8×)
+     .ex-body p       25   238 – 238 – 238    25/25 100%  3.3 → 16.3  (5.0×)
+     .brg-card p      24   199 – 199 – 199    24/24 100%  3.4 → 64.8  (19.2×)
+     .pr-body p        9   338 – 338 – 338     9/9  100%  3.3 → 16.7  (5.1×)
+     dd                3   167 – 167 – 390     3/3  100%  3.5 → 22.6  (6.5×)
+
+   Beşi de eşiğin **%100 altında**; hiçbir örneği yaslamayı hak etmiyor.
+   Görsel doğrulama: `video-seanslari` kart gövdesinde tek satır üç kelimeye
+   düşüyor ("aralıklarıyla · kurulmuş · giriş", 237px kutuda 43px boşluk).
+   Beşi de listeden ÇIKARILDI — bu, dosyanın kendi kuralını uygulamaktır,
+   yeni bir tercih değil.
+
+   LİSTEDE KALANLAR ve gerekçesi (hepsi eşiğin ÜSTÜNDE):
+     .qa-body p   55 blok · 774–858px · <480 olan 0
+     .qa-body li 133 blok · 678px     · <480 olan 0 · hepsi tek satır
+     .art-wrap li 133 blok · 678px    · <480 olan 0 · hepsi tek satır
+     .pm-tier li · .fs-card p · .coach-body p — yaslanan örnek bulunamadı
+     li          201 blok · medyan 678 · %89'u eşik üstü, 200/201 tek satır
+                 (tek satır yaslanmaz — nehir üretemez)
+
+   LEAD'E BIRAKILAN İKİ KALEM (tek başıma karar vermedim, bkz. A-RAPOR):
+     · çıplak `p` — 701 blok, **%52'si eşiğin altında**. Dosyanın "kör bir
+       p{justify} iş görmez" uyarısının birebir karşılığı, ama 66 sayfayı
+       ve beş ajanın açık dosyalarını ilgilendiriyor.
+     · `.art-wrap p` — 107 blok, %22'si eşiğin altında (medyan 774, en dar
+       199). Seçici düzeyinde ayrılamıyor; gerçek çözüm container query.
+   -------------------------------------------------------------------- */
 p,
 li,
-dd,
 blockquote,
 .lead,
 .lib-sub,
 .qa-body p,
 .qa-body li,
 .fp-card p,
-.hub-body p,
-.pr-body p,
-.ex-body p,
 .coach-body p,
 .fs-card p,
-.brg-card p,
 .pm-tier li,
 .art-wrap p,
 .art-wrap li{
@@ -106,7 +142,7 @@ h1, h2, h3, h4, h5, h6{ text-wrap:balance; }
 .coach-verify, .coach-status, .coach-tags span, .ed-tag, .hub-pro,
 .bn-item, .d-link, .drawer-add, .acct-menu a, .dropdown a, .lib-crumb, .rd-crumb, .ed-crumb,
 label, legend, caption, button, summary,
-.cj-step, .cj-eyebrow, .fh-stop span, .fh-pref{
+.cj-step, .cj-eyebrow{
   text-align:left;
   text-align-last:auto;
   hyphens:manual;
@@ -134,11 +170,94 @@ label, legend, caption, button, summary,
    reçetesi üretmiyoruz") — yani ekranda en net kalması gereken GÜVENLİK
    mesajı bozuluyordu. `.lib-sub` ayrıca iki satıra kırpılı (D3) olduğu
    için yaslama + üç nokta üst üste biniyordu. */
+/* 8. TUR EKİ (R6) — `.lead` DE AYNI KATEGORİYE GİRİYOR.
+   AJAN-E bildirdi, iki bağımsız ölçümle doğrulandı (kelime span'leri ile
+   gerçek kelime arası, @390 ve @1440):
+     hakkimizda   .lead  2 satır · 520px · 3.9 → **17.7 px  (4.6×)**
+     program-detay .lead 3 satır · 520px · 3.9 → 14.8 px  (3.8×)
+     programlar-m. .lead 2 satır · 520px · 3.9 → 13.5 px  (3.5×)
+     programlar-m. .lead 3 satır · 358px · 3.6 → 12.1 px  (3.3×)
+   4. turda istisnaya alınanlarla aynı ağırlıkta, hatta en kötüsü kadar kötü
+   (`.wz-risk p` 4.6× · `.lib-sub` 3.6× · `.ft-lead` 3.1×).
+
+   YUKARIDAKİ KURALIN KENDİ ÖLÇÜTÜ ZATEN BUNU SÖYLÜYOR: "bu bloklar
+   500–900px genişlikte ve YALNIZ 2–4 SATIR". 66 sayfa tarandı, yaslanan
+   `.lead` sayısı **79 (34 sayfa)** ve @1440'ta **79/79'u ≤4 satır**
+   (@390'da 77/79). Yani `.lead` akan makale metni değil, bölüm girişi.
+
+   TUTARSIZLIK DA KAPANIYOR: varyantları `.fs-lead` ve `.ft-lead` 4. turda
+   istisnaya alınmıştı, taban `.lead` alınmamıştı.
+
+   (Aynı turda yaslama listesi ölçümle ayıklandı — hangi seçicinin kaldığı
+   ve neden kaldığı §2'deki "--jt-min EŞİĞİ" bloğunda yazılı.) */
+/* ---- 8. TUR (R6) · EŞİĞİN ÇÖZMEDİĞİ YARI: GENİŞ KUTUDAKİ KISA BLOK ----
+   AJAN-E ölçtü, ben doğruladım. Bu bölümün ölçütü İKİ CÜMLELİ:
+   *"bu bloklar 500–900px genişlikte VE YALNIZ 2–4 SATIR"*.
+   §2'de onarılan `--jt-min` eşiği yalnız BİRİNCİ cümleyi mekanikleştiriyor
+   (kutu genişliği). İKİNCİ cümle — satır sayısı — CSS'te sorgulanamıyor.
+
+   Sonuç: dar kutudaki her blok artık otomatik yakalanıyor, ama **geniş
+   kutudaki kısa blok** yakalanmıyor. Bu listedeki sınıfların ortak özelliği
+   zaten genişlik değil KISALIK: `.lead` 520px, `.lib-sub`, `.wz-risk`,
+   `.ft-lead` — hepsi eşiğin ÜSTÜNDE ve hepsi 1–4 satır.
+
+   ÖLÇÜM (Fit Planım'ın not sınıfları, ezme geçici kaldırılıp koşuldu):
+     @390  kart 358px (eşik altı) → yaslı **0/8**  — eşik yakalıyor
+     @1440 kart 577–1176px        → yaslı **8/8**  — eşik yakalayamıyor
+     satır dağılımı @1440: 1 satır×6 · 2 satır×2
+     en kötü kelime arası: 3.5 → 6.2 px (**1.8×**); altı blok tek satır
+     olduğu için zaten nehir üretemiyor.
+   Şiddet ölçülü: §2'de listeden çıkarılanların 12.8× ve 19.2×'ine göre hafif.
+
+   NEDEN SAYFA İÇİ EZME DEĞİL DE BURASI: aynı kategorideki `.ft-lead` ·
+   `.fs-lead` · `.wz-risk` · `.dz-vnote` · `.nt-note` zaten burada. Aynı işi
+   iki ayrı yerde çözmek "aynı yuvada iki dil" demek olurdu.
+   ------------------------------------------------------------------- */
+.lead,
 .wz-risk, .wz-risk p, .wz-how, .wz-how li, .wz-how-note, .wz-why,
 .lib-sub, .fs-lead, .ft-lead, .cp-spec,
 .hr-note, .hr-note p, .hr-note li,
 .dz-vnote, .vnote, .nt-note,
 .ntf-foot, .fp-note, .sec-note, .form-note{
+  text-align:left;
+  text-align-last:auto;
+}
+/* ---- ÖZGÜLLÜK NOTU · BU DOSYANIN SİSTEMİK KUSURU ----------------------
+   Aynı tuzağa bu turda ÜÇ KEZ düşüldü; kusur tek ve yapısal:
+
+     YASLAMA listesi descendant seçici kullanıyor   → `.art-wrap p`  (0,1,1)
+     İSTİSNA listesi tek sınıf seçici kullanıyor    → `.lead`        (0,1,0)
+
+   İstisna her zaman kaybediyor ve **sessizce** kaybediyor: kaynak koda
+   bakınca kural doğru görünüyor, yalnız computed style ölçülürse fark
+   ediliyor. Üç örnek:
+     1) `@container` sorgusu `p, li` (0,0,1) ile yazılmış → `.hub-body p`
+        (0,1,1) yeniyordu; sorgu yazıldığı günden beri hiç iş görmemişti.
+     2) `.fpx-note` (0,1,0) → `.fp-card p` (0,1,1) yeniyordu; @1440'ta
+        8/8 blok istisnaya rağmen yaslı kalıyordu.
+     3) `.lead` (0,1,0) → `.art-wrap p` (0,1,1) yeniyordu; 8 sayfada
+        16 blok istisnaya rağmen yaslı kalıyordu.
+
+   KURAL: istisna, yaslama listesindeki en özgül karşılığına **eşit ya da
+   üstün** yazılmalı. Element+sınıf biçimi (`p.lead` = 0,1,1) descendant
+   biçimini (`.art-wrap p` = 0,1,1) dosyada sonra geldiği için yener.
+   Yeni istisna eklerken computed style ile DOĞRULA, kaynağa güvenme. */
+p.lead,
+.art-wrap p.lead, .qa-body p.lead, .hub-body p.lead{
+  text-align:left;
+  text-align-last:auto;
+}
+/* ---- kart içi not sınıfları -------------------------------------------
+   Yukarıdaki liste `.fpx-note` gibi TEK sınıflı seçicilerle (0,1,0) yazılıyor.
+   Yaslama kuralındaki karşılıkları ise `.fp-card p` yani (0,1,1) — yani
+   liste kaybediyor ve istisna sessizce çalışmıyor. §2'deki container
+   sorgusunun yıllardır çalışmama sebebi de birebir buydu.
+   Bu yüzden kart içi not sınıfları AYRI ve daha yüksek özgüllükle yazılır:
+   `.fp-card p.fpx-note` = (0,2,1) > (0,1,1). Ölçümle doğrulandı:
+   kural bu biçimde yazılmadan önce @1440'ta 8/8 blok hâlâ yaslıydı. */
+.fp-card p.fpx-note,
+.fp-card p.fpx-note-sm,
+.fp-card p.fpx-body{
   text-align:left;
   text-align-last:auto;
 }
@@ -184,15 +303,42 @@ input, select, textarea, option, ::placeholder{
   .ft-side-body, .ft-who, .ft-safe, .ft-scr-body, .ft-step-body{
     container-type:inline-size;
   }
-  @container (max-width: 20rem){
-    p, li{ text-align:left; }
+  /* ---- 8. TUR (R6) · BU SORGU ÖZGÜLLÜK YÜZÜNDEN HİÇ ÇALIŞMIYORDU ----
+     İki kusur vardı, ikisi de ölçüldü:
+
+     1) ÖZGÜLLÜK. Geçersiz kılma `p, li{text-align:left}` yani (0,0,1);
+        yaslama kuralı ise `.hub-body p` yani (0,1,1). Container sorgusu
+        özgüllüğü değiştirmez — dar kutuda sorgu EŞLEŞİYOR ama kural
+        kaybediyordu. Ölçüm: `.hub-body p` 237px kutuda computed
+        `text-align: justify`. Sorgu hiç iş görmemiş.
+     2) EŞİK. Sorgu 20rem (320px) diyordu, dosyanın kendi tanımladığı
+        eşik ise `--jt-min: 30rem` (480px). 320–480px arası bütün kart
+        gövdeleri iki kusurdan bağımsız olarak da açıkta kalıyordu.
+
+     Düzeltme: geçersiz kılma yaslama listesinin AYNI seçicilerini
+     tekrarlıyor (özgüllük eşit ya da üstün, dosyada sonra geliyor →
+     kazanıyor) ve eşik `--jt-min`e bağlandı. Token artık gerçekten
+     okunuyor; daha önce hiçbir yerde kullanılmıyordu. */
+  @container (max-width: 30rem){
+    p, li, blockquote,
+    .lead, .lib-sub,
+    .qa-body p, .qa-body li, .fp-card p, .hub-body p, .pr-body p,
+    .ex-body p, .coach-body p, .fs-card p, .brg-card p, .pm-tier li,
+    .art-wrap p, .art-wrap li{
+      text-align:left;
+      text-align-last:auto;
+    }
   }
 }
-/* container query desteklemeyen tarayıcı: dar ekranda kartlarda sola yaslı */
+/* container query desteklemeyen tarayıcı: dar ekranda kartlarda sola yaslı.
+   (Bu dal Chromium'da hiç çalışmaz; yukarıdaki container sorgusu geçerli.
+   Yine de aynı seçici setine genişletildi ki iki dal aynı şeyi söylesin.) */
 @supports not (container-type:inline-size){
   @media (max-width:640px){
-    .hub-body p, .pr-body p, .ex-body p, .coach-body p, .fs-card p, .brg-card p{
+    .hub-body p, .pr-body p, .ex-body p, .coach-body p, .fs-card p, .brg-card p,
+    .fp-card p, .art-wrap p, .qa-body p{
       text-align:left;
+      text-align-last:auto;
     }
   }
 }

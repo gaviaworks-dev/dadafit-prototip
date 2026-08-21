@@ -2,8 +2,14 @@
    DADAFIT — FOOTER PERDESİ REGRESYON TESTİ  (R11 · 5. tur)
    ---------------------------------------------------------------------
    Neyi kanıtlar: footer "reveal" perdesi footer'a YAPIŞIK; perdeden
-   sonra belge dibinde artık içerik kalmıyor ve sağlık şeridi perdenin
-   İÇİNDE.
+   sonra belge dibinde artık içerik kalmıyor.
+
+   R6 · MADDE 2 (8. oturum) — NÖBET TAŞINDI, ZAYIFLATILMADI:
+   Sayfa altındaki `.fit-health` section'ı kaldırıldı (kabuk artık onu
+   üretmiyor). Eski nöbet "şerit perdenin İÇİNDE olmalı" diyordu; yeni
+   gerçek "şerit HİÇBİR sayfada OLMAMALI". Aşağıdaki §B ölçütü bunu
+   sınıyor. Perde ölçütleri (§A) aynen duruyor — B10'un kök nedeni
+   şeridin yerleşimiydi, perdenin kendisi değil.
 
    Kök neden (2026-08-20'de ölçüldü): sağlık şeridi (`.fit-health`)
    `body`nin çocuğu olarak footer'dan hemen önce basılıyordu — yani
@@ -25,7 +31,7 @@
      · perde sonu ile belge sonu farkı       → 0 olmalı (kuyruk kalmaz)
 
    ≤640 px'te perde kipi kapalıdır (footer normal akışta). Orada tek
-   beklenti: sağlık şeridi yine perdenin içinde ve `margin-bottom` yok.
+   beklenti: `margin-bottom` yok.
 
    Çalıştırma:
      python3 -m http.server 8811 &
@@ -49,7 +55,7 @@ const browser = await chromium.launch();
 for (const width of WIDTHS) {
   const perdeKipi = width >= 641;
   const ctx = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 } });
-  const farkSet = new Map(); let icerde = 0, n = 0;
+  const farkSet = new Map(); let temiz = 0, n = 0;
 
   for (const f of PAGES) {
     const page = await ctx.newPage();
@@ -77,16 +83,17 @@ for (const width of WIDTHS) {
           fark:   +(mb - fh).toFixed(1),
           kuyruk: +(document.documentElement.scrollHeight - perdeSonu).toFixed(1),
           mb, kip: mc.position === 'relative' ? 'perde' : 'statik',
-          saglikIcerde: !!main.querySelector('.fit-health'),
-          saglikVar: !!document.querySelector('.fit-health')
+          /* R6 · madde 2 — artık VARLIĞI kusur; sayı olarak okunuyor */
+          saglikSayi: document.querySelectorAll('.fit-health').length
         };
       });
 
       if (r.yok) { rec(`${f} @${width}`, 'main (#pageMain) ya da footer.footer yok'); await page.close(); continue; }
       n++;
-      if (r.saglikVar && !r.saglikIcerde)
-        rec(`${f} @${width}`, 'sağlık şeridi perdenin DIŞINDA — footer altında kaybolur');
-      else if (r.saglikVar) icerde++;
+      /* §B · R6 madde 2 nöbeti — sayfa altı sağlık section'ı GERİ GELMEDİ */
+      if (r.saglikSayi > 0)
+        rec(`${f} @${width}`, `.fit-health ${r.saglikSayi} düğüm — R6 madde 2 ile kaldırılmıştı, geri gelmiş`);
+      else temiz++;
 
       if (perdeKipi) {
         farkSet.set(r.fark, (farkSet.get(r.fark) || 0) + 1);
@@ -109,7 +116,7 @@ for (const width of WIDTHS) {
   } else {
     ok(`@${width}: ${n} sayfa · perde kipi kapalı, footer normal akışta`);
   }
-  ok(`@${width}: sağlık şeridi perdenin içinde ${icerde}/${n}`);
+  ok(`@${width}: sayfa altı sağlık section'ı yok ${temiz}/${n} (R6 madde 2)`);
   await ctx.close();
 }
 
@@ -118,4 +125,4 @@ await browser.close();
 console.log(`\n${fail} sorun`);
 if (fail) { console.log('\nSORUNLAR:'); bad.forEach(b => console.log('  ✗ ' + b)); process.exit(1); }
 console.log('✓ Perde footer\'a yapışık (fark 0), perdeden sonra kuyruk yok,');
-console.log('✓ sağlık şeridi perdenin içinde ve footer altında kaybolmuyor.');
+console.log('✓ sayfa altı .fit-health section\'ı hiçbir sayfada yok (R6 madde 2).');

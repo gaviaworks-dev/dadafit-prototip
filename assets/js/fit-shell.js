@@ -342,7 +342,7 @@ var PLAN_EXTRA = [
   {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
   {key:'rozetler',  label:'Challenge ve Rozetler',      href:'fit-planim-rozetler-v1.html',      icon:'fa-solid fa-medal',                  desc:'Kilometre taşların'},
   {key:'saglik',    label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',            desc:'Kısıt, hedef, tercih'},
-  {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın'}
+  {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın · uygulama tercihleri'}
 ];
 var PLAN_PAGES = PLAN_TABS.concat(PLAN_EXTRA);
 /* geriye dönük ad — kabuk içinde "Planım alanının tamamı" anlamında kullanılıyordu */
@@ -367,7 +367,7 @@ var PLAN_NAV = PLAN_PAGES;
 var ACCOUNT_ITEMS = [
   {label:'Profil Bilgilerim',           href:'profil-v1.html',                   icon:'fa-solid fa-id-card',       desc:'Ad, foto, görünen bilgiler'},
   {label:'Sağlık ve Hareket Profilim',  href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',   desc:'Kısıt, hedef, tercih'},
-  {label:'Veri ve İzinlerim',           href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',  desc:'Neyi kiminle paylaştığın'},
+  {label:'Veri ve İzinlerim',           href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',  desc:'Neyi kiminle paylaştığın · uygulama tercihleri'},
   {label:'Bildirim Tercihlerim',        href:'hesabim-v1.html#bildirim',         icon:'fa-solid fa-bell-slash',    desc:'Hangi bildirimi alacaksın'},
   /* ---- AŞAMA NOTU KAPANDI (Faz 5 indi) ----
      Bu üç kalem (Bağlı Uygulamalar · Üyelik-Ödeme-Fatura · Destek Taleplerim)
@@ -987,6 +987,66 @@ if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
 var DETAY_PAGES = ['challenge-v1','egzersiz-detay-v1','antrenor-detay-v1','program-detay-v1'];
 var IS_DETAY = /-detay(-|$)/.test(PAGE) || DETAY_PAGES.indexOf(PAGE) > -1;
 document.body.setAttribute('data-fit-hero-kind', IS_DETAY ? 'detay' : 'liste');
+
+/* ------------------------------------------------------------------
+ R6 · MADDE 4 — BANNER İKİ KOLONA AYRILIR: SOL İÇERİK + SAĞ İSTATİSTİK
+ ------------------------------------------------------------------
+ ÖLÇÜM (Playwright, 8. oturum, kardeş markalar @1440):
+   dadadiet.com/diyetisyenler   .lst-stats  flex/COLUMN  gap 16px
+   dadagastro.com/tarifler      .lst-stats  flex/COLUMN  gap 16px
+   dadagastro.com/mutfak-sozlugu .lst-stats flex/COLUMN  gap 16px
+ Üçünde de kolon `.wrap`ın SAĞ kenarına dayanıyor (kolon sağ kenarı 1308 =
+ wrap sağ kenarı), sol kolonla arasındaki boşluk **39 px**, kolonun alt
+ kenarı sol kolonun alt kenarıyla **birebir** (Δ = 0.0 px, üçünde de).
+ ≤1024'te kolon sol kolonun ALTINA düşüyor ve yatay sıraya dönüyor.
+
+ NEDEN JS: iki kolon CSS'te ancak sol kolonun kendi kapsayıcısı varsa
+ kurulabiliyor. Referans da aynısını yapıyor (`.lh-main`). `.wrap`ı grid'e
+ çevirip istatistiği bütün satırlara yaydırmak denendi: satır sayısı sayfadan
+ sayfaya değiştiği için `grid-row:1/-1` çalışmıyor, `span N` ise N−1 tane
+ boş satır aralığı (row-gap) üretip banner'ı büyütüyor — sabit yükseklik
+ ailesinde kabul edilemez. Bu yüzden sol kolon burada tek bir
+ `<div class="lib-main">` içine alınıyor.
+
+ İşaretleme 25 sayfada tek tek değiştirilmiyor; sıralama korunuyor:
+ `.lib-stats` dışındaki her çocuk, belge sırasıyla `.lib-main`e giriyor.
+ R15'in `order:1` numarası (işaretlemede CTA istatistikten önce geliyordu)
+ böylece gereksizleşiyor — istatistik kolondan tamamen çıktı.
+
+ GERİ ALMA: bu IIFE silinir + `fit-shell.css`'teki "R6 · MADDE 4" bloğu
+ silinirse eski tek kolonlu düzen geri gelir.
+ ------------------------------------------------------------------ */
+(function(){
+  if(!document.body.hasAttribute('data-fit-hero-kind')) return;
+  var stats = document.querySelector('.lib-stats');
+  if(!stats) return;
+  var wrap = stats.parentElement;
+  if(!wrap || !wrap.classList.contains('wrap')) return;   /* beklenmedik yapı: dokunma */
+  if(wrap.querySelector(':scope > .lib-row')) return;     /* zaten kurulmuş */
+
+  /* KIRINTI İKİ KOLONUN DIŞINDA KALIR — referansın yapısı bu:
+       .wrap > nav.rd-crumb            (tam genişlik, kolonların ÜSTÜNDE)
+       .wrap > [ .lh-main | .lst-stats ]
+     Kırıntı `.lib-main`in içine alınırsa sağdaki kolon kırıntı satırıyla
+     aynı hizada başlıyor ve iri sayı ince kırıntı satırıyla yarışıyor
+     (ölçüldü: 6 sayfada ilk sayının üst kenarı kırıntının 0.8 px üstünde).
+     Referansta bu olmuyor çünkü kırıntı kolonların üstünde ayrı bir satır. */
+  var ilk = wrap.firstElementChild;
+  var krumb = (ilk && ilk !== stats &&
+               (/crumb/.test(ilk.className || '') || ilk.tagName === 'NAV')) ? ilk : null;
+
+  var satir = document.createElement('div');  satir.className = 'lib-row';
+  var sol   = document.createElement('div');  sol.className   = 'lib-main';
+
+  var kids = [].slice.call(wrap.childNodes);
+  wrap.insertBefore(satir, stats);
+  satir.appendChild(sol);
+  kids.forEach(function(n){
+    if(n === stats || n === satir || n === krumb) return;
+    sol.appendChild(n);
+  });
+  satir.appendChild(stats);
+})();
 
 /* ============================================================
  4b · TEK KAYDIRMA KİLİDİ — "layout sağa kayıyor" bug'ının kökü
@@ -1923,101 +1983,30 @@ setTimeout(function(){
  ============================================================ */
 
 /* ============================================================
- SAĞLIK ŞERİDİ + ERİŞİLEBİLİRLİK + TERCİHLER (belge §14)
- Her DadaFit sayfasının altına, footer'dan ÖNCE tek bir şerit basılır:
- genel bilgi ↔ kişisel tavsiye ayrımı, durma kriterleri, hazırlayan ve
- kontrol eden uzman, son kontrol tarihi, "yaklaşık değer" ibaresi ve
- sayaç/zamanlayıcı ses-titreşim tercihi.
- Sayfa istemezse: <body data-fit-nohealth>.
+ R6 · MADDE 1-2-3 · SAYFA ALTI "SAĞLIK VE GÜVENLİK" SECTION'I KALDIRILDI
+ ------------------------------------------------------------
+ Eskiden burada bir IIFE vardı: `<section class="fit-health">` üretip
+ `#pageMain`'in son çocuğu yapıyordu (B10'un çözümü, R11). Blok 60
+ sayfanın hepsine basılıyordu ve Beyar'ın ölçümüyle okunmuyordu.
+
+ NE KAYBOLMADI:
+ · **Yasal banda dokunulmadı.** Footer'ın yasal bandındaki
+   `saglik-bilgilendirme-v1.html` bağlantısı yerinde — uyarı siteden
+   kaybolmuyor, yalnız her sayfanın altına section olarak basılmıyor.
+ · **Üç tercih taşındı**, silinmedi: sayaç sesi (`dm_fit_sound`),
+   titreşim (`dm_fit_vibe`) ve hareketi azaltma (`dm_fit_motion`)
+   `fit-planim-veri-izin-v1.html`'de "Uygulama tercihleri" kartında.
+   **localStorage anahtarları değişmedi**, kayıtlı tercih kaybolmadı.
+ · `FIT_SHELL.pref(anahtar)` API'si aşağıda **duruyor** —
+   `egzersiz-detay-v1.html` sayaç sesi/titreşimi için bunu okuyor.
+ · `dm_fit_motion` açıkken `html.reduce-motion` sınıfı **her sayfada**
+   uygulanıyor; bunu aşağıdaki "hareket azaltma" IIFE'si yapıyor
+   (zaten ayrı bir bloktu, sağlık şeridine bağlı değildi).
+
+ `<body data-fit-nohealth>` işareti artık hiçbir şey yapmıyor; sayfalarda
+ kullanılmıyordu, geriye dönük zararsız.
  ============================================================ */
 (function(){
-  if(document.body.hasAttribute('data-fit-nohealth')) return;
-  var ftr = document.querySelector('footer.footer');
-  if(!ftr) return;
-
-  var sec = document.createElement('section');
-  sec.className = 'fit-health';
-  sec.setAttribute('aria-labelledby','fhTitle');
-  sec.innerHTML =
-   '<div class="wrap"><div class="fh-grid">'+
-   '  <div>'+
-   '    <h2 id="fhTitle"><i class="fa-solid fa-shield-heart"></i> Sağlık ve güvenlik</h2>'+
-   '    <p>Bu sayfadaki hareket, program ve enerji içerikleri <b>genel bilgilendirme amaçlıdır</b>; '+
-   '       teşhis, tedavi ya da kişiye özel antrenman reçetesi değildir. Enerji ve kalori sonuçları '+
-   '       <b>yaklaşık değerdir</b>. Bir rahatsızlığın varsa, gebeysen ya da uzun süredir hareketsizsen '+
-   '       başlamadan önce <a href="antrenorler-v1.html">bir uzmana danış</a>. '+
-   '       Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>'+
-   '    <div class="fh-stop" role="group" aria-label="Hareketi bırakma kriterleri">'+
-   '      <span><i class="fa-solid fa-circle-exclamation"></i> Göğüs ağrısı</span>'+
-   '      <span><i class="fa-solid fa-circle-exclamation"></i> Nefes darlığı</span>'+
-   '      <span><i class="fa-solid fa-circle-exclamation"></i> Baş dönmesi</span>'+
-   '      <span><i class="fa-solid fa-circle-exclamation"></i> Keskin eklem ağrısı</span>'+
-   '      <span><i class="fa-solid fa-circle-exclamation"></i> Düzensiz nabız</span>'+
-   '    </div>'+
-   '    <div class="fh-prefs">'+
-   '      <button class="fh-pref" id="fhSound" type="button" aria-pressed="true">'+
-   '        <i class="fa-solid fa-volume-high"></i> Sayaç sesi</button>'+
-   '      <button class="fh-pref" id="fhVibe" type="button" aria-pressed="false">'+
-   '        <i class="fa-solid fa-mobile-screen-button"></i> Titreşim</button>'+
-   '      <button class="fh-pref" id="fhMotion" type="button" aria-pressed="false">'+
-   '        <i class="fa-solid fa-person-running"></i> Hareketi azalt</button>'+
-   '      <a class="fh-pref" href="fit-planim-veri-izin-v1.html">'+
-   '        <i class="fa-solid fa-sliders"></i> Tüm tercihler</a>'+
-   '    </div>'+
-   '  </div>'+
-   '  <div class="fh-by">'+
-   '    <div class="row"><span class="ico"><i class="fa-solid fa-pen-nib"></i></span>'+
-   '      <span><b>Hazırlayan: Selin Aksoy</b><small>Egzersiz ve spor bilimleri uzmanı · DadaFit onaylı antrenör</small></span></div>'+
-   '    <div class="row"><span class="ico"><i class="fa-solid fa-user-check"></i></span>'+
-   '      <span><b>Kontrol eden: Dr. Mert Yılmaz</b><small>Fiziksel tıp ve rehabilitasyon · içerik güvenlik kontrolü</small></span></div>'+
-   '    <div class="row"><span class="ico"><i class="fa-solid fa-certificate"></i></span>'+
-   '      <span><b>“DadaFit Onaylı” nedir?</b><small>Kimlik ve sertifika doğrulamasıdır; hizmet sonucu garantisi değildir.</small></span></div>'+
-   '    <p class="fh-date"><i class="fa-regular fa-calendar-check"></i> Son kontrol: 11 Ağustos 2026</p>'+
-   '  </div>'+
-   '</div></div>';
-  /* ---- R11 (5. tur) · ŞERİT PERDENİN İÇİNE GİRER --------------------
-     Beyar: "Footer'ın hemen üstündeki perde footer'dan kopuk duruyor;
-     diğer markalarda perde footer'a yapışık."
-
-     ÖLÇÜLEN KÖK NEDEN: bu şerit `body`nin çocuğu olarak footer'dan hemen
-     önce basılıyordu — yani PERDENİN (`#pageMain`) DIŞINDA. Perde efekti
-     `main`e footer yüksekliği kadar `margin-bottom` verip footer'ı alttan
-     ortaya çıkarıyor; şerit o boşluğun ALTINA düştüğü için iki sonuç
-     doğuyordu:
-       1. Perdenin alt kenarı footer'ın üst kenarından 310 px yukarıda
-          kalıyordu → ölü gri şerit (Beyar'ın gördüğü "kopukluk").
-       2. Şerit `position:static` (z-index auto) olduğu için `z-index:1`
-          taşıyan sabit footer'ın ALTINA boyanıyordu → **sağlık ve
-          güvenlik şeridi masaüstünde hiç görünmüyordu.**
-     Referans ölçümü (dadadiet.com/diyetisyen-bul @1440, sayfa sonunda):
-     perde boşluğu **−0.3 px**, yani yapışık. DadaFit'te **−310.3 px**.
-
-     Çözüm: şerit perdenin SON ÇOCUĞU olur. Böylece hem görünür hâle
-     gelir hem de `margin-bottom` doğrudan footer'a dayanır. */
-  var perde = document.getElementById('pageMain');
-  if(perde) perde.appendChild(sec);
-  else ftr.parentNode.insertBefore(sec, ftr);
-
-  /* sayaç/zamanlayıcı ses ve titreşim tercihi + hareket azaltma (§14.3) */
-  function pref(id, key, apply){
-    var el = document.getElementById(id);
-    if(!el) return;
-    var on = false;
-    try{ var v = localStorage.getItem(key); on = v===null ? (el.getAttribute('aria-pressed')==='true') : v==='1'; }catch(e){}
-    function paint(){ el.setAttribute('aria-pressed', on?'true':'false'); if(apply) apply(on); }
-    paint();
-    el.addEventListener('click', function(){
-      on = !on;
-      try{ localStorage.setItem(key, on?'1':'0'); }catch(e){}
-      paint();
-    });
-  }
-  pref('fhSound','dm_fit_sound', null);
-  pref('fhVibe','dm_fit_vibe', null);
-  pref('fhMotion','dm_fit_motion', function(on){
-    document.documentElement.classList.toggle('reduce-motion', on);
-    if(on){ document.documentElement.classList.remove('reveal-ready'); }
-  });
   window.FIT_SHELL = window.FIT_SHELL || {};
   window.FIT_SHELL.pref = function(k){ try{ return localStorage.getItem(k)==='1'; }catch(e){ return false; } };
 })();

@@ -94,7 +94,16 @@
   --green:#3BB77E;           /* yalnız sağlık bloğu */
   --green-deep:#2c9963;
   --yellow:#FAC045;          /* yalnız puan */
-  --muted:#7E7E7E;           /* ikincil metin */
+  /* R6 · AJAN-E'nin kabuk notu · İKİNCİL METİN KONTRASTI — ÖLÇÜLDÜ.
+     #7E7E7E beyazda **4.06:1**, kremde **3.86:1** → 12–13 px etiketlerde
+     AA ALTI (eşik 4.5). 66 sayfanın 66'sında bu renkte metin var.
+     Yeni değer UYDURULMADI: kardeş markanın aynı işi yapan grisi ölçüldü
+     (dadadiet.com/hesaplayicilar `.hub-grid p` → rgb(113,113,113)).
+     #717171 beyazda **4.88:1**, kremde **4.64:1** → AA.
+     Yalnız renk değişti; hiçbir ölçü, boşluk ya da yerleşim değişmedi.
+     KOYU ZEMİN GÜVENDE: bu token koyu banner/footer metinlerinde
+     kullanılmıyor (tarandı). */
+  --muted:#717171;           /* ikincil metin */
   --line:#ECECEC;            /* hairline ayraç */
   --cream:#EFE5D3;           /* sıcak nötr */
   --cream-2:#F7F1E6;
@@ -145,10 +154,23 @@ img{display:block;max-width:100%}
 .muted{color:var(--muted);font-weight:500}
 
 /* eyebrow */
+/* R6 · AJAN-E'nin kabuk notu · EYEBROW KONTRASTI — ÖLÇÜLDÜ VE KAPATILDI
+   Taban renk `--tomato` (#009d4f) idi. 12px/700 metin WCAG'de "large text"
+   sayılmaz, eşik 4.5:1 → beyazda **3.54:1**, kremde **3.36:1**: AA ALTI.
+   Site zaten ikiye bölünmüştü (66 sayfa tarandı, açık zeminli eyebrow'lar):
+     rgb(0,122,61)  --fit-deep  5.45 / 5.18  AA      → 39 sayfa
+     rgb(0,157,79)  --tomato    3.54 / 3.36  AA ALTI → 25 sayfa
+   Taban `--fit-deep`e çekildi; 25 sayfa tek satırda AA'ya geçti. Sayfa içi
+   `.sec-fit .eyebrow` / `.lib-top .eyebrow` gibi kurallar daha yüksek
+   özgüllükte olduğu için etkilenmedi.
+   KOYU ZEMİN GÜVENDE: 62 banner sayfasının hepsinde banner içi eyebrow zaten
+   AÇIKÇA `--fit-bright` (61 sayfa) ya da daha açık (giris-v1) veriyor —
+   hiçbiri taban kuralı okumuyor, ölçüldü.
+   S4'ün `.btn-fit` için yaptığının aynısı. */
 .eyebrow{
   display:inline-flex;align-items:center;gap:8px;
   font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--tomato);
+  color:var(--fit-deep);
 }
 .eyebrow::before{content:"";width:26px;height:2px;background:currentColor;border-radius:var(--radius-sm)}
 .eyebrow i{font-size:13px}
@@ -1011,7 +1033,26 @@ body.scroll-locked{overflow:hidden}
   .row-nav button,.cat-nav button{width:38px;height:38px;font-size:12px}
   .sec-head .lead,.cat-head .lead,.guide-head .lead{grid-row:3;grid-column:1/-1;font-size:14.5px}
   /* kompakt see-all: buton kabuğu kalkar, metin-link kalır */
-  .see-all{padding:0;border:none;background:transparent;font-size:13.5px;color:var(--tomato)}
+  .see-all{padding:0;border:none;background:transparent;font-size:13.5px;color:var(--fit-deep)}
+
+  /* ---- R6 · AJAN-E'nin kabuk notu · DOKUNMA HEDEFİ (WCAG 2.5.8, AA) ----
+     66 sayfa @390 tarandı. AA eşiği (2.5.8) **24 px**; AAA eşiği (2.5.5) 44 px.
+     AA'yı GEÇEMEYEN üç öğe vardı — bunlar AAA konforu değil, AA kusuru:
+       .fp-act      13.0 px · 42 örnek / 10 sayfa
+       .fp-actbtn   16.0 px · 13 örnek /  3 sayfa
+       .see-all     20.1 px · 26 örnek / 19 sayfa
+     AA'yı geçenlere DOKUNULMADI (ölçüldü): .chip 30 · .sort-seg button 32 ·
+     .df-fchip 34 · .dt 34 · .pf-tabs a 37.4 — hepsi ≥24.
+
+     Üçü de TASARIM GEREĞİ metin-link: ≤640'ta buton kabuğu bilerek
+     kaldırılıyor. Dolgu eklemek o kararı bozardı. Bunun yerine görünmez
+     bir örtü hedefi 44 px'e çıkarıyor — hiçbir kutu büyümüyor, satır ritmi
+     değişmiyor (`.fp-sw`'de kullanılan yöntemin aynısı). */
+  .see-all,.fp-act,.fp-actbtn{position:relative}
+  .see-all::after,.fp-act::after,.fp-actbtn::after{
+    content:"";position:absolute;left:0;right:0;top:50%;
+    transform:translateY(-50%);height:44px
+  }
   .sec-tools>.see-all{grid-row:4;grid-column:1/-1;justify-self:start;margin-top:14px}
 
   .chip{font-size:12px;padding:7px 12px;white-space:nowrap}
@@ -1586,6 +1627,10 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
 .fp-toggle .txt b{display:block;font-size:14.5px;color:var(--slate);margin-bottom:3px}
 .fp-toggle .txt small{font-size:13px;color:var(--muted);font-weight:500;line-height:1.55;display:block}
 .fp-sw{flex:none;position:relative;width:46px;height:26px;border-radius:var(--radius-pill);background:#dcdcdb;border:none;cursor:pointer;transition:.2s var(--ease)}
+/* R6 · dokunma hedefi — pil görsel olarak 46×26 kalıyor ama tıklanabilir
+   alan ölçüldüğünde 26 px'ti (asgari 44). Görünmez bir örtü hedefi 44 px'e
+   çıkarıyor; hiçbir kutu büyümüyor, satır ritmi değişmiyor. */
+.fp-sw::before{content:"";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px}
 .fp-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.2s var(--ease)}
 .fp-sw[aria-checked="true"]{background:var(--fit)}
 .fp-sw[aria-checked="true"]::after{transform:translateX(20px)}
@@ -1673,29 +1718,11 @@ body.kcal-off .dl-row::after{content:"sayı gizli";font-size:11.5px;font-weight:
  FAZ 6 — SAĞLIK, GÜVENLİK VE ERİŞİLEBİLİRLİK KATMANI (belge §14)
  ===================================================================== */
 
-/* ---- her Fit sayfasının altındaki sağlık/künye şeridi (§14.1) ---- */
-.fit-health{background:var(--bg-white);border-top:1px solid var(--line);padding:var(--sec-pad-sm) 0}
-.fit-health .fh-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start}
-.fit-health h2{font-size:17px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.fit-health h2 i{flex:none;width:32px;height:32px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:13px}
-.fit-health p{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.65}
-.fit-health p a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
-.fh-stop{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.fh-stop span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#a8391c;background:#fff2ee;border:1px solid #f3cdc0;padding:6px 11px;border-radius:var(--radius-sm)}
-.fh-by{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--sh-sm)}
-.fh-by .row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
-.fh-by .row:last-of-type{border-bottom:none}
-.fh-by .ico{flex:none;width:32px;height:32px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:13px}
-.fh-by b{display:block;font-size:13.5px;color:var(--slate)}
-.fh-by small{display:block;font-size:12px;color:var(--muted);font-weight:500;line-height:1.5}
-.fh-date{margin-top:12px;font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:8px}
-.fh-prefs{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-.fh-pref{display:inline-flex;align-items:center;gap:9px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);padding:9px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:.18s var(--ease)}
-.fh-pref:hover{border-color:var(--fit);color:var(--fit-deep)}
-.fh-pref[aria-pressed="true"]{border-color:var(--fit);background:var(--fit);color:#fff}
-.fh-pref:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
-@media (max-width:1024px){ .fit-health .fh-grid{grid-template-columns:minmax(0,1fr);gap:20px} }
-/* R8 — mobil dolgu artık token'dan geliyor (--sec-pad-sm ≤640'ta 22px) */
+/* ---- R6 · MADDE 2 · sayfa altı sağlık şeridi KALDIRILDI ----
+   `.fit-health` / `.fh-*` ailesi (21 kural) buradaydı; üreten IIFE
+   `fit-shell.js`'ten kalktığı için ölü CSS bırakılmadı.
+   Uyarı metni footer'ın yasal bandında, tercihler
+   `fit-planim-veri-izin-v1.html`'de duruyor. */
 
 /* ---- ERİŞİLEBİLİRLİK (§14.3) ---- */
 /* görünür ve tutarlı odak göstergesi — tüm etkileşimli öğeler */
@@ -1905,9 +1932,133 @@ body[data-fit-hero-kind] .ed-top > .wrap{
 body[data-fit-hero-kind] .lib-top > .wrap > *,
 body[data-fit-hero-kind] .fs-top > .wrap > *,
 body[data-fit-hero-kind] .ed-top > .wrap > *{margin-top:0;margin-bottom:0}
-body[data-fit-hero-kind] .lib-top > .wrap > .lib-stats{order:1}
-body[data-fit-hero-kind] .lib-top > .wrap > .chips,
-body[data-fit-hero-kind] .lib-top > .wrap > .lib-cta{order:2}
+
+/* =====================================================================
+   R6 · MADDE 4 — İSTATİSTİK ŞERİDİ SAĞDA DİKEY KOLON  (site geneli)
+   ---------------------------------------------------------------------
+   Beyar: "şerit açıklamanın altında yatay duruyor; kardeş markalarda
+   sağda dikey bir kolon."
+
+   ÖLÇÜLDÜ (Playwright, 8. oturum, @1440 · üç bağımsız liste sayfası):
+     dadadiet.com/diyetisyenler    kolon x1167.2 w140.8 · kalem 140.8×56.7
+     dadagastro.com/tarifler       kolon x1223.5 w 84.5 · kalem  84.5×56.7
+     dadagastro.com/mutfak-sozlugu kolon x1251.3 w 56.7 · kalem  56.7×56.7
+   Üçünde de:
+     · kolon sağ kenarı = wrap sağ kenarı (1308) → kolon SAĞA yaslı
+     · flex-direction COLUMN, kalemler arası **16 px**
+     · sol kolonla arası **44 px** (sol kolonun sağ kenarı → şeridin sol kenarı)
+     · kolonun ALT kenarı sol kolonun alt kenarıyla **Δ 0.0 px** → alta hizalı
+     · sayı 29px/700/lh 31.9 · etiket 12.5px/500/lh 19.4 · sayı→etiket 6 px
+     · AYRAÇ ÇİZGİSİ YOK
+     · ≤1024 → kolon sol kolonun ALTINA düşüyor ve yatay sıraya dönüyor
+
+   ALINMAYAN: renk. Referansın etiket rengi rgb(174,188,198) / rgb(201,195,184);
+   DadaFit kendi paletinde kalıyor (K29 — ölçü alınır, palet alınmaz).
+
+   R15'in `.lib-stats{order:1}` numarası SİLİNDİ: işaretlemede CTA'nın
+   istatistikten önce gelmesini telafi ediyordu, istatistik kolondan
+   çıktığı için karşılığı kalmadı. Sol kolonun sırası artık doğrudan
+   referansın sırası: kırıntı → eyebrow → H1 → alt metin → CTA.
+   ===================================================================== */
+:root{ --banner-stat-gutter:44px; --banner-stat-gap:16px }
+
+/* İKİ KOLONLU SATIR — kabuk JS'i kuruyor (bkz. fit-shell.js):
+     .wrap > kırıntı              (tam genişlik, satırın ÜSTÜNDE)
+     .wrap > .lib-row > .lib-main | .lib-stats
+   Referansın yapısıyla aynı (`.rd-crumb` + `.lh-main` | `.lst-stats`). */
+body[data-fit-hero-kind] .wrap > .lib-row{
+  display:flex;flex-direction:column;align-items:stretch;
+  row-gap:var(--banner-gap);min-width:0
+}
+body[data-fit-hero-kind] .wrap > .lib-row > .lib-main{
+  display:flex;flex-direction:column;align-items:stretch;
+  row-gap:var(--banner-gap);min-width:0;flex:1 1 auto
+}
+body[data-fit-hero-kind] .lib-row > .lib-main > *{margin-top:0;margin-bottom:0}
+
+/* ---- şeridin TABANI: ≤1024'te yatay sıra (referansta da öyle) ----
+   Ölçüm: @1024 ve @900 ve @768'de üç referans sayfasının üçünde de
+   `.lst-stats` flex/ROW · gap 34px, sol kolonun ALTINDA.
+   ≤640'ta gap 10px'e, sayı 29 → 20px'e iniyor (dadagastro.com/tarifler). */
+body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
+  display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;
+  column-gap:34px;row-gap:14px;margin-top:0;flex:none
+}
+body[data-fit-hero-kind] .lib-row > .lib-stats > .lib-stat{
+  display:block;align-items:initial
+}
+body[data-fit-hero-kind] .lib-row > .lib-stats > .lib-stat b{
+  display:block;font-size:29px;font-weight:700;line-height:1.1;
+  letter-spacing:-.02em;color:#fff
+}
+body[data-fit-hero-kind] .lib-row > .lib-stats > .lib-stat span{
+  display:block;margin-top:6px;font-size:12.5px;font-weight:500;
+  line-height:1.55;color:rgba(255,255,255,.85)
+}
+/* içi boş kalem (işaretlemede yetim kalmış) satırda hayalet boşluk bırakmasın */
+body[data-fit-hero-kind] .lib-row > .lib-stats > .lib-stat:empty{display:none}
+
+/* ---------- ≤640: referansın küçük ölçeği ---------- */
+@media (max-width:640px){
+  body[data-fit-hero-kind] .lib-row > .lib-stats{column-gap:20px;row-gap:12px}
+  body[data-fit-hero-kind] .lib-row > .lib-stats > .lib-stat b{font-size:20px}
+}
+
+/* =====================================================================
+   R6 · MADDE 5 — BANNER CTA SATIRI  (`.lib-cta`)
+   ---------------------------------------------------------------------
+   Beyar: "İki buton yanlış hiyerarşide ve kötü duruyor."
+
+   ÖLÇÜLDÜ — ÜÇ KUSUR:
+   1) `.lib-cta`nın HİÇ CSS'i yoktu: `display:block`, butonlar inline.
+      İki buton arasındaki boşluk **4 px**'ti ve bu bir tasarım değeri
+      değil, işaretlemedeki satır sonu boşluğuydu. Referansta kapsayıcı
+      flex ve aralık **9 px** (dadadiet.com/beslenme ve /diyetisyenler,
+      `.chips{gap:9px}` — ikisinde de aynı).
+   2) @390'da iki buton yan yana kalıyordu: 173.5 + 4 + 179.3 = 356.8,
+      alan 358 → **1.2 px pay**. Referansta @390'da butonlar ALT ALTA
+      (`.chips` yüksekliği 52.5 → 111.9). Şimdi `flex-wrap:wrap` ile
+      kendiliğinden alt alta geçiyor.
+   3) İKİNCİL BUTON BİRİNCİLDEN GÜÇLÜYDÜ. `programlar-merkezi`'nde ikincil
+      buton kabuğun `.btn-ghost`'uydu: **dolu beyaz zemin + koyu metin**;
+      fotoğraflı koyu banner'ın üstünde bu blok yeşil birincil butondan
+      daha çok göze çarpıyordu. Üstelik ikincil buton daha GENİŞTİ
+      (179.3 > 173.5). `antrenorler-v1`'de aynı yuvada başka bir dil vardı:
+      camsı `rgba(255,255,255,.1)` + beyaz metin — orada hiyerarşi doğru
+      okunuyordu. İki sayfa aynı yuvada iki ayrı dil konuşuyordu.
+
+   KARAR: camsı dil kabuğa alındı, iki sayfa da onu kullanıyor.
+   REFERANSTAN AYRILAN TEK NOKTA ve GEREKÇESİ: dadadiet'in ikincil butonu
+   dolu beyaz (`rgb(255,255,255)` zemin + `rgb(33,30,22)` metin). Ama onun
+   banner'ı DÜZ KOYU DOLGU; DadaFit'in banner'ı FOTOĞRAF. Fotoğrafın
+   üstünde dolu beyaz blok birincil butondan daha parlak kalıyor. Ölçü
+   (aralık, yükseklik, dolgu, yarıçap, punto) referanstan birebir alındı;
+   yalnız ikincilin zemin dili değişti — K29'un "ölçü alınır, palet
+   alınmaz" kuralının aynısı.
+   GERİ ALMA: `.lib-cta-ghost` bloğu silinirse kabuğun düz `.btn-ghost`u
+   (dolu beyaz) geri gelir.
+   ===================================================================== */
+.lib-cta{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.lib-cta-ghost{
+  background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.26);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)
+}
+.lib-cta-ghost:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.55);color:#fff}
+.lib-cta-ghost:focus-visible{outline:3px solid var(--fit-bright) !important;outline-offset:2px}
+
+/* ---------- ≥1025: İKİ KOLON — şerit sağda DİKEY ---------- */
+@media (min-width:1025px){
+  body[data-fit-hero-kind] .wrap > .lib-row{
+    flex-direction:row;align-items:flex-end;
+    column-gap:var(--banner-stat-gutter);row-gap:0
+  }
+  body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
+    flex-direction:column;flex-wrap:nowrap;
+    gap:var(--banner-stat-gap);
+    /* kolonun ALT kenarı sol kolonun alt kenarıyla hizalı (referansta Δ 0.0) */
+    align-self:flex-end
+  }
+}
 
 /* Sabit kutuda içerik ÜSTTEN hizalanır.
    `.pd-hero` kendi CSS'inde `display:flex; align-items:flex-end` taşıyordu:
@@ -1935,7 +2086,8 @@ body[data-brand="fit"] .ol-top{min-height:var(--hero-min) !important}
 /* ---- banner içi dikey ritim de tek ölçekten ---- */
 body[data-brand="fit"] .lib-top .lib-crumb{margin-bottom:var(--hero-gap)}
 body[data-brand="fit"] .lib-top h1{margin:var(--hero-gap) 0 calc(var(--hero-gap) - 2px)}
-body[data-brand="fit"] .lib-top .lib-stats{margin-top:calc(var(--hero-gap) + 6px)}
+/* R6 m4: `.lib-stats` artık sol kolonun kardeşi değil, sağ kolon —
+   dikey ritmi `.lib-row` veriyor, kendi margin-top'u kalktı. */
 .fs-top .lib-crumb{margin-bottom:12px !important}
 
 /* ---------- ≤1024 ---------- */
@@ -2002,15 +2154,18 @@ body[data-brand="fit"] .lib-top .lib-stats{margin-top:calc(var(--hero-gap) + 6px
   .chl-meta{margin:9px 0 !important}
   .chl-cta{margin-top:10px !important}
   .cp-top{padding:10px 0 12px !important}
-  .cp-top .cp-portre{width:64px !important;height:64px !important}
+  /* R6 m7 — portre artık yuvarlak; mobilde 72 px (referans profilde 104) */
+  .cp-top .cp-portre{width:72px !important;height:72px !important}
   .cp-top .cp-head{gap:10px !important}
   .cp-top .cta-row{gap:7px !important}
   .cp-top .cp-cta{margin-top:12px !important;padding:14px !important}
-  .cp-top .cp-id .cp-meta{gap:6px !important}
   .cp-top .cp-htags{margin-top:9px !important;gap:6px !important}
   .pd-hero{padding:8px 0 10px !important}
   .pd-hero .pd-crumb{margin-bottom:6px !important;font-size:11.5px !important}
-  .pd-hero .pd-panel{padding:16px 18px 16px !important}
+  /* R6 · S-G — cam panel kalktı, artık kendi yatay dolgusu yok; içerik
+     `.wrap`ın 16 px'lik kenarından başlıyor (h1 sol kenarı = kırıntı sol
+     kenarı). Dikey pay korunuyor. */
+  .pd-hero .pd-panel{padding:16px 0 !important}
   .pd-hero .pd-meta{gap:6px 12px !important;margin-top:9px !important}
   .pd-hero .pd-hcta{margin-top:11px !important}
   .ol-top{padding-top:14px !important;padding-bottom:14px !important}
@@ -2147,7 +2302,7 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 .bs-item:focus-visible,.tb-world:focus-visible,.chip:focus-visible,.df-fchip:focus-visible,
 .bn-item:focus-visible,.acct-btn:focus-visible,.icon-btn:focus-visible,.d-link:focus-visible,
 .nav a:focus-visible,.foot-col a:focus-visible,.dt:focus-visible,.pb-opt:focus-visible,
-.fh-pref:focus-visible,.fp-sw:focus-visible,.btn:focus-visible,.see-all:focus-visible{
+.fp-sw:focus-visible,.btn:focus-visible,.see-all:focus-visible{
   outline:3px solid var(--fit) !important;outline-offset:2px !important;
 }
 .topbar .bs-item:focus-visible,.topbar .tb-world:focus-visible,.topbar a:focus-visible,
@@ -2743,7 +2898,9 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 .fit-pane{animation:fadeUp .35s var(--ease)}
 .fit-pane[hidden]{display:none}
 @media (max-width:640px){
-  .fit-tab{padding:9px 14px;font-size:12.5px}
+  /* R6 · dokunma hedefi — ölçülen yükseklik 37.4 px'ti (asgari 44).
+     Dolgu yerine `min-height`: punto değişse de hedef 44'ün altına düşmez. */
+  .fit-tab{padding:9px 14px;font-size:12.5px;min-height:44px}
   .fit-tabs{display:flex;width:100%}
 }
 

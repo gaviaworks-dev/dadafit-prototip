@@ -121,15 +121,15 @@ html,body{overflow-x:clip}
 .cp-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
 .cp-crumb .cur{color:var(--fit-bright)}
 
-/* kimlik kartı: portre + isim/uzmanlık/rozet + CTA → 3 kolon hizalı */
-.cp-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:30px;align-items:center}
-/* büyük portre (div+bg cover, img YOK) */
+/* R6 m7 · kimlik bloğu TEK KOLON — h1 `.wrap`ın sol kenarından (132 px) */
+.cp-head{display:block}
+/* yuvarlak portre; ölçü referanstan: dadadiet profil sayfası `.pf-ava` 128×128 */
 .cp-portre{
-  position:relative;flex:none;width:186px;height:222px;border-radius:var(--radius-xl);
-  background-size:cover;background-position:center top;
+  position:relative;flex:none;width:128px;height:128px;border-radius:50%;
+  background-size:cover;background-position:center;margin-bottom:18px;
   box-shadow:0 18px 48px rgba(0,0,0,.4);border:3px solid rgba(255,255,255,.14);
 }
-.cp-portre .cp-on{position:absolute;right:13px;bottom:13px;width:18px;height:18px;border-radius:50%;background:var(--fit-bright);border:3px solid #16140e;box-shadow:0 0 0 2px rgba(52,196,126,.4)}
+.cp-portre .cp-on{position:absolute;right:6px;bottom:6px;width:18px;height:18px;border-radius:50%;background:var(--fit-bright);border:3px solid #16140e;box-shadow:0 0 0 2px rgba(52,196,126,.4)}
 .cp-id{min-width:0}
 /* Onay rozeti — ikon boyutu ve dikey hizası ÖLÇÜLEREK ayarlandı.
    Rozet bozuk görünüyordu çünkü ikonu `fa-shield-check` idi ve o bir Font
@@ -144,13 +144,10 @@ html,body{overflow-x:clip}
 .cp-id h1{color:#fff;font-size:40px;letter-spacing:-.02em;line-height:1.06;margin-bottom:8px}
 .cp-spec{color:rgba(255,255,255,.86);font-size:16px;font-weight:600;margin-bottom:16px}
 .cp-spec i{color:var(--fit-bright);font-size:13px;margin:0 6px}
-/* hero mini-meta: puan · danışan · yanıt */
-.cp-meta{display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap;margin-bottom:18px}
-.cp-meta .m{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.82)}
-.cp-meta .m i{color:var(--fit-bright);font-size:13px}
-.cp-meta .m .star{color:var(--yellow)}
-.cp-meta .m b{color:#fff;font-weight:800}
-.cp-meta .mdiv{width:1px;height:14px;background:rgba(255,255,255,.2)}
+/* R6 m7 · hero mini-meta (`.cp-meta`) KALKTI — üç kalem madde 4'ün sağ dikey
+   `.lib-stats` kolonuna taşındı, kuralları ölü kalmasın diye silindi.
+   Yıldız ikonu sayının içinde kaldı: */
+.cp-top .lib-stat b i.fa-star{color:var(--yellow);font-size:20px;margin-right:4px}
 /* hero etiketleri (cam chip) */
 .cp-htags{display:flex;flex-wrap:wrap;gap:8px}
 .cp-htags span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 13px;border-radius:var(--radius-sm)}
@@ -314,7 +311,6 @@ html,body{overflow-x:clip}
 @media (max-width:1024px){
   .cp-top{margin-top:112px}
   .cp-tabbar{top:112px}
-  .cp-head{grid-template-columns:auto minmax(0,1fr);gap:24px 28px}
   .cp-cta{grid-column:1/-1;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}
   .cp-cta .cta-price{flex:1 1 100%;margin-bottom:0}
   .cp-cta .btn{width:auto;flex:1}
@@ -332,13 +328,9 @@ html,body{overflow-x:clip}
 }
 @media (max-width:640px){
   .cp-top{margin-top:62px;padding:26px 0 34px}
-  .cp-head{grid-template-columns:1fr;justify-items:center;text-align:center;gap:18px}
-  .cp-portre{width:150px;height:182px}
-  .cp-verify{margin:0 auto 13px}
+  .cp-portre{width:96px;height:96px;margin-bottom:14px}
   .cp-id h1{font-size:29px}
   .cp-spec{font-size:14.5px}
-  .cp-meta{justify-content:center}
-  .cp-htags{justify-content:center}
   .cp-cta{flex-direction:column}
   .cp-cta .cta-price{justify-content:space-between}
   .cp-cta .btn,.cp-cta .cta-row{width:100%}
@@ -383,21 +375,26 @@ html,body{overflow-x:clip}
       <span class="cur" data-at="ad">Selin Aksoy</span>
     </nav>
 
+    <!-- ===== R6 · MADDE 7 (+ S-G KARARI) — BANNER TEK KOLONA ÇEKİLDİ =====
+         ÖNCE: `.cp-head` üç kolonlu ızgaraydı (portre | kimlik | CTA) ve h1'in
+         sol kenarı **348 px**'ti. Ölçüm: sitedeki 64 banner sayfasının 61'inde
+         h1 sol kenarı 132 px; yalnız bu sayfa (348) ve `program-detay` (165)
+         ayrışıyordu. S-G kararı: ikisi de tek kolona çekilecek, h1 132 px.
+         ŞİMDİ: kimlik bloğu doğrudan `.wrap`ın sol kenarından başlıyor;
+         portre onun üstünde, referansın profil sayfasındaki gibi **yuvarlak
+         ve 128 px** (dadadiet.com/diyetisyen/… `.pf-ava` = 128×128, ölçüldü).
+         `.cp-meta` şeridi de madde 4'ün dilini alıp SAĞ DİKEY KOLONA taşındı
+         (`.lib-stats`); üç kalemin de içeriği korundu.
+         GERİ ALMA: bu bloğu eski `.cp-head` ızgarasına döndürmek + CSS'teki
+         "R6 m7" bloğunu silmek. -->
     <div class="cp-head">
-      <div class="cp-portre" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <span class="cp-on" title="Şu an müsait"></span>
-      </div>
       <div class="cp-id">
+        <div class="cp-portre" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <span class="cp-on" title="Şu an müsait"></span>
+        </div>
         <span class="cp-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı · Sertifikalı</span>
         <h1 data-at="ad">Selin Aksoy</h1>
         <p class="cp-spec">Güç &amp; Kondisyon <i class="fa-solid fa-circle"></i> Evde Antrenman</p>
-        <div class="cp-meta">
-          <span class="m"><i class="fa-solid fa-star star"></i> <b>4.9</b> · 120 değerlendirme</span>
-          <span class="mdiv"></span>
-          <span class="m"><i class="fa-solid fa-user-group"></i> <b>180+</b> danışan</span>
-          <span class="mdiv"></span>
-          <span class="m"><i class="fa-solid fa-bolt"></i> Genelde <b>3 saat</b> içinde yanıtlar</span>
-        </div>
         <div class="cp-htags">
           <span><i class="fa-solid fa-house"></i> Evde antrenman</span>
           <span><i class="fa-solid fa-scale-balanced"></i> Kilo yönetimi</span>
@@ -405,6 +402,11 @@ html,body{overflow-x:clip}
           <span><i class="fa-solid fa-heart"></i> Beden-pozitif</span>
         </div>
       </div>
+    </div>
+    <div class="lib-stats">
+      <div class="lib-stat"><b><i class="fa-solid fa-star"></i> 4.9</b><span>120 değerlendirme</span></div>
+      <div class="lib-stat"><b>180+</b><span>danışan</span></div>
+      <div class="lib-stat"><b>3 saat</b><span>ortalama yanıt süresi</span></div>
     </div>
   </div>
 </section>
@@ -660,27 +662,28 @@ html,body{overflow-x:clip}
         <div class="sim-id"><b>Zeynep Arı</b><span>Koşu &amp; Dayanıklılık · Başlangıç</span><span class="sim-rate"><i class="fa-solid fa-star"></i> 4.7 · 53 değerlendirme</span></div>
       </a>
     </div>
+
+    <!-- Public → antrenör başvurusu.
+         ÜÇ KUSUR DAHA ÖNCE DÜZELTİLMİŞTİ (üçü de ölçülmüştü):
+         1 · HİZA: satır içi `style="margin:0 0 28px"` .wrap'in `margin:0 auto`
+             ortalamasını siliyordu; kutu sola kayıyordu.
+         2 · MARKA: "Antrenör Paneli" bağlantısı DadaMutfak'ın dış adresine
+             gidiyordu — belge §1 ihlali; gerçek hedefe çevrildi.
+         3 · YASLAMA: .hr-note artık yaslanmıyor (fit-type.css istisnası).
+
+         R6 · MADDE 7 — DÖRDÜNCÜ KUSUR: blok `#pageMain`in doğrudan çocuğu olan
+         çıplak bir `.wrap`tı; sayfa, sitenin geri kalanındaki 50 px'lik bölüm
+         dolgusu yerine 28 px'le bitiyordu ve `#pageMain`in son çocuğunun
+         `padding-bottom`u 0'dı (ölçüldü: 64 sayfanın 54'ünde bu değer 50).
+         Not, madde 6'daki kararla aynı biçimde bir üstteki bölümün kuyruğuna
+         girdi; sayfa artık sitenin ritmiyle bitiyor.
+         GERİ ALMA: bloğu `</section>`den sonra kendi `.wrap`ına geri koymak. -->
+    <div class="hr-note">
+      <i class="fa-solid fa-id-badge"></i>
+      <p>Bu profil sana mı ait? Antrenör olarak DadaFit'te yer almak, danışanlarını ve randevularını yönetmek istiyorsan <a href="antrenor-ol-v1.html">başvuru formu burada</a>. Hesabın varsa <a href="giris-v1.html">giriş yapabilirsin</a>.</p>
+    </div>
   </div>
 </section>
-
-<!-- Public → antrenör başvurusu.
-     ÜÇ KUSUR DÜZELTİLDİ (üçü de ölçüldü):
-     1 · HİZA: satır içi `style="margin:0 0 28px"` .wrap'in `margin:0 auto`
-         ortalamasını siliyordu; kutu sayfanın geri kalanıyla hizalanmıyor,
-         sola kayıyordu (ölçüm: kutu sol=115, üstündeki bölüm sol=275).
-         Yatay margin `auto` bırakıldı, yalnız alt boşluk verildi.
-     2 · MARKA: "Antrenör Paneli" bağlantısı DadaMutfak'ın dış adresine
-         (by4r.github.io/dadamutfak-view/…) gidiyordu — belge §1 ihlali.
-         Bu taramalardan sızmıştı çünkü DIŞ bir adres (yerel link taraması
-         atlıyor) ve görünen METİNDE "DadaMutfak" geçmiyor. Panel DadaFit'te
-         yok; cümle var olan gerçek hedefe, antrenör başvurusuna çevrildi.
-     3 · YASLAMA: .hr-note artık yaslanmıyor (fit-type.css istisnası). -->
-<div class="wrap" style="margin-bottom:28px">
-  <div class="hr-note" style="margin-top:0">
-    <i class="fa-solid fa-id-badge"></i>
-    <p>Bu profil sana mı ait? Antrenör olarak DadaFit'te yer almak, danışanlarını ve randevularını yönetmek istiyorsan <a href="antrenor-ol-v1.html">başvuru formu burada</a>. Hesabın varsa <a href="giris-v1.html">giriş yapabilirsin</a>.</p>
-  </div>
-</div>
 
 </main><!-- /.page-main -->
 

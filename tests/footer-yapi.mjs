@@ -35,7 +35,12 @@
       tek değer, tüm sayfalarda; accordion açılıp genişlik masaüstüne
       döndükten SONRA da 0 (accordion yüksekliği değiştirdiği için
       perde yeniden ölçülüyor).
-   12 B10 NÖBETİ: `.fit-health` `#pageMain`'in SON ÇOCUĞU.
+   12 R6 · MADDE 2 NÖBETİ: sayfa altı `.fit-health` section'ı HİÇBİR
+      sayfada YOK. (8. oturuma kadar bu ölçüt B10 nöbetiydi — "şerit
+      `#pageMain`'in son çocuğu olmalı". Section kaldırıldığı için nöbet
+      TAŞINDI, zayıflatılmadı: artık varlığı gerileme sayılıyor.)
+      Uyarı metni kaybolmadı: yasal banttaki "Sağlık Bilgilendirmesi"
+      bağlantısı §10'da ayrıca nöbette.
    13 Konsol hatası 0 · yatay taşma 0 (@1440 · @1024 · @390).
 
    Çalıştırma:
@@ -513,12 +518,12 @@ console.log('\n--- 8 · accordion · 9 · mobil sıralama ---');
 }
 
 /* =====================================================================
-   11 · R11 PERDESİ + 12 · B10 NÖBETİ — TÜM SAYFALAR @1440
+   11 · R11 PERDESİ + 12 · R6 MADDE 2 NÖBETİ — TÜM SAYFALAR @1440
    ===================================================================== */
-console.log('\n--- 11 · R11 perdesi · 12 · .fit-health nöbeti (tüm sayfalar) ---');
+console.log('\n--- 11 · R11 perdesi · 12 · .fit-health yok nöbeti (tüm sayfalar) ---');
 {
   const { ctx, page } = await ac(1440);
-  const farkSet = new Map(); let n = 0, icerde = 0, sonCocuk = 0;
+  const farkSet = new Map(); let n = 0, temiz = 0, saglikLink = 0, banner = 0, ikiKolon = 0;
   for (const f of SAYFALAR) {
     try {
       await page.goto(`${BASE}/${f}`, { waitUntil:'load', timeout:30000 });
@@ -527,27 +532,74 @@ console.log('\n--- 11 · R11 perdesi · 12 · .fit-health nöbeti (tüm sayfalar
         const m = document.getElementById('pageMain'), ftr = document.querySelector('footer.footer');
         if (!m || !ftr) return { yok:true };
         const mb = parseFloat(getComputedStyle(m).marginBottom) || 0;
-        const sec = document.querySelector('.fit-health');
+
+        /* ---- R6 · MADDE 4 NÖBETİ · BANNER İKİ KOLON SÖZLEŞMESİ ----------
+           Madde 4, banner `.wrap`ını @≥1025'te YATAY bir ızgaraya çeviriyor.
+           Yatay dizilim yalnız kabuk JS'inin kurduğu `.lib-row` sarmalayıcısı
+           varken doğrudur; sarmalayıcı yokken `.wrap`ın beş çocuğu (kırıntı ·
+           eyebrow · h1 · alt metin · yan blok) YAN YANA diziliyor ve banner
+           okunmaz hâle geliyor.
+
+           BU GERÇEK BİR KUSUR OLARAK YAŞANDI: turun ara durumunda kural
+           `.lib-top > .wrap`a bağlıydı; `#fitPlanTop` üreteci `.lib-main`
+           basmadığı için Fit Planım'ın 9 sayfası @1440'ta bozuldu. AJAN-E
+           ölçüp bildirdi, yapı `.lib-row`a bağlanarak düzeltildi.
+
+           NEDEN YÜKSEKLİK NÖBETİ YAKALAMADI: banner ailesi kilidi yüksekliği
+           sabitliyor (544/607/587), bloklar yan yana dizilince de yükseklik
+           DEĞİŞMİYOR. Yani mevcut nöbetlerin hepsi yeşil kalıyordu.
+           Bu ölçüt tam olarak o boşluğu kapatıyor. */
+        const ban = document.querySelector('.lib-top, .fs-top, .ed-top, .cp-top, .kp-top, .ol-top, .chl-hero, .pd-hero');
+        let banner = null;
+        if (ban) {
+          const wr = ban.querySelector(':scope > .wrap');
+          if (wr) {
+            const cs = getComputedStyle(wr);
+            const cocuk = [...wr.children].filter(e => e.getBoundingClientRect().height > 2);
+            /* yatay dizilim: en az iki çocuk aynı satırda ve x'leri farklı */
+            const yanYana = cocuk.some((a, i) => cocuk.slice(i + 1).some(b => {
+              const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+              return Math.abs(ra.top - rb.top) < 4 && Math.abs(ra.left - rb.left) > 4;
+            }));
+            banner = {
+              cls: (ban.className || '').toString().split(' ')[0],
+              satir: wr.querySelectorAll(':scope > .lib-row').length,
+              yanYana
+            };
+          }
+        }
         return {
+          banner,
           fark: +(mb - ftr.getBoundingClientRect().height).toFixed(1),
-          saglikVar: !!sec,
-          saglikIcerde: !!(sec && m.contains(sec)),
-          saglikSonCocuk: m.lastElementChild === sec
+          /* R6 · madde 2 — section artık basılmıyor, sayı 0 olmalı */
+          saglikSayi: document.querySelectorAll('.fit-health').length,
+          /* uyarı siteden kaybolmadı: yasal banttaki bağlantı duruyor */
+          saglikLink: ftr.querySelectorAll('a[href="saglik-bilgilendirme-v1.html"]').length
         };
       });
       if (r.yok) { rec(`11 · ${f}`, '#pageMain ya da footer yok'); continue; }
       n++;
       farkSet.set(r.fark, (farkSet.get(r.fark)||0) + 1);
-      if (r.saglikVar && r.saglikIcerde) icerde++;
-      if (r.saglikVar && r.saglikSonCocuk) sonCocuk++;
-      else if (r.saglikVar) rec(`12 · ${f}`, '.fit-health #pageMain\'in son çocuğu DEĞİL (B10)');
+      if (r.saglikSayi > 0) rec(`12 · ${f}`, `.fit-health ${r.saglikSayi} düğüm — R6 madde 2 ile kaldırılmıştı, geri gelmiş`);
+      else temiz++;
+      if (r.saglikLink >= 1) saglikLink++;
+      else rec(`12 · ${f}`, 'yasal banttaki saglik-bilgilendirme-v1.html bağlantısı YOK — uyarı siteden kayboldu');
+
+      /* R6 m4 nöbeti: yan yana dizilim ancak `.lib-row` varsa meşru */
+      if (r.banner) {
+        banner++;
+        if (r.banner.yanYana && r.banner.satir !== 1)
+          rec(`12b · ${f}`, `.${r.banner.cls} > .wrap çocukları YAN YANA ama .lib-row yok (${r.banner.satir}) — banner iki kolon sözleşmesi bozuk (R6 m4)`);
+        else if (r.banner.satir === 1) ikiKolon++;
+      }
     } catch (e) { rec(`11 · ${f}`, 'HATA: ' + String(e).slice(0,90)); }
   }
   const degerler = [...farkSet.keys()];
   if (degerler.length !== 1 || Math.abs(degerler[0]) > 0.5)
     rec('11 · R11 perdesi', 'tek değere oturmadı: ' + JSON.stringify([...farkSet.entries()]));
   else ok(`R11 @1440: ${n} sayfa · margin-bottom − footer yüksekliği = ${degerler[0]} (TEK DEĞER)`);
-  ok(`B10: .fit-health perdenin içinde ${icerde}/${n} · #pageMain'in SON ÇOCUĞU ${sonCocuk}/${n}`);
+  ok(`R6 m2: sayfa altı .fit-health section'ı yok ${temiz}/${n} · yasal bantta sağlık bağlantısı ${saglikLink}/${n}`);
+  ok(`R6 m4: ${banner} banner sayfası · ${ikiKolon}'inde .lib-row iki kolon · sarmalayıcısız yan yana dizilim 0`);
   await ctx.close();
 }
 
@@ -632,5 +684,5 @@ if (notlar.length) { console.log('\nNOTLAR:'); notlar.forEach(n => console.log('
 if (fail) { console.log('\nSORUNLAR:'); bad.slice(0,40).forEach(b => console.log('  ✗ ' + b)); console.log(`\n✗ ${fail} sorun`); process.exit(1); }
 console.log('✓ Beş alan · üç sütun birebir · Planım yok · kurumsal bant 8 kalem');
 console.log('✓ Mağaza butonları bağlantı değil · sosyal yalnız IG+YT · accordion mobilde');
-console.log('✓ Yasal bant dokunulmamış · R11 perdesi 0 · .fit-health son çocuk');
+console.log('✓ Yasal bant dokunulmamış · R11 perdesi 0 · .fit-health 0 düğüm (R6 m2)');
 console.log('\n✓ 0 sorun');

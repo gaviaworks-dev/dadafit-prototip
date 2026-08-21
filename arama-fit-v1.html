@@ -446,9 +446,18 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 
 /* ---- arama hero (koyu Fit bandı + fitness görseli) — solid header altında ---- */
 /* BANNER KURALI: header ofseti margin'e alindi, dikey nefes kisaltildi */
-.fs-top{position:relative;margin-top:112px;padding:34px 0 40px;background-image:linear-gradient(180deg,rgba(18,30,22,.92) 0%,rgba(27,42,32,.80) 52%,rgba(20,26,20,.88) 100%),url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16&high=8&vib=3');background-size:cover;background-position:center;overflow:hidden}
-.fs-top::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 460px at 16% -10%,rgba(0,157,79,.30),transparent 60%);pointer-events:none;z-index:1}
-.fs-top::after{content:"";position:absolute;right:-120px;bottom:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(52,196,126,.22),transparent 70%);pointer-events:none;z-index:1}
+/* R6-M20 — overflow:hidden KALDIRILDI: oneri paneli (.fs-ac) bu kutunun
+   disina tasiyor; hidden hem boyamayi hem isabet testini kesiyordu.
+   Suslemeler (radyal parlaklik + sag alt daire) kendi kirpma katmanina
+   (.fs-top-deco) tasindi; yatay tasma orada kirpiliyor. */
+.fs-top{position:relative;margin-top:112px;padding:34px 0 40px;background-image:linear-gradient(180deg,rgba(18,30,22,.92) 0%,rgba(27,42,32,.80) 52%,rgba(20,26,20,.88) 100%),url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16&high=8&vib=3');background-size:cover;background-position:center;overflow:visible}
+.fs-top-deco{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.fs-top-deco::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 460px at 16% -10%,rgba(0,157,79,.30),transparent 60%)}
+.fs-top-deco::after{content:"";position:absolute;right:-120px;bottom:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(52,196,126,.22),transparent 70%)}
+/* Panel acikken hero'yu sekme barinin (z-index:40) ustune, header'in
+   (z-index:60) altina al. Sinif JS ile acilip kapaniyor; kapaliyken
+   .fs-top yeniden z-index:auto olur, footer perdesiyle yarismaz. */
+.fs-top.fs-ac-live{z-index:45}
 .fs-top .wrap{position:relative;z-index:2}
 .fs-top .eyebrow{color:var(--fit-bright)}
 .fs-top h1{font-size:33px;letter-spacing:-.02em;color:#fff;margin:10px 0 12px;text-shadow:0 2px 22px rgba(0,0,0,.28)}
@@ -467,23 +476,37 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 .fs-sum .q{color:var(--fit-bright);font-weight:700}
 
 /* ---- autocomplete dropdown ---- */
-.fs-ac{position:absolute;left:6px;right:6px;top:calc(100% - 4px);z-index:60;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-lg);padding:8px;max-height:min(440px,72vh);overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease),transform .18s var(--ease),visibility .18s;scrollbar-width:thin;scrollbar-color:#d9d9d9 transparent}
+/* G2-K1 · panel beyaz kutunun DIS kenariyla hizali (once left/right:6px idi;
+   kutunun 10px dolgusu yuzunden iki yanda 7px'lik beyaz basamak kaliyordu).
+   G2-K4 · yaricap kutuyla ayni aileden (--radius-lg).
+   G2-K6 · panel yuzen katman; kutunun --sh-lg golgesinden bir kademe yukarida. */
+.fs-ac{position:absolute;left:-1px;right:-1px;top:calc(100% + 4px);z-index:60;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:0 2px 6px rgba(33,30,22,.06),var(--sh-lg);padding:8px;max-height:min(440px,72vh);overflow-y:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .18s var(--ease),transform .18s var(--ease),visibility .18s;scrollbar-width:thin;scrollbar-color:#d9d9d9 transparent}
 .fs-ac::-webkit-scrollbar{width:8px}
 .fs-ac::-webkit-scrollbar-thumb{background:#dcdcdc;border-radius:var(--radius-pill);border:2px solid var(--paper)}
 .fs-box.ac-open .fs-ac{opacity:1;visibility:visible;transform:translateY(0)}
-.fs-ac .ac-grp{display:flex;align-items:center;gap:8px;padding:11px 12px 6px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+/* G2-K5 · gruplar arasi ritim: ilk baslik 6px, sonrakiler hairline ayrac + 12px */
+.fs-ac .ac-grp{display:flex;align-items:center;gap:8px;padding:6px 12px 7px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--slate-2)}
+.fs-ac .ac-grp:not(:first-child){margin-top:8px;padding-top:15px;border-top:1px solid var(--line)}
 .fs-ac .ac-grp i{font-size:11px;color:var(--fit)}
-.fs-ac .ac-grp .ac-clear{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;padding:2px 4px;border-radius:var(--radius-sm)}
-.fs-ac .ac-grp .ac-clear:hover{color:var(--fit)}
-.fs-ac .ac-opt{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;transition:background .14s var(--ease)}
+/* G2-K2 · dokunma hedefi: 11x19px'ti; negatif margin ile satiri buyutmeden
+   38px'e (@<=640: 44px) cikarildi. Odak halkasi da yoktu. */
+.fs-ac .ac-grp .ac-clear{margin:-9px -8px -9px auto;display:inline-flex;align-items:center;min-height:38px;padding:0 8px;font-size:11.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--slate-2);cursor:pointer;border:none;background:none;font-family:inherit;border-radius:var(--radius-sm)}
+.fs-ac .ac-grp .ac-clear:hover{color:var(--fit-deep);background:var(--fit-tint)}
+.fs-ac .ac-grp .ac-clear:focus-visible{outline:2px solid var(--fit-deep);outline-offset:1px}
+.fs-ac .ac-opt{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;transition:background .14s var(--ease);color:inherit;text-decoration:none}
 .fs-ac .ac-opt .ac-ico{flex:none;width:38px;height:38px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;color:var(--slate-2);font-size:15px;background-size:cover;background-position:center;overflow:hidden}
 .fs-ac .ac-opt .ac-main{min-width:0;flex:1}
-.fs-ac .ac-opt .ac-ttl{display:block;font-size:14.5px;font-weight:600;color:var(--slate);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-ac .ac-opt .ac-ttl{display:block;font-size:15px;font-weight:600;color:var(--slate);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fs-ac .ac-opt .ac-ttl mark{background:none;color:var(--fit);font-weight:700;padding:0}
 .fs-ac .ac-opt .ac-sub{display:block;margin-top:1px;font-size:12px;font-weight:500;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fs-ac .ac-opt .ac-badge{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:var(--radius-pill);background:var(--fit-tint);color:var(--fit-deep);border:1px solid var(--fit-line)}
 .fs-ac .ac-opt .ac-badge i{font-size:9.5px}
+/* G2-K3 · klavye imleci yalnizca --fit-tint zeminle belliydi (beyazla 1.13:1);
+   solda 3px aksan cubugu eklendi — imlecin yeri zeminden bagimsiz okunuyor. */
+.fs-ac .ac-opt{position:relative}
+.fs-ac .ac-opt::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:var(--radius-pill);background:transparent}
 .fs-ac .ac-opt:hover,.fs-ac .ac-opt.is-active{background:var(--fit-tint)}
+.fs-ac .ac-opt.is-active::before{background:var(--fit-deep)}
 .fs-ac .ac-opt:hover .ac-ttl,.fs-ac .ac-opt.is-active .ac-ttl{color:var(--fit-deep)}
 .fs-ac .ac-query .ac-ico{background:var(--fit);border-color:var(--fit);color:#fff}
 .fs-ac .ac-none{padding:18px 14px;text-align:center;font-size:13.5px;color:var(--muted);font-weight:500}
@@ -564,6 +587,11 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 @media (max-width:640px){
   .fs-top{padding:104px 0 40px}
   .fs-top h1{font-size:25px}
+  /* G2-K2 · mobilde "Temizle" tam dokunma hedefi (44px) */
+  .fs-ac .ac-grp .ac-clear{min-height:44px;min-width:44px;justify-content:center;margin:-12px -6px -12px auto}
+  /* G3 · referans (dadagastro.com/ara @390) panelini 360px'te kesiyor; 440px
+     844px'lik ekranda sayfadan geriye 100px birakiyordu. */
+  .fs-ac{max-height:min(360px,56vh)}
   .fs-tabbar{top:62px}
   .fs-grid,.fs-grid.is-coach{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
   .fs-grid::-webkit-scrollbar{display:none}
@@ -597,6 +625,7 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 
 <!-- ===== ARAMA HERO ===== -->
 <section class="fs-top">
+  <div class="fs-top-deco" aria-hidden="true"></div>
   <div class="wrap">
     <nav class="lib-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
@@ -955,9 +984,15 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
           var icoInner=r.img?'':'<i class="fa-solid '+(r.icon||r.ico||m.ico)+'"></i>';
           var badge=(r.type&&TYPE[r.type])?'<span class="ac-badge"><i class="fa-solid '+m.ico+'"></i>'+m.lbl+'</span>':'';
           var sub=r.sub?'<span class="ac-sub">'+esc(r.sub)+'</span>':'';
-          html+='<div class="ac-opt'+(r.cls||'')+'" role="option" id="fs-opt-'+idx+'" data-type="'+(r.type||'q')+'" data-idx="'+idx+'" aria-selected="false">'
+          /* G3 · dadagastro.com/ara'da oneri satiri <a href> — orta tik ve
+             "yeni sekmede ac" calisiyor. Ayni yetenek buraya da geldi;
+             tabindex=-1 ile combobox'un aria-activedescendant modeli korundu.
+             Sorgu satirinin (type=q) hedef adresi yok, div kaliyor. */
+          var tg=r.href?'a':'div';
+          var hrefAttr=r.href?' href="'+esc(r.href)+'" tabindex="-1"':'';
+          html+='<'+tg+' class="ac-opt'+(r.cls||'')+'" role="option" id="fs-opt-'+idx+'" data-type="'+(r.type||'q')+'" data-idx="'+idx+'" aria-selected="false"'+hrefAttr+'>'
               +'<span class="ac-ico"'+icoStyle+'>'+icoInner+'</span>'
-              +'<span class="ac-main"><span class="ac-ttl">'+(r.html||esc(r.t))+'</span>'+sub+'</span>'+badge+'</div>';
+              +'<span class="ac-main"><span class="ac-ttl">'+(r.html||esc(r.t))+'</span>'+sub+'</span>'+badge+'</'+tg+'>';
         });
       });
       if(!groups.some(function(g){return g.rows.length;})){
@@ -979,8 +1014,9 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
       render([{label:'Son aramalar',icon:'fa-clock-rotate-left',clear:recent.length>0,rows:recent},{label:'Popüler öneriler',icon:'fa-fire',rows:pop}]);
     }
     function announce(){status.textContent=items.length?(items.length+' öneri listelendi.'):'Öneri yok.';}
-    function open(){box.classList.add('ac-open');input.setAttribute('aria-expanded','true');announce();}
-    function close(){box.classList.remove('ac-open');input.setAttribute('aria-expanded','false');input.setAttribute('aria-activedescendant','');setActive(-1);}
+    var hero=document.querySelector('.fs-top');
+    function open(){box.classList.add('ac-open');if(hero)hero.classList.add('fs-ac-live');input.setAttribute('aria-expanded','true');announce();}
+    function close(){box.classList.remove('ac-open');if(hero)hero.classList.remove('fs-ac-live');input.setAttribute('aria-expanded','false');input.setAttribute('aria-activedescendant','');setActive(-1);}
     function isOpen(){return box.classList.contains('ac-open');}
     function setActive(i){
       var opts=list.querySelectorAll('.ac-opt');

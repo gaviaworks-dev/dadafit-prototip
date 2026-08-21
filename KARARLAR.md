@@ -1729,7 +1729,7 @@ değil, zamanlama.)
 
 **BİLEREK BİRLEŞTİRİLMEYEN:** `--fit-wash` #e8f6ee ile `--fit-tint` #eaf6ef
 iki ayrı paletten gelen neredeyse aynı renk (ΔR2 · ΔG0 · ΔB1, ΔE00 ≈ 0.5 —
-gözle ayırt edilemez). Birleştirmek 127 kullanımın çözülmüş DEĞERİNİ
+gözle ayırt edilemez). Birleştirmek **126 `var(--fit-wash)` kullanımının** çözülmüş DEĞERİNİ
 değiştirirdi; bu tur **ad temizliğiydi, palet birleştirmesi değil**.
 Sonraki tur isterse tek adıma indirebilir — açık kalem.
 
@@ -1792,6 +1792,12 @@ kendi menü kaleminden alındı. İkon (`fa-book-open`) değişmedi.
 
 **Beyar (9. oturum, R7):** *"Madde 5 ve 6 birlikte: yaslama opt-in mi olacak,
 işaret sınıfı mı? İkisinin de maliyetini ve riskini çıkar, öner, sonra uygula."*
+
+> **ONAY DURUMU — AÇIKÇA:** Beyar iki seçeneği de sormuş ve "öner, sonra
+> uygula" demişti; **hangisinin seçileceğini LEAD ölçümle belirledi ve
+> uyguladı. Beyar seçimi görüp onaylamadı.** Sonuç görünür: bugün site
+> genelinde iki yana yaslama kapalı. Beyar bu kararı görüp reddederse geri
+> dönüş §"Geri almak" başlığında, tek bloklu.
 
 R6 iki yarım kalem bırakmıştı: **(5) genişlik tarafı** — çıplak `p`'nin
 yarısı eşiğin altında ama `container-type` taşımayan sarmalayıcıda olduğu
@@ -1873,6 +1879,16 @@ Yani: yaslama kalkınca genişletilmiş kelime aralarıyla gerilen **satır içi
 kutular doğal enine döndü; **hiçbir blok kutu, hiçbir sayfa yüksekliği,
 hiçbir kart yer değiştirmedi.** `container-type` kaldırılmasının da ölçülen
 etkisi sıfır — kapsama orada taşıyıcı değilmiş.
+
+### Geri almak
+
+Kural listesine dönmek gerekmiyor; üç yol var, üçü de ölçülebilir:
+
+| İstenen | Yapılacak |
+|---|---|
+| Tek blok yaslansın | bloğa `class="jt"` |
+| Bir bölümün akan metni yaslansın | sarmalayıcıya `class="jt-flow"` (kutu ≥ `--jt-min` ise açılır) |
+| R6'daki hâle tam dönüş | `fit-type.css` §2'deki opt-in bloğunun yerine eski yaslama seçici listesi — **ama** o zaman `tests/hizalama-nobeti.mjs` ölçüt 2 kırmızıya döner ve dönmesi doğrudur |
 
 **İstisna apparatı SİLİNMEDİ, ikinci savunma hattına düştü.** §3'teki
 kurallar (`text-align:center` kompozisyonlar · form kontrolleri · tablo

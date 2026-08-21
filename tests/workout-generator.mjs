@@ -33,6 +33,10 @@
          tespitinin nöbetçisi.
      19. goblet-squat EKİPMANSIZ PLANDA YOK — dambıl/kettlebell ister;
          ekipmansız havuzdaki yerini hava-squat aldı.
+     21. EKİPMAN ADIMI ALTI SEÇENEK, HEPSİ SÜZÜYOR (R6 · madde 16) —
+         ızgara boş kutu bırakmıyor, her seçeneğin havuzu ölçülüyor ve
+         "yok" ile "salon" küme seçenekleri ötekileri temizliyor
+         (tekKip). Dekoratif seçenek = kırmızı.
      20. GÜNÜN KALIBI KORUNUYOR — bir güne kendi kalıbı dışından hareket
          ancak o günün kalıbındaki KULLANILMAMIŞ hareketler gün boyunu
          dolduramadığında girebilir. (§7'nin "itiş gününe bacak
@@ -452,7 +456,7 @@ for (const width of [1440, 390]) {
        · günler ARASI tekrar → havuz tükendiğinde serbest (zarif düşüş),
          ama SAYILIR ve arayüzde görünmek zorundadır                        */
   {
-    const EK = [['yok'],['dambil'],['bant'],['kettlebell'],['barfiksbari'],
+    const EK = [['yok'],['dambil'],['bant'],['kettlebell'],['barfiksbari'],['salon'],
                 ['dambil','bant'],['bant','kettlebell'],['dambil','barfiksbari'],
                 ['yok','dambil','kettlebell','bant'],
                 ['yok','dambil','kettlebell','bant','barfiksbari']];
@@ -464,8 +468,17 @@ for (const width of [1440, 390]) {
     const K20 = await page.evaluate(() => ({
       havuz: window.AO_KURALLAR.havuz.map(h => ({slug:h.slug, kalip:h.kalip, gerek:h.gerek})),
       bolunme: Object.fromEntries(Object.entries(window.AO_KURALLAR.bolunme)
-        .map(([g,v]) => [g, v.gunler.map(x => x.kalip)]))
+        .map(([g,v]) => [g, v.gunler.map(x => x.kalip)])),
+      /* küme seçenekleri ("yok" → [] · "salon" → dört ekipman) kural
+         tablosundan okunuyor; teste ikinci bir liste yazılmıyor (R6 · m16) */
+      kume: (window.AO_KURALLAR.ekipmanSuzme && window.AO_KURALLAR.ekipmanSuzme.kume) || {}
     }));
+    /* seçimi gerçek ekipmanlara açar — motorun ekipmanAc()'inin aynısı */
+    const ekAc = (ek) => {
+      const out = [];
+      ek.forEach(v => (K20.kume[v] || [v]).forEach(x => { if (!out.includes(x)) out.push(x); }));
+      return out;
+    };
     const kalipHata = []; let disariCikan = 0;
 
     for (const gun of ['3','4','5','6'])
@@ -481,7 +494,7 @@ for (const width of [1440, 390]) {
         d.gunler.forEach(g => g.hrk.forEach(h => slugSet.add(h.slug)));
 
         /* --- tekrar sayımı + kalıp koruması: gün sırasıyla yürü --- */
-        const ekEtkin = ek.filter(x => x !== 'yok');
+        const ekEtkin = ekAc(ek);          /* "salon" burada dört ekipmana açılır */
         const kalipli = K20.havuz.filter(h =>
           !h.gerek.length || h.gerek.some(x => ekEtkin.includes(x)));
         const kalipOf = Object.fromEntries(kalipli.map(h => [h.slug, h.kalip]));
@@ -598,6 +611,70 @@ for (const width of [1440, 390]) {
     if (belge && JSON.stringify(belge) === JSON.stringify(sayfa))
       ok(`sayfadaki KURALLAR nesnesi belgedeki blokla anlamsal olarak da aynı (havuz ${sayfa.havuz.length} kalem)`);
     else rec('KURALLAR anlamsal fark', 'belge bloğu ile window.AO_KURALLAR ayrışıyor');
+  }
+
+  /* --- 21 · EKİPMAN ADIMI (R6 · madde 16) ---
+     Altı seçenek: dördü kataloğun gerçek `data-ekipman` değeri, ikisi
+     küme adı ("yok" boş küme · "salon" dördü birden). Her biri havuzu
+     GERÇEKTEN süzmeli; ızgara boş kutu bırakmamalı. */
+  {
+    await page.goto(`${BASE}/${SAYFA}`, { waitUntil:'domcontentloaded', timeout:30000 });
+    await page.waitForFunction(() => !!document.querySelector('.wg-step.on .wg-opt'), null, { timeout:8000 });
+    await sec(page, 'cinsiyet', 'kadin'); await ileri(page);
+    await sec(page, 'hedef', 'kas');      await ileri(page);
+    await sec(page, 'seviye', 'orta');    await ileri(page);
+    await page.waitForTimeout(120);
+
+    const e21 = await page.evaluate(() => {
+      const K = window.AO_KURALLAR;
+      const kume = (K.ekipmanSuzme && K.ekipmanSuzme.kume) || {};
+      const suz = (secim) => {
+        const ac = [];
+        secim.forEach(v => (kume[v] || [v]).forEach(x => { if (ac.indexOf(x) < 0) ac.push(x); }));
+        return K.havuz.filter(h => !h.gerek.length || h.gerek.some(g => ac.indexOf(g) > -1)).length;
+      };
+      const opts = [...document.querySelectorAll('.wg-step.on .wg-opt[data-k="ekipman"]')];
+      const satir = {};
+      opts.forEach(o => { const t = Math.round(o.getBoundingClientRect().top); satir[t] = (satir[t] || 0) + 1; });
+      return {
+        secenek: opts.map(o => o.getAttribute('data-v')),
+        satirlar: Object.values(satir),
+        dokunma: Math.min(...opts.map(o => Math.round(o.getBoundingClientRect().height))),
+        havuz: Object.fromEntries(Object.keys(K.ekipman).map(v => [v, suz([v])])),
+        tekKip: (K.ekipmanSuzme && K.ekipmanSuzme.tekKip) || []
+      };
+    });
+
+    const h21 = [];
+    if (e21.secenek.length !== 6) h21.push(`ekipman adımında ${e21.secenek.length} seçenek var, madde 16 altı istiyor: ${e21.secenek.join(' · ')}`);
+    /* boş kutu: son satır ilk satır kadar dolu olmalı (tek kolon da geçerli) */
+    const enCok = Math.max(...e21.satirlar);
+    if (e21.satirlar.some(n => n !== enCok))
+      h21.push(`ızgara boş kutu bırakıyor — satır dolulukları: ${e21.satirlar.join(' / ')}`);
+    if (e21.dokunma < 44) h21.push(`dokunma hedefi ${e21.dokunma} px (< 44)`);
+    /* dekoratif seçenek yasak: her seçeneğin havuzu tabandan farklı olmalı */
+    const taban = e21.havuz.yok;
+    const dekoratif = Object.entries(e21.havuz).filter(([v, n]) => v !== 'yok' && n === taban).map(([v]) => v);
+    if (dekoratif.length) h21.push(`havuzu değiştirmeyen (dekoratif) seçenek: ${dekoratif.join(' · ')}`);
+    if (e21.havuz.salon !== (await page.evaluate(() => window.AO_KURALLAR.havuz.length)))
+      h21.push(`"salon" havuzu ${e21.havuz.salon}, kataloğun tamamı olmalı`);
+    if (e21.tekKip.join(',') !== 'yok,salon') h21.push(`tekKip listesi "${e21.tekKip.join(',')}"`);
+
+    /* tekKip davranışı — ölçülüyor, varsayılmıyor */
+    await sec(page, 'ekipman', 'dambil'); await sec(page, 'ekipman', 'bant');
+    await sec(page, 'ekipman', 'salon');
+    const sonra = await page.evaluate(() =>
+      [...document.querySelectorAll('.wg-opt[data-k="ekipman"][aria-pressed="true"]')].map(o => o.getAttribute('data-v')));
+    if (sonra.join(',') !== 'salon') h21.push(`"salon" ötekileri temizlemedi: ${sonra.join(' · ')}`);
+    await sec(page, 'ekipman', 'dambil');
+    const geri = await page.evaluate(() =>
+      [...document.querySelectorAll('.wg-opt[data-k="ekipman"][aria-pressed="true"]')].map(o => o.getAttribute('data-v')));
+    if (geri.join(',') !== 'dambil') h21.push(`başka seçim "salon"u temizlemedi: ${geri.join(' · ')}`);
+
+    if (!h21.length)
+      ok(`ekipman adımı 6 seçenek · ızgara dolu (${e21.satirlar.join('+')}) · dokunma ${e21.dokunma} px · havuz ` +
+         Object.entries(e21.havuz).map(([v, n]) => `${v}:${n}`).join(' · '));
+    else rec('ekipman adımı (madde 16)', h21.join('\n      '));
   }
 
   /* --- 13 · yatay taşma + konsol --- */

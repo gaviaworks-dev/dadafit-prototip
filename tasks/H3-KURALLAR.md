@@ -40,7 +40,7 @@ kurulamaz.
 | 1 | Vücut modeli | `cinsiyet` | tek seçim · H2'nin SVG gövde modeli kartın içinde |
 | 2 | Hedefin | `hedef` | tek seçim (3) |
 | 3 | Seviyen | `seviye` | tek seçim (3) |
-| 4 | Ekipman ve odak | `ekipman` (zorunlu, çoklu) + `odak` (**opsiyonel**, çoklu) | çoklu |
+| 4 | Ekipman ve odak | `ekipman` (zorunlu, çoklu · **6 seçenek**) + `odak` (**opsiyonel**, çoklu) | çoklu |
 | 5 | Haftan | `gun` (zorunlu) + `durum` (zorunlu, çoklu) | tek + çoklu |
 
 **Neden 5 adım, 6 değil.** Keşfin önerdiği 6 eksenin hepsi burada; ama
@@ -104,6 +104,12 @@ gerçek bir karta gider. (8. oturumda kütüphane 12'den 25'e çıktı;
 seçenek eklendi (`KURALLAR.ekipman.barfiksbari`). Eklenmeseydi kataloğun
 bir kalemi hiçbir seçimle plana giremezdi — havuzda görünüp asla
 çıkmayan bir hareket, kural tablosunun dürüstlüğünü bozardı.
+
+**Altıncı seçenek: Tam ekipman (salon).** Beş seçenekli ızgara iki
+sütunda **boş kutu** bırakıyordu; daha önemlisi salonda çalışan
+kullanıcı için dört kutuyu tek tek işaretlemekten başka yol yoktu.
+`salon` bir ekipman değil, dördünü birden açan bir **küme** adıdır —
+ayrıntısı ve ölçümü §7'de.
 
 ### ✅ `goblet-squat` çelişkisi kapandı — kütüphane düzeltildi
 
@@ -236,10 +242,46 @@ garantidir. (7. oturumda bu taban 6'ydı.)
 | Yok + bant | 15 + 2 = 17 |
 | Yok + kettlebell | 15 + 1 = 16 |
 | Yok + barfiks barı | 15 + 1 = 16 |
-| Hepsi | **25** |
+| Dördü elle işaretli | **25** |
+| **Tam ekipman (salon)** — tek işaret | **25** |
 
 *(Kural: `gerek` boşsa hareket her zaman havuzda; değilse seçilen
-ekipmanlardan en az biri `gerek`te olmalı. "Yok" seçimi diğerlerini temizler.)*
+ekipmanlardan en az biri `gerek`te olmalı.)*
+
+### İki seçenek ekipman değil, KÜME adıdır — `kume` + `tekKip`
+
+Adım 4'ün altı seçeneğinden dördü gerçek ekipmandır (dambıl ·
+kettlebell · direnç bandı · barfiks barı) ve doğrudan kataloğun
+`data-ekipman` değerlerine karşılık gelir. Kalan ikisi **küme adıdır**;
+`KURALLAR.ekipmanSuzme.kume` onları gerçek ekipmanlara açar:
+
+| Seçenek | `kume` karşılığı | Havuz | Ne söylüyor |
+|---|---|---|---|
+| **Vücut ağırlığı** (`yok`) | `[]` | **15** | elimde hiçbir şey yok |
+| **Tam ekipman (salon)** (`salon`) | `['dambil','kettlebell','bant','barfiksbari']` | **25** | salondayım, hepsi var |
+
+İkisi de `tekKip` listesindedir: işaretlenince öteki seçimleri temizler,
+başka bir seçim de onları temizler. Gerekçe simetriktir — "yok" ile
+dambıl bir arada **çelişir**, "salon" ise dördünü **zaten kapsar**;
+ikisinin de yanında ikinci bir işaret anlamsızdır. Davranış R13'ün "Yok"
+aynasıdır ve tek yerden okunur: soru `tek:KURALLAR.ekipmanSuzme.tekKip`
+diyor, tıklama işleyicisinde ikinci bir liste yok.
+
+**Dekoratif değil, ölçüldü:** "Tam ekipman" işaretliyken havuz **25**,
+işaretli değilken (yalnız vücut ağırlığı) **15** — 10 hareket fark.
+Seçeneğin açıklama satırındaki sayı da elle yazılmıyor, `havuzSuz()`
+ile sayılıyor; menüde okunan sayı motorun gerçekten kuracağı havuzdur.
+
+**Neden yeni bir ekipman kategorisi uydurulmadı.** Katalogda beş
+`data-ekipman` değeri var (`ekipmansiz` · `dambil` · `direncbandi` ·
+`kettlebell` · `barfiksbari`); altıncı bir kategori (makine · halter ·
+halka) kataloğun hiçbir kartıyla eşleşmezdi, yani **dekoratif** olurdu.
+"Sehpa / bench" ise var olan iki hareketi (`sehpa-dips` ·
+`bulgar-split-squat`) ekipmansız havuzdan **çıkarırdı**: ekipmansız
+havuz 15 → 13'e, ekipmansız **itiş** hareketi 2 → 1'e inerdi ve
+"karşılıksız kombinasyon 0"un dayandığı taban havuz zayıflardı.
+Gerçekten var olan tek eksik kategori kullanıcının **hepsine birden**
+sahip olduğu durumdu; adım 4'e o eklendi.
 
 **Gün başına hareket sayısı üç tavanın en küçüğüdür:**
 
@@ -414,7 +456,7 @@ var KURALLAR = {
 
   gruplar:  {bacak:'Bacak', kalca:'Kalça', sirt:'Sırt', gogus:'Göğüs', omuz:'Omuz', kol:'Kol', core:'Core'},
   kaliplar: {bacak:'Bacak', itis:'İtiş', cekis:'Çekiş', core:'Core'},
-  ekipman:  {yok:'Vücut ağırlığı', dambil:'Dambıl', kettlebell:'Kettlebell', bant:'Direnç bandı', barfiksbari:'Barfiks barı'},
+  ekipman:  {yok:'Vücut ağırlığı', dambil:'Dambıl', kettlebell:'Kettlebell', bant:'Direnç bandı', barfiksbari:'Barfiks barı', salon:'Tam ekipman (salon)'},
 
   /* ---- B · GÜN SAYISI → BÖLÜNME ----
      Brief'in şartı: 3 → full body · 4 → üst/alt · 5–6 → push/pull/legs.
@@ -524,8 +566,18 @@ var KURALLAR = {
   /* ---- F · EKİPMAN → HAVUZ SÜZME ----
      TEK SERT SÜZGEÇ BUDUR ve karşılıksız kombinasyon üretemez: gerek:[]
      olan 15 hareket her zaman havuzdadır, yani havuz hiçbir seçimde
-     15'in altına düşmez. "Yok" seçimi diğerlerini temizler. */
-  ekipmanSuzme: {tabanHavuz:15, kural:'gerek boşsa her zaman; değilse seçilen ekipmanlardan en az biri gerekte olmalı'},
+     15'in altına düşmez.
+
+     İKİ SEÇENEK EKİPMAN DEĞİL, BİR KÜME ADIDIR (`kume`): 'yok' boş
+     kümedir (yalnız vücut ağırlığı → havuz 15), 'salon' dört ekipmanın
+     hepsini birden açar (→ havuz 25, kataloğun tamamı). İkisi de
+     `tekKip` listesindedir: seçilince öteki seçimleri temizler, çünkü
+     yanlarında başka bir ekipman işaretlemek anlamsızdır — 'yok' ile
+     dambıl bir arada çelişir, 'salon' zaten hepsini kapsar. Menüdeki
+     hareket sayıları da bu kümelerden SAYILARAK yazılıyor, elle
+     girilmiyor. */
+  ekipmanSuzme: {tabanHavuz:15, kural:'gerek boşsa her zaman; değilse seçilen ekipmanlardan en az biri gerekte olmalı',
+                 kume:{yok:[], salon:['dambil','kettlebell','bant','barfiksbari']}, tekKip:['yok','salon']},
 
   /* ---- G · HAVUZA GÖRE ÖLÇEKLEME + YUVARLAMA ----
      Gün başına hareket sayısı ÜÇ tavanın en küçüğüdür:

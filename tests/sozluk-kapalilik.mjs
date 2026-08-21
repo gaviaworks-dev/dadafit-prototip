@@ -317,11 +317,14 @@ if (an.veri) {
   await page.goto(`${BASE}/${LISTE}`, { waitUntil: 'load' });
   await page.waitForSelector('#szList .sz-item', { timeout: 10000 });
 
+  /* R6 madde 10 — sayaç kabuğun .ff-bar'ının sağ ucuna taşındı ve kısaldı:
+     süzgeçsizken "254 terim", süzgeçliyken "55 / 254 terim". */
   const OKU = () => {
     const kart = document.querySelectorAll('#szList .sz-item').length;
     const t = (document.getElementById('szSayac') || {}).textContent || '';
-    const s = t.match(/(\d+)\s*terim gösteriliyor/);
-    return { kart, sayac: s ? +s[1] : -1 };
+    const bol = t.match(/(\d+)\s*\/\s*(\d+)\s*terim/);
+    const tek = t.match(/^\s*(\d+)\s*terim/);
+    return { kart, sayac: bol ? +bol[1] : (tek ? +tek[1] : -1) };
   };
   const toplam = S.TERIMLER.length;
 
@@ -335,10 +338,19 @@ if (an.veri) {
   {
     const kalemler = await page.$$eval('#szCats .df-fchip', bs =>
       bs.map(b => b.getAttribute('data-kat') || ''));
+    /* R6 madde 10 — kategori ekseni sitenin ortak "Filtrele" bileşenine
+       taşındı; çipler kapalı bir açılır menünün içinde. Menü açılıp
+       tıklanıyor, yani nöbet gerçek kullanıcı yolunu koşturuyor. */
+    const katSec = async (kat) => {
+      const acikMi = await page.evaluate(() =>
+        !!document.querySelector('#szCatFilter .ff-facet.open'));
+      if (!acikMi) { await page.click('#szCatFilter .ff-btn'); await page.waitForTimeout(180); }
+      await page.click(`#szCats .df-fchip[data-kat="${kat}"]`);
+      await page.waitForTimeout(70);
+    };
     const kucuk = [], dagilim = [];
     for (const kat of kalemler) {
-      await page.click(`#szCats .df-fchip[data-kat="${kat}"]`);
-      await page.waitForTimeout(50);
+      await katSec(kat);
       const r = await page.evaluate(OKU);
       if (kat === '') { if (r.kart !== toplam) kucuk.push(`Tümü → ${r.kart}`); continue; }
       dagilim.push(`${kat}:${r.kart}`);
@@ -347,8 +359,9 @@ if (an.veri) {
     }
     if (!kucuk.length) ok(`her kategori ≥8 terim (${dagilim.join(' · ')})`);
     else rec('kategori ≥8', kucuk.join('\n      '));
-    await page.click('#szCats .df-fchip[data-kat=""]');
-    await page.waitForTimeout(50);
+    await katSec('');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(120);
   }
 
   /* 7c — karşılıksız harf 0 */

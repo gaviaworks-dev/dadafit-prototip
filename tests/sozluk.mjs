@@ -122,15 +122,47 @@ async function ac(width = 1440, { hizlandir = false } = {}) {
   return { ctx, page, konsol };
 }
 
-/* liste sayfasının süzgeç durumunu okuyan tek yardımcı */
+/* liste sayfasının süzgeç durumunu okuyan tek yardımcı.
+   R6 madde 10 — sayaç kabuğun .ff-bar'ının sağ ucuna taşındı (data-ff-count)
+   ve kısaldı: süzgeçsizken "254 terim", süzgeçliyken "55 / 254 terim". */
 const OKU = () => {
   const kart = document.querySelectorAll('#szList .sz-item').length;
   const t = (document.getElementById('szSayac') || {}).textContent || '';
-  const s = t.match(/(\d+)\s*terim gösteriliyor/);
-  const g = t.match(/toplam\s*(\d+)/);
+  const bol = t.match(/(\d+)\s*\/\s*(\d+)\s*terim/);
+  const tek = t.match(/^\s*(\d+)\s*terim/);
+  const sayac  = bol ? +bol[1] : (tek ? +tek[1] : -1);
+  const toplam = bol ? +bol[2] : (tek ? +tek[1] : -1);
   const bosDurum = !!document.querySelector('#szEmpty.show');
-  return { kart, sayac: s ? +s[1] : -1, toplam: g ? +g[1] : -1, bosDurum, metin: t.trim() };
+  return { kart, sayac, toplam, bosDurum, metin: t.trim() };
 };
+
+
+/* R6 madde 10 — kategori ekseni sitenin ortak "Filtrele" bileşenine
+   (`.lib-filters.ff[data-ff]`, egzersiz-kutuphane ile aynı) taşındı: çipler
+   kapalı bir açılır menünün içinde duruyor. Nöbet ZAYIFLAMADI, aksine gerçek
+   kullanıcı yolunu koşturuyor — menü açılıyor, çip tıklanıyor. */
+async function katSec(page, kat){
+  const acik = await page.evaluate(() =>
+    !!document.querySelector('#szCatFilter .ff-facet.open'));
+  if (!acik) { await page.click('#szCatFilter .ff-btn'); await page.waitForTimeout(180); }
+  await page.click(`#szCats .df-fchip[data-kat="${kat}"]`);
+  await page.waitForTimeout(70);
+}
+async function menuKapat(page){
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(120);
+}
+/* sayfanın kanonik "filtreleri temizle" düğmesi (#szReset) bileşen tarafından
+   gizleniyor; kullanıcı çubuktaki "Temizle"ye basıyor, o da #szReset'i tetikliyor */
+async function hepsiniTemizle(page){
+  const varMi = await page.evaluate(() => {
+    const b = document.querySelector('#szCatFilter .ff-reset');
+    return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height > 0;
+  });
+  if (varMi) await page.click('#szCatFilter .ff-reset');
+  else await page.evaluate(() => document.getElementById('szReset').click());
+  await page.waitForTimeout(140);
+}
 
 /* ================= LİSTE SAYFASI ================= */
 {
@@ -209,8 +241,7 @@ const OKU = () => {
       bs.map(b => ({ kat: b.getAttribute('data-kat') || '', ad: b.textContent.trim() })));
     const kucuk = [], dagilim = [];
     for (const k of kalemler) {
-      await page.click(`#szCats .df-fchip[data-kat="${k.kat}"]`);
-      await page.waitForTimeout(50);
+      await katSec(page, k.kat);
       const r = await page.evaluate(OKU);
       if (k.kat === '') { if (r.kart !== D.toplam) kucuk.push(`Tümü → ${r.kart} (beklenen ${D.toplam})`); continue; }
       dagilim.push(`${k.kat}:${r.kart}`);
@@ -219,8 +250,8 @@ const OKU = () => {
     }
     if (!kucuk.length) ok(`${kalemler.length - 1} kategorinin hepsi ≥8 terim döndürdü (${dagilim.join(' · ')})`);
     else rec('kategori ≥8', kucuk.join('\n      '));
-    await page.click('#szCats .df-fchip[data-kat=""]');
-    await page.waitForTimeout(50);
+    await katSec(page, '');
+    await menuKapat(page);
   }
 
   /* --- 5 · karşılıksız harf 0 --- */
@@ -257,8 +288,8 @@ const OKU = () => {
   {
     /* durum 2: harf + kategori */
     await page.click('#szLetters .sz-ltr[data-harf="K"]');
-    await page.click('#szCats .df-fchip[data-kat="anatomi"]');
-    await page.waitForTimeout(70);
+    await katSec(page, 'anatomi');
+    await menuKapat(page);
     const r2 = await page.evaluate(OKU);
     const bek2 = D.kategoriSlug.length && await page.evaluate(() =>
       window.SOZLUK.TERIMLER.filter(t => t.harf === 'K' && t.kategori === 'anatomi').length);
@@ -268,7 +299,8 @@ const OKU = () => {
 
     /* durum 3: kategori + arama */
     await page.click('#szLetters .sz-ltr[data-harf=""]');
-    await page.click('#szCats .df-fchip[data-kat="kosu"]');
+    await katSec(page, 'kosu');
+    await menuKapat(page);
     await page.fill('#szQ', 'koş');
     await page.waitForTimeout(90);
     const r3 = await page.evaluate(OKU);
@@ -280,8 +312,7 @@ const OKU = () => {
       ok(`sayaç doğru (kategori koşu + arama "koş"): DOM ${r3.kart} = sayaç ${r3.sayac} = veri ${bek3}`);
     else rec('sayaç (kategori+arama)', JSON.stringify({ ...r3, veri: bek3 }));
 
-    await page.click('#szReset');
-    await page.waitForTimeout(120);
+    await hepsiniTemizle(page);
   }
 
   /* --- 11 · açılır satır deseni --- */
@@ -297,10 +328,14 @@ const OKU = () => {
         gizli: g.hidden,
         gorunur: g.getBoundingClientRect().height > 0,
         controls: b.getAttribute('aria-controls') === g.id,
-        /* terim sayfası oku AYRI bir <a>, düğmenin içinde değil */
-        okDisarida: !b.querySelector('a') && !!it.querySelector('.sz-rowline > a.sz-go[href]'),
-        okHref: (it.querySelector('a.sz-go') || {}).getAttribute
-                 ? it.querySelector('a.sz-go').getAttribute('href') : '',
+        /* R6 MADDE 9 — satırın TEK işi var: açmak.
+           Eskiden satırın sağında `fa-chevron-right` taşıyan ayrı bir <a>
+           vardı ve terim sayfasına gidiyordu (iki hedefli tek satır).
+           Nöbet o oktan, "açılan kaydın içindeki detay bağlantısı"na TAŞINDI. */
+        satirdaLink: !!it.querySelector('.sz-row a, .sz-row [href]'),
+        satirdaSagOk: !!it.querySelector('.sz-row .fa-chevron-right'),
+        detayHref: (it.querySelector('.sz-detail a.sd-more') || {}).getAttribute
+                 ? it.querySelector('.sz-detail a.sd-more').getAttribute('href') : '',
         slug: it.getAttribute('data-slug'),
         dugme: b.tagName
       };
@@ -330,18 +365,95 @@ const OKU = () => {
     if (d0.expanded !== 'false' || !d0.gizli) sorun.push('satır kapalı başlamıyor');
     if (d0.gorunur)                           sorun.push('kapalıyken gövde görünüyor');
     if (!d0.controls)                         sorun.push('aria-controls gövdeyi göstermiyor');
-    if (!d0.okDisarida)                       sorun.push('terim sayfası oku düğmenin içine gömülü (iç içe etkileşimli öğe)');
-    if (d0.okHref !== `${DETAY}?slug=${d0.slug}`) sorun.push(`ok yanlış adrese gidiyor: ${d0.okHref}`);
+    if (d0.satirdaLink)                       sorun.push('satırın içinde bağlantı var — satır yine iki hedefli (R6 madde 9)');
+    if (d0.satirdaSagOk)                      sorun.push('satırda hâlâ sağ ok (fa-chevron-right) var (R6 madde 9)');
+    if (d0.detayHref !== `${DETAY}?slug=${d0.slug}`) sorun.push(`açılan kayıttaki detay bağlantısı yanlış adreste: ${d0.detayHref}`);
     if (d1.expanded !== 'true' || d1.gizli || !d1.gorunur) sorun.push('tıklayınca açılmıyor');
     if (d1.tanim.length < 60)                 sorun.push('açılan gövdede tanım yok/kısa');
     if (d1.ornek.length < 15)                 sorun.push('açılan gövdede örnek yok/kısa');
-    if (!d1.tamKayit)                         sorun.push('"terimin tam kaydı" bağlantısı yok');
+    if (!d1.tamKayit)                         sorun.push('açılan kayıtta terim sayfası bağlantısı yok');
     if (d2.expanded !== 'false' || !d2.gizli) sorun.push('ikinci tıklamada kapanmıyor');
-    if (!sorun.length) ok('açılır satır: kapalı başlıyor, tıklayınca tanım+örnek açılıyor, tekrar tıklayınca kapanıyor; terim sayfası oku ayrı <a>');
+    if (!sorun.length) ok('açılır satır: kapalı başlıyor, tıklayınca tanım+örnek açılıyor, tekrar tıklayınca kapanıyor; satır TEK hedefli, terim sayfası bağlantısı açılan kaydın içinde');
     else rec('açılır satır', sorun.join('\n      '));
 
     await page.goto(`${BASE}/${LISTE}`, { waitUntil: 'load' });
     await page.waitForSelector('#szList .sz-item');
+  }
+
+  /* --- 11b · R6 MADDE 9 — TÜM LİSTEDE: sağ ok 0, detay bağlantısı N/N --- */
+  {
+    const r = await page.evaluate(() => {
+      const items = [...document.querySelectorAll('#szList .sz-item')];
+      const bek = s => 'sozluk-detay-v1.html?slug=' + s;
+      return {
+        toplam: items.length,
+        sagOk:  items.filter(it => it.querySelector('.sz-row .fa-chevron-right, .sz-row a')).length,
+        eskiOk: document.querySelectorAll('#szList a.sz-go').length,
+        dogruDetay: items.filter(it => {
+          const a = it.querySelector('.sz-detail a.sd-more[href]');
+          return a && a.getAttribute('href') === bek(it.getAttribute('data-slug'));
+        }).length,
+        /* açma göstergesi (chevron-down) kalıyor — expand işareti */
+        caret: items.filter(it => it.querySelector('.sr-caret.fa-chevron-down')).length
+      };
+    });
+    const s11 = [];
+    if (r.sagOk !== 0)  s11.push(`satır içinde bağlantı/sağ ok taşıyan kayıt: ${r.sagOk}`);
+    if (r.eskiOk !== 0) s11.push(`eski .sz-go bağlantısı hâlâ var: ${r.eskiOk}`);
+    if (r.dogruDetay !== r.toplam) s11.push(`açılan kayıtta doğru detay bağlantısı ${r.dogruDetay}/${r.toplam}`);
+    if (r.caret !== r.toplam) s11.push(`expand göstergesi ${r.caret}/${r.toplam}`);
+    if (!s11.length) ok(`madde 9: satırda sağ ok 0 · açılan kayıtta detay bağlantısı ${r.dogruDetay}/${r.toplam} · expand göstergesi ${r.caret}/${r.toplam}`);
+    else rec('madde 9 (sağ ok / detay bağlantısı)', s11.join('\n      '));
+  }
+
+  /* --- 11c · R6 MADDE 10 — blok sırası · sticky yok · Filtrele bileşeni --- */
+  {
+    const r = await page.evaluate(() => {
+      const R = e => e.getBoundingClientRect().top + scrollY;
+      const q = s => document.querySelector(s);
+      const ara = q('.sz-controls .sz-find'), harf = q('.sz-controls #szLetters'),
+            kat = q('.sz-controls #szCatFilter'), liste = q('#szList');
+      /* sayfa AKIŞINDA yapışkan öğe: açılır menünün kendi kaydırma kabında
+         yapışkan duran arama alanı (kabuğun bileşeni) sayılmaz */
+      const sticky = [...document.querySelectorAll('main *')]
+        .filter(e => getComputedStyle(e).position === 'sticky')
+        .filter(e => !e.closest('.ff-pop') && !e.closest('.ff-sheet'))
+        .map(e => e.className);
+      return {
+        sira: !!(ara && harf && kat && liste) &&
+              R(ara) < R(harf) && R(harf) < R(kat) && R(kat) < R(liste),
+        sticky,
+        bilesen: !!q('#szCatFilter[data-ff].ff-ready') && !!q('#szCatFilter .ff-bar .ff-btn'),
+        acilirArama: !!q('#szCatFilter .ff-pop .ff-search input'),
+        harfSayisi: document.querySelectorAll('#szLetters .sz-ltr:not(.all)').length,
+        bosHarf: [...document.querySelectorAll('#szLetters .sz-ltr.is-empty')]
+                   .map(b => ({ h: b.textContent.trim(), dis: b.disabled }))
+      };
+    });
+    const s12 = [];
+    if (!r.sira)            s12.push('blok sırası arama → harf → kategori → liste değil');
+    if (r.sticky.length)    s12.push('süzgeç bloğunda position:sticky: ' + r.sticky.join(', '));
+    if (!r.bilesen)         s12.push('kategori ekseni kabuğun .ff "Filtrele" bileşenini kullanmıyor');
+    if (!r.acilirArama)     s12.push('açılır menünün içinde arama alanı yok');
+    if (r.harfSayisi !== 29) s12.push(`harf rayı ${r.harfSayisi} harf (beklenen 29)`);
+    if (!r.bosHarf.every(b => b.dis)) s12.push('karşılığı olmayan harf disabled değil');
+    if (!s12.length) ok(`madde 10: sıra arama→harf→kategori→liste · sticky 0 · Filtrele bileşeni (dropdown + içinde arama) · harf rayı 29, boş harf ${r.bosHarf.map(b=>b.h).join(',')||'-'} disabled`);
+    else rec('madde 10 (yerleşim / bileşen)', s12.join('\n      '));
+  }
+
+  /* --- 11d · R6 MADDE 8 — kullanım talimatı kalktı, kütüphane bağlantısı duruyor --- */
+  {
+    const r = await page.evaluate(() => ({
+      talimat: (document.querySelector('main').textContent || '').indexOf('Satıra dokun') > -1,
+      intro: document.querySelectorAll('.sz-intro').length,
+      kutuphane: [...document.querySelectorAll('main a[href^="egzersiz-kutuphane-v1.html"]')].length
+    }));
+    const s13 = [];
+    if (r.talimat)      s13.push('"Satıra dokun" metni hâlâ sayfada');
+    if (r.intro !== 0)  s13.push(`.sz-intro düğümü ${r.intro}`);
+    if (r.kutuphane < 1) s13.push('egzersiz-kutuphane-v1.html bağlantısı sayfa içeriğinde yok');
+    if (!s13.length) ok(`madde 8: "Satıra dokun" 0 kez · .sz-intro 0 düğüm · egzersiz-kutuphane bağlantısı ${r.kutuphane}`);
+    else rec('madde 8 (kullanım talimatı)', s13.join('\n      '));
   }
 
   /* --- URL durumu (bonus, kırmızıya döndürmez) --- */

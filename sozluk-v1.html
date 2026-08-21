@@ -15,215 +15,283 @@
 <link rel="stylesheet" href="assets/css/fit-shell.css" />
 <style>
 /* =====================================================================
- SAYFA CSS — SPOR SÖZLÜĞÜ · LİSTE  (H1 · 5. tur)
+ SAYFA CSS — SPOR SÖZLÜĞÜ · LİSTE   (REVİZYON 6 · madde 8 · 9 · 10)
 
- Yapı referansı dadagastro.com/mutfak-sozlugu — koordinatör canlıda
- Playwright ile ölçtü. Ölçümden gelen asıl bulgu: terim bir IZGARA KARTI
- DEĞİL, AÇILIR SATIR. İki katmanlı erişim:
-   · satıra tıkla  → altında tanım + örnek + köprüler açılır (hızlı tarama)
-   · sağdaki ok    → terimin kendi sayfasına gider (tam kayıt)
- 232 terimde ızgara devasa olurdu; satır rayı taranabilir kalıyor.
+ YAPI REFERANSI: dadagastro.com/mutfak-sozlugu — 8. oturumda Playwright ile
+ CANLIDAN yeniden ölçüldü (ölçüm dökümü raporda). Referansın süzgeç bandı:
 
- SAYFALAMA YOK — karar ve gerekçesi raporda: referans 765 terimi 15 sayfaya
- bölüyor (~54 satır/sayfa), bizde 232 var ve harf grupları + harf rayı
- gezinmeyi zaten karşılıyor. Süzülen her satır DOM'da; böylece "sayaç =
- DOM'daki satır sayısı" kabul ölçütü birebir ölçülebiliyor.
+   section.sz-controls  (zemin #fff, sayfa zemini #f9f9f9)
+     .sz-searchbar   560 x 55      ← 1. ARAMA
+     .az-bar        1176 x 66      ← 2. HARF RAYI (30 düğme, 38x38, gap 6)
+     .ke-filter     1176 x 68      ← 3. KATEGORİ (çip rayı, 38 px)
+   section.sz-sec
+     p.sz-count "765 terim"        ← 4. SAYAÇ
+     .term-card                    ← 5. TEK KART, 80 px satırlar, hairline
 
- KABUĞA TEK SATIR YAZILMADI (KARARLAR K35). Sınıf öneki `sz-` / `sr-` / `sd-`.
+ BLOK SIRASI BİREBİR ALINDI: arama → harf → kategori → sayaç → liste.
+
+ ÜÇ BİLİNÇLİ SAPMA (gerekçeleri raporda, geri alınabilir):
+ 1. YAPIŞKAN YOK. Referansın `.az-bar`'ı `position:sticky`; R6 madde 10
+    "sticky istenmiyor" diyor. Kabuğun `.ff-bar`'ı da sticky geldiği için
+    `#szCatFilter .ff-bar` üzerinde sayfa içinde `position:static`e çekildi —
+    `fit-shell.css`'e TEK SATIR yazılmadı (0b sahiplik kuralı).
+ 2. HARF RAYI KAYDIRILMIYOR, CETVEL. Referans 30 düğmeyi yatay kaydırıyor
+    (M'den sonrası ekran dışında). Bizde 29 harf 1176 px'e sığdığı için ray
+    ızgaraya yayılıyor; hiçbir harf gizlenmiyor. @640 altında referansın
+    kaydırma davranışına dönüyor ve düğme 44 px'e çıkıyor (dokunma hedefi).
+ 3. KATEGORİ ÇİP RAYI DEĞİL, "FİLTRELE" AÇILIR MENÜSÜ. R6 madde 10 sitede
+    var olan bileşeni şart koşuyor: `egzersiz-kutuphane-v1.html`'in
+    `.lib-filters.ff[data-ff]` bileşeni (dropdown + içinde arama). Yeni desen
+    icat edilmedi; kabuğun bileşeni olduğu gibi çağrıldı.
+
+ TERİM SATIRI — referansın `.term-row` deseni, İKİ HEDEF TEK HEDEFE İNDİ:
+   ESKİ: satır expand ediyor + sağdaki ok detay sayfasına gidiyor (belirsiz)
+   YENİ: satır YALNIZ açıp kapatıyor; detay sayfasına giden bağlantı AÇILAN
+         KAYDIN İÇİNDE (`.sd-more`, dolu yeşil eylem). R6 madde 9.
+
+ SAYFALAMA YOK: referans 765 terimi 15 sayfaya bölüyor, bizde 254 var ve
+ harf grupları + harf rayı gezinmeyi karşılıyor. Süzülen her satır DOM'da,
+ böylece "sayaç = DOM'daki satır sayısı" ölçütü birebir sınanabiliyor.
+
+ KABUĞA TEK SATIR YAZILMADI (K35). Sınıf öneki `sz-` / `sr-` / `sd-`.
  Kabuğun ortak parçaları (.lib-top · .lib-crumb · .lib-stats · .lib-empty ·
- .hr-note · .btn · .df-fchip) olduğu gibi kullanılıyor.
+ .lib-filters.ff · .hr-note · .btn · .df-fchip) olduğu gibi kullanılıyor.
 
  BANNER: `.lib-top` + dosya adında "-detay-" GEÇMİYOR → kabuk body'ye
  data-fit-hero-kind="liste" yazıyor → yükseklik --banner-h-liste
- (544 / 607 / 587). Burada banner ÖLÇÜSÜNE dair tek satır yok; yalnız arka
- plan görseli bildiriliyor. (Referansın kendi banner'ı 254 px ama o DadaFit'in
- aile kuralına tabi değil — R15 geçerli.)
+ (544 / 607 / 587). Burada banner ÖLÇÜSÜNE dair tek satır yok.
  ===================================================================== */
 .lib-top{--lib-img:url('https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16');--lib-pos:center 34%}
 
-/* ---------- GÖVDE ---------- */
-.sz-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--bg-white)}
+/* ---------- İKİ ZEMİN ----------
+   Referansta sayfa zemini #f9f9f9, süzgeç bandı ve terim kartı #fff.
+   Bizde de öyle: `--bg` gövde, `--paper` band ve kart. Böylece terim
+   satırları kendi kenarlığına muhtaç olmadan tek kart gibi okunuyor. */
+.sz-controls{background:var(--paper);border-bottom:1px solid var(--line);padding:26px 0 20px}
+.sz-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--bg)}
 
-/* ---------- FİLTRE PANELİ (sticky) ----------
-   Kabuğun `.lib-filters` bileşeni değil: o `[data-ff]` ile popover'a
-   dönüşüyor ve harf rayını taşımıyor. Sözlüğün üç eksenli filtresi
-   (harf + kategori + arama) için kendi paneli var. */
-.sz-panel{
-  position:sticky;top:112px;z-index:40;
-  background:rgba(255,255,255,.94);
-  -webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);
-  border:1px solid var(--line);border-radius:var(--radius-lg);
-  padding:16px 20px 14px;margin-bottom:26px;box-shadow:var(--sh-sm);
+/* =====================================================================
+   1 · ARAMA — referans 560 x 55, sola yaslı (tam genişlik DEĞİL)
+   ===================================================================== */
+.sz-search{max-width:560px}
+.sz-find{
+  display:flex;align-items:center;gap:12px;height:55px;padding:0 16px;
+  background:var(--bg);border:1.5px solid var(--line);border-radius:var(--radius-md);
+  transition:border-color .2s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
 }
-.sz-line{display:flex;align-items:center;gap:12px;padding:8px 0}
-.sz-line+.sz-line{border-top:1px solid var(--line);margin-top:2px;padding-top:12px}
-.sz-line>.lbl{
-  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--muted);min-width:78px;flex:none;
+.sz-find:focus-within{border-color:var(--fit);background:var(--paper);box-shadow:0 0 0 3px var(--fit-tint)}
+.sz-find>i{flex:none;color:var(--muted);font-size:14px}
+.sz-find input{
+  flex:1;min-width:0;background:none;border:none;outline:none;
+  font-family:inherit;font-size:15px;font-weight:500;color:var(--slate);
 }
-
-/* harf rayı — Türk alfabesi, 29 harf. Q, W, X YOK (referansta da yok). */
-.sz-letters{display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0}
-.sz-ltr{
-  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate-2);
-  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);
-  min-width:32px;height:32px;padding:0 7px;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;
-  transition:.16s var(--ease);
-}
-.sz-ltr:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
-.sz-ltr.on{border-color:var(--fit);background:var(--fit);color:#fff}
-.sz-ltr.is-empty{opacity:.34;cursor:not-allowed;background:var(--bg);color:var(--muted)}
-.sz-ltr.is-empty:hover{border-color:var(--line);color:var(--muted);background:var(--bg)}
-.sz-ltr.all{min-width:auto;padding:0 14px;letter-spacing:.02em}
-.sz-ltr:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
-
-/* kategori seçici — kabuğun çip dili (.df-fchip) + adet rozeti */
-.sz-cats{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
-.sz-cats .df-fchip{padding:8px 13px}
-.sz-cats .df-fchip .n{
-  font-size:11px;font-weight:800;color:var(--muted);
-  background:var(--bg);border-radius:var(--radius-badge);padding:1px 6px;margin-left:2px;
-}
-.sz-cats .df-fchip.on .n{background:rgba(255,255,255,.22);color:#fff}
-
-/* arama kutusu — 3 harf eşiği ipucu satırıyla birlikte */
-.sz-find{display:flex;align-items:center;gap:11px;flex:1;min-width:0;
-  background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius-md);padding:0 14px;
-  transition:border-color .2s var(--ease),background .2s var(--ease)}
-.sz-find:focus-within{border-color:var(--fit);background:var(--fit-tint)}
-.sz-find>i{color:var(--muted);font-size:14px;flex:none}
-.sz-find input{flex:1;min-width:0;background:none;border:none;outline:none;
-  font-family:inherit;font-size:14.5px;font-weight:500;color:var(--slate);padding:11px 0}
 .sz-find input::placeholder{color:var(--muted);font-weight:500}
-.sz-find .x{flex:none;background:none;border:none;cursor:pointer;color:var(--muted);
-  font-size:14px;padding:6px;display:none}
-.sz-find.has .x{display:block}
-.sz-find .x:hover{color:var(--slate)}
-.sz-hint{font-size:12px;font-weight:600;color:var(--muted);flex:none;white-space:nowrap}
+.sz-find input::-webkit-search-cancel-button{display:none}
+.sz-find .x{
+  flex:none;width:30px;height:30px;border-radius:var(--radius-circle);
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;
+  display:none;place-items:center;transition:.18s var(--ease);
+}
+.sz-find.has .x{display:grid}
+.sz-find .x:hover{background:var(--line);color:var(--slate)}
+.sz-hint{margin:9px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
 .sz-hint.warn{color:var(--fit-deep)}
-.sz-reset{margin-left:auto;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);
-  background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
-  padding:8px 4px;transition:color .2s var(--ease);flex:none}
-.sz-reset:hover{color:var(--fit-deep)}
 
-/* ---------- SAYAÇ ÇUBUĞU ---------- */
-.sz-bar{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
-  margin-bottom:22px;flex-wrap:wrap}
-.sz-count{font-size:14px;font-weight:600;color:var(--slate-2)}
-.sz-count b{color:var(--slate);font-weight:800}
-.sz-active{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.sz-pill{background:var(--fit-tint);color:var(--fit-deep);border:1px solid var(--fit-line);
-  border-radius:var(--radius-pill);padding:4px 12px;font-size:12px;font-weight:700}
+/* =====================================================================
+   2 · HARF RAYI — 29 harf (Q/W/X yok) + "Tümü"
+   Cetvel: harfler ızgaraya eşit paylaştırılıyor, hiçbiri gizlenmiyor.
+   ===================================================================== */
+.sz-letters{display:flex;align-items:stretch;gap:6px;margin-top:22px}
+.sz-ruler{flex:1;min-width:0;display:grid;grid-template-columns:repeat(29,minmax(0,1fr));gap:6px}
+.sz-ltr{
+  font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate-2);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+  height:38px;padding:0 2px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease);
+}
+.sz-ltr.all{flex:none;padding:0 16px;letter-spacing:.01em}
+.sz-ltr:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.sz-ltr.on{border-color:var(--fit-deep);background:var(--fit-deep);color:#fff}
+/* karşılığı olmayan harf: kesikli kenarlık "odaklanmış giriş alanı" gibi
+   okunuyordu; düz kenarlık + soluk zemin, tıklanamaz olduğu belli. */
+.sz-ltr.is-empty{opacity:.42;cursor:not-allowed;background:var(--bg);color:var(--muted);border-color:var(--line)}
+.sz-ltr.is-empty:hover{border-color:var(--line);color:var(--muted);background:var(--bg)}
+.sz-ltr:focus-visible{outline:3px solid var(--fit);outline-offset:2px;z-index:1}
 
-/* ---------- HARF GRUPLARI ---------- */
-.sz-group+.sz-group{margin-top:30px}
-.sz-gh{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-.sz-gh .g{flex:none;width:40px;height:40px;border-radius:var(--radius-md);
+/* =====================================================================
+   3 · KATEGORİ — kabuğun ortak "Filtrele" bileşeni (.lib-filters.ff)
+   Çipler fit-shell.js'ten ÖNCE basılıyor (aşağıdaki ön-script), çünkü
+   bileşen kurulurken [data-ff] panelinin içindeki çipleri o an okuyor.
+   ===================================================================== */
+.sz-catfilter{margin-top:22px;margin-bottom:0}
+/* R6 madde 10: süzgeç bloğu YAPIŞKAN OLMAYACAK. Kabuğun .ff-bar'ı
+   `position:sticky;top:112px` geliyor — yalnız BU sayfada iptal.
+   Geri alma: bu üç kuralı sil, kabuk davranışı geri gelir. */
+#szCatFilter .ff-bar{position:static;top:auto;z-index:auto;margin:0}
+#szCatFilter .ff-pop{z-index:60}
+#szCatFilter .ff-chips{margin-top:12px}
+/* Kabuğun çubuğu 4 eksenli sayfalar için kurgulanmış: `.ff-spacer` ekseni
+   sola, sayacı sağa itiyor. TEK eksende bu, ortada ~950 px ölü alan
+   demek (ölçüldü). Bu sayfada kontroller sola gruplanıyor. */
+#szCatFilter .ff-spacer{display:none}
+/* Çubuk içeriğine sarılıyor. Tek eksenli bir çubuğun 1176 px'e yayılması
+   "yarım kalmış kart" izlenimi veriyordu (ölçüldü: ~920 px boş). Bileşenin
+   kendi kart dili korunuyor, yalnız genişliği içeriğine iniyor. */
+#szCatFilter .ff-bar{gap:10px;width:max-content;max-width:100%}
+/* @390'da kabuğun "Filtrele" düğmesi 40 px ölçüldü — dokunma hedefi 44 */
+#szCatFilter .ff-open{min-height:44px}
+
+/* =====================================================================
+   4 · SAYAÇ — .ff-bar'ın sağ ucuna taşınıyor (data-ff-count),
+   egzersiz-kutuphane'deki bileşim birebir.
+   ===================================================================== */
+.sz-count{margin:0;font-size:13.5px;font-weight:600;color:var(--slate-2)}
+.sz-count b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
+
+/* =====================================================================
+   5 · HARF GRUBU + TERİM KARTI — referansın `.term-card` deseni:
+   satırlar kendi kutusunda değil, TEK kartın içinde hairline ile ayrılıyor.
+   ===================================================================== */
+.sz-group+.sz-group{margin-top:28px}
+.sz-gh{display:flex;align-items:center;gap:14px;margin:0 0 12px}
+.sz-gh .g{
+  flex:none;width:38px;height:38px;border-radius:var(--radius-ctl);
   background:var(--slate);color:var(--fit-bright);
-  display:grid;place-items:center;font-size:18px;font-weight:800;letter-spacing:-.02em}
+  display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.02em;
+}
 .sz-gh .n{font-size:12.5px;font-weight:600;color:var(--muted)}
 .sz-gh::after{content:"";flex:1;height:1px;background:var(--line)}
 
-/* =====================================================================
-   TERİM SATIRI — referansın `.term-row` deseni
-   Yapı: [harf] [ad + İngilizce] [kategori] [açma oku] | [terim sayfası oku]
-   Açma düğmesi gerçek bir <button>, yani klavye ve ekran okuyucu davranışı
-   kendiliğinden geliyor (Enter/Boşluk, aria-expanded). Terim sayfasına
-   giden ok AYRI bir <a>; düğmenin İÇİNE konmuyor ki iç içe etkileşimli
-   öğe oluşmasın.
-   ===================================================================== */
-.sz-item{border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);
-  overflow:hidden;transition:border-color .18s var(--ease),box-shadow .18s var(--ease)}
-.sz-item+.sz-item{margin-top:8px}
-.sz-item:hover{border-color:var(--fit-line)}
-.sz-item.open{border-color:var(--fit);box-shadow:var(--sh-sm)}
-.sz-rowline{display:flex;align-items:stretch}
+.sz-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.sz-item+.sz-item{border-top:1px solid var(--line)}
+.sz-item.open{background:var(--fit-tint)}
 
-.sz-row{flex:1;min-width:0;display:flex;align-items:center;gap:14px;
-  padding:12px 16px;background:none;border:none;font-family:inherit;text-align:left;cursor:pointer}
-.sz-row:focus-visible{outline:3px solid var(--fit);outline-offset:-3px;border-radius:var(--radius-md)}
-.sr-ltr{flex:none;width:30px;height:30px;border-radius:var(--radius-sm);
-  background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;
-  font-size:14px;font-weight:800;transition:.18s var(--ease)}
-.sz-item.open .sr-ltr,.sz-row:hover .sr-ltr{background:var(--fit);color:#fff}
-.sr-name{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.sr-name b{font-size:15.5px;font-weight:700;color:var(--slate);letter-spacing:-.01em;line-height:1.3}
+/* ---- kapalı satır ---- */
+/* ÖLÇÜLDÜ — referans satırı 80 px (dolgu 16/20, ad satır yüksekliği 24,
+   İngilizce 19, aradaki boşluk 4). İlk kurulumda bizimki 66 px'ti; ferahlık
+   referansa çekildi. */
+.sz-row{
+  width:100%;min-height:80px;display:flex;align-items:center;gap:16px;
+  padding:16px 20px;background:none;border:none;font-family:inherit;text-align:left;cursor:pointer;
+  transition:background .16s var(--ease);
+}
+.sz-row:hover{background:var(--bg)}
+.sz-item.open .sz-row:hover{background:transparent}
+.sz-row:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+/* SATIR BAŞINDA HARF ÇİPİ YOK. Referansta grup başlığı olmadığı için satır
+   çipi bilgi taşıyordu; bizde harf grubu başlığı var ve aynı harf 26 satır
+   boyunca tekrar ediyordu. Açık satırın işareti: sol kenardaki aksan. */
+.sz-item.open{box-shadow:inset 3px 0 0 var(--fit-deep)}
+/* referans: ad ve İngilizce karşılık YAN YANA değil, ALT ALTA — bold adlar
+   tek bir sütun oluşturuyor ve liste dikeyde taranabiliyor */
+.sr-name{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.sr-name b{font-size:15.5px;font-weight:700;color:var(--slate);letter-spacing:-.01em;line-height:1.55}
 .sz-item.open .sr-name b{color:var(--fit-deep)}
-.sr-name span{font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.3}
-.sr-cat{flex:none;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--slate-2);background:var(--bg);border:1px solid var(--line);
-  border-radius:var(--radius-badge);padding:4px 9px;line-height:1.3;white-space:nowrap}
-.sr-caret{flex:none;color:var(--muted);font-size:12px;transition:transform .22s var(--ease)}
+.sr-name span{font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.5}
+.sr-cat{
+  flex:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--fit-deep);background:var(--fit-tint);border-radius:var(--radius-sm);
+  padding:6px 11px;line-height:1.5;white-space:nowrap;
+}
+.sz-item.open .sr-cat{background:var(--paper)}
+.sr-caret{flex:none;width:18px;text-align:center;color:var(--muted);font-size:12px;
+  transition:transform .22s var(--ease)}
 .sz-item.open .sr-caret{transform:rotate(180deg);color:var(--fit-deep)}
 
-.sz-go{flex:none;display:grid;place-items:center;width:48px;border-left:1px solid var(--line);
-  color:var(--muted);font-size:13px;transition:.18s var(--ease)}
-.sz-go:hover{background:var(--fit-tint);color:var(--fit-deep)}
-.sz-go:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
-
-/* ---- açılan gövde ---- */
-.sz-detail{padding:2px 18px 16px 60px;border-top:1px solid var(--line);
-  animation:szOpen .22s var(--ease)}
+/* ---- açılan kayıt ---- */
+.sz-detail{padding:0 20px 20px;animation:szOpen .22s var(--ease)}
 @keyframes szOpen{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.sz-detail>p{font-size:14px;font-weight:500;color:var(--slate-2);line-height:1.68;
-  max-width:var(--measure);margin-top:12px}
-.sd-ex{display:block;margin-top:11px;padding-left:12px;border-left:2px solid var(--fit-line);
-  font-size:13px;font-weight:500;color:var(--muted);line-height:1.6;font-style:italic;
-  max-width:var(--measure)}
-.sd-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:14px}
+/* ÖLÇÜLDÜ — referansın `.term-detail p`'si YASLI DEĞİL: @1440 ve @390'da
+   `text-align:start`, 14.5px / 1.75. Bizimki 14px / 1.68 ve kabuğun yaslama
+   katmanı yüzünden iki yana yaslıydı; @390'da 322 px'lik kutuda her satırda
+   görünür "nehir" açıyordu (K12'nin gerekçesiyle aynı durum).
+   Geri alma: bu bloktaki text-align iki satırını sil. */
+.sz-detail>p{font-size:14.5px;font-weight:500;color:var(--slate-2);line-height:1.75;
+  max-width:var(--measure);margin:0;text-align:left;text-align-last:auto}
+.sd-ex{display:block;margin-top:12px;padding-left:13px;border-left:2px solid var(--fit);
+  font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.62;font-style:italic;
+  max-width:var(--measure);text-align:left;text-align-last:auto}
+.sd-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:16px}
 .sd-foot .lbl{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--muted)}
 .sd-foot .lbl i{color:var(--fit-deep);font-size:12px}
-.sd-foot a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
-  color:var(--fit-deep);background:var(--fit-tint);border:1px solid var(--fit-line);
-  border-radius:var(--radius-badge);padding:5px 11px;transition:.18s var(--ease)}
-.sd-foot a:hover{background:var(--fit);color:#fff;border-color:var(--fit)}
+/* referans `.td-recipe` ölçüldü: 38 px yükseklik · 8 px yarıçap · 8/14 dolgu */
+.sd-foot a{
+  display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;
+  font-size:13px;font-weight:700;color:var(--fit-deep);
+  background:var(--paper);border:1px solid var(--fit-line);border-radius:var(--radius-sm);
+  transition:.18s var(--ease);
+}
+.sz-item.open .sd-foot a{background:var(--paper)}
+.sd-foot a:hover{background:var(--fit-deep);color:#fff;border-color:var(--fit-deep)}
 .sd-foot a:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
-.sd-foot .sep{width:1px;height:18px;background:var(--line)}
-.sd-more{display:inline-flex;align-items:center;gap:7px;margin-top:13px;font-size:12.5px;
-  font-weight:700;color:var(--fit-deep);transition:gap .2s var(--ease)}
-.sd-more:hover{gap:11px}
+.sd-foot .sep{width:1px;height:20px;background:var(--fit-line)}
 
-/* ---------- ÜST BAĞLAM ŞERİDİ ---------- */
-.sz-intro{display:flex;gap:16px;align-items:flex-start;background:var(--paper);
-  border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:26px}
-.sz-intro>i{flex:none;color:var(--fit-deep);font-size:18px;margin-top:3px}
-.sz-intro p{font-size:14px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0;max-width:var(--measure)}
-.sz-intro p a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+/* R6 madde 9 — DETAY SAYFASINA TEK GİRİŞ. Sağdaki ok kalktı; terimin kendi
+   sayfasına giden yol artık açılan kaydın içinde ve DOLU yeşil eylem.
+   Zemin --fit-deep (beyazla 5.45:1, S4 ölçümü) — --fit 3.52:1'de kalıyordu. */
+.sd-more{
+  display:inline-flex;align-items:center;gap:9px;margin-top:16px;
+  height:40px;padding:0 18px;border-radius:var(--radius-sm);
+  background:var(--fit-deep);color:#fff;font-size:13px;font-weight:700;
+  transition:background .18s var(--ease);
+}
+.sd-more:hover{background:var(--fit-deeper);color:#fff}
+.sd-more:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.sd-more i{font-size:11px;transition:transform .2s var(--ease)}
+.sd-more:hover i{transform:translateX(3px)}
 
 /* ---------- SAYFA SONU: EKSİK TERİM ÖNERİSİ (referansta da var) ---------- */
 .sz-cta{display:flex;gap:18px;align-items:flex-start;background:var(--slate);
-  border-radius:var(--radius-lg);padding:26px 28px;margin-top:34px;color:#fff}
+  border-radius:var(--radius-lg);padding:26px 28px;margin-top:var(--sec-pad-sm);color:#fff}
 .sz-cta>i{flex:none;color:var(--fit-bright);font-size:20px;margin-top:4px}
 .sz-cta .t{flex:1;min-width:0}
 .sz-cta b{display:block;font-size:17px;letter-spacing:-.01em;margin-bottom:7px}
-.sz-cta p{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.74);line-height:1.65;margin:0;max-width:56ch}
-.sz-cta .btn{margin-top:15px}
+/* K12 mantığı: yaslama akan makale metni için. Bu paragraf 476 px'de üç,
+   @390'da 289 px'de altı satır — yaslama her satırda görünür "nehir"
+   açıyordu (ekran görüntüsüyle ölçüldü). Sola yaslı. */
+.sz-cta p{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.74);line-height:1.65;margin:0;max-width:56ch;
+  text-align:left;text-align-last:auto}
+.sz-body .hr-note{margin-top:var(--sec-pad-sm)}
+.sz-cta-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+/* .btn-fit kenarlıksız (50 px), .btn-ghost 1 px kenarlıklı (52 px) —
+   iki eylem yan yana 2 px kaçıktı, taban yükseklik eşitlendi. */
+.sz-cta-acts .btn{box-sizing:border-box;min-height:52px}
+/* kenarlık --slate üzerinde .30 alfada 2.70:1 ölçüldü (UI bileşeni ≥3:1
+   ister); .40 → 3.78:1 */
+.sz-cta-alt{border-color:rgba(255,255,255,.40);color:#fff;background:transparent}
+.sz-cta-alt:hover{border-color:#fff;background:rgba(255,255,255,.10);color:#fff}
 
 /* ---------- RESPONSIVE ---------- */
-@media (max-width:1024px){ .sz-panel{top:112px} }
+@media (max-width:1100px){
+  .sz-ruler{grid-template-columns:repeat(15,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .sz-ruler{grid-template-columns:repeat(10,minmax(0,1fr))}
+}
 @media (max-width:760px){
   .sr-cat{display:none}            /* dar ekranda kategori etiketi satırı şişiriyor */
-  .sz-detail{padding-left:18px}
 }
 @media (max-width:640px){
-  .sz-panel{top:62px;padding:12px 14px 10px}
-  .sz-line{flex-direction:column;align-items:stretch;gap:9px;padding:7px 0}
-  .sz-line>.lbl{min-width:auto}
-  .sz-letters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+  .sz-controls{padding:20px 0 18px}
+  .sz-search{max-width:none}
+  .sz-find{height:50px;padding:0 14px}
+  /* referansın kaydırmalı rayına dönülüyor; dokunma hedefi 44 px */
+  .sz-letters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    padding-bottom:4px;-webkit-overflow-scrolling:touch}
   .sz-letters::-webkit-scrollbar{display:none}
-  .sz-ltr{flex:none}
-  .sz-cats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
-  .sz-cats::-webkit-scrollbar{display:none}
-  .sz-cats .df-fchip{flex:none;white-space:nowrap}
-  .sz-reset{margin-left:0;justify-content:flex-start}
-  .sz-hint{white-space:normal}
-  .sz-gh .g{width:36px;height:36px;font-size:16px}
-  .sz-row{padding:11px 13px;gap:11px}
+  .sz-ruler{display:flex;flex:none;gap:6px}
+  .sz-ltr{flex:none;min-width:44px;height:44px;font-size:14px}
+  .sz-ltr.all{min-width:auto;height:44px}
+  .sz-gh .g{width:34px;height:34px;font-size:15px}
+  .sz-row{padding:11px 14px;gap:12px;min-height:62px}
+  .sr-ltr{width:32px;height:32px;font-size:13.5px}
   .sr-name b{font-size:14.5px}
-  .sz-go{width:42px}
-  .sz-intro{padding:16px;gap:12px}
+  .sz-detail{padding:0 14px 16px}
+  .sd-more{width:100%;justify-content:center}
   .sz-cta{padding:20px 18px;gap:13px}
+  .sz-cta-acts{flex-direction:column;align-items:stretch}
+  .sz-cta-acts .btn{width:100%;justify-content:center}
 }
 </style>
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
@@ -254,42 +322,43 @@
   </div>
 </section>
 
-<!-- ===== 2 · SÖZLÜK GÖVDESİ ===== -->
+<!-- ===== 2 · SÜZGEÇ BANDI — sıra referanstan: ARAMA → HARF → KATEGORİ ===== -->
+<section class="sz-controls">
+  <div class="wrap">
+
+    <!-- 2a · ARAMA (referans: 560 x 55, sola yaslı) -->
+    <div class="sz-search">
+      <label class="sr-only" for="szQ">Sözlükte ara</label>
+      <div class="sz-find" id="szFind">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="szQ" type="search" autocomplete="off" placeholder="Terim, İngilizce karşılık ya da tanım içinde ara…" aria-describedby="szHint" />
+        <button class="x" type="button" id="szQx" aria-label="Aramayı temizle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <p class="sz-hint" id="szHint">En az 3 harf</p>
+    </div>
+
+    <!-- 2b · HARF RAYI — 29 harf, JS basar -->
+    <div class="sz-letters" id="szLetters" role="group" aria-label="Harfe göre süz"><!-- JS basar --></div>
+
+    <!-- 2c · KATEGORİ — sitenin ortak "Filtrele" bileşeni (egzersiz-kutuphane ile aynı sözleşme).
+         Çipler fit-shell.js'ten ÖNCE basılıyor; gerekçe aşağıdaki ön-script'te. -->
+    <div class="lib-filters ff sz-catfilter" id="szCatFilter"
+         data-ff data-ff-count=".sz-count" data-ff-clear="#szReset">
+      <div class="fgroup" data-group="kategori" id="szCats" role="group" aria-label="Kategori">
+        <span class="lbl">Kategori</span>
+      </div>
+      <button class="fclear" type="button" id="szReset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Filtreleri temizle</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 3 · SÖZLÜK GÖVDESİ ===== -->
 <section class="sz-body">
   <div class="wrap">
 
-    <div class="sz-intro">
-      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-      <p><b>Satıra dokun</b>, tanım ve örnek kullanım yerinde açılsın; <b>sağdaki ok</b> terimin kendi sayfasına götürür. Harf rayını, kategoriyi ve arama kutusunu birlikte kullanabilirsin — üçü aynı anda süzer. Hareketin kendisini arıyorsan <a href="egzersiz-kutuphane-v1.html">DadaFit Egzersizleri</a> sayfasına bak.</p>
-    </div>
-
-    <!-- FİLTRE PANELİ -->
-    <div class="sz-panel" id="szPanel">
-      <div class="sz-line">
-        <span class="lbl" id="szLtrLbl">Harf</span>
-        <div class="sz-letters" id="szLetters" role="group" aria-labelledby="szLtrLbl"><!-- JS basar --></div>
-      </div>
-      <div class="sz-line">
-        <span class="lbl" id="szCatLbl">Kategori</span>
-        <div class="sz-cats" id="szCats" role="group" aria-labelledby="szCatLbl"><!-- JS basar --></div>
-      </div>
-      <div class="sz-line">
-        <span class="lbl"><label for="szQ">Ara</label></span>
-        <div class="sz-find" id="szFind">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input id="szQ" type="search" autocomplete="off" placeholder="Terim, İngilizce karşılık ya da tanım içinde ara…" aria-describedby="szHint" />
-          <button class="x" type="button" id="szQx" aria-label="Aramayı temizle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-        </div>
-        <span class="sz-hint" id="szHint">En az 3 harf</span>
-        <button class="sz-reset" type="button" id="szReset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Filtreleri temizle</button>
-      </div>
-    </div>
-
-    <!-- SAYAÇ -->
-    <div class="sz-bar">
-      <p class="sz-count" id="szSayac" aria-live="polite"></p>
-      <div class="sz-active" id="szAktif"></div>
-    </div>
+    <!-- SAYAÇ — .ff-bar'ın sağ ucuna taşınıyor (data-ff-count) -->
+    <p class="sz-count" id="szSayac" aria-live="polite"></p>
 
     <!-- SONUÇ -->
     <div id="szList"><!-- harf grupları + terim satırları JS basar --></div>
@@ -307,8 +376,11 @@
       <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
       <div class="t">
         <b>Eksik bir terim mi fark ettin?</b>
-        <p>Sözlüğü kullanıcılarla birlikte büyütüyoruz. Aradığın terim burada yoksa ya da bir tanımın eksik kaldığını düşünüyorsan bize yaz; öneriler editör değerlendirmesinden sonra yayına alınır.</p>
-        <a class="btn btn-fit" href="iletisim-v1.html"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Terim öner</a>
+        <p>Sözlüğü kullanıcılarla birlikte büyütüyoruz; öneriler editör değerlendirmesinden sonra yayına alınır. Terimin değil hareketin kendisini arıyorsan kütüphane doğru yer.</p>
+        <div class="sz-cta-acts">
+          <a class="btn btn-fit" href="iletisim-v1.html"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Terim öner</a>
+          <a class="btn btn-ghost sz-cta-alt" href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Egzersiz kütüphanesi</a>
+        </div>
       </div>
     </div>
 
@@ -326,15 +398,50 @@
 <!-- KABUK: alt katman (giris kapisi + footer + basa don) -->
 <div id="fitShellBottom"></div>
 
+<!-- Sözlük verisi — İKİ SAYFANIN ORTAK KAYNAĞI (liste + detay aynı diziyi okur).
+     KABUKTAN ÖNCE yükleniyor: aşağıdaki ön-script'in gerekçesine bak. -->
+<script src="assets/js/sozluk-veri.js"></script>
+<script>
+/* =====================================================================
+ ÖN-SCRIPT — KATEGORİ ÇİPLERİ (fit-shell.js'ten ÖNCE çalışmak ZORUNDA)
+
+ Kabuğun ortak "Filtrele" bileşeni (`[data-ff]`) fit-shell.js YÜKLENİRKEN
+ senkron kuruluyor ve panelin içindeki `.fgroup > .df-fchip` kalemlerini
+ O AN okuyor (fit-shell.js `panels.forEach(build)`). Çipler kabuktan sonra
+ basılsaydı bileşen boş bir eksen kurar, açılır menünün içindeki arama
+ alanı hiç oluşmazdı (`realChips.length > 0` koşulu).
+
+ Sayı UYDURULMUYOR: adetler `sozluk-veri.js`'teki diziden geliyor.
+ `data-kat` sayfa motorunun okuduğu alan, `data-val` kabuk bileşeninin
+ sözleşmesi — ikisi aynı değeri taşıyor; "Tümü" kalemi `data-val="all"`
+ olduğu için bileşen onu "seçimin yokluğu" sayıyor ve sayıma katmıyor.
+ ===================================================================== */
+(function(){
+  var S = window.SOZLUK;
+  var g = document.getElementById('szCats');
+  if(!S || !g) return;
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var h = ['<button class="df-fchip on" type="button" data-kat="" data-val="all">' +
+           'Tümü <span class="n">' + S.TERIMLER.length + '</span></button>'];
+  S.KATEGORILER.forEach(function(k){
+    h.push('<button class="df-fchip" type="button" data-kat="' + k.id + '" data-val="' + k.id + '">' +
+           '<i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) +
+           ' <span class="n">' + k.adet + '</span></button>');
+  });
+  g.insertAdjacentHTML('beforeend', h.join(''));
+})();
+</script>
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
-<!-- Sözlük verisi — İKİ SAYFANIN ORTAK KAYNAĞI (liste + detay aynı diziyi okur) -->
-<script src="assets/js/sozluk-veri.js"></script>
 <script>
 /* =====================================================================
  SAYFA JS — SPOR SÖZLÜĞÜ · LİSTE
 
  ÜÇ EKSENLİ SÜZGEÇ, BİRLEŞİMLİ ÇALIŞIR: harf ∧ kategori ∧ arama.
+ Kategori ekseninin ÇİPLERİ yukarıdaki ön-script'te basılıyor (kabuğun
+ "Filtrele" bileşeni onları kurulum anında okuyor); burada yalnız TIKLAMA
+ ve SEÇİLİ DURUM yönetiliyor. Tek gerçek kaynak yine DOM'daki çip durumu.
  · Arama YALNIZ 3 harften itibaren süzer. 1-2 harfte liste değişmez;
    ipucu satırı bunu söyler. Referansta ölçülen davranış birebir bu:
    (boş)=54 · "a"=54 · "ad"=54 · "ada"=13 · "adaç"=1.
@@ -367,7 +474,6 @@
       elFind    = document.getElementById('szFind'),
       elHint    = document.getElementById('szHint'),
       elSayac   = document.getElementById('szSayac'),
-      elAktif   = document.getElementById('szAktif'),
       elEmpty   = document.getElementById('szEmpty'),
       elWhy     = document.getElementById('szEmptyWhy');
 
@@ -385,9 +491,13 @@
       '<div class="lib-stat"><b>' + S.KATEGORILER.length + '</b><span>kategori</span></div>';
   })();
 
-  /* ---------- harf rayı ---------- */
+  /* ---------- harf rayı ----------
+     "Tümü" ızgaranın DIŞINDA (kendi genişliği var), 29 harf eşit sütunlu
+     bir cetvele yayılıyor. Referans rayı yatay kaydırıyordu; 29 harf
+     1176 px'e sığdığı için burada hiçbir harf gizlenmiyor. */
   (function(){
-    var h = ['<button class="sz-ltr all on" type="button" data-harf="">Tümü</button>'];
+    var h = ['<button class="sz-ltr all on" type="button" data-harf="">Tümü</button>',
+             '<span class="sz-ruler">'];
     S.ALFABE.forEach(function(L){
       var n = S.harfSayi[L] || 0;
       if(n) h.push('<button class="sz-ltr" type="button" data-harf="' + L + '" ' +
@@ -397,18 +507,8 @@
       else h.push('<button class="sz-ltr is-empty" type="button" disabled aria-disabled="true" ' +
                   'title="' + L + ' — bu harfle başlayan terim yok">' + L + '</button>');
     });
+    h.push('</span>');
     elLetters.innerHTML = h.join('');
-  })();
-
-  /* ---------- kategori seçici ---------- */
-  (function(){
-    var h = ['<button class="df-fchip on" type="button" data-kat="">Tümü <span class="n">' + TUM.length + '</span></button>'];
-    S.KATEGORILER.forEach(function(k){
-      h.push('<button class="df-fchip" type="button" data-kat="' + k.id + '">' +
-             '<i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) +
-             ' <span class="n">' + k.adet + '</span></button>');
-    });
-    elCats.innerHTML = h.join('');
   })();
 
   /* ---------- süzgeç ---------- */
@@ -436,22 +536,24 @@
       '<a href="' + S.kasAdres(t.kas) + '" data-kop="kas">' +
       esc(S.kasAdi(t.kas) || 'Kas haritasında aç') + '</a>';
 
+    /* R6 MADDE 9 — SATIRIN TEK İŞİ VAR: AÇMAK.
+       Eskiden satırın sağında `fa-chevron-right` taşıyan ayrı bir <a> vardı
+       ve terim sayfasına gidiyordu; aynı satır hem açılıyor hem gidiyordu.
+       Sağ ok kalktı, detay sayfasına giden yol AÇILAN KAYDIN İÇİNE
+       (`.sd-more`) taşındı. `.sr-caret` (chevron-down) expand göstergesi. */
     return '<div class="sz-item" data-slug="' + t.slug + '">' +
-      '<div class="sz-rowline">' +
-        '<button class="sz-row" type="button" aria-expanded="false" aria-controls="sd-' + t.slug + '">' +
-          '<span class="sr-ltr" aria-hidden="true">' + t.harf + '</span>' +
-          '<span class="sr-name"><b>' + esc(t.terim) + '</b><span>' + esc(t.ingilizce) + '</span></span>' +
-          '<span class="sr-cat">' + esc(k ? k.ad : '') + '</span>' +
-          '<i class="sr-caret fa-solid fa-chevron-down" aria-hidden="true"></i>' +
-        '</button>' +
-        '<a class="sz-go" href="' + S.terimAdres(t.slug) + '" aria-label="' + esc(t.terim) + ' terim sayfasını aç">' +
-          '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>' +
-      '</div>' +
+      '<button class="sz-row" type="button" aria-expanded="false" aria-controls="sd-' + t.slug + '">' +
+        '<span class="sr-name"><b>' + esc(t.terim) + '</b><span>' + esc(t.ingilizce) + '</span></span>' +
+        '<span class="sr-cat">' + esc(k ? k.ad : '') + '</span>' +
+        '<i class="sr-caret fa-solid fa-chevron-down" aria-hidden="true"></i>' +
+      '</button>' +
       '<div class="sz-detail" id="sd-' + t.slug + '" hidden>' +
         '<p>' + esc(t.tanim) + '</p>' +
         '<span class="sd-ex">&laquo;' + esc(t.ornek) + '&raquo;</span>' +
         (kop ? '<div class="sd-foot">' + kop + '</div>' : '') +
-        '<a class="sd-more" href="' + S.terimAdres(t.slug) + '">Terimin tam kaydı ' +
+        '<a class="sd-more" href="' + S.terimAdres(t.slug) + '">' +
+          '<i class="fa-solid fa-file-lines" aria-hidden="true"></i> ' +
+          esc(t.terim) + ' terim sayfası' +
           '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
       '</div>' +
     '</div>';
@@ -469,23 +571,23 @@
     });
     sira.sort(S.karsilastir);
 
+    /* referansın `.term-card` deseni: satırlar kendi kutusunda değil, harf
+       grubunun TEK kartının içinde hairline ile ayrılıyor */
     list.innerHTML = sira.map(function(L){
       return '<section class="sz-group" data-harf="' + L + '">' +
         '<h2 class="sz-gh"><span class="g">' + L + '</span>' +
         '<span class="n">' + kova[L].length + ' terim</span></h2>' +
-        kova[L].map(satir).join('') +
+        '<div class="sz-card">' + kova[L].map(satir).join('') + '</div>' +
       '</section>';
     }).join('');
 
-    /* sayaç — gösterilen ve toplam, ikisi de hesaplanıyor */
-    elSayac.innerHTML = '<b>' + sonuc.length + '</b> terim gösteriliyor · toplam <b>' + TUM.length + '</b> terim';
-
-    /* etkin süzgeç rozetleri */
-    var rz = [];
-    if(durum.harf)     rz.push('<span class="sz-pill">Harf: ' + durum.harf + '</span>');
-    if(durum.kategori){ var k = S.kategori(durum.kategori); if(k) rz.push('<span class="sz-pill">' + esc(k.ad) + '</span>'); }
-    if(durum.q.length >= ENAZ) rz.push('<span class="sz-pill">&laquo;' + esc(durum.q) + '&raquo;</span>');
-    elAktif.innerHTML = rz.join('');
+    /* SAYAÇ — referansta tek satır ("765 terim"); süzgeç varken pay/payda.
+       Kabuğun `data-ff-count` sözleşmesiyle .ff-bar'ın sağ ucuna taşınıyor,
+       o yüzden kısa kalmak zorunda. Süzülen her satır DOM'da olduğu için
+       bu sayı DOM'daki `.sz-item` sayısına birebir eşit. */
+    elSayac.innerHTML = (sonuc.length === TUM.length)
+      ? '<b>' + TUM.length + '</b> terim'
+      : '<b>' + sonuc.length + '</b> / ' + TUM.length + ' terim';
 
     /* boş durum */
     if(!sonuc.length){
@@ -551,11 +653,17 @@
     elQ.value = ''; durum.q = ''; adresYaz(true); ciz(); elQ.focus();
   });
 
+  /* SIFIRLA — kategori ekseni kabuğun "Filtrele" bileşeniyle ortak.
+     Durumu doğrudan değiştirmek yerine "Tümü" çipine GERÇEK tıklama
+     gönderiyoruz: bileşenin kendi seçim rozeti ve çip satırı ancak çip
+     tıklamasıyla senkronlanıyor, yoksa bayat kalıyordu. */
   function sifirla(){
-    durum = { harf:'', kategori:'', q:'' };
-    elQ.value = '';
-    adresYaz(true); ciz();
-    window.scrollTo({ top: document.querySelector('.sz-panel').offsetTop - 160, behavior:'smooth' });
+    durum.harf = ''; durum.q = ''; elQ.value = '';
+    var tum = elCats.querySelector('.df-fchip[data-val="all"]');
+    if(durum.kategori && tum){ tum.click(); }
+    else { durum.kategori = ''; adresYaz(true); ciz(); }
+    var band = document.querySelector('.sz-controls');
+    if(band) window.scrollTo({ top: Math.max(0, band.offsetTop - 130), behavior:'smooth' });
   }
   document.getElementById('szReset').addEventListener('click', sifirla);
   document.getElementById('szEmptyReset').addEventListener('click', sifirla);

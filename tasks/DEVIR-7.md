@@ -363,3 +363,42 @@ hizalama-nobeti ✓   ← YENİ
 | **Renk imzası** (token yeniden adlandırma) | 66 sayfa @1440 · color · background · background-image · border · outline · fill · stroke · box-shadow | **66/66 birebir aynı** |
 | **Fit Planım düzeni** (CSS çıkarma) | 7 sayfa × 2 genişlik · kutu · text-align · text-align-last · padding · margin · tipografi · renk | **14/14 birebir aynı** |
 | **Yaslama** (opt-in) | 66 sayfa × 2 genişlik · 130 288 eleman, alan alan | `text-align` 5 364 · `text-align-last` 417 · **satır içi kutu 299** · **BLOK kutu 0** |
+
+## Canlı doğrulama — tıklayarak
+
+`https://gaviaworks-dev.github.io/dadafit-prototip` · **15/15 yeşil · konsol 0**
+
+| Kalem | Ne denendi | Sonuç |
+|---|---|---|
+| **m3** | `--tomato` canlıda çözülüyor mu | **tanımsız** — ad tamamen kalktı |
+| **m3** | yeni ramp | `--fit` #009d4f · `--fit-ink` #006a35 · `--fit-wash` #e8f6ee |
+| **m3** | "Giriş Yap" düğmesi zemini | **rgb(0,157,79)** — kurumsal yeşil değişmedi |
+| **m4** | sözlük eyebrow | **"Hareketi Anlamak"** |
+| **m4** | sözlük hâlâ çalışıyor mu | **254 satır** · eski sağ ok **0** · `.sr-caret` 254 · **gerçek tıklamada açılıyor**, detay bağlantısı var |
+| **m10** | `fit-planim.css` yükleniyor mu | `<link>` ile · **sayfa içi `<style>` 0** |
+| **m10** | yükleme sırası | shell(1) < **fit-planim(2)** < fit-type(3) |
+| **m10** | üst özet kartı ölçüleri | radius **24px** · column-gap **44px** (referansla aynı) |
+| **m5+6** | `hakkimizda` izinsiz yaslanan blok | **0** |
+| **m5+6** | kanca canlıda | geniş `.jt-flow` → **justify** · dar `.jt-flow` → **start** |
+| **m9** | perde @1440 | footer **fixed** · main margin-bottom **579.53 px** — AÇIK |
+| **m9** | perde @390 | footer **static** · margin-bottom **0** — KAPALI (kasıtlı, K52) |
+| **m8** | anatomi haritası | yüklü · **18 bölge** |
+| **m8** | gerçek fare tıklaması | `quadriceps` seçilebildi, üstünü kapatan katman yok |
+
+> **Bir ölçüm hatası yapıldı ve düzeltildi:** ilk canlı sondada sözlük satırı
+> `.sr-row,.term-row` diye aranmıştı ve 0 döndü. Doğru sınıf `#szList
+> .sz-item` (yerel `tests/sozluk.mjs` zaten onu kullanıyor). Sayfa kusuru
+> değil, sondanın seçicisiydi — B23'ün canlı taraftaki eşi.
+
+## Commit'ler
+
+| Commit | Kapsam |
+|---|---|
+| `6f2ba66` | m3 — `--tomato` ailesi `--fit-*` oldu (47 dosya) |
+| `b5ddf5f` | m10 — fpx bloğu `assets/css/fit-planim.css`'e çıktı |
+| `3353799` | m4 — sözlük eyebrow tekrarı |
+| `9512525` | m5+6 — yaslama opt-in |
+| `3ef59b0` | m7 — `tests/hizalama-nobeti.mjs` |
+| `b763218` | brief · kararlar K52–K58 · devir notu |
+
+**Yedi kalemin yedisi kapandı; madde 1 onay bekliyor (§2).**

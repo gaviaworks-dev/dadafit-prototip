@@ -9,7 +9,9 @@
          `elementFromPoint` ile o path'e düştüğü doğrulanıyor — yani
          "üstünü başka bir katman kapatmış" durumu da yakalanır.
      3.  Panel her kasta dolu — altı alanın (TR+Latince · fonksiyon ·
-         köken/yapışma · komşular · hareketler · güvenlik) hepsi boş değil
+         köken/yapışma · komşular · hareketler · güvenlik) hepsi boş değil.
+         R6 · M11/M14: hareket kartları panelin İÇİNDE ve sayfada TEK kez;
+         `.an-kaynak` künye satırı DOM'da 0.
      4.  Karşılıksız bölge 0 — ÇİFT YÖNLÜ: SVG→veri ve veri→SVG
      5.  Hareket köprüleri HTTP 200
      6.  `?kas=` derin bağlantısı — her slug doğrudan açıldığında doğru
@@ -18,6 +20,12 @@
      8.  Klavye — Tab ile bölgeye ulaşılıyor, Enter seçiyor, aria-pressed
      9.  Banner LİSTE ailesi — @1440 544 · @1024 607 · @390 587, birebir
      10. Konsol hatası 0 @1440 ve @390
+     12. R6 · M14 — kas seçildikten sonra KAYDIRMADAN hareket listesi
+         viewport içinde (@1440 ve @390) ve içeriği gerçekten değişiyor
+     13. R6 · M11 — `anatomi-veri.js` içindeki `kaynak` alanı 29/29 kayıtta
+         duruyor (K38 sözleşmesi ekranı değil VERİYİ bağlar)
+     14. R6 · M15 — sağlık notu ve saglik-bilgilendirme bağlantısı duruyor,
+         dikey boşluğu simetrik
      11. Menü kalemi — "Hareketi Anlamak" üst menüde VE drawer'da, üst menü
          kalem sayısı bozulmamış, grubun href'leri diskte
 
@@ -110,9 +118,19 @@ const browser = await chromium.launch();
     /* SVG → veri */
     const karsiliksiz = liste.filter(s => !kaslar[s]);
     if (karsiliksiz.length) sorun.push(`${ad}: veride karşılığı yok → ${karsiliksiz.join(', ')}`);
-    /* yanlış görünüme konmuş bölge */
-    const yanlis = liste.filter(s => kaslar[s] && kaslar[s].gorunum !== gorunum);
-    if (yanlis.length) sorun.push(`${ad}: yanlış görünümde → ${yanlis.join(', ')}`);
+    /* R6 · M21 — İKİNCİL GÖRÜNÜM MEŞRU, KARŞILIKSIZLIK DEĞİL.
+       Render'dan segmentlenen harita gerçek anatomiyi izliyor: gastrocnemius
+       hem önden hem arkadan, trapez hem arkadan hem omuz üstünden görünür.
+       Kural ZAYIFLATILMADI, doğru yere taşındı: bir bölgenin veri kaydı
+       OLMAK ZORUNDA (üstte ölçülüyor) ve kası KENDİ birincil görünümünde
+       de bulunmak zorunda (altta ölçülüyor). İkincil görünüm serbest. */
+    const ikincil = liste.filter(s => kaslar[s] && kaslar[s].gorunum !== gorunum);
+    const ikincilOksuz = ikincil.filter(s => {
+      const birincilAd = ad.replace(/-(on|arka)$/, '-' + kaslar[s].gorunum);
+      return !(SVG_SLUG[birincilAd] || []).includes(s);
+    });
+    if (ikincilOksuz.length)
+      sorun.push(`${ad}: ikincil görünümde var ama BİRİNCİL görünümünde yok → ${ikincilOksuz.join(', ')}`);
     /* veri → SVG */
     const beklenen = Object.keys(kaslar).filter(s => kaslar[s].gorunum === gorunum);
     const svgdeYok = beklenen.filter(s => !liste.includes(s));
@@ -126,6 +144,17 @@ const browser = await chromium.launch();
   const say = VERI.sayim();
   if (!sorun.length) ok(`karşılıksız bölge 0 — 4 SVG × ${say.toplam} kas (ön ${say.on} · arka ${say.arka}) çift yönlü eşleşti, kanonik 27/27 var`);
   else rec('karşılıksız bölge', sorun.join('\n      '));
+}
+
+/* =================================================================
+   13 · R6 · M11 — `kaynak` ALANI VERİDE DURUYOR (K38)
+   Ekrandan kaldırıldı; sözleşme veride. Alan silinirse burası kırmızı.
+   ================================================================= */
+{
+  const kaslar = Object.entries(VERI.kaslar);
+  const eksik = kaslar.filter(([, k]) => !k.kaynak || !String(k.kaynak).trim()).map(([s]) => s);
+  if (!eksik.length) ok(`kaynak alanı ${kaslar.length}/${kaslar.length} kayıtta duruyor (K38)`);
+  else rec('kaynak alanı silinmiş', eksik.join(', '));
 }
 
 /* =================================================================
@@ -166,7 +195,10 @@ const browser = await chromium.launch();
         guvenlik: alan('guvenlik'),
         secili,
         gorunum: svg ? svg.getAttribute('data-gorunum') : null,
-        kartSayisi: document.querySelectorAll('#anCards .an-card').length,
+        /* R6 · M14 — kartlar artık panelin İÇİNDE, alt section kalktı */
+        kartSayisi: document.querySelectorAll('.an-sec[data-alan="hareketler"] .an-card').length,
+        kartToplam: document.querySelectorAll('.an-card').length,
+        kaynakSatiri: document.querySelectorAll('.an-kaynak').length,
         onPressed: q('button[data-gorunum="on"]')?.getAttribute('aria-pressed'),
         arkaPressed: q('button[data-gorunum="arka"]')?.getAttribute('aria-pressed')
       };
@@ -181,7 +213,12 @@ const browser = await chromium.launch();
     })) {
       if (!deger || deger.length < 3) bosAlan.push(`${slug} → "${ad}" boş`);
     }
-    if (r.kartSayisi < 1) bosAlan.push(`${slug} → alt ızgarada hareket kartı yok`);
+    if (r.kartSayisi < 1) bosAlan.push(`${slug} → panelin hareket bandında kart yok`);
+    /* R6 · M14 — aynı liste sayfada İKİ KEZ basılmayacak */
+    if (r.kartToplam !== r.kartSayisi)
+      bosAlan.push(`${slug} → hareket kartı sayfada iki yerde: bantta ${r.kartSayisi}, toplam ${r.kartToplam}`);
+    /* R6 · M11 — kaynak künyesi ekrana basılmayacak */
+    if (r.kaynakSatiri !== 0) bosAlan.push(`${slug} → .an-kaynak DOM'da (${r.kaynakSatiri})`);
 
     /* --- 6 · doğru kas seçili + doğru görünüm açık mı --- */
     if (r.ad !== k.ad) derinKirik.push(`${slug} → panel başlığı "${r.ad}", beklenen "${k.ad}"`);
@@ -194,7 +231,7 @@ const browser = await chromium.launch();
       derinKirik.push(`${slug} → ÖN/ARKA düğmesi aria-pressed ${r.onPressed}/${r.arkaPressed}`);
   }
 
-  if (!bosAlan.length) ok(`panel ${slugs.length}/${slugs.length} kasta dolu — sekiz alanın hepsi + alt ızgara`);
+  if (!bosAlan.length) ok(`panel ${slugs.length}/${slugs.length} kasta dolu — sekiz alanın hepsi + panel içi hareket bandı`);
   else rec('boş panel alanı', bosAlan.join('\n      '));
 
   if (!derinKirik.length) ok(`?kas= derin bağlantısı ${slugs.length}/${slugs.length} slug'da doğru kası ve doğru görünümü açtı`);
@@ -205,79 +242,117 @@ const browser = await chromium.launch();
 
 /* =================================================================
    2 · HER BÖLGE TIKLANABİLİR — DÖRT SVG, GERÇEK FARE TIKLAMASI
+
+   R6 · MADDE 21 ile YENİDEN YAZILDI. Harita artık iki katmanlı:
+   altta Higgsfield render'ı (<image>), üstte segmentlenmiş <path>'ler.
+   Bölgeler eski soyut ovallere göre çok daha İNCE olduğu için sonda
+   sıkılaştırıldı — ölçüt zayıflamadı, tam tersine sertleşti:
+
+     · örnekleme ızgarası 12×12 → 40×40 (ince şerit kaçmasın)
+     · nokta `isPointInFill` ile path'in GERÇEK dolgusundan seçiliyor
+     · `elementFromPoint` + `closest('[data-kas]')` ile üstünü başka
+       bölgenin kapatmadığı doğrulanıyor (render katmanı altta)
+     · bölge görünür alana ANLIK kaydırılıyor, geçişler kapatılıyor
+     · görünüm geçişi düğmelerden yapılıyor (tam sayfa yenilemesi yok);
+       cinsiyet ve görünüm AYRI AYRI, her biri mount doğrulanarak —
+       ikisi aynı anda tıklanınca iki fetch yarışıp yanlış dosya
+       mount ediyordu
    ================================================================= */
 {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 1200 } });
-  const page = await ctx.newPage();
   const kirik = [];
-  let toplamTik = 0;
+  let toplamTik = 0, toplamBolge = 0;
 
-  for (const [ad, liste] of Object.entries(SVG_SLUG)) {
-    const [cinsiyet, gorunum] = ad.split('-');
-    /* haritayı aç: o görünümdeki ilk kas + istenen cinsiyet */
-    const ilk = liste[0];
-    try {
-      await page.goto(`${BASE}/${SAYFA}?kas=${ilk}&cinsiyet=${cinsiyet}`, { waitUntil: 'networkidle', timeout: 30000 });
-      await page.waitForSelector(`#anStage svg[data-gorunum="${gorunum}"][data-cinsiyet="${cinsiyet}"]`, { timeout: 10000 });
-    } catch (e) {
-      kirik.push(`${ad} — harita hiç yüklenmedi: ${e.message.split('\n')[0]}`);
-      continue;
-    }
+  for (const w of [1440, 390]) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: w === 1440 ? 1200 : 844 } });
+    const page = await ctx.newPage();
+    await page.goto(`${BASE}/${SAYFA}`, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.addStyleTag({ content: '*,*::before,*::after{scroll-behavior:auto !important;transition:none !important;animation:none !important}' });
 
-    for (const slug of liste) {
-      /* path'in KENDİ dolgusundan bir nokta bul, ekran koordinatına çevir */
-      /* Bölge görünüm alanına alınmadan `elementFromPoint` null döner
-         (ayak/baldır bölgeleri sayfanın altında kalıyordu). */
-      await page.evaluate((s) => {
-        const el = document.querySelector(`#anStage [data-kas="${s}"]`);
-        if (el) el.scrollIntoView({ block: 'center', behavior: 'instant' });
-      }, slug);
+    const gorunumeGec = async (cins, gor) => {
+      await page.evaluate(c => { document.querySelectorAll('button[data-cinsiyet]').forEach(b => { if (b.dataset.cinsiyet === c) b.click(); }); }, cins);
+      await page.waitForTimeout(350);
+      await page.evaluate(g => { document.querySelectorAll('button[data-gorunum]').forEach(b => { if (b.dataset.gorunum === g) b.click(); }); }, gor);
+      await page.waitForSelector(`#anStage svg[data-cinsiyet="${cins}"][data-gorunum="${gor}"]`, { timeout: 10000 });
+      await page.waitForTimeout(150);
+    };
 
-      const nokta = await page.evaluate((s) => {
-        const el = document.querySelector(`#anStage [data-kas="${s}"]`);
-        if (!el) return { hata: 'path DOM\'da yok' };
-        const bb = el.getBBox();
-        const svg = el.ownerSVGElement;
-        const ctm = el.getScreenCTM();
-        if (!ctm) return { hata: 'getScreenCTM null' };
-        for (let i = 1; i < 12; i++) {
-          for (let j = 1; j < 12; j++) {
-            const p = svg.createSVGPoint();
-            p.x = bb.x + (bb.width  * i) / 12;
-            p.y = bb.y + (bb.height * j) / 12;
-            if (!el.isPointInFill(p)) continue;
-            const ek = p.matrixTransform(ctm);
-            const ust = document.elementFromPoint(ek.x, ek.y);
-            /* tıklama gerçekten bu path'e düşüyor mu? */
-            if (ust !== el) continue;
-            return { x: ek.x, y: ek.y };
-          }
+    for (const cins of ['erkek', 'kadin']) {
+      for (const gor of ['on', 'arka']) {
+        const ad = `${cins}-${gor}`;
+        try { await gorunumeGec(cins, gor); }
+        catch (e) { kirik.push(`@${w} ${ad} — harita yüklenmedi: ${e.message.split('\n')[0]}`); continue; }
+
+        const liste = await page.evaluate(() =>
+          [...document.querySelectorAll('#anStage svg [data-kas]')].map(e => e.getAttribute('data-kas')));
+        if (w === 1440) toplamBolge += liste.length;
+
+        for (const slug of liste) {
+          await page.evaluate(s => {
+            const el = document.querySelector(`#anStage svg [data-kas="${s}"]`);
+            if (el) el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
+          }, slug);
+          await page.waitForTimeout(200);
+
+          const nokta = await page.evaluate(s => {
+            const svg = document.querySelector('#anStage svg');
+            const el = svg && svg.querySelector(`[data-kas="${s}"]`);
+            if (!el) return { hata: "path DOM'da yok" };
+            const bb = el.getBBox(), ctm = el.getScreenCTM();
+            if (!ctm) return { hata: 'getScreenCTM null' };
+            const pt = svg.createSVGPoint();
+            let en = null, enR = -1;
+            for (let i = 1; i < 40; i++) for (let j = 1; j < 40; j++) {
+              pt.x = bb.x + bb.width * i / 40;
+              pt.y = bb.y + bb.height * j / 40;
+              if (!el.isPointInFill(pt)) continue;
+              const sp = pt.matrixTransform(ctm);
+              const t = document.elementFromPoint(sp.x, sp.y);
+              if (!t || t.closest('[data-kas]') !== el) continue;
+              let rad = 0;
+              for (let k = 2; k <= 24; k += 2) {
+                const ok = [[k,0],[-k,0],[0,k],[0,-k]].every(([dx, dy]) => {
+                  const q = document.elementFromPoint(sp.x + dx, sp.y + dy);
+                  return q && q.closest('[data-kas]') === el;
+                });
+                if (ok) rad = k; else break;
+              }
+              if (rad > enR) { enR = rad; en = { x: sp.x, y: sp.y, rad }; }
+            }
+            return en ? en : { hata: 'dolgu içinde ve üstü açık nokta bulunamadı' };
+          }, slug);
+
+          if (nokta.hata) { kirik.push(`@${w} ${ad}/${slug} — ${nokta.hata}`); continue; }
+
+          await page.mouse.click(nokta.x, nokta.y);
+          await page.waitForTimeout(200);
+          toplamTik++;
+
+          const sonuc = await page.evaluate(() => ({
+            ad: document.querySelector('#anAd')?.textContent.trim(),
+            secili: [...document.querySelectorAll('#anStage svg [data-kas][aria-pressed="true"]')].map(e => e.getAttribute('data-kas'))
+          }));
+          const bek = VERI.kaslar[slug].ad;
+          if (sonuc.ad !== bek) kirik.push(`@${w} ${ad}/${slug} — tıklandı, panel "${sonuc.ad}" gösterdi`);
+          else if (sonuc.secili.length !== 1 || sonuc.secili[0] !== slug)
+            kirik.push(`@${w} ${ad}/${slug} — aria-pressed [${sonuc.secili.join(',') || 'yok'}]`);
+
+          /* İkincil görünümdeki bölgeye tıklamak kası KENDİ görünümüne
+             götürür — doğru davranış. Sıradaki ölçüm için geri al. */
+          const yerinde = await page.evaluate(([c, g]) => {
+            const s = document.querySelector('#anStage svg');
+            return !!s && s.dataset.cinsiyet === c && s.dataset.gorunum === g;
+          }, [cins, gor]);
+          if (!yerinde) await gorunumeGec(cins, gor);
         }
-        return { hata: 'dolgu içinde ve üstü açık nokta bulunamadı' };
-      }, slug);
-
-      if (nokta.hata) { kirik.push(`${ad}/${slug} — ${nokta.hata}`); continue; }
-
-      await page.mouse.click(nokta.x, nokta.y);
-      toplamTik++;
-
-      const sonuc = await page.evaluate(() => ({
-        ad: document.querySelector('#anAd')?.textContent.trim(),
-        secili: [...document.querySelectorAll('[data-kas][aria-pressed="true"]')].map(e => e.getAttribute('data-kas'))
-      }));
-      const bek = VERI.kaslar[slug].ad;
-      if (sonuc.ad !== bek) kirik.push(`${ad}/${slug} — tıklandı ama panel "${sonuc.ad}" gösterdi`);
-      else if (sonuc.secili.length !== 1 || sonuc.secili[0] !== slug)
-        kirik.push(`${ad}/${slug} — aria-pressed [${sonuc.secili.join(',') || 'yok'}]`);
+      }
     }
+    await ctx.close();
   }
 
-  if (!kirik.length) ok(`${toplamTik} bölgenin ${toplamTik}'i gerçek fare tıklamasıyla seçildi (4 SVG)`);
+  if (!kirik.length)
+    ok(`her bölge gerçek fare tıklamasıyla seçildi — ${toplamTik} tıklama (${toplamBolge} bölge × @1440 ve @390), yanlış kas 0`);
   else rec('tıklanamayan bölge', kirik.join('\n      '));
-
-  await ctx.close();
 }
-
 /* =================================================================
    8 · KLAVYE — Tab ile bölgeye ulaşma, Enter ile seçme, aria-pressed
    ================================================================= */
@@ -378,6 +453,110 @@ for (const w of [1440, 1024, 390]) {
     if (!konsol.length) ok(`@${w} konsol hatası 0`);
     else rec('konsol hatası', konsol.join(' | '));
   }
+  await ctx.close();
+}
+
+/* =================================================================
+   12 · R6 · M14 — SEÇİM SONRASI HAREKET LİSTESİ VİEWPORT İÇİNDE
+   Kullanıcı haritayı ekrana getirir (ızgaranın başına kaydırır), bir
+   bölgeye GERÇEK fare tıklamasıyla dokunur ve BAŞKA HİÇBİR KAYDIRMA
+   YAPMADAN değişen hareket listesini görür. Ölçüm iki eşikle:
+     · brief'in ölçütü        → band.top < innerHeight
+     · sabit alt gezinme çubuğu varsa (@390 `.bottom-nav`) onun da ÜSTÜNDE
+   14 · M15 — sağlık notu duruyor ve dikeyde simetrik.
+   ================================================================= */
+for (const w of [1440, 390]) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: w === 1440 ? 900 : 844 } });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => { try { localStorage.setItem('dm-cookie-consent', 'accepted'); } catch (e) {} });
+  await page.goto(`${BASE}/${SAYFA}`, { waitUntil: 'networkidle', timeout: 30000 });
+
+  /* haritayı ekrana getir — kullanıcı zaten oraya bakıyor */
+  await page.evaluate(() => document.querySelector('.an-grid').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await page.waitForTimeout(150);
+
+  /* seçili OLMAYAN bir bölgenin kendi dolgusundan tıklanabilir nokta bul */
+  const hedef = await page.evaluate(() => {
+    const list = [...document.querySelectorAll('#anStage [data-kas]')].filter(e => e.getAttribute('aria-pressed') !== 'true');
+    for (const el of list) {
+      const bb = el.getBBox(), svg = el.ownerSVGElement, ctm = el.getScreenCTM();
+      if (!ctm) continue;
+      for (let i = 1; i < 12; i++) for (let j = 1; j < 12; j++) {
+        const pt = svg.createSVGPoint();
+        pt.x = bb.x + (bb.width * i) / 12;
+        pt.y = bb.y + (bb.height * j) / 12;
+        if (!el.isPointInFill(pt)) continue;
+        const ek = pt.matrixTransform(ctm);
+        if (document.elementFromPoint(ek.x, ek.y) !== el) continue;
+        return { slug: el.getAttribute('data-kas'), x: ek.x, y: ek.y };
+      }
+    }
+    return null;
+  });
+
+  if (!hedef) { rec('M14 seçim', `@${w} kaydırmadan tıklanabilir bölge bulunamadı`); await ctx.close(); continue; }
+
+  const once = await page.evaluate(() => ({
+    metin: document.querySelector('.an-sec[data-alan="hareketler"]').textContent.replace(/\s+/g, ' ').trim(),
+    sy: window.scrollY
+  }));
+
+  await page.mouse.click(hedef.x, hedef.y);
+  await page.waitForTimeout(200);
+
+  const sonra = await page.evaluate(() => {
+    const band = document.querySelector('.an-sec[data-alan="hareketler"]');
+    const r = band.getBoundingClientRect();
+    const bn = document.querySelector('.bottom-nav');
+    const bnTop = bn && getComputedStyle(bn).position === 'fixed' && bn.getBoundingClientRect().height > 10
+      ? Math.round(bn.getBoundingClientRect().top) : null;
+    return {
+      metin: band.textContent.replace(/\s+/g, ' ').trim(),
+      top: Math.round(r.top), bottom: Math.round(r.bottom),
+      kart: band.querySelectorAll('.an-card').length,
+      vh: window.innerHeight, sy: window.scrollY, bnTop,
+      live: document.getElementById('anLive').textContent.trim(),
+      ad: document.querySelector('#anAd')?.textContent.trim()
+    };
+  });
+
+  const sorun = [];
+  if (sonra.sy !== once.sy) sorun.push(`sayfa kendiliğinden kaydı (${once.sy} → ${sonra.sy})`);
+  if (sonra.metin === once.metin) sorun.push('hareket listesi seçimden sonra DEĞİŞMEDİ');
+  if (!(sonra.top < sonra.vh)) sorun.push(`band.top ${sonra.top} ≥ innerHeight ${sonra.vh}`);
+  if (sonra.bnTop !== null && !(sonra.top < sonra.bnTop)) sorun.push(`band.top ${sonra.top} sabit alt çubuğun (top ${sonra.bnTop}) altında`);
+  if (sonra.kart < 1) sorun.push('bantta hareket kartı yok');
+  if (!/hareket listelendi|hareket yok/.test(sonra.live)) sorun.push(`#anLive bildirimi beklenen biçimde değil: "${sonra.live}"`);
+
+  if (!sorun.length)
+    ok(`@${w} seçim (${hedef.slug} → "${sonra.ad}") sonrası hareket listesi KAYDIRMADAN görünür — band.top ${sonra.top} < ${sonra.bnTop !== null ? 'alt çubuk ' + sonra.bnTop : 'innerHeight ' + sonra.vh}, ${sonra.kart} kart, aria-live doğru`);
+  else rec('M14 seçim görünürlüğü', `@${w} → ` + sorun.join(' | '));
+
+  /* --- 14 · M15 sağlık notu --- */
+  const not = await page.evaluate(() => {
+    const n = document.querySelector('.hr-note');
+    if (!n) return { yok: true };
+    const sec = n.closest('.sec');
+    const grid = document.querySelector('.an-grid');
+    const nr = n.getBoundingClientRect(), sr = sec.getBoundingClientRect(), gr = grid.getBoundingClientRect();
+    return {
+      ust: Math.round(nr.top - gr.bottom),
+      alt: Math.round(sr.bottom - nr.bottom),
+      link: n.querySelector('a[href="saglik-bilgilendirme-v1.html"]') ? 1 : 0,
+      metin: n.textContent.replace(/\s+/g, ' ').trim().length,
+      ayriSection: document.querySelectorAll('#anCardsSec').length
+    };
+  });
+  if (not.yok) rec('M15 sağlık notu', `@${w} .hr-note DOM'da yok — uyarı kayboldu`);
+  else {
+    const s2 = [];
+    if (!not.link) s2.push('saglik-bilgilendirme-v1.html bağlantısı yok');
+    if (not.metin < 100) s2.push(`uyarı metni kısaldı (${not.metin} karakter)`);
+    if (Math.abs(not.ust - not.alt) > 2) s2.push(`dikey boşluk simetrik değil: üst ${not.ust} · alt ${not.alt}`);
+    if (!s2.length) ok(`@${w} sağlık notu duruyor — üst ${not.ust} px · alt ${not.alt} px (fark ${Math.abs(not.ust - not.alt)}), bağlantı var`);
+    else rec('M15 sağlık notu', `@${w} → ` + s2.join(' | '));
+  }
+
   await ctx.close();
 }
 

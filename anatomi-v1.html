@@ -38,19 +38,28 @@
  1 · İKİ KOLON — SOL harita · SAĞ panel
  Mobil (≤900px) tek kolon; harita DOM'da ZATEN önce geldiği için
  sırayı bozacak bir `order` kuralına gerek yok (@390 harita üstte).
- --------------------------------------------------------------- */
-.an-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:30px;align-items:start}
-@media (max-width:900px){ .an-grid{grid-template-columns:1fr;gap:22px} }
 
-/* ---- SOL: harita kutusu ---- */
-.an-map{position:sticky;top:104px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:16px 16px 10px;min-width:0}
-@media (max-width:900px){ .an-map{position:static;top:auto} }
+ R6 · M14/geçiş 3 — ızgara ÖLÇÜLEN referansa hizalandı.
+ dadagastro.com/tarif/… `.rd-cols`: 744 px içerik + 48 px boşluk +
+ 384 px yapışkan panel = 1176 px; align-items:start; sticky top 132 px.
+ Burada roller ayna: yapışkan olan SOL harita (384), akan içerik SAĞ
+ panel (744). Boşluk 30 → 48, kolonlar 420/1fr → 384/1fr.
+ --------------------------------------------------------------- */
+.an-grid{display:grid;grid-template-columns:minmax(0,384px) minmax(0,1fr);gap:48px;align-items:start}
+@media (max-width:900px){ .an-grid{grid-template-columns:1fr;gap:18px} }
+
+/* ---- SOL: harita kutusu ----
+ R6/geçiş 3: `top:104px` ölçüldüğünde sabit başlığın alt kenarı 113 px'ti,
+ yani yapışan kartın üst 9 px'i başlığın altına giriyordu. Referansın
+ (`.ing-panel`) yapışma payı 132 px; buradaki karşılığı 133 px. */
+.an-map{position:sticky;top:133px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:16px 16px 10px;min-width:0}
+@media (max-width:900px){ .an-map{position:static;top:auto;padding:12px 12px 8px} }
 
 /* geçiş rayları — ÖN/ARKA ve Erkek/Kadın */
-.an-switches{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.an-switches{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:14px}
 .an-seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px;gap:3px}
 .an-seg button{appearance:none;border:0;background:transparent;cursor:pointer;font:inherit;
-  padding:8px 15px;border-radius:calc(var(--radius-md) - 3px);font-size:13px;font-weight:700;color:var(--muted);
+  padding:8px 13px;border-radius:calc(var(--radius-md) - 3px);font-size:13px;font-weight:700;color:var(--muted);
   display:inline-flex;align-items:center;gap:7px;transition:.18s var(--ease);min-height:36px}
 .an-seg button i{font-size:12px}
 .an-seg button:hover{color:var(--fit-deep)}
@@ -58,29 +67,62 @@
 .an-seg button[aria-pressed="true"]:hover{background:var(--fit-deep);color:#fff}
 .an-seg button:focus-visible{outline:2px solid var(--fit-deep);outline-offset:2px}
 
-/* çizim alanı */
-.an-stage{position:relative;background:linear-gradient(180deg,#f7f8f7,#eef1ef);border-radius:var(--radius-md);padding:10px 6px}
-.an-harita{display:block;width:100%;height:auto;max-height:min(62vh,620px);margin:0 auto}
-@media (max-width:900px){ .an-harita{max-height:none} }
+/* çizim alanı — "plaka".
+   R6 · M14/geçiş 2: eskiden kolon genişliğinde bir kutuydu ve zemini
+   sayfaya özel bir gradyandı (#f7f8f7→#eef1ef, token dışı iki literal).
+   Şimdi zemin site token'ı (--bg) ve plaka çizimin kendi genişliğine
+   çekiliyor (width:fit-content) — boş plaka kalmıyor. */
+.an-stage{width:fit-content;max-width:100%;margin:0 auto;background:var(--bg);border-radius:var(--radius-md);padding:10px 6px}
+@media (max-width:900px){ .an-stage{padding:8px 6px} }
+.an-harita{display:block;height:min(62vh,620px);width:auto;max-width:100%;margin:0 auto}
+/* @390 · R6 madde 21 ile YENİDEN ÖLÇÜLDÜ.
+   Eski değer min(40vh,360px) haritayı 185 px genişliğe düşürüyordu; iki
+   katmanlı haritada ince kaslar (adduktor · brachioradialis · tibialis)
+   o boyutta tıklanamaz oluyordu. Yükseklik 52vh'ye çıkarıldı — dokunma
+   hedefleri büyüdü, M14 garantisi (seçimden sonra hareket bandının
+   kaydırmadan görünmesi) sınamayla yeniden doğrulandı. */
+@media (max-width:900px){ .an-harita{height:min(52vh,470px)} }
 
-/* siluet: nötr gövde — kas bölgelerinin altında */
-.an-siluet .an-govde{fill:#d9ded9;stroke:#b9c1b9;stroke-width:1.2;stroke-linejoin:round}
-.an-cizgi path{fill:none;stroke:#b9c1b9;stroke-width:1;stroke-dasharray:3 4;opacity:.38}
+/* ===== R6 · MADDE 21 — İKİ KATMANLI HARİTA =====
+   1. .an-govde  : görünen gövde. Higgsfield ile üretilmiş nötr kas render'ı,
+      SVG'nin içinde <image> olarak. BOYANMAZ — nötr kalır.
+   2. .an-bolge  : tıklama hedefi + vurgu boyası. Varsayılan dolgu SAYDAM,
+      yani seçilmemiş kasın üstünde hiç boya yoktur (referans: musclewiki).
+   Eski soyut siluet (.an-siluet / .an-cizgi) kaldırıldı; render onun yerini
+   aldı ve path'ler render'dan segmentlenerek çıkarıldığı için birebir hizalı. */
+.an-govde{pointer-events:none}
 
-/* KAS BÖLGELERİ — renk sayfadan sürülüyor, SVG'de sabit renk yok */
-.an-bolge{color:var(--fit);fill:currentColor;fill-opacity:.30;stroke:#8f9a8f;stroke-width:1;
-  cursor:pointer;transition:fill-opacity .16s var(--ease),stroke .16s var(--ease)}
-.an-bolge:hover{color:var(--fit-deep);fill-opacity:.62;stroke:var(--fit-deep)}
-.an-bolge:focus-visible{outline:none;stroke:var(--fit-deep);stroke-width:2.4;fill-opacity:.55}
-.an-bolge[aria-pressed="true"]{color:var(--fit);fill-opacity:.92;stroke:var(--fit-deep);stroke-width:1.8}
+.an-bolge{fill:transparent;stroke:none;cursor:pointer;
+  transition:fill .16s var(--ease)}
+.an-bolge:hover{fill:color-mix(in srgb,var(--fit) 34%,transparent)}
+.an-bolge:focus-visible{outline:none;fill:color-mix(in srgb,var(--fit) 46%,transparent);
+  stroke:var(--fit-deep);stroke-width:3}
+.an-bolge[aria-pressed="true"]{fill:var(--fit-deep)}
+.an-bolge[aria-pressed="true"]:hover{fill:var(--fit-deep)}
+/* color-mix desteklemeyen tarayıcı için düz yedek */
+@supports not (color: color-mix(in srgb, red 50%, transparent)){
+  .an-bolge:hover{fill:rgba(0,166,81,.34)}
+  .an-bolge:focus-visible{fill:rgba(0,166,81,.46)}
+}
 
-.an-hint{margin:9px 2px 0;font-size:12px;color:var(--muted);font-weight:600;text-align:center;line-height:1.5}
+.an-hint{margin:9px 2px 0;font-size:12px;color:var(--muted);font-weight:600;text-align:center;text-align-last:center;line-height:1.5}
+.an-hint .an-hint-dokunma{display:none}
+@media (max-width:900px){
+  .an-hint .an-hint-klavye{display:none}
+  .an-hint .an-hint-dokunma{display:inline}
+}
 .an-hint kbd{font-family:inherit;font-size:11px;font-weight:800;background:var(--bg);border:1px solid var(--line);
-  border-bottom-width:2px;border-radius:5px;padding:1px 5px;color:var(--slate-2)}
+  border-bottom-width:2px;border-radius:var(--radius-badge);padding:1px 5px;color:var(--slate-2)}
 
 /* ---- SAĞ: ansiklopedik panel ---- */
 .an-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden;min-width:0}
-.an-panel-head{padding:22px 26px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--fit-tint),transparent)}
+/* R6/geçiş 3 — künye zemininden `linear-gradient(--fit-tint→transparent)`
+   ÇIKARILDI. Hareket bandı (--bg) künyenin hemen altına geldiğinde iki
+   yumuşak zemin yan yana düşüyor ve sınır bulanıyordu. Panelde tek
+   renkli alan kalsın: beyaz künye → gri hareket bandı → beyaz künye
+   metni. Geri almak için satıra `background:linear-gradient(180deg,
+   var(--fit-tint),transparent)` eklemek yeter. */
+.an-panel-head{padding:22px 26px 18px;border-bottom:1px solid var(--line)}
 .an-eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.08em;
   text-transform:uppercase;color:var(--fit-deep);margin-bottom:8px}
 .an-panel-head h2{font-size:24px;line-height:1.2;margin:0 0 6px}
@@ -101,9 +143,11 @@
 .an-kunye .v{font-size:14px;line-height:1.68;color:var(--slate-2)}
 @media (max-width:520px){ .an-kunye div{grid-template-columns:1fr;gap:3px} }
 
-/* çip listeleri — komşu kaslar ve ekipman */
+/* çip listeleri — komşu kaslar ve ekipman
+   R6 · M13: yarıçap 999 px (tam hap) idi; K24 uyarınca çip ailesi
+   --radius-chip (12 px). Elle sayı yok, token. */
 .an-chips{display:flex;flex-wrap:wrap;gap:8px}
-.an-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;border-radius:999px;
+.an-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;border-radius:var(--radius-chip);
   border:1px solid var(--line);background:var(--bg);font-size:13px;font-weight:700;color:var(--slate-2);
   cursor:pointer;transition:.18s var(--ease);font-family:inherit;appearance:none}
 .an-chip i{font-size:11px;color:var(--fit)}
@@ -111,34 +155,79 @@
 .an-chip:hover i{color:var(--fit-deep)}
 .an-chip:focus-visible{outline:2px solid var(--fit-deep);outline-offset:2px}
 
-/* güvenlik notu */
-.an-uyari{display:flex;gap:13px;align-items:flex-start;background:#fff6ec;border:1px solid #f0d9bd;
-  border-radius:var(--radius-md);padding:15px 17px}
-.an-uyari i{color:#c97a19;font-size:15px;margin-top:2px;flex:none}
-.an-uyari p{font-size:13.5px;line-height:1.68;color:#6b4a1c;margin:0}
-
-.an-kaynak{margin-top:16px;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.6}
-.an-kaynak i{color:var(--fit);margin-right:6px}
+/* güvenlik notu — R6 · M12.
+   ÖNCE: sarı/kehribar kutu (zemin #fff6ec · kenar #f0d9bd · ikon #c97a19 ·
+   metin #6b4a1c) — dördü de token dışı literaldi ve sayfanın yeşil-nötr
+   diline yabancıydı. ŞİMDİ: kutu yok; metin panelin kendi tipografik
+   ritmine giriyor, tek ayırt edici işaret sol kenardaki --fit rayı.
+   Panelde başka sol ray yok → "bu bölüm bilgi değil, öğüt" ayrımı. */
+.an-uyari{border-left:2px solid var(--fit);padding-left:16px}
+.an-uyari p{font-size:14.5px;line-height:1.72;color:var(--slate-2);margin:0;text-align:left}
 
 /* ---------------------------------------------------------------
- 2 · ALT — seçili kasla ilgili hareket kartları ızgarası
+ 2 · HAREKET BANDI — seçili kası çalıştıran hareketler
+ R6 · M14: eskiden sayfanın altında ayrı bir section'dı (#anCardsSec,
+ @1440'ta 1619 px'te başlıyordu → ekranın dışı) ve panelde ikinci kez
+ çip listesi olarak da basılıyordu. Artık TEK yerde: panelin başında,
+ kas adının hemen altında. Kas değişince aynı ekranda değişiyor.
  --------------------------------------------------------------- */
-.an-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
-.an-card{display:flex;flex-direction:column;gap:9px;background:var(--paper);border:1px solid var(--line);
-  border-radius:var(--radius-lg);padding:19px 20px;box-shadow:var(--sh-sm);transition:.2s var(--ease)}
+.an-hrk{background:var(--bg);border-bottom:1px solid var(--line);padding:18px 26px 20px}
+.an-hrk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px}
+.an-hrk-head h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);margin:0}
+.an-hrk-head h3 i{color:var(--fit);font-size:12px;width:14px;text-align:center}
+.an-hrk-head a{font-size:12.5px;font-weight:700;color:var(--fit-deep);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;min-height:32px}
+.an-hrk-head a:hover{text-decoration:underline;text-underline-offset:2px}
+.an-hrk-head a i{font-size:10px}
+
+.an-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+/* Veride kas başına 2 (11 kas) · 3 (16 kas) · 4 (2 kas) hareket var.
+   auto-fill üç track açıp iki kartta boş kolon bırakıyordu; kolon sayısı
+   kart sayısından türetiliyor → yetim track yok. */
+.an-cards[data-n="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){ .an-cards[data-n="3"]{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:900px){ .an-cards,.an-cards[data-n="3"]{grid-template-columns:minmax(0,1fr)} }
+.an-card{display:flex;flex-direction:column;gap:8px;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--sh-sm);transition:.2s var(--ease)}
 .an-card:hover{border-color:var(--fit);transform:translateY(-3px);box-shadow:var(--sh-md)}
-.an-card .an-card-ico{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;
-  background:var(--fit-tint);color:var(--fit-deep);font-size:16px}
+.an-card .an-card-ico{width:34px;height:34px;border-radius:var(--radius-md);display:grid;place-items:center;
+  background:var(--fit-tint);color:var(--fit-deep);font-size:14px}
 .an-card b{font-size:15.5px;color:var(--slate);line-height:1.3}
 .an-card:hover b{color:var(--fit-deep)}
-.an-card span{font-size:12.5px;color:var(--muted);font-weight:600}
-.an-card .an-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:auto;padding-top:6px;font-size:12px;color:var(--muted);font-weight:600}
+.an-card > span{font-size:12.5px;color:var(--muted);font-weight:600}
+.an-card .an-card-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:auto;padding-top:6px;font-size:12px;color:var(--muted);font-weight:600}
 .an-card .an-card-meta i{color:var(--fit);margin-right:5px;font-size:11px}
 
-.an-sec-head{margin-bottom:20px}
-.an-sec-head .eyebrow{margin-bottom:9px}
-.an-sec-head h2{font-size:26px;margin:0 0 7px}
-.an-sec-head p{font-size:14.5px;color:var(--muted);font-weight:500;line-height:1.65;margin:0;max-width:70ch}
+/* dürüst boş durum — veride hareket yoksa uydurma kart basılmaz */
+.an-hrk .an-bos{font-size:13.5px;line-height:1.7;color:var(--muted);font-weight:600;margin:0;text-align:left}
+
+@media (max-width:900px){
+  .an-hrk{padding:15px 18px 17px}
+  .an-hrk-head{flex-wrap:wrap;margin-bottom:9px}
+  .an-hrk-head a{min-height:44px}
+  /* uzun büyük harfli başlık @390'da iki satıra kırılıyordu; bandın
+     üst yüksekliği hareket kartlarını ekranın dışına itiyor. */
+  .an-hrk-uzun{display:none}
+  /* dokunma hedefi: çip ve geçiş düğmeleri 36 px ölçüldü → 44 px.
+     Harita bölgeleri mobilde küçüldüğü için komşu-kas çipleri gezinmenin
+     asıl yolu; 36 px'lik hedefle bırakılamazdı. */
+  .an-chip{min-height:44px;padding:0 15px}
+  .an-seg button{min-height:44px}
+  .an-panel-head{padding:14px 18px 12px}
+  .an-panel-head h2{font-size:21px;margin-bottom:3px}
+  /* bölge künyesi @390'da gizli: kullanıcı bölgeye AZ ÖNCE dokundu,
+     bilgi yinelenmiş oluyor — kazanılan yükseklik hareket kartlarını
+     alt gezinme çubuğunun üstüne çıkarıyor. */
+  .an-eyebrow{display:none}
+  .an-latin{font-size:13px}
+  .an-panel-body{padding:4px 18px 20px}
+}
+
+/* sağlık notu — R6 · M15.
+   Kabuk `.hr-note`'a margin-top:34px veriyor; burada section'ın kendi
+   dikey dolgusuna (--sec-pad) eşitleniyor: üst boşluk = alt boşluk. */
+.an-note{margin-top:var(--sec-pad)}
 
 /* ekran okuyucu bildirimi */
 .an-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -189,34 +278,26 @@
           </div>
         </div>
         <div class="an-stage" id="anStage"><!-- SVG buraya yüklenir --></div>
-        <p class="an-hint">Bölgeye tıkla ya da <kbd>Tab</kbd> ile gez, <kbd>Enter</kbd> ile seç. Ok tuşları komşu bölgeye geçer.</p>
+        <p class="an-hint"><span class="an-hint-klavye">Bölgeye tıkla ya da <kbd>Tab</kbd> ile gez, <kbd>Enter</kbd> ile seç. Ok tuşları komşu bölgeye geçer.</span><span class="an-hint-dokunma">Gövdede bir bölgeye dokun.</span></p>
       </div>
 
-      <!-- SAĞ: ansiklopedik panel -->
-      <article class="an-panel" id="anPanel" aria-live="polite">
+      <!-- SAĞ: ansiklopedik panel.
+           `aria-live` KALDIRILDI (R6 · M14): panelin tamamı canlı bölge
+           olduğunda kas değişiminde ekran okuyucu bütün künyeyi baştan
+           okuyordu. Bildirim tek yerden, #anLive'dan veriliyor. -->
+      <article class="an-panel" id="anPanel">
         <!-- JS basar -->
       </article>
 
     </div>
-  </div>
-</section>
 
-<!-- ===== 3 · SEÇİLİ KASI ÇALIŞTIRAN HAREKETLER ===== -->
-<section class="sec sec-fit" id="anCardsSec">
-  <div class="wrap">
-    <div class="an-sec-head">
-      <span class="eyebrow"><i class="fa-solid fa-dumbbell"></i> Kütüphaneden</span>
-      <h2 id="anCardsTitle">Bu kası çalıştıran hareketler</h2>
-      <p id="anCardsLead">Seçili kası doğrudan hedefleyen ya da belirgin biçimde devreye sokan hareketler. Her kart egzersiz kütüphanesindeki tam anlatıma gider.</p>
-    </div>
-    <div class="an-cards" id="anCards"><!-- JS basar --></div>
-  </div>
-</section>
-
-<!-- ===== 4 · KAYNAK VE YASAL ŞERİT ===== -->
-<section class="sec sec-fit" style="background:var(--bg-white);padding-top:0">
-  <div class="wrap">
-    <div class="hr-note">
+    <!-- ===== 3 · SAĞLIK NOTU (R6 · M15) =====
+         Eskiden kendi section'ındaydı (`padding-top:0`) → üstünde 84 px,
+         altında 50 px boşluk kalıyordu. Artık haritanın section'ının
+         içinde ve üst boşluğu section'ın kendi alt dolgusuna eşit
+         (`margin-top:var(--sec-pad)`), yani dikeyde simetrik.
+         Uyarı metni ve saglik-bilgilendirme bağlantısı AYNEN duruyor. -->
+    <div class="hr-note an-note">
       <i class="fa-solid fa-shield-heart"></i>
       <p>Bu sayfa <b>anatomik bilgilendirme</b> amaçlıdır; teşhis, tedavi ya da kişiye özel antrenman reçetesi değildir. Ağrı, sakatlık geçmişi, özel bir sağlık durumu, gebelik ya da uzun süreli hareketsizlik varsa çalışmaya başlamadan önce bir hekime ya da fizyoterapiste danış. Ayrıntı: <a href="saglik-bilgilendirme-v1.html">Sağlık Bilgilendirmesi</a>.</p>
     </div>
@@ -257,8 +338,6 @@
   var KAS = V.kaslar, HRK = V.hareketler, HARITA = V.haritalar;
   var stage = document.getElementById('anStage');
   var panel = document.getElementById('anPanel');
-  var kartlar = document.getElementById('anCards');
-  var kartBaslik = document.getElementById('anCardsTitle');
   var live = document.getElementById('anLive');
   var statlar = document.getElementById('anStats');
 
@@ -366,10 +445,11 @@
     if (gorunumDegisti) haritaYukle().then(sonra); else sonra();
 
     panelBas(slug);
-    kartBas(slug);
     urlYaz();
+    var n = (veri.hareketler || []).filter(function (h) { return !!HRK[h]; }).length;
     live.textContent = veri.ad + ' seçildi. ' +
-      (veri.gorunum === 'on' ? 'Ön' : 'Arka') + ' görünüm.';
+      (veri.gorunum === 'on' ? 'Ön' : 'Arka') + ' görünüm. ' +
+      (n ? n + ' hareket listelendi.' : 'Kütüphanede bu kası hedefleyen hareket yok.');
   }
 
   function segGuncelle() {
@@ -382,7 +462,7 @@
   }
 
   /* =================================================================
-     3 · PANEL — ansiklopedik altı alan + kaynak
+     3 · PANEL — hareket bandı + ansiklopedik alanlar
      ================================================================= */
   function panelBas(slug) {
     var k = KAS[slug];
@@ -393,9 +473,19 @@
              '<i class="fa-solid fa-arrow-right-long"></i>' + esc(KAS[s].ad) + '</button>';
     }).join('');
 
-    var hareket = (k.hareketler || []).filter(function (s) { return !!HRK[s]; }).map(function (s) {
-      return '<a class="an-chip" href="egzersiz-detay-v1.html?slug=' + esc(s) + '">' +
-             '<i class="' + esc(HRK[s].ikon) + '"></i>' + esc(HRK[s].ad) + '</a>';
+    /* R6 · M14 — hareketler artık ÇİP değil KART, ve panelin başında.
+       Sayfada tek yerde basılıyor; alttaki #anCardsSec kaldırıldı. */
+    var hrkSlug = (k.hareketler || []).filter(function (s) { return !!HRK[s]; });
+    var hareket = hrkSlug.map(function (s) {
+      var h = HRK[s];
+      return '<a class="an-card" href="egzersiz-detay-v1.html?slug=' + esc(s) + '">' +
+             '<span class="an-card-ico"><i class="' + esc(h.ikon) + '"></i></span>' +
+             '<b>' + esc(h.ad) + '</b>' +
+             '<span>' + esc(h.alt) + '</span>' +
+             '<span class="an-card-meta">' +
+               '<span><i class="fa-solid fa-toolbox"></i>' + esc(h.ekipman) + '</span>' +
+               '<span><i class="fa-solid fa-stopwatch"></i>' + esc(h.sure) + '</span>' +
+             '</span></a>';
     }).join('');
 
     var ekipman = (k.ekipman || []).map(function (e) {
@@ -409,6 +499,19 @@
         '<h2 id="anAd">' + esc(k.ad) + '</h2>' +
         '<p class="an-latin" id="anLatin">' + esc(k.latin) + '</p>' +
       '</div>' +
+
+      /* HAREKET BANDI — panelin ilk içerik alanı. Kas değişince başlık,
+         sayaç ve kart listesi birlikte değişiyor; değişim aynı ekranda. */
+      '<div class="an-hrk an-sec" data-alan="hareketler">' +
+        '<div class="an-hrk-head">' +
+          '<h3><i class="fa-solid fa-dumbbell"></i><span>Kütüphaneden<span class="an-hrk-uzun"> — bu kası çalıştıran hareketler</span></span></h3>' +
+          '<a href="egzersiz-kutuphane-v1.html">Tüm hareketler <i class="fa-solid fa-arrow-right-long"></i></a>' +
+        '</div>' +
+        (hrkSlug.length
+          ? '<div class="an-cards" data-n="' + hrkSlug.length + '">' + hareket + '</div>'
+          : '<p class="an-bos">Kütüphanedeki 25 hareketin hiçbiri bu kası birincil hedef olarak almıyor. Kütüphane büyüdükçe burası dolacak.</p>') +
+      '</div>' +
+
       '<div class="an-panel-body">' +
 
         '<div class="an-sec" data-alan="fonksiyon">' +
@@ -429,11 +532,6 @@
           '<div class="an-chips">' + komsu + '</div>' +
         '</div>' +
 
-        '<div class="an-sec" data-alan="hareketler">' +
-          '<h3><i class="fa-solid fa-dumbbell"></i> Bu kası çalıştıran hareketler</h3>' +
-          '<div class="an-chips">' + hareket + '</div>' +
-        '</div>' +
-
         '<div class="an-sec" data-alan="ekipman">' +
           '<h3><i class="fa-solid fa-toolbox"></i> Kullanılabilecek ekipman</h3>' +
           '<div class="an-chips">' + ekipman + '</div>' +
@@ -441,32 +539,13 @@
 
         '<div class="an-sec" data-alan="guvenlik">' +
           '<h3><i class="fa-solid fa-triangle-exclamation"></i> Sık yapılan hata ve güvenlik notu</h3>' +
-          '<div class="an-uyari"><i class="fa-solid fa-circle-exclamation"></i><p>' + esc(k.guvenlik) + '</p></div>' +
-          '<p class="an-kaynak"><i class="fa-solid fa-book"></i>Anatomik veri kaynağı: Delavier, <i>Krachttraining — Een anatomische benadering</i> · ' + esc(k.kaynak) + '</p>' +
+          /* R6 · M11 — "Anatomik veri kaynağı: …" satırı EKRANA BASILMIYOR.
+             Verideki `kaynak` alanı DURUYOR (K38 sözleşmesi, 29/29 kayıt);
+             izlenebilirlik veride, künye ekranda değil. */
+          '<div class="an-uyari"><p>' + esc(k.guvenlik) + '</p></div>' +
         '</div>' +
 
       '</div>';
-  }
-
-  /* =================================================================
-     4 · ALT IZGARA — hareket kartları
-     ================================================================= */
-  function kartBas(slug) {
-    var k = KAS[slug];
-    if (!k) return;
-    kartBaslik.textContent = k.ad + ' — çalıştıran hareketler';
-    kartlar.innerHTML = (k.hareketler || []).filter(function (s) { return !!HRK[s]; })
-      .map(function (s) {
-        var h = HRK[s];
-        return '<a class="an-card" href="egzersiz-detay-v1.html?slug=' + esc(s) + '">' +
-               '<span class="an-card-ico"><i class="' + esc(h.ikon) + '"></i></span>' +
-               '<b>' + esc(h.ad) + '</b>' +
-               '<span>' + esc(h.alt) + '</span>' +
-               '<span class="an-card-meta">' +
-                 '<span><i class="fa-solid fa-toolbox"></i>' + esc(h.ekipman) + '</span>' +
-                 '<span><i class="fa-solid fa-stopwatch"></i>' + esc(h.sure) + '</span>' +
-               '</span></a>';
-      }).join('');
   }
 
   /* =================================================================
@@ -541,7 +620,7 @@
     segGuncelle();
     haritaYukle().then(function () { isaretle(); });
     durum.kas = slug;
-    panelBas(slug); kartBas(slug);
+    panelBas(slug);
   });
 
   var ilk = urldenOku();
@@ -549,7 +628,6 @@
   durum.gorunum = KAS[ilk].gorunum;
   segGuncelle();
   panelBas(ilk);
-  kartBas(ilk);
   haritaYukle().then(function () { isaretle(); }).catch(function (err) {
     stage.innerHTML = '<p class="an-hint">Gövde haritası yüklenemedi: ' + esc(err.message) + '</p>';
   });

@@ -76,7 +76,7 @@
     'trapez-ust': {
       ad: 'Üst Trapez (Kukuleta kası, üst lif)',
       latin: 'Musculus trapezius, pars descendens (superior)',
-      gorunum: 'on',
+      gorunum: 'arka',
       bolge: 'Omuz kuşağı',
       fonksiyon: 'Trapez, ense çukurundan bel omurlarına inen ve iki yanda kürek kemiğine tutunan büyük eşkenar dörtgen kastır. Delavier plate\'i onu üç lif takımına ayırıyor: superior, medialis, inferior. Üst lifler omzu yukarı çeker (silkme hareketi), kolu baş üstüne kaldırırken kürek kemiğini yukarı döndürür ve baş yana eğilirken boyun omurgasını dengeler.',
       koken: 'Kafatası arkasındaki occipital kemik ve boyun omurlarının dikensi çıkıntıları — plate\'te "Vertebra cervicalis VII (processus spinosus)" olarak işaretli (PDF s. 4).',
@@ -126,11 +126,26 @@
       fonksiyon: 'Göğüs kafesinin ön yüzünü yelpaze gibi kaplayan, köprücük kemiği ve göğüs kemiğinden başlayıp kol kemiğine tek bir tendonla toplanan büyük kastır. Kolu gövdeye doğru içeri toplar (addüksiyon), öne iter ve içe döndürür. Delavier ön plate\'i onu iki lif takımıyla gösteriyor: clavicular (üst) ve sternocostal/abdominal (alt) — plate\'te "Pectoralis major (pars abdominalis)" ayrıca etiketli.',
       koken: 'Clavicula\'nın iç yarısı, sternum ve üst kaburga kıkırdakları — ön karın plate\'inde "Sternum", "Costa", "Ribkraakbeen" (kaburga kıkırdağı) etiketleriyle (PDF s. 5 · 117 · 120).',
       yapisma: 'Humerus\'un üst dış kenarı, deltoid tutunmasının hemen içinde (PDF s. 31).',
-      komsu: ['deltoid-on', 'serratus', 'triceps', 'karin-duz'],
+      komsu: ['gogus-ust', 'deltoid-on', 'serratus', 'karin-duz'],
       hareketler: ['sinav', 'dambil-omuz-press'],
       ekipman: ['Ekipmansız', 'Dambıl', 'Mat'],
       guvenlik: 'Şınavda göğsü çok derine indirip omuz başını öne kaydırmak kapsül ve rotator manşeti zorlar. Kürek kemiklerini geride tut, dirsekleri gövdeye 45° civarında yaklaştır — 90°\'lik "T" duruşu omuza yüklenir.',
       kaynak: 'PDF s. 5 · 31 · 49 · 63 · 120'
+    },
+
+    'gogus-ust': {
+      ad: 'Üst Göğüs (Büyük göğüs kası, köprücük başı)',
+      latin: 'Musculus pectoralis major, pars clavicularis',
+      gorunum: 'on',
+      bolge: 'Göğüs',
+      fonksiyon: 'Büyük göğüs kasının köprücük kemiğinden başlayan üst lif takımıdır. Delavier ön plate\'i pectoralis major\'u tek bir kütle olarak değil, farklı yönde seyreden lif takımlarıyla çiziyor; plate\'te alt takım "Pectoralis major (pars abdominalis)" olarak ayrıca etiketlenmiş, üst takım ise clavicula boyunca yukarı doğru uzanıyor. Üst lifler kolu öne ve YUKARI iter — alt lifler kolu öne ve aşağı çekerken üst lifler omuz hizasının üstündeki itişi üstlenir. Bu yüzden eğik (incline) itiş hareketlerinde payı düz itişe göre belirgin biçimde artar.',
+      koken: 'Clavicula\'nın iç (sternuma bakan) yarısı — ön plate\'te "Clavicula" adıyla etiketli (PDF s. 5).',
+      yapisma: 'Humerus\'un üst dış kenarında, göğüs kasının ortak tendonunun üst şeridi olarak (PDF s. 31).',
+      komsu: ['gogus', 'deltoid-on', 'boyun', 'trapez-ust'],
+      hareketler: ['sinav', 'dambil-omuz-press'],
+      ekipman: ['Ekipmansız', 'Dambıl', 'Mat'],
+      guvenlik: 'Üst göğsü hedefleyen eğik itişlerde eğim açısını abartma; 45°\'nin üstünde yük göğüsten çıkıp ön deltoide geçer ve omuz önü zorlanır. Şınavda ayakları yükseltip aynı etkiyi ararken belin çökmesine izin verme.',
+      kaynak: 'PDF s. 5 · 31'
     },
 
     'serratus': {
@@ -161,6 +176,21 @@
       ekipman: ['Dambıl', 'Direnç bandı'],
       guvenlik: 'Curl\'de gövdeyi sallayıp beli hiperekstansiyona sokmak biceps\'ten yükü alır, bele verir. Dirseği gövde yanında sabitle, yükü indirirken tam gerilmeye zorlanmadan kontrollü bırak.',
       kaynak: 'PDF s. 1 (kitap 1) · 3 (PDF s. 11) · 5 · 55 (PDF s. 63)'
+    },
+
+    'brachioradialis': {
+      ad: 'Brachioradialis (Dirsek altı bükücü)',
+      latin: 'Musculus brachioradialis',
+      gorunum: 'on',
+      bolge: 'Ön kol',
+      fonksiyon: 'Kol kemiğinin dış alt ucundan başlayıp ön kolun dış kenarı boyunca bileğe kadar inen, dirseğin hemen altında belirgin bir kabartı yapan uzun kastır. Delavier hem ön hem arka plate\'te adıyla etiketliyor — yani ön koldan bakıldığında da, arkadan bakıldığında da yüzeysel görünür. Dirseği büker; en güçlü olduğu yer avuç içi ne yukarı ne aşağı bakan NÖTR duruştur (çekiç tutuşu). Biceps\'ten farkı budur: biceps avuç yukarıyken, brachioradialis nötr tutuşta baskındır.',
+      koken: 'Humerus\'un dış alt kenarı (crista supracondylaris lateralis) — ön plate\'te "Epicondylis lateralis" komşuluğunda etiketli (PDF s. 5).',
+      yapisma: 'Radius\'un alt ucu, bileğin başparmak tarafı — arka plate\'te "Radius" ve "Brachioradialis" olarak işaretli (PDF s. 4).',
+      komsu: ['biceps', 'on-kol-fleksor', 'on-kol-ekstansor', 'triceps'],
+      hareketler: ['ters-sinav', 'bant-cekme'],
+      ekipman: ['Direnç bandı', 'Ekipmansız'],
+      guvenlik: 'Ön kol kasları küçük ve hızlı yorulur; ağır tutuş gerektiren hareketlerde bileği geriye kırmadan nötr tut. Dirsek dış tarafında yanıcı ağrı (tenisçi dirseği) varsa tutuş çalışmasını artırma, dinlendir ve uzmana danış.',
+      kaynak: 'PDF s. 4 · 5'
     },
 
     'on-kol-fleksor': {

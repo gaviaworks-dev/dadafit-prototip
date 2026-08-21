@@ -1,153 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  DADAFIT — ERKEK GÖVDE · ÖN GÖRÜNÜM KAS HARİTASI            (H2 · 6. oturum)
-  ==========================================================================
-  DadaFit'in KENDİ çizimidir. Hazır anatomi görseli, stok illüstrasyon ya da
-  MuscleWiki varlığı kullanılmadı. Bölge sınırları, kas grubu ayrımı ve
-  yüzeysel katman düzeni Delavier "Krachttraining" plate'lerinden ŞABLON
-  olarak okundu (PDF s. 5 tam ön plate · s. 31 omuz · s. 63 göğüs/serratus ·
-  s. 86 bacak · s. 117 ve 120 karın) — çizimin kendisi kopyalanmadı.
+  DADAFIT — ERKEK GÖVDE · ÖN GÖRÜNÜM       (R6 · madde 21)
+  =========================================================================
+  İKİ KATMAN
+    1. <image class="an-govde">  görünen gövde. Higgsfield ile üretilmiş nötr
+       kas haritası. Boyanmaz, nötr kalır.
+    2. <path class="an-bolge">   tıklama hedefi ve vurgu boyası. Varsayılan
+       dolgu SAYDAM; seçilmemiş kasın üstünde boya yoktur.
 
-  KOORDİNAT SİSTEMİ — dört dosyada aynı: viewBox 0 0 400 900, orta hat x=200.
-  width/height SABİTLENMEZ; ölçek sayfadaki kaptan gelir.
+  KOORDİNAT: dört dosyada ortak viewBox 0 0 758 1380. Dört render ortak tuvale
+  NORMALİZE edildi; ölçek referansı gövde yüksekliği (baş tepesi → topuk =
+  1300 px), genişlik zorlanmadı. Normalize sonrası nirengi kayması:
+  omuz 16 · kalça 21 · kasık 11 · diz 3 px.
 
-  ERKEK SİLUET ÖLÇÜLERİ (kadın dosyasıyla karşılaştır):
-    omuz dış kenarı   x  80 ↔ 320   (deltoid dahil genişlik 240)
-    gövde omuz köşesi x 106 ↔ 294
-    bel  (y=356)      x 148 ↔ 252   (genişlik 104)
-    kalça(y=468)      x 130 ↔ 270   (genişlik 140)
-    omuz : kalça      ≈ 1,71  → ters üçgen (V) gövde
-    gövde boyu 148→468 = 320 px · bacak boyu 468→872 = 404 px
+  PATH'LER ELLE ÇİZİLMEDİ. Render düz renkli plakalardan oluştuğu için
+  görüntü segmentlendi (connectedComponents) ve plaka sınırları findContours
+  ile çıkarıldı; sadeleştirme toleransı 1.1 px. Kontur render'ın kendisinden
+  türüyor, hizasızlık mümkün değil.
+  Üreteç: tasks/anatomi-uretim/ (bolgeler.py + svg-yaz.py), yeniden koşturulabilir.
 
-  RENK SABİTLENMEZ: bölgeler fill="currentColor" taşır, opaklık sınıftan
-  gelir. Seçili ve hover renkleri sayfa CSS token’larından sürülür.
+  BOYAMA SIRASI alandan büyükten küçüğe: SVG'de sonraki path üste bindiği
+  için ince kaslar en sonda kalır, büyük komşusunun altında kaybolmaz.
+
+  Renk SVG'de sabitlenmez; dolgu sayfa CSS'inden gelir.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 900"
-     role="img" aria-labelledby="baslikErkekOn" class="an-harita" data-gorunum="on" data-cinsiyet="erkek"
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 758 1380" role="img" aria-labelledby="baslik-erkek-on"
+     class="an-harita" data-gorunum="on" data-cinsiyet="erkek"
      preserveAspectRatio="xMidYMid meet">
-  <title id="baslikErkekOn">Erkek gövde, ön görünüm — tıklanabilir kas haritası</title>
+  <title id="baslik-erkek-on">Erkek gövde, ön görünüm — tıklanabilir kas haritası</title>
 
-  <!-- KIRPMA KATMANI — kas bölgeleri siluetin DIŞINA taşamaz.
-       Bölge path'leri elle çizildiği için kenarlarda birkaç piksellik
-       taşma kaçınılmazdı; tek tek ovmak yerine bölge katmanı siluetin
-       birleşimine kırpılıyor. clipPath çocukları birleşim (union) olarak
-       davranır, <use> ile siluet şekillerinin ta kendisi kullanılıyor —
-       yani siluet değişirse kırpma da kendiliğinden değişir. -->
-  <defs>
-    <clipPath id="clipErkekOn">
-      <use href="#sErkekOn1"/>
-      <use href="#sErkekOn2"/>
-      <use href="#sErkekOn3"/>
-      <use href="#sErkekOn4"/>
-      <use href="#sErkekOn5"/>
-      <use href="#sErkekOn6"/>
-      <use href="#sErkekOn7"/>
-      <use href="#sErkekOn8"/>
-      <use href="#sErkekOn9"/>
-    </clipPath>
-  </defs>
+  <image class="an-govde" x="0" y="0" width="758" height="1380"
+         href="assets/img/anatomi/govde-erkek-on.png"
+         xlink:href="assets/img/anatomi/govde-erkek-on.png"/>
 
-  <!-- ================= SİLUET ================= -->
-  <g class="an-siluet" aria-hidden="true">
-    <ellipse id="sErkekOn1" class="an-govde" cx="200" cy="76" rx="35" ry="44"/>
-    <path id="sErkekOn2" class="an-govde" d="M180 108 C180 128 176 140 168 148 L232 148 C224 140 220 128 220 108 Z"/>
-    <path id="sErkekOn3" class="an-govde" d="M168 148 C140 156 116 170 106 192 C100 208 98 226 100 244
-       C104 268 122 282 134 300 C144 322 148 336 148 356 C148 382 152 400 160 416
-       C142 428 132 446 130 468 L270 468 C268 446 258 428 240 416
-       C248 400 252 382 252 356 C252 336 256 322 266 300 C278 282 296 268 300 244
-       C302 226 300 208 294 192 C284 170 260 156 232 148 Z"/>
-    <path id="sErkekOn4" class="an-govde" d="M106 190 C90 200 82 220 80 244 C77 276 74 312 72 344
-       C70 378 70 412 72 442 C73 462 74 476 78 494 C82 512 96 518 102 506
-       C106 496 106 484 108 470 C111 440 114 408 118 378 C122 344 128 312 134 288
-       C140 268 140 250 136 236 C132 216 124 200 114 192 Z"/>
-    <path id="sErkekOn5" class="an-govde" d="M294 190 C310 200 318 220 320 244 C323 276 326 312 328 344
-       C330 378 330 412 328 442 C327 462 326 476 322 494 C318 512 304 518 298 506
-       C294 496 294 484 292 470 C289 440 286 408 282 378 C278 344 272 312 266 288
-       C260 268 260 250 264 236 C268 216 276 200 286 192 Z"/>
-    <path id="sErkekOn6" class="an-govde" d="M130 468 C126 500 128 534 132 566 C136 600 140 628 144 652
-       C147 672 150 700 152 728 C154 762 156 796 160 826 C162 846 166 858 174 862
-       C184 866 192 860 193 848 C194 820 192 786 191 754 C190 716 191 682 193 652
-       C195 622 197 592 198 562 C199 530 199 498 199 468 Z"/>
-    <path id="sErkekOn7" class="an-govde" d="M270 468 C274 500 272 534 268 566 C264 600 260 628 256 652
-       C253 672 250 700 248 728 C246 762 244 796 240 826 C238 846 234 858 226 862
-       C216 866 208 860 207 848 C206 820 208 786 209 754 C210 716 209 682 207 652
-       C205 622 203 592 202 562 C201 530 201 498 201 468 Z"/>
-    <path id="sErkekOn8" class="an-govde" d="M162 862 C158 872 158 880 164 882 L192 882 C196 880 195 870 192 862 Z"/>
-    <path id="sErkekOn9" class="an-govde" d="M238 862 C242 872 242 880 236 882 L208 882 C204 880 205 870 208 862 Z"/>
-  </g>
-
-  <!-- ================= KAS BÖLGELERİ =================
-       Her bölge: ayrı <path> · id = kas slug'ı · data-kas = kas slug'ı
-       Erişilebilir ad <title> çocuğundan gelir; role/tabindex/aria-pressed
-       sayfa JS'i tarafından eklenir (bağımsız dosya kendi başına odak
-       tuzağı üretmesin). -->
-  <g class="an-bolgeler" clip-path="url(#clipErkekOn)">
-
-    <path class="an-bolge" id="boyun" data-kas="boyun" fill="currentColor"
-      d="M186 112 C184 128 180 140 172 150 C176 155 183 157 189 152 C194 140 196 126 197 112 Z
-         M214 112 C216 128 220 140 228 150 C224 155 217 157 211 152 C206 140 204 126 203 112 Z"><title>Boyun</title></path>
-
-    <path class="an-bolge" id="trapez-ust" data-kas="trapez-ust" fill="currentColor"
-      d="M170 148 C148 154 128 164 114 180 C124 187 139 189 153 185 C163 179 169 167 173 155 Z
-         M230 148 C252 154 272 164 286 180 C276 187 261 189 247 185 C237 179 231 167 227 155 Z"><title>Üst trapez</title></path>
-
-    <path class="an-bolge" id="deltoid-on" data-kas="deltoid-on" fill="currentColor"
-      d="M115 183 C105 193 100 209 101 227 C103 241 111 251 123 255 C131 247 135 233 135 217 C135 201 127 189 115 183 Z
-         M285 183 C295 193 300 209 299 227 C297 241 289 251 277 255 C269 247 265 233 265 217 C265 201 273 189 285 183 Z"><title>Ön deltoid</title></path>
-
-    <path class="an-bolge" id="deltoid-yan" data-kas="deltoid-yan" fill="currentColor"
-      d="M101 201 C91 209 85 225 83 245 C82 261 87 273 97 279 C107 275 113 263 115 247 C117 229 111 213 101 201 Z
-         M299 201 C309 209 315 225 317 245 C318 261 313 273 303 279 C293 275 287 263 285 247 C283 229 289 213 299 201 Z"><title>Yan deltoid</title></path>
-
-    <path class="an-bolge" id="gogus" data-kas="gogus" fill="currentColor"
-      d="M198 172 L198 262 C176 265 158 259 146 245 C136 231 134 211 138 195 C152 180 174 172 198 172 Z
-         M202 172 L202 262 C224 265 242 259 254 245 C264 231 266 211 262 195 C248 180 226 172 202 172 Z"><title>Göğüs kası</title></path>
-
-    <path class="an-bolge" id="serratus" data-kas="serratus" fill="currentColor"
-      d="M137 249 L149 259 L143 269 L155 277 L149 289 L159 297 L151 307 C141 301 133 289 131 275 C130 263 132 255 137 249 Z
-         M263 249 L251 259 L257 269 L245 277 L251 289 L241 297 L249 307 C259 301 267 289 269 275 C270 263 268 255 263 249 Z"><title>Ön dişli kas</title></path>
-
-    <path class="an-bolge" id="biceps" data-kas="biceps" fill="currentColor"
-      d="M113 227 C105 237 99 253 97 271 C95 289 97 305 103 317 C113 315 121 303 125 287 C129 269 127 247 121 233 Z
-         M287 227 C295 237 301 253 303 271 C305 289 303 305 297 317 C287 315 279 303 275 287 C271 269 273 247 279 233 Z"><title>Biceps</title></path>
-
-    <path class="an-bolge" id="on-kol-fleksor" data-kas="on-kol-fleksor" fill="currentColor"
-      d="M98 328 C92 350 88 376 86 402 C84 426 84 446 88 464 C96 462 103 452 106 436 C111 410 114 378 116 350 C111 342 104 334 98 328 Z
-         M302 328 C308 350 312 376 314 402 C316 426 316 446 312 464 C304 462 297 452 294 436 C289 410 286 378 284 350 C289 342 296 334 302 328 Z"><title>Ön kol bükücüleri</title></path>
-
-    <path class="an-bolge" id="karin-duz" data-kas="karin-duz" fill="currentColor"
-      d="M176 264 C170 296 168 332 170 366 C172 392 178 408 190 416 L210 416 C222 408 228 392 230 366 C232 332 230 296 224 264 Z"><title>Düz karın kası</title></path>
-
-    <path class="an-bolge" id="karin-yan" data-kas="karin-yan" fill="currentColor"
-      d="M166 268 C158 292 154 320 152 348 C151 372 154 392 162 410 C170 404 174 390 174 370 C173 336 172 300 174 268 Z
-         M234 268 C242 292 246 320 248 348 C249 372 246 392 238 410 C230 404 226 390 226 370 C227 336 228 300 226 268 Z"><title>Yan karın kasları</title></path>
-
-    <path class="an-bolge" id="kalca-fleksor" data-kas="kalca-fleksor" fill="currentColor"
-      d="M172 414 C164 424 158 436 156 450 C168 457 182 459 196 457 L196 420 Z
-         M228 414 C236 424 242 436 244 450 C232 457 218 459 204 457 L204 420 Z"><title>Kalça bükücü</title></path>
-
-    <path class="an-bolge" id="tensor-fasya-lata" data-kas="tensor-fasya-lata" fill="currentColor"
-      d="M138 452 C132 462 130 476 130 490 C130 504 134 514 140 520 C148 514 152 502 153 488 C154 474 150 460 144 452 Z
-         M262 452 C268 462 270 476 270 490 C270 504 266 514 260 520 C252 514 248 502 247 488 C246 474 250 460 256 452 Z"><title>Fasya lata gerici</title></path>
-
-    <path class="an-bolge" id="quadriceps" data-kas="quadriceps" fill="currentColor"
-      d="M136 476 C130 508 130 542 134 576 C138 608 144 632 152 650 C164 646 172 632 176 610 C182 578 186 538 188 502 C186 486 182 478 176 474 Z
-         M264 476 C270 508 270 542 266 576 C262 608 256 632 248 650 C236 646 228 632 224 610 C218 578 214 538 212 502 C214 486 218 478 224 474 Z"><title>Dört başlı uyluk kası</title></path>
-
-    <path class="an-bolge" id="adduktor" data-kas="adduktor" fill="currentColor"
-      d="M180 474 C176 502 174 528 174 554 C174 578 178 596 184 608 C190 600 194 584 195 562 C197 532 197 502 196 474 Z
-         M220 474 C224 502 226 528 226 554 C226 578 222 596 216 608 C210 600 206 584 205 562 C203 532 203 502 204 474 Z"><title>İç uyluk kasları</title></path>
-
-    <path class="an-bolge" id="tibialis-on" data-kas="tibialis-on" fill="currentColor"
-      d="M160 686 C156 714 154 744 155 774 C156 798 159 818 164 832 C172 828 177 816 179 798 C181 770 181 738 179 710 C174 698 168 690 160 686 Z
-         M240 686 C244 714 246 744 245 774 C244 798 241 818 236 832 C228 828 223 816 221 798 C219 770 219 738 221 710 C226 698 232 690 240 686 Z"><title>Ön baldır kası</title></path>
-  </g>
-
-  <!-- ================= AYRINTI ÇİZGİLERİ (dekoratif) ================= -->
-  <g class="an-cizgi" aria-hidden="true">
-    <path d="M200 264 L200 414"/>
-    <path d="M176 296 L224 296 M174 330 L226 330 M172 364 L228 364"/>
-    <path d="M200 172 L200 262"/>
-    <path d="M144 468 L256 468"/>
+  <g class="an-bolgeler">
+    <path class="an-bolge" id="quadriceps" data-kas="quadriceps"
+      d="M499 748 497 748 496 790 491 828 482 864 471 896 468 911 467 926 468 933 470 935 476 934 484 925 489 916 495 899 501 870 510 788 504 761Z M258 748 253 760 247 786 247 800 255 866 259 888 267 914 275 928 282 935 287 935 289 933 289 913 284 890 275 865 267 835 260 781 260 748Z M471 685 468 685 466 703 459 734 438 794 438 844 440 861 448 897 449 919 445 919 444 900 434 850 432 814 430 814 417 854 407 903 407 927 414 947 423 957 430 959 438 954 444 941 445 924 449 924 449 934 446 948 441 957 435 963 436 968 440 972 445 974 458 973 462 971 466 966 466 954 462 930 463 910 468 888 484 836 490 796 491 753 489 736 484 717Z M286 685 272 719 268 734 266 749 267 799 273 837 294 911 294 939 291 953 291 966 295 971 299 973 312 974 317 972 321 968 322 963 312 951 308 936 308 930 312 930 314 945 318 953 326 959 334 957 342 948 348 934 350 925 350 905 341 859 326 812 324 812 324 838 322 855 312 904 311 926 307 926 308 902 319 844 319 797 300 742 293 715 288 685Z"><title>Dört Başlı Uyluk Kası (Ön bacak)</title></path>
+    <path class="an-bolge" id="gogus" data-kas="gogus"
+      d="M394 316 389 328 385 353 385 391 390 407 395 412 401 415 421 421 440 424 454 424 462 422 478 413 489 402 499 387 505 374 506 366 486 348 458 332 408 312 401 311Z M358 312 349 312 305 329 272 347 250 366 253 378 258 388 275 410 286 418 298 423 318 424 344 419 358 414 366 408 371 396 372 389 372 355 368 329 363 317Z"><title>Göğüs (Büyük göğüs kası)</title></path>
+    <path class="an-bolge" id="karin-duz" data-kas="karin-duz"
+      d="M423 566 394 568 387 571 384 575 382 587 380 680 383 683 388 683 396 680 401 672 426 592 427 574 426 569Z M334 566 332 567 330 572 331 592 354 667 358 677 361 680 373 683 376 681 374 579 372 574 368 570 363 568Z M387 514 383 520 382 532 383 549 385 555 391 560 425 557 428 553 431 541 430 521 425 517 395 513Z M370 514 361 513 332 517 327 520 325 530 326 543 331 556 355 560 366 560 371 556 374 548 374 522Z M387 464 384 467 382 479 382 494 384 502 390 506 428 510 432 504 432 493 427 480 408 468 392 463Z M373 467 368 463 364 463 349 468 333 477 328 482 325 490 324 501 326 508 329 510 366 506 371 504 374 498Z M388 422 385 425 383 431 384 451 387 454 404 458 422 468 430 468 432 461 431 450 425 436 409 426 397 422Z M369 422 364 421 350 425 336 432 330 438 325 452 325 465 328 469 335 468 351 459 367 455 372 452 374 447 374 433 372 425Z"><title>Düz Karın Kası (Six-pack)</title></path>
+    <path class="an-bolge" id="biceps" data-kas="biceps"
+      d="M513 375 511 377 509 387 508 421 511 440 519 468 525 480 538 498 557 516 563 520 566 520 570 491 570 466 566 444 557 416 548 398 539 387 523 378Z M244 375 225 382 211 394 197 423 190 447 186 475 190 520 194 520 213 504 228 486 238 467 246 439 249 417 247 381Z"><title>Biceps (İki başlı kol kası)</title></path>
+    <path class="an-bolge" id="gastrocnemius" data-kas="gastrocnemius"
+      d="M489 1027 487 1027 489 1070 486 1100 481 1125 457 1209 453 1232 459 1235 462 1234 473 1178 493 1098 495 1063Z M480 1013 476 1015 466 1034 457 1072 453 1113 452 1158 448 1195 443 1222 444 1230 448 1229 459 1182 476 1128 482 1098 485 1053 484 1034Z M277 1013 274 1023 273 1039 269 1039 269 1029 267 1029 262 1059 262 1084 266 1109 288 1196 295 1234 298 1235 304 1232 296 1194 272 1108 268 1077 269 1045 272 1046 273 1085 278 1116 298 1183 309 1229 313 1230 314 1223 305 1163 302 1091 294 1044 284 1020 279 1013Z"><title>İkiz Baldır Kası (Dış baldır)</title></path>
+    <path class="an-bolge" id="kalca-fleksor" data-kas="kalca-fleksor"
+      d="M472 625 467 628 458 649 415 778 405 831 404 886 406 886 407 877 418 836 455 732 463 696 472 634Z M285 625 285 635 292 685 302 733 340 840 351 887 353 887 353 846 345 791 333 749 298 647 291 630 287 625Z"><title>Kalça Bükücü (Bel-uyluk kası)</title></path>
+    <path class="an-bolge" id="deltoid-yan" data-kas="deltoid-yan"
+      d="M520 284 520 358 532 375 552 394 560 399 565 380 565 349 559 326 552 310 544 298 533 289Z M237 283 224 289 211 300 197 328 193 341 191 358 192 381 196 399 199 399 227 372 237 358Z"><title>Yan Deltoid (Omuz orta lifi)</title></path>
+    <path class="an-bolge" id="brachioradialis" data-kas="brachioradialis"
+      d="M581 491 575 506 572 523 572 535 576 556 591 592 622 642 633 668 636 669 620 614 608 544 584 491Z M176 491 172 492 149 543 144 565 138 608 121 669 124 668 127 658 137 638 164 595 180 558 184 540 184 518 182 507Z"><title>Brachioradialis (Dirsek altı bükücü)</title></path>
+    <path class="an-bolge" id="karin-yan" data-kas="karin-yan"
+      d="M431 429 437 461 438 538 434 560 432 591 425 619 405 676 411 674 433 658 461 625 482 606 484 599 481 599 464 613 450 621 444 621 438 611 439 584 445 561 443 547 447 538 447 535 444 531 444 526 453 512 446 512 443 507 444 500 449 488 443 488 441 485 441 479 446 464 442 464 440 462 442 448 451 432Z M307 431 306 434 314 447 317 462 315 464 310 464 315 477 315 486 312 489 307 488 312 498 313 509 311 512 304 512 304 514 312 524 312 533 309 538 313 543 312 564 318 585 319 610 317 617 313 621 306 621 297 616 277 600 273 599 273 603 299 629 307 640 326 660 347 675 352 676 326 598 323 576 323 563 319 541 320 458 326 429Z"><title>Yan Karın Kasları (Oblikler)</title></path>
+    <path class="an-bolge" id="gogus-ust" data-kas="gogus-ust"
+      d="M399 301 399 305 401 307 429 315 467 332 490 347 514 367 522 371 522 368 510 351 492 316 481 304 462 290 452 290 408 297Z M358 302 355 299 305 290 292 291 279 301 264 317 246 352 233 372 239 370 263 350 286 334 325 316 354 308 358 305Z"><title>Üst Göğüs (Büyük göğüs kası, köprücük başı)</title></path>
+    <path class="an-bolge" id="on-kol-fleksor" data-kas="on-kol-fleksor"
+      d="M551 539 547 547 549 559 546 560 545 558 543 558 542 564 552 593 587 654 600 681 603 680 603 677 580 624 557 585 558 582 561 583 573 605 607 655 616 675 619 675 620 671 593 611 571 556 554 539Z M205 539 202 539 190 551 183 561 164 610 137 670 138 675 140 675 151 653 184 604 194 586 197 585 198 588 181 616 163 654 154 677 154 680 157 680 172 650 206 590 214 569 215 559 209 557 210 548Z"><title>Ön Kol Bükücüleri (İç ön kol)</title></path>
+    <path class="an-bolge" id="tensor-fasya-lata" data-kas="tensor-fasya-lata"
+      d="M488 608 479 622 476 633 474 653 475 673 483 702 502 742 509 761 510 768 512 768 512 737 509 701 501 664 497 630 492 611 490 608Z M268 608 266 608 260 629 255 668 248 699 245 731 245 767 247 767 254 744 273 704 281 678 281 634 277 621Z"><title>Fasya Lata Gerici (Kalça yan gerici)</title></path>
+    <path class="an-bolge" id="serratus" data-kas="serratus"
+      d="M482 516 480 516 466 531 452 539 448 544 449 563 444 578 442 592 442 611 446 617 452 616 460 611 487 589 488 566 482 541Z M275 516 275 540 269 563 270 589 298 612 307 617 311 617 315 609 313 580 308 564 308 542 292 532 277 516Z"><title>Ön Dişli Kas (Kaburga tarağı)</title></path>
+    <path class="an-bolge" id="adduktor" data-kas="adduktor"
+      d="M407 701 405 701 403 707 402 739 396 752 389 756 391 802 398 844 400 844 402 820 408 788 422 743 422 737Z M349 701 334 740 350 794 355 822 356 844 358 844 366 798 368 757 359 750 356 744 354 735 354 709 352 702Z"><title>İç Uyluk Kasları (Toplayıcılar)</title></path>
+    <path class="an-bolge" id="deltoid-on" data-kas="deltoid-on"
+      d="M474 285 473 290 497 315 516 352 519 353 519 282 511 279 496 278 486 280Z M281 284 260 278 250 278 238 282 238 353 240 353 261 313 283 291 284 287Z"><title>Ön Deltoid (Omuz ön lifi)</title></path>
+    <path class="an-bolge" id="tibialis-on" data-kas="tibialis-on"
+      d="M421 1032 414 1074 414 1094 421 1132 424 1133 433 1114 438 1097 439 1072 433 1050 424 1032Z M333 1032 325 1047 319 1065 318 1093 325 1117 333 1133 335 1133 341 1110 343 1076 336 1033Z"><title>Ön Baldır Kası</title></path>
+    <path class="an-bolge" id="boyun" data-kas="boyun"
+      d="M421 203 419 203 411 211 406 219 383 301 387 300 395 293 409 265 421 224Z M336 203 336 225 347 263 361 292 371 301 374 301 352 222 344 209 338 203Z"><title>Boyun (Baş çevirici)</title></path>
+    <path class="an-bolge" id="trapez-ust" data-kas="trapez-ust"
+      d="M425 241 427 266 430 276 436 285 452 283 485 274 484 271 444 252Z M331 241 311 253 271 272 271 274 305 283 320 285 325 279 329 268 331 256Z"><title>Üst Trapez (Kukuleta kası, üst lif)</title></path>
   </g>
 </svg>

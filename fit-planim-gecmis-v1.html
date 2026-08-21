@@ -14,10 +14,232 @@
 <!-- DadaFit ortak kabuk (tek kaynak) -->
 <link rel="stylesheet" href="assets/css/fit-shell.css" />
 <style>
-/* SAYFA CSS — Antrenman Geçmişim · Fit Planım
+/* SAYFA CSS — Fit Planım ailesi · ÜST ÖZET KARTI ve plan kalemleri
  Kabuk, banner, sekme rayı, kart/liste/rozet/izin kitleri
- assets/css/fit-shell.css'te tek kaynakta. Burada yalnız sayfaya özgü ölçüler. */
+ assets/css/fit-shell.css'te tek kaynakta (AJAN-A). Burada yalnız bu ailenin
+ kendi ölçüleri; hepsi `fpx-` önekli, kabuk sınıfı ezilmiyor.
 
+ ÖLÇÜLEN REFERANS (R6 · madde 19 · Playwright, @1440):
+ · dadagastro.com/bugun-ne-pisirsem → .bnp-head iki kolon, column-gap 44px;
+   sağ kolon flex-column, gap 16px, border-left 1px, padding-left 38px;
+   sayı 29px/700, etiket 12.5px/500
+ · dadadiet.com/giris → .au-card (kişisel alanın kartı) radius 24px,
+   padding 34px 38px 36px, kenarlık 1px #ececec (= --line), gölge .04 alfa
+ · dadadiet.com/hesaplayicilar → .sec-head h2 34px, margin-bottom 34px;
+   kart ikon kutusu 50px, radius 16px
+ Bu ölçüler token'a çevrildi: 24px = --radius-xl · #ececec = --line ·
+ gölge = --sh-sm. Elle renk uydurulmadı. */
+
+/* ---- üst özet kartı ---- */
+.fpx-sum{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:44px;align-items:center;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-xl);
+  box-shadow:var(--sh-sm);padding:34px 38px 36px;
+}
+.fpx-sum-main{min-width:0}
+.fpx-kicker{
+  display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--fit-deep);margin-bottom:12px;
+}
+.fpx-kicker::before{content:"";width:26px;height:2px;background:currentColor;border-radius:var(--radius-sm)}
+.fpx-sum h2{font-size:25px;line-height:1.16;letter-spacing:-.02em;margin:0}
+.fpx-sum-sub{font-size:15px;line-height:1.6;font-weight:500;color:var(--slate-2);margin:10px 0 0;max-width:var(--measure,560px)}
+.fpx-sum .fp-bar{margin-top:18px}
+.fpx-sum-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:12px}
+.fpx-sum-meta b{color:var(--slate);font-weight:800}
+.fpx-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* sağ dikey istatistik kolonu — referans .bnp-stats birebir */
+.fpx-stats{
+  display:flex;flex-direction:column;gap:16px;
+  border-left:1px solid var(--line);padding-left:38px;min-width:132px;
+}
+.fpx-stat b{display:block;font-size:29px;font-weight:700;line-height:1.05;letter-spacing:-.02em;color:var(--slate)}
+.fpx-stat b small{font-size:14px;font-weight:700;letter-spacing:0}
+.fpx-stat span{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:3px}
+.fpx-stat.is-fit b{color:var(--fit-deep)}
+
+/* kayıt yokken: dürüst boş durum — sağ kolon hiç basılmaz */
+.fpx-sum.is-empty{grid-template-columns:minmax(0,1fr)}
+.fpx-sum.is-empty .fpx-stats{display:none}
+
+/* hidden özniteliği sınıf seçicilerini yenmeli (0,2,0 > 0,1,0) */
+.fpx-sum-meta[hidden],.fpx-gunler[hidden],.fpx-acts[hidden],
+.fpx-sum-sub[hidden],.fpx-sum .fp-bar[hidden],.fp-badge[hidden]{display:none}
+
+/* ---- plan günü şeridi ---- */
+.fpx-gunler{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.fpx-gun{
+  display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;
+  border:1px solid var(--line);border-radius:var(--radius-chip);background:var(--paper);
+  font-size:13px;font-weight:700;color:var(--slate-2);
+}
+.fpx-gun.is-on{background:var(--fit-tint);border-color:var(--fit-line);color:var(--fit-deep)}
+.fpx-gun.is-now{border-color:var(--fit-deep);color:var(--fit-deep);box-shadow:inset 0 0 0 1px var(--fit-deep)}
+.fpx-gun small{font-weight:600;color:var(--muted)}
+.fpx-gun.is-on small,.fpx-gun.is-now small{color:inherit;opacity:.72}
+
+/* ---- hareket işaretleme düğmesi (sözleşme: FIT_PLAN.isaretle) ---- */
+.fpx-mark{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 15px;border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--paper);color:var(--slate-2);font-size:13px;font-weight:700;
+  cursor:pointer;transition:.22s var(--ease);font-family:inherit;
+}
+.fpx-mark:hover{border-color:var(--slate)}
+.fpx-mark[aria-pressed="true"]{background:var(--fit-tint);border-color:var(--fit-line);color:var(--fit-deep)}
+.fpx-mark:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+.fpx-row-done .txt b{text-decoration:line-through;text-decoration-color:var(--fit-line)}
+
+/* gün tamamlandı bildirimi — kart içinde, listenin hemen altında */
+.fpx-gun-not{
+  margin-top:16px;padding:12px 14px;border-radius:var(--radius-md);
+  background:var(--fit-tint);border:1px solid var(--fit-line);
+  color:var(--fit-deep);font-size:13.5px;font-weight:600;
+}
+.fpx-gun-not[hidden]{display:none}
+
+/* ---- satır içi ölçü/etiket (eski inline style'ların karşılığı) ---- */
+.fpx-lead{font-size:19px;font-weight:800;display:block}
+.fpx-note{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;margin-top:6px}
+.fpx-note-sm{font-size:13px;font-weight:500;color:var(--muted);margin-top:14px}
+.fpx-body{font-size:14px;font-weight:500;color:var(--slate-2);line-height:1.6;margin-top:6px}
+.fpx-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.fpx-band{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.fpx-band b{font-size:16px}
+.fpx-unit{font-size:13px;font-weight:600}
+
+/* ---- süzgeç grubu etiketi (inline style yerine) ---- */
+.fgroup-lbl{
+  font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);min-width:60px;
+}
+/* gün ilerleme satırındaki çubuk kendi üst boşluğunu taşımaz */
+.fpx-gunbar-row .fp-bar{margin:0}
+
+/* ---- veri tablosu (set kaydı) — inline style'ların karşılığı ---- */
+.fpx-tablo-kutu{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fpx-tablo{width:100%;border-collapse:collapse;min-width:420px}
+.fpx-tablo th{
+  text-align:left;padding:10px 8px;font-size:12px;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.fpx-tablo td{padding:11px 8px;font-size:14px;font-weight:600;color:var(--slate)}
+.fpx-tablo tbody tr{border-bottom:1px solid var(--line)}
+.fpx-tablo tbody tr:last-child{border-bottom:none}
+.fpx-tablo .is-up{color:var(--fit-deep)}
+.fpx-tablo .is-flat{color:var(--muted)}
+
+/* ---- rozet kartı ızgarası (rozetler sayfası) ---- */
+.fpx-rozet{text-align:center;padding:20px 16px}
+.fpx-rozet-ico{
+  width:52px;height:52px;border-radius:var(--radius-circle);background:var(--fit-tint);
+  color:var(--fit-deep);display:grid;place-items:center;font-size:21px;margin:0 auto 10px;
+}
+.fpx-rozet-ico.is-off{background:#f2f2f1;color:var(--muted)}
+.fpx-rozet b{font-size:15px}
+.fpx-rozet p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:5px}
+.fpx-rozet .fp-badge{margin-top:10px}
+
+/* ---- plan gün ilerleme satırı (İlerlemem) ---- */
+.fpx-gunbar{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.fpx-gunbar-row{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr) auto;gap:14px;align-items:center}
+.fpx-gunbar-row b{font-size:14px;color:var(--slate)}
+.fpx-gunbar-row small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.fpx-gunbar-row .end{font-size:12.5px;font-weight:800;color:var(--slate);white-space:nowrap}
+@media (max-width:640px){
+  .fpx-gunbar-row{grid-template-columns:minmax(0,1fr) auto;row-gap:8px}
+  .fpx-gunbar-row .fp-bar{grid-column:1/-1;margin:0}
+}
+
+/* son kalan satır içi ölçüler sınıfa çevrildi (dinamik yüzdeler hariç) */
+.fpx-band .fpx-btns{margin-top:0}
+.fpx-mt-sm{margin-top:16px}
+.fpx-mt-xs{margin-top:6px}
+.fpx-gap-sm{gap:14px}
+.fgroup.fpx-flat{border:none;padding-top:0}
+
+/* ---- bölüm ritmi ----
+ GEÇİŞ 3 · referansla kıyas: kendi ezmelerim sayfaları hem referanstan hem
+ sitenin geri kalanından UZAKLAŞTIRIYORDU. Ölçülen (dadadiet.com/hesaplayicilar):
+   sec-head h2 34px / ls -0.68px · sec-head margin-bottom 34px · lead 15.5px
+ Bendeki ilk kurulum: 26px / -0.52px / 22px / 14.5px. Üç ezme de KALDIRILDI;
+ kabuğun kendi .sec-head değerleri referansla zaten birebir (34px, -.02em,
+ 34px, 15.5px). Geriye yalnız bloklar arası dikey nefes kalıyor. */
+.fpx-sec{margin-top:44px}
+/* NOT — burada bir zamanlar `.fpx-sec .eyebrow{color:var(--fit-deep)}` yaması
+   vardı: kabuğun taban `.eyebrow` rengi `--tomato` idi ve krem zeminde 3.36:1
+   ile AA altında kalıyordu. AJAN-A tabanı `--fit-deep`e çevirdi (fit-shell.css
+   `.eyebrow`), ölçüldü: krem 5.18:1 · beyaz 5.45:1. Yama gereksizleşti ve
+   kaldırıldı — kabukla aynı işi iki yerde yapmıyoruz. Aynı turda `--muted` da
+   #7E7E7E → #717171 oldu (beyaz 4.88:1 · krem 4.64:1), bu ailedeki bütün
+   ikincil etiketler bedava AA'ya geçti. */
+
+/* =====================================================================
+   GEÇİŞ 2 — kendi işimi eleştirdikten sonra kapatılan üç kusur
+   ---------------------------------------------------------------------
+   K1 · YASLAMA NEHİRLERİ. fit-type.css akan metni iki yana yaslıyor.
+        Range API ile ölçüldü (@390): .lead en geniş kelime arası 26.1px
+        (kaydettiklerim) · 22.8px (bugün) · .fpx-sum-sub 18.2px ·
+        .fpx-note 18.0px — normal aralık ~4px, yani 4.5–6.5 KAT.
+        fit-type.css'in kendi yorumu bu tuzağı zaten anlatıyor ve
+        .lib-sub / .wz-risk gibi KISA blokları istisnaya almış; bu ailenin
+        yeni sınıfları o listeye giremezdi (kabuk dosyası AJAN-A'nın).
+        Çözüm sayfa içinde ve YALNIZ bu ailede: kısa blok yaslanmaz.
+   K2 · DOKUNMA HEDEFİ. @390 ölçümü: .fp-act 13–21px · .fp-actbtn 16px ·
+        .see-all 21px · .df-fchip 35px — hepsi 44px altında.
+        Görünüm dili değişmesin diye yalnız ≤640px'te dikey kutu büyütülür.
+   K3 · ÇİFT BOŞ DURUM. Kayıt yokken üst özet kartı "Kayıtlı planın yok" +
+        "Plan oluştur" diyordu, hemen altındaki kart AYNI mesajı ve AYNI
+        düğmeyi tekrar basıyordu. Ölçüm: kart 438px, içindeki .lib-empty
+        323px (dolgu 54px). Alttaki blok kompaktlaştı ve ikinci CTA kalktı.
+   ===================================================================== */
+
+/* K1 — kısa bilgi blokları sola yaslı (fit-type.css §3'ün kuralı)
+
+   `.fpx-note` · `.fpx-note-sm` · `.fpx-body` istisnası KABUĞA taşındı
+   (`fit-type.css` §3, `.fp-card p.fpx-note` = 0,2,1). Aynı işi iki yerde
+   çözmüyoruz; ölçüldü, kabuk hallediyor.
+
+   `.fpx-sum-sub` KABUKTA YOK ve olmamalı da: `.fp-card` içinde değil, üst
+   özet kartının (`.fpx-sum`, bir <section>) alt metni. Kabuğun `.fp-card p…`
+   istisnası ona ulaşmıyor, taban `p` kuralı (0,0,1) yaslıyor. Ölçüldü:
+   ezmesiz @390'da kelime arası **40.4 px** (normal 3.8 px — 10.6×), @1440'ta
+   8.5 px. Blok orada 3–5 satır ve 560px ölçüde; fit-type.css'in "kısa blok
+   yaslanmaz" ölçütüne giriyor. Bu yüzden burada kalıyor. */
+.fpx-sum-sub{
+  text-align:left;text-align-last:auto;
+}
+
+/* K2 — dokunma hedefi. Buradaki `min-height:44px` yaması KALDIRILDI:
+   AJAN-A kabukta ≤640px için görünmez `::after` örtüsü kurdu
+   (`.see-all,.fp-act,.fp-actbtn{position:relative}` + 44px örtü) — kutuyu
+   büyütmüyor, satır ritmini bozmuyor, benim yamam ise büyütüyordu ve sitenin
+   geri kalanından ayrışıyordu. `.df-fchip` de kalktı: ölçülen 34 px, WCAG
+   2.5.8 (AA) eşiği 24 px — geçiyor; 44 px 2.5.5 yani AAA. Tek sayfa ailesinde
+   44'e çıkarmak süzgeç şeridini sitenin geri kalanından ayırırdı.
+   Kendi düğmem `.fpx-mark` zaten 44 px min-height taşıyor. */
+
+/* K3 — kart içi boş durum kompakt; birincil CTA yalnız üst özet kartında */
+.fpx-sec .fp-card>.lib-empty.show{padding:30px 20px 26px}
+.fpx-sec .fp-card>.lib-empty .ico{width:48px;height:48px;font-size:19px;margin-bottom:13px}
+.fpx-sec .fp-card>.lib-empty h3{font-size:16.5px}
+.fpx-sec .fp-card>.lib-empty p{margin-bottom:0;max-width:420px}
+
+/* kart üstü tek değerli boşluk — inline "margin-top:22px" yerine */
+.fpx-mt{margin-top:22px}
+
+@media (max-width:900px){
+  .fpx-sum{grid-template-columns:minmax(0,1fr);row-gap:24px;padding:24px 20px 26px}
+  .fpx-sum h2{font-size:22px}
+  .fpx-stats{
+    flex-direction:row;flex-wrap:wrap;gap:18px 30px;
+    border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:20px;
+  }
+  .fpx-stat b{font-size:24px}
+  .fpx-sec{margin-top:34px}
+}
 </style>
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
@@ -35,59 +257,110 @@
 
 <section class="fp-body">
   <div class="wrap">
-    <div class="fp-stats">
-      <div class="fp-stat is-fit"><b>23</b><span>tamamlanan antrenman</span></div>
-      <div class="fp-stat"><b>8s 40dk</b><span>toplam hareket süresi</span></div>
-      <div class="fp-stat"><b>5 gün</b><span>en uzun seri</span></div>
-      <div class="fp-stat"><b>3</b><span>bu hafta</span></div>
+
+    <!-- ================= ÜST ÖZET KARTI =================
+     Kaynak: assets/js/fit-plan-kayit.js (FIT_PLAN) — sözleşme modülü.
+     Sağdaki dikey istatistik kolonu kardeş markadan ölçülerek alındı
+     (dadagastro.com/bugun-ne-pisirsem → .bnp-stats: flex-column, gap 16,
+      1px hairline, padding-left 38, sayı 29px/700, etiket 12.5px/500). -->
+    <section class="fpx-sum is-empty" id="fpxSum" aria-labelledby="fpxTitle">
+      <div class="fpx-sum-main">
+        <span class="fpx-kicker" id="fpxKicker">Kayıt defterin</span>
+        <h2 id="fpxTitle">Henüz işaretlediğin hareket yok</h2>
+        <p class="fpx-sum-sub" id="fpxSub">Bir planı kaydedip hareketlerini işaretlemeye başladığında, her işaret tarihiyle birlikte buraya düşer. Kayıtlar plan defterinden gelir — silmek istersen plandaki işareti geri alman yeter.</p>
+        <div class="fp-bar" id="fpxBar" hidden><span style="width:0%"></span></div>
+        <div class="fpx-sum-meta" id="fpxMeta" hidden></div>
+        <div class="fpx-gunler" id="fpxGunler" hidden></div>
+        <div class="fpx-acts" id="fpxActs"><a class="btn btn-fit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-calendar-days"></i> Plana git</a><a class="btn btn-ghost" href="antrenman-olusturucu-v1.html">Plan oluştur</a></div>
+      </div>
+      <div class="fpx-stats" id="fpxStats" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= PLANDAN GELEN KAYITLAR ================= -->
+    <div class="fpx-sec">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow"><i class="fa-solid fa-clipboard-check"></i> Plandan gelen</span>
+          <h2>İşaretlediğin hareketler</h2>
+          <p class="lead">Kayıtlı planlarında işaretlediğin her hareket, seviyesi ve tarihiyle burada durur. Bu liste uydurulmaz — plan defterinde ne varsa o görünür.</p>
+          <div class="sec-tools">
+            <a class="see-all" href="fit-planim-ilerleme-v1.html">İlerlemene bak <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="fp-card">
+        <div class="fp-head">
+          <h3><i class="fa-solid fa-list-check"></i> Plan kayıtların</h3>
+          <span class="fp-badge off" id="fpxIsaretSayi" hidden></span>
+        </div>
+        <div class="fp-list" id="fpxIsaretler"></div>
+        <div class="lib-empty show" id="fpxIsaretBos">
+          <span class="ico"><i class="fa-solid fa-clipboard-check"></i></span>
+          <h3>Kayıtların burada birikir</h3>
+          <p>Bir hareketi işaretlediğin an, tarihi ve seviyesiyle bu listeye düşer.</p>
+        </div>
+      </div>
     </div>
 
-    <div class="fp-card" style="margin-top:22px">
-      <div class="fp-head">
-        <h3><i class="fa-solid fa-clock-rotate-left"></i> Son antrenmanların</h3>
-        <a class="fp-act" href="fit-planim-ilerleme-v1.html">İlerlemeye bak <i class="fa-solid fa-arrow-right"></i></a>
+    <!-- ================= ANTRENMAN GEÇMİŞİ ================= -->
+    <div class="fpx-sec">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> Antrenman geçmişin</span>
+          <h2>Tamamladığın antrenmanlar</h2>
+          <p class="lead">Geçmiş bir karne değil, bir kayıt. Kaçırdığın gün de listede durur; suçlu ilan etmek için değil, ritmini görebilmen için.</p>
+        </div>
       </div>
-      <div class="fp-list">
-        <div class="fp-row"><span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
-          <span class="txt"><b>Alt vücut ve core · 4 Hafta Ev Antrenmanı</b><small>Dün · 6 hareket · 18 set · 24 dk</small></span>
-          <span class="end">310 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
-        <div class="fp-row"><span class="ico"><i class="fa-solid fa-person-running"></i></span>
-          <span class="txt"><b>Sabah 5 Dakika Esneme</b><small>2 gün önce · serbest rutin · 5 dk</small></span>
-          <span class="end">28 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
-        <div class="fp-row"><span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
-          <span class="txt"><b>Üst vücut · 4 Hafta Ev Antrenmanı</b><small>3 gün önce · 5 hareket · 15 set · 26 dk</small></span>
-          <span class="end">295 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
-        <div class="fp-row"><span class="ico"><i class="fa-solid fa-forward"></i></span>
-          <span class="txt"><b>Kaçırılan gün</b><small>5 gün önce · plan haftanın sonuna kaydırıldı</small></span>
-          <span class="end"><span class="fp-badge off">Kaçtı</span></span></div>
-        <div class="fp-row"><span class="ico"><i class="fa-solid fa-person-walking"></i></span>
-          <span class="txt"><b>Masa Başı Molası</b><small>6 gün önce · serbest rutin · 10 dk</small></span>
-          <span class="end">42 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
-      </div>
-    </div>
 
-    <div class="fp-card" style="margin-top:22px">
-      <div class="fp-head">
-        <h3><i class="fa-solid fa-table-list"></i> Set kaydı — Goblet Squat</h3>
-        <a class="fp-act" href="egzersiz-detay-v1.html">Harekete git <i class="fa-solid fa-arrow-right"></i></a>
+      <div class="fp-stats">
+        <div class="fp-stat is-fit"><b>23</b><span>tamamlanan antrenman</span></div>
+        <div class="fp-stat"><b>8s 40dk</b><span>toplam hareket süresi</span></div>
+        <div class="fp-stat"><b>5 gün</b><span>en uzun seri</span></div>
+        <div class="fp-stat"><b>3</b><span>bu hafta</span></div>
       </div>
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;min-width:420px">
-          <thead><tr style="text-align:left;border-bottom:1px solid var(--line)">
-            <th style="padding:10px 8px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Tarih</th>
-            <th style="padding:10px 8px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Set</th>
-            <th style="padding:10px 8px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Tekrar</th>
-            <th style="padding:10px 8px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Ağırlık</th>
-            <th style="padding:10px 8px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Değişim</th>
-          </tr></thead>
-          <tbody style="font-size:14px;font-weight:600;color:var(--slate)">
-            <tr style="border-bottom:1px solid var(--line)"><td style="padding:11px 8px">Dün</td><td style="padding:11px 8px">3</td><td style="padding:11px 8px">12</td><td style="padding:11px 8px">10 kg</td><td style="padding:11px 8px;color:var(--fit-deep)">+2 kg</td></tr>
-            <tr style="border-bottom:1px solid var(--line)"><td style="padding:11px 8px">4 Ağu</td><td style="padding:11px 8px">3</td><td style="padding:11px 8px">12</td><td style="padding:11px 8px">8 kg</td><td style="padding:11px 8px;color:var(--muted)">—</td></tr>
-            <tr><td style="padding:11px 8px">28 Tem</td><td style="padding:11px 8px">3</td><td style="padding:11px 8px">10</td><td style="padding:11px 8px">8 kg</td><td style="padding:11px 8px;color:var(--fit-deep)">+2 tekrar</td></tr>
-          </tbody>
-        </table>
+
+      <div class="fp-card fpx-mt">
+        <div class="fp-head">
+          <h3><i class="fa-solid fa-dumbbell"></i> Son antrenmanların</h3>
+          <a class="fp-act" href="aktivite-gunlugu-v1.html">Aktivite Günlüğü <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="fp-list">
+          <div class="fp-row"><span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
+            <span class="txt"><b>Alt vücut ve core · 4 Hafta Ev Antrenmanı</b><small>Dün · 6 hareket · 18 set · 24 dk</small></span>
+            <span class="end">310 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
+          <div class="fp-row"><span class="ico"><i class="fa-solid fa-person-running"></i></span>
+            <span class="txt"><b>Sabah 5 Dakika Esneme</b><small>2 gün önce · serbest rutin · 5 dk</small></span>
+            <span class="end">28 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
+          <div class="fp-row"><span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
+            <span class="txt"><b>Üst vücut · 4 Hafta Ev Antrenmanı</b><small>3 gün önce · 5 hareket · 15 set · 26 dk</small></span>
+            <span class="end">295 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
+          <div class="fp-row"><span class="ico"><i class="fa-solid fa-forward"></i></span>
+            <span class="txt"><b>Kaçırılan gün</b><small>5 gün önce · plan haftanın sonuna kaydırıldı</small></span>
+            <span class="end"><span class="fp-badge off">Kaçtı</span></span></div>
+          <div class="fp-row"><span class="ico"><i class="fa-solid fa-person-walking"></i></span>
+            <span class="txt"><b>Masa Başı Molası</b><small>6 gün önce · serbest rutin · 10 dk</small></span>
+            <span class="end">42 kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>
+        </div>
       </div>
-      <p style="font-size:13px;color:var(--muted);font-weight:500;margin-top:14px">Kayıtlarını düzeltebilir ya da silebilirsin — <a href="fit-planim-veri-izin-v1.html" style="color:var(--fit-deep);font-weight:700">Veri ve İzinlerim</a>.</p>
+
+      <div class="fp-card fpx-mt">
+        <div class="fp-head">
+          <h3><i class="fa-solid fa-table-list"></i> Set kaydı — Goblet Squat</h3>
+          <a class="fp-act" href="egzersiz-detay-v1.html">Harekete git <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="fpx-tablo-kutu">
+          <table class="fpx-tablo">
+            <caption class="sr-only">Goblet Squat hareketinin son üç kaydı: tarih, set, tekrar, ağırlık ve bir önceki kayda göre değişim</caption>
+            <thead><tr><th scope="col">Tarih</th><th scope="col">Set</th><th scope="col">Tekrar</th><th scope="col">Ağırlık</th><th scope="col">Değişim</th></tr></thead>
+            <tbody>
+              <tr><td>Dün</td><td>3</td><td>12</td><td>10 kg</td><td class="is-up">+2 kg</td></tr>
+              <tr><td>4 Ağustos</td><td>3</td><td>12</td><td>8 kg</td><td class="is-flat">—</td></tr>
+              <tr><td>28 Temmuz</td><td>3</td><td>10</td><td>8 kg</td><td class="is-up">+2 tekrar</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fpx-note-sm">Kayıtlarını düzeltebilir ya da silebilirsin — <a href="fit-planim-veri-izin-v1.html">Veri ve İzinlerim</a>.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -99,26 +372,251 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- PLAN KAYDI SÖZLEŞMESİ (lead yazar) — Fit Planım yalnız OKUR -->
+<script src="assets/js/fit-plan-kayit.js"></script>
 <script>
-/* ===== Fit Planım · Antrenman Geçmişim — tamamlanan antrenmanlar listeye işlenir ===== */
-(function(){
-  var S=window.FIT_SHELL && window.FIT_SHELL.state; if(!S)return;
-  function paint(){
-    var st=S.read();
-    var list=document.querySelector('.fp-card .fp-list'); if(!list)return;
-    list.querySelectorAll('.fp-row[data-live]').forEach(function(r){r.remove();});
-    (st.gecmis||[]).slice(0,5).reverse().forEach(function(g){
-      var row=document.createElement('div');
-      row.className='fp-row'; row.setAttribute('data-live','1');
-      row.innerHTML='<span class="ico"><i class="fa-solid fa-check"></i></span>'+
-        '<span class="txt"><b>'+g.ad+'</b><small>'+g.tarih+' · '+g.dk+' dk</small></span>'+
-        '<span class="end">'+g.kcal+' kcal<br><span class="fp-badge ok">Tamamlandı</span></span>';
+/* ===== FPX — Fit Planım ailesi · ortak yardımcı (REVİZYON 6 · madde 19) =====
+   DEPOLAMA SÖZLEŞMESİ: assets/js/fit-plan-kayit.js (window.FIT_PLAN) tek
+   kaynaktır. Bu blok kendi depolama kodunu YAZMAZ — yalnız FIT_PLAN'ı okur
+   ve FIT_PLAN.isaretle() çağırır. Modül yoksa sayfa sessizce boş duruma
+   düşer, hata basmaz (madde 19: "dürüst boş durum, uydurma veri yok"). */
+var FPX = (function () {
+  'use strict';
+
+  var AY = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+            'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function api()     { return window.FIT_PLAN || null; }
+  function aktif()   { var a=api(); return a ? a.aktif()   : null; }
+  function ozet(id)  { var a=api(); return a ? a.ozet(id)  : null; }
+  function planlar() { var a=api(); return a ? a.listele() : []; }
+
+  function tarih(iso){
+    if(!iso) return null;
+    var d = new Date(iso); if(isNaN(d.getTime())) return null;
+    return d.getDate() + ' ' + AY[d.getMonth()];
+  }
+  function gecen(iso){
+    if(!iso) return null;
+    var d = new Date(iso); if(isNaN(d.getTime())) return null;
+    var f = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if(f <= 0) return 'bugün';
+    if(f === 1) return 'dün';
+    return f + ' gün önce';
+  }
+  /* hareketin görünen ölçüsü — set/tekrar/süre alanları serbest (şema) */
+  function olcu(h){
+    var p = [];
+    if(h.set)    p.push(h.set + ' set');
+    if(h.tekrar) p.push(h.tekrar + ' tekrar');
+    if(h.sure)   p.push(h.sure);
+    return p.join(' · ');
+  }
+  function gun(plan, no){
+    if(!plan) return null;
+    var g = (plan.gunler||[]).filter(function(x){ return x.no === no; })[0];
+    return g || (plan.gunler||[])[0] || null;
+  }
+
+  /* --- üst özet kartını doldurur ---------------------------------
+     v = { kicker, baslik, alt, oran(0-100|null), meta:[html],
+           gunler:html, acts:html, stats:[{deger,birim,etiket,fit}] }
+     stats boş ya da yoksa kart "is-empty" olur, sağ kolon basılmaz. */
+  function ozetKarti(v){
+    var kok = document.getElementById('fpxSum'); if(!kok) return;
+    var Q = function(id){ return document.getElementById(id); };
+    var yaz = function(el, html, gizle){
+      if(!el) return;
+      if(html){ el.innerHTML = html; el.hidden = false; }
+      else { el.innerHTML = ''; el.hidden = !!gizle; }
+    };
+
+    if(v.kicker)  Q('fpxKicker').textContent = v.kicker;
+    if(v.baslik)  Q('fpxTitle').textContent  = v.baslik;
+    if(v.alt !== undefined){
+      var sub = Q('fpxSub');
+      if(sub){ sub.innerHTML = v.alt || ''; sub.hidden = !v.alt; }
+    }
+
+    var bar = Q('fpxBar');
+    if(bar){
+      if(typeof v.oran === 'number'){
+        bar.hidden = false;
+        bar.firstElementChild.style.width = Math.max(0, Math.min(100, v.oran)) + '%';
+        bar.setAttribute('role','img');
+        bar.setAttribute('aria-label','İlerleme yüzde ' + v.oran);
+      } else { bar.hidden = true; }
+    }
+
+    yaz(Q('fpxMeta'),   (v.meta && v.meta.length) ? v.meta.join('') : '', true);
+    yaz(Q('fpxGunler'), v.gunler || '', true);
+    if(v.acts !== undefined) yaz(Q('fpxActs'), v.acts || '', true);
+
+    var st = Q('fpxStats');
+    if(st){
+      var s = v.stats || [];
+      st.innerHTML = s.map(function(x){
+        return '<div class="fpx-stat' + (x.fit ? ' is-fit' : '') + '">' +
+               '<b>' + esc(x.deger) + (x.birim ? '<small> ' + esc(x.birim) + '</small>' : '') + '</b>' +
+               '<span>' + esc(x.etiket) + '</span></div>';
+      }).join('');
+      kok.classList.toggle('is-empty', s.length === 0);
+    }
+  }
+
+  /* --- gün şeridi: her gün bir çip, tamamlananlar işaretli --------- */
+  function gunSeridi(plan, aktifGun){
+    if(!plan || !(plan.gunler||[]).length) return '';
+    return (plan.gunler||[]).map(function(g){
+      var t = (g.hareketler||[]).length, y = 0;
+      (g.hareketler||[]).forEach(function(_, i){
+        var it = (plan.ilerleme||{})['g' + g.no + '-h' + i];
+        if(it && it.yapildi && it.seviye !== 'atlandi') y++;
+      });
+      var bitti = t > 0 && y >= t;
+      var cls = bitti ? ' is-on' : (g.no === aktifGun ? ' is-now' : '');
+      return '<span class="fpx-gun' + cls + '">' +
+             (bitti ? '<i class="fa-solid fa-check" aria-hidden="true"></i> ' : '') +
+             esc(g.ad || ('Gün ' + g.no)) +
+             '<small>' + y + '/' + t + '</small></span>';
+    }).join('');
+  }
+
+  /* --- kayıtlı planlardan işaretlenmiş hareketleri tarihe göre döker */
+  function isaretler(){
+    var cikti = [];
+    planlar().forEach(function(p){
+      (p.gunler||[]).forEach(function(g){
+        (g.hareketler||[]).forEach(function(h, i){
+          var it = (p.ilerleme||{})['g' + g.no + '-h' + i];
+          if(!it || !it.yapildi) return;
+          cikti.push({ plan:p, planAd:p.ad, gun:g, hareket:h, idx:i,
+                       seviye:it.seviye, tarih:it.tarih });
+        });
+      });
+    });
+    return cikti.sort(function(a,b){ return String(b.tarih).localeCompare(String(a.tarih)); });
+  }
+
+  var SEVIYE_ETIKET = { tam:'Tamamlandı', yarim:'Yarım', atlandi:'Atlandı' };
+  var SEVIYE_ROZET  = { tam:'ok',         yarim:'wait',  atlandi:'off' };
+
+  /* kayıt değişince ve kabuk durumu değişince yeniden boya */
+  function dinle(fn){
+    window.addEventListener('fit-plan-degisti', fn);
+    document.addEventListener('fit:state', fn);
+    fn();
+  }
+
+  return { esc:esc, aktif:aktif, ozet:ozet, planlar:planlar, tarih:tarih,
+           gecen:gecen, olcu:olcu, gun:gun, ozetKarti:ozetKarti,
+           gunSeridi:gunSeridi, isaretler:isaretler, dinle:dinle,
+           SEVIYE_ETIKET:SEVIYE_ETIKET, SEVIYE_ROZET:SEVIYE_ROZET };
+})();
+/* ===== Aktivite Kayıtlarım — plandan gelen işaretler (FIT_PLAN) ===== */
+(function () {
+  'use strict';
+  var liste = document.getElementById('fpxIsaretler');
+  var bos   = document.getElementById('fpxIsaretBos');
+  var sayi  = document.getElementById('fpxIsaretSayi');
+
+  var BOS_ACTS =
+    '<a class="btn btn-fit" href="antrenman-olusturucu-v1.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Plan oluştur</a>' +
+    '<a class="btn btn-ghost" href="programlar-merkezi-v1.html">Hazır programlara bak</a>';
+  var DOLU_ACTS =
+    '<a class="btn btn-fit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-calendar-days"></i> Plana git</a>' +
+    '<a class="btn btn-ghost" href="fit-planim-ilerleme-v1.html">İlerlemene bak</a>';
+
+  function boya() {
+    var kayitlar = FPX.isaretler();
+    var planSayisi = FPX.planlar().length;
+
+    if (!kayitlar.length) {
+      FPX.ozetKarti({
+        kicker: 'Kayıt defterin',
+        baslik: planSayisi ? 'Planın var, işaretin yok' : 'Henüz işaretlediğin hareket yok',
+        alt: planSayisi
+          ? 'Kayıtlı planında bir hareketi işaretlediğinde kaydı burada, tarihiyle ve seviyesiyle görürsün.'
+          : 'Bir planı kaydedip hareketlerini işaretlemeye başladığında, her işaret tarihiyle birlikte buraya düşer.',
+        oran: null, meta: [], gunler: '',
+        acts: planSayisi ? DOLU_ACTS : BOS_ACTS, stats: []
+      });
+      liste.innerHTML = '';
+      bos.classList.add('show');
+      sayi.hidden = true;
+      return;
+    }
+
+    var tam = 0, yarim = 0, atlandi = 0;
+    kayitlar.forEach(function (k) {
+      if (k.seviye === 'yarim') yarim++; else if (k.seviye === 'atlandi') atlandi++; else tam++;
+    });
+    var son = FPX.gecen(kayitlar[0].tarih);
+
+    FPX.ozetKarti({
+      kicker: 'Kayıt defterin',
+      baslik: kayitlar.length + ' hareket kaydı',
+      alt: 'Kayıtlı ' + planSayisi + ' planından gelen işaretler. Son işaret <b>' + FPX.esc(son || '—') + '</b>.',
+      oran: null,
+      meta: [
+        '<span><b>' + tam + '</b> tamamlandı</span>',
+        '<span><b>' + yarim + '</b> yarım</span>',
+        '<span><b>' + atlandi + '</b> atlandı</span>'
+      ],
+      gunler: '', acts: DOLU_ACTS,
+      stats: [
+        { deger: String(kayitlar.length), etiket: 'hareket kaydı', fit: true },
+        { deger: String(planSayisi),      etiket: planSayisi === 1 ? 'kayıtlı plan' : 'kayıtlı plan' },
+        { deger: FPX.tarih(kayitlar[0].tarih) || '—', etiket: 'son kayıt' }
+      ]
+    });
+
+    bos.classList.remove('show');
+    sayi.hidden = false;
+    sayi.textContent = kayitlar.length + ' kayıt';
+    liste.innerHTML = kayitlar.slice(0, 25).map(function (k) {
+      var rozet = FPX.SEVIYE_ROZET[k.seviye] || 'ok';
+      var etiket = FPX.SEVIYE_ETIKET[k.seviye] || 'Tamamlandı';
+      var olcu = FPX.olcu(k.hareket);
+      return '<div class="fp-row">' +
+        '<span class="ico"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + FPX.esc(k.hareket.ad || k.hareket.slug || 'Hareket') + '</b>' +
+        '<small>' + FPX.esc(k.planAd || 'Plan') + ' · ' +
+        FPX.esc(k.gun.ad || ('Gün ' + k.gun.no)) + (olcu ? ' · ' + FPX.esc(olcu) : '') + '</small></span>' +
+        '<span class="end">' + FPX.esc(FPX.gecen(k.tarih) || '') +
+        '<br><span class="fp-badge ' + rozet + '">' + etiket + '</span></span></div>';
+    }).join('');
+  }
+
+  FPX.dinle(boya);
+})();
+
+/* ===== Kabuk durumundan gelen tamamlanan antrenmanlar (belge §19) ===== */
+(function () {
+  var S = window.FIT_SHELL && window.FIT_SHELL.state; if (!S) return;
+  var kart = document.querySelectorAll('.fpx-sec .fp-card');
+  var list = kart.length > 1 ? kart[1].querySelector('.fp-list') : null;
+  if (!list) return;
+  function paint() {
+    var st = S.read();
+    list.querySelectorAll('.fp-row[data-live]').forEach(function (r) { r.remove(); });
+    (st.gecmis || []).slice(0, 5).reverse().forEach(function (g) {
+      var row = document.createElement('div');
+      row.className = 'fp-row'; row.setAttribute('data-live', '1');
+      row.innerHTML = '<span class="ico"><i class="fa-solid fa-check"></i></span>' +
+        '<span class="txt"><b>' + g.ad + '</b><small>' + g.tarih + ' · ' + g.dk + ' dk</small></span>' +
+        '<span class="end">' + g.kcal + ' kcal<br><span class="fp-badge ok">Tamamlandı</span></span>';
       list.insertBefore(row, list.firstChild);
     });
-    var stats=document.querySelectorAll('.fp-stats .fp-stat b');
-    if(stats.length && st.gecmis) stats[0].textContent = 23 + st.gecmis.length;
+    var stats = document.querySelectorAll('.fp-stats .fp-stat b');
+    if (stats.length && st.gecmis) stats[0].textContent = 23 + st.gecmis.length;
   }
-  document.addEventListener('fit:state',paint); paint();
+  document.addEventListener('fit:state', paint); paint();
 })();
 </script>
 </body>

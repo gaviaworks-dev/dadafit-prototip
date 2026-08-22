@@ -2430,9 +2430,14 @@ Sayfalar **silinmedi**: `PLAN_TABS`'tan `PLAN_EXTRA`'ya geçtiler, yani
 - **İlerlemem @390'da** header'dan indi → drawer'ın Planım bölümünde
   duruyor (ölçüldü: `Plan ve Takvim · İlerlemem`) ve alt bardaki Planım
   aynı raya çıkıyor.
-- **Fit Test Sonuçlarım** sayfası henüz yok → ölü bağlantı bırakılmadı,
-  `yerTutucu` deseni uygulandı (href yok · odak sırasında değil ·
-  `aria-disabled="true"` · "Yakında"); `docs/icerik-bekleyen.md`'ye kaydedildi.
+- **Fit Test Sonuçlarım** — tur içinde yer tutucu olarak açıldı, tur içinde
+  KAPANDI. Sayfa yokken ölü bağlantı bırakılmadı: `yerTutucu` deseni
+  uygulandı (href yok · odak sırasında değil · `aria-disabled="true"` ·
+  "Yakında") ve `docs/icerik-bekleyen.md`'ye kaydedildi. R9-DOKUMAN sayfayı
+  üretince kalem gerçek bağlantıya bağlandı, kütük satırı kütüğün 3. kuralı
+  gereği silindi. Ölçüldü: HTTP 200 · h1 "Fit Test Sonuçlarım" · breadcrumb
+  çözülüyor · 7 bölüm · konsol hatası 0 · yatay taşma 0.
+  `yerTutucu` **mekanizması** duruyor — bir sonraki bağlanmamış kalem için.
 
 ### Fazın kendi kusurları — üçü de nöbetten ÖNCE ölçümle bulundu
 

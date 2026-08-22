@@ -178,11 +178,12 @@ var BOTTOM = [
      · antrenman-olusturucu-v1) alt barda da Hareket kalemini aktif etsin —
      ayrı bir alt bar kalemi açılmıyor, §3.2'nin "beşten fazla sabit öğe
      olamaz" kuralı korunuyor. */
-  {label:'Hareket',    href:'egzersiz-kutuphane-v1.html',    icon:'fa-solid fa-person-running',  match:['egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
+  {label:'Hareketler', href:'egzersiz-kutuphane-v1.html',    icon:'fa-solid fa-person-running',  match:['egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
   /* R8 madde 1 — `cls` alanı: alt bar kalemi oturuma bağlandı (bn-plan). */
   {label:'Planım',     cls:'bn-plan', href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
-  {label:'Hesabım',    href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
+  /* §1 — belge alt bar son kalemini "Profil" diye adlandırıyor. */
+  {label:'Profil',     href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
 
 /* ============================================================
@@ -331,20 +332,16 @@ var FOOTER_LEGAL = { title:'Yasal ve Sağlık', links:[
  Ray dışı sayfalar hâlâ Planım kabuğunu (banner + breadcrumb) kullanıyor;
  anahtarları PLAN_PAGES'te durmazsa başlık/breadcrumb çözümü boşa düşer.
  ------------------------------------------------------------------ */
+/* R9 · K66 — RAY ÜÇE İNDİ. Yeni belge §2 Planım rayının içeriğini açılır
+   menüye taşıyor; rayda yalnız "Planım" kümesi kalıyor (§3 Bugün · §4 Plan ve
+   Takvim · §5 İlerlemem). Aktivite Kayıtlarım · Kaydettiklerim · Antrenörüm ·
+   Enerji Defteri raydan İNDİ ama SİLİNMEDİ — PLAN_EXTRA'ya geçtiler, yani
+   banner/breadcrumb çözümleri ve data-plan-page anahtarları aynen çalışıyor.
+   Erişim kaybı yok: dördü de açılır menüde kendi kalemini aldı. */
 var PLAN_TABS = [
-  {key:'bugun',         label:'Bugün',              href:'fit-planim-v1.html',                icon:'fa-solid fa-sun',               desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
-  {key:'programim',     label:'Plan ve Takvim',     href:'fit-planim-programim-v1.html',      icon:'fa-solid fa-calendar-days',     desc:'Aktif program, haftalık plan, takvim'},
-  {key:'gecmis',        label:'Aktivite Kayıtlarım',href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
-  {key:'ilerleme',      label:'İlerlemem',          href:'fit-planim-ilerleme-v1.html',       icon:'fa-solid fa-chart-line',        desc:'Süre, gelişim, challenge, rozetler'},
-  {key:'kaydettiklerim',label:'Kaydettiklerim',     href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
-  /* anahtar 'randevular' KALIYOR: sayfa kendi data-plan-page="randevular"
-     değerini bildiriyor. Değişen yalnız görünen ad — anahtarı değiştirmek
-     sayfanın banner/breadcrumb çözümünü kırardı. */
-  {key:'randevular',    label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
-  /* G1 — Enerji Defteri üst menüden çıkıp buraya geldi. Beyar'ın G2'de saydığı
-     altı sayfa (Bugün · Plan ve Takvim · Aktivite Kayıtlarım · İlerlemem ·
-     Kaydettiklerim · Antrenörüm) yerinde duruyor; defter yedinci kalem. */
-  {key:'defter',        label:'Enerji Defteri',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'}
+  {key:'bugun',     label:'Bugün',          href:'fit-planim-v1.html',           icon:'fa-solid fa-sun',           desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
+  {key:'programim', label:'Plan ve Takvim', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-calendar-days', desc:'Aktif program, haftalık plan, takvim'},
+  {key:'ilerleme',  label:'İlerlemem',      href:'fit-planim-ilerleme-v1.html',  icon:'fa-solid fa-chart-line',    desc:'Süre, gelişim, challenge, rozetler'}
 ];
 
 /* Ray dışında kalan ama Planım kabuğunu kullanan sayfalar. Ray'da GÖRÜNMEZLER;
@@ -357,6 +354,13 @@ var PLAN_EXTRA = [
   {key:'defter-dengele',  label:'Dengele',        href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced', desc:'Yediğini hareketle dengele'},
   {key:'defter-su',       label:'Su Takibi',      href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet',        desc:'Günlük su hedefin'},
   {key:'defter-haftalik', label:'Haftalık Özet',  href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week',  desc:'Haftanın hareket ve enerji tablosu'},
+  /* R9 · K66 — raydan inip menüye geçen dört sayfa. Ray'da GÖRÜNMEZLER,
+     kabuğu (banner + breadcrumb) kullanmaya devam ederler. */
+  {key:'testlerim',      label:'Fit Test Sonuçlarım',href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin, kategori kapsamın ve kendi başlangıcınla karşılaştırman'},
+  {key:'gecmis',         label:'Aktivite Kayıtlarım',href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
+  {key:'kaydettiklerim', label:'Kaydettiklerim',     href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
+  {key:'randevular',     label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
+  {key:'defter',         label:'Enerji Defteri',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
   {key:'aktivite',  label:'Aktivite Günlüğü',           href:'aktivite-gunlugu-v1.html',         icon:'fa-solid fa-shoe-prints',            desc:'Adım, süre, mesafe, yaklaşık enerji'},
   {key:'cihazlar',  label:'Bağlı Uygulamalar',          href:'bagli-uygulamalar-v1.html',        icon:'fa-solid fa-plug-circle-check',      desc:'Apple Health · Health Connect · saat'},
   {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
@@ -373,79 +377,71 @@ var PLAN_NAV = PLAN_PAGES;
  ekosistem değiştiriciden (üst bant marka barı)
  geçilir. Burada yalnız DadaFit kalemleri var. */
 /* ============================================================
- HESABIM — belge §5
+ AÇILIR KULLANICI MENÜSÜ — yeni belge §2
  ------------------------------------------------------------
- "Planım ile Hesabım birbirine karıştırılmamalıdır." Bu yüzden hesap
- menüsü artık Planım rayının kopyası DEĞİL: Planım'a tek giriş verir,
- gerisi hesap/üyelik/veri kalemleridir.
+ K66 · KARARIN DEVRİLDİĞİ YER. Eski hâli şunu diyordu:
+   "Planım ile Hesabım birbirine karıştırılmamalıdır" (önceki belge §5)
+ ve bu yüzden menü = 19 hesap kalemi, ray = 7 sekme idi.
 
- Belgenin saydığı on dört modül. Bir kısmı bugün hesabim-v1 içindeki
- bölümler; onlara çapayla gidilir (ayrı sayfa çoğaltmamak için — belge
- sonu "gereksiz sayfa çoğaltacak değişiklikler yapma" diyor). Üyelik/
- faturalandırma ve destek talepleri kendi sayfalarını alıyor (belge §24).
+ Yeni belge §2 bunun TERSİNİ istiyor ve Beyar "belge birebir uygulansın"
+ dedi. Artık:
+   · Planım rayının içeriği (Aktivite Kayıtlarım · Kaydettiklerim ·
+     Challenge ve Rozetler · Fit Test Sonuçlarım · Antrenörüm · Enerji
+     Defterim) MENÜDE, üç başlıklı grup hâlinde
+   · 19 hesap kalemi tek "Hesap ve Ayarlar" kalemine KATLANDI —
+     hesabim-v1 içindeki çapa bölümleri (#guvenlik #dil #bildirim #dondur
+     #sil) yerinde duruyor, menüden değil sayfadan geziliyor
+   · Bildirimler menüden ÇIKTI — §1 "header'da duracak, menüye tekrar
+     konmayacak" diyor; zil zaten head-actions'ta
+ Toplam 11 kalem (belge §2 birebir).
  ============================================================ */
-var ACCOUNT_ITEMS = [
-  {label:'Profil Bilgilerim',           href:'profil-v1.html',                   icon:'fa-solid fa-id-card',       desc:'Ad, foto, görünen bilgiler'},
-  {label:'Sağlık ve Hareket Profilim',  href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',   desc:'Kısıt, hedef, tercih'},
-  {label:'Veri ve İzinlerim',           href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',  desc:'Neyi kiminle paylaştığın · uygulama tercihleri'},
-  {label:'Bildirim Tercihlerim',        href:'hesabim-v1.html#bildirim',         icon:'fa-solid fa-bell-slash',    desc:'Hangi bildirimi alacaksın'},
-  /* ---- AŞAMA NOTU KAPANDI (Faz 5 indi) ----
-     Bu üç kalem (Bağlı Uygulamalar · Üyelik-Ödeme-Fatura · Destek Taleplerim)
-     sayfaları henüz üretilmediği için GEÇİCİ olarak var olan en yakın sahibine
-     bağlıydı. Belge §24'ün istediği sayfalar Faz 5'te üretildi; söz verildiği gibi
-     YALNIZ href'ler değişti, menü yapısına dokunulmadı:
-       Bağlı Uygulamalar → bagli-uygulamalar-v1.html
-       Üyelik ve Paketim / Ödeme Geçmişim / Faturalarım → uyelik-faturalandirma-v1.html (#paket, #odeme-gecmisi, #faturalar)
-       Destek Taleplerim → destek-talepleri-v1.html
-     hesabim-v1 içindeki eski çapa bölümleri yerinde duruyor; menü artık belgenin
-     saydığı gerçek sayfalara gidiyor. */
-  /* G1 — Beyar "Enerji defterini profile koyabilirsin" dedi; profil bağlamının
-     header'daki karşılığı bu menü. Planım rayında da duruyor, ikisi AYNI hedefe
-     gidiyor ama farklı bağlamlar (biri kişisel alan rayı, biri hesap menüsü). */
-  {label:'Enerji Defteri',              href:'enerji-defteri-v1.html',    icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
-  {label:'Bağlı Uygulamalar',           href:'bagli-uygulamalar-v1.html', icon:'fa-solid fa-plug-circle-check', desc:'Apple Health · Health Connect · saat'},
-  {sep:true},
-  {label:'Üyelik ve Paketim',           href:'uyelik-faturalandirma-v1.html#paket',    icon:'fa-solid fa-crown',         desc:'Aktif paket, yenileme, iptal'},
-  {label:'Ödeme Geçmişim',              href:'uyelik-faturalandirma-v1.html#odeme-gecmisi', icon:'fa-solid fa-receipt',    desc:'Geçmiş ödemeler'},
-  {label:'Faturalarım',                 href:'uyelik-faturalandirma-v1.html#faturalar', icon:'fa-solid fa-file-invoice', desc:'Fatura belgeleri'},
-  {sep:true},
-  {label:'Güvenlik',                    href:'hesabim-v1.html#guvenlik',         icon:'fa-solid fa-lock',          desc:'Şifre ve oturumlar'},
-  {label:'Dil ve Bölge',                href:'hesabim-v1.html#dil',              icon:'fa-solid fa-globe',         desc:'Arayüz dili, birimler'},
-  /* R8 madde 6 — avatar dropdown'ına İKİ giriş. "Destek Taleplerim" kalemi
-     "Taleplerim" olarak yeniden adlandırıldı (ikinci kopya AÇILMADI —
-     kabul ölçütü destek-talepleri-v1.html'in dropdown'da tam 1 kez
-     geçmesini istiyor), yanına "Destek" kalemi eklendi.
-     Hedef AJAN-F'nin `destek-v1.html` sayfası (h1 "Destek", HTTP 200
-     doğrulandı) — yer tutucu kalkıp gerçek bağlantı bağlandı. */
-  {sep:true},   /* R8 madde 6 — destek ikilisi kendi grubunda: "Güvenlik / Dil ve
-                   Bölge" ayar kuyruğuna iliştirilmiş görünüyordu. */
-  {label:'Destek',                      href:'destek-v1.html',                   icon:'fa-solid fa-life-ring',     desc:'Yardım konuları ve iletişim'},
-  {label:'Taleplerim',                  href:'destek-talepleri-v1.html',         icon:'fa-solid fa-headset',       desc:'Açtığın talepler'},
-  {sep:true},
-  {label:'Hesabı Dondurma',             href:'hesabim-v1.html#dondur',           icon:'fa-solid fa-circle-pause',  desc:'Geçici olarak ara ver'},
-  {label:'Verilerimi İndir',            href:'fit-planim-veri-izin-v1.html#indir',icon:'fa-solid fa-download',     desc:'Kopyanı al'},
-  {label:'Hesabımı Sil',                href:'hesabim-v1.html#sil',              icon:'fa-solid fa-user-xmark',    desc:'Kalıcı olarak kapat', cls:'acct-danger'}
-];
 
-/* Header'daki avatar menüsü: Planım'a TEK giriş + Bildirimler + Hesabım kalemleri.
-   Planım'ın altı sekmesi burada TEKRARLANMAZ — ray zaten Planım sayfalarında
-   duruyor ve "Planım ile Hesabım karıştırılmaz" kuralı bunu gerektiriyor. */
+/* §14 · üyelik kalemi kademeye göre ad değiştirir. Kaynak: dm_user.paket.
+   Prototip kancası — kademe yoksa "ucretsiz" varsayılır. */
+function uyelikKalemi(){
+  var paket='ucretsiz', odemeSorunu=false;
+  try{
+    var u=JSON.parse(localStorage.getItem('dm_user')||'{}');
+    if(u && u.paket) paket=String(u.paket);
+    odemeSorunu = !!(u && u.odemeSorunu);
+  }catch(e){}
+  if(odemeSorunu) return {label:'Aboneliğim — İşlem Gerekli', href:'uyelik-faturalandirma-v1.html#paket',
+                          icon:'fa-solid fa-triangle-exclamation', cls:'acct-uyari', desc:'Ödeme alınamadı, güncelle'};
+  if(paket==='pro_max')  return {label:'Pro Max Üyeliğim', href:'uyelik-faturalandirma-v1.html#paket',
+                                 icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
+  if(paket==='pro')      return {label:'Aboneliğim',       href:'uyelik-faturalandirma-v1.html#paket',
+                                 icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
+  return {label:"Pro'ya Yükselt", href:'pro-v1.html', icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Tüm programlar, video seansları, testler'};
+}
+
 var ACCOUNT = [
-  /* R8 madde 1 — "Planım" kalemi buradan KALDIRILDI. Beyar: düğme header'da
-     kalır, dropdown'a KONMAZ. (Referans dadadiet.com'un hesap menüsünde hâlâ
-     duruyor — ölçüldü; bu bilinçli bir ayrışma.) Erişim kaybı yok: giriş
-     durumunda header düğmesi, mobilde alt bar kalemi aynı hedefe gider. */
-  {label:'Bildirimler', href:'bildirimler-v1.html', icon:'fa-solid fa-bell'},
-  {sep:true}
-].concat(ACCOUNT_ITEMS).concat([
+  {grup:'Günlük Takibim'},
+  {label:'Enerji Defterim',      href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
+  {label:'Aktivite Kayıtlarım',  href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
+  {label:'Kaydettiklerim',       href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
+
+  {grup:'Gelişimim'},
+  {label:"Challenge'larım ve Rozetlerim", href:'fit-planim-rozetler-v1.html', icon:'fa-solid fa-medal',          desc:'Kilometre taşların'},
+  /* YER TUTUCU KAPANDI — sayfa geldi (R9-DOKUMAN) ve bağlandı. Ölçüldü:
+     HTTP 200 · h1 "Fit Test Sonuçlarım" · breadcrumb çözülüyor · 7 bölüm ·
+     konsol hatası 0 · yatay taşma 0. `docs/icerik-bekleyen.md` kaydı
+     kütüğün 3. kuralı gereği silindi.
+     `yerTutucu` MEKANİZMASI duruyor (`accountHtml()` · `drawerAccountHtml()`):
+     bir sonraki bağlanmamış kalem için hazır — ölü `href="#"` bırakmadan
+     odak dışı, aria-disabled, "Yakında" etiketli kalem basar. */
+  {label:'Fit Test Sonuçlarım',  href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin, kategori kapsamın ve kendi başlangıcınla karşılaştırman'},
+  {label:'Antrenörüm',           href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
+
+  {grup:'Profil ve Üyelik'},
+  {label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',  desc:'Kısıt, hedef, tercih'},
+  uyelikKalemi(),
+  {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-gear',              desc:'Profil, güvenlik, dil, birimler, veri'},
+  {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-circle-question',   desc:'Yardım ve taleplerin'},
   {sep:true},
-  {label:"Pro'ya Yükselt", href:'pro-v1.html', icon:'fa-solid fa-crown', cls:'acct-pro'},
-  {sep:true},
-  /* "DadaMutfak'a dön" kalemi KALDIRILDI (belge §1: DadaFit'in hesap ve üyelik
-     yapısı bağımsız görünmeli). Ekosistem geçişi üst banttaki marka barında
-     duruyor — kontrollü bağlantı orada. Çıkış artık DadaFit'in kendi hedefine. */
+  /* "DadaMutfak'a dön" kalemi burada YOK (belge §1: DadaFit'in hesap ve üyelik
+     yapısı bağımsız görünmeli). Ekosistem geçişi üst banttaki marka barında. */
   {label:'Çıkış', href:FIT_LOGOUT, icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
-]);
+];
 
 /* ============================================================
  2 · AKTİF SAYFA ÇÖZÜMÜ
@@ -459,6 +455,7 @@ function isActive(item){
 }
 /* Planım alanındaki herhangi bir sayfada mıyız? (header düğmesi + drawer bölümü için) */
 var PLAN_ACTIVE = PLAN_NAV.some(function(p){ return p.href.replace(/\.html$/,'') === PAGE; });
+var ILERLEME_ACTIVE = (PAGE === 'fit-planim-ilerleme-v1');
 var AVA = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5";
 var MARK = '<svg class="fit-mark" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11.5" fill="#009d4f"/><path d="M25 8 L13.6 26 H19.8 L18.2 36 L30.4 17.6 H23.8 Z" fill="#fff"/></svg>';
 var WORD = '<span class="fit-word"><b>Dada</b><span class="ft">Fit</span></span>';
@@ -511,7 +508,35 @@ function drawerNavHtml(){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
   out.push('<div class="d-item d-plan d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
+
+  /* R9 · K66 — AÇILIR MENÜNÜN MOBİL KARŞILIĞI.
+     ÖLÇÜLEN KUSUR: §2 rayın içeriğini açılır menüye taşıdı, ama açılır menü
+     @390'da hiç yok (`.acct-wrap` gizli) ve drawer'ın alt şeridi yalnız dört
+     ince bağlantı taşıyordu. Sonuç: @390'da hub'dan iki sıçramada
+     `fit-planim-gecmis-v1` ve `fit-planim-kaydettiklerim-v1` sayfalarına
+     HİÇBİR kapı kalmıyordu (ölçüldü — tabanda drawer'ın Planım bölümü ikisini
+     de taşıyordu, K66 ile ray üçe inince düştüler).
+     Çözüm: menü mobilde de aynı KAYNAKTAN (ACCOUNT) basılır. Ayrı liste
+     tutulmaz — masaüstünde eklenen kalem mobilde kendiliğinden görünür.
+     Katlanır DEĞİL, hep açık: kullanıcı kendi alanını bulmak için gizli bir
+     ok aramak zorunda kalmasın. Bölüm başlıkları `.d-sub-group` — drawer'ın
+     zaten kullandığı dil, yeni görsel dil icat edilmedi. */
+  out.push('<div class="d-item d-acct-block">\n      <div class="d-sub d-acct-sub">\n        '+drawerAccountHtml()+'\n      </div>\n    </div>');
   return out.join('\n    ');
+}
+
+/* ACCOUNT dizisinin drawer karşılığı. Masaüstündeki `accountHtml()` ile TEK
+   KAYNAK, iki biçim: burada `desc` alt satırı basılmaz (drawer satırı dar) ve
+   "Çıkış" atlanır — drawer'ın alt şeridinde zaten var, aynı hedefe ikinci kapı
+   açılmaz. Yer tutucu kalem burada da <a> DEĞİL: odak sırasına girmez. */
+function drawerAccountHtml(){
+  return ACCOUNT.filter(function(a){ return !a.sep && a.cls !== 'acct-logout'; }).map(function(a){
+    if(a.grup) return '<div class="d-sub-group">'+a.grup+'</div>';
+    if(a.yerTutucu) return '<span class="d-soon" data-yer-tutucu="'+a.yerTutucu+
+      '" aria-disabled="true" aria-label="'+a.label+' — sayfa henüz yayında değil, yakında">'+
+      '<i class="'+a.icon+'"></i> '+a.label+'<em class="acct-soon-tag">Yakında</em></span>';
+    return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> '+a.label+'</a>';
+  }).join('\n        ');
 }
 
 function bottomNavHtml(){
@@ -597,6 +622,9 @@ var TOPBAR = ''+
 function accountHtml(){
   return ACCOUNT.map(function(a){
     if(a.sep) return '<div class="acct-div"></div>';
+    /* §2 grup başlığı. <a> değil <p role="presentation">: menü listesinin
+       odak sırasına girmez, ama görsel olarak üç grubu ayırır. */
+    if(a.grup) return '<p class="acct-grup">'+a.grup+'</p>';
     /* YER TUTUCU KALEM — hedef sayfa henüz üretilmedi.
        <a href="#"> DEĞİL <span>: menüde tıklanınca sayfa başına zıplayan ölü
        bağlantı bırakmıyoruz. Mağaza düğmelerinin deseni (footer-yapi §6:
@@ -623,6 +651,10 @@ function headerHtml(){
 /* PLANIM — ana menüye girmez; kişisel buton olarak burada durur ve HER İKİ oturum
  durumunda da görünür (DadaDiet head-actions sırası: arama · Planım · Giriş/Hesap). */
 '        <a class="btn-login btn-plan'+(PLAN_ACTIVE?' active':'')+'" href="fit-planim-v1.html"'+(PLAN_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-list-check"></i> Planım</a>\n'+
+/* §1 — İLERLEMEM header'a çıktı. Belge sırası: Arama · Planım · İlerlemem ·
+ Bildirimler · Profil. İkon düğme: Planım zaten metinli, ikisi yan yana metinli
+ olsa dar ekranda head-actions taşardı (ölçüm: 1440'ta 6 öğe zaten sığıyor). */
+'        <a class="icon-btn head-prog'+(ILERLEME_ACTIVE?' active':'')+'" href="fit-planim-ilerleme-v1.html" aria-label="İlerlemem"'+(ILERLEME_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-chart-line"></i></a>\n'+
 '        <button class="btn-login" onclick="location.href=\'giris-v1.html\'"><i class="fa-regular fa-user"></i> Giriş Yap</button>\n'+
 '        <a class="icon-btn head-bell" href="bildirimler-v1.html" aria-label="Bildirimler"><i class="fa-solid fa-bell"></i><span class="hb-badge">3</span></a>\n'+
 '        <div class="acct-item acct-wrap">\n'+
@@ -662,9 +694,13 @@ function drawerHtml(){
 '      <div class="da-info">\n'+
 '        <b>Elif Şahin</b>\n'+
 '        <div class="da-links">\n'+
-'          <a href="fit-planim-v1.html">Planım</a>\n'+
+/* R9 · K66 — "Planım" ve "Ayarlar" bu şeritten kalktı: ikisi de artık
+ drawer'ın kendi gövdesinde gerçek kalem ("Planım" nav satırı · "Hesap ve
+ Ayarlar" hesap bölümü). Aynı hedefe farklı adla ikinci kapı açılmaz.
+ KALANLAR ikisi de zorunlu: "Bildirimler" §1 gereği menüde YOK ve zil @390'da
+ gizli — drawer bu sayfanın tek mobil kapısı. "Çıkış" hesap bölümünde bilerek
+ basılmıyor, yeri burası. */
 '          <a href="bildirimler-v1.html">Bildirimler</a>\n'+
-'          <a href="hesabim-v1.html">Ayarlar</a>\n'+
 '          <a href="'+FIT_LOGOUT+'">Çıkış</a>\n'+
 '        </div>\n'+
 '      </div>\n'+

@@ -2377,3 +2377,156 @@ canlı probla ayrıca kanıtlıyor (geniş `.jt-flow` yaslanıyor / dar yaslanm�
 > Düzeltme nöbeti zayıflatmıyor: tabanda `.jt-flow` hiç yok, eklenen koşul
 > dalı orada tetiklenmez, ölçüt 2'nin **6 989 izinsiz justify**'ı aynen
 > kırmızı kalır.
+
+---
+
+## K66 · Menü mimarisi TERSİNE döndü — **K66, K25'i ve R8 madde 6'yı geçersiz kılar**
+
+**Devrilen karar.** Önceki ürün belgesi §5 şunu diyordu ve bu cümle
+`fit-shell.js` içine yorum olarak yazılmıştı:
+
+> *"Planım ile Hesabım birbirine karıştırılmamalıdır."*
+
+Bu cümleden türeyen mimari: **Planım rayı 7 sekme**, **avatar dropdown'ı 19
+hesap kalemi**, ikisi kesişmiyor. `tests/plan-account.mjs` de tam bunu
+nöbette tutuyordu ("ray 7 kalem olmalı", "menü rayı tekrarlamamalı",
+"§5'in 14 modülü menüde olmalı").
+
+**Yeni karar.** Yeni ürün belgesi (`DadaFit Giriş Sonrası Kullanıcı Alanı`)
+§2 bunun **tam tersini** kuruyor. Beyar'ın talimatı: **"belge birebir
+uygulansın."** Gerekçe bir ölçüm değil, bir **ürün kararı** — ve K61'in
+çizdiği sınıra göre bu tür kararlar Beyar'a aittir.
+
+| | Önce (K25 · R8) | Sonra (K66) |
+|---|---|---|
+| Planım rayı | 7 sekme | **3 sekme** — Bugün · Plan ve Takvim · İlerlemem |
+| Avatar dropdown | 19 hesap kalemi, gruplama yok | **11 kalem · 3 grup başlığı** |
+| Rayın içeriği | yalnız rayda | **menüde** (Günlük Takibim · Gelişimim) |
+| 19 hesap kalemi | menüde tek tek | tek **"Hesap ve Ayarlar"** kaleminde katlı |
+| Bildirimler | menüde 1 kalem | **menüde 0** — §1: header'da durur, menüye tekrar konmaz |
+| Destek | "Destek" + "Taleplerim" (iki kapı) | tek **"Destek Merkezi"** |
+| Header sırası | Arama · Planım · Bildirimler · Profil | Arama · Planım · **İlerlemem** · Bildirimler · Profil |
+| Alt bar | … · Hareket · … · Hesabım | … · **Hareketler** · … · **Profil** |
+
+### Erişim kaybı olmadığının ÖLÇÜMÜ
+
+Kalem menüden düşünce sayfa yetim kalır mı? Raydan inen dördü ve menüden
+düşen ikisi tek tek ölçüldü (`?auth=1`, canlı Playwright):
+
+| Raydan inen sayfa | Banner h1 | Breadcrumb | Yeni kapısı |
+|---|---|---|---|
+| `fit-planim-gecmis-v1` | "Antrenman Geçmişim" ✓ | Aktivite Kayıtlarım ✓ | menü → Günlük Takibim |
+| `fit-planim-kaydettiklerim-v1` | "Kaydettiklerim" ✓ | Kaydettiklerim ✓ | menü → Günlük Takibim |
+| `fit-planim-randevular-v1` | "Randevularım ve Mesajlar" ✓ | Antrenörüm ✓ | menü → Gelişimim |
+| `enerji-defteri-v1` | "Enerji Defteri" ✓ | Enerji Defteri ✓ | menü → Günlük Takibim |
+
+Sayfalar **silinmedi**: `PLAN_TABS`'tan `PLAN_EXTRA`'ya geçtiler, yani
+`PLAN_PAGES` anahtarları ve banner/breadcrumb çözümü aynen çalışıyor.
+
+- **`destek-talepleri-v1`** dropdown'dan düştü → `destek-v1`'de **4 görünür
+  bağlantı** ölçüldü (`tests/kabuk-r8.mjs` §6 artık bunu nöbette tutuyor).
+- **19 hesap kalemi** menüden düştü → `hesabim-v1` içindeki çapa bölümleri
+  (`#guvenlik` `#dil` `#bildirim` `#dondur` `#sil`) yerinde; sayfadan gezilir.
+- **İlerlemem @390'da** header'dan indi → drawer'ın Planım bölümünde
+  duruyor (ölçüldü: `Plan ve Takvim · İlerlemem`) ve alt bardaki Planım
+  aynı raya çıkıyor.
+- **Fit Test Sonuçlarım** sayfası henüz yok → ölü bağlantı bırakılmadı,
+  `yerTutucu` deseni uygulandı (href yok · odak sırasında değil ·
+  `aria-disabled="true"` · "Yakında"); `docs/icerik-bekleyen.md`'ye kaydedildi.
+
+### Fazın kendi kusurları — üçü de nöbetten ÖNCE ölçümle bulundu
+
+**Kusur 3 — @390'DA İKİ SAYFA KAPISIZ KALMIŞTI.** En ciddisi buydu ve
+ölçmeden görünmüyordu. Açılır menü **@390'da yok** (`.acct-wrap` gizli),
+drawer'ın alt şeridi ise yalnız dört ince bağlantı taşıyordu. Ray üçe inince
+`Aktivite Kayıtlarım` ve `Kaydettiklerim` drawer'ın Planım bölümünden de
+düştü — tabanda ikisi de oradaydı. Ölçüm (hub'dan iki sıçrama, @390, üye):
+
+| Hedef | K66 sonrası (kusurlu) | Düzeltme sonrası |
+|---|---|---|
+| `fit-planim-gecmis-v1` | **kapı YOK** | drawer hesap bölümü ✓ |
+| `fit-planim-kaydettiklerim-v1` | **kapı YOK** | drawer hesap bölümü ✓ |
+| `fit-planim-rozetler-v1` | kapı yok (K66 ÖNCESİ de yoktu) | drawer hesap bölümü ✓ |
+| diğer 6 menü hedefi | dolaylı (2 sıçrama) | drawer hesap bölümü ✓ |
+
+**Düzeltme:** açılır menü mobilde de **aynı kaynaktan** (`ACCOUNT`) basılıyor
+— `drawerAccountHtml()`, drawer'ın kendi dilinde (`.d-sub a` satırları,
+`.d-sub-group` başlıkları), katlanmaz, yalnız girişte görünür. Ayrı liste
+tutulmuyor: masaüstüne eklenen kalem mobilde kendiliğinden çıkıyor.
+Drawer alt şeridinden "Planım" ve "Ayarlar" kalktı (ikisi de artık drawer
+gövdesinde gerçek kalem — aynı hedefe iki kapı açılmaz); "Bildirimler" ve
+"Çıkış" kaldı, ikisi de zorunlu.
+Ölçüm: **menünün 9 hedefinin 9'una @390'da görünür kapı** ·
+misafirde bölüm kapalı · blok 596px, kırpılma yok · satır yüksekliği 48px.
+
+### Fazın diğer iki kusuru
+
+Header'a eklenen `.head-prog` (İlerlemem) oturum ve genişlik sözleşmesine
+bağlanmamıştı:
+
+1. **Misafirde görünüyordu** (ölçüldü: `?auth=0` @1440 `head-actions` →
+   `icon-btn head-prog`). İlerlemem kişisel gelişim sayfası; Planım (K61) ve
+   zil nasıl yalnız girişte açılıyorsa o da öyle açılmalı. → `.head-prog`
+   `.head-add/.head-bell/.acct-wrap` gizleme listesine katıldı.
+2. **@390'da header'da kalıyordu** — Planım · zil · avatar drawer'a
+   devrederken tek başına ayakta. → `@media (max-width:640px)` devretme
+   kuralına katıldı.
+
+Head-actions'a **yedinci öğe** eklendiği için taşma riski gerçekti; üç
+genişlikte ölçüldü: **1440 · 1024 · 390'da yatay taşma 0**, ana menü ile
+çakışma yok (@1440 `nav.right`=950 < `head-actions.left`=972).
+
+### Nöbetler — silinmedi, yeni sözleşme kodlandı
+
+`tests/plan-account.mjs` **yeniden yazıldı**. Ölçüt gevşemedi, sıkılaştı:
+eskiden menü içeriği ad ad aranıyordu; şimdi **tam sayı** (11 kalem · 3 grup),
+**fazlalık yasağı** (Bildirimler 0 · Planım 0) ve eski nöbette hiç olmayan
+dört ölçüm daha var — header düğmesinin oturum/genişlik davranışı, yer
+tutucunun odak sırası, üyelik kaleminin dört kırılımı (§14: kademe yok /
+pro / pro_max / ödeme sorunu), alt bar etiketleri.
+
+Ayrıca **@390 kapı nöbeti** eklendi: masaüstü menüsündeki her hedefin
+mobilde de **görünür** bir kapısı olduğu ölçülüyor. Yukarıdaki 3. kusuru
+yakalayan ölçüm budur; bir daha sessizce geri gelemez.
+
+`tests/kabuk-r8.mjs` §6 güncellendi: "iki giriş olsun" → **"tam bir giriş
+olsun"** (fazlalık da eksiklik kadar kırmızı) **artı** eskiden hiç ölçülmeyen
+**erişim zinciri** (`destek-v1` → `destek-talepleri` görünür bağlantı).
+Bu güncellenmiş §6 de taban `903cbf1`'de koşuldu: **2 sorun**.
+
+`tests/anatomi.mjs` — **seçici daraltıldı, ölçüt değişmedi.** R8 madde 3'ün
+"Hareketi Anlamak ayracı kalksın" ölçütü masaüstünde yalnız Hareket panelini
+sayarken drawer tarafında `.drawer-nav` içindeki **her** `.d-sub-group`'u
+sayıyordu. Drawer'a §2'nin üç meşru grup başlığı gelince sahte kırmızı
+verdi — ölçülen kusurlu değildi, **seçici genişti**. Hesap bölümü dışlandı;
+Hareket panelinde ayraç geri gelirse ölçüt aynen kırmızı olur.
+
+**K27 taban ölçümü.** Yeni `plan-account.mjs`, taban commit `903cbf1`'de
+ayrı bir `git worktree` üzerinde koşuldu (`git stash` KULLANILMADI — aynı
+ağaçta başka ajanın işlenmemiş değişikliği vardı):
+
+> **taban `903cbf1` → 26 sorun · bugünkü ağaç → 0 sorun**
+
+Tabanda kırmızı düşen ölçütler: ray 7 kalem (+4 "rayda durmamalı"), menü 19
+kalem, 3 grup başlığı yok, 8 kalem adı eksik, Bildirimler/Bildirim
+Tercihlerim menüde, alt bar etiketleri, İlerlemem düğmesi yok, header sırası,
+üyelik kaleminin üç kırılımı.
+
+### Sondanın körlüğü — bu turda da yaşandı
+
+Yeni nöbet ilk koşuda **3 sahte kırmızı** verdi: *"grup başlığı DOM'da var
+ama GÖRÜNMÜYOR."* Kusur ölçülende değil **sondadaydı** — `.acct-menu`
+kapalıyken `visibility:hidden` taşır ve bu **çocuklara miras kalır**. Menü
+hover ile açılıp ölçülünce üç başlık da `display:block` ·
+`visibility:visible` · `opacity:1` · yükseklik **16px**.
+
+> **Geri almak istenirse nereye bakılacak:** `assets/js/fit-shell.js` →
+> `PLAN_TABS` / `PLAN_EXTRA` / `ACCOUNT` / `uyelikKalemi()` / `BOTTOM` /
+> `ILERLEME_ACTIVE` / `drawerAccountHtml()` ve `drawerNavHtml()`'in son bloğu;
+> `assets/css/fit-shell.css` → `.acct-grup` · `.acct-uyari` · `.head-prog`
+> (iki gizleme kuralı) · `.d-acct-block` / `.d-acct-sub` / `.d-soon`.
+> Devrilen sözleşmenin **kodlanmış hâli**
+> taban commit `903cbf1`'in `tests/plan-account.mjs` dosyasındadır — eski
+> mimarinin ne olduğunu okumak için en doğru yer odur.
+
+---

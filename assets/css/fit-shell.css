@@ -411,10 +411,15 @@ body.is-auth .btn-login.btn-plan{display:inline-flex}
 
 /* ===== LOGIN-STATE (cila-2 faz 2) — header logged-in chrome ===== */
 /* varsayılan logged-out: ekle/zil/avatar gizli. body.is-auth → açılır, btn-login gizlenir */
-.head-add,.head-bell,.acct-wrap{display:none}
+/* R9 · K66 — `.head-prog` (İlerlemem) bu listeye KATILDI. Ölçüldü: eklendiği
+ hâliyle misafirde de görünüyordu (?auth=0 · 1440 · head-actions'ta
+ "icon-btn head-prog"). İlerlemem kişisel gelişim sayfası; Planım ve zil
+ nasıl yalnız girişte açılıyorsa o da öyle. Kaynak sırası .icon-btn'i
+ (0,1,0) yener, açma aşağıdaki body.is-auth kuralında. */
+.head-add,.head-bell,.head-prog,.acct-wrap{display:none}
 body.is-auth .btn-login{display:none}
 body.is-auth .head-add,body.is-auth .acct-wrap{display:flex}
-body.is-auth .head-bell{display:grid}
+body.is-auth .head-bell,body.is-auth .head-prog{display:grid}
 /* ekle + hesap menüsü ortak konteyner (header sağ blok dropdown'ı)
  NOT: display BASE'te VERİLMEZ — gizle/göster yalnız .head-add/.acct-wrap kurallarınca
  yönetilir (aksi halde display:flex, üstteki display:none'ı kaynak sırasıyla yener → logged-out sızıntı) */
@@ -456,6 +461,12 @@ body.is-auth .head-bell{display:grid}
 .acct-id-txt b{display:block;font-size:14.5px;color:var(--slate);font-weight:700}
 .acct-id-txt small{display:block;font-size:12px;color:var(--muted);font-weight:500}
 .acct-div{height:1px;background:var(--line);margin:6px 4px}
+/* R9 · K66 — açılır menü grup başlığı (belge §2: üç başlıklı grup). İlk grubun
+   üstünde fazladan boşluk olmasın diye :first-child sıfırlanıyor. */
+.acct-grup{margin:12px 4px 5px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.acct-grup:first-child{margin-top:2px}
+.acct-menu .acct-uyari,.acct-menu .acct-uyari i{color:#a8320f}
+.acct-menu .acct-uyari:hover{background:#fbebe6;color:#8a2a0d}
 /* drawer logged-in kimlik satırı (mobil) */
 .drawer-acct{display:none;align-items:center;gap:12px;padding:2px 2px 12px}
 body.is-auth .drawer-acct{display:flex}
@@ -1032,7 +1043,12 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
   .head-actions{gap:6px}
   .btn-login{display:none}                                   /* giriş → drawer + bottom-nav */
   /* logged-in header öğeleri mobilde drawer + bottom-nav'a devreder (kaynak sıra ile is-auth'u yener) */
-  body.is-auth .head-add,body.is-auth .head-bell,body.is-auth .acct-wrap{display:none}
+  /* R9 · K66 — `.head-prog` de devrediyor. Ölçüldü: eklendiği hâliyle @390'da
+     header'da KALIYORDU (Planım · zil · avatar inerken tek başına ayakta).
+     Erişim kaybı yok: drawer'daki Planım bölümü "İlerlemem" bağlantısını
+     taşıyor (ölçüldü, @390 drawer .d-plan .d-sub → Plan ve Takvim · İlerlemem)
+     ve alt bardaki Planım kalemi aynı raya çıkıyor. */
+  body.is-auth .head-add,body.is-auth .head-bell,body.is-auth .head-prog,body.is-auth .acct-wrap{display:none}
   /* KUSUR (R8'de ölçüldü): .btn-login{display:none} (0,1,0) yukarıdaki
      body.is-auth .btn-login.btn-plan (0,3,0) kuralını YENEMİYORDU → giriş
      durumunda @390'da Planım düğmesi header'da kalıyordu (65/66 sayfa).
@@ -1253,6 +1269,20 @@ html.reveal-ready .reveal.in{opacity:1;transform:none}
 /* w3-nav-sweep */
 .dropdown .dd-group{margin:6px 0 2px;padding:9px 13px 4px;border-top:1px solid var(--line);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .d-sub .d-sub-group{margin-top:6px;padding:10px 22px 4px 36px;border-top:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+/* R9 · K66 — açılır menünün mobil karşılığı (drawer hesap bölümü).
+   Drawer'ın kendi dili AYNEN kullanılıyor: satırlar `.d-sub a`, başlıklar
+   `.d-sub-group`. Buradaki tek fark KATLANMAMASI — `.d-sub` varsayılanı
+   `max-height:0`, bu blok hep açık olduğu için o kilit açılıyor.
+   Yalnız girişte görünür: misafirde hesap alanı diye bir şey yok. */
+.d-acct-block{display:none;border-top:1px solid var(--line)}
+body.is-auth .d-acct-block{display:block}
+.d-sub.d-acct-sub{max-height:none;overflow:visible}
+/* yer tutucu kalem — bağlantı DEĞİL: odak sırasına girmez, tıklanmaz.
+   Biçimi `.d-sub a` ile aynı hizada ama sönük (masaüstündeki `.acct-soon`
+   deseninin drawer karşılığı). */
+.d-sub .d-soon{display:flex;align-items:center;gap:11px;padding:13px 22px 13px 36px;font-size:14.5px;font-weight:500;color:var(--muted);cursor:default}
+.d-sub .d-soon i{width:18px;text-align:center;color:var(--muted);font-size:13px}
+.d-sub .d-soon .acct-soon-tag{margin-left:8px}
 .acct-menu .acct-pro i{color:#d99812}
 .acct-menu .acct-pro:hover{background:linear-gradient(180deg,rgba(251,230,180,.55),rgba(243,209,120,.32))}
 .acct-menu .acct-pro:hover,.acct-menu .acct-pro:hover i{color:#8a6410}

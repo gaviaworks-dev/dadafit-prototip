@@ -16,14 +16,17 @@
    3    Hareket dropdown'ında .dd-group (divider) 0; panel kalem sayısı 5.
    4    hareket-merkezi-v1.html'e giden bağlantı 0 (DOM'da, tüm sayfalarda)
         ve sayfa HTTP 404.
-   36   `.fp-gate` prototip uyarısı 0, misafir giriş CTA'sı 13/13 duruyor,
+   36   `.fp-gate` prototip uyarısı 0, misafir giriş CTA'sı 14/14 duruyor
+        (R9 · K66 — `fit-test-sonuclarim-v1` eklendi, bkz. §36 bloğu),
         data-lg-only iki durumda da doğru.
    5    Sayfa altı dipnot kutusu (.hr-note) kendi içerik kolonunu dolduruyor:
         |kutu − kolon| ≤ 2px, her dipnotta.
-   6    Avatar dropdown'ında "Destek" + "Taleplerim" var; destek-talepleri-v1
-        hedefi dropdown'da TAM 1, footer'da 0. Hedefler HTTP 200 ve h1'leri
-        beklenen kayıtla eşleşiyor (yer tutucu kalemler hariç — onların
-        docs/icerik-bekleyen.md kaydı ayrıca aranır).
+   6    Avatar dropdown'ında destek için TEK giriş var ("Destek Merkezi");
+        destek-talepleri-v1 dropdown'da 0, footer'da 0 ama destek-v1'den
+        ERİŞİLEBİLİR. Hedefler HTTP 200 ve h1'leri beklenen kayıtla eşleşiyor
+        (yer tutucu kalemler hariç — onların docs/icerik-bekleyen.md kaydı
+        ayrıca aranır).
+        R9 · K66'DA GÜNCELLENDİ — bkz. §6 bloğundaki gerekçe.
 
    Çalıştırma:
      export PW_HOME=~/.pw
@@ -178,7 +181,16 @@ console.log('\n--- 3 · Hareket dropdown divider ---');
                   → etiket, span'in İLK metin düğümü (small'ü kapsamaz). */
                kalem: [...dd.querySelectorAll('a')].map(a =>
                  (a.querySelector('span')||a).childNodes[0].textContent.trim()),
-               dGrup: document.querySelectorAll('.drawer .d-sub-group').length };
+               /* R9 · K66 — SEÇİCİ DARALTILDI, ÖLÇÜT DEĞİŞMEDİ. Bu ölçüt
+                  "Hareketi Anlamak" ayracını kovalıyor; masaüstü tarafı
+                  (`grup`) zaten YALNIZ Hareket panelini sayıyor, drawer tarafı
+                  ise `.drawer` içindeki HER `.d-sub-group`'u sayıyordu.
+                  K66'da drawer'a açılır menünün mobil karşılığı eklenince
+                  (`.d-acct-block` — belge §2'nin üç meşru grup başlığı) sahte
+                  kırmızı verdi. Hesap bölümü dışlandı; Hareket panelinde
+                  ayraç geri gelirse ölçüt aynen kırmızı olur.
+                  Aynı düzeltme `tests/anatomi.mjs`'te de yapıldı. */
+               dGrup: document.querySelectorAll('.drawer .d-item:not(.d-acct-block) .d-sub-group').length };
     });
     if (!m) continue;
     n++;
@@ -250,8 +262,21 @@ for (const w of [1440, 390]) {
   await ctx.close();
 }
 
-/* ===================== 6 · Destek + Taleplerim ===================== */
-console.log('\n--- 6 · Avatar dropdown: Destek + Taleplerim ---');
+/* ===================== 6 · Destek: TEK giriş ===================== */
+/* R9 · K66 — ÖLÇÜT DEĞİŞTİ, GEVŞEMEDİ.
+   Eski hâli R8 madde 6'nın sözleşmesiydi: dropdown'da HEM "Destek" HEM
+   "Taleplerim" bulunsun, destek-talepleri hedefi dropdown'da TAM 1 olsun.
+   Yeni ürün belgesi §2 on dokuz hesap kalemini on bire katlıyor ve destek
+   için TEK kalem bırakıyor ("Destek Merkezi"). Yani eski ölçüt artık
+   devrilen kararı arıyordu.
+   Nöbet zayıflamadı, YER DEĞİŞTİRDİ ve bir ölçüm KAZANDI:
+     · eskiden "iki giriş olsun" → şimdi "tam bir giriş olsun" (fazlalık da
+       eksiklik kadar kırmızı; iki kapı açılırsa yakalanır)
+     · eskiden hiç ölçülmeyen ERİŞİM ZİNCİRİ eklendi: destek-talepleri
+       menüden düştüğü için artık destek-v1 üzerinden ulaşılabilir olduğu
+       KANITLANIYOR (ölçüldü: destek-v1'de 4 bağlantı). Erişim kaybı
+       iddiası artık nöbetle bağlı, yorumla değil. */
+console.log('\n--- 6 · Avatar dropdown: destek için tek giriş ---');
 {
   const { ctx, page } = await ac(1440);
   let eksik = 0, ddFazla = 0, footerVar = 0, n = 0;
@@ -269,20 +294,39 @@ console.log('\n--- 6 · Avatar dropdown: Destek + Taleplerim ---');
         .filter(a => a.getAttribute('href').startsWith('destek-talepleri-v1')).length;
       const ft = [...document.querySelectorAll('.footer a[href], footer a[href]')]
         .filter(a => a.getAttribute('href').startsWith('destek-talepleri-v1')).length;
-      return { destek: ad.includes('Destek'), talep: ad.includes('Taleplerim'), dd, ft };
+      /* belge §2 · destek için TEK kalem: "Destek Merkezi" */
+      const destek = ad.filter(t => t === 'Destek Merkezi').length;
+      /* eski adlarla ikinci kapı açılmasın */
+      const eski = ad.filter(t => t === 'Destek' || t === 'Taleplerim' ||
+                                  t === 'Destek Taleplerim').length;
+      return { destek, eski, dd, ft };
     });
     if (!m) continue;
     n++;
-    if (!m.destek || !m.talep) eksik++;
-    if (m.dd !== 1) ddFazla++;
+    if (m.destek !== 1 || m.eski !== 0) eksik++;
+    if (m.dd !== 0) ddFazla++;
     if (m.ft !== 0) footerVar++;
   }
-  if (eksik) rec('6', `dropdown'da iki giriş eksik: ${eksik}/${n} sayfa`);
-  else ok(`${n}/${n} sayfada "Destek" + "Taleplerim" var`);
-  if (ddFazla) rec('6', `dropdown'da destek-talepleri hedefi 1 değil: ${ddFazla}/${n} sayfa`);
-  else ok(`${n}/${n} sayfada dropdown'da destek-talepleri hedefi tam 1`);
+  if (eksik) rec('6', `dropdown'da destek girişi tam 1 "Destek Merkezi" değil: ${eksik}/${n} sayfa`);
+  else ok(`${n}/${n} sayfada dropdown'da tek destek girişi: "Destek Merkezi"`);
+  if (ddFazla) rec('6', `dropdown'da destek-talepleri hedefi 0 değil: ${ddFazla}/${n} sayfa (belge §2 katladı)`);
+  else ok(`${n}/${n} sayfada dropdown'da destek-talepleri hedefi 0`);
   if (footerVar) rec('6', `footer'da destek-talepleri bağlantısı var: ${footerVar}/${n} sayfa (0 olmalı)`);
   else ok(`${n}/${n} sayfada footer'da 0`);
+
+  /* ERİŞİM ZİNCİRİ — menüden düşen sayfa yetim kalmasın.
+     Destek Merkezi → Taleplerim yolu GÖRÜNÜR bir bağlantıyla kurulu mu? */
+  await page.goto(`${BASE}/destek-v1.html?auth=1`, { waitUntil:'load' });
+  await page.waitForTimeout(300);
+  const zincir = await page.evaluate(() =>
+    [...document.querySelectorAll('a[href^="destek-talepleri-v1"]')]
+      .filter(a => {
+        const cs = getComputedStyle(a);
+        return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0' &&
+               a.getBoundingClientRect().width > 0;
+      }).length);
+  if (!zincir) rec('6', 'destek-v1\'de destek-talepleri\'ne GÖRÜNÜR bağlantı yok — menüden düştü, hiçbir kapı kalmadı');
+  else ok(`destek-v1 → destek-talepleri: ${zincir} görünür bağlantı (erişim kaybı yok)`);
 
   /* HEDEF kontrolü — HTTP değil, h1 metni. */
   const HEDEF = [['destek-v1.html', 'Destek'],
@@ -350,8 +394,14 @@ for (const w of [1440, 390]) {
       if (m.ov > 1) tasma++;
     }
     const et = `@${w}·auth=${auth}`;
-    /* data-lg-only: misafirde 13 sayfada görünür, girişte HİÇBİRİNDE. */
-    const bek = auth === 0 ? 13 : 0;
+    /* data-lg-only: misafirde ON DÖRT sayfada görünür, girişte HİÇBİRİNDE.
+       R9 · K66 — sayı 13 → 14. Sebep gerileme değil, YENİ SAYFA:
+       `fit-test-sonuclarim-v1.html` üretildi ve açılır menüye bağlandı
+       (belge §2 "Fit Test Sonuçlarım"). Planım ailesinin bir üyesi olarak
+       kardeşleriyle aynı misafir kapısını taşıyor. Ölçüldü — 67 sayfa
+       gezildi, `.fp-gate` taşıyan tam 14 sayfanın hepsi Planım/Enerji
+       Defteri ailesinden; aile dışı hiçbir sayfaya gate sızmadı. */
+    const bek = auth === 0 ? 14 : 0;
     if (kutu !== bek) rec(`36 ${et}`, `.fp-gate görünür ${kutu}, beklenen ${bek}`);
     else ok(`${et} .fp-gate görünür ${kutu}`);
     if (ornek) rec(`36 ${et}`, `"veriler örnektir" cümlesi hâlâ var: ${ornek} sayfa`);

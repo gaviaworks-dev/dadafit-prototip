@@ -589,7 +589,18 @@ for (const w of [1440, 390]) {
     const dd = hareket ? hareket.querySelector('.dropdown') : null;
     const gruplar = dd ? [...dd.querySelectorAll('.dd-group')].map(g => g.textContent.trim()) : [];
     const linkler = dd ? [...dd.querySelectorAll('a')].map(a => a.getAttribute('href')) : [];
-    const drawerGrup = [...document.querySelectorAll('.drawer-nav .d-sub-group')].map(g => g.textContent.trim());
+    /* R9 · K66 — SEÇİCİ DARALTILDI, ÖLÇÜT DEĞİŞMEDİ.
+       Bu ölçüt R8 madde 3'ün "Hareketi Anlamak ayracı kalksın" kararını
+       tutuyor ve masaüstü karşılığı (yukarıdaki `gruplar`) zaten YALNIZ
+       Hareket panelini sayıyor. Drawer tarafı ise `.drawer-nav` içindeki
+       HER `.d-sub-group`'u sayıyordu — yani üst menüyü aynalayan bölümlerin
+       dışındakileri de. K66'da drawer'a açılır menünün mobil karşılığı
+       eklenince (`.d-acct-block`, belge §2'nin üç meşru grup başlığı) ölçüt
+       sahte kırmızı verdi: ölçülen kusurlu değildi, seçici genişti.
+       Hesap bölümü dışlandı; Hareket panelinde ayraç geri gelirse ölçüt
+       AYNEN kırmızı olur. */
+    const drawerGrup = [...document.querySelectorAll('.drawer-nav .d-item:not(.d-acct-block) .d-sub-group')]
+      .map(g => g.textContent.trim());
     const drawerLink = [...document.querySelectorAll('.drawer-nav .d-item .d-sub a')].map(a => a.getAttribute('href'));
     return {
       ustKalemSayisi: navItems.length,

@@ -82,10 +82,10 @@
 
         <div class="fgroup fpx-flat" data-group="durum" role="group" aria-label="Test durumu seç">
           <span class="fgroup-lbl">Durum</span>
-          <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-          <button class="df-fchip" type="button" data-val="tamam"><i class="fa-solid fa-circle-check"></i> Tamamlanan</button>
-          <button class="df-fchip" type="button" data-val="yarim"><i class="fa-solid fa-hourglass-half"></i> Yarım kalan</button>
-          <button class="df-fchip" type="button" data-val="tekrar"><i class="fa-solid fa-rotate-right"></i> Tekrarı önerilen</button>
+          <button class="df-fchip on" type="button" data-val="all" aria-pressed="true">Tümü</button>
+          <button class="df-fchip" type="button" data-val="tamam" aria-pressed="false"><i class="fa-solid fa-circle-check"></i> Tamamlanan</button>
+          <button class="df-fchip" type="button" data-val="yarim" aria-pressed="false"><i class="fa-solid fa-hourglass-half"></i> Yarım kalan</button>
+          <button class="df-fchip" type="button" data-val="tekrar" aria-pressed="false"><i class="fa-solid fa-rotate-right"></i> Tekrarı önerilen</button>
         </div>
 
         <div class="fp-list" id="ftsListe"></div>
@@ -198,13 +198,13 @@
 
         <div class="fgroup fpx-flat" data-group="kiyas" role="group" aria-label="Karşılaştırılacak testi seç">
           <span class="fgroup-lbl">Test</span>
-          <button class="df-fchip on" type="button" data-test="baslangic-seviyesi">Başlangıç Seviyesi</button>
-          <button class="df-fchip" type="button" data-test="mobilite">Mobilite</button>
-          <button class="df-fchip" type="button" data-test="denge">Denge</button>
-          <button class="df-fchip" type="button" data-test="temel-kuvvet">Temel Kuvvet</button>
-          <button class="df-fchip" type="button" data-test="dayaniklilik">Dayanıklılık</button>
-          <button class="df-fchip" type="button" data-test="masa-basi-yasam">Masa Başı Yaşam</button>
-          <button class="df-fchip" type="button" data-test="hareket-aliskanligi">Hareket Alışkanlığı</button>
+          <button class="df-fchip on" type="button" data-test="baslangic-seviyesi" aria-pressed="true">Başlangıç Seviyesi</button>
+          <button class="df-fchip" type="button" data-test="mobilite" aria-pressed="false">Mobilite</button>
+          <button class="df-fchip" type="button" data-test="denge" aria-pressed="false">Denge</button>
+          <button class="df-fchip" type="button" data-test="temel-kuvvet" aria-pressed="false">Temel Kuvvet</button>
+          <button class="df-fchip" type="button" data-test="dayaniklilik" aria-pressed="false">Dayanıklılık</button>
+          <button class="df-fchip" type="button" data-test="masa-basi-yasam" aria-pressed="false">Masa Başı Yaşam</button>
+          <button class="df-fchip" type="button" data-test="hareket-aliskanligi" aria-pressed="false">Hareket Alışkanlığı</button>
         </div>
 
         <div class="fpx-kiyas" id="ftsKiyas" aria-live="polite">
@@ -367,8 +367,8 @@
   document.querySelectorAll('.fgroup[data-group="durum"] .df-fchip').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('.fgroup[data-group="durum"] .df-fchip')
-              .forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on');
+              .forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed','true');
       aktifDurum = b.getAttribute('data-val');
       listeBoya();
     });
@@ -501,8 +501,8 @@
   document.querySelectorAll('.fgroup[data-group="kiyas"] .df-fchip').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('.fgroup[data-group="kiyas"] .df-fchip')
-              .forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on');
+              .forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed','true');
       kiyasBoya(b.getAttribute('data-test'));
     });
   });
@@ -514,8 +514,8 @@
   var chip = istenen && document.querySelector('.fgroup[data-group="kiyas"] .df-fchip[data-test="' + istenen.replace(/[^a-z-]/gi,'') + '"]');
   if (chip) {
     document.querySelectorAll('.fgroup[data-group="kiyas"] .df-fchip')
-            .forEach(function (x) { x.classList.remove('on'); });
-    chip.classList.add('on');
+            .forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+    chip.classList.add('on'); chip.setAttribute('aria-pressed','true');
   }
   listeBoya();
   kiyasBoya(chip ? chip.getAttribute('data-test') : 'baslangic-seviyesi');

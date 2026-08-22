@@ -67,16 +67,16 @@
         </div>
         <div class="fgroup fpx-flat" data-group="tur" role="group" aria-label="Kayıt türü seç">
           <span class="fgroup-lbl">Tür</span>
-          <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-          <button class="df-fchip" type="button" data-val="plan"><i class="fa-solid fa-calendar-days"></i> Plan</button>
-          <button class="df-fchip" type="button" data-val="hareket"><i class="fa-solid fa-person-running"></i> Hareket</button>
-          <button class="df-fchip" type="button" data-val="program"><i class="fa-solid fa-clipboard-list"></i> Program</button>
-          <button class="df-fchip" type="button" data-val="rehber"><i class="fa-solid fa-book-open"></i> Rehber</button>
+          <button class="df-fchip on" type="button" data-val="all" aria-pressed="true">Tümü</button>
+          <button class="df-fchip" type="button" data-val="plan" aria-pressed="false"><i class="fa-solid fa-calendar-days"></i> Plan</button>
+          <button class="df-fchip" type="button" data-val="hareket" aria-pressed="false"><i class="fa-solid fa-person-running"></i> Hareket</button>
+          <button class="df-fchip" type="button" data-val="program" aria-pressed="false"><i class="fa-solid fa-clipboard-list"></i> Program</button>
+          <button class="df-fchip" type="button" data-val="rehber" aria-pressed="false"><i class="fa-solid fa-book-open"></i> Rehber</button>
           <!-- R9 · belge §8'in eksik üç türü -->
-          <button class="df-fchip" type="button" data-val="seans"><i class="fa-solid fa-circle-play"></i> Video seansı</button>
-          <button class="df-fchip" type="button" data-val="challenge"><i class="fa-solid fa-medal"></i> Challenge</button>
-          <button class="df-fchip" type="button" data-val="test"><i class="fa-solid fa-clipboard-check"></i> Fit Test sonucu</button>
-          <button class="df-fchip" type="button" data-val="antrenor"><i class="fa-solid fa-user-tie"></i> Antrenör</button>
+          <button class="df-fchip" type="button" data-val="seans" aria-pressed="false"><i class="fa-solid fa-circle-play"></i> Video seansı</button>
+          <button class="df-fchip" type="button" data-val="challenge" aria-pressed="false"><i class="fa-solid fa-medal"></i> Challenge</button>
+          <button class="df-fchip" type="button" data-val="test" aria-pressed="false"><i class="fa-solid fa-clipboard-check"></i> Fit Test sonucu</button>
+          <button class="df-fchip" type="button" data-val="antrenor" aria-pressed="false"><i class="fa-solid fa-user-tie"></i> Antrenör</button>
         </div>
         <div class="fp-list" id="skList" style="margin-top:6px">
           <div class="fp-row" data-tur="hareket"><span class="ico"><i class="fa-solid fa-person-running"></i></span>
@@ -143,8 +143,24 @@
       <div class="fp-card">
         <div class="fp-head">
           <h3><i class="fa-solid fa-folder-open"></i> Koleksiyonlar</h3>
-          <button class="fp-act fp-actbtn" type="button" data-lg-gate data-lg-title="Koleksiyon kurmak için giriş yap" data-lg-desc="Kendi koleksiyonlarını oluşturmak için hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Yeni koleksiyon</button>
+<!-- R9 · Bu düğme ÖLÜYDÜ: `data-lg-gate` yalnız ÇIKIŞTA kapıyı açıyor,
+               girişte hiçbir şey yapmıyordu (lead'in mekanik denetimi yakaladı).
+               Artık gerçek bir iş yapıyor: adı sorar, koleksiyonu kurar. -->
+          <button class="fp-act fp-actbtn" type="button" id="skYeniKol" aria-expanded="false" aria-controls="skKolForm" data-lg-gate data-lg-title="Koleksiyon kurmak için giriş yap" data-lg-desc="Kendi koleksiyonlarını oluşturmak için hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Yeni koleksiyon</button>
         </div>
+<!-- yeni koleksiyon alanı — düğmeyle açılır. Yerel `prompt()` KULLANILMADI:
+             tarayıcı onu bastırabiliyor, o zaman düğme hiçbir şey yapmamış
+             oluyor (lead'in denetimi tam olarak bunu yakaladı). -->
+        <form class="fpx-kol-yeni" id="skKolForm" hidden>
+          <label class="fk-label" for="skKolAd">Koleksiyon adı</label>
+          <div class="fpx-kol-yeni-satir">
+            <input class="fpx-metin fpx-kol-giris" type="text" id="skKolAd" maxlength="40"
+                   placeholder="Örneğin: Sabah Rutinim" autocomplete="off" />
+            <button class="btn btn-fit" type="submit"><i class="fa-solid fa-check"></i> Kur</button>
+            <button class="btn btn-ghost" type="button" id="skKolVaz">Vazgeç</button>
+          </div>
+        </form>
+
         <div class="fpx-kol" id="skKol" role="group" aria-label="Koleksiyon seç">
           <button class="fpx-kol-oge" type="button" aria-pressed="false" data-kol="evde">
             <span class="fpx-kol-ico"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
@@ -415,8 +431,8 @@ var FPX = (function () {
   document.querySelectorAll('.fgroup[data-group="tur"] .df-fchip').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('.fgroup[data-group="tur"] .df-fchip')
-        .forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on');
+        .forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed','false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed','true');
       aktifTur = b.getAttribute('data-val');
       suz();
     });
@@ -507,6 +523,52 @@ var FPX = (function () {
         durumYaz('“' + b.querySelector('b').textContent + '” koleksiyonu gösteriliyor.');
       }
       suz();
+    });
+  }
+
+  /* ---- yeni koleksiyon kurma ----
+     Yeni koleksiyon BOŞ doğar: içine kayıt eklemeden 0 gösterir. Sahte
+     üyelik üretmiyoruz — kullanıcı kayıtları listedeki klasör düğmesiyle
+     kendisi ekler. Bu turda kayıt oturumluk (devir notunda açık kalem). */
+  var yeniBtn = document.getElementById('skYeniKol'),
+      kolForm = document.getElementById('skKolForm'),
+      kolAd   = document.getElementById('skKolAd'),
+      kolVaz  = document.getElementById('skKolVaz');
+
+  if (yeniBtn && kolForm && kolKok) {
+    /* çıkışta kabuk kapıyı capture'da keser, buraya hiç gelinmez */
+    yeniBtn.addEventListener('click', function () {
+      var ac = kolForm.hidden;
+      kolForm.hidden = !ac;
+      yeniBtn.setAttribute('aria-expanded', ac ? 'true' : 'false');
+      if (ac) { kolAd.value = ''; kolAd.focus(); } else { yeniBtn.focus(); }
+    });
+    if (kolVaz) kolVaz.addEventListener('click', function () {
+      kolForm.hidden = true;
+      yeniBtn.setAttribute('aria-expanded', 'false');
+      yeniBtn.focus();
+    });
+
+    kolForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var ad = (kolAd.value || '').trim();
+      if (!ad) { durumYaz('Koleksiyon kurulmadı — önce bir ad yaz.'); kolAd.focus(); return; }
+
+      var anahtar = 'kol' + Date.now();
+      KOL_TUR[anahtar] = [];                        /* boş: hiçbir türü süzmez */
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fpx-kol-oge';
+      b.setAttribute('aria-pressed', 'false');
+      b.setAttribute('data-kol', anahtar);
+      b.innerHTML = '<span class="fpx-kol-ico"><i class="fa-solid fa-folder" aria-hidden="true"></i></span>' +
+                    '<span class="fpx-kol-txt"><b></b><small>0 kayıt</small></span>';
+      b.querySelector('b').textContent = ad;        /* metin olarak — kaçış garantisi */
+      kolKok.appendChild(b);
+      kolForm.hidden = true;
+      yeniBtn.setAttribute('aria-expanded', 'false');
+      durumYaz('“' + ad + '” koleksiyonu kuruldu. Kayıtları listedeki klasör düğmesinden ekleyebilirsin.');
+      b.focus();
     });
   }
 

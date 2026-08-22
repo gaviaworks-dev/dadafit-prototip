@@ -74,6 +74,23 @@ bulduğu gerçek kusurları **kaybetti**; (c) `scrollIntoView` tıklamadan ÖNCE
 kaydırmayı değiştiriyordu, `kaydirma` da ölçütün parçasıydı → yine her şey canlı.
 Yanlış negatif yanlış pozitiften pahalıdır: biri gürültü yapar, öteki kusuru saklar.
 
+**B40 · Kaldırılan metni yorumda BİREBİR alıntılama.** `fit-planim-rozetler-v1`'de
+bir ajan kaldırdığı cümleyi açıklayıcı yorumunda alıntıladı; lead kaynakta grep
+atıp "iş yapılmamış" sandı ve ajanı bitmiş işe geri gönderdi. Kaynak araması
+render kanıtı değildir (DENETIM.md §2) — ama yorum da aramayı kirletmemeli.
+
+**B41 · `data-lg-gate` YALNIZ çıkışta kapı açar.** Girişte düğmenin kendi işi
+yoksa düğme ölüdür. Bu turda 15 örnek kapatıldı (randevular 9 · kaydettiklerim 1
+· bugün 1 · 4 çip `aria-pressed`); `hesabim-v1`'de **11 örnek AÇIK kaldı** (D17).
+
+**B42 · `prompt()` ile bağlamak "bağlamak" değildir.** Tarayıcı yerel diyaloğu
+bastırdığında düğme yine hiçbir şey yapmaz. `tools/denetim.mjs` bunu ölü saymakta
+haklıydı; çözüm satır içi form.
+
+**B43 · Süzgeç çipi `aria-pressed` taşımalı.** Yalnız `.on` sınıfı yetmiyor: hem
+ekran okuyucu durumu göremiyor, hem `denetim.mjs:119` seçili çipi ayıklayamayıp
+sahte "ölü" üretiyor.
+
 **B39 · Rapor "bitti" derken atlamış olabilir.** Bir ajan gönderilen dört maddeyi
 hiç yapmadan sonraki faza geçti ve raporunda söz etmedi. Lead ölçmeseydi kapanmış
 sayılacaktı. `DENETIM.md` §4 ve §7 bunun için var.
@@ -111,6 +128,9 @@ Düzeltilseydi çalışan bir şey bozulacaktı.
 | D13 | Koleksiyon üyeliği temsilî | Gerçek üyelik yeni bir depo anahtarı ister |
 | D14 | §10.2'nin **Esneklik** ve **Postür farkındalığı** kategorilerinin kataloğda testi yok | Sayfa bunu "ölçülmedi" diye gösteriyor; iki yeni test ayrı iş |
 | D15 | Test kayıtları sayfa içi sabit veri | `fit-testi-sonuc-v1` ile elle senkron; gerçek arşiv depo anahtarı ister |
+| D16 | Su takibi sayacı oturumluk | Su verisi `dm_fit` şemasında yok |
+| D17 | `hesabim-v1`'de **11 ölü hesap yönetimi düğmesi** (fotoğraf yükle · kaldır ×3 · varsayılan yap · ödeme yöntemi ekle · bağla ×2 · oturum kapat ×3) | Hesap yönetimi akışlarının tamamı — ayrı iş |
+| D18 | Üst bantta **4 adsız sosyal bağlantı** (`aria-label` yok) | Kabuk dosyası; `docs/icerik-bekleyen.md`'de `ustbant-sosyal` olarak zaten kayıtlı |
 
 ---
 

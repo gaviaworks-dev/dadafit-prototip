@@ -142,7 +142,10 @@
             <span class="fp-day on">4</span><span class="fp-day on">5</span><span class="fp-day on">6</span>
             <span class="fp-day">7</span><span class="fp-day">8</span>
           </div>
-          <div class="fpx-btns"><button class="btn btn-ghost" type="button" data-lg-gate data-lg-title="Su eklemek için giriş yap" data-lg-desc="Su takibini kaydetmek için hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Bir bardak ekle</button></div>
+<!-- R9 · Bu düğme ÖLÜYDÜ: `data-lg-gate` yalnız ÇIKIŞTA kapıyı açıyor,
+               girişte hiçbir şey yapmıyordu (lead'in mekanik denetimi yakaladı —
+               "Yeni koleksiyon" ile aynı kusur sınıfı). Artık bardağı dolduruyor. -->
+          <div class="fpx-btns"><button class="btn btn-ghost" type="button" id="fpxSuEkle" data-lg-gate data-lg-title="Su eklemek için giriş yap" data-lg-desc="Su takibini kaydetmek için hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Bir bardak ekle</button></div>
         </div>
       </div>
     </div>
@@ -611,6 +614,32 @@ var FPX = (function () {
     if (c)                         stats[3].innerHTML = c.seri        + '<small class="fpx-unit"> gün</small>';
   }
   document.addEventListener('fit:state', paint); paint();
+})();
+
+/* ===== Su takibi — "Bir bardak ekle" =====
+   Düğme ÖLÜYDÜ: data-lg-gate yalnız çıkışta kapıyı açıyor, girişte hiçbir
+   şey yapmıyordu. Sayaç sayfa içi tutuluyor: su verisi dm_fit şemasında
+   YOK (şema kabuk dosyasında, bu turda dokunulmuyor) — kalıcı kayıt devir
+   notunda açık kalem. */
+(function () {
+  var btn = document.getElementById('fpxSuEkle'); if (!btn) return;
+  var kutu = btn.closest('.fp-card'); if (!kutu) return;
+  var gunler = kutu.querySelector('.fp-days'), rozet = kutu.querySelector('.fp-badge');
+  if (!gunler || !rozet) return;
+
+  function yaz(dolu, toplam) {
+    rozet.innerHTML = '<i class="fa-solid fa-check"></i> ' + dolu + ' / ' + toplam + ' bardak';
+    if (dolu >= toplam) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Günlük hedefin tamam';
+    }
+  }
+  btn.addEventListener('click', function () {
+    var hepsi = [].slice.call(gunler.querySelectorAll('.fp-day'));
+    var bos = hepsi.filter(function (d) { return !d.classList.contains('on'); })[0];
+    if (bos) bos.classList.add('on');
+    yaz(hepsi.filter(function (d) { return d.classList.contains('on'); }).length, hepsi.length);
+  });
 })();
 
 /* ===== Gün ve tarih (belge §3.1) =====

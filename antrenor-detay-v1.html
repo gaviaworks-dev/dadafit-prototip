@@ -106,70 +106,114 @@ html,body{overflow-x:clip}
 /* ---- HERO: koyu+yeşil gradient + desatüre görsel + cam kimlik kartı ---- */
 .cp-top{
   position:relative;overflow:hidden;margin-top:112px;
+  /* R9 · ZEMİN SADE KOYU PLAKAYA İNDİ.
+     ÖNCE: bölümün KENDİSİ fotoğraftı (üç gradyan + unsplash + #1b1913) ve
+     kimlik metni doğrudan onun üstünde duruyordu. Referansta bölüm zemini
+     düz; fotoğraf AYRI ve yuvarlatılmış bir şerit (.pf-banner). Fotoğraf
+     artık `.cp-banner`da; burada yalnız plaka kaldı. */
   background:
-    radial-gradient(900px 420px at 86% 8%,rgba(0,157,79,.26),transparent 60%),
-    linear-gradient(90deg,rgba(33,30,22,.94) 0%,rgba(29,26,20,.82) 44%,rgba(27,25,19,.74) 100%),
-    linear-gradient(180deg,rgba(33,30,22,0) 54%,rgba(24,22,16,.66) 100%),
-    url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16') center 26%/cover no-repeat,
-    #1b1913;
+    radial-gradient(900px 420px at 86% 6%,rgba(0,157,79,.20),transparent 62%),
+    linear-gradient(180deg,#1b1913 0%,#191710 100%);
   padding:34px 0 44px;
 }
 .cp-top .wrap{position:relative;z-index:2}
-.cp-crumb{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:26px;flex-wrap:wrap}
+.cp-crumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);padding:18px 0 14px;flex-wrap:wrap}
 .cp-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
 .cp-crumb a:hover{color:#fff}
 .cp-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
 .cp-crumb .cur{color:var(--fit-bright)}
 
-/* R6 m7 · kimlik bloğu TEK KOLON — h1 `.wrap`ın sol kenarından (132 px) */
-.cp-head{display:block}
-/* yuvarlak portre; ölçü referanstan: dadadiet profil sayfası `.pf-ava` 128×128 */
-.cp-portre{
-  position:relative;flex:none;width:128px;height:128px;border-radius:50%;
-  background-size:cover;background-position:center;margin-bottom:18px;
-  box-shadow:0 18px 48px rgba(0,0,0,.4);border:3px solid rgba(255,255,255,.14);
+/* =====================================================================
+ R9 · PROFİL İSKELETİ KARDEŞ MARKADAN BİREBİR ALINDI
+ ---------------------------------------------------------------------
+ KAYNAK: dadadiet.com/diyetisyen/dyt-elif-sahin — Playwright ile @1440 ve
+ @390'da ölçüldü (ölçüm dökümü: scratchpad/r9profil/ref-tree-*.txt).
+ Referansın `.pf-top` blok sırası:
+   1 kırıntı (.rd-crumb, pad 18/0/14/0)
+   2 banner görseli (.pf-banner, r24 @1440 · r16 @390)
+   3 kimlik kartı (.pf-head — banner'ın alt kenarına BİNER, w = wrap-56,
+     pad 26/30/28/30, r16, 1px çizgi, beyaz; içinde .pf-ava 128 daire +
+     .pf-id + .pf-actions)
+   4 istatistik şeridi (.pf-stats, w = wrap-56, h75, r16, 3 hücre)
+ Burada aynı sıra, aynı ölçüler. TEK FARK: bölüm zemini.
+ Referansta `.pf-top` BEYAZ; burada koyu — çünkü DadaFit kabuğu bu sayfada
+ `data-fit-over="1"` ile header'ı şeffaflaştırıp marka yazısını BEYAZ
+ boyuyor (fit-shell.css), yani header'ın arkasında koyu bant ŞART.
+ Beyaz zemin logoyu görünmez yapardı. Kabuk kusuru değil, kabuk sözleşmesi.
+
+ YÜKSEKLİK: `.cp-top` yüksekliği kabuk tarafından kilitli
+ (--banner-h-detay: 560 @1440 · 617 @1024 · 726 @390). Banner görseli
+ `flex:1` ile ARTAN alanı yutuyor; böylece kırıntı/kart/şerit ne kadar
+ yer kaplarsa kaplasın toplam HER ZAMAN aile sabitine oturuyor —
+ sabit artık tesadüf değil, yapısal.
+ ===================================================================== */
+/* Kabuk `.cp-top{padding:var(--hero-pt) 0 var(--hero-pb) !important}` diyor
+   (@1440 46 px, ≤640 12 px). Referansta `.pf-top`un alt dolgusu 0 — şerit
+   bölümün alt kenarına yaslanıyor. Burada plaka koyu olduğu için sıfır değil,
+   şeridin plakanın üstünde durduğu okunacak kadar (20 px) bırakıldı.
+   Kabuğa dokunmamak için özgüllük yükseltildi (0,2,2 > 0,1,0). */
+body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
+.cp-top .wrap{display:flex;flex-direction:column;height:100%}
+.cp-crumb{flex:none}
+
+/* 2 · banner görseli — referans .pf-banner (240 px @1440, r24) */
+.cp-banner{
+  flex:1 1 auto;min-height:150px;border-radius:var(--radius-xl);
+  background-size:cover;background-position:center 46%;
+  box-shadow:0 22px 60px rgba(0,0,0,.42);
+  position:relative;overflow:hidden;
 }
-.cp-portre .cp-on{position:absolute;right:6px;bottom:6px;width:18px;height:18px;border-radius:50%;background:var(--fit-bright);border:3px solid #16140e;box-shadow:0 0 0 2px rgba(52,196,126,.4)}
-.cp-id{min-width:0}
-/* Onay rozeti — ikon boyutu ve dikey hizası ÖLÇÜLEREK ayarlandı.
-   Rozet bozuk görünüyordu çünkü ikonu `fa-shield-check` idi ve o bir Font
-   Awesome PRO ikonu; ücretsiz 6.5.2 kitinde YOK. Ölçüm: computed
-   `::before{content:none}`, genişlik 0px — yani hiç çizilmiyordu ve geriye
-   yalnız 8px'lik boşluk kalıyordu. Ücretsiz karşılığı `fa-shield-halved`
-   (ölçüldü: content dolu, 16px) ile değiştirildi.
-   Tipografi de düzeltildi: 11.5px metin dev ismin üstünde okunmuyordu,
-   12.5px/0.02em'e alındı ve pilin dikey ritmi isimle ilişkilendirildi. */
-.cp-verify{display:inline-flex;align-items:center;gap:7px;background:var(--fit);color:#fff;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:var(--radius-pill);letter-spacing:.02em;margin-bottom:12px;box-shadow:0 4px 14px rgba(0,106,53,.34);line-height:1}
-.cp-verify i{font-size:12.5px;line-height:1}
-.cp-id h1{color:#fff;font-size:40px;letter-spacing:-.02em;line-height:1.06;margin-bottom:8px}
-.cp-spec{color:rgba(255,255,255,.86);font-size:16px;font-weight:600;margin-bottom:16px}
-.cp-spec i{color:var(--fit-bright);font-size:13px;margin:0 6px}
-/* R6 m7 · hero mini-meta (`.cp-meta`) KALKTI — üç kalem madde 4'ün sağ dikey
-   `.lib-stats` kolonuna taşındı, kuralları ölü kalmasın diye silindi.
-   Yıldız ikonu sayının içinde kaldı: */
-.cp-top .lib-stat b i.fa-star{color:var(--yellow);font-size:20px;margin-right:4px}
-/* hero etiketleri (cam chip) */
-.cp-htags{display:flex;flex-wrap:wrap;gap:8px}
-.cp-htags span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 13px;border-radius:var(--radius-sm)}
-.cp-htags span i{color:var(--fit-bright);font-size:11px}
-/* CTA kolonu — cam panel */
-.cp-cta{
-  flex:none;width:262px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:11px;
+.cp-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,18,12,0) 46%,rgba(18,16,11,.5))}
+
+/* 3 · kimlik kartı — referans .pf-head (w wrap-56 · pad 26/30/28/30 · r16) */
+.cp-head{
+  position:relative;z-index:2;
+  width:calc(100% - 56px);margin:-78px auto 0;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:0 10px 34px rgba(20,18,12,.14);
+  padding:26px 30px 28px;display:flex;gap:26px;align-items:flex-start;
 }
-.cp-cta .cta-price{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:5px}
-.cp-cta .cta-price b{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.01em}
-.cp-cta .cta-price span{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.66)}
-.cp-cta .btn{width:100%}
-.cp-cta .btn-msg{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.24)}
-.cp-cta .btn-msg:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
-.cp-cta .cta-note{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:rgba(255,255,255,.66);margin-top:3px}
-.cp-cta .cta-note i{color:var(--fit-bright)}
-.cp-cta .cta-row{display:flex;gap:9px}
-.cp-cta .cta-row .btn{flex:1;padding:12px 10px}
-.cp-mini{flex:none;width:46px;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:var(--radius-md);cursor:pointer;font-size:15px;transition:.2s var(--ease)}
-.cp-mini:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+/* referans .pf-ava 128×128 · r50% · 4px beyaz çerçeve · kartın üstüne taşar */
+.cp-ava{
+  position:relative;flex:none;width:128px;height:128px;border-radius:var(--radius-circle);
+  margin-top:-69px;background-size:cover;background-position:center;
+  border:4px solid var(--paper);box-shadow:0 8px 24px rgba(20,18,12,.22);
+}
+.cp-ava .cp-on{position:absolute;right:7px;bottom:7px;width:17px;height:17px;border-radius:var(--radius-circle);background:var(--fit);border:3px solid var(--paper);box-shadow:0 0 0 2px rgba(0,157,79,.22)}
+.cp-id{flex:1;min-width:0}
+/* referans .pf-id h1 29/700 · .pf-verify 12/700 hap · .pf-handle 14/600 · .pf-meta 13/500 */
+/* SEÇİCİ ÖZGÜLLÜĞÜ — kabuk `body[data-fit-hero-kind] .cp-top h1{font-size:42px}`
+   diyor (fit-shell.css, ≥901px). O kural kimlik metni KOYU banner'ın üstünde
+   dururken doğruydu; artık h1 beyaz kartın içinde ve referans ölçüsü 29px.
+   Kabuğa dokunmamak için burada özgüllük yükseltildi (0,3,1 > 0,2,1). */
+.cp-top .cp-head .cp-id h1{display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-size:29px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--slate);margin:0;max-width:none}
+.cp-verify{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;line-height:1;color:var(--fit-ink);background:rgba(0,157,79,.13);padding:5px 11px;border-radius:var(--radius-sm)}
+.cp-verify i{font-size:12px}
+.cp-spec{display:block;font-size:14px;font-weight:600;color:var(--slate-2);margin-top:9px}
+.cp-meta{display:flex;flex-wrap:wrap;gap:7px 20px;margin-top:13px;font-size:13px;font-weight:500;color:var(--muted)}
+.cp-meta span{display:inline-flex;align-items:center;gap:7px}
+.cp-meta i{color:var(--fit-deep);font-size:12px}
+/* KENDİ ELEŞTİRİM · KUSUR 3 — puan yıldızı YEŞİLDİ.
+   Ölçüldü: `.cp-meta .fa-star` rgb(0,122,61) iken aynı sayfadaki
+   `.rev-stars i` ve `.sim-rate i` rgb(250,192,69). Puan yıldızının rengi
+   sitede sarı; meta satırına taşınırken yeşile düşmüştü. */
+.cp-meta i.fa-star{color:var(--yellow)}
+/* referans .pf-actions — birincil düğme + (ikincil + ikon) satırı, gap 9 */
+.cp-actions{flex:none;display:flex;flex-direction:column;gap:9px;width:194px}
+.cp-actions .btn{width:100%;justify-content:center}
+.cp-actions .cta-row{display:flex;gap:9px}
+.cp-actions .cta-row .btn{flex:1;padding:12px 16px;font-size:13.5px}
+.cp-mini{flex:none;width:46px;padding:0;display:grid;place-items:center;background:var(--paper);border:1px solid var(--line);color:var(--slate);border-radius:var(--radius-md);cursor:pointer;font-size:15px;transition:.2s var(--ease)}
+.cp-mini:hover{border-color:var(--fit);color:var(--fit-deep)}
+.cp-mini.on{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+/* ODAK HALKASI — kabuktan geliyor; sayfa kuralı YOK ve olmamalı.
+   YANLIŞ ALARM KAYDI (R9): hesaplanan `outline-color` bu düğmelerde
+   rgb(255,255,255) okunuyor ve "beyaz kartta beyaz halka, görünmez" diye
+   bir kusur yazılmıştı. Ekran görüntüsüne bakılınca öyle olmadığı görüldü:
+   halka düğmenin İÇİNE çiziliyor ve düğmenin kendi zemini yeşil, yani
+   beyaz halka orada okunan halka. Eklenen sayfa kuralı geri alındı.
+   Nöbeti `tests/antrenor-profil.mjs` §14 devraldı: halkanın rengi
+   DÜĞMENİN KENDİ ZEMİNİNDEN farklı mı — ölçülen şey bu olmalıydı. */
 
 /* ---- STICKY SEKME ÇUBUĞU ---- */
 .cp-body{padding:40px 0 var(--sec-pad);background:var(--bg-white)}
@@ -219,6 +263,49 @@ html,body{overflow-x:clip}
 .av-rows .avr i{flex:none;width:18px;text-align:center;color:var(--fit-deep);font-size:13px}
 .av-rows .avr b{color:var(--slate);font-weight:700}
 
+/* =====================================================================
+ R9 · "SEANSLAR" SEKMESİ — referansın "Hizmetler" paneli BİREBİR
+ ---------------------------------------------------------------------
+ BEYAR'IN ŞİKÂYETİ: "burda 450 tl kartı berbat bir yerde".
+ ÖLÇÜM (önce): fiyat `.cp-cta` içindeydi — 262×285 px koyu cam kutu,
+ y592'de, tek başına SOLDA; sağında 914 px boş alan. Sayfada fiyat
+ gören TEK yer orasıydı.
+ ÖLÇÜM (referans): dadadiet profilinde hero'da fiyat YOK. Fiyat yalnız
+ "Hizmetler" sekmesinde, `.svc-card`ın ayağında duruyor:
+   .svc-grid  → grid · gap 22 · 3 kolon (377 px kart @1440)
+   .svc-card  → pad 24/22 · r16 · 1px çizgi · beyaz · flex kolon
+   .svc-tag   → 10.5/700 · pad 5/11 · r8 · aksan yıkama
+   .svc-ico   → 48×48 · r12 · aksan yıkama · ikon 19px
+   h3         → 18/700 ·  ul.svc-feats → li 13.5/500 · gap 9
+   .svc-foot  → margin-top:auto · pad-top 18 · ÜST ÇİZGİ · flex · gap 12
+   .svc-price b → 23/700 · span → 12/500 ·  .svc-book → pad 12/18 · r12 · 13.5/700
+ Buradaki üç seans UYDURULMADI: sayfanın kendi randevu modalindeki
+ (`#aptSvc`) üç seçenekten alındı — Birebir Seans · Aylık Paket ·
+ Tanışma Görüşmesi. Fiyat biçimi (₺450) DadaFit'in kendi biçimi;
+ referansın "450 ₺" sırası markanın geri kalanıyla çelişirdi.
+ ===================================================================== */
+.svc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:stretch}
+.svc-card{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:24px 22px}
+.svc-card.feat{border-color:rgba(0,157,79,.5);box-shadow:0 6px 22px rgba(0,157,79,.12)}
+.svc-tag{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--fit-ink);background:rgba(0,157,79,.13);padding:5px 11px;border-radius:var(--radius-sm);line-height:1.5}
+.svc-ico{width:48px;height:48px;margin-top:14px;border-radius:var(--radius-md);background:rgba(0,157,79,.13);color:var(--fit-deep);display:grid;place-items:center;font-size:19px}
+.svc-card h3{font-size:18px;font-weight:700;letter-spacing:-.01em;line-height:1.14;margin-top:16px;color:var(--slate)}
+.svc-feats{display:flex;flex-direction:column;gap:9px;margin-top:7px}
+.svc-feats li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;font-weight:500;line-height:1.42;color:var(--slate-2)}
+.svc-feats li i{flex:none;font-size:13px;color:var(--fit-deep);margin-top:2px}
+.svc-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
+.svc-price{min-width:0}
+.svc-price b{font-size:23px;font-weight:700;letter-spacing:-.01em;color:var(--slate)}
+.svc-price span{font-size:12px;font-weight:500;color:var(--muted);margin-left:5px}
+.svc-book{display:inline-flex;align-items:center;gap:8px;flex:none;font-family:inherit;font-size:13.5px;font-weight:700;color:#fff;background:var(--fit);border:0;border-radius:var(--radius-md);padding:12px 18px;cursor:pointer;transition:.2s var(--ease)}
+.svc-book:hover{background:var(--fit-deep);transform:translateY(-2px)}
+.svc-book i{font-size:13.5px}
+/* KENDİ ELEŞTİRİM · KUSUR 5 — "Ücretsiz" yeşildi ve 12 px sağındaki yeşil
+   "Randevu" düğmesiyle yarışıyordu; referansta üç kartın fiyatı da aynı
+   renk. Vurgu kelimenin kendisinde, renkte değil. */
+.svc-price b.free{color:var(--slate)}
+/* boş sekme panelinin sarılması gerekmiyor: `.svc-feats` madde işareti yok */
+.svc-feats{list-style:none}
 /* ---- PROGRAMLAR: full-görsel kart (div+bg cover) ---- */
 .prog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .prog-media{position:relative;height:188px;background-size:cover;background-position:center}
@@ -323,8 +410,12 @@ html,body{overflow-x:clip}
  banner sabit yükseklikli (--banner-h-detay) olduğu için satır banner'ın
  İÇİNE değil, tıpkı randevu kartı gibi (R15.3) hemen altına konur.
  ===================================================================== */
-.cp-exp{margin-left:auto;margin-right:auto}
-.cp-exp-lbl{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--fit-deep);margin-bottom:10px}
+/* R9 · ŞERİT REFERANSTAKİ YERİNE TAŞINDI: artık `main`in çıplak çocuğu
+   değil, `.cp-top` içinde kimlik kartının HEMEN ALTINDA — referansta
+   `.pf-stats` tam olarak orada duruyor (.pf-head'in kardeşi, 20 px altı).
+   Genişliği de referanstaki gibi wrap-56 (kartla aynı kenar). */
+.cp-exp{flex:none;width:calc(100% - 56px);margin:20px auto 0}
+.cp-exp-lbl{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--fit-bright);margin-bottom:10px}
 .cp-exp-lbl i{font-size:11px}
 .cp-stats{display:flex;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
 .cps{flex:1 1 200px;display:flex;align-items:center;gap:12px;padding:15px 20px;min-width:0}
@@ -373,11 +464,13 @@ html,body{overflow-x:clip}
 @media (max-width:1024px){
   .cp-top{margin-top:112px}
   .cp-tabbar{top:112px}
-  .cp-cta{grid-column:1/-1;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}
-  .cp-cta .cta-price{flex:1 1 100%;margin-bottom:0}
-  .cp-cta .btn{width:auto;flex:1}
-  .cp-cta .cta-row{flex:1 1 100%}
-  .cp-cta .cta-note{flex:1 1 100%}
+  /* R9 · kimlik kartı ≤1024'te sarıyor — eylem kolonu alta iner (referans
+     @390'da da böyle: `.pf-head` kolon akışına geçiyor). */
+  .cp-head{flex-wrap:wrap;padding:22px 24px 24px;gap:20px}
+  .cp-actions{width:100%;flex-direction:row;align-items:center}
+  .cp-actions .btn{flex:1;width:auto}
+  .cp-actions .cta-row{flex:1}
+  .svc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ab-grid{grid-template-columns:1fr}
   .ab-side{position:static}
   .ab-approach{grid-template-columns:1fr}
@@ -390,12 +483,28 @@ html,body{overflow-x:clip}
 }
 @media (max-width:640px){
   .cp-top{margin-top:62px;padding:26px 0 34px}
-  .cp-portre{width:96px;height:96px;margin-bottom:14px}
-  .cp-id h1{font-size:29px}
-  .cp-spec{font-size:14.5px}
-  .cp-cta{flex-direction:column}
-  .cp-cta .cta-price{justify-content:space-between}
-  .cp-cta .btn,.cp-cta .cta-row{width:100%}
+  /* R9 · referans @390 ölçümü: .pf-banner 160 r16 · .pf-head 334 (12 px
+     kenar payı) pad 20/18/22/18 · .pf-ava 104 · .pf-stats 334, 2 satır. */
+  .cp-banner{border-radius:var(--radius-lg);min-height:120px}
+  .cp-head{width:calc(100% - 24px);margin-top:-56px;padding:20px 18px 22px;flex-direction:column;align-items:flex-start}
+  /* DİKEY RİTİM REFERANSTAN ÖLÇÜLDÜ (@390): portre kartın üst kenarından
+     51 px yukarıda · portre→kimlik 16 · kimlik→eylemler 16.
+     Kabuk `.cp-top .cp-head{gap:10px !important}` diyor, o yüzden kalan
+     6 px margin ile tamamlanıyor (10 + 6 = 16). */
+  .cp-ava{width:104px;height:104px;margin-top:-71px;margin-bottom:6px}
+  .cp-top .cp-head .cp-id h1{font-size:24px;gap:9px}
+  .cp-spec{font-size:13.5px;margin-top:7px}
+  .cp-meta{gap:6px 16px;margin-top:11px}
+  .cp-actions{width:100%;margin-top:6px;flex-direction:column;align-items:stretch}
+  .cp-actions .btn,.cp-actions .cta-row{width:100%;flex:none}
+  /* Eyebrow ≤640'ta gizlendi: şerit + kart + banner aile sabitine (726 px)
+     sığmıyordu, 35 px kırpılıyordu (ölçüldü). Referansta `.pf-stats`ın
+     üstünde ZATEN etiket yok; gizlemek referansa yaklaştırıyor. Satırın
+     kendisi `role="group" aria-label="Danışan deneyimi özeti"` taşıdığı
+     için ekran okuyucuda bilgi kaybı yok. */
+  .cp-exp-lbl{display:none}
+  .cp-exp{width:calc(100% - 24px);margin-top:16px}
+  .svc-grid{grid-template-columns:1fr}
   .cp-tabbar{top:62px}
   .cp-body{padding-bottom:var(--sec-pad)}
   .prog-grid{grid-template-columns:1fr}
@@ -414,6 +523,22 @@ html,body{overflow-x:clip}
   .sim-grid{grid-template-columns:1fr}
   .sim-card{height:280px}
 }
+/* ---- ÇOK DAR EKRAN (≤380) ----
+   EŞİK 400 DEĞİL 380: ilk denemede kural ≤400'e yazılmıştı ve ölçülen
+   genişliklerden biri olan 390'ı da kapsayıp banner'ı 137 → 80 px'e
+   düşürüyordu; `.cp-top` 726 yerine 663 ölçüldü, aile sabiti kırıldı.
+   Eşik 390'ın ALTINA çekildi. */
+@media (max-width:380px){
+  .cp-banner{min-height:80px}
+  .cp-meta{gap:5px 14px;margin-top:9px}
+  .cp-ava{width:92px;height:92px;margin-top:-62px}
+  /* Bu genişlikte `.cp-meta` dört satıra çıkıyor ve kabuğun kilitlediği
+     sabit yükseklik içeriği KIRPIYOR (ölçüldü @320: 71 px kırpılma).
+     Kırpmak yerine kilit TABANA çevriliyor: bölüm sabitin altına inemez,
+     gerekirse büyür. Ailenin ölçüldüğü üç genişlikte (1440/1024/390)
+     `height` hâlâ kabuktan geldiği için sabit bozulmuyor. */
+  .cp-top{height:auto !important;min-height:var(--banner-h-detay) !important}
+}
 </style>
 <style>
 /* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
@@ -430,7 +555,19 @@ html,body{overflow-x:clip}
 
 <main class="page-main" id="pageMain">
 
-<!-- ===== HERO: KİMLİK KARTI ===== -->
+<!-- =====================================================================
+     R9 · PROFİL İSKELETİ — KARDEŞ MARKADAN BİREBİR
+     ---------------------------------------------------------------------
+     Referans: dadadiet.com/diyetisyen/dyt-elif-sahin (`.pf-top`), Playwright
+     ile @1440 + @390 ölçüldü. Blok sırası birebir taşındı:
+       1 kırıntı → 2 banner görseli → 3 kimlik kartı → 4 istatistik şeridi
+     ÖNCEKİ HÂLİ (ölçüldü): kimlik metni doğrudan koyu fotoğrafın üstündeydi,
+     istatistikler sağ dikey kolondaydı (`.lib-stats`), eylem düğmeleri ve
+     ₺450 ise banner'ın ALTINDA ayrı bir koyu kutudaydı (`.cp-band`/`.cp-cta`,
+     262×285 px, tek başına solda, sağında 914 px boşluk — Beyar'ın
+     "berbat bir yerde" dediği kutu). Üçü de referansın tek kartında
+     birleşti; fiyat ise referanstaki yerine, "Seanslar" sekmesine gitti.
+     ===================================================================== -->
 <section class="cp-top">
   <div class="wrap">
     <nav class="cp-crumb rd-crumb" aria-label="Sayfa yolu">
@@ -441,89 +578,72 @@ html,body{overflow-x:clip}
       <span class="cur" data-at="ad">Selin Aksoy</span>
     </nav>
 
-    <!-- ===== R6 · MADDE 7 (+ S-G KARARI) — BANNER TEK KOLONA ÇEKİLDİ =====
-         ÖNCE: `.cp-head` üç kolonlu ızgaraydı (portre | kimlik | CTA) ve h1'in
-         sol kenarı **348 px**'ti. Ölçüm: sitedeki 64 banner sayfasının 61'inde
-         h1 sol kenarı 132 px; yalnız bu sayfa (348) ve `program-detay` (165)
-         ayrışıyordu. S-G kararı: ikisi de tek kolona çekilecek, h1 132 px.
-         ŞİMDİ: kimlik bloğu doğrudan `.wrap`ın sol kenarından başlıyor;
-         portre onun üstünde, referansın profil sayfasındaki gibi **yuvarlak
-         ve 128 px** (dadadiet.com/diyetisyen/… `.pf-ava` = 128×128, ölçüldü).
-         `.cp-meta` şeridi de madde 4'ün dilini alıp SAĞ DİKEY KOLONA taşındı
-         (`.lib-stats`); üç kalemin de içeriği korundu.
-         GERİ ALMA: bu bloğu eski `.cp-head` ızgarasına döndürmek + CSS'teki
-         "R6 m7" bloğunu silmek. -->
+    <!-- 2 · BANNER GÖRSELİ — referans `.pf-banner` (yuvarlatılmış şerit).
+         Yüksekliği `flex:1`; kabuğun kilitlediği aile sabitinden (560/617/726)
+         artan alanı yutuyor, böylece toplam her genişlikte sabite oturuyor. -->
+    <!-- KENDİ ELEŞTİRİM · KUSUR 1 — GÖRSEL DEĞİŞTİ.
+         Önceki kare (photo-1518611012118…) 1176×159'luk şeride KÖTÜ
+         kırpılıyordu: solda pencere, ortada kafası kesilmiş bir yüz, sağda
+         gövdesiz bir bacak — üç kopuk parça. Dört aday × dört kırpım noktası
+         yan yana çizilip bakıldı (scratchpad/r9profil/banner-secim.png);
+         bu kare 46%'de şeridi baştan sona tek bir sahne olarak dolduruyor ve
+         kimlik kartındaki portreyle yarışan ikinci bir yüz taşımıyor. -->
+    <div class="cp-banner" role="presentation" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16')"></div>
+
+    <!-- 3 · KİMLİK KARTI — referans `.pf-head`: banner'ın alt kenarına biner,
+         solda 128 px daire portre, ortada kimlik, sağda eylem kolonu. -->
     <div class="cp-head">
+      <!-- YER TUTUCU — antrenörün GERÇEK portre fotoğrafı gelince değişecek
+           (docs/icerik-bekleyen.md · antrenor-portre-fotografi). Buradaki
+           görsel portre DEĞİL: dört kişilik geniş bir salon karesi daireye
+           sığdırılıyor, hiçbir yüz seçilmiyor. Görsel ÜRETİLMEDİ, başka bir
+           stok kare de UYDURULMADI; kutu işaretli bırakıldı. -->
+      <div class="cp-ava" data-yer-tutucu="antrenor-portre-fotografi" role="img" aria-label="Selin Aksoy — portre fotoğrafı henüz yok, yakında" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+        <span class="cp-on" title="Şu an müsait"></span>
+      </div>
+
       <div class="cp-id">
-        <!-- YER TUTUCU — antrenörün GERÇEK portre fotoğrafı gelince değişecek
-             (docs/icerik-bekleyen.md 9. kalem). DEVIR-7 §5e kalem 4 olarak
-             açık duruyordu; R8'de ÖLÇÜLDÜ ve doğrulandı: buradaki görsel
-             portre DEĞİL — dört kişilik geniş bir salon karesi 128px'lik
-             daireye sığdırılıyor, hiçbir yüz seçilmiyor. İskelet (referans
-             `.pf-ava` 128×128 daire) portre bekliyor. Görsel ÜRETİLMEDİ ve
-             başka bir stok kare de UYDURULMADI; kutu işaretlendi. -->
-        <div class="cp-portre" data-yer-tutucu="antrenor-portre-fotografi" role="img" aria-label="Selin Aksoy — portre fotoğrafı henüz yok, yakında" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-          <span class="cp-on" title="Şu an müsait"></span>
+        <h1><span data-at="ad">Selin Aksoy</span> <span class="cp-verify"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> DadaFit Onaylı</span></h1>
+        <span class="cp-spec">Egzersiz ve spor bilimleri uzmanı</span>
+        <!-- R9 · referans `.pf-meta` satırı. Banner'ın sağ dikey kolonundaki
+             (`.lib-stats`) üç sayı buraya taşındı; hiçbiri kaybolmadı. -->
+        <div class="cp-meta">
+          <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> İstanbul · Online &amp; yüz yüze</span>
+          <span><i class="fa-solid fa-briefcase" aria-hidden="true"></i> 8 yıl deneyim</span>
+          <span><i class="fa-solid fa-star" aria-hidden="true"></i> 4.9 · 120 değerlendirme</span>
+          <span><i class="fa-solid fa-user-group" aria-hidden="true"></i> 180+ danışan</span>
         </div>
-        <span class="cp-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı · Sertifikalı</span>
-        <h1 data-at="ad">Selin Aksoy</h1>
-        <p class="cp-spec">Güç &amp; Kondisyon <i class="fa-solid fa-circle"></i> Evde Antrenman</p>
-        <div class="cp-htags">
-          <span><i class="fa-solid fa-house"></i> Evde antrenman</span>
-          <span><i class="fa-solid fa-scale-balanced"></i> Kilo yönetimi</span>
-          <span><i class="fa-solid fa-seedling"></i> Başlangıç dostu</span>
-          <span><i class="fa-solid fa-heart"></i> Beden-pozitif</span>
+      </div>
+
+      <!-- referans `.pf-actions`: birincil düğme + (ikincil + ikon) satırı.
+           Fiyat BURADA YOK — referansta da yok; "Seanslar" sekmesinde. -->
+      <div class="cp-actions">
+        <button class="btn btn-fit" id="ctaBook" type="button"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu Al</button>
+        <div class="cta-row">
+          <button class="btn btn-ghost" id="ctaMsg" type="button"><i class="fa-regular fa-comment" aria-hidden="true"></i> Mesaj</button>
+          <button class="cp-mini" id="ctaSave" type="button" aria-label="Antrenörü kaydet"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>
-    <div class="lib-stats">
-      <div class="lib-stat"><b><i class="fa-solid fa-star"></i> 4.9</b><span>120 değerlendirme</span></div>
-      <div class="lib-stat"><b>180+</b><span>danışan</span></div>
-      <div class="lib-stat"><b>3 saat</b><span>ortalama yanıt süresi</span></div>
+
+    <!-- 4 · İSTATİSTİK ŞERİDİ — referans `.pf-stats`: kimlik kartının hemen
+         altında, sekme çubuğundan ÖNCE, kartla aynı kenar hizasında.
+         R8'de bu şerit `main`in çıplak çocuğuydu ve randevu kutusunun
+         altında duruyordu; R9'da referanstaki yerine, kartın altına geldi.
+         İÇERİK DEĞİŞMEDİ: ilk iki hücrenin kaynağı sayfanın kendi yorum
+         paneli (%96 → `.rev-tagline`, %88 → `.rev-bars` 5★). Üçüncünün
+         toplu verisi YOK — sayı UYDURULMADI, yer tutucu
+         (docs/icerik-bekleyen.md · danisan-ortalama-calisma-suresi). -->
+    <div class="cp-exp">
+      <span class="cp-exp-lbl"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Danışan deneyimi</span>
+      <div class="cp-stats" role="group" aria-label="Danışan deneyimi özeti">
+        <div class="cps"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><div><span>Tavsiye oranı</span><b>%96</b></div></div>
+        <div class="cps"><i class="fa-solid fa-star" aria-hidden="true"></i><div><span>5 yıldız oranı</span><b>%88</b></div></div>
+        <div class="cps" data-yer-tutucu="danisan-ortalama-calisma-suresi"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i><div><span>Ortalama çalışma süresi</span><b aria-label="Ortalama çalışma süresi — toplu veri henüz yok, yakında">Veri henüz yok</b></div></div>
+      </div>
     </div>
   </div>
 </section>
-
-<!-- R15.3 · RANDEVU KARTI BANNER'DAN ÇIKARILDI
-     Beyar: "antrenor-detay'daki randevu kartı, sabit yüksekliğe sığacak
-     şekilde yeniden düzenlenecek (kart banner'dan çıkarılıp altına
-     alınabilir)." Ölçüm @390: kart banner'ı 750.9 px'e çıkarıyordu,
-     detay ailesinin kutusu 726 px — 24.9 px kırpılıyordu. -->
-<div class="wrap fit-band-panel cp-band">
-
-      <div class="cp-cta">
-        <div class="cta-price"><b>₺450</b><span>seans başı</span></div>
-        <button class="btn btn-fit" id="ctaBook" type="button"><i class="fa-solid fa-calendar-check"></i> Randevu Al</button>
-        <button class="btn btn-msg" id="ctaClient" type="button"><i class="fa-solid fa-user-plus"></i> Danışan Ol</button>
-        <div class="cta-row">
-          <button class="btn btn-msg" id="ctaMsg" type="button"><i class="fa-regular fa-comment"></i> Mesaj Gönder</button>
-          <button class="cp-mini" id="ctaSave" type="button" aria-label="Antrenörü kaydet"><i class="fa-regular fa-bookmark"></i></button>
-        </div>
-        <span class="cta-note"><i class="fa-solid fa-circle-check"></i> İlk 15 dk tanışma görüşmesi ücretsiz</span>
-      </div>
-</div>
-
-<!-- ===== R8 · KALEM 38 — "DANIŞAN DENEYİMİ" SATIRI =====
-     KONUM ÖLÇÜLDÜ: referans profilde (dadadiet.com/diyetisyen/dyt-elif-sahin)
-     karşılığı `.pf-stats`; bölüm sırasında **4. blok** — kırıntı(1),
-     banner(2), kimlik kartı + eylem düğmeleri(3), istatistik satırı(4).
-     Burada da 4. blok: kırıntı(1), banner/kimlik(2), randevu kartı(3),
-     danışan deneyimi(4). Sekme çubuğundan ÖNCE.
-     İÇERİK: ilk iki hücrenin kaynağı sayfanın kendi yorum panelidir
-     (%96 tavsiye → `.rev-tagline`; %88 beş yıldız → `.rev-bars` 5★).
-     Üçüncü hücrenin toplu verisi YOK — sayı UYDURULMADI, yer tutucu.
-     YER TUTUCU — ortalama çalışma süresi toplu verisi gelince değişecek
-     (docs/icerik-bekleyen.md 6. kalem). -->
-<div class="wrap cp-exp">
-  <span class="cp-exp-lbl"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Danışan deneyimi</span>
-  <div class="cp-stats" role="group" aria-label="Danışan deneyimi özeti">
-    <div class="cps"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><div><span>Tavsiye oranı</span><b>%96</b></div></div>
-    <div class="cps"><i class="fa-solid fa-star" aria-hidden="true"></i><div><span>5 yıldız oranı</span><b>%88</b></div></div>
-    <div class="cps" data-yer-tutucu="danisan-ortalama-calisma-suresi"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i><div><span>Ortalama çalışma süresi</span><b aria-label="Ortalama çalışma süresi — toplu veri henüz yok, yakında">Veri henüz yok</b></div></div>
-  </div>
-</div>
-
-
 <!-- ===== GÖVDE: STICKY SEKME + PANELLER ===== -->
 <section class="cp-body">
 
@@ -532,6 +652,9 @@ html,body{overflow-x:clip}
     <div class="wrap">
       <div class="fit-tabs" data-fit-tabs="antrenor" aria-label="Antrenör profili bölümleri">
         <button class="fit-tab" type="button" aria-selected="true" data-tab="hakkinda"><i class="fa-solid fa-user"></i> Hakkında</button>
+        <!-- R9 · "Seanslar" sekmesi — referansın "Hizmetler" sekmesinin karşılığı,
+             referanstaki gibi Hakkında'nın HEMEN SONRASINDA. Fiyat bu panelde. -->
+        <button class="fit-tab" type="button" data-tab="seanslar"><i class="fa-solid fa-stopwatch"></i> Seanslar <span class="cnt">3</span></button>
         <button class="fit-tab" type="button" data-tab="programlar"><i class="fa-solid fa-dumbbell"></i> Antrenörün Programları <span class="cnt">3</span></button>
         <button class="fit-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
         <!-- R8 · KALEM 39 — challenge sekmesi. Sayaç YOK: bu antrenöre
@@ -599,6 +722,61 @@ html,body{overflow-x:clip}
             <div class="ic-row"><span class="ic-ico"><i class="fa-solid fa-utensils"></i></span><div><b>Birlikte çalışma</b><span>Beslenme için Dada Diet diyetisyenleriyle ortak plan</span></div></div>
           </div>
         </aside>
+      </div>
+    </div>
+
+    <!-- ===== SEANSLAR — referansın "Hizmetler" paneli =====
+         ÜÇ SEANS UYDURULMADI: sayfanın kendi randevu modalindeki
+         (`#aptSvc`) üç seçeneğin aynısı — Birebir Seans · Aylık Paket ·
+         Tanışma Görüşmesi. Süreler ve kapsam da oradan.
+         FİYAT: birebir seans ücreti slug'dan geliyor (aşağıdaki VERI
+         haritası). Aylık paket ücreti bugün her antrenörde ₺1.600 —
+         slug'a bağlı DEĞİL; randevu modelinde de öyle. Antrenör başına
+         paket ücreti gelene kadar sayı uydurulmadı, olduğu gibi bırakıldı
+         (docs/icerik-bekleyen.md · antrenor-aylik-paket-ucreti). -->
+    <div class="fit-pane" data-pane="seanslar" hidden>
+      <div class="svc-grid">
+        <article class="svc-card">
+          <span class="svc-tag">ONLİNE</span>
+          <div class="svc-ico"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
+          <h3>Tanışma Görüşmesi</h3>
+          <ul class="svc-feats">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> 15 dk görüntülü görüşme</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Hedef ve hareket geçmişi konuşulur</li>
+          </ul>
+          <div class="svc-foot">
+            <div class="svc-price"><b class="free">Ücretsiz</b></div>
+            <button class="svc-book" type="button" data-svc="Tanışma Görüşmesi" aria-label="Tanışma Görüşmesi için randevu al"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu</button>
+          </div>
+        </article>
+
+        <article class="svc-card feat">
+          <span class="svc-tag">ONLİNE</span>
+          <div class="svc-ico"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></div>
+          <h3>Birebir Seans</h3>
+          <ul class="svc-feats">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> 60 dk görüntülü antrenman</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Kişiye özel, o gün için uyarlanır</li>
+          </ul>
+          <div class="svc-foot">
+            <div class="svc-price"><b data-at="fiyat">₺450</b><span>/ seans</span></div>
+            <button class="svc-book" type="button" data-svc="Birebir Seans" aria-label="Birebir Seans için randevu al"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu</button>
+          </div>
+        </article>
+
+        <article class="svc-card">
+          <span class="svc-tag">ONLİNE</span>
+          <div class="svc-ico"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></div>
+          <h3>Aylık Paket</h3>
+          <ul class="svc-feats">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> 4 seans / ay</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Haftalık plan takibi ve mesajla destek</li>
+          </ul>
+          <div class="svc-foot">
+            <div class="svc-price"><b>₺1.600</b><span>/ ay</span></div>
+            <button class="svc-book" type="button" data-svc="Aylık Paket" aria-label="Aylık Paket için randevu al"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu</button>
+          </div>
+        </article>
       </div>
     </div>
 
@@ -905,8 +1083,18 @@ html,body{overflow-x:clip}
      gösteriyordu. İkisi de artık slug'dan geliyor. */
   var specEl = document.querySelector('.cp-spec');
   if(specEl) specEl.textContent = A.unvan;
-  var priceEl = document.querySelector('.cta-price b');
-  if(priceEl) priceEl.textContent = A.fiyat;
+  /* R9 · fiyat hero'dan "Seanslar" sekmesindeki seans kartına taşındı
+     (referansta da fiyat yalnız hizmet kartının ayağında duruyor).
+     Seçici `.cta-price b` → `[data-at="fiyat"]`; aynı kaynak, yeni yer.
+     Randevu modalindeki birebir seans satırı da AYNI sayıyı gösteriyor;
+     iki yerde iki farklı ücret çıkmasın diye ikisi de buradan yazılıyor. */
+  document.querySelectorAll('[data-at="fiyat"]').forEach(function(el){ el.textContent = A.fiyat; });
+  var modalSeans = document.querySelector('#aptSvc input[data-price="450"]');
+  if(modalSeans){
+    var sp = modalSeans.closest('label').querySelector('.sp');
+    if(sp) sp.textContent = A.fiyat;
+    modalSeans.setAttribute('data-price', A.fiyat.replace(/[^0-9]/g,''));
+  }
   document.title = A.ad + ' — DadaFit Onaylı Antrenör | DadaFit';
 
   /* randevu onayı → Fit Planım > Randevularım (belge §11 adım 5–6) */
@@ -941,8 +1129,11 @@ html,body{overflow-x:clip}
     if(window.__lgGate){var ok=window.__lgGate(title,desc);return ok;}
     return false;
   }
-  [['ctaClient','Danışan olmak için giriş yap','Selin Aksoy ile çalışmaya başlamak için DadaFit hesabına giriş yapman gerekiyor.'],
-   ['bandClient','Danışan olmak için giriş yap','Selin Aksoy ile çalışmaya başlamak için DadaFit hesabına giriş yapman gerekiyor.'],
+  /* R9 · `ctaClient` listeden çıkarıldı: "Danışan Ol" düğmesi hero'daki
+     koyu kutuyla birlikte kalktı (referansın `.pf-actions`ında karşılığı
+     yok — orada da birincil düğme + Mesaj + Paylaş var). Eylem sayfadan
+     KAYBOLMADI: alt CTA bandındaki `bandClient` aynı işi yapıyor. */
+  [['bandClient','Danışan olmak için giriş yap','Selin Aksoy ile çalışmaya başlamak için DadaFit hesabına giriş yapman gerekiyor.'],
    ['ctaMsg','Mesaj göndermek için giriş yap','Antrenörüne mesaj göndermek için DadaFit hesabına giriş yapman gerekiyor.'],
    ['bandMsg','Mesaj göndermek için giriş yap','Antrenörüne mesaj göndermek için DadaFit hesabına giriş yapman gerekiyor.']
   ].forEach(function(it){
@@ -1021,6 +1212,19 @@ html,body{overflow-x:clip}
       aptModal.classList.remove('show');aptOv.classList.remove('show');document.body.style.overflow='';if(window.__bnUpdate)window.__bnUpdate();}
     var ctaBook=document.getElementById('ctaBook');
     if(ctaBook)ctaBook.addEventListener('click',function(){openApt(ctaBook);});
+    /* R9 · "Seanslar" kartlarındaki Randevu düğmeleri de aynı modali açıyor;
+       kartın seansı modalde ÖNCEDEN seçili geliyor (kart adı ↔ modal satırı
+       adı birebir aynı, eşleşme metin üzerinden). */
+    document.querySelectorAll('.svc-book').forEach(function(bk){
+      bk.addEventListener('click',function(){
+        var ad=bk.getAttribute('data-svc');
+        document.querySelectorAll('#aptSvc label').forEach(function(lb){
+          var b=lb.querySelector('.si b');
+          if(b && b.textContent.trim()===ad){ lb.querySelector('input').checked=true; }
+        });
+        openApt(bk);
+      });
+    });
     document.querySelectorAll('#aptSvc input').forEach(function(i){i.addEventListener('change',refreshSum);});
     document.querySelectorAll('.apt-day').forEach(function(d){
       d.addEventListener('click',function(){

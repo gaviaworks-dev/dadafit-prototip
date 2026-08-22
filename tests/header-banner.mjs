@@ -54,10 +54,17 @@ const BANNER = [
      radial yeşil + üç katman + fotoğraf + #1b1913 taban) ama over-mode
      listesinde yoktu; header koyu görselin üstünde KATI kalıyordu — K11'in
      beş sınıf için düzelttiği kusurun altıncısı. Detay: KARARLAR K23. */
-  'egzersiz-detay-v1.html'          // .ed-top
+  'egzersiz-detay-v1.html',         // .ed-top
+  /* R9 (Beyar): giriş sayfası PLAIN listesinden BANNER listesine TAŞINDI.
+     `.au-top` da diğerleriyle aynı koyu banner dili (radial yeşil + iki
+     gradient katmanı + fotoğraf) ve bant y=0'dan başlıyor; header üstünde
+     KATI beyaz durup görseli kesiyordu (ölçüldü @1440: at-top yok,
+     background rgb(255,255,255), üst 113px kesik). Sayfa artık kabuğun
+     kendi anahtarını taşıyor: body[data-fit-hero="1"]. */
+  'giris-v1.html'                   // .au-top
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
-const PLAIN = ['giris-v1.html', 'profil-v1.html'];
+const PLAIN = ['profil-v1.html'];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;
 let fail = 0; const bad = [];
@@ -110,7 +117,10 @@ for(const width of WIDTHS){
         wordColor: (() => { const w = document.querySelector('.header .fit-word b');
                             return w ? getComputedStyle(w).color : null; })(),
         /* koyu bant seçicisi over-mode'un kapsadığı TÜM sınıfları içerir */
-        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top'))
+        /* .au-top SONRADAN eklendi: giriş sayfasının koyu bandı bu sınıfı
+           taşıyor; listede olmadığı için 2b kontrolü "arkasında koyu bant
+           yok" diyordu — sondanın kusuru, sayfanınki değil. */
+        dark:   r(document.querySelector('.lib-top, .fp-top, .df-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top, .au-top'))
       };
     });
 

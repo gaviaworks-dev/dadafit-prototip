@@ -145,7 +145,15 @@
 
 
 /* sosyal login — yeni (eski site Facebook/Google butonlarının token diline çevirisi) */
-.soc-col{display:flex;flex-direction:column;gap:10px}
+/* R9/2 — YAN YANA. Kardeş marka ölçümü (Playwright, dadadiet.com/giris):
+   @1440 .soc-col display:grid · grid-template-columns "216px 216px" · gap 10px
+         (kart içi genişlik 442px — DadaFit kartıyla BİREBİR aynı)
+   @1024 "456px 456px" · @768 "328px 328px" · @390 tek kolon "320px"
+   Kırılım taraması (1440→360, 20px adım): 660px'te iki kolon, 640px'te tek
+   kolon → sınır ≤640, yani bu deponun mobil medya sorgusuyla aynı yer.
+   Düğme etiketi de referansta kısa: "Google" / "Facebook" (tam cümle 216px'e
+   sığmıyor) — görünen metin kısaldı, erişilebilir ad .vh ile korundu. */
+.soc-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 .soc-btn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;font-family:inherit;font-size:14px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 16px;cursor:pointer;transition:.2s var(--ease)}
 
@@ -297,7 +305,12 @@
 .au-seg-btn i{font-size:12px}
 
 /* kayıt rol segmenti — au-seg dilinin ikili varyantı (Kullanıcı / Antrenör) */
-.au-rseg{flex-wrap:wrap;margin-bottom:8px}
+/* R9 (kendi eleştirim) — alt boşluk 8px → 22px. 8px'te YAKINLIK TERS
+   dönüyordu: "Nasıl giriş yapmak istersin?" başlığı kendi segmentinden
+   (16px) çok bir üstteki segmente (8px) yakın duruyordu; kayıt panelinde
+   de segment "Ad" etiketine 8px kalıyordu (ölçüldü, 11 genişlikte de 8).
+   22px = .fk-field ritmi; artık grup arası (22) > etiket-denetim (16). */
+.au-rseg{flex-wrap:wrap;margin-bottom:22px}
 
 .au-rseg .au-seg-btn{flex:1 1 calc(50% - 4px);min-width:0}
 
@@ -316,14 +329,18 @@
 
 .au-rseg .au-seg-btn.active,.au-rseg .au-seg-btn.active i{color:#fff}
 
-/* rol-özel ek alan bloğu — kayıt formunda segmentle açılır (uzman/işletme başvuru alanları) */
-.au-rolefields{margin-top:2px}
+/* (R9/3) .au-rolefields / .au-rolenote kuralları SİLİNDİ — o markup kayıt
+ formundan kaldırıldı, seçicinin sayfada karşılığı kalmadı (ölü kod). */
 
-.au-rolefields[hidden]{display:none}
+/* R9/3 — segmentin İÇİNDEKİ BAĞLANTI: "Antrenör" sayfa değiştirir.
+ Düğme kardeşiyle aynı kutu (au-seg-btn), farkı ok ikonu ve link davranışı. */
+.au-seg-link{text-decoration:none}
 
-.au-rolenote{display:flex;gap:10px;align-items:flex-start;margin:0 0 16px;padding:11px 13px;background:var(--bg-cream);border:1px solid var(--line);border-radius:var(--radius-md);font-size:12px;line-height:1.5;color:var(--slate-2);font-weight:500}
+.au-seg-link:hover{color:var(--fit);background:rgba(0,157,79,.08)}
 
-.au-rolenote i{flex:none;margin-top:1px;color:var(--green-deep);font-size:13px}
+.au-seg-go{font-size:11px;opacity:.75;transition:transform .2s var(--ease)}
+
+.au-seg-link:hover .au-seg-go{transform:translateX(3px)}
 
 /* (giriş hesap-türü artık #giAsSeg segmenti — .au-rseg dilini paylaşır; eski .au-asrow select kaldırıldı) */
 /* telefon önek kutusu — fk-input içinde sabit +90 göstergesi */
@@ -337,7 +354,12 @@
 /* (diyetisyen kayıt köprüsü kaldırıldı — rol seçimi artık kayıt rol segmentinde) */
 
 /* prototip ibaresi (§22) — açıklama satırı */
-.au-demo-note{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;font-size:12.5px;line-height:1.55;color:var(--muted);font-weight:500;margin-top:16px;padding:12px 14px;background:var(--bg-cream);border:1px solid var(--line);border-radius:var(--radius-md)}
+/* R9 (kendi eleştirim) — display:flex → block. Notun içinde ikon YOK, bu yüzden
+   flex her metin parçasını ayrı bir öğe yapıyordu: cümle 10px'lik boşluklarla
+   dört parçaya bölünüyor, "'a basıp üye görünümünü gezebilirsin." tek başına
+   alt satıra düşüyordu (ölçüldü: <b> çocukların display'i "block").
+   Metin ve demo kimliği DEĞİŞMEDİ, yalnız kutunun yerleşimi düzeldi. */
+.au-demo-note{display:block;font-size:12.5px;line-height:1.55;color:var(--muted);font-weight:500;margin-top:16px;padding:12px 14px;background:var(--bg-cream);border:1px solid var(--line);border-radius:var(--radius-md)}
 
 /* onay satırındaki zorunluluk işareti — .fk-label dışında da danger rengi taşısın */
 .ol-consents .req{color:var(--au-danger);font-weight:700}
@@ -421,6 +443,9 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
 
   .fk-grid.c2{grid-template-columns:1fr}
 
+  /* R9/2 — referans ≤640'ta sosyal düğmeleri alt alta indiriyor (ölçüldü) */
+  .soc-col{grid-template-columns:1fr}
+
   .au-visual{padding:24px 20px;border-radius:var(--radius-lg)}
 
   .au-visual h2{font-size:24px}
@@ -439,7 +464,16 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
 </head>
-<body data-brand="fit" data-fit-page="giris">
+<!-- data-fit-hero="1" — R9/1 (Beyar: "header şeffaf olsun").
+ Mekanizma KABUKTA zaten var: fit-shell.js OVER_MODE'u ya bu nitelikten ya da
+ koyu banner sınıfı listesinden (.lib-top/.fp-top/.cp-top/.ol-top/…) kuruyor.
+ Bu sayfanın koyu bandı .au-top ve o listede YOK; nitelik de yoktu, bu yüzden
+ header koyu görselin üstünde KATI beyaz duruyordu (ölçüldü @1440: scroll=0 →
+ header.at-top yok, background rgb(255,255,255), bant y=0'dan başlıyor → üst
+ 113px'i beyaz kesiyordu). Kabuğa dokunulmadı; sayfa kabuğun kendi anahtarını
+ kullanıyor. data-fit-hero'ya bağlı CSS'in tamamı .df-* (ana sayfa) seçicileri,
+ bu sayfada karşılığı yok — grep ile doğrulandı. -->
+<body data-brand="fit" data-fit-page="giris" data-fit-hero="1">
 
 <!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
 <div id="fitShellTop"></div>
@@ -512,8 +546,8 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
           </div>
 
           <div class="soc-col">
-            <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" style="color:#4285F4" aria-hidden="true"></i> Google ile devam et</button>
-            <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" style="color:#1877F2" aria-hidden="true"></i> Facebook ile devam et</button>
+            <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" aria-hidden="true"></i> Google<span class="vh"> ile devam et</span></button>
+            <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Facebook<span class="vh"> ile devam et</span></button>
           </div>
           <div class="au-div">veya e-posta ile</div>
 
@@ -538,7 +572,7 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
             <!-- e-posta alanı (varsayılan) -->
             <div class="fk-field" id="giEmailField">
               <label class="fk-label" for="giEmail">E-posta <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-              <input class="fk-input" id="giEmail" name="giEmail" type="email" autocomplete="email" placeholder="ornek@eposta.com" required aria-describedby="giEmailErr" />
+              <input class="fk-input" id="giEmail" name="giEmail" type="email" autocomplete="off" placeholder="ornek@eposta.com" value="demo@dadafit.test" required aria-describedby="giEmailErr" />
               <span class="fk-error" id="giEmailErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Geçerli bir e-posta adresi gir.</span>
             </div>
             <!-- telefon alanı (segment ile) -->
@@ -553,7 +587,7 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
             <div class="fk-field">
               <label class="fk-label" for="giPass">Şifre <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
               <div class="fk-pass">
-                <input class="fk-input" id="giPass" name="giPass" type="password" autocomplete="current-password" placeholder="Şifren" required aria-describedby="giPassErr" />
+                <input class="fk-input" id="giPass" name="giPass" type="password" autocomplete="off" placeholder="Şifren" value="demo-sifre" required aria-describedby="giPassErr" />
                 <button class="fk-eye" type="button" data-eye="giPass" aria-label="Şifreyi göster" aria-pressed="false"><i class="fa-regular fa-eye" aria-hidden="true"></i></button>
               </div>
               <span class="fk-error" id="giPassErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Şifreni gir.</span>
@@ -563,10 +597,17 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
               <button class="au-forgot" type="button" data-goto="sifre">Şifremi unuttum</button>
             </div>
             <button class="btn btn-primary au-submit" type="submit"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Giriş Yap</button>
-            <!-- §22 — prototipte gerçek kimlik doğrulama YOK. Eskiden alanlar
- gerçek gibi duran bir e-posta ve şifreyle DOLU geliyordu; kaldırıldı ve
- yerine açık bir demo ibaresi kondu (gerçek hesap bilgisi izlenimi vermesin). -->
-            <p class="au-demo-note"> Bu bir arayüz prototipi: arka uç yok, girdiğin bilgiler hiçbir yere gönderilmez. Alanları doldurup Giriş Yap'a basınca üye görünümü açılır.</p>
+            <!-- §22 — prototipte gerçek kimlik doğrulama YOK.
+                 R9 (Beyar): alanlar yeniden DOLU geliyor — prototipi gezen
+                 kişi her seferinde form doldurmadan üye görünümüne geçebilsin.
+                 Eski kararın kaygısı ("gerçek hesap bilgisi izlenimi vermesin")
+                 KORUNDU, çözüm farklı: kimlik bariz sahte —
+                 `demo@dadafit.test` (`.test` RFC 2606 ile AYRILMIŞ, hiçbir
+                 zaman gerçek bir adres olamaz) ve `demo-sifre`.
+                 `autocomplete="off"` — tarayıcı bunu gerçek bir kimlik sanıp
+                 kasasına yazmasın. -->
+            <p class="au-demo-note"> Bu bir arayüz prototipi: arka uç yok, girdiğin bilgiler hiçbir yere gönderilmez.
+            Alanlar <b>demo kimliğiyle dolu geliyor</b> — doğrudan <b>Giriş Yap</b>'a basıp üye görünümünü gezebilirsin.</p>
           </form>
           <p class="au-alt">Hesabın yok mu? <button type="button" data-goto="kayit">Hemen Kayıt Ol</button></p>
         </div>
@@ -579,19 +620,34 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
           </div>
 
           <form id="formKayit" novalidate>
+            <div class="soc-col">
+              <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" aria-hidden="true"></i> Google<span class="vh"> ile kayıt ol</span></button>
+              <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Facebook<span class="vh"> ile kayıt ol</span></button>
+            </div>
+            <div class="au-div">veya e-posta ile</div>
+
+            <!-- R9/2 — SIRA DEĞİŞTİ: sosyal düğmeler artık ayraçtan ÖNCE, rol
+ sorusu ayraçtan SONRA. Gerekçe iki ölçüme dayanıyor:
+ (a) kardeş marka (dadadiet.com/giris) ve BU sayfanın giriş paneli aynı
+     grameri kullanıyor — önce sosyal, sonra "…e-posta ile", sonra rol
+     segmenti. Kayıt paneli tersineydi, tek başına ayrışıyordu.
+ (b) düğmeler yan yana gelince rol segmentiyle kayıt paneli iki eşit ikili
+     satırı üst üste bindirdi (aralarında yalnız 8px): "Kullanıcı|Antrenör"
+     ve "Google|Facebook" tek bir dörtlü blok gibi okunuyordu. Ayraç ikisini
+     ayırıyor ve rol sorusu yönettiği e-posta formunun hemen üstünde kalıyor. -->
             <!-- rol seçimi — DadaFit'in kendi iki rolü; antrenör seçilince
  başvuru alanları açılır (gizliyken required taşımaz, validate hidden-skip) -->
             <p class="au-rseg-lead" id="kaRoleLead"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Ne olarak katılıyorsun?</p>
             <div class="au-seg au-rseg" role="group" aria-labelledby="kaRoleLead" id="kaRoleSeg">
               <button class="au-seg-btn active" type="button" data-karole="kullanici" aria-pressed="true"><i class="fa-regular fa-user" aria-hidden="true"></i> Kullanıcı</button>
-              <button class="au-seg-btn" type="button" data-karole="antrenor" aria-pressed="false"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Antrenör</button>
+              <!-- R9/3 — Antrenör artık FORM AÇMIYOR, sayfa değiştiriyor:
+ antrenör başvurusu kendi sayfasında (antrenor-ol-v1.html · h1 "DadaFit Onaylı
+ Antrenör ol, danışanlarınla buluş"). Bu yüzden düğme değil BAĞLANTI: hedef
+ durum çubuğunda görünür, orta tık/yeni sekme çalışır, ekran okuyucu "bağlantı"
+ diye okur. Ok ikonu ayrılışı görünür kılar — iki durumlu seçim gibi durup
+ sayfayı değiştirmesin. Giriş panelindeki Antrenör DOKUNULMADI (o giriş rolü). -->
+              <a class="au-seg-btn au-seg-link" href="antrenor-ol-v1.html"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Antrenör <i class="fa-solid fa-arrow-right au-seg-go" aria-hidden="true"></i></a>
             </div>
-
-            <div class="soc-col">
-              <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" style="color:#4285F4" aria-hidden="true"></i> Google ile kayıt ol</button>
-              <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" style="color:#1877F2" aria-hidden="true"></i> Facebook ile kayıt ol</button>
-            </div>
-            <div class="au-div">veya e-posta ile</div>
 
             <div class="fk-grid c2">
               <div class="fk-field">
@@ -629,38 +685,11 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
               <span class="fk-error" id="kaPassErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> En az 8 karakterli bir şifre gir.</span>
             </div>
 
-            <!-- ====== ANTRENÖR BAŞVURU ALANLARI — rol segmentiyle açılır ======
- Diyetisyen ve işletme blokları Faz 2'de KALDIRILDI: diploma numarası,
- mezuniyet, vergi/ruhsat, menü-rezervasyon alanları DadaFit'in değil
- DadaDiet ve DadaGastro'nun dünyasına ait (belge §1 · §14). -->
-            <div class="au-rolefields" data-rolefields="antrenor" hidden>
-              <p class="au-rolenote"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> <span>Antrenör başvurusu incelenir; onaylanınca DadaFit Onaylı Antrenör olarak dizinde görünür, danışan kabul eder ve program yayınlarsın. Sertifika doğrulaması için ek belge istenebilir.</span></p>
-              <div class="fk-field">
-                <label class="fk-label" for="kaAtUzmanlik">Uzmanlık alanların <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-                <input class="fk-input" id="kaAtUzmanlik" name="kaAtUzmanlik" type="text" placeholder="Örn. fonksiyonel antrenman, kuvvet, mobilite" data-role-req="antrenor" aria-describedby="kaAtUzmanlikErr" />
-                <span class="fk-error" id="kaAtUzmanlikErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> En az bir uzmanlık alanı yaz.</span>
-              </div>
-              <div class="fk-grid c2">
-                <div class="fk-field">
-                  <label class="fk-label" for="kaAtSert">Antrenörlük sertifikan <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-                  <input class="fk-input" id="kaAtSert" name="kaAtSert" type="text" placeholder="Örn. Pilates Mat L1" data-role-req="antrenor" aria-describedby="kaAtSertErr" />
-                  <span class="fk-error" id="kaAtSertErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Sertifikanı yaz.</span>
-                </div>
-                <div class="fk-field">
-                  <label class="fk-label" for="kaAtYil">Deneyim (yıl) <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-                  <input class="fk-input" id="kaAtYil" name="kaAtYil" type="number" min="0" max="60" placeholder="Örn. 5" data-role-req="antrenor" aria-describedby="kaAtYilErr" />
-                  <span class="fk-error" id="kaAtYilErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Deneyim yılını gir.</span>
-                </div>
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="kaAtKurum">Sertifika veren kurum <span class="opt">(opsiyonel)</span></label>
-                <input class="fk-input" id="kaAtKurum" name="kaAtKurum" type="text" placeholder="Örn. Türkiye Pilates Federasyonu" />
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="kaAtBio">Kısa bio <span class="opt">(opsiyonel)</span></label>
-                <textarea class="fk-input" id="kaAtBio" name="kaAtBio" rows="3" placeholder="Danışanlarına kendini birkaç cümleyle tanıt."></textarea>
-              </div>
-            </div>
+            <!-- (R9/3) Satır içi ANTRENÖR BAŞVURU ALANLARI kaldırıldı: uzmanlık,
+ sertifika, deneyim, kurum, bio artık antrenor-ol-v1.html'in kendi formunda.
+ Rol segmentindeki Antrenör oraya bağlantı olduğu için bu blok tıklamayla
+ açılamıyordu — ölü işaretleme. Diyetisyen/işletme blokları zaten Faz 2'de
+ kaldırılmıştı (belge §1 · §14). -->
 
             <div class="ol-consents">
               <label class="fb-kvkk" for="cbUyelik">
@@ -858,25 +887,13 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
     kullanici:'dadafit-hub-v1.html',
     antrenor:'dadafit-hub-v1.html?role=antrenor'
   };
+  // R9/3 — kayıt rol segmentinde tek DÜĞME kaldı (Kullanıcı); Antrenör artık
+  // antrenor-ol-v1.html'e giden bağlantı, bu yüzden rol bloğu açma/kapama ve
+  // [data-role-req] zorunluluk devri kaldırıldı (açılacak blok yok).
   var kaRoleSeg=document.getElementById('kaRoleSeg');
-  var setKayitRole=function(){};
   if(kaRoleSeg){
-    var roleBlocks=document.querySelectorAll('.au-rolefields');
-    setKayitRole=function(role){
-      if(!ROLE_DEST[role])return;                  // tanımadığı rolde hiç dokunma
-      segSet(kaRoleSeg,'data-karole',role);
-      roleBlocks.forEach(function(blk){
-        var on=blk.getAttribute('data-rolefields')===role;
-        blk.hidden=!on;
-   // required yalnız AÇIK blokta dursun (gizli alan submit'i bloklamasın)
-        blk.querySelectorAll('[data-role-req]').forEach(function(inp){
-          if(on)inp.setAttribute('required','');
-          else{inp.removeAttribute('required');clearError(inp.closest('.fk-field'));}
-        });
-      });
-    };
-    kaRoleSeg.querySelectorAll('.au-seg-btn').forEach(function(b){
-      b.addEventListener('click',function(){ setKayitRole(b.getAttribute('data-karole')); });
+    kaRoleSeg.querySelectorAll('button.au-seg-btn').forEach(function(b){
+      b.addEventListener('click',function(){ segSet(kaRoleSeg,'data-karole',b.getAttribute('data-karole')); });
     });
   }
 
@@ -930,8 +947,8 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
     var first=null;
     form.querySelectorAll('.fk-input[required]').forEach(function(inp){
       var field=inp.closest('.fk-field');
-      var blk=inp.closest('.au-rolefields');
-      if((field&&field.hidden)||(blk&&blk.hidden))return;     // gizli alanı atla
+      if(field&&field.hidden)return;                          // gizli alanı atla
+      // (R9/3) .au-rolefields kontrolü kaldırıldı — o blok sayfadan çıktı.
       var bad=isBad(inp);
       markError(field,bad);
       if(bad&&!first)first=inp;
@@ -1036,11 +1053,13 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
   if(qs.get('err')==='1'){show('giris');document.getElementById('loginErr').classList.add('show');}
   if(qs.get('sent')==='1'){show('sifre');fSifre.hidden=true;document.getElementById('sifreOk').hidden=false;}
   if(qs.get('ok')==='1'){show('kayit');fKayit.hidden=true;document.getElementById('kayitAlt').hidden=true;document.getElementById('kayitOk').hidden=false;}
- // ?role=antrenor → kayıt sekmesi + antrenör başvuru alanları (deep-link).
+ // ?role=antrenor → R9/3'ten sonra antrenör kaydının yeri antrenor-ol-v1.html.
+ // Tıklamayla aynı yere gitmesi için derin bağlantı da oraya taşınır (replace:
+ // geri tuşu kullanıcıyı bu sayfaya geri fırlatıp döngü kurmasın).
  // ?role=diyetisyen|isletme kabukta hâlâ geçerli bir rol paramı ama bu formda
  // karşılığı yok (o roller DadaDiet/DadaGastro'ya ait) → sessizce yok sayılır.
   var r=qs.get('role');
-  if(r&&ROLE_DEST[r]&&r!=='kullanici'){show('kayit');setKayitRole(r);setGiAs(r);}
+  if(r==='antrenor'){location.replace('antrenor-ol-v1.html');}
   var asParam=qs.get('as');
   if(asParam&&ROLE_DEST[asParam])setGiAs(asParam);
 })();

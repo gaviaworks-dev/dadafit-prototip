@@ -177,8 +177,17 @@
 }
 .sz-find.has .x{display:grid}
 .sz-find .x:hover{background:var(--line);color:var(--slate)}
-.sz-hint{margin:9px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
+/* R9 · ipucu arama kutusunun ALTINDAN İÇİNE alındı (Beyar).
+   Önce `.sz-search` 360×83 idi (55 kutu + 9 boşluk + 19 ipucu) ve
+   chip satırından yüksek kalıyordu; şimdi 360×55, tek satır.
+   Üç hâli de kısa: "En az 3 harf" · "N harf daha yaz" · "Süzülüyor". */
+.sz-hint{margin:0;flex:none;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
 .sz-hint.warn{color:var(--fit-deep)}
+.sz-find input{min-width:0}   /* ipucu yer kaplayınca input daralabilsin */
+/* R9 · placeholder KISALTILDI: ipucu kutuya girince kullanılabilir input
+   genişliği 268px gerektiren metin için 224px'e düştü ve metin kırpılıyordu
+   ("…tanım içind|"). Yeni metin 196px, pay 30px. Üç arama alanı da duruyor;
+   düşen yalnız "içinde ara" fiili — büyüteç ikonu onu zaten söylüyor. */
 
 /* =====================================================================
    3 · HARF RAYI — 29 harf (Q/W/X yok) + "Tümü"
@@ -453,10 +462,10 @@
         <label class="sr-only" for="szQ">Sözlükte ara</label>
         <div class="sz-find" id="szFind">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input id="szQ" type="search" autocomplete="off" placeholder="Terim, İngilizce ya da tanım içinde ara…" aria-describedby="szHint" />
+          <input id="szQ" type="search" autocomplete="off" placeholder="Terim, İngilizce ya da tanım…" aria-describedby="szHint" />
+          <p class="sz-hint" id="szHint">En az 3 harf</p>
           <button class="x" type="button" id="szQx" aria-label="Aramayı temizle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
-        <p class="sz-hint" id="szHint">En az 3 harf</p>
       </div>
     </div>
 
@@ -535,7 +544,7 @@
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   var h = ['<button class="df-fchip on" type="button" data-kat="">' +
-           'Tüm kategoriler <span class="n">' + S.TERIMLER.length + '</span></button>'];
+           'Tümü <span class="n">' + S.TERIMLER.length + '</span></button>'];
   S.KATEGORILER.forEach(function(k){
     h.push('<button class="df-fchip" type="button" data-kat="' + k.id + '">' +
            esc(k.ad) + ' <span class="n">' + k.adet + '</span></button>');

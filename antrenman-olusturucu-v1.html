@@ -60,7 +60,21 @@
 .wg-body{padding:24px 26px 6px}
 .wg-step{display:none}
 .wg-step.on{display:block;animation:fadeUp .3s var(--ease)}
-.wg-q{margin-bottom:26px}
+/* R9 · EKSİK ZORUNLU SORU İŞARETİ (Beyar).
+   Önce yalnız adım altında tek bir genel uyarı vardı ("zorunlu soruları
+   yanıtla") ve HANGİ sorunun eksik olduğu belli olmuyordu — adımda birden
+   çok soru varsa kullanıcı hepsini gözle tarıyordu. Artık eksik sorunun
+   kendisi işaretleniyor, sayfa ona kaydırılıyor ve genel uyarı sorunun
+   adını yazıyor. */
+.wg-q{margin-bottom:26px;scroll-margin-top:130px}
+.wg-eksik{display:none;margin:0 0 10px;font-size:13px;font-weight:700;color:#A32B10;
+  align-items:center;gap:7px}
+.wg-q.eksik>.wg-eksik{display:flex}
+.wg-q.eksik>h3{color:#A32B10}
+/* şerit SORU BLOĞUNUN tamamını sarar (başlık + ipucu + uyarı + seçenekler).
+   Önce yalnız `.wg-opts`'a veriliyordu ve kartların 16px solunda, oluğun
+   içinde asılı kalıyordu — hangi bloğa ait olduğu okunmuyordu. */
+.wg-q.eksik{border-left:3px solid #A32B10;padding-left:16px;margin-left:-19px}
 .wg-q:last-child{margin-bottom:0}
 .wg-q h3{font-size:18px;margin-bottom:5px}
 .wg-q h3 .wg-ops{font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:#ececeb;border-radius:var(--radius-pill);padding:3px 9px;margin-left:8px;vertical-align:2px}
@@ -1028,9 +1042,10 @@ var KURALLAR = {
   function adimHtml(ix){
     var bloklar = ADIMLAR[ix].s.map(function(s){
       var opts = s.o.map(function(o){ return optHtml(s, o); }).join('');
-      return '<div class="wg-q"><h3>' + esc(s.q) +
+      return '<div class="wg-q" data-k="' + s.k + '"' + (s.ops ? ' data-ops="1"' : '') + '><h3>' + esc(s.q) +
              (s.ops ? '<span class="wg-ops">İsteğe bağlı</span>' : '') + '</h3>' +
              '<p class="wg-hint">' + esc(s.h) + '</p>' +
+             (s.ops ? '' : '<p class="wg-eksik"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Bu soru zorunlu — bir seçim yap.</p>') +
              '<div class="wg-opts' + (s.cip ? ' cip' : '') + '" data-kol="' + (s.kol || 2) + '"' +
              (s.kolM ? ' data-kol-m="' + s.kolM + '"' : '') +
              ' role="group" aria-label="' + esc(s.q) + '">' +
@@ -1337,6 +1352,7 @@ var KURALLAR = {
         : 'İleri <i class="fa-solid fa-arrow-right"></i>';
       nextE.disabled = false;
       warnE.classList.remove('on');
+      body.querySelectorAll('.wg-q.eksik').forEach(function(el){ el.classList.remove('eksik'); });  /* R9 */
     }
     if(kaydir) window.scrollTo({top:document.querySelector('.wg-wrap').offsetTop - 130, behavior:'smooth'});
   }
@@ -1366,12 +1382,37 @@ var KURALLAR = {
       cevap[k] = v;
     }
     isaretle();
+    var qEl = e.target.closest('.wg-q'); if(qEl) qEl.classList.remove('eksik');   /* R9 */
     warnE.classList.remove('on');
   });
 
   backE.addEventListener('click', function(){ if(adim > 0){ adim--; goster(true); } });
   nextE.addEventListener('click', function(){
-    if(adim < ADIMLAR.length && !adimTam(adim)){ warnE.classList.add('on'); return; }
+    if(adim < ADIMLAR.length && !adimTam(adim)){
+      /* R9 · hangi soru eksik — genel uyarı yetmiyordu */
+      var eksikler = ADIMLAR[adim].s.filter(function(q){ return !q.ops && secili(q.k).length === 0; });
+      body.querySelectorAll('.wg-q.eksik').forEach(function(el){ el.classList.remove('eksik'); });
+      var ilk = null;
+      eksikler.forEach(function(q){
+        var el = body.querySelector('.wg-step.on .wg-q[data-k="' + q.k + '"]');
+        if(el){ el.classList.add('eksik'); if(!ilk) ilk = el; }
+      });
+      warnE.innerHTML = '<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ' +
+        (eksikler.length === 1
+          ? 'Şu soru yanıtlanmadı: <b>' + esc(eksikler[0].q) + '</b>'
+          : eksikler.length + ' zorunlu soru yanıtlanmadı — aşağıda işaretledim.');
+      warnE.classList.add('on');
+      if(ilk){
+        /* YALNIZ görünmüyorsa kaydır. Koşulsuz kaydırma, kullanıcı "İleri"ye
+           bastıktan sonra sayfayı imlecin altına getiriyor ve o kart hover'la
+           yeşile dönüp SEÇİLİ sanılıyordu — düzeltmenin amacının tam tersi. */
+        var r = ilk.getBoundingClientRect();
+        if(r.top < 90 || r.bottom > window.innerHeight - 60)
+          ilk.scrollIntoView({block:'center', behavior:'smooth'});
+        var od = ilk.querySelector('.wg-opt'); if(od) od.focus({preventScroll:true});
+      }
+      return;
+    }
     if(adim < ADIMLAR.length){ adim++; goster(true); }
   });
 

@@ -322,6 +322,16 @@ var FPX = (function () {
     badge.className = 'fp-badge ' + S.rozet(c.durum);
     badge.innerHTML = '<i class="fa-solid fa-circle"></i> ' + S.etiket(c.durum);
     kart.querySelector('b').textContent = c.ad;
+    /* R9 · bu cümle SABİTTİ: depoda challenge.gun ne olursa olsun "Gün 7"
+       yazıyordu (lead'in mekanik denetimi "sahte durum" diye yakaladı —
+       fit-planim-v1'deki challenge kartıyla aynı kusur sınıfı). Kartın
+       başlığı, çubuğu ve sayıları zaten bağlıydı, yalnız bu satır kopuktu. */
+    var not = kart.querySelector('.fpx-note');
+    if (not) {
+      not.innerHTML = c.durum === 'tamamlandi'
+        ? 'Challenge tamam: ' + c.toplam + ' günün hepsini bitirdin.'
+        : 'Her gün 10–15 dakika. Bugün <b>Gün ' + c.gun + '</b> seni bekliyor.';
+    }
     kart.querySelector('.fp-bar>span').style.width = Math.round(c.gun / c.toplam * 100) + '%';
     kart.querySelector('.fp-meta').innerHTML =
       '<span><b>' + c.gun + ' / ' + c.toplam + '</b> gün</span>' +

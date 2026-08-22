@@ -341,11 +341,36 @@ const browser = await chromium.launch();
         const s = getComputedStyle(k);
         return { row: s.rowGap, col: s.columnGap };
       });
+      /* R9 · K53 ölçümü için çipin bulunduğu KATLI bölüm açılır.
+         Panel R9'da tek-açık akordiyona çevrildi; çipler varsayılan katlı
+         bölümde kalıyor. Kapalı bir bölümdeki hedefin çapını ölçmek
+         anlamsız (0 çıkar), ama ölçütü atlamak da yanlış — dokunma hedefi
+         AÇILDIĞINDA doğru olmalı. Bu yüzden ölçümden önce çipi taşıyan
+         bölüm açılıyor. */
+      const cipEl0 = document.querySelector('#anPanel .an-chip');
+      if (cipEl0) {
+        const blok = cipEl0.closest('.an-sec');
+        const bas = blok && blok.querySelector('.an-acc');
+        if (bas && bas.getAttribute('aria-expanded') !== 'true') bas.click();
+      }
       const cip = document.querySelector('#anPanel .an-chip');
       return {
         n: kaplar.length,
         benzersiz: [...new Set(degerler.map((d) => d.row + '/' + d.col))],
-        cipYuksek: cip ? Math.round(cip.getBoundingClientRect().height) : null,
+        /* R9 · NÖBET DÜZELTMESİ: K53 bir DOKUNMA HEDEFİ ölçütü. R9'da
+           panel akordiyona çevrilince (Beyar: tek-açık) çipler katlı bir
+           bölümün içinde kalabiliyor ve yükseklikleri 0 ölçülüyordu —
+           ekranda olmayan bir hedefin çapını ölçmek anlamsız, kusur da
+           kodda değil ölçümde. Artık GÖRÜNÜR çip ölçülüyor; hiç görünür
+           çip yoksa `null` dönüp ölçüt atlanmıyor, aşağıda ayrıca
+           raporlanıyor. */
+        cipYuksek: (function () {
+          const g = [...document.querySelectorAll('#anPanel .an-chip')]
+            .find((e) => e.offsetParent && e.getBoundingClientRect().height > 0);
+          return g ? Math.round(g.getBoundingClientRect().height) : null;
+        })(),
+        cipGorunur: [...document.querySelectorAll('#anPanel .an-chip')]
+          .filter((e) => e.offsetParent).length,
         cipSayi: document.querySelectorAll('#anPanel .an-chip').length
       };
     });
@@ -364,6 +389,8 @@ const browser = await chromium.launch();
     const altSinir = w === 390 ? 44 : 36;
     if (c.cipYuksek !== null && c.cipYuksek < altSinir)
       h.push(`K53 ihlali: çip yüksekliği ${c.cipYuksek}px < ${altSinir}px`);
+    if (c.cipSayi > 0 && c.cipGorunur === 0)
+      h.push(`${c.cipSayi} çip var ama HİÇBİRİ görünür değil — katlı bölüm hepsini gizliyor`);
 
     if (!h.length)
       ok(`14 · @${w} — ${c.n} çip kabı, hepsinde TEK gap ${r}, ${c.cipSayi} çip, çip yüksekliği ${c.cipYuksek}px (≥${altSinir}, K53 korundu), yatay taşma ${tasma}`);

@@ -97,8 +97,16 @@
 .an-bolge{fill:transparent;stroke:none;cursor:pointer;
   transition:fill .16s var(--ease)}
 .an-bolge:hover{fill:color-mix(in srgb,var(--fit) 34%,transparent)}
+/* R9 · ODAK HALKASI (Beyar): tarayıcının varsayılan halkası SVG'de
+   ŞEKLİ değil SINIRLAYICI DİKDÖRTGENİ çiziyor — kas parçasının çevresinde
+   mavi bir kare beliriyordu ve "seçili dikdörtgen" gibi okunuyordu.
+   `outline:none` yalnız `:focus-visible`teydi; fareyle odaklanınca
+   (`:focus` var, `:focus-visible` yok) kural düşüyor ve varsayılan halka
+   geri geliyordu. Artık HER odak hâlinde kapalı; görünür işaret şeklin
+   kendi konturu (`stroke`), yalnız klavye odağında. */
+.an-bolge:focus{outline:none}
 .an-bolge:focus-visible{outline:none;fill:color-mix(in srgb,var(--fit) 46%,transparent);
-  stroke:var(--fit-deep);stroke-width:3}
+  stroke:var(--fit-deep);stroke-width:3;paint-order:stroke fill}
 .an-bolge[aria-pressed="true"]{fill:var(--fit-deep)}
 .an-bolge[aria-pressed="true"]:hover{fill:var(--fit-deep)}
 /* color-mix desteklemeyen tarayıcı için düz yedek */
@@ -501,7 +509,12 @@
       var slug = el.getAttribute('data-kas');
       var veri = KAS[slug];
       el.setAttribute('role', 'button');
-      el.setAttribute('tabindex', '0');
+      /* R9 · ROVING TABINDEX (Beyar): 18 bölgenin hepsi tabindex="0" idi,
+         yani Tab 18 ayrı durak geziyor ve 18.'de haritadan kopup sağdaki
+         kartlara düşüyordu. WAI-ARIA bileşik bileşen deseni: haritanın
+         TEK durağı var (seçili bölge), içinde ok tuşlarıyla gezilir.
+         `isaretle()` her seçimde durağı seçili bölgeye taşır. */
+      el.setAttribute('tabindex', '-1');
       el.setAttribute('aria-pressed', slug === durum.kas ? 'true' : 'false');
       el.setAttribute('aria-label', (veri ? veri.ad : slug) + ' — bölgeyi seç');
       sira.push(slug);
@@ -516,9 +529,21 @@
   function isaretle() {
     var svg = stage.querySelector('svg');
     if (!svg) return;
-    Array.prototype.forEach.call(svg.querySelectorAll('[data-kas]'), function (el) {
-      el.setAttribute('aria-pressed', el.getAttribute('data-kas') === durum.kas ? 'true' : 'false');
+    var bolgeler = svg.querySelectorAll('[data-kas]');
+    var secilenVar = false;
+    Array.prototype.forEach.call(bolgeler, function (el) {
+      var bu = el.getAttribute('data-kas') === durum.kas;
+      el.setAttribute('aria-pressed', bu ? 'true' : 'false');
+      /* R9 · roving tabindex — Tab durağı SEÇİLİ bölgede durur, diğerleri
+         sıradan çıkar. Harita böylece tek durak olur; içinde ok tuşlarıyla
+         gezilir, Tab bir kez basınca haritadan çıkar. */
+      el.setAttribute('tabindex', bu ? '0' : '-1');
+      if (bu) secilenVar = true;
     });
+    /* görünümde seçili kas yoksa (ör. ön/arka geçişinde) durak ilk bölgede
+       kalsın — yoksa harita Tab sırasından tamamen düşer ve klavyeyle
+       ulaşılamaz hâle gelir. */
+    if (!secilenVar && bolgeler.length) bolgeler[0].setAttribute('tabindex', '0');
   }
 
   function urlYaz() {
@@ -608,15 +633,20 @@
        Varsayılan AÇIK: panel bir ansiklopedi künyesi, kullanıcı bir kasa
        dokunduğunda cevabı katlanmış bulmamalı. Katlama, uzun künyede
        aradığı bölüme inmek isteyene verilen bir imkân — zorunluluk değil. */
+    /* R9 · TEK-AÇIK (Beyar): "bir tane seçtik mi diğeri kapansın, birden
+       fazla expand olmasın". Yukarıdaki "varsayılan AÇIK" gerekçesi ilk
+       bölüm için korunuyor — kullanıcı bir kasa dokununca cevabı katlanmış
+       bulmuyor — ama artık aynı anda yalnız BİR bölüm açık. */
     var accN = 0;
     function accSec(alan, ikon, baslik, govde) {
       var id = 'an-acc-' + (++accN);
+      var acik = accN === 1;
       return '<div class="an-sec" data-alan="' + alan + '">' +
-        '<h3><button type="button" class="an-acc" aria-expanded="true" aria-controls="' + id + '">' +
+        '<h3><button type="button" class="an-acc" aria-expanded="' + (acik ? 'true' : 'false') + '" aria-controls="' + id + '">' +
           '<i class="fa-solid ' + ikon + '"></i><span>' + baslik + '</span>' +
           '<i class="fa-solid fa-chevron-down an-acc-ok" aria-hidden="true"></i>' +
         '</button></h3>' +
-        '<div class="an-acc-govde" id="' + id + '">' + govde + '</div>' +
+        '<div class="an-acc-govde" id="' + id + '"' + (acik ? '' : ' hidden') + '>' + govde + '</div>' +
       '</div>';
     }
 
@@ -725,6 +755,16 @@
     var b = e.target.closest ? e.target.closest('.an-acc') : null;
     if (!b) return;
     var acik = b.getAttribute('aria-expanded') === 'true';
+    /* R9 · TEK-AÇIK (Beyar): birden fazla bölüm aynı anda açık kalabiliyordu.
+       Biri açılınca diğerleri kapanır — sözlükteki desenin aynısı. */
+    if (!acik) {
+      panel.querySelectorAll('.an-acc[aria-expanded="true"]').forEach(function (o) {
+        if (o === b) return;
+        o.setAttribute('aria-expanded', 'false');
+        var g = document.getElementById(o.getAttribute('aria-controls'));
+        if (g) g.hidden = true;
+      });
+    }
     b.setAttribute('aria-expanded', acik ? 'false' : 'true');
     var govde = document.getElementById(b.getAttribute('aria-controls'));
     if (govde) govde.hidden = acik;

@@ -291,6 +291,18 @@
 
 /* --- HAFTALIK PLAN: hafta sekmeleri + gün akordeon --- */
 .pd-wtabs{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px}
+/* R9 · hafta rayı başlık bloğunun YANINA — fazladan satır açmıyor */
+#hafta-plani .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap}
+/* Kabuk `.sec-head > div:first-child{display:contents}` diyor — sarmalayıcı
+   KUTU ÜRETMİYOR, dolayısıyla `flex` hiç uygulanmıyordu ve eyebrow/h2/p
+   doğrudan flex öğesi oluyordu. Bu bölümde gerçek bir kutuya çeviriyoruz.
+   Kabuk kuralı DEĞİŞMEDİ, yalnız bu section'da eziliyor. */
+#hafta-plani .sec-head > div:first-child{display:block;flex:1 1 460px;min-width:0}
+#hafta-plani .pd-wtabs{margin-bottom:0;flex:0 1 auto;justify-content:flex-end}
+@media (max-width:1023px){
+  #hafta-plani .sec-head{display:block}
+  #hafta-plani .pd-wtabs{margin-top:18px;justify-content:flex-start}
+}
 .pd-wtab{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;
   background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
   padding:11px 18px;cursor:pointer;transition:.2s var(--ease);font-family:inherit;text-align:left}
@@ -552,9 +564,11 @@
         <p class="lead">Bir hafta seç, günlere göz at. Antrenman günündeki bir kartı açarak o günün hareketlerini gör —
           her hareketin kendi anlatım sayfasına geçebilirsin.</p>
       </div>
-    </div>
 
-    <!-- HAFTA SEKMELERİ -->
+    <!-- HAFTA SEKMELERİ — R9 (Beyar): başlık+açıklama hizasına alındı.
+         Ölçüm: açıklama 3 satır ve 520px genişlikte, sağında ~650px boş
+         alan vardı; çip rayı ayrı bir satır açıyordu (58px + boşluk).
+         Artık aynı satırda, sağda. @1024 altında alt alta düşer. -->
     <div class="pd-wtabs" role="tablist" aria-label="Hafta seç">
       <button class="pd-wtab on" role="tab" aria-selected="true" data-week="1">
         <b>Hafta 1</b><small>Tanışma · 3/3 ✓</small>
@@ -568,6 +582,7 @@
       <button class="pd-wtab" role="tab" aria-selected="false" data-week="4">
         <b>Hafta 4</b><small>Pekiştirme</small>
       </button>
+    </div>
     </div>
 
     <!-- HAFTA 1 -->

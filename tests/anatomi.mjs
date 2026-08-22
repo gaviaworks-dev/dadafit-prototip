@@ -389,6 +389,19 @@ const browser = await chromium.launch();
 
     /* ok tuşu komşu bölgeye geçiyor mu */
     await page.keyboard.press('ArrowRight');
+    /* R9 · NÖBET DÜZELTMESİ: `sec()` ASENKRON — ok tuşundan hemen sonra
+       `aria-pressed` henüz taşınmamış oluyor. Ölçüm beklemeden yapılınca
+       ölçüt YANLIŞ SEBEPLE geçiyordu: roving tabindex öncesi Tab, seçili
+       OLMAYAN bir bölgeye düşüyordu, dolayısıyla `secili[0] !== bulundu`
+       koşulu ok tuşu hiç işlemese bile sağlanıyordu. Yani bu ölçüt ok
+       tuşunu hiç sınamıyormuş. Artık seçimin gerçekten TAŞINMASINI bekliyor
+       ve taşınmazsa kırmızıya dönüyor. */
+    await page.waitForFunction(
+      (onceki) => {
+        const s = document.querySelector('[data-kas][aria-pressed="true"]');
+        return s && s.getAttribute('data-kas') !== onceki;
+      }, bulundu, { timeout: 2000 }
+    ).catch(() => {});
     const r2 = await page.evaluate(() => ({
       secili: [...document.querySelectorAll('[data-kas][aria-pressed="true"]')].map(e => e.getAttribute('data-kas')),
       odak: document.activeElement?.getAttribute?.('data-kas') || null

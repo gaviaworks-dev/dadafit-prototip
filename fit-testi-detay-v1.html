@@ -51,7 +51,19 @@
 @media (max-width:640px){ .ft-col{--ft-ara:34px} }
 .ft-blk{margin-top:var(--ft-ara);scroll-margin-top:120px}
 .ft-blk:first-child{margin-top:0}
+/* R9 · "Önce oku" üçlüsü AKORDİYON oldu (Beyar): test amacı varsayılan
+   açık, "kimler için uygun" ve "güvenlik uyarısı" katlı. Üç blok birden
+   açıkken sayfa "sonra uygula" bölümüne inmeden önce çok uzuyordu. */
 .ft-blk-h{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+h2.ft-acc-h{margin:0;font-size:inherit;font-weight:inherit;letter-spacing:normal}
+button.ft-blk-h{width:100%;text-align:left;background:none;border:none;padding:0;
+  font-family:inherit;cursor:pointer;color:inherit}
+button.ft-blk-h:hover h2{color:var(--fit-deep)}
+button.ft-blk-h:focus-visible{outline:2px solid var(--fit-deep);outline-offset:4px;border-radius:var(--radius-sm,6px)}
+.ft-acc-ok{margin-left:auto;flex:none;font-size:12px;color:var(--muted);transition:transform .18s var(--ease)}
+button.ft-blk-h[aria-expanded="false"] .ft-acc-ok{transform:rotate(-90deg)}
+button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
+.ft-acc-govde[hidden]{display:none}
 .ft-blk-h .ic{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
 .ft-blk-h h2{font-size:22px;letter-spacing:-.02em}
 .ft-blk-h p{font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
@@ -158,9 +170,15 @@
 .ft-scr-h small{display:block;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.7);margin-top:3px;line-height:1.5}
 .ft-scr-body{padding:6px 22px 22px}
 
-.ft-q{border:none;border-bottom:1px solid var(--line);padding:16px 0}
+/* R9 · soru–şık ritmi sıkıldı (Beyar: "sorular ve şıklar arasında çok
+   boşluk var"). Ölçüm: soru alt kenarı → şık kabı üstü 27px, blok
+   dolgusu 16+16. Tek satırlık bir soru için 14px font üstünde ~1.8×
+   satır boşluğu; şıklar sorudan kopuk okunuyordu. */
+.ft-q{border:none;border-bottom:1px solid var(--line);padding:13px 0}
+/* R9 · adımlar bitince sonuç girişini açan düğme */
+.ft-steps-done{margin-top:18px;display:flex;justify-content:flex-start}
 .ft-q:last-of-type{border-bottom:none}
-.ft-q legend{font-size:14px;font-weight:600;color:var(--slate);line-height:1.5;padding:0;margin-bottom:11px}
+.ft-q legend{font-size:14px;font-weight:600;color:var(--slate);line-height:1.5;padding:0;margin-bottom:8px}
 .ft-q legend .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:var(--radius-sm);background:var(--bg);color:var(--slate-2);font-size:11.5px;font-weight:800;margin-right:9px;font-variant-numeric:tabular-nums}
 .ft-opts{display:flex;gap:9px;flex-wrap:wrap}
 .ft-opt{position:relative;display:inline-flex}
@@ -404,30 +422,36 @@
 
         <!-- 1 · TEST AMACI -->
         <div class="ft-blk" id="amac">
-          <div class="ft-blk-h">
+          <h2 class="ft-acc-h"><button type="button" class="ft-blk-h ft-acc" aria-expanded="true" aria-controls="ftacc-amac">
             <span class="ic"><i class="fa-solid fa-bullseye"></i></span>
             <div>
               <h2>Test amacı</h2>
               <p>Bu test neyi görmene yarar, neyi görmez.</p>
             </div>
-          </div>
+            <i class="fa-solid fa-chevron-down ft-acc-ok" aria-hidden="true"></i>
+          </button></h2>
+          <div class="ft-acc-govde" id="ftacc-amac">
           <p class="ft-lead" data-tt="amac">—</p>
           <ul class="ft-ul" id="ftAmacList"></ul>
+          </div>
         </div>
 
         <!-- 2 · KİMLER İÇİN UYGUN -->
         <div class="ft-blk" id="kimler">
-          <div class="ft-blk-h">
+          <h2 class="ft-acc-h"><button type="button" class="ft-blk-h ft-acc" aria-expanded="false" aria-controls="ftacc-kimler">
             <span class="ic"><i class="fa-solid fa-user-check"></i></span>
             <div>
               <h2>Kimler için uygun olduğu</h2>
               <p>Testin hedeflediği kişi ve şimdilik ertelemesi gerekenler.</p>
             </div>
-          </div>
+            <i class="fa-solid fa-chevron-down ft-acc-ok" aria-hidden="true"></i>
+          </button></h2>
+          <div class="ft-acc-govde" id="ftacc-kimler" hidden>
           <div class="ft-two">
             <div class="ft-who is-ok">
               <h3><i class="fa-solid fa-circle-check"></i> Bu test sana uygun olabilir</h3>
               <ul id="ftUygun"></ul>
+          </div>
             </div>
             <div class="ft-who is-no">
               <h3><i class="fa-solid fa-hand"></i> Şimdilik erteleyip uzmana danış</h3>
@@ -438,16 +462,19 @@
 
         <!-- 3 · GÜVENLİK UYARISI -->
         <div class="ft-blk" id="guvenlik">
-          <div class="ft-blk-h">
+          <h2 class="ft-acc-h"><button type="button" class="ft-blk-h ft-acc" aria-expanded="false" aria-controls="ftacc-guvenlik">
             <span class="ic"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div>
               <h2>Güvenlik uyarısı</h2>
               <p>Testi hangi durumda durduracağını önceden bil.</p>
             </div>
-          </div>
+            <i class="fa-solid fa-chevron-down ft-acc-ok" aria-hidden="true"></i>
+          </button></h2>
+          <div class="ft-acc-govde" id="ftacc-guvenlik" hidden>
           <div class="ft-safe">
             <h3><i class="fa-solid fa-hand-dots"></i> Testi hemen bırakman gereken durumlar</h3>
             <ul id="ftGuvenlik"></ul>
+          </div>
           </div>
         </div>
 
@@ -601,6 +628,13 @@
           <!-- gerçek adımlar — hidden; yalnız tarama temiz çıkarsa açılır -->
           <div id="ftSteps" hidden>
             <ol class="ft-steps" id="ftStepList"></ol>
+            <!-- R9 (Beyar): sonuç girişi adımlarla BİRLİKTE açılmıyor artık.
+                 Aşama aşama: tarama → adımlar → sonuç. -->
+            <div class="ft-steps-done">
+              <button type="button" class="btn btn-fit" id="ftStepsDone">
+                <i class="fa-solid fa-check"></i> Adımları tamamladım — sonucu gir
+              </button>
+            </div>
           </div>
         </div>
 
@@ -617,9 +651,9 @@
           <div class="ft-lock" id="ftResLock">
             <span class="ic"><i class="fa-solid fa-lock"></i></span>
             <h3>Sonuç girişi kapalı</h3>
-            <p>Sonucunu yalnız testi uyguladıysan girebilirsin. Uygunluk taramasını tamamladığında
-            adımlar ve bu bölüm birlikte açılır.</p>
-            <a class="btn btn-fit" href="#uygunluk"><i class="fa-solid fa-arrow-up"></i> Taramaya git</a>
+            <p id="ftResLockTxt">Sonucunu yalnız testi uyguladıysan girebilirsin. Önce yukarıdaki
+            <b>uygunluk taramasını</b> tamamla.</p>
+            <a class="btn btn-fit" id="ftResLockCta" href="#uygunluk"><i class="fa-solid fa-arrow-up"></i> Taramaya git</a>
           </div>
 
           <div id="ftResArea" hidden>
@@ -1242,14 +1276,34 @@
     lock.hidden = false;
     resLock.hidden = false;
     el('ftRes').hidden = true;
+    var t = el('ftResLockTxt'), c = el('ftResLockCta');
+    if (t) t.innerHTML = 'Sonucunu yalnız testi uyguladıysan girebilirsin. Önce yukarıdaki ' +
+                         '<b>uygunluk taramasını</b> tamamla.';
+    if (c) { c.setAttribute('href', '#uygunluk');
+             c.innerHTML = '<i class="fa-solid fa-arrow-up"></i> Taramaya git'; }
     clearSteps();
   }
 
+  /* R9 · ÜÇ AŞAMA (Beyar): "dikeyde değil, o aşamayı geçtikçe".
+     1) tarama → 2) adımlar → 3) sonuç girişi. Önce 2 ve 3 birlikte
+     açılıyordu; sonuç girişi artık adımlar tamamlanmadan görünmüyor. */
   function openFlow(){
     renderSteps();
     steps.hidden = false;
-    resArea.hidden = false;
     lock.hidden = true;
+    kapatSonuc();          // 3. aşama hâlâ kapalı
+  }
+  function kapatSonuc(){
+    resArea.hidden = true;
+    resLock.hidden = false;
+    var t = el('ftResLockTxt'), c = el('ftResLockCta');
+    if (t) t.innerHTML = 'Tarama tamam. Şimdi <b>test adımlarını</b> uygula; ' +
+                         'bitirince bu bölüm açılır ve sonucunu girersin.';
+    if (c) { c.setAttribute('href', '#adimlar');
+             c.innerHTML = '<i class="fa-solid fa-arrow-up"></i> Adımlara git'; }
+  }
+  function acSonuc(){
+    resArea.hidden = false;
     resLock.hidden = true;
   }
 
@@ -1327,6 +1381,29 @@
   });
 
   /* ---------------- sonuç özeti ---------------- */
+  /* R9 · 2. aşama → 3. aşama geçişi */
+  (function(){
+    var d = el('ftStepsDone');
+    if (!d) return;
+    d.addEventListener('click', function(){
+      acSonuc();
+      var a = el('ftResArea');
+      if (a) { a.scrollIntoView({ block: 'start', behavior: 'smooth' });
+               var ilk = a.querySelector('input,button,select,textarea');
+               if (ilk) ilk.focus({ preventScroll: true }); }
+    });
+  })();
+
+  /* R9 · "Önce oku" akordiyonu */
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('button.ft-acc') : null;
+    if (!b) return;
+    var acik = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', acik ? 'false' : 'true');
+    var g = document.getElementById(b.getAttribute('aria-controls'));
+    if (g) g.hidden = acik;
+  });
+
   var mform = el('ftMForm');
   mform.addEventListener('submit', function(e){
     e.preventDefault();

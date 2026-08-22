@@ -125,23 +125,33 @@ html,body{overflow-x:clip}
    soluyor, kutuyu taşırmazsan üstte/altta açık bir çerçeve kalıyor.
    Görsel URL'i `.cp-banner`dan JS ile okunuyor (tek kaynak) — şerit
    ileride slug'a göre değişirse buğu da kendiliğinden onu izler. */
-.cp-top::before{
-  content:"";position:absolute;inset:-60px;z-index:0;
+/* R9 (Beyar): "en üstte full, aşağı doğru yoğunluğu azalsın".
+   `filter:blur()` tek elemanda KADEMELENEMEZ — tek sayı, tüm kutuya
+   uygulanır. Bu yüzden dört katman üst üste bindirildi; her biri aynı
+   görseli farklı bulanıklıkla çiziyor ve yumuşak kenarlı bir maskeyle
+   kendi bandında görünüyor. Bantlar örtüştüğü için geçiş kademe değil
+   süreklilik olarak okunuyor: üstte 40px bulanık, altta 3px'e iniyor.
+   (Saydamlık DEĞİL bulanıklık azalıyor — ilk denemede yanlış anlamıştım.)
+   inset:-60px: blur kenarlarda saydamlığa soluyor, kutuyu taşırmazsan
+   üstte/altta açık bir çerçeve kalıyor. */
+.cp-bgblur{position:absolute;inset:-60px;z-index:0;pointer-events:none}
+.cp-bgblur i{
+  position:absolute;inset:0;display:block;
   background-image:var(--cp-bg,none);
   background-size:cover;background-position:center 46%;
-  filter:blur(30px) saturate(1.05);
-  opacity:.85;
-  /* R9 (Beyar): buğu ÜSTTEN başlasın, banner'ın altına doğru SÖNSÜN.
-     `opacity` tek sayı, kademelenemez — maske ile yapılıyor: katman
-     üstte tam, aşağı indikçe saydamlaşıyor ve alt kenarda tamamen
-     kayboluyor. Böylece kimlik kartının oturduğu alt bölge sade koyu
-     plakaya dönüyor, kart net bir zemine oturuyor.
-     inset:-60px olduğu için maske durakları o taşmayı da hesaba katıyor:
-     görünür bandın üstü ~%10'da, altı ~%90'da. */
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 24%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.12) 80%,transparent 94%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 24%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.12) 80%,transparent 94%);
-  pointer-events:none;
 }
+.cp-bgblur i:nth-child(1){filter:blur(40px) saturate(1.05);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 26%,transparent 46%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 26%,transparent 46%)}
+.cp-bgblur i:nth-child(2){filter:blur(22px) saturate(1.05);
+  -webkit-mask-image:linear-gradient(180deg,transparent 24%,#000 40%,#000 54%,transparent 70%);
+          mask-image:linear-gradient(180deg,transparent 24%,#000 40%,#000 54%,transparent 70%)}
+.cp-bgblur i:nth-child(3){filter:blur(11px) saturate(1.05);
+  -webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 66%,#000 78%,transparent 90%);
+          mask-image:linear-gradient(180deg,transparent 50%,#000 66%,#000 78%,transparent 90%)}
+.cp-bgblur i:nth-child(4){filter:blur(3px) saturate(1.05);
+  -webkit-mask-image:linear-gradient(180deg,transparent 74%,#000 88%,#000 100%);
+          mask-image:linear-gradient(180deg,transparent 74%,#000 88%,#000 100%)}
 .cp-top::after{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:
@@ -605,6 +615,9 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
      birleşti; fiyat ise referanstaki yerine, "Seanslar" sekmesine gitti.
      ===================================================================== -->
 <section class="cp-top">
+  <!-- R9 · kademeli buğu: üstte yoğun, aşağı doğru netleşiyor. Görsel
+       URL'i `.cp-banner`dan JS ile okunup `--cp-bg`ye yazılıyor. -->
+  <div class="cp-bgblur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="wrap">
     <nav class="cp-crumb rd-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>

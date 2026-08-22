@@ -32,6 +32,17 @@
 <section class="fp-body">
   <div class="wrap">
 
+    <!-- ================= GÜN VE TARİH (belge §3.1) =================
+     Sayfanın ilk satırı bugünün kendisi. Tarih JS ile canlı basılır;
+     JS yoksa aşağıdaki metin görünür kalır (uydurma tarih yazılmaz —
+     yalnız "Bugün" der ve takvime yönlendirir). -->
+    <div class="fpx-bugun">
+      <span class="fpx-bugun-tarih" id="fpxTarih">
+        <i class="fa-solid fa-calendar-day" aria-hidden="true"></i> <b>Bugün</b>
+      </span>
+      <a class="see-all" href="fit-planim-programim-v1.html">Plan ve Takvim <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
     <!-- ================= ÜST ÖZET KARTI =================
      Kaynak: assets/js/fit-plan-kayit.js (FIT_PLAN) — sözleşme modülü.
      Kayıtlı plan yoksa DÜRÜST BOŞ DURUM basılır, uydurma sayı yazılmaz.
@@ -45,9 +56,13 @@
         <div class="fp-bar" id="fpxBar" hidden><span style="width:0%"></span></div>
         <div class="fpx-sum-meta" id="fpxMeta" hidden></div>
         <div class="fpx-gunler" id="fpxGunler" hidden></div>
+        <!-- belge §3.2 — plansız kullanıcıya DÖRT yol: kendi planını kur,
+             sihirbaza sor, hazır programlara bak, hazır bir başlangıca katıl -->
         <div class="fpx-acts" id="fpxActs">
-          <a class="btn btn-fit" href="antrenman-olusturucu-v1.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Plan oluştur</a>
-          <a class="btn btn-ghost" href="programlar-merkezi-v1.html">Hazır programlara bak</a>
+          <a class="btn btn-fit" href="antrenman-olusturucu-v1.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Antrenman oluştur</a>
+          <a class="btn btn-ghost" href="programini-bul-v1.html">Programını bul</a>
+          <a class="btn btn-ghost" href="programlar-merkezi-v1.html">Hazır programları incele</a>
+          <a class="btn btn-ghost" href="program-detay-v1.html?slug=4-hafta-ev-antrenmani">Başlangıç programına katıl</a>
         </div>
       </div>
       <div class="fpx-stats" id="fpxStats" aria-live="polite"></div>
@@ -146,15 +161,13 @@
         <div class="fp-card">
           <div class="fp-head">
             <h3><i class="fa-solid fa-trophy"></i> Bugünkü challenge görevi</h3>
-            <a class="fp-act" href="challenge-v1.html">Challenge&#39;ı aç <i class="fa-solid fa-arrow-right"></i></a>
+            <a class="fp-act" id="fpxChBag" href="challenge-merkezi-v1.html">Challenge Merkezi <i class="fa-solid fa-arrow-right"></i></a>
           </div>
-          <b class="fpx-lead">30 Günde Hareket Alışkanlığı — Gün 7</b>
-          <p class="fpx-note">12 dakikalık esneme. Kutunu işaretle, seri devam etsin.</p>
-          <div class="fp-days fpx-mt-sm">
-            <span class="fp-day on">1</span><span class="fp-day on">2</span><span class="fp-day on">3</span>
-            <span class="fp-day rest">4</span><span class="fp-day on">5</span><span class="fp-day on">6</span>
-            <span class="fp-day today">7</span>
-          </div>
+          <!-- Kart artık kabuk durumundan (dm_fit.challenge) boyanıyor;
+               katıldığın challenge yoksa dürüst boş durum basılır. -->
+          <b class="fpx-lead" id="fpxChAd">Katıldığın challenge yok</b>
+          <p class="fpx-note" id="fpxChNot">Challenge Merkezi&#39;nden birine katıldığında günlük görevin ve serin burada görünür.</p>
+          <div class="fp-days fpx-mt-sm" id="fpxChGunler" hidden></div>
         </div>
 
         <div class="fp-card">
@@ -195,10 +208,96 @@
           <p class="fpx-note">Günü kapatınca hareket süren Enerji Defteri&#39;ne ve ilerleme verine işlenir.</p>
         </div>
         <div class="fpx-btns">
-          <button class="btn btn-fit" type="button" data-lg-gate data-lg-title="Günü tamamlamak için giriş yap" data-lg-desc="Bugünü tamamlamak ve verilerini kaydetmek için hesabına giriş yap."><i class="fa-solid fa-check"></i> Bugünü tamamla</button>
+          <!-- data-lg-gate KALIYOR: çıkışta kabuk kapıyı capture'da keser ve
+               form açılmaz; girişte normal davranış, form açılır. -->
+          <button class="btn btn-fit" type="button" id="fpxGunSonuAc" aria-expanded="false" aria-controls="fpxGunSonu" data-lg-gate data-lg-title="Günü tamamlamak için giriş yap" data-lg-desc="Bugünü tamamlamak ve verilerini kaydetmek için hesabına giriş yap."><i class="fa-solid fa-check"></i> Bugünü tamamla</button>
           <a class="btn btn-ghost" href="fit-planim-programim-v1.html">Planı düzenle</a>
         </div>
       </div>
+
+      <!-- ================= GÜN SONU TAMAMLAMA (belge §3.7) =================
+       Günü kapatırken kendi gözlemini bırakırsın: zorluk, efor, enerji,
+       ağrı ve not. Hiçbiri zorunlu değil — boş bırakılan alan için
+       varsayım üretilmez (sağlık profili sayfasının kuralıyla aynı).
+       Ağrı bildirimi açıldığında güvenlik metni de açılır. -->
+      <form class="fp-card fpx-gunsonu" id="fpxGunSonu" hidden>
+        <b class="fpx-gunsonu-bas">Gün nasıl geçti?</b>
+        <p class="fpx-note fpx-gunsonu-giris">Hepsi isteğe bağlı. Yazdıkların yalnız sana görünür; İlerlemem sayfasındaki eğilimlere işlenir.</p>
+
+        <fieldset class="fpx-alan">
+          <legend>Zorluk seviyesi</legend>
+          <p class="fpx-alan-not">Plandaki gün sana nasıl geldi?</p>
+          <div class="fpx-secim">
+            <label class="fpx-chip"><input type="radio" name="fpxZorluk" value="cok-kolay" /><span>Çok kolay</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxZorluk" value="kolay" /><span>Kolay</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxZorluk" value="dengeli" /><span>Dengeli</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxZorluk" value="zor" /><span>Zor</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxZorluk" value="cok-zor" /><span>Çok zor</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="fpx-alan">
+          <legend>Algılanan efor</legend>
+          <p class="fpx-alan-not">Kendi hissine göre 1&#39;den 10&#39;a. Ölçüm aleti değil, senin gözlemin.</p>
+          <div class="fpx-olcek" id="fpxEforOlcek">
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="1" /><span>1</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="2" /><span>2</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="3" /><span>3</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="4" /><span>4</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="5" /><span>5</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="6" /><span>6</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="7" /><span>7</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="8" /><span>8</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="9" /><span>9</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEfor" value="10" /><span>10</span></label>
+          </div>
+          <div class="fpx-olcek-uc"><span>1 · çok hafif</span><span>10 · sonuna kadar</span></div>
+          <p class="fpx-olcek-oku" id="fpxEforOku" role="status"></p>
+        </fieldset>
+
+        <fieldset class="fpx-alan">
+          <legend>Enerji durumun</legend>
+          <p class="fpx-alan-not">Antrenmandan sonra kendini nasıl hissediyorsun?</p>
+          <div class="fpx-secim">
+            <label class="fpx-chip"><input type="radio" name="fpxEnerji" value="tukendim" /><span>Tükendim</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEnerji" value="yorgun" /><span>Yorgun ama iyi</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEnerji" value="dinc" /><span>Dinç</span></label>
+            <label class="fpx-chip"><input type="radio" name="fpxEnerji" value="enerjik" /><span>Enerjik</span></label>
+          </div>
+        </fieldset>
+
+        <div class="fpx-alan">
+          <span class="fpx-alan-bas">Ağrı veya rahatsızlık</span>
+          <p class="fpx-alan-not">Bir yerin ağrıdıysa yaz — sonraki günlerde o bölgeyi zorlayan hareketleri öne çıkarmayız.</p>
+          <div class="fpx-secim">
+            <label class="fpx-chip"><input type="checkbox" id="fpxAgriVar" /><span>Bir ağrı ya da rahatsızlık oldu</span></label>
+          </div>
+          <div class="fpx-agri-alan" id="fpxAgriAlan" hidden>
+            <label class="sr-only" for="fpxAgriMetin">Ağrı veya rahatsızlığın</label>
+            <textarea class="fpx-metin" id="fpxAgriMetin" maxlength="300" placeholder="Nerede, ne zaman ve ne kadar sürdü?"></textarea>
+            <p class="fpx-agri-uyari">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              Bu kayıt tıbbi değerlendirme değildir. Keskin ağrı, baş dönmesi, göğüs ağrısı ya da nefes darlığı varsa hareketi bırak ve bir sağlık profesyoneline başvur — <a href="saglik-bilgilendirme-v1.html">durma kriterleri</a>.
+            </p>
+          </div>
+        </div>
+
+        <div class="fpx-alan fpx-alan-son">
+          <label class="fpx-alan-bas" for="fpxGunNotu">Günlük not <span class="fpx-sayac" id="fpxNotSayac" aria-live="polite">0 / 300</span></label>
+          <p class="fpx-alan-not">Bugünle ilgili hatırlamak istediğin bir şey.</p>
+          <textarea class="fpx-metin" id="fpxGunNotu" maxlength="300" placeholder="Örneğin: sabah yaptım, ısınma kısa kaldı."></textarea>
+        </div>
+
+        <div class="fpx-gunsonu-kuyruk">
+          <span class="fpx-gunsonu-durum" id="fpxGunSonuDurum" role="status" hidden><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Gün kapatıldı — İlerlemem&#39;e işlendi.</span>
+          <div class="fpx-btns">
+            <button class="btn btn-fit" type="submit"><i class="fa-solid fa-check"></i> Günü kapat</button>
+            <button class="btn btn-ghost" type="button" id="fpxGunSonuKapat">Vazgeç</button>
+          </div>
+        </div>
+
+        <p class="fpx-note">Bu prototipte gün sonu kaydı yalnız bu oturumda tutulur.</p>
+      </form>
     </div>
 
     <div class="hr-note fpx-sec">
@@ -377,10 +476,14 @@ var FPX = (function () {
      kartın kendisi "tamamlandı" durumuna geçer. Plan değişirse kilit açılır. */
   var gosterilenGun = null, kilitPlanId = null;
 
+  /* belge §3.2 — dört aksiyon. Statik HTML'deki karşılığıyla BİREBİR aynı;
+     ikisi ayrı durduğu için (JS öncesi / JS sonrası) ikisi de güncellendi. */
   var BOS_ACTS =
     '<a class="btn btn-fit" href="antrenman-olusturucu-v1.html">' +
-    '<i class="fa-solid fa-wand-magic-sparkles"></i> Plan oluştur</a>' +
-    '<a class="btn btn-ghost" href="programlar-merkezi-v1.html">Hazır programlara bak</a>';
+    '<i class="fa-solid fa-wand-magic-sparkles"></i> Antrenman oluştur</a>' +
+    '<a class="btn btn-ghost" href="programini-bul-v1.html">Programını bul</a>' +
+    '<a class="btn btn-ghost" href="programlar-merkezi-v1.html">Hazır programları incele</a>' +
+    '<a class="btn btn-ghost" href="program-detay-v1.html?slug=4-hafta-ev-antrenmani">Başlangıç programına katıl</a>';
   var DOLU_ACTS =
     '<a class="btn btn-fit" href="fit-planim-programim-v1.html">' +
     '<i class="fa-solid fa-calendar-days"></i> Planın tamamı</a>' +
@@ -508,6 +611,138 @@ var FPX = (function () {
     if (c)                         stats[3].innerHTML = c.seri        + '<small class="fpx-unit"> gün</small>';
   }
   document.addEventListener('fit:state', paint); paint();
+})();
+
+/* ===== Gün ve tarih (belge §3.1) =====
+   Canlı tarih. JS yoksa HTML'deki "Bugün" metni yerinde kalır. */
+(function () {
+  var el = document.getElementById('fpxTarih'); if (!el) return;
+  var GUN = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  var AY  = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+             'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var d = new Date();
+  el.innerHTML = '<i class="fa-solid fa-calendar-day" aria-hidden="true"></i> ' +
+                 '<b>' + GUN[d.getDay()] + '</b> · ' +
+                 d.getDate() + ' ' + AY[d.getMonth()] + ' ' + d.getFullYear();
+})();
+
+/* ===== Challenge görev kartı — kabuk durumundan =====
+   R9 ölçümü: bu kart statikti ("Gün 7"), dm_fit.challenge'a bağlı değildi;
+   depo tohumlanıp gun:12 yazıldığında kart değişmiyordu. Artık bağlı.
+   Katılım yoksa dürüst boş durum basılır — uydurma challenge gösterilmez. */
+(function () {
+  var S = window.FIT_SHELL && window.FIT_SHELL.state; if (!S) return;
+  var ad  = document.getElementById('fpxChAd'),
+      not = document.getElementById('fpxChNot'),
+      gun = document.getElementById('fpxChGunler'),
+      bag = document.getElementById('fpxChBag');
+  if (!ad || !not || !gun || !bag) return;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function paint() {
+    var c = S.read().challenge;
+
+    if (!c || c.durum === 'birakildi') {
+      ad.textContent  = 'Katıldığın challenge yok';
+      not.textContent = 'Challenge Merkezi’nden birine katıldığında günlük görevin ve serin burada görünür.';
+      gun.hidden = true; gun.innerHTML = '';
+      bag.innerHTML = 'Challenge Merkezi <i class="fa-solid fa-arrow-right"></i>';
+      bag.setAttribute('href', 'challenge-merkezi-v1.html');
+      return;
+    }
+
+    var bitti = c.durum === 'tamamlandi';
+    ad.textContent = (c.ad || 'Challenge') + ' — ' + (bitti ? 'tamamlandı' : 'Gün ' + c.gun);
+    not.textContent = bitti
+      ? c.toplam + ' günün hepsini tamamladın. Rozetin Challenge ve Rozetler sayfasında.'
+      : 'Gün ' + c.gun + ' / ' + c.toplam + ' · ' + c.seri + ' gündür üst üste. ' +
+        'Bir gün kaçırmak seriyi sıfırlamaz.';
+    bag.innerHTML = 'Challenge’ı aç <i class="fa-solid fa-arrow-right"></i>';
+    bag.setAttribute('href', 'challenge-v1.html' + (c.slug ? '?slug=' + encodeURIComponent(c.slug) : ''));
+
+    /* son yedi günlük pencere: bugüne kadar olanlar dolu, bugün çerçeveli,
+       kullanılan telafi günü "rest" ile işaretli (kaçan gün = suç değil) */
+    var son = Math.min(c.gun, c.toplam), ilk = Math.max(1, son - 6), h = '', i;
+    var telafiGun = (c.telafi > 0) ? Math.max(ilk, son - c.seri) : 0;
+    for (i = ilk; i <= son; i++) {
+      var sinif = (i === son && !bitti) ? 'today' : (i === telafiGun ? 'rest' : 'on');
+      h += '<span class="fp-day ' + sinif + '">' + esc(i) + '</span>';
+    }
+    gun.innerHTML = h; gun.hidden = false;
+  }
+  document.addEventListener('fit:state', paint); paint();
+})();
+
+/* ===== Gün sonu tamamlama (belge §3.7) =====
+   Katlanır form. Hiçbir alan zorunlu değil; boş bırakılan alan için
+   varsayım üretilmez. Kayıt bu turda OTURUMLUK: dm_fit.bugun şemasında
+   not/efor/ağrı alanı yok ve şema kabuk dosyasında (bu turda dokunulmuyor).
+   Kalıcı kayıt açık kalem olarak devir notunda. */
+(function () {
+  var form  = document.getElementById('fpxGunSonu'),
+      ac    = document.getElementById('fpxGunSonuAc'),
+      vaz   = document.getElementById('fpxGunSonuKapat'),
+      durum = document.getElementById('fpxGunSonuDurum');
+  if (!form || !ac) return;
+
+  /* --- aç / kapa --- */
+  function goster(on) {
+    form.hidden = !on;
+    ac.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (on) {
+      form.scrollIntoView({ block: 'nearest',
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      var ilk = form.querySelector('input');
+      if (ilk) ilk.focus({ preventScroll: true });
+    } else { ac.focus({ preventScroll: true }); }
+  }
+  ac.addEventListener('click', function () { goster(form.hidden); });
+  if (vaz) vaz.addEventListener('click', function () { goster(false); });
+
+  /* --- efor ölçeği: seçilen sayının sözle karşılığı ---
+     Durum yalnız renkten okunmasın diye seçim metne de dönüşür. */
+  var EFOR = { 1:'Çok hafif — ısınma temposu', 2:'Hafif', 3:'Rahat', 4:'Orta',
+               5:'Orta — konuşabiliyorsun',    6:'Biraz zorlayıcı', 7:'Zorlayıcı',
+               8:'Çok zorlayıcı',              9:'Neredeyse sonuna kadar',
+               10:'Sonuna kadar' };
+  var oku = document.getElementById('fpxEforOku');
+  form.addEventListener('change', function (e) {
+    if (e.target.name === 'fpxEfor' && oku) {
+      oku.textContent = e.target.value + ' / 10 · ' + (EFOR[e.target.value] || '');
+    }
+    if (e.target.id === 'fpxAgriVar') {
+      var alan = document.getElementById('fpxAgriAlan');
+      if (alan) {
+        alan.hidden = !e.target.checked;
+        if (e.target.checked) { var t = document.getElementById('fpxAgriMetin'); if (t) t.focus(); }
+      }
+    }
+  });
+
+  /* --- not sayacı --- */
+  var not = document.getElementById('fpxGunNotu'), sayac = document.getElementById('fpxNotSayac');
+  if (not && sayac) {
+    not.addEventListener('input', function () {
+      sayac.textContent = not.value.length + ' / 300';
+    });
+  }
+
+  /* --- günü kapat --- */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    /* Yalnız şemada VAR OLAN alan yazılır: bugun.tamam. antrenmanTamamla()
+       çağrılmıyor — o, gecmis'e "Gün sonu · 0 dk" diye sahte bir antrenman
+       kaydı düşürürdü ve Aktivite Kayıtlarım'ı kirletirdi. */
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if (S) { var st = S.read(); st.bugun.tamam = true; S.write(st); }
+    if (durum) durum.hidden = false;
+    form.querySelector('button[type="submit"]').disabled = true;
+  });
 })();
 </script>
 </body>

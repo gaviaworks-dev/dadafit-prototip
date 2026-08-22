@@ -1951,11 +1951,57 @@ setTimeout(function(){
  ============================================================ */
 (function(){
   var KEY='dm_fit';
-  var BOS = { program:null, challenge:null, randevular:[],
-              bugun:{dk:0,kcal:0,tamam:false}, gecmis:[], hafta:[62,74,90,96,118,142] };
+  /* ============================================================
+     ŞEMA v2 — R10 · belge §3.7 · §4.3 · §5.2 · §5.3 · §6
+     ------------------------------------------------------------
+     Belgenin kapatılamayan sekiz kalemi tek bir sebebe bağlıydı:
+     şemada alan yoktu. Eklenenler ve hangi kalemi açtıkları:
+
+       program.baslangic   ISO tarih   → §5.2 tahmini bitiş · §4 aylık görünüm
+       program.gunler[]    1=Pzt…7=Paz → §4.3 "haftanın hangi günleri"
+       program.saat        'HH:MM'     → §4.3 hatırlatma saati
+       bugun.su            bardak      → §6 su takibi (D16: oturumluktu)
+       bugun.gunSonu{}     §3.7 alanları (not·zorluk·efor·enerji·agri)
+       gecmis[].kaynak     KANIT KADEMESİ — aşağıda
+
+     KANIT KADEMESİ (akış denetiminden geldi, belgede yok):
+     Bugüne kadar aynı "antrenman tamamlandı" dört ayrı yerde dört farklı
+     kalitede kayıt üretiyordu ve uygulama dördünü aynı sayıyordu:
+       egzersiz-detay      → çalışan kronometreden ÖLÇÜLDÜ
+       video-seans-detay   → videonun nominal süresi
+       program-detay       → SABİT dk:25 kcal:280 (uydurma)
+       challengeGunTamamla → hiçbir şey
+     Artık her kayıt neye dayandığını taşıyor. Rozet/seri buna bakabilir,
+     kullanıcı kendi geçmişinin ne kadar sağlam olduğunu görebilir.
+     ============================================================ */
+  var KAYNAKLAR = ['olculdu','video','cihaz','beyan'];
+  var BOS = { surum:2, program:null, challenge:null, randevular:[],
+              bugun:{dk:0,kcal:0,tamam:false,su:0,gunSonu:null},
+              gecmis:[], hafta:[62,74,90,96,118,142] };
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+  /* GÖÇ — v1 kayıtları KIRILMAZ. Eksik alan varsayılanla tamamlanır, var olan
+     hiçbir değer ezilmez. Yazma anında değil OKUMA anında yapılıyor: kullanıcı
+     depoyu hiç açmasa bile eski kayıt yeni koda güvenli girer. */
+  function goc(v){
+    if(!v || typeof v !== 'object') return clone(BOS);
+    if(v.surum === 2) return v;
+    v.surum = 2;
+    v.bugun = v.bugun || {dk:0,kcal:0,tamam:false};
+    if(typeof v.bugun.su !== 'number') v.bugun.su = 0;
+    if(!('gunSonu' in v.bugun))        v.bugun.gunSonu = null;
+    if(v.program){
+      if(!('baslangic' in v.program)) v.program.baslangic = null;
+      if(!Array.isArray(v.program.gunler)) v.program.gunler = [];
+      if(!('saat' in v.program))      v.program.saat = null;
+    }
+    /* Eski geçmiş kayıtlarının kaynağı BİLİNMİYOR. 'olculdu' demek yalan
+       olurdu; en zayıf kademeye değil, dürüst olana yazıyoruz. */
+    (v.gecmis||[]).forEach(function(g){ if(!g.kaynak) g.kaynak = 'beyan'; });
+    return v;
+  }
   function read(){
-    try{ var r=localStorage.getItem(KEY); return r?JSON.parse(r):clone(BOS); }
+    try{ var r=localStorage.getItem(KEY); return r?goc(JSON.parse(r)):clone(BOS); }
     catch(e){ return clone(BOS); }
   }
   function write(v){
@@ -1970,7 +2016,53 @@ setTimeout(function(){
     programBasla:function(p){
       var s=read();
       s.program={slug:p.slug,ad:p.ad,durum:'devam',hafta:1,gun:1,
-                 toplam:p.toplam||12,biten:0,kacan:0};
+                 toplam:p.toplam||12,biten:0,kacan:0,
+                 /* v2 — program artık TAKVİME oturuyor. Bunlar olmadan program
+                    bir liste; "yarın 07:30, Gün 2" denemez, hatırlatma kurulamaz,
+                    aylık görünüm çizilemez, bitiş tarihi hesaplanamaz. */
+                 baslangic:(p&&p.baslangic)||null,
+                 gunler:(p&&p.gunler)||[],
+                 saat:(p&&p.saat)||null};
+      return write(s);
+    },
+    /* Takvimi sonradan da kurulabilsin: kullanıcı programı başlatırken
+       atlayabilir, Plan ve Takvim'den doldurur. */
+    programPlanla:function(o){
+      var s=read();
+      if(s.program){
+        if(o&&o.baslangic!==undefined) s.program.baslangic=o.baslangic;
+        if(o&&o.gunler)                s.program.gunler=o.gunler;
+        if(o&&o.saat!==undefined)      s.program.saat=o.saat;
+      }
+      return write(s);
+    },
+    /* §5.2 — tahmini bitiş. Kaçırılan gün CEZA DEĞİL: programı öteler.
+       Haftalık antrenman sayısı bilinmiyorsa 3 varsayılır (kataloğun modu). */
+    bitisTahmini:function(){
+      var s=read(), p=s.program;
+      if(!p||!p.baslangic) return null;
+      var haftalik=(p.gunler&&p.gunler.length)||3;
+      var kalan=Math.max(0,(p.toplam||0)-(p.biten||0))+(p.kacan||0);
+      var d=new Date(p.baslangic);
+      if(isNaN(d)) return null;
+      d.setDate(d.getDate()+Math.ceil(kalan/haftalik)*7);
+      return d.toISOString();
+    },
+
+    /* §6 — su takibi. D16'da "oturumluk" diye açık kalmıştı; artık kalıcı. */
+    suEkle:function(n){ var s=read(); s.bugun.su=Math.max(0,(s.bugun.su||0)+(n||1)); return write(s); },
+    suSifirla:function(){ var s=read(); s.bugun.su=0; return write(s); },
+
+    /* §3.7 — gün sonu. D12'de "şemada yer yok" diye açık kalmıştı.
+       Hepsi isteğe bağlı; boş gönderilen alan yazılmaz, silinmez. */
+    gunSonuKaydet:function(v){
+      var s=read();
+      s.bugun.gunSonu = {
+        not:(v&&v.not)||'', zorluk:(v&&v.zorluk)||null, efor:(v&&v.efor)||null,
+        enerji:(v&&v.enerji)||null, agri:(v&&v.agri)||'',
+        tarih:new Date().toISOString()
+      };
+      s.bugun.tamam = true;
       return write(s);
     },
     programDurakla:function(){ var s=read(); if(s.program)s.program.durum='duraklatildi'; return write(s); },
@@ -1988,8 +2080,12 @@ setTimeout(function(){
     /* ---- tamamlanan antrenman → Enerji Defteri + ilerleme (belge §19) ---- */
     antrenmanTamamla:function(a){
       var s=read(), dk=(a&&a.dk)||25, kcal=(a&&a.kcal)||280, ad=(a&&a.ad)||'Antrenman';
+      /* KANIT KADEMESİ — çağıran neye dayandığını SÖYLEMEK ZORUNDA.
+         Söylemezse 'beyan' yazılır, çünkü söylenmeyen şey ölçülmüş sayılamaz.
+         Uydurma bir kademe yazmaktansa zayıf ama doğru olanı yazıyoruz. */
+      var kaynak = (a&&a.kaynak && KAYNAKLAR.indexOf(a.kaynak)>=0) ? a.kaynak : 'beyan';
       s.bugun.dk += dk; s.bugun.kcal += kcal; s.bugun.tamam = true;
-      s.gecmis.unshift({tarih:'bugün',ad:ad,dk:dk,kcal:kcal});
+      s.gecmis.unshift({tarih:'bugün',ad:ad,dk:dk,kcal:kcal,kaynak:kaynak});
       if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += dk;
       if(s.program && s.program.durum==='devam'){
         s.program.biten++;

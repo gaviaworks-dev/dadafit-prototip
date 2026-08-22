@@ -20,12 +20,36 @@
            no        : 1,
            ad        : 'Gün 1',
            odak      : 'İtiş',
-           hareketler: [ { slug, ad, set, tekrar, sure } ]   // set/tekrar/sure serbest
+           isinma    : '5 dk hafif tempo + omuz çevirme',   // v2 · §3.3
+           hareketler: [ {
+               slug, ad, set, tekrar, sure,                 // set/tekrar/sure serbest
+               dinlenme  : 60,          // v2 · saniye — setler arası
+               ekipman   : ['dambıl'],  // v2 · gereken ekipman
+               video     : 'slug',      // v2 · form videosu (egzersiz-detay slug'ı)
+               uyari     : '…',         // v2 · form/güvenlik uyarısı
+               alternatif: 'slug'       // v2 · "bu bana uymuyor" karşılığı
+           } ]
        } ],
        ilerleme  : {                            // anahtar: 'g<gunNo>-h<hareketIdx>'
-          'g1-h0': { yapildi:true, seviye:'tam', tarih:'2026-08-21T…' }
+          'g1-h0': { yapildi:true, seviye:'tam', tarih:'2026-08-21T…',
+                     agirlik:12, tekrarYapilan:10, efor:7 }   // v2 · §5.3/§5.4
        }
      }
+
+   ŞEMA v2 — R10 · belge §3.3 · §5.3 · §5.4
+     Eklenen alanların HEPSİ İSTEĞE BAĞLI. Eski planlar (v1) kırılmaz:
+     alan yoksa okuyan taraf göstermez, uydurmaz. Oluşturucu bu alanları
+     doldurmaya başlayana kadar Fit Planım onları basitçe atlar — yarım
+     dolu bir kart, sahte dolu bir karttan iyidir.
+
+     gunler[].isinma                → §3.3 ısınma
+     hareketler[].dinlenme (sn)     → §3.3 setler arası dinlenme
+     hareketler[].ekipman []        → §3.3 gereken ekipman
+     hareketler[].video (slug)      → §3.3 form videosu
+     hareketler[].uyari             → §3.3 form/güvenlik uyarısı
+     hareketler[].alternatif (slug) → §3.3 "bu hareket bana uymuyor"
+     ilerleme[k].agirlik/tekrarYapilan/efor → §5.3 performans · §5.4 hareket bazlı
+       Bu üçü aynı zamanda KANIT: yalnız gerçekten yapan girebilir.
 
    İLERLEME SEVİYELERİ (sabit, uydurulmayacak)
      'tam'    → tamamlandı

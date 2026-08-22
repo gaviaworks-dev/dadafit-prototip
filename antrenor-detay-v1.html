@@ -116,11 +116,38 @@ html,body{overflow-x:clip}
     linear-gradient(180deg,#1b1913 0%,#191710 100%);
   padding:34px 0 44px;
 }
+/* R9 (Beyar): şeritteki görsel banner'a da geldi — BUĞULU.
+   İki katman: ::before buğulu fotoğraf, ::after koyu perde. Sıralama
+   önemli — eleman zemini (plaka) en altta, sonra fotoğraf, sonra perde,
+   en üstte içerik (.wrap z-index:2). Perde olmazsa kırıntı ve kimlik
+   metni fotoğrafın açık yerlerinde okunmaz.
+   `inset:-60px` bilerek: `filter:blur()` kenarlarda saydamlığa doğru
+   soluyor, kutuyu taşırmazsan üstte/altta açık bir çerçeve kalıyor.
+   Görsel URL'i `.cp-banner`dan JS ile okunuyor (tek kaynak) — şerit
+   ileride slug'a göre değişirse buğu da kendiliğinden onu izler. */
+.cp-top::before{
+  content:"";position:absolute;inset:-60px;z-index:0;
+  background-image:var(--cp-bg,none);
+  background-size:cover;background-position:center 46%;
+  filter:blur(30px) saturate(1.05);
+  opacity:.85;
+  pointer-events:none;
+}
+.cp-top::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(900px 420px at 86% 6%,rgba(0,157,79,.22),transparent 62%),
+    linear-gradient(180deg,rgba(23,21,15,.58) 0%,rgba(21,19,13,.72) 100%);
+}
 .cp-top .wrap{position:relative;z-index:2}
-.cp-crumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);padding:18px 0 14px;flex-wrap:wrap}
-.cp-crumb a{color:rgba(255,255,255,.6);transition:color .2s var(--ease)}
+/* R9 · buğulu banner kırıntının ZEMİNİNİ AÇTI: luminans 0.011 → 0.177,
+   `rgba(255,255,255,.6)` metin 6.08:1'den 1.87:1'e düştü (AA 4.5).
+   Perdeyi koyulaştırmak buğuyu geri yutuyordu — çözüm metni parlatmak.
+   Gölge, fotoğrafın en açık yerlerine denk gelen harfler için. */
+.cp-crumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.95);padding:18px 0 14px;flex-wrap:wrap;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.cp-crumb a{color:rgba(255,255,255,.95);transition:color .2s var(--ease)}
 .cp-crumb a:hover{color:#fff}
-.cp-crumb i{font-size:9px;color:rgba(255,255,255,.34)}
+.cp-crumb i{font-size:9px;color:rgba(255,255,255,.65)}
 .cp-crumb .cur{color:var(--fit-bright)}
 
 /* =====================================================================
@@ -1198,7 +1225,16 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
        intercepts pointer events"). Dinleyiciyi overlay'e bağlamak
        çözmüyor — FIT_MODAL bu yüzden KABA bağlanıyor.
        Altı borcun hepsi tek yerde: assets/js/fit-modal.js (AJAN-C). */
-    var aptH=(window.FIT_MODAL&&FIT_MODAL.kur({
+    /* R9 · buğulu banner — görsel `.cp-banner`dan okunur, tek kaynak kalsın */
+  (function(){
+    var ser = document.querySelector('.cp-banner');
+    var top = document.querySelector('.cp-top');
+    if (!ser || !top) return;
+    var bi = getComputedStyle(ser).backgroundImage;
+    if (bi && bi !== 'none') top.style.setProperty('--cp-bg', bi);
+  })();
+
+  var aptH=(window.FIT_MODAL&&FIT_MODAL.kur({
       kap:aptModal, panel:'.apt-panel', ortu:aptOv, kapat:'#aptClose',
       acilinca:function(){ if(window.__bnUpdate)window.__bnUpdate(); },
       kapaninca:function(){ if(window.__bnUpdate)window.__bnUpdate(); }

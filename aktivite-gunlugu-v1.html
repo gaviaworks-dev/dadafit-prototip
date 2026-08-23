@@ -170,6 +170,20 @@ body.kcal-off .ag-kcal{display:none !important}
 .ag-confirm p i{margin-right:8px}
 
 /* ---- MODAL İÇİ FORM (kabuğun .fb-* kabuğu + sayfaya özgü alan ölçüleri) ---- */
+/* KAPALIYKEN YERLEŞİMDEN DE ÇIK. Kabuğun `.fb-modal` kuralı paneli
+   `visibility:hidden` ile gizliyor ama `display:grid` bıraktığı için
+   içindeki düğmeler HÂLÂ kutu döndürüyor — DENETIM §2'nin ikinci tuzağı
+   tam bu. Sonuç ölçülebilir bir kusurdu: kapalı modaldaki "Vazgeç",
+   mekanik denetimde "hem etkisiz hem erişilebilir adsız" diye sayılıyordu
+   (innerText kapalı katmanda boş döner). Kabuk EZİLMİYOR: ID özgüllüğüyle
+   yalnız bu panele `content-visibility` ekleniyor, geçiş korunuyor.
+   Yan kazanç görsel değil erişilebilirlik: kapalı katman artık ekran
+   okuyucuya da, Tab sırasına da hiç girmiyor.
+   ÖLÇÜLDÜ: `content-visibility:hidden` YETMEDİ — Chromium atlanan alt
+   ağaçta bile getClientRects()'i 1 döndürdü (denendi, kaldırıldı).
+   `display:none` gerekiyor; açılış/kapanış geçişi, JS tarafında paneli
+   önce yerleşime alıp bir sonraki karede .show vererek korunuyor. */
+#agModal:not(.show){display:none}
 #agModal .fb-panel{width:min(560px,100%)}
 .ag-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ag-form-grid .span-2{grid-column:1/-1}
@@ -185,6 +199,41 @@ body.kcal-off .ag-kcal{display:none !important}
 .ag-form-foot .btn{flex:1;justify-content:center;min-width:150px}
 .ag-form-note{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:14px}
 .ag-form-note i{margin-top:2px;flex:none;color:var(--fit-deep)}
+
+/* ---- §7.3 · SATIR AKSİYONLARI ------------------------------------
+   Beş aksiyon (Tekrar et · Programa ekle · Antrenörle paylaş · Düzenle ·
+   Sil) satıra sığmaz. İlk üçü ikincil: sessiz dururlar, satıra gelince ya
+   da odaklanınca belirirler; dokunmatikte hover yok, orada hep görünür. */
+/* HOVER ARKASINA SAKLANMADI. Depoda `.fpx-ops` deseni opacity:0 ile
+   duruyor; burada KULLANILMADI çünkü bu üçü satırın ikincil süsü değil,
+   §7.3'ün üç ana işlemi. Görünmeyen düğme, olmayan düğmedir — üstelik
+   `getClientRects()` opacity:0 elemanı "görünür" sayar, yani ölçüm de
+   yalan söylerdi. Ayrım ağırlıkla kuruldu: bunlar ikon, Düzenle/Sil metin. */
+.ag-ops{display:inline-flex;align-items:center;gap:2px;flex-wrap:wrap;
+  padding-right:10px;margin-right:2px;border-right:1px solid var(--line)}
+.ag-op{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;border-radius:var(--radius-md);padding:9px 12px;
+  background:none;color:var(--slate-2);font-size:12.5px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:.18s var(--ease);
+}
+.ag-op i{font-size:12px;color:var(--muted)}
+.ag-op:hover{background:var(--fit-tint);border-color:var(--fit-line);color:var(--fit-deep)}
+.ag-op:hover i{color:var(--fit-deep)}
+.ag-op:focus-visible{outline:3px solid var(--fit-tint);outline-offset:1px;border-color:var(--fit-deep)}
+@media (max-width:640px){
+  .ag-ops{border-right:none;padding-right:0;width:100%}
+  .ag-ops .ag-op{flex:1;justify-content:center}
+}
+/* aksiyonun sonucu — satırın ALTINDA, tek satır, renkten bağımsız metin */
+.ag-op-durum{
+  grid-column:1/-1;margin-top:4px;padding:11px 14px;border-radius:var(--radius-md);
+  background:var(--fit-tint);border:1px solid var(--fit-line);
+  color:var(--fit-deep);font-size:12.5px;font-weight:600;line-height:1.55;
+}
+.ag-op-durum.is-notr{background:var(--bg);border-color:var(--line);color:var(--slate-2)}
+.ag-op-durum a{color:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px}
+.ag-op-durum b{font-weight:800}
 
 /* ekran okuyucuya duyurulan canlı bölge (ekle/düzenle/sil sonucu) */
 .ag-live{
@@ -360,10 +409,14 @@ body.kcal-off .ag-kcal{display:none !important}
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <span class="eyebrow"><i class="fa-solid fa-plug-circle-check"></i> Aktivite kaynağı</span>
+        <span class="eyebrow"><i class="fa-solid fa-plug-circle-check"></i> Cihaz kaynağı</span>
         <h2>Bu veriler nereden geliyor?</h2>
-        <p class="lead">Her kaydın yanında hangi kaynaktan geldiği yazar. Bir kaynağı kapatmak,
+        <p class="lead">Her kaydın yanında hangi <b>cihazdan</b> geldiği yazar. Bir kaynağı kapatmak,
         izinlerini tek tek düzenlemek ya da bağlantıyı kesmek istersen Bağlı Uygulamalar sayfasına git.</p>
+        <p class="lead">Bu, <a href="fit-planim-gecmis-v1.html">Aktivite Kayıtlarım</a>&#39;daki
+        <b>kanıt kademesi</b> ile aynı şey değildir: orada bir antrenman kaydının süresinin neye
+        <b>dayandığı</b> yazar (kronometreyle ölçüldü · video izlendi · cihazdan geldi · senin beyanın).
+        Burada ise kaydı hangi cihazın ürettiği yazar.</p>
         <div class="sec-tools">
           <a class="see-all" href="bagli-uygulamalar-v1.html">Bağlı Uygulamalar <i class="fa-solid fa-arrow-right"></i></a>
         </div>
@@ -375,7 +428,7 @@ body.kcal-off .ag-kcal{display:none !important}
         <h3><i class="fa-solid fa-arrows-rotate"></i> Kaynaklar ve son senkronizasyon zamanı</h3> </div>
       <div class="fp-list">
         <div class="fp-row">
-          <span class="ico"><i class="fa-solid fa-watch"></i></span>
+          <span class="ico"><i class="fa-solid fa-clock"></i></span>
           <span class="txt"><b>Akıllı saat</b><small>Adım, mesafe, aktif süre ve nabız aktarır.</small></span>
           <span class="end">Son senkronizasyon<br><span class="ag-src-time" data-sync-time>bugün 07:12</span><br><span class="fp-badge ok">Bağlı</span></span>
         </div>
@@ -436,10 +489,15 @@ body.kcal-off .ag-kcal{display:none !important}
         <button class="df-fchip" type="button" data-val="bisiklet"><i class="fa-solid fa-person-biking" aria-hidden="true"></i> Bisiklet</button>
         <button class="df-fchip" type="button" data-val="antrenman"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Antrenman</button>
       </div>
-      <div class="fgroup" data-group="kaynak" role="group" aria-label="Aktivite kaynağı filtresi">
-        <span class="lbl">Aktivite kaynağı</span>
+      <!-- EKSEN ADI "CİHAZ KAYNAĞI" — kasıtlı. Bu eksen kaydı hangi CİHAZIN
+           ürettiğini süzer (saat · telefon · elle). Aktivite Kayıtlarım'daki
+           "kanıt kademesi" ise bir antrenman kaydının süresinin neye
+           DAYANDIĞINI söyler (ölçüldü · video · cihaz · beyan). Akraba ama
+           aynı şey değil; iki sayfada aynı kelimeyle anlatılmıyor. -->
+      <div class="fgroup" data-group="kaynak" role="group" aria-label="Cihaz kaynağı filtresi">
+        <span class="lbl">Cihaz kaynağı</span>
         <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="saat"><i class="fa-solid fa-watch" aria-hidden="true"></i> Akıllı saat</button>
+        <button class="df-fchip" type="button" data-val="saat"><i class="fa-solid fa-clock" aria-hidden="true"></i> Akıllı saat</button>
         <button class="df-fchip" type="button" data-val="telefon"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Telefon</button>
         <button class="df-fchip" type="button" data-val="manuel"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Manuel giriş</button>
         <button class="fclear" type="button" id="agClear"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Filtreyi sıfırla</button>
@@ -626,6 +684,9 @@ body.kcal-off .ag-kcal{display:none !important}
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranış -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- PLAN KAYDI SÖZLEŞMESİ (lead yazar) — §7.3 "Programa ekle" bunu KULLANIR.
+     Bu sayfa kendi plan depolama kodunu yazmaz; yalnız FIT_PLAN çağırır. -->
+<script src="assets/js/fit-plan-kayit.js"></script>
 <script>
 /* ===== SAYFA JS — AKTİVİTE GÜNLÜĞÜ (belge §7) =======================
    · Kayıt listesi burada tutulur; ekle / düzenle / sil GERÇEKTEN çalışır
@@ -657,7 +718,7 @@ body.kcal-off .ag-kcal{display:none !important}
     antrenman:{ad:'Antrenman',ikon:'fa-solid fa-dumbbell'}
   };
   var KAYNAK = {
-    saat:   {ad:'Akıllı saat',      ikon:'fa-solid fa-watch'},
+    saat:   {ad:'Akıllı saat',      ikon:'fa-solid fa-clock'},
     telefon:{ad:'Telefon',          ikon:'fa-solid fa-mobile-screen'},
     manuel: {ad:'Manuel giriş',     ikon:'fa-solid fa-pen-to-square'}
   };
@@ -780,6 +841,11 @@ body.kcal-off .ag-kcal{display:none !important}
       '</div>' +
       '<div class="ag-side">' +
         '<div class="act-burn ag-kcal"><b>~' + nf(r.kcal) + '</b><span>kcal (yaklaşık)</span></div>' +
+        '<div class="ag-ops">' +
+          '<button class="ag-op" type="button" data-act="repeat" aria-label="' + esc(r.ad) + ' aktivitesini şimdi tekrar et"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Tekrar et</button>' +
+          '<button class="ag-op" type="button" data-act="plan" aria-label="' + esc(r.ad) + ' aktivitesini programına ekle"><i class="fa-solid fa-calendar-plus" aria-hidden="true"></i> Programa ekle</button>' +
+          '<button class="ag-op" type="button" data-act="share" aria-label="' + esc(r.ad) + ' kaydını antrenörle paylaş"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Paylaş</button>' +
+        '</div>' +
         '<div class="ag-acts">' +
           '<button class="ag-btn" type="button" data-act="edit" aria-label="' + esc(r.ad) + ' kaydını düzenle"><i class="fa-solid fa-pen" aria-hidden="true"></i> Düzenle</button>' +
           '<button class="ag-btn is-danger" type="button" data-act="del" aria-label="' + esc(r.ad) + ' kaydını sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Sil</button>' +
@@ -890,7 +956,9 @@ body.kcal-off .ag-kcal{display:none !important}
     var rec = recs.filter(function(r){ return r.id === id; })[0];
     if(!rec) return;
 
-    if(btn.getAttribute('data-act') === 'edit'){ openModal(rec, btn); return; }
+    var act = btn.getAttribute('data-act');
+    if(act === 'edit'){ openModal(rec, btn); return; }
+    if(act === 'repeat' || act === 'plan' || act === 'share'){ opYap(act, rec, row); return; }
 
     if(row.querySelector('.ag-confirm')) return;          /* durum korumalı */
     var box = document.createElement('div');
@@ -911,6 +979,92 @@ body.kcal-off .ag-kcal{display:none !important}
       box.remove(); btn.focus();
     });
   });
+
+  /* ---------- §7.3 · TEKRAR ET · PROGRAMA EKLE · ANTRENÖRLE PAYLAŞ ----
+     Üçü de GERÇEKTEN bir şey yapar ya da ne yapmadığını açıkça söyler:
+       tekrar et      → kaydı şimdiki saatle çoğaltır (özet anında değişir)
+       programa ekle  → FIT_PLAN'daki aktif planın sıradaki gününe hareket
+                        olarak yazar; plan yoksa bunu söyler, kapı açar
+       antrenörle paylaş → prototipte gönderim YOK; ne gideceğini yazar
+     "prompt() ile bağlamak" sayılmaz kuralı gereği hiçbiri prompt açmaz. */
+  function opDurum(row, html, notr){
+    var eski = row.querySelector('.ag-op-durum');
+    if(eski) eski.remove();
+    var el = document.createElement('div');
+    el.className = 'ag-op-durum' + (notr ? ' is-notr' : '');
+    el.setAttribute('role','status');
+    el.innerHTML = html;
+    row.appendChild(el);
+  }
+
+  function simdiSaat(){
+    var d = new Date();
+    return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  }
+
+  function opYap(act, rec, row){
+    if(act === 'repeat'){
+      var kopya = {
+        tur:rec.tur, ad:rec.ad, saat:simdiSaat(), dk:rec.dk, km:rec.km,
+        adim:rec.adim, nabiz:rec.nabiz, kaynak:'manuel'
+      };
+      kopya.kcal = kcalOf(kopya);
+      kopya.id = 'a' + (++uid);
+      recs.push(kopya);
+      if(!matches(kopya)){ GROUPS.forEach(function(g){ sel[g] = []; }); push(); }
+      render();
+      var yeni = listEl.querySelector('[data-id="' + kopya.id + '"]');
+      if(yeni){
+        yeni.classList.add('is-new');
+        opDurum(yeni, '<b>' + esc(rec.ad) + '</b> ' + esc(simdiSaat()) +
+          ' için tekrar edildi — ' + kopya.dk + ' dk, yaklaşık ~' + nf(kopya.kcal) +
+          ' kcal. Kaynağı <b>manuel giriş</b>: süreyi cihaz ölçmedi, sen tekrarladın.');
+      }
+      say(rec.ad + ' tekrar edildi. Kayıt sayısı: ' + recs.length + '.');
+      return;
+    }
+
+    if(act === 'plan'){
+      if(!window.FIT_PLAN){
+        opDurum(row, 'Plan defteri bu sayfada yüklenemedi; kayıt eklenmedi. ' +
+          '<a href="fit-planim-programim-v1.html">Plana git</a> ve oradan ekle.', true);
+        return;
+      }
+      var plan = FIT_PLAN.aktif();
+      if(!plan || !(plan.gunler || []).length){
+        opDurum(row, 'Kayıtlı bir planın yok, bu yüzden hiçbir şey eklenmedi. ' +
+          'Önce bir plan oluştur: <a href="antrenman-olusturucu-v1.html">Antrenman Oluşturucu</a> ' +
+          'ya da <a href="programlar-merkezi-v1.html">hazır programlar</a>.', true);
+        return;
+      }
+      var ozet = FIT_PLAN.ozet(plan.id);
+      var no   = (ozet && ozet.aktifGun) || plan.gunler[0].no;
+      var gun  = plan.gunler.filter(function(g){ return g.no === no; })[0] || plan.gunler[0];
+      gun.hareketler = gun.hareketler || [];
+      gun.hareketler.push({ ad: rec.ad, sure: rec.dk + ' dk' });
+      var yazildi = FIT_PLAN.kaydet(plan);
+      if(!yazildi){
+        opDurum(row, 'Plana yazılamadı — tarayıcın yerel depolamayı engelliyor olabilir. Kayıt eklenmedi.', true);
+        return;
+      }
+      opDurum(row, '<b>' + esc(rec.ad) + '</b> · ' + rec.dk + ' dk, <b>' +
+        esc(plan.ad || 'planın') + '</b> planındaki <b>' + esc(gun.ad || ('Gün ' + gun.no)) +
+        '</b> gününe eklendi — o gün artık ' + gun.hareketler.length +
+        ' hareket taşıyor. <a href="fit-planim-programim-v1.html">Plana git</a>');
+      say(rec.ad + ' plana eklendi: ' + (gun.ad || ('Gün ' + gun.no)) + '.');
+      return;
+    }
+
+    if(act === 'share'){
+      opDurum(row, 'Prototipte gerçek bir gönderim yapılmaz. Gerçek sürümde antrenörüne şu kayıt giderdi: ' +
+        '<b>' + esc(rec.ad) + '</b> · ' + esc(rec.saat) + ' · ' + rec.dk + ' dk' +
+        (rec.km ? ' · ' + km1(rec.km) + ' km' : '') +
+        (rec.nabiz ? ' · ' + rec.nabiz + ' bpm' : '') +
+        ' · kaynak <b>' + esc((KAYNAK[rec.kaynak] || KAYNAK.manuel).ad) + '</b>. ' +
+        'Antrenör eşleşmen yoksa önce <a href="antrenorler-v1.html">bir antrenör seç</a>.', true);
+      return;
+    }
+  }
 
   /* ---------- MODAL: ekle + düzenle ---------- */
   var modal   = document.getElementById('agModal');
@@ -950,6 +1104,10 @@ body.kcal-off .ag-kcal{display:none !important}
     fAdim.value = rec && rec.adim ? rec.adim : '';
     fHr.value   = rec && rec.nabiz ? rec.nabiz : '';
 
+    /* önce yerleşime al (CSS kapalıyken display:none veriyor), SONRAKİ
+       karede .show — böylece opacity geçişi başlangıç değerini bulur */
+    modal.style.display = 'grid';
+    void modal.offsetHeight;
     modal.classList.add('show');
     overlay.classList.add('show');
     if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
@@ -962,6 +1120,9 @@ body.kcal-off .ag-kcal{display:none !important}
     if(!modal.classList.contains('show')) return;         /* durum korumalı */
     modal.classList.remove('show');
     overlay.classList.remove('show');
+    /* geçiş bitince yerleşimden de çıkar: kapalı panelin içindeki düğmeler
+       ne odak sırasına ne de ölçüme girsin */
+    setTimeout(function(){ if(!modal.classList.contains('show')) modal.style.display = ''; }, 300);
     if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
     if(release){ release(); release = null; }
     else if(opener && opener.focus) opener.focus();

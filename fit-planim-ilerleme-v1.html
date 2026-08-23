@@ -74,6 +74,24 @@
           <p>Plan kaydettiğinde her günün tamamlanma oranı burada çubuklarla görünür.</p>
         </div>
       </div>
+
+      <!-- §5.2 · TAHMİNİ BİTİŞ — FIT_SHELL.state.bitisTahmini()
+           Tarih uydurulmaz. Program yoksa ya da takvime oturmamışsa
+           (baslangic:null) hesap yapılamaz ve bu açıkça söylenir. -->
+      <div class="fp-card fpx-mt" id="fpxBitisKart">
+        <div class="fp-head">
+          <h3><i class="fa-solid fa-flag-checkered"></i> Tahmini bitiş tarihi</h3>
+          <span class="fp-badge off" id="fpxBitisRozet" hidden></span>
+        </div>
+        <div class="fpx-bitis">
+          <div class="fpx-bitis-ana">
+            <b class="fpx-bitis-tarih is-bos" id="fpxBitisTarih">Takip edilen program yok</b>
+            <span class="fpx-bitis-alt" id="fpxBitisAlt">Bitiş tarihi bir programa ve başlangıç gününe bağlıdır; ikisi olmadan tahmin uydurmak olur.</span>
+          </div>
+          <p class="fpx-bitis-hesap" id="fpxBitisHesap">Bir programa başlayıp başlangıç gününü seçtiğinde tarih burada, hesabıyla birlikte çıkar. Kaçırdığın gün ceza değildir — tahmini öteler, geri almaz.</p>
+        </div>
+        <div class="fpx-btns" id="fpxBitisActs" hidden></div>
+      </div>
     </div>
 
     <!-- ================= SÜRE VE GELİŞİM ================= -->
@@ -86,58 +104,39 @@
         </div>
       </div>
 
-      <div class="fp-stats">
-        <div class="fp-stat is-fit"><b>142 dk</b><span>bu hafta hareket</span></div>
-        <div class="fp-stat"><b>%78</b><span>antrenman tamamlama</span></div>
-        <div class="fp-stat"><b>+%25</b><span>set hacmi (4 haftada)</span></div>
-        <div class="fp-stat"><b>5 gün</b><span>güncel seri</span></div>
-      </div>
+      <div class="fp-stats" id="fpxSureStats"></div>
 
       <div class="fp-grid fpx-mt">
         <div class="fp-card span-2">
           <div class="fp-head"><h3><i class="fa-solid fa-chart-column"></i> Haftalık hareket süresi</h3>
-            <span class="fp-badge ok"><i class="fa-solid fa-arrow-trend-up"></i> Artıyor</span></div>
-          <div class="fp-chart" role="img" aria-label="Son altı haftanın hareket süresi: 62, 74, 90, 96, 118 ve 142 dakika — istikrarlı artış">
-            <span class="fp-col"><span class="val">62</span><span class="bar" style="height:38%"></span><span class="lbl">1. hf</span></span>
-            <span class="fp-col"><span class="val">74</span><span class="bar" style="height:46%"></span><span class="lbl">2. hf</span></span>
-            <span class="fp-col"><span class="val">90</span><span class="bar" style="height:57%"></span><span class="lbl">3. hf</span></span>
-            <span class="fp-col"><span class="val">96</span><span class="bar" style="height:61%"></span><span class="lbl">4. hf</span></span>
-            <span class="fp-col"><span class="val">118</span><span class="bar" style="height:76%"></span><span class="lbl">5. hf</span></span>
-            <span class="fp-col"><span class="val">142</span><span class="bar" style="height:96%"></span><span class="lbl">Bu hf</span></span>
-          </div>
+            <span class="fp-badge off" id="fpxHaftaRozet" hidden></span></div>
+          <div class="fp-chart" id="fpxHaftaChart" role="img" aria-label="Haftalık hareket süresi henüz yüklenmedi"></div>
         </div>
 
+        <!-- §5.4 · HAREKET BAZLI İLERLEME
+             Kaynak: FIT_PLAN ilerleme['g<gun>-h<idx>'].agirlik /
+             tekrarYapilan / efor. Bu üçünü yalnız gerçekten yapan girer;
+             bu yüzden aynı zamanda kanıttır. Veri yoksa satır uydurulmaz. -->
         <div class="fp-card">
-          <div class="fp-head"><h3><i class="fa-solid fa-dumbbell"></i> Set, tekrar ve ağırlık</h3></div>
-          <div class="fp-list">
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-arrow-up"></i></span>
-              <span class="txt"><b>Goblet Squat</b><small>8 kg × 10 → 10 kg × 12</small></span><span class="end">+%50 hacim</span></div>
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-arrow-up"></i></span>
-              <span class="txt"><b>Plank</b><small>30 sn → 55 sn</small></span><span class="end">+25 sn</span></div>
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-minus"></i></span>
-              <span class="txt"><b>Şınav</b><small>3×8 → 3×8</small></span><span class="end">değişmedi</span></div>
+          <div class="fp-head"><h3><i class="fa-solid fa-dumbbell"></i> Set, tekrar ve ağırlık</h3>
+            <span class="fp-badge off" id="fpxHgelRozet" hidden></span></div>
+          <div class="fp-list" id="fpxHgel"></div>
+          <div class="lib-empty show" id="fpxHgelBos">
+            <span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
+            <h3>Henüz kayıt yok</h3>
+            <p>Bir hareketi işaretlerken ağırlığını ve yaptığın tekrarı da girdiğinde, ilk kaydın ile son kaydın burada yan yana durur. İlk antrenmanında girmeye başla.</p>
           </div>
         </div>
 
         <div class="fp-card">
           <div class="fp-head"><h3><i class="fa-solid fa-fire-flame-curved"></i> Seri ve challenge</h3>
             <a class="fp-act" href="fit-planim-rozetler-v1.html">Rozetler <i class="fa-solid fa-arrow-right"></i></a></div>
-          <div class="fp-list">
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-fire"></i></span>
-              <span class="txt"><b>Güncel seri</b><small>Bir gün kaçırmak seriyi sıfırlamaz; esnek devam kuralı geçerli</small></span><span class="end">5 gün</span></div>
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-trophy"></i></span>
-              <span class="txt"><b>30 Günde Hareket Alışkanlığı</b><small>7 / 30 gün</small></span><span class="end">%23</span></div>
-          </div>
+          <div class="fp-list" id="fpxSeri"></div>
         </div>
 
         <div class="fp-card">
           <div class="fp-head"><h3><i class="fa-solid fa-bullseye"></i> Kişisel hedeflerin</h3></div>
-          <div class="fp-list">
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-clock"></i></span>
-              <span class="txt"><b>Haftada 150 dakika hareket</b><small>Bu hafta 142 dk</small></span><span class="end">%95</span></div>
-            <div class="fp-row"><span class="ico"><i class="fa-solid fa-calendar-check"></i></span>
-              <span class="txt"><b>Haftada 3 antrenman</b><small>Bu hafta 3</small></span><span class="end"><span class="fp-badge ok">Tamam</span></span></div>
-          </div>
+          <div class="fp-list" id="fpxHedef"></div>
         </div>
 
         <div class="fp-card">
@@ -146,6 +145,40 @@
           <p class="fpx-body">Enerji dengesi eğilimini ilerleme ekranında görmek <b>senin tercihin</b>. Şu an kapalı; istersen açabilirsin.</p>
           <div class="fpx-btns"><a class="btn btn-ghost" href="fit-planim-veri-izin-v1.html"><i class="fa-solid fa-sliders"></i> Tercihi değiştir</a></div>
         </div>
+      </div>
+    </div>
+
+    <!-- ================= §5.8 · RAPORLAMA ================= -->
+    <div class="fpx-sec" id="rapor">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow"><i class="fa-solid fa-file-lines"></i> Raporlama</span>
+          <h2>Dönem raporun</h2>
+          <p class="lead">Rapor, seçtiğin dönemdeki kayıtlarından hesaplanır ve ekranda okunur. Her satırın yanında kaydın neye dayandığı yazar — ölçülmüş bir süre ile beyan edilmiş bir süre aynı şey değildir.</p>
+        </div>
+      </div>
+      <div class="fp-card">
+        <div class="fp-head">
+          <h3><i class="fa-solid fa-chart-pie"></i> Rapor</h3>
+          <span class="fp-badge off" id="fpxRaporRozet" hidden></span>
+        </div>
+
+        <div class="fpx-rapor-sec" id="fpxRaporSec" role="group" aria-label="Rapor dönemi">
+          <button type="button" data-donem="hafta" aria-pressed="true">Haftalık rapor</button>
+          <button type="button" data-donem="ay" aria-pressed="false">Aylık rapor</button>
+        </div>
+
+        <div class="fpx-rapor" id="fpxRapor" aria-live="polite"></div>
+
+        <div class="fpx-btns">
+          <button class="btn btn-fit" type="button" id="fpxRaporIndir"><i class="fa-solid fa-file-csv"></i> Raporu indir (.csv)</button>
+          <button class="btn btn-ghost" type="button" id="fpxRaporPaylas"><i class="fa-solid fa-user-doctor"></i> Antrenörle paylaş</button>
+          <a class="btn btn-ghost" href="fit-planim-veri-izin-v1.html"><i class="fa-solid fa-box-archive"></i> Ham veriyi dışa aktar</a>
+        </div>
+
+        <p class="fpx-durum" id="fpxRaporDurum" hidden></p>
+
+        <p class="fpx-note-sm">Bu prototipte <b>PDF üretilmez</b> — sana gerçekten inen dosya bir CSV'dir; tablo programında açılır ve içinde ekranda gördüğün satırların aynısı vardır. Kayıtların tamamının ham kopyası için <a href="fit-planim-veri-izin-v1.html">Veri ve İzinlerim</a>'i kullan.</p>
       </div>
     </div>
 
@@ -159,12 +192,7 @@
         </div>
       </div>
       <div class="fp-card">
-        <div class="fp-list">
-          <div class="fp-row"><span class="ico"><i class="fa-solid fa-flag"></i></span>
-            <span class="txt"><b>21 Temmuz 2026 — başlangıç</b><small>Haftada 62 dakika · 2 antrenman · ekipmansız</small></span><span class="end">4 hafta önce</span></div>
-          <div class="fp-row"><span class="ico"><i class="fa-solid fa-location-dot"></i></span>
-            <span class="txt"><b>Bugün</b><small>Haftada 142 dakika · 3 antrenman · dambıl eklendi</small></span><span class="end">+%129 süre</span></div>
-        </div>
+        <div class="fp-list" id="fpxNeredenNereye"></div>
         <div class="fpx-btns">
           <a class="btn btn-ghost" href="fit-planim-veri-izin-v1.html"><i class="fa-solid fa-download"></i> Veriyi dışa aktar</a>
           <a class="btn btn-ghost" href="fit-planim-veri-izin-v1.html"><i class="fa-solid fa-trash-can"></i> Veriyi sil</a>
@@ -322,10 +350,106 @@ var FPX = (function () {
     fn();
   }
 
+  /* ===== R10 · KANIT KADEMESİ (şema v2 · gecmis[].kaynak) =============
+     Aynı "antrenman tamamlandı" dört ayrı yerde dört farklı kalitede
+     kayıt üretiyordu: kronometreden ÖLÇÜLEN süre · videonun nominal
+     süresi · sabit dk:25 · hiç kayıt. Uygulama dördünü aynı sayıyordu.
+     Artık her kayıt neye dayandığını taşıyor ve burada GÖRÜNÜR oluyor.
+     Kullanıcıdan kanıt istemiyoruz — kaydın neye dayandığını söylüyoruz.
+     Kademe renkle TEK BAŞINA anlatılmaz: kelime + ikon + çerçeve. */
+  var KANIT = {
+    olculdu:{ uzun:'kronometreyle ölçüldü', kisa:'ölçüldü', ikon:'fa-stopwatch',
+              aciklama:'Süre, çalışan bir kronometreden alındı.' },
+    video:  { uzun:'video izlendi',         kisa:'video',   ikon:'fa-circle-play',
+              aciklama:'Süre, izlenen videonun uzunluğundan geldi.' },
+    cihaz:  { uzun:'cihazdan geldi',        kisa:'cihaz',   ikon:'fa-mobile-screen',
+              aciklama:'Süre, bağlı bir saat ya da telefondan aktarıldı.' },
+    beyan:  { uzun:'senin beyanın',         kisa:'beyan',   ikon:'fa-pen',
+              aciklama:'Süreyi sen bildirdin; ölçülmedi.' }
+  };
+  function kanitKod(k){ return KANIT[k] ? k : 'beyan'; }
+  function kanitRozet(k, uzunMu){
+    var kod = kanitKod(k), v = KANIT[kod];
+    return '<span class="fpx-kanit is-' + kod + '">' +
+           '<i class="fa-solid ' + v.ikon + '" aria-hidden="true"></i>' +
+           esc(uzunMu ? v.uzun : v.kisa) + '</span>';
+  }
+  function kanitSozluk(){
+    return '<div class="fpx-kanit-legend">' +
+      Object.keys(KANIT).map(function(k){
+        return '<span>' + kanitRozet(k, true) + esc(KANIT[k].aciklama) + '</span>';
+      }).join('') + '</div>';
+  }
+
+  /* ===== R10 · §5.4 · HAREKET BAZLI İLERLEME ==========================
+     Kaynak: FIT_PLAN ilerleme['g<gun>-h<idx>'].agirlik/tekrarYapilan/efor.
+     Bu üçünü yalnız hareketi gerçekten yapan girebilir; performans
+     kaydı olduğu kadar kanıttır. Alanı olmayan işaret ATLANIR — yarım
+     dolu bir liste, uydurulmuş dolu bir listeden iyidir. */
+  function hacim(r){
+    var t = r.tekrarYapilan || 0;
+    if(!t) return 0;
+    return (r.set || 1) * t * (r.agirlik || 1);
+  }
+  function olcuKayit(r){
+    var p = [];
+    if(r.agirlik)       p.push(r.agirlik + ' kg × ' + (r.tekrarYapilan || 0));
+    else if(r.tekrarYapilan) p.push(r.tekrarYapilan + ' tekrar');
+    if(r.set)           p.unshift(r.set + ' set');
+    return p.join(' · ') || '—';
+  }
+  function performans(){
+    var kova = {};
+    planlar().forEach(function(p){
+      (p.gunler||[]).forEach(function(g){
+        (g.hareketler||[]).forEach(function(h, i){
+          var it = (p.ilerleme||{})['g' + g.no + '-h' + i];
+          if(!it || !it.yapildi) return;
+          if(it.agirlik == null && it.tekrarYapilan == null) return;  /* ölçü yok → uydurma */
+          var ad = h.ad || h.slug || 'Hareket';
+          var k  = h.slug || ad;
+          (kova[k] = kova[k] || { ad:ad, slug:h.slug || '', kayitlar:[] }).kayitlar.push({
+            tarih: it.tarih || '', agirlik: it.agirlik || null,
+            tekrarYapilan: it.tekrarYapilan || null, efor: it.efor || null,
+            set: h.set || null, planAd: p.ad || 'Plan', gunAd: g.ad || ('Gün ' + g.no)
+          });
+        });
+      });
+    });
+    return Object.keys(kova).map(function(k){
+      var o = kova[k];
+      o.kayitlar.sort(function(a,b){ return String(a.tarih).localeCompare(String(b.tarih)); });
+      o.ilk   = o.kayitlar[0];
+      o.son   = o.kayitlar[o.kayitlar.length - 1];
+      o.eniyi = o.kayitlar.slice().sort(function(a,b){ return hacim(b) - hacim(a); })[0];
+      var hi = hacim(o.ilk), hs = hacim(o.son);
+      o.degisim = (hi > 0 && o.kayitlar.length > 1) ? Math.round((hs - hi) / hi * 100) : null;
+      return o;
+    }).sort(function(a,b){ return b.kayitlar.length - a.kayitlar.length; });
+  }
+
+  /* ===== R10 · kabuk defterinden gelen antrenman kayıtları ============
+     gecmis[] tarihleri serbest metin ('bugün', 'dün', ISO…) — sıralama
+     için dizideki sıra (yeniden eskiye) kullanılır, tarih parse edilmez;
+     parse edilemeyen bir metni tarihe çevirmek uydurma olurdu. */
+  function defter(){
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if(!S) return [];
+    var st;
+    try { st = S.read(); } catch(e){ return []; }
+    return (st.gecmis || []).map(function(g, i){
+      return { sira:i, tarih:g.tarih || '—', ad:g.ad || 'Antrenman',
+               dk:g.dk || 0, kcal:g.kcal || 0, kaynak:kanitKod(g.kaynak) };
+    });
+  }
+
   return { esc:esc, aktif:aktif, ozet:ozet, planlar:planlar, tarih:tarih,
            gecen:gecen, olcu:olcu, gun:gun, ozetKarti:ozetKarti,
            gunSeridi:gunSeridi, isaretler:isaretler, dinle:dinle,
-           SEVIYE_ETIKET:SEVIYE_ETIKET, SEVIYE_ROZET:SEVIYE_ROZET };
+           SEVIYE_ETIKET:SEVIYE_ETIKET, SEVIYE_ROZET:SEVIYE_ROZET,
+           KANIT:KANIT, kanitKod:kanitKod, kanitRozet:kanitRozet,
+           kanitSozluk:kanitSozluk, hacim:hacim, olcuKayit:olcuKayit,
+           performans:performans, defter:defter };
 })();
 /* ===== İlerlemem — plan ilerlemesi (FIT_PLAN.ozet) ===== */
 (function () {
@@ -402,6 +526,459 @@ var FPX = (function () {
   }
 
   FPX.dinle(boya);
+})();
+
+/* ===== R10 · §5.2 · §5.4 · §5.8 — İlerlemem'in üç kapalı kalemi =====
+   Ortak kural: SAYI DEPODAN GELİR ya da hiç gelmez. Sayfada tek bir sabit
+   ilerleme rakamı bırakılmadı; depo boşsa boş durum metni çıkar. */
+(function () {
+  'use strict';
+  var Q = function (id) { return document.getElementById(id); };
+  var AY = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+            'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function durum() {
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if (!S) return null;
+    try { return S.read(); } catch (e) { return null; }
+  }
+  /* HAFTALIK SÜRE — kabuğun BOŞ durumu `hafta:[62,74,90,96,118,142]` ile
+     geliyor; hiç antrenman yapmamış bir kullanıcıda bile bu dizi dolu.
+     O sayıları "senin haftan" diye basmak, tam da kaçındığımız uydurma
+     olurdu. Tek dürüst kapı: haftalık dakika ancak TAMAMLANMIŞ bir
+     antrenman kaydı varsa senindir — `antrenmanTamamla` gecmis[]'e ve
+     hafta[]'ya birlikte yazar, ikisi ayrışmaz. */
+  function haftaVerisi(st) {
+    if (!st || !Array.isArray(st.hafta)) return [];
+    if (!(st.gecmis || []).length) return [];
+    return st.hafta;
+  }
+  function tamTarih(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return d.getDate() + ' ' + AY[d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function haftaFarki(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return Math.round((d.getTime() - Date.now()) / 604800000);
+  }
+
+  /* ---------- §5.2 · TAHMİNİ BİTİŞ ---------------------------------
+     Üç ayrı durum, üçü de dürüst:
+       program yok              → tarih yok, program aramaya kapı
+       program var, takvim yok  → tarih yok, takvimi kurmaya kapı
+       ikisi de var             → tarih + hesabın kendisi */
+  function boyaBitis() {
+    var st = durum();
+    var S  = window.FIT_SHELL && window.FIT_SHELL.state;
+    var tarihEl = Q('fpxBitisTarih'), altEl = Q('fpxBitisAlt');
+    var hesapEl = Q('fpxBitisHesap'), actsEl = Q('fpxBitisActs');
+    var rozet   = Q('fpxBitisRozet');
+    if (!tarihEl) return;
+
+    var p = st && st.program;
+
+    if (!p) {
+      tarihEl.className = 'fpx-bitis-tarih is-bos';
+      tarihEl.textContent = 'Takip edilen program yok';
+      altEl.textContent = 'Bitiş tarihi bir programa ve başlangıç gününe bağlıdır; ikisi olmadan tahmin uydurmak olur.';
+      hesapEl.innerHTML = 'Bir programa başlayıp başlangıç gününü seçtiğinde tarih burada, hesabıyla birlikte çıkar. Kaçırdığın gün ceza değildir — tahmini öteler, geri almaz.';
+      actsEl.innerHTML = '<a class="btn btn-ghost" href="programlar-merkezi-v1.html"><i class="fa-solid fa-compass"></i> Programlara bak</a>';
+      actsEl.hidden = false;
+      rozet.hidden = true;
+      return;
+    }
+
+    var iso = S && S.bitisTahmini ? S.bitisTahmini() : null;
+    var kalan = Math.max(0, (p.toplam || 0) - (p.biten || 0)) + (p.kacan || 0);
+    var haftalik = (p.gunler && p.gunler.length) || 3;
+    /* program.gunler 1=Pzt … 7=Paz. Dizi boşsa gün adı YAZILMAZ — kabuk
+       o durumda haftada 3 VARSAYIYOR, hangi günler olduğunu bilmiyoruz. */
+    var GUN_AD = ['', 'Pzt', 'Sal', 'Çrş', 'Prş', 'Cum', 'Cmt', 'Paz'];
+    var gunAdlari = (p.gunler || []).map(function (n) { return GUN_AD[n] || ''; })
+                                    .filter(Boolean).join(' · ');
+
+    if (!iso) {
+      tarihEl.className = 'fpx-bitis-tarih is-bos';
+      tarihEl.textContent = 'Takvim kurulmamış';
+      altEl.innerHTML = '<b>' + FPX.esc(p.ad || 'Programın') + '</b> devam ediyor ama başlangıç günü seçilmemiş. Başlangıç olmadan bitiş hesaplanamaz.';
+      hesapEl.innerHTML = 'Elimizde olan: <b>' + kalan + '</b> antrenman kaldı. Eksik olan: hangi günden başladığın. Başlangıcı seçtiğinde tarih kendiliğinden çıkar.';
+      actsEl.innerHTML = '<a class="btn btn-fit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-calendar-days"></i> Takvimi kur</a>';
+      actsEl.hidden = false;
+      rozet.hidden = false;
+      rozet.className = 'fp-badge wait';
+      rozet.textContent = 'Hesaplanamıyor';
+      return;
+    }
+
+    var hf = haftaFarki(iso);
+    /* KURALIN KOPYASI BURADA TUTULMAZ.
+       İlk sürümde hesap satırı kabuğun aritmetiğini yeniden yazıyordu
+       ("kalan ÷ haftalık = N hafta, BAŞLANGIÇ üzerine eklendi"). Kabuk
+       referansı başlangıçtan bugüne alınca ekranda tarih 13 Eylül derken
+       açıklama 2 Ağustos'u işaret etti — aynı sayı iki yerde iki türlü
+       hesaplanınca çelişti. Artık burada tek bir aritmetik yok:
+         · tarih         → doğrudan FIT_SHELL.state.bitisTahmini()
+         · "N hafta sonra" → dönen tarih ile bugün arasındaki fark
+         · hesap satırı  → yalnız GİRDİLER (toplam · biten · kaçan · günler)
+       Kabuk kuralını değiştirirse buradaki hiçbir cümle yalan olmaz. */
+    tarihEl.className = 'fpx-bitis-tarih';
+    rozet.hidden = false;
+
+    if (!kalan) {
+      /* Kalan yoksa ortada tahmin edilecek bir şey de yok. "Bu hafta biter"
+         demek, biten bir programa gelecek uydurmaktır. */
+      tarihEl.textContent = 'Program tamamlandı';
+      altEl.innerHTML = '<b>' + FPX.esc(p.ad || 'Programın') + '</b> içindeki <b>' +
+        (p.toplam || 0) + '</b> antrenmanın hepsi bitti. Tahmin edilecek bir bitiş kalmadı.';
+      hesapEl.innerHTML = 'Başlangıç <b>' + FPX.esc(tamTarih(p.baslangic) || '—') +
+        '</b>. Yeni bir programa başladığında tahmin yeniden hesaplanır.';
+      actsEl.innerHTML = '<a class="btn btn-ghost" href="programlar-merkezi-v1.html"><i class="fa-solid fa-compass"></i> Sıradaki programa bak</a>';
+      actsEl.hidden = false;
+      rozet.className = 'fp-badge ok';
+      rozet.textContent = 'Tamamlandı';
+      return;
+    }
+
+    tarihEl.textContent = tamTarih(iso) || '—';
+    altEl.innerHTML = '<b>' + FPX.esc(p.ad || 'Programın') + '</b> — bu tempoyla ' +
+      (hf === null ? 'yakında' : (hf <= 0 ? 'bu hafta' : 'yaklaşık <b>' + hf + '</b> hafta sonra')) + ' biter.';
+    hesapEl.innerHTML = 'Tahmini besleyen girdiler: <b>' + (p.toplam || 0) +
+      '</b> antrenmanın <b>' + (p.biten || 0) + '</b> tanesi bitti' +
+      (p.kacan ? ', <b>' + p.kacan + '</b> gün kaçtı (silinmedi, sona eklendi)' : '') +
+      ' → kalan <b>' + kalan + '</b>. Haftada <b>' + haftalik + '</b> antrenman' +
+      (gunAdlari ? ' (' + FPX.esc(gunAdlari) + ')' : '') + '. Başlangıç <b>' +
+      FPX.esc(tamTarih(p.baslangic) || '—') + '</b>.';
+    actsEl.innerHTML = '';
+    actsEl.hidden = true;
+    rozet.className = 'fp-badge ok';
+    rozet.textContent = 'Tahmin';
+  }
+
+  /* ---------- §5.4 · HAREKET BAZLI İLERLEME ------------------------ */
+  function boyaHgel() {
+    var liste = Q('fpxHgel'), bos = Q('fpxHgelBos'), rozet = Q('fpxHgelRozet');
+    if (!liste) return;
+    var veri = FPX.performans();
+
+    if (!veri.length) {
+      liste.innerHTML = '';
+      bos.classList.add('show');
+      rozet.hidden = true;
+      return;
+    }
+    bos.classList.remove('show');
+    rozet.hidden = false;
+    rozet.className = 'fp-badge off';
+    rozet.textContent = veri.length + ' hareket';
+
+    liste.innerHTML = veri.slice(0, 8).map(function (h) {
+      var tek = h.kayitlar.length === 1;
+      var ikon = tek ? 'fa-circle-dot' : (h.degisim > 0 ? 'fa-arrow-up' : (h.degisim < 0 ? 'fa-arrow-down' : 'fa-minus'));
+      var son;
+      if (tek) {
+        son = 'tek kayıt';
+      } else if (h.degisim === null) {
+        son = h.kayitlar.length + ' kayıt';
+      } else if (h.degisim > 0) {
+        son = '+%' + h.degisim + ' hacim';
+      } else if (h.degisim < 0) {
+        son = '-%' + Math.abs(h.degisim) + ' hacim';
+      } else {
+        son = 'değişmedi';
+      }
+      var olcuHtml = tek
+        ? FPX.esc(FPX.olcuKayit(h.son))
+        : FPX.esc(FPX.olcuKayit(h.ilk)) +
+          ' <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> ' +
+          FPX.esc(FPX.olcuKayit(h.son));
+      /* tek kayıtta "en iyi" satırı bilgi taşımaz — aynı kaydı tekrar eder */
+      var eniyi = tek ? '' :
+        '<small><span class="fpx-hgel-eniyi"><i class="fa-solid fa-medal" aria-hidden="true"></i> en iyi ' +
+        FPX.esc(FPX.olcuKayit(h.eniyi)) + '</span></small>';
+      return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + ikon + '" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + FPX.esc(h.ad) + '</b>' +
+        '<small class="fpx-hgel-olcu">' + olcuHtml + '</small>' + eniyi + '</span>' +
+        '<span class="end">' + FPX.esc(son) + '</span></div>';
+    }).join('');
+  }
+
+  /* ---------- süre, seri, hedef, nereden nereye --------------------- */
+  function boyaSure() {
+    var st = durum();
+    var hafta = haftaVerisi(st);
+    var o = FPX.ozet();
+    var perf = FPX.performans();
+    var buHafta = hafta.length ? hafta[hafta.length - 1] : null;
+
+    /* hacim değişimi — ölçülü kaydı olan hareketlerin ortalaması */
+    var degisimler = perf.map(function (h) { return h.degisim; })
+                         .filter(function (d) { return typeof d === 'number'; });
+    var ortDegisim = degisimler.length
+      ? Math.round(degisimler.reduce(function (a, b) { return a + b; }, 0) / degisimler.length)
+      : null;
+
+    var seri = (st && st.challenge && st.challenge.durum === 'devam') ? (st.challenge.seri || 0) : null;
+
+    var stats = Q('fpxSureStats');
+    if (stats) {
+      stats.innerHTML =
+        '<div class="fp-stat is-fit"><b>' + (buHafta === null ? '—' : buHafta + ' dk') + '</b><span>bu hafta hareket</span></div>' +
+        '<div class="fp-stat"><b>' + (o && o.toplam ? '%' + o.oran : '—') + '</b><span>plan tamamlama</span></div>' +
+        '<div class="fp-stat"><b>' + (ortDegisim === null ? '—' : (ortDegisim > 0 ? '+' : '') + '%' + ortDegisim) + '</b><span>set hacmi değişimi</span></div>' +
+        '<div class="fp-stat"><b>' + (seri === null ? '—' : seri + ' gün') + '</b><span>güncel seri</span></div>';
+    }
+
+    /* haftalık grafik — state.hafta[] */
+    var chart = Q('fpxHaftaChart'), hrozet = Q('fpxHaftaRozet');
+    if (chart) {
+      if (!hafta.length) {
+        chart.innerHTML = '<span class="fpx-note">Haftalık süre kaydın yok. Bir antrenmanı tamamladığında bu haftanın sütunu belirir.</span>';
+        chart.setAttribute('aria-label', 'Haftalık hareket süresi kaydı yok');
+        if (hrozet) hrozet.hidden = true;
+      } else {
+        var enb = Math.max.apply(null, hafta.concat([1]));
+        chart.innerHTML = hafta.map(function (v, i) {
+          var son = i === hafta.length - 1;
+          return '<span class="fp-col"><span class="val">' + v + '</span>' +
+                 '<span class="bar" style="height:' + Math.max(4, Math.round(v / enb * 96)) + '%"></span>' +
+                 '<span class="lbl">' + (son ? 'Bu hf' : (i + 1) + '. hf') + '</span></span>';
+        }).join('');
+        chart.setAttribute('aria-label', 'Son ' + hafta.length + ' haftanın hareket süresi, dakika: ' + hafta.join(', ') + '.');
+        if (hrozet) {
+          var fark = hafta.length > 1 ? hafta[hafta.length - 1] - hafta[hafta.length - 2] : 0;
+          hrozet.hidden = false;
+          hrozet.className = 'fp-badge ' + (fark > 0 ? 'ok' : 'off');
+          hrozet.innerHTML = fark > 0
+            ? '<i class="fa-solid fa-arrow-trend-up"></i> Geçen haftadan +' + fark + ' dk'
+            : (fark < 0 ? '<i class="fa-solid fa-arrow-trend-down"></i> Geçen haftadan ' + fark + ' dk'
+                        : '<i class="fa-solid fa-minus"></i> Geçen haftayla aynı');
+        }
+      }
+    }
+
+    /* seri ve challenge */
+    var seriEl = Q('fpxSeri');
+    if (seriEl) {
+      var c = st && st.challenge;
+      if (!c) {
+        seriEl.innerHTML = '<div class="fp-row"><span class="ico"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>Katıldığın challenge yok</b><small>Seri, katıldığın bir challenge\'ın gün gün ilerleyişinden sayılır.</small></span>' +
+          '<span class="end"><a class="fp-act" href="challenge-merkezi-v1.html">Challenge\'lara bak <i class="fa-solid fa-arrow-right"></i></a></span></div>';
+      } else {
+        var oran = c.toplam ? Math.round((c.gun || 0) / c.toplam * 100) : 0;
+        seriEl.innerHTML =
+          '<div class="fp-row"><span class="ico"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>Güncel seri</b><small>Bir gün kaçırmak seriyi sıfırlamaz; ayda iki telafi hakkın var' +
+          (c.telafi ? ' — <b>' + c.telafi + '</b> tanesini kullandın' : '') + '.</small></span>' +
+          '<span class="end">' + (c.seri || 0) + ' gün</span></div>' +
+          '<div class="fp-row"><span class="ico"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>' + FPX.esc(c.ad || 'Challenge') + '</b><small>' +
+          (c.gun || 0) + ' / ' + (c.toplam || 0) + ' gün</small></span>' +
+          '<span class="end">%' + oran + '</span></div>';
+      }
+    }
+
+    /* kişisel hedefler */
+    var hedefEl = Q('fpxHedef');
+    if (hedefEl) {
+      var satir = '';
+      satir += '<div class="fp-row"><span class="ico"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>Haftada 150 dakika hareket</b><small>' +
+        (buHafta === null ? 'Bu hafta kaydın yok' : 'Bu hafta ' + buHafta + ' dk') + '</small></span>' +
+        '<span class="end">' + (buHafta === null ? '—' : '%' + Math.round(buHafta / 150 * 100)) + '</span></div>';
+      satir += '<div class="fp-row"><span class="ico"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>Plandaki hareketleri bitir</b><small>' +
+        (o && o.toplam ? o.yapilan + ' / ' + o.toplam + ' hareket işaretli' : 'Kayıtlı planın yok') + '</small></span>' +
+        '<span class="end">' + (o && o.toplam
+          ? (o.oran >= 100 ? '<span class="fp-badge ok">Tamam</span>' : '%' + o.oran)
+          : '—') + '</span></div>';
+      hedefEl.innerHTML = satir;
+    }
+
+    /* nereden nereye */
+    var nnEl = Q('fpxNeredenNereye');
+    if (nnEl) {
+      if (hafta.length < 2) {
+        nnEl.innerHTML = '<div class="fp-row"><span class="ico"><i class="fa-solid fa-flag" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>Kıyaslamak için iki hafta gerek</b><small>İkinci haftan dolduğunda başlangıcınla bugünü yan yana koyarız. O zamana kadar burada bir sayı uydurmayız.</small></span>' +
+          '<span class="end">—</span></div>';
+      } else {
+        var ilk = hafta[0], sonH = hafta[hafta.length - 1];
+        var yuzde = ilk > 0 ? Math.round((sonH - ilk) / ilk * 100) : null;
+        var bas = (st && st.program && st.program.baslangic) ? tamTarih(st.program.baslangic) : null;
+        nnEl.innerHTML =
+          '<div class="fp-row"><span class="ico"><i class="fa-solid fa-flag" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>' + (bas ? FPX.esc(bas) + ' — başlangıç' : 'İlk kayıtlı haftan') + '</b>' +
+          '<small>Haftada ' + ilk + ' dakika hareket</small></span>' +
+          '<span class="end">' + (hafta.length - 1) + ' hafta önce</span></div>' +
+          '<div class="fp-row"><span class="ico"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>' +
+          '<span class="txt"><b>Bu hafta</b><small>Haftada ' + sonH + ' dakika hareket</small></span>' +
+          '<span class="end">' + (yuzde === null ? '—' : (yuzde > 0 ? '+' : '') + '%' + yuzde + ' süre') + '</span></div>';
+      }
+    }
+  }
+
+  /* ---------- §5.8 · RAPORLAMA -------------------------------------
+     Rapor ekranda ÜRETİLİR. İndirme gerçek bir dosyadır (Blob → CSV).
+     Paylaşım prototipte YOK ve bu saklanmıyor: düğme ne olacağını söyler,
+     sahte bir "gönderildi" mesajı basmaz. */
+  var donem = 'hafta';
+  var DONEM = { hafta: { ad: 'Haftalık rapor', hafta: 1 }, ay: { ad: 'Aylık rapor', hafta: 4 } };
+
+  function raporVerisi() {
+    var st = durum();
+    var hafta = haftaVerisi(st);
+    var n = DONEM[donem].hafta;
+    var dilim = hafta.slice(-n);
+    var toplam = dilim.reduce(function (a, b) { return a + b; }, 0);
+    var kayit = FPX.defter();
+    var kirilim = { olculdu: 0, video: 0, cihaz: 0, beyan: 0 };
+    kayit.forEach(function (k) { kirilim[k.kaynak]++; });
+    var o = FPX.ozet();
+    return {
+      ad: DONEM[donem].ad, haftaSayisi: dilim.length, dilim: dilim,
+      toplamDk: toplam,
+      ortalama: dilim.length ? Math.round(toplam / dilim.length) : 0,
+      enYuksek: dilim.length ? Math.max.apply(null, dilim) : 0,
+      buHafta: hafta.length ? hafta[hafta.length - 1] : 0,
+      gecenHafta: hafta.length > 1 ? hafta[hafta.length - 2] : null,
+      kayit: kayit, kirilim: kirilim,
+      olculduOran: kayit.length ? Math.round(kirilim.olculdu / kayit.length * 100) : null,
+      planOran: o && o.toplam ? o.oran : null,
+      planAd: o ? o.ad : null
+    };
+  }
+
+  function boyaRapor() {
+    var kutu = Q('fpxRapor'), rozet = Q('fpxRaporRozet');
+    if (!kutu) return;
+    var r = raporVerisi();
+
+    if (rozet) {
+      rozet.hidden = false;
+      rozet.className = 'fp-badge off';
+      rozet.textContent = r.kayit.length + ' kayıt';
+    }
+
+    if (!r.haftaSayisi || !r.kayit.length) {
+      kutu.innerHTML = '<p class="fpx-note">Rapor edilecek kayıt yok. Bir antrenmanı tamamladığında dönem raporun burada üretilir — süresi, neye dayandığı ve haftalık dağılımıyla. O zamana kadar burası boş kalır; doldurulmaz.</p>';
+      if (rozet) rozet.hidden = true;
+      return;
+    }
+
+    var kirilimHtml = Object.keys(r.kirilim).map(function (k) {
+      return '<span>' + FPX.kanitRozet(k, true) + '<b style="font-variant-numeric:tabular-nums">' + r.kirilim[k] + ' kayıt</b></span>';
+    }).join('');
+
+    /* Haftalık ve aylık rapor AYNI hücreleri basmaz: bir haftalık dilimde
+       "toplam · ortalama · en yüksek" üçü de aynı sayıdır ve rapor kendini
+       tekrar eder. Haftalık dilimde kıyas geçen haftayladır. */
+    var hucre;
+    if (donem === 'hafta') {
+      var fark = r.gecenHafta === null ? null : r.buHafta - r.gecenHafta;
+      hucre =
+        '<div class="fpx-rapor-hucre is-fit"><b>' + r.buHafta + '<small>dk</small></b><span>bu hafta hareket</span></div>' +
+        '<div class="fpx-rapor-hucre"><b>' + (r.gecenHafta === null ? '—' : r.gecenHafta + '<small>dk</small>') + '</b><span>geçen hafta</span></div>' +
+        '<div class="fpx-rapor-hucre"><b>' + (fark === null ? '—' : (fark > 0 ? '+' : '') + fark + '<small>dk</small>') + '</b><span>geçen haftaya göre</span></div>';
+    } else {
+      hucre =
+        '<div class="fpx-rapor-hucre is-fit"><b>' + r.toplamDk + '<small>dk</small></b><span>' + r.haftaSayisi + ' haftada toplam hareket</span></div>' +
+        '<div class="fpx-rapor-hucre"><b>' + r.ortalama + '<small>dk</small></b><span>haftalık ortalama</span></div>' +
+        '<div class="fpx-rapor-hucre"><b>' + r.enYuksek + '<small>dk</small></b><span>en yüksek hafta</span></div>';
+    }
+
+    kutu.innerHTML =
+      '<div class="fpx-rapor-bas"><b>' + FPX.esc(r.ad) + '</b>' +
+      '<span>' + r.haftaSayisi + ' haftalık dilim · ' + r.kayit.length + ' kayıt</span></div>' +
+      '<div class="fpx-rapor-izgara">' + hucre +
+        '<div class="fpx-rapor-hucre"><b>' + r.kayit.length + '</b><span>defterindeki antrenman kaydı</span></div>' +
+        '<div class="fpx-rapor-hucre' + (r.olculduOran !== null && r.olculduOran >= 50 ? ' is-fit' : '') + '"><b>' +
+          (r.olculduOran === null ? '—' : '%' + r.olculduOran) + '</b><span>kronometreyle ölçülmüş kayıt oranı</span></div>' +
+        '<div class="fpx-rapor-hucre"><b>' + (r.planOran === null ? '—' : '%' + r.planOran) + '</b><span>' +
+          (r.planAd ? FPX.esc(r.planAd) + ' tamamlama' : 'plan tamamlama') + '</span></div>' +
+      '</div>' +
+      '<div class="fpx-kanit-legend">' + kirilimHtml + '</div>' +
+      '<p class="fpx-note">Süre rakamları haftalık defterden gelir ve döneme göre daralır. Kayıt sayısı ve kanıt kırılımı <b>defterinin tamamını</b> kapsar: kayıtlar bugün serbest metin tarih taşıyor, döneme bölmek için gereken kesin tarih yok — bölünmüş gibi göstermek uydurma olurdu.</p>';
+  }
+
+  var secKutu = Q('fpxRaporSec');
+  if (secKutu) {
+    Array.prototype.slice.call(secKutu.querySelectorAll('button')).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-donem');
+        if (!DONEM[v] || v === donem) return;
+        donem = v;
+        Array.prototype.slice.call(secKutu.querySelectorAll('button')).forEach(function (x) {
+          x.setAttribute('aria-pressed', x.getAttribute('data-donem') === donem ? 'true' : 'false');
+        });
+        boyaRapor();
+        soyle('Rapor dönemi değişti: ' + DONEM[donem].ad + '.', true);
+      });
+    });
+  }
+
+  function soyle(msg, notr) {
+    var el = Q('fpxRaporDurum');
+    if (!el) return;
+    el.innerHTML = msg;
+    el.className = 'fpx-durum' + (notr ? ' is-notr' : '');
+    el.hidden = false;
+  }
+
+  /* CSV — gerçek dosya, gerçek indirme. PDF üretilmiyor ve bu yazıyor. */
+  function csv() {
+    var r = raporVerisi();
+    var kacis = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    var sat = [];
+    sat.push(['DadaFit — ' + r.ad].map(kacis).join(';'));
+    sat.push(['Üretim', new Date().toLocaleString('tr-TR')].map(kacis).join(';'));
+    sat.push(['Dönemdeki toplam hareket (dk)', r.toplamDk].map(kacis).join(';'));
+    sat.push(['Haftalık ortalama (dk)', r.ortalama].map(kacis).join(';'));
+    sat.push(['En yüksek hafta (dk)', r.enYuksek].map(kacis).join(';'));
+    sat.push(['Haftalık dilim (dk)', r.dilim.join(' · ')].map(kacis).join(';'));
+    sat.push('');
+    sat.push(['Tarih', 'Antrenman', 'Süre (dk)', 'Enerji (kcal)', 'Kayıt neye dayanıyor'].map(kacis).join(';'));
+    r.kayit.forEach(function (k) {
+      sat.push([k.tarih, k.ad, k.dk, k.kcal, FPX.KANIT[k.kaynak].uzun].map(kacis).join(';'));
+    });
+    return { metin: '﻿' + sat.join('\r\n'), satir: r.kayit.length, r: r };
+  }
+
+  var indir = Q('fpxRaporIndir');
+  if (indir) {
+    indir.addEventListener('click', function () {
+      var c = csv();
+      var ad = 'dadafit-' + (donem === 'ay' ? 'aylik' : 'haftalik') + '-rapor-' +
+               new Date().toISOString().slice(0, 10) + '.csv';
+      try {
+        var blob = new Blob([c.metin], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = ad;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        soyle('<b>' + FPX.esc(ad) + '</b> indirildi — ' + c.satir +
+              ' kayıt satırı ve dönem toplamları içinde. Dosya CSV\'dir, PDF değil: bu prototipte PDF üretilmiyor.');
+      } catch (e) {
+        soyle('Dosya üretilemedi: tarayıcın indirmeyi engelledi. Rapor ekranda duruyor, kopyalayabilirsin.', true);
+      }
+    });
+  }
+
+  var paylas = Q('fpxRaporPaylas');
+  if (paylas) {
+    paylas.addEventListener('click', function () {
+      var r = raporVerisi();
+      soyle('Prototipte gerçek bir gönderim yapılmaz. Gerçek sürümde antrenörüne şunlar giderdi: <b>' +
+            r.ad.toLowerCase() + '</b> · ' + r.toplamDk + ' dk hareket · ' + r.kayit.length +
+            ' antrenman kaydı · her kaydın neye dayandığı. Bugünden başlamak için ' +
+            '<a href="antrenorler-v1.html">bir antrenör seç</a>.', true);
+    });
+  }
+
+  FPX.dinle(function () { boyaBitis(); boyaHgel(); boyaSure(); boyaRapor(); });
 })();
 </script>
 </body>

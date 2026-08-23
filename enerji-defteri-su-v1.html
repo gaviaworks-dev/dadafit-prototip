@@ -311,6 +311,8 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 .wk-bar{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#7cc6ef,#4aa8e0);min-height:6px}
 .wk-day.low .wk-bar{background:#cfe6f4}
 .wk-day>span{font-size:10.5px;color:var(--muted);font-weight:600}
+.wk-day.is-today .wk-bar{background:linear-gradient(180deg,#4aa8e0,#2a86bd)}
+.wr-not{font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:12px}
 
 /* --- MODÜL 6 · DADA GASTRO GÜNLÜK ÖNERİ (tomato aksan, köprü) --- */
 .sec-food .eyebrow{color:var(--food)}
@@ -452,22 +454,27 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
       </div>
     </div>
     <div class="water-card reveal">
+      <!-- Sayaç ARTIK KALICI (belge §6 · açık kalem D16).
+           Aşağıdaki 0 / 8 hâli JS'siz DÜRÜST BAŞLANGIÇTIR — uydurma bir
+           "5 bardak içtin" yazmıyor. JS açıkken sayı dm_fit.bugun.su'dan
+           gelir ve Fit Planım'daki su kartıyla AYNI depodur. -->
       <div class="water-l">
-        <div class="wl-count"><b>5</b><span>/ 8 bardak</span></div>
-        <div class="water-glasses" aria-label="İçilen bardak sayısı: 5 / 8">
-          <span class="glass full"><i class="fa-solid fa-droplet"></i></span>
-          <span class="glass full"><i class="fa-solid fa-droplet"></i></span>
-          <span class="glass full"><i class="fa-solid fa-droplet"></i></span>
-          <span class="glass full"><i class="fa-solid fa-droplet"></i></span>
-          <span class="glass full"><i class="fa-solid fa-droplet"></i></span>
+        <div class="wl-count"><b id="suSayi">0</b><span>/ <span id="suHedef">8</span> bardak</span></div>
+        <div class="water-glasses" id="suBardaklar" role="img" aria-label="İçilen bardak sayısı: 0 / 8">
+          <span class="glass"><i class="fa-solid fa-plus"></i></span>
+          <span class="glass"><i class="fa-solid fa-plus"></i></span>
+          <span class="glass"><i class="fa-solid fa-plus"></i></span>
+          <span class="glass"><i class="fa-solid fa-plus"></i></span>
+          <span class="glass"><i class="fa-solid fa-plus"></i></span>
           <span class="glass"><i class="fa-solid fa-plus"></i></span>
           <span class="glass"><i class="fa-solid fa-plus"></i></span>
           <span class="glass"><i class="fa-solid fa-plus"></i></span>
         </div>
-        <p class="water-msg">Bugün 5 bardak tamamlandı. Hedefe 3 bardak kaldı. Antrenmandan sonra su hedefini artırmayı unutma.</p>
+        <p class="water-msg" id="suMesaj">Günün başında bir bardakla başla. Her bardağı işaretledikçe sayaç dolar; kayıt bu cihazda kalır.</p>
         <div class="mod-cta">
-          <a class="btn btn-fit" href="#" data-lg-gate data-lg-title="Su takibi için giriş yap" data-lg-desc="Günlük su hedefini takip etmek ve hatırlatıcı kurmak için DadaFit hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Bardak Ekle</a>
-          <a class="btn btn-ghost" href="#" data-lg-gate data-lg-title="Hatırlatıcı için giriş yap" data-lg-desc="Su hatırlatıcısı kurmak için DadaFit hesabına giriş yapman gerekiyor."><i class="fa-regular fa-bell"></i> Hatırlatıcı Kur</a>
+          <button class="btn btn-fit" type="button" id="suEkle" data-lg-gate data-lg-title="Su takibi için giriş yap" data-lg-desc="Günlük su hedefini takip etmek ve hatırlatıcı kurmak için DadaFit hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Bardak Ekle</button>
+          <button class="btn btn-ghost" type="button" id="suSifirla" hidden><i class="fa-solid fa-rotate-left"></i> Sayacı Sıfırla</button>
+          <a class="btn btn-ghost" href="hesabim-v1.html#bildirim"><i class="fa-regular fa-bell"></i> Hatırlatıcı Kur</a>
         </div>
       </div>
       <div class="water-r">
@@ -479,8 +486,12 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
           <div class="wk-day"><div class="wk-bar" style="height:88%"></div><span>Per</span></div>
           <div class="wk-day"><div class="wk-bar" style="height:100%"></div><span>Cum</span></div>
           <div class="wk-day low"><div class="wk-bar" style="height:38%"></div><span>Cmt</span></div>
-          <div class="wk-day"><div class="wk-bar" style="height:63%"></div><span>Bugün</span></div>
+          <div class="wk-day" id="suBugunGun"><div class="wk-bar" id="suBugunBar" style="height:6%"></div><span>Bugün</span></div>
         </div>
+        <!-- DÜRÜSTLÜK NOTU: şemada GÜNLÜK su geçmişi yok (dm_fit yalnız
+             bugun.su tutar). Bugünün çubuğu gerçek kayıttan; önceki altı
+             gün örnek veridir ve bunu saklamak yerine söylüyoruz. -->
+        <p class="wr-not">Bugünün çubuğu senin kaydından gelir. Önceki günler örnek veridir — günlük su geçmişi henüz saklanmıyor.</p>
       </div>
     </div>
   </div>
@@ -493,6 +504,74 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<script>
+/* =====================================================================
+   §6 · SU TAKİBİ — KALICI  (açık kalem D16 kapanıyor)
+   ---------------------------------------------------------------------
+   Sayaç bugüne kadar SAYFA İÇİNDEYDİ: her yenilemede sıfırlanıyordu ve
+   Fit Planım'daki su kartıyla iki ayrı sayı gösteriyordu. Şema v2 ile
+   `dm_fit.bugun.su` açıldı; iki sayfa da AYNI depoyu okuyup yazıyor.
+   Bu sayfa kendi depolama kodunu yazmıyor — yalnız kabuğun yüzeyi:
+     FIT_SHELL.state.read().bugun.su · suEkle(n) · suSifirla()
+
+   "Bardak Ekle" artık gerçekten bardak ekliyor. Önceden `<a href="#">` idi
+   ve `data-lg-gate` YALNIZ ÇIKIŞTA kapı açtığı için girişli kullanıcıda
+   HİÇBİR ŞEY yapmıyordu (ölü düğme).
+   ===================================================================== */
+(function(){
+  var S = window.FIT_SHELL && window.FIT_SHELL.state; if(!S) return;
+  var sayi = document.getElementById('suSayi'),
+      kaplar = document.getElementById('suBardaklar'),
+      mesaj = document.getElementById('suMesaj'),
+      ekle  = document.getElementById('suEkle'),
+      sifir = document.getElementById('suSifirla'),
+      bar   = document.getElementById('suBugunBar'),
+      barGun= document.getElementById('suBugunGun');
+  if(!sayi || !kaplar || !ekle) return;
+
+  var HEDEF = 8;                       /* tek yerde; Fit Planım'la aynı */
+  var hedefEl = document.getElementById('suHedef');
+  if(hedefEl) hedefEl.textContent = HEDEF;
+
+  function boya(){
+    var su = Math.max(0, (S.read().bugun || {}).su || 0);
+    var dolu = Math.min(su, HEDEF);
+    sayi.textContent = su;
+
+    var h = '', i;
+    for(i = 1; i <= HEDEF; i++){
+      h += i <= dolu
+        ? '<span class="glass full"><i class="fa-solid fa-droplet"></i></span>'
+        : '<span class="glass"><i class="fa-solid fa-plus"></i></span>';
+    }
+    kaplar.innerHTML = h;
+    kaplar.setAttribute('aria-label', 'İçilen bardak sayısı: ' + su + ' / ' + HEDEF);
+
+    var kalan = HEDEF - su;
+    mesaj.textContent = su === 0
+      ? 'Günün başında bir bardakla başla. Her bardağı işaretledikçe sayaç dolar; kayıt bu cihazda kalır.'
+      : (kalan > 0
+          ? 'Bugün ' + su + ' bardak tamamlandı. Hedefe ' + kalan + ' bardak kaldı.'
+          : 'Günlük hedefin tamam — ' + su + ' bardak. Antrenman yaptığın günlerde biraz daha içmek iyi gelir.');
+
+    ekle.disabled = false;             /* hedefin üstüne de içilebilir */
+    if(sifir) sifir.hidden = su === 0;
+
+    if(bar){
+      bar.style.height = Math.max(6, Math.round(Math.min(su, HEDEF) / HEDEF * 100)) + '%';
+      if(barGun){
+        barGun.classList.add('is-today');
+        barGun.classList.toggle('low', su > 0 && su < HEDEF / 2);
+      }
+    }
+  }
+
+  ekle.addEventListener('click', function(){ S.suEkle(1); boya(); });
+  if(sifir) sifir.addEventListener('click', function(){ S.suSifirla(); boya(); ekle.focus(); });
+  document.addEventListener('fit:state', boya);
+  boya();
+})();
+</script>
 <script>
 /* ===== §9.3 — kalori rakamlarını gizleme tercihi (yalnız denge göstergesi) ===== */
 (function(){

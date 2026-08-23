@@ -74,7 +74,7 @@
         <div>
           <span class="eyebrow"><i class="fa-solid fa-sun"></i> Bugünün işi</span>
           <h2>Sıradaki antrenmanın</h2>
-          <p class="lead">Planındaki ilk tamamlanmamış gün burada açılır. Bir hareketi bitirince işaretle — işaret plana yazılır, sayfayı yenilediğinde yerinde durur.</p>
+          <p class="lead">Planındaki ilk tamamlanmamış gün burada açılır: ısınma, hareketler, set ve tekrar, aralarındaki dinlenme ve gereken ekipman. Bir hareketi bitirince işaretle — işaret plana yazılır, sayfayı yenilediğinde yerinde durur. Bir hareket sana uymuyorsa geçebilir ya da alternatifine bakabilirsin.</p>
           <div class="sec-tools">
             <a class="see-all" href="fit-planim-programim-v1.html">Planın tamamı <i class="fa-solid fa-arrow-right"></i></a>
           </div>
@@ -84,9 +84,39 @@
       <div class="fp-card" id="fpxGunKart">
         <div class="fp-head">
           <h3><i class="fa-solid fa-play"></i> <span id="fpxGunAd">Bugünün hareketleri</span></h3>
+          <!-- Kronometre: "Antrenmanı bitir"in yazacağı SÜRE buradan ölçülür.
+               Kanıt kademesi bu yüzden 'olculdu' olabiliyor; sayaç hiç
+               çalışmadıysa düğme de açılmaz. Desen egzersiz-detay-v1.html
+               `clockSec` (:1331) ile aynı. -->
+          <button class="fpx-kron" type="button" id="fpxKron" hidden
+                  aria-label="Antrenman süresi — başlat">
+            <i class="fa-solid fa-play" aria-hidden="true" id="fpxKronIco"></i>
+            <span class="sn" id="fpxKronSn">00:00</span>
+          </button>
           <span class="fp-badge off" id="fpxGunRozet" hidden></span>
         </div>
+
+        <!-- §3.3 ısınma — plandan gelir (gunler[].isinma). Yoksa basılmaz. -->
+        <div class="fpx-isinma" id="fpxIsinma" hidden>
+          <i class="fa-solid fa-fire" aria-hidden="true"></i>
+          <div><b>Isınma</b><p id="fpxIsinmaMetin"></p></div>
+        </div>
+
         <div class="fp-list" id="fpxHareketler"></div>
+
+        <!-- §3.3 "Antrenmanı bitir" — ölçülen süreyi Enerji Defteri'ne yazar -->
+        <div class="fpx-bitir" id="fpxBitirBant" hidden>
+          <div>
+            <b>Antrenmanı bitir</b>
+            <p id="fpxBitirNot">Süre sayaçtan ölçülür; sayacı çalıştırmadan kayıt açılmaz.</p>
+          </div>
+          <button class="btn btn-fit" type="button" id="fpxBitir" disabled
+                  data-lg-gate data-lg-title="Antrenmanı kaydetmek için giriş yap"
+                  data-lg-desc="Tamamladığın antrenmanın Enerji Defteri'ne ve geçmişine işlenmesi için hesabına giriş yapman gerekiyor.">
+            <i class="fa-solid fa-flag-checkered"></i> Antrenmanı bitir
+          </button>
+        </div>
+
         <p class="fpx-note fpx-gun-not" id="fpxGunNot" hidden></p>
         <div class="lib-empty show" id="fpxGunBos">
           <span class="ico"><i class="fa-solid fa-dumbbell"></i></span>
@@ -135,11 +165,14 @@
         <div class="fp-card">
           <div class="fp-head">
             <h3><i class="fa-solid fa-glass-water"></i> Su takibi</h3>
-            <span class="fp-badge ok"><i class="fa-solid fa-check"></i> 6 / 8 bardak</span>
+            <!-- JS'siz DÜRÜST BAŞLANGIÇ: uydurma "6 bardak içtin" yok.
+                 JS açıkken sayı dm_fit.bugun.su'dan gelir (Su Takibi
+                 sayfasıyla aynı depo). -->
+            <span class="fp-badge off"><i class="fa-solid fa-droplet"></i> 0 / 8 bardak</span>
           </div>
           <div class="fp-days" style="grid-template-columns:repeat(8,minmax(0,1fr))">
-            <span class="fp-day on">1</span><span class="fp-day on">2</span><span class="fp-day on">3</span>
-            <span class="fp-day on">4</span><span class="fp-day on">5</span><span class="fp-day on">6</span>
+            <span class="fp-day">1</span><span class="fp-day">2</span><span class="fp-day">3</span>
+            <span class="fp-day">4</span><span class="fp-day">5</span><span class="fp-day">6</span>
             <span class="fp-day">7</span><span class="fp-day">8</span>
           </div>
 <!-- R9 · Bu düğme ÖLÜYDÜ: `data-lg-gate` yalnız ÇIKIŞTA kapıyı açıyor,
@@ -208,7 +241,10 @@
       <div class="fp-card fpx-band fpx-mt">
         <div>
           <b>Bugünü tamamla</b>
-          <p class="fpx-note">Günü kapatınca hareket süren Enerji Defteri&#39;ne ve ilerleme verine işlenir.</p>
+          <!-- Metin DÜZELTİLDİ: bu form hareket süresi YAZMAZ. Süre yalnız
+               yukarıdaki "Antrenmanı bitir" düğmesinden, ölçülen sayaçtan
+               düşer. Gün sonu kendi gözlemini kaydeder. -->
+          <p class="fpx-note">Zorluk, efor, enerji ve notun kaydedilir; İlerlemem sayfasındaki eğilimlere işlenir. Antrenman süresi yukarıdaki <b>Antrenmanı bitir</b> düğmesinden, sayaçtan ölçülerek yazılır.</p>
         </div>
         <div class="fpx-btns">
           <!-- data-lg-gate KALIYOR: çıkışta kabuk kapıyı capture'da keser ve
@@ -299,7 +335,7 @@
           </div>
         </div>
 
-        <p class="fpx-note">Bu prototipte gün sonu kaydı yalnız bu oturumda tutulur.</p>
+        <p class="fpx-note">Kaydettiklerin bu cihazda kalır; istediğin zaman geri gelip değiştirebilirsin.</p>
       </form>
     </div>
 
@@ -470,6 +506,8 @@ var FPX = (function () {
   var bos   = document.getElementById('fpxGunBos');
   var gunAd = document.getElementById('fpxGunAd');
   var rozet = document.getElementById('fpxGunRozet');
+  var isinmaKutu = document.getElementById('fpxIsinma');
+  var isinmaMet  = document.getElementById('fpxIsinmaMetin');
   var plan  = null, aktifGunNo = null;
   /* GEÇİŞ 2 · SESSİZ DEĞİŞİM. Günün son hareketini işaretleyince ozet().aktifGun
      bir sonraki güne kayıyordu ve kart, kullanıcı bakarken BAŞKA bir günün
@@ -478,6 +516,48 @@ var FPX = (function () {
      bilgisini üst özet kartındaki "sıradaki" istatistiği taşır. Gün bitince
      kartın kendisi "tamamlandı" durumuna geçer. Plan değişirse kilit açılır. */
   var gosterilenGun = null, kilitPlanId = null;
+  /* düzenlenmekte olan hareketin index'i — doluyken liste innerHTML ile
+     tazelenmez (aşağıda "LİSTE KİLİDİ") */
+  var listeKilit = null;
+
+  /* Tek satırı YERİNDE günceller: kayıtlı performans özeti, işaret
+     düğmesinin metni/aria-pressed'i, "geç" düğmesi ve satır durumu.
+     innerHTML'e dokunmadığı için açık `<input>` ve odak korunur. */
+  function satirTazele(g, i) {
+    var satir = liste.querySelector('.fpx-ex[data-i="' + i + '"]');
+    var it = window.FIT_PLAN ? FIT_PLAN.isaret(plan.id, g.no, i) : null;
+    if (!satir || !it) return;
+
+    var p = [];
+    if (typeof it.agirlik === 'number')       p.push(it.agirlik + ' kg');
+    if (typeof it.tekrarYapilan === 'number') p.push(it.tekrarYapilan + ' tekrar yaptın');
+    if (typeof it.efor === 'number')          p.push('efor ' + it.efor + '/10');
+
+    var ozet = satir.querySelector('.fpx-ex-kayitli');
+    if (!ozet && p.length) {
+      ozet = document.createElement('small');
+      ozet.className = 'fpx-ex-kayitli';
+      var olcuEl = satir.querySelector('.fpx-ex-olcu');
+      if (olcuEl) olcuEl.insertAdjacentElement('afterend', ozet);
+    }
+    if (ozet) ozet.textContent = p.join(' · ');
+
+    var tam = it.yapildi && it.seviye !== 'atlandi';
+    var mark = satir.querySelector('.fpx-mark:not(.fpx-perf-ac)');
+    if (mark) {
+      mark.setAttribute('aria-pressed', tam ? 'true' : 'false');
+      mark.innerHTML = '<i class="fa-' + (tam ? 'solid' : 'regular') + ' fa-circle-check" aria-hidden="true"></i> ' +
+        FPX.esc(tam ? (FPX.SEVIYE_ETIKET[it.seviye] || 'Yapıldı') : 'Yaptım');
+    }
+    var gecEl = satir.querySelector('.fpx-gec');
+    if (gecEl) gecEl.setAttribute('aria-pressed', it.seviye === 'atlandi' ? 'true' : 'false');
+    var acEl = satir.querySelector('.fpx-perf-ac');
+    if (acEl) acEl.innerHTML = '<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> ' +
+      (p.length ? 'Kaydı düzenle' : 'Ağırlık ve efor gir');
+
+    satir.classList.toggle('is-done', !!tam);
+    satir.classList.toggle('is-skip', it.seviye === 'atlandi');
+  }
 
   /* belge §3.2 — dört aksiyon. Statik HTML'deki karşılığıyla BİREBİR aynı;
      ikisi ayrı durduğu için (JS öncesi / JS sonrası) ikisi de güncellendi. */
@@ -515,8 +595,16 @@ var FPX = (function () {
     if (gosterilenGun === null) gosterilenGun = o.aktifGun;
     aktifGunNo = gosterilenGun;
     var g = FPX.gun(plan, aktifGunNo);
-    var sure = plan.secimler && plan.secimler.sure ? ' · yaklaşık ' + plan.secimler.sure + ' dakika' : '';
     var son  = FPX.gecen(o.sonTarih);
+    /* ÖLÜ DAL KALDIRILDI: burada `plan.secimler.sure` okunup
+       "· yaklaşık N dakika" basılıyordu. Ölçüldü: hiçbir üretici bu alanı
+       YAZMIYOR — oluşturucuda seans süresi sorusu yok, `secimler` alanları
+       cinsiyet · hedef · seviye · ekipman · odak · gunSayisi · durum ·
+       bolunme · havuz · kod. Dal hiç çalışmıyordu.
+       Uydurma bir süre de yazılmadı: dürüst bir tahmin için tekrar başına
+       saniye gerekir, o sayı depoda YOK. Sürenin tek dürüst kaynağı
+       aşağıdaki kronometre — "Antrenmanı bitir" onu yazıyor.
+       (Okunmayan alanı okuyor gibi yapan kod da bir tür sahte durumdur.) */
 
     FPX.ozetKarti({
       kicker: 'Aktif planın',
@@ -524,7 +612,7 @@ var FPX = (function () {
       alt: g
         ? 'Sıradaki: <b>' + FPX.esc(g.ad || ('Gün ' + g.no)) +
           (g.odak ? ' · ' + FPX.esc(g.odak) : '') + '</b> — ' +
-          (g.hareketler || []).length + ' hareket' + sure + '.'
+          (g.hareketler || []).length + ' hareket.'
         : '',
       oran: o.oran,
       meta: [
@@ -546,27 +634,120 @@ var FPX = (function () {
       bos.classList.add('show');
       gunAd.textContent = 'Bugünün hareketleri';
       rozet.hidden = true;
+      isinmaKutu.hidden = true;
+      kronKutu.hidden = true;
+      bitirBant.hidden = true;
       return;
     }
     bos.classList.remove('show');
     gunAd.textContent = (g.ad || ('Gün ' + g.no)) + (g.odak ? ' · ' + g.odak : '');
 
+    /* §3.3 ısınma — yalnız plan taşıyorsa. v1 planda alan yok, basılmaz. */
+    if (g.isinma) {
+      isinmaMet.innerHTML = FPX.esc(g.isinma) +
+        ' <a href="hareket-isinma-soguma-v1.html">Isınma ve soğuma rehberi</a>.';
+      isinmaKutu.hidden = false;
+    } else { isinmaKutu.hidden = true; }
+
+    kronKutu.hidden   = false;
+    bitirBant.hidden  = false;
+
     var toplam = g.hareketler.length, yapilan = 0;
-    liste.innerHTML = g.hareketler.map(function (h, i) {
+    var satirlar = g.hareketler.map(function (h, i) {
       var it = window.FIT_PLAN ? FIT_PLAN.isaret(plan.id, g.no, i) : null;
       var on = !!(it && it.yapildi);
-      if (on && it.seviye !== 'atlandi') yapilan++;
-      var etiket = on ? (FPX.SEVIYE_ETIKET[it.seviye] || 'Yapıldı') : 'Yaptım';
-      var olcu = FPX.olcu(h);
-      return '<div class="fp-row' + (on ? ' fpx-row-done' : '') + '">' +
-             '<span class="ico"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>' +
-             '<span class="txt"><b>' + FPX.esc(h.ad || h.slug || 'Hareket') + '</b>' +
-             '<small>' + FPX.esc(olcu || 'ölçü girilmedi') + '</small></span>' +
-             '<span class="end"><button class="fpx-mark" type="button" data-i="' + i + '" ' +
-             'aria-pressed="' + (on ? 'true' : 'false') + '">' +
-             '<i class="fa-' + (on ? 'solid' : 'regular') + ' fa-circle-check" aria-hidden="true"></i> ' +
-             FPX.esc(etiket) + '</button></span></div>';
+      var atlandi = on && it.seviye === 'atlandi';
+      if (on && !atlandi) yapilan++;
+      var etiket = on && !atlandi ? (FPX.SEVIYE_ETIKET[it.seviye] || 'Yapıldı') : 'Yaptım';
+      var sinif = 'fpx-ex' + (on && !atlandi ? ' is-done' : '') + (atlandi ? ' is-skip' : '');
+
+      /* ölçü satırı: set/tekrar/süre + §3.3 setler arası dinlenme */
+      var olcuP = [];
+      if (h.set)      olcuP.push(h.set + ' set');
+      if (h.tekrar)   olcuP.push(h.tekrar + ' tekrar');
+      if (h.sure)     olcuP.push(h.sure);
+      if (h.dinlenme) olcuP.push(h.dinlenme + ' sn dinlenme');
+
+      /* girilen performans varsa ölçünün altında GÖRÜNÜR — girdiğinin
+         nereye gittiğini görmeyen kullanıcı ikinci kez girmez */
+      var kayitP = [];
+      if (it && typeof it.agirlik === 'number')       kayitP.push(it.agirlik + ' kg');
+      if (it && typeof it.tekrarYapilan === 'number') kayitP.push(it.tekrarYapilan + ' tekrar yaptın');
+      if (it && typeof it.efor === 'number')          kayitP.push('efor ' + it.efor + '/10');
+
+      /* meta: gereken ekipman · form sayfası · alternatif hareket */
+      var meta = '';
+      (h.ekipman || []).forEach(function (e) {
+        meta += '<span class="fpx-ekip"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> ' +
+                FPX.esc(e) + '</span>';
+      });
+      if (h.video) {
+        meta += '<a class="fpx-ex-bag" href="egzersiz-detay-v1.html?slug=' + FPX.esc(h.video) + '">' +
+                '<i class="fa-solid fa-circle-play" aria-hidden="true"></i> Formu gör</a>';
+      }
+      if (h.alternatif) {
+        meta += '<a class="fpx-ex-bag" href="egzersiz-detay-v1.html?slug=' + FPX.esc(h.alternatif) + '">' +
+                '<i class="fa-solid fa-shuffle" aria-hidden="true"></i> Bu bana uymuyor' +
+                (h.alternatifAd ? ' — ' + FPX.esc(h.alternatifAd) : '') + '</a>';
+      }
+
+      return '<div class="' + sinif + '" data-i="' + i + '">' +
+        '<span class="fpx-ex-no">' + (i + 1) + '</span>' +
+        '<span class="fpx-ex-bas"><span><b>' + FPX.esc(h.ad || h.slug || 'Hareket') + '</b>' +
+          '<small class="fpx-ex-olcu">' + FPX.esc(olcuP.join(' · ') || 'ölçü girilmedi') + '</small>' +
+          (kayitP.length ? '<small class="fpx-ex-kayitli">' + FPX.esc(kayitP.join(' · ')) + '</small>' : '') +
+        '</span></span>' +
+        (meta ? '<span class="fpx-ex-meta">' + meta + '</span>' : '') +
+        (h.uyari ? '<p class="fpx-ex-uyari"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
+                   FPX.esc(h.uyari) + '</p>' : '') +
+        '<span class="fpx-ex-acts">' +
+          '<button class="fpx-mark" type="button" data-i="' + i + '" aria-pressed="' +
+            (on && !atlandi ? 'true' : 'false') + '">' +
+            '<i class="fa-' + (on && !atlandi ? 'solid' : 'regular') + ' fa-circle-check" aria-hidden="true"></i> ' +
+            FPX.esc(etiket) + '</button>' +
+          '<button class="fpx-gec" type="button" data-gec="' + i + '" aria-pressed="' +
+            (atlandi ? 'true' : 'false') + '">' +
+            '<i class="fa-solid fa-forward" aria-hidden="true"></i> ' +
+            (atlandi ? 'Atlandı' : 'Hareketi geç') + '</button>' +
+          '<button class="fpx-mark fpx-perf-ac" type="button" data-perf="' + i + '" ' +
+            'aria-expanded="false" aria-controls="fpxPerf' + i + '">' +
+            '<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> ' +
+            (kayitP.length ? 'Kaydı düzenle' : 'Ağırlık ve efor gir') + '</button>' +
+        '</span>' +
+        '<span class="fpx-perf" id="fpxPerf' + i + '" hidden>' +
+          '<span class="fpx-perf-alan"><label for="fpxKg' + i + '">Ağırlık (kg)</label>' +
+            '<input type="number" id="fpxKg' + i + '" data-alan="agirlik" data-i="' + i + '" ' +
+            'min="0" max="500" step="0.5" inputmode="decimal" value="' +
+            (it && typeof it.agirlik === 'number' ? it.agirlik : '') + '" /></span>' +
+          '<span class="fpx-perf-alan"><label for="fpxTk' + i + '">Yaptığın tekrar</label>' +
+            '<input type="number" id="fpxTk' + i + '" data-alan="tekrarYapilan" data-i="' + i + '" ' +
+            'min="0" max="200" step="1" inputmode="numeric" value="' +
+            (it && typeof it.tekrarYapilan === 'number' ? it.tekrarYapilan : '') + '" /></span>' +
+          '<span class="fpx-perf-alan"><label for="fpxEf' + i + '">Efor (1–10)</label>' +
+            '<select id="fpxEf' + i + '" data-alan="efor" data-i="' + i + '">' +
+            '<option value="">—</option>' +
+            [1,2,3,4,5,6,7,8,9,10].map(function (n) {
+              return '<option value="' + n + '"' +
+                     (it && it.efor === n ? ' selected' : '') + '>' + n + '</option>';
+            }).join('') +
+            '</select></span>' +
+          '<p class="fpx-perf-not">Hepsi isteğe bağlı — boş bırakabilirsin. ' +
+            'Bir değer girdiğin an hareket <b>yapıldı</b> sayılır ve İlerlemem sayfasına işlenir.</p>' +
+        '</span>' +
+      '</div>';
     }).join('');
+
+    /* LİSTE KİLİDİ — performans alanı düzenlenirken liste YENİDEN KURULMAZ.
+       Neden: `isaretle()` hem doğrudan hem 'fit-plan-degisti' üzerinden
+       boya()'yı çağırıyor; innerHTML'i tazelemek düzenlenen `<input>`u
+       DOM'dan siliyor ve odak gövdeye düşüyordu. Ölçüldü: kg alanına 20
+       yazıp Tab'a basınca odak geri kg alanına dönüyor, sonraki "12"
+       oraya yazılıp ağırlık 1220 oluyordu. Düzenleme sırasında yalnız
+       o satırın değişen parçaları yerinde güncelleniyor. */
+    if (listeKilit === null) liste.innerHTML = satirlar;
+    else satirTazele(g, listeKilit);
+
+    bitirGuncelle();
 
     rozet.hidden = false;
     var bitti = yapilan >= toplam;
@@ -589,14 +770,142 @@ var FPX = (function () {
     }
   }
 
-  /* işaretleme — sözleşme: FIT_PLAN.isaretle (yapildi:false = işareti geri al) */
-  liste.addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('.fpx-mark') : null;
-    if (!b || !plan || !window.FIT_PLAN) return;
-    var i = parseInt(b.getAttribute('data-i'), 10);
-    var on = b.getAttribute('aria-pressed') === 'true';
-    FIT_PLAN.isaretle(plan.id, aktifGunNo, i, on ? { yapildi: false } : { yapildi: true, seviye: 'tam' });
+  /* =================================================================
+     KRONOMETRE — "Antrenmanı bitir"in yazacağı SÜREYİ ölçer
+     -----------------------------------------------------------------
+     Kanıt kademesi (dm_fit şeması) çağıranın neye dayandığını SÖYLEMESİNİ
+     istiyor. Burada süre gerçekten ölçülüyor, o yüzden `kaynak:'olculdu'`
+     yazılabiliyor — sayaç hiç çalışmadıysa düğme açılmaz ve hiçbir kayıt
+     düşmez. Desen egzersiz-detay-v1.html `clockSec` (:1331) ile aynı.
+
+     İlk işaretlemede kendiliğinden başlar (antrenman fiilen o an başlıyor),
+     kullanıcı düğmeden duraklatıp sürdürebilir.
+     ================================================================= */
+  var kronKutu  = document.getElementById('fpxKron'),
+      kronIco   = document.getElementById('fpxKronIco'),
+      kronSn    = document.getElementById('fpxKronSn'),
+      bitirBant = document.getElementById('fpxBitirBant'),
+      bitirBtn  = document.getElementById('fpxBitir'),
+      bitirNot  = document.getElementById('fpxBitirNot');
+  var kron = 0, kronT = null, kaydedildi = false;
+
+  function ikiHane(n){ return (n < 10 ? '0' : '') + n; }
+  function kronYaz(){ kronSn.textContent = ikiHane(Math.floor(kron / 60)) + ':' + ikiHane(kron % 60); }
+  function kronBasla(){
+    if (kronT || kaydedildi) return;
+    kronT = setInterval(function () { kron++; kronYaz(); bitirGuncelle(); }, 1000);
+    kronKutu.classList.add('is-run');
+    kronIco.className = 'fa-solid fa-pause';
+    kronKutu.setAttribute('aria-label', 'Antrenman süresi — duraklat');
+  }
+  function kronDur(){
+    if (!kronT) return;
+    clearInterval(kronT); kronT = null;
+    kronKutu.classList.remove('is-run');
+    kronIco.className = 'fa-solid fa-play';
+    kronKutu.setAttribute('aria-label', 'Antrenman süresi — başlat');
+  }
+  kronKutu.addEventListener('click', function () { kronT ? kronDur() : kronBasla(); });
+  kronYaz();
+
+  function bitirGuncelle(){
+    if (kaydedildi) return;
+    var dk = Math.round(kron / 60);
+    bitirBtn.disabled = kron < 1;
+    bitirNot.textContent = kron < 1
+      ? 'Süre sayaçtan ölçülür; sayacı çalıştırmadan kayıt açılmaz.'
+      : 'Ölçülen süre ' + Math.max(1, dk) + ' dakika. Enerji Defteri’ne bu süreyle işlenir.';
+  }
+
+  /* Yakım katsayısı UYDURULMADI: aktivite-gunlugu-v1.html:651'deki deponun
+     kendi tablosundan (KCAL_DK.antrenman = 6.6 kcal/dk). O sayfa da bunu
+     "yaklaşıktır" diye sunuyor; burada da öyle sunuluyor. */
+  var KCAL_DK_ANTRENMAN = 6.6;
+
+  bitirBtn.addEventListener('click', function () {
+    if (kaydedildi || kron < 1) return;
+    var S = window.FIT_SHELL && window.FIT_SHELL.state; if (!S) return;
+    kronDur();
+    var dk = Math.max(1, Math.round(kron / 60));
+    var g  = FPX.gun(plan, aktifGunNo);
+    S.antrenmanTamamla({
+      ad:   (g && (g.ad || 'Gün ' + g.no)) || 'Antrenman',
+      dk:   dk,
+      kcal: Math.round(KCAL_DK_ANTRENMAN * dk),
+      kaynak: 'olculdu'          /* süre sayfadaki sayaçtan ölçüldü */
+    });
+    kaydedildi = true;
+    bitirBtn.disabled = true;
+    bitirBant.classList.add('is-done');
+    bitirBant.querySelector('b').textContent = 'Antrenman kaydedildi';
+    bitirNot.textContent = dk + ' dakika ölçüldü, yaklaşık ' +
+      Math.round(KCAL_DK_ANTRENMAN * dk) + ' kcal olarak Enerji Defteri’ne ve ' +
+      'Aktivite Kayıtlarım’a işlendi.';
+  });
+
+  /* =================================================================
+     İŞARETLEME — sözleşme: FIT_PLAN.isaretle
+       Yaptım        → seviye 'tam'   (ikinci basış işareti geri alır)
+       Hareketi geç  → seviye 'atlandi'
+       performans    → agirlik / tekrarYapilan / efor (şema v2 · §5.3-§5.4)
+     ================================================================= */
+  function isaretle(i, durum) {
+    if (!plan || !window.FIT_PLAN) return;
+    FIT_PLAN.isaretle(plan.id, aktifGunNo, i, durum);
+    kronBasla();                 /* antrenman fiilen başladı */
     boya();
+  }
+
+  liste.addEventListener('click', function (e) {
+    if (!e.target.closest) return;
+
+    var perf = e.target.closest('.fpx-perf-ac');
+    if (perf) {
+      var kutu = document.getElementById('fpxPerf' + perf.getAttribute('data-perf'));
+      if (!kutu) return;
+      var ac = kutu.hidden;
+      kutu.hidden = !ac;
+      perf.setAttribute('aria-expanded', ac ? 'true' : 'false');
+      if (ac) { var ilk = kutu.querySelector('input'); if (ilk) ilk.focus(); }
+      return;
+    }
+
+    var gec = e.target.closest('.fpx-gec');
+    if (gec) {
+      var gi = parseInt(gec.getAttribute('data-gec'), 10);
+      isaretle(gi, gec.getAttribute('aria-pressed') === 'true'
+        ? { yapildi: false } : { yapildi: true, seviye: 'atlandi' });
+      return;
+    }
+
+    var b = e.target.closest('.fpx-mark');
+    if (!b || b.classList.contains('fpx-perf-ac')) return;
+    var i = parseInt(b.getAttribute('data-i'), 10);
+    isaretle(i, b.getAttribute('aria-pressed') === 'true'
+      ? { yapildi: false } : { yapildi: true, seviye: 'tam' });
+  });
+
+  /* Performans girdisi — alan değişince kaydedilir, ayrı "kaydet" yok.
+     Boş bırakılan alan YAZILMAZ (sözleşme: sayı değilse dokunulmaz).
+     Bir değer girmek hareketi "yapıldı" yapar: girilen sayı zaten yapmış
+     olmanın kanıtı. Var olan 'yarim' işareti korunur, 'atlandi' düşer. */
+  liste.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || !el.getAttribute || !el.getAttribute('data-alan')) return;
+    if (!plan || !window.FIT_PLAN) return;
+    var i = parseInt(el.getAttribute('data-i'), 10);
+    var ham = String(el.value).trim();
+    if (ham === '') return;                  /* boş = dokunma */
+    var sayi = Number(ham);
+    if (!isFinite(sayi) || sayi < 0) return;
+
+    var it = FIT_PLAN.isaret(plan.id, aktifGunNo, i);
+    var sev = (it && it.seviye && it.seviye !== 'atlandi') ? it.seviye : 'tam';
+    var durum = { yapildi: true, seviye: sev };
+    durum[el.getAttribute('data-alan')] = sayi;
+    /* Liste kilitli: satır yerinde güncellenir, açık panel ve odak durur. */
+    listeKilit = i;
+    try { isaretle(i, durum); } finally { listeKilit = null; }
   });
 
   FPX.dinle(boya);
@@ -616,30 +925,41 @@ var FPX = (function () {
   document.addEventListener('fit:state', paint); paint();
 })();
 
-/* ===== Su takibi — "Bir bardak ekle" =====
-   Düğme ÖLÜYDÜ: data-lg-gate yalnız çıkışta kapıyı açıyor, girişte hiçbir
-   şey yapmıyordu. Sayaç sayfa içi tutuluyor: su verisi dm_fit şemasında
-   YOK (şema kabuk dosyasında, bu turda dokunulmuyor) — kalıcı kayıt devir
-   notunda açık kalem. */
+/* ===== Su takibi — "Bir bardak ekle" · belge §6 =====
+   R9'da düğme ÖLÜYDÜ (data-lg-gate yalnız çıkışta kapı açar), R9 sonunda
+   bağlandı ama sayaç SAYFA İÇİNDEYDİ: yenileyince sıfırlanıyor, Su Takibi
+   sayfasıyla iki farklı sayı gösteriyordu (açık kalem D16).
+   Şema v2 `bugun.su`'yu açtı — artık iki sayfa da AYNI depoyu okuyup
+   yazıyor: FIT_SHELL.state.suEkle() / .read().bugun.su.
+   HEDEF (8) tek yerde: aşağıdaki SU_HEDEF. */
 (function () {
   var btn = document.getElementById('fpxSuEkle'); if (!btn) return;
   var kutu = btn.closest('.fp-card'); if (!kutu) return;
   var gunler = kutu.querySelector('.fp-days'), rozet = kutu.querySelector('.fp-badge');
-  if (!gunler || !rozet) return;
+  var S = window.FIT_SHELL && window.FIT_SHELL.state;
+  if (!gunler || !rozet || !S) return;
 
-  function yaz(dolu, toplam) {
-    rozet.innerHTML = '<i class="fa-solid fa-check"></i> ' + dolu + ' / ' + toplam + ' bardak';
-    if (dolu >= toplam) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-check"></i> Günlük hedefin tamam';
-    }
+  var SU_HEDEF = 8;
+
+  function boya() {
+    var su = Math.max(0, (S.read().bugun || {}).su || 0);
+    var dolu = Math.min(su, SU_HEDEF);
+    var h = '';
+    for (var i = 1; i <= SU_HEDEF; i++) h += '<span class="fp-day' + (i <= dolu ? ' on' : '') + '">' + i + '</span>';
+    gunler.innerHTML = h;
+    gunler.setAttribute('role', 'img');
+    gunler.setAttribute('aria-label', 'Bugün ' + su + ' bardak su içtin, günlük hedef ' + SU_HEDEF + ' bardak.');
+    rozet.className = 'fp-badge ' + (su >= SU_HEDEF ? 'ok' : 'off');
+    rozet.innerHTML = '<i class="fa-solid fa-' + (su >= SU_HEDEF ? 'check' : 'droplet') + '"></i> ' +
+                      su + ' / ' + SU_HEDEF + ' bardak';
+    btn.disabled = su >= SU_HEDEF;
+    btn.innerHTML = su >= SU_HEDEF
+      ? '<i class="fa-solid fa-check"></i> Günlük hedefin tamam'
+      : '<i class="fa-solid fa-plus"></i> Bir bardak ekle';
   }
-  btn.addEventListener('click', function () {
-    var hepsi = [].slice.call(gunler.querySelectorAll('.fp-day'));
-    var bos = hepsi.filter(function (d) { return !d.classList.contains('on'); })[0];
-    if (bos) bos.classList.add('on');
-    yaz(hepsi.filter(function (d) { return d.classList.contains('on'); }).length, hepsi.length);
-  });
+  btn.addEventListener('click', function () { S.suEkle(1); boya(); });
+  document.addEventListener('fit:state', boya);
+  boya();
 })();
 
 /* ===== Gün ve tarih (belge §3.1) =====
@@ -709,9 +1029,9 @@ var FPX = (function () {
 
 /* ===== Gün sonu tamamlama (belge §3.7) =====
    Katlanır form. Hiçbir alan zorunlu değil; boş bırakılan alan için
-   varsayım üretilmez. Kayıt bu turda OTURUMLUK: dm_fit.bugun şemasında
-   not/efor/ağrı alanı yok ve şema kabuk dosyasında (bu turda dokunulmuyor).
-   Kalıcı kayıt açık kalem olarak devir notunda. */
+   varsayım üretilmez. Kayıt KALICI: şema v2 `bugun.gunSonu` alanını açtı,
+   form FIT_SHELL.state.gunSonuKaydet() ile yazıyor ve sayfa yeniden
+   açıldığında kayıtlı değerler forma geri basılıyor. */
 (function () {
   var form  = document.getElementById('fpxGunSonu'),
       ac    = document.getElementById('fpxGunSonuAc'),
@@ -761,16 +1081,56 @@ var FPX = (function () {
     });
   }
 
-  /* --- günü kapat --- */
+  /* --- günü kapat --- KALICI (şema v2: bugun.gunSonu)
+     R9'da bu kayıt oturumlukdu: dm_fit şemasında not/efor/ağrı alanı yoktu.
+     Şema v2 ile açıldı; artık FIT_SHELL.state.gunSonuKaydet() çağrılıyor.
+     antrenmanTamamla() HÂLÂ çağrılmıyor — o, gecmis'e "Gün sonu · 0 dk"
+     diye sahte bir antrenman kaydı düşürür ve Aktivite Kayıtlarım'ı
+     kirletirdi. Antrenman kaydı yalnız ölçülen süreyle, §3.3'teki
+     "Antrenmanı bitir" düğmesinden düşer. */
+  function secili(ad) {
+    var el = form.querySelector('input[name="' + ad + '"]:checked');
+    return el ? el.value : null;
+  }
+  function doldur() {
+    var S = window.FIT_SHELL && window.FIT_SHELL.state; if (!S) return;
+    var gs = (S.read().bugun || {}).gunSonu; if (!gs) return;
+    ['fpxZorluk','fpxEnerji'].forEach(function (ad) {
+      var v = ad === 'fpxZorluk' ? gs.zorluk : gs.enerji;
+      if (!v) return;
+      var el = form.querySelector('input[name="' + ad + '"][value="' + v + '"]');
+      if (el) el.checked = true;
+    });
+    if (gs.efor) {
+      var ef = form.querySelector('input[name="fpxEfor"][value="' + gs.efor + '"]');
+      if (ef) { ef.checked = true; if (oku) oku.textContent = gs.efor + ' / 10 · ' + (EFOR[gs.efor] || ''); }
+    }
+    if (gs.agri) {
+      var kutu = document.getElementById('fpxAgriVar'),
+          alan = document.getElementById('fpxAgriAlan'),
+          met  = document.getElementById('fpxAgriMetin');
+      if (kutu) kutu.checked = true;
+      if (alan) alan.hidden = false;
+      if (met)  met.value = gs.agri;
+    }
+    if (gs.not && not) { not.value = gs.not; if (sayac) sayac.textContent = gs.not.length + ' / 300'; }
+    if (durum) durum.hidden = false;
+  }
+  doldur();
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    /* Yalnız şemada VAR OLAN alan yazılır: bugun.tamam. antrenmanTamamla()
-       çağrılmıyor — o, gecmis'e "Gün sonu · 0 dk" diye sahte bir antrenman
-       kaydı düşürürdü ve Aktivite Kayıtlarım'ı kirletirdi. */
-    var S = window.FIT_SHELL && window.FIT_SHELL.state;
-    if (S) { var st = S.read(); st.bugun.tamam = true; S.write(st); }
+    var S = window.FIT_SHELL && window.FIT_SHELL.state; if (!S) return;
+    var agriVar = document.getElementById('fpxAgriVar');
+    var agriMet = document.getElementById('fpxAgriMetin');
+    S.gunSonuKaydet({
+      not:    not ? not.value.trim() : '',
+      zorluk: secili('fpxZorluk'),
+      efor:   secili('fpxEfor') ? Number(secili('fpxEfor')) : null,
+      enerji: secili('fpxEnerji'),
+      agri:   (agriVar && agriVar.checked && agriMet) ? agriMet.value.trim() : ''
+    });
     if (durum) durum.hidden = false;
-    form.querySelector('button[type="submit"]').disabled = true;
   });
 })();
 </script>

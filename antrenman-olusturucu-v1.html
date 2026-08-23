@@ -216,6 +216,17 @@
 .wg-recete{flex:none;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .wg-recete span{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--slate-2);white-space:nowrap}
 .wg-hrk .go{flex:none;color:var(--fit-deep);font-size:13px}
+/* şema v2 · §3.3 — günün ısınması. `.wg-nicin` ile aynı şeritte durur ama
+ zemini değil AKSANI farklı: ısınma bir gerekçe değil, yapılacak ilk iş. */
+.wg-isinma{display:flex;gap:11px;align-items:flex-start;padding:13px 19px;border-bottom:1px solid var(--line);background:var(--fit-tint)}
+.wg-isinma>i{flex:none;margin-top:2px;color:var(--fit-deep);font-size:13px}
+.wg-isinma b{display:block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--fit-deep);margin-bottom:4px}
+.wg-isinma p{font-size:12.5px;font-weight:500;color:var(--slate-2);line-height:1.55;margin:0}
+.wg-isinma p a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.wg-isinma p a:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px;border-radius:var(--radius-sm)}
+/* "zorlarsa şu" satırı — ikinci kademe bilgi, ad satırından bir ton aşağıda */
+.wg-hrk .t .alt{display:block;font-size:12px;font-weight:600;color:var(--fit-deep);margin-top:3px}
+.wg-hrk .t .alt i{font-size:10px;margin-right:5px}
 
 /* risk dalı — kişisel egzersiz reçetesi üretilmez */
 /* R8/23: sonuc blogu da ayni kirmiziyi kullanir — ikon zaten kirmiziydi,
@@ -594,6 +605,62 @@ var KURALLAR = {
   /* Sınama ve hata ayıklama için dışa veriliyor — motor bunu kullanmıyor. */
   window.AO_KURALLAR = KURALLAR;
 
+  /* ---- A2 · HAREKET EK BİLGİSİ (şema v2 · §3.3) ----
+     KURALLAR bloğunun DIŞINDA duruyor: o blok tasks/H3-KURALLAR.md ile
+     birebir eşleşmek zorunda (tests/workout-generator.mjs madde 14).
+
+     İki alan da UYDURULMADI, depodan ÖLÇÜLEREK çıkarıldı:
+
+       uyari      ← egzersiz-detay-v1.html · VERI[slug].ipuclari
+                    (o blok sayfada zaten "form / güvenlik ipuçları"
+                    başlığıyla duruyor — egzersiz-detay-v1.html:139).
+                    Kural: ipuçları içinde RİSKTEN söz eden ilk madde
+                    alınır (ağrı · zorlama · kilitle · çök · bel · boyun ·
+                    aşırı · bırak · sarsıl); böyle bir madde yoksa ilk
+                    ipucu alınır — hepsi form ipucudur, hiçbiri boş değil.
+                    ÖLÇÜM: 25/25 dolu · 17 risk maddesi · 8 ilk ipucu.
+
+       alternatif ← egzersiz-detay-v1.html · VERI[slug].benzer
+                    (deponun kendi "benzer hareketler" listesi) SÜZÜLEREK:
+                    havuzdaki `gerek` sayısı DAHA AZ olan ilk benzer;
+                    yoksa ekipmanı artmayan ama ZORLUĞU daha düşük ilk
+                    benzer. İkisi de yoksa alan BOŞ (null) bırakılır —
+                    hareket zaten en hafif seçenektir, sahte bir
+                    alternatif yazmaktansa alan boş kalır.
+                    ÖLÇÜM: 18/25 dolu · 7 boş (hepsi gerek:[] ve zorluk≤2).
+
+     `ekipman` ve `video` bu tabloda YOK ve olmamalı: ekipman havuzun
+     `gerek` alanından, video ise slug'ın kendisinden
+     (egzersiz-detay-v1.html?slug=…) doğrudan çıkıyor. İkinci bir liste
+     tutmak ayrışma üretirdi. */
+  var HAREKET_EK = {
+    'goblet-squat':       {uyari:'Ağrı varsa dur — Dizinde keskin ağrı hissedersen mola ver, formu gözden geçir.', alternatif:'hava-squat'},
+    'plank':              {uyari:'Bakış yerde — Başını kaldırma; bakışın ellerinin biraz önüne düşsün, boyun nötr kalsın.', alternatif:'dead-bug'},
+    'dambil-kurek':       {uyari:'Boyun nötr — Başını kaldırıp aynaya bakma; bakışın yere düşsün.', alternatif:'ters-sinav'},
+    'sinav':              {uyari:'Dirsek kırk beş derece — Dirsekleri tam yana açmak omuz eklemini zorlar.', alternatif:null},
+    'hamle':              {uyari:'Ön diz hizası — Ön diz ayak parmaklarını belirgin şekilde geçiyorsa adımın kısa demektir.', alternatif:null},
+    'dambil-omuz-press':  {uyari:'Kaburgayı kapat — Bel kavisi artıyorsa ağırlık fazladır — sırt destekli otururken çalış.', alternatif:'sinav'},
+    'dambil-biceps':      {uyari:'Gövde sallanmasın — Belden savurarak kaldırıyorsan ağırlık fazladır.', alternatif:'ters-sinav'},
+    'dead-bug':           {uyari:'Bel yerde — Belin yerden kalkıyorsa uzanma mesafeni kısalt.', alternatif:null},
+    'kettlebell-swing':   {uyari:'Menteşe, squat değil — Diz çok bükülüyorsa hareket squat\'a dönüşür; kalçadan kır.', alternatif:'kopru'},
+    'bant-cekme':         {uyari:'Omuz aşağıda — Omuzlar kulağa doğru yükselirse yük sırttan trapeze kayar.', alternatif:'ters-sinav'},
+    'kopru':              {uyari:'Bel değil kalça — Yüksekliği belden kavis yaparak değil, kalçanı sıkarak kazan.', alternatif:'dead-bug'},
+    'bant-yana-acma':     {uyari:'Omuz hizasında dur — Kolları omuz hizasının üstüne çıkarmak sıkışma yapabilir.', alternatif:'yuzucu'},
+    'hava-squat':         {uyari:'Dizleri dışa it — Dizleri hafifçe dışa doğru yönlendir — içe çökmesini engeller.', alternatif:null},
+    'ters-sinav':         {uyari:'Kalça düşmesin — Kalça sarkarsa çekiş kısalır ve bel yüklenir.', alternatif:'yuzucu'},
+    'superman':           {uyari:'Az kaldır — Aşırı kaldırmak beli sıkıştırabilir; birkaç santim yeterlidir.', alternatif:null},
+    'yuzucu':             {uyari:'Boyun nötr — Başını kaldırma; alnın yerde ya da yere yakın kalsın.', alternatif:null},
+    'barfiks':            {uyari:'Bantla destekle — Direnç bandını bara asıp dizini üstüne koyarak yardımlı tekrar yapabilirsin.', alternatif:'ters-sinav'},
+    'sehpa-dips':         {uyari:'Dirsek geriye — Dirsekler yana açılırsa omuz zorlanır; geriye doğru bükülsün.', alternatif:null},
+    'bulgar-split-squat': {uyari:'Adım mesafesi — Ön diz aşırı bükülüyorsa öne bir adım daha al.', alternatif:'hamle'},
+    'tek-bacak-kopru':    {uyari:'Kalça dönmesin — Kalçanın bir tarafı düşüyorsa menzili kısalt.', alternatif:'hamle'},
+    'yan-plank':          {uyari:'Boyun nötr — Başını omuz hattının uzantısında tut.', alternatif:'dead-bug'},
+    'dag-tirmanisi':      {uyari:'Bileği koru — Bilek ağrıyorsa yumruk üstünde ya da şınav sapıyla çalış.', alternatif:'dead-bug'},
+    'burpee':             {uyari:'Tempoyu böl — Yorulunca sıçramayı bırak, ayakları adım adım geri-ileri götür — hareket devam etsin.', alternatif:'dag-tirmanisi'},
+    'dambil-gogus-press': {uyari:'Yerde daha güvenli — Yerde çalışırken dirsek yere değince menzil kendiliğinden sınırlanır — yalnız çalışmak için uygundur.', alternatif:'sinav'},
+    'dambil-romanya':     {uyari:'Dambıl bacağa yakın — Ağırlık gövdeden uzaklaşırsa bel yüklenir.', alternatif:'kopru'}
+  };
+
   /* ---- SUNUM SÖZLÜĞÜ ----
      Yalnız ikon ve açıklama satırı; KURAL DEĞİL. Etiketlerin kendisi
      (ad, tekrar, gün adı …) KURALLAR'dan okunuyor — sunum burada. */
@@ -778,6 +845,37 @@ var KURALLAR = {
       tekrar: (h.olcum === 'sure') ? sv.sure : hd.tekrar,
       dinlenme: Math.round(sv.dinlenme * hd.dinlenmeKat / KURALLAR.yuvarla) * KURALLAR.yuvarla
     };
+  }
+
+  /* 2b · GÜN ISINMASI (şema v2 · §3.3)
+     ---------------------------------------------------------------
+     Depoda ADLI ısınma hareketi listesi YOK — ölçüldü:
+     `hareket-isinma-soguma-v1.html` kütüphaneye köprü kurar ama kendi
+     hareket kartını taşımaz (sayfadaki `.ex-card` sayısı 0). Bu yüzden
+     burada hareket adı UYDURULMUYOR.
+
+     Süre de yazılmıyor ("5 dk" gibi): o sayfanın kendi yanıtı
+     "kesin bir rakam vermek yerine … kendini harekete hazır hissedene
+     kadar" diyor. Uydurma bir rakam deponun kendi editoryal duruşuyla
+     çelişirdi.
+
+     Cümlenin her parçasının kaynağı var:
+       "nabzın yükselene kadar hafif tempo"
+          ← "Dolaşımı ve nabzı yavaşça artırır, bedeni uyandırır."
+       "geniş ama nazik hareketlerle aç"
+          ← "Eklemleri geniş ama nazik hareketlerle açar."
+       "ısındığını hissetmeden ilk sete başlama"
+          ← "Bedenin ısındığını hissetmeden asıl harekete geçme."
+       bölge adları
+          ← GÜNÜN KENDİ grupları (KURALLAR.bolunme[…].gunler[].gruplar)  */
+  function isinmaMetni(gun){
+    var bolge = (gun.g.gruplar || []).slice(0, 3)
+      .map(function(k){ return KURALLAR.gruplar[k]; })
+      .filter(Boolean).join(' · ');
+    return 'Nabzın yükselene kadar hafif tempo, sonra bugün çalışacağın ' +
+           'bölgeleri geniş ama nazik hareketlerle aç' +
+           (bolge ? ': ' + bolge : '') +
+           '. Isındığını hissetmeden ilk sete başlama.';
   }
 
   /* 3 · GÜN BAŞINA HAREKET — üç tavanın en küçüğü (H3-KURALLAR.md §7 · G).
@@ -1120,15 +1218,25 @@ var KURALLAR = {
       '<span><i class="fa-solid fa-dumbbell"></i> ' + plan.havuz.length + ' hareketlik havuz</span>' +
       '</div>' + uyari;
   }
+  /* alternatif slug → görünen ad (havuzdan okunur, ikinci liste yok) */
+  function havuzAdi(slug){
+    var h = KURALLAR.havuz.filter(function(x){ return x.slug === slug; })[0];
+    return h ? h.ad : '';
+  }
   function gunHtml(plan, gun){
     var hrk = gun.sec.map(function(r, i){
       var re = recete(r.h, plan.sv, plan.hd);
+      var ek = HAREKET_EK[r.h.slug] || {};
+      var altAd = ek.alternatif ? havuzAdi(ek.alternatif) : '';
       return '<a href="egzersiz-detay-v1.html?slug=' + esc(r.h.slug) + '" data-slug="' + esc(r.h.slug) + '">' +
              '<span class="s">' + (i + 1) + '</span>' +
              '<span class="t"><b>' + esc(r.h.ad) + '</b>' +
              '<small>' + esc(KURALLAR.kaliplar[r.h.kalip]) + ' · ' + esc(KURALLAR.gruplar[r.h.birincil]) +
              (r.h.gerek.length ? ' · ' + esc(r.h.gerek.map(function(g){ return KURALLAR.ekipman[g]; }).join(', ')) : ' · ekipmansız') +
-             '</small></span>' +
+             '</small>' +
+             (altAd ? '<span class="alt"><i class="fa-solid fa-shuffle" aria-hidden="true"></i>' +
+                      'Zorlarsa: ' + esc(altAd) + '</span>' : '') +
+             '</span>' +
              '<span class="wg-recete"><span>' + re.set + ' set</span><span>' + esc(re.tekrar) +
              (r.h.olcum === 'sure' ? '' : ' tekrar') + '</span><span>' + re.dinlenme + ' sn</span></span>' +
              '<i class="fa-solid fa-arrow-right go" aria-hidden="true"></i></a>';
@@ -1141,6 +1249,9 @@ var KURALLAR = {
       '<div class="wg-nicin"><b>Neden bu gün böyle</b><ul>' +
       gerekce(plan, gun).map(function(c){ return '<li>' + c + '</li>'; }).join('') +
       '</ul></div>' +
+      '<div class="wg-isinma"><i class="fa-solid fa-fire" aria-hidden="true"></i>' +
+      '<div><b>Isınma</b><p>' + esc(isinmaMetni(gun)) +
+      ' <a href="hareket-isinma-soguma-v1.html">Isınma ve soğuma rehberi</a>.</p></div></div>' +
       '<div class="wg-hrk">' + hrk + '</div></div>';
   }
   function secimlerinHtml(){
@@ -1222,17 +1333,39 @@ var KURALLAR = {
           no: gun.no,
           ad: gun.g.ad,
           odak: gun.g.kalip.map(function(k){ return KURALLAR.kaliplar[k]; }).join(' / '),
+          isinma: isinmaMetni(gun),                       /* v2 · §3.3 */
           hareketler: gun.sec.map(function(r){
             var re = recete(r.h, plan.sv, plan.hd);
-            return {
+            var ek = HAREKET_EK[r.h.slug] || {};
+            var h = {
               slug: r.h.slug, ad: r.h.ad,
               set: re.set,
               tekrar: r.h.olcum === 'sure' ? null : re.tekrar,
               sure:   r.h.olcum === 'sure' ? re.tekrar : null,
-              dinlenme: re.dinlenme,
+              dinlenme: re.dinlenme,                      /* v2 · §3.3 */
               kalip: KURALLAR.kaliplar[r.h.kalip],
-              grup:  KURALLAR.gruplar[r.h.birincil]
+              grup:  KURALLAR.gruplar[r.h.birincil],
+              /* v2 · §3.3 — ekipman havuzun `gerek` alanından, adı
+                 KURALLAR.ekipman sözlüğünden. Ekipman istemeyen hareket
+                 için liste BOŞ BIRAKILMIYOR: "Vücut ağırlığı" deponun
+                 kendi etiketidir (KURALLAR.ekipman.yok) ve boş dizi
+                 "bilinmiyor" ile "gerekmiyor"u ayırt edilemez kılardı. */
+              ekipman: r.h.gerek.length
+                ? r.h.gerek.map(function(g){ return KURALLAR.ekipman[g]; })
+                : [KURALLAR.ekipman.yok],
+              /* v2 · §3.3 — form sayfası slug'ı. 25/25 hareket için
+                 egzersiz-detay-v1.html?slug=… kartı VAR (K43 ölçümü). */
+              video: r.h.slug
             };
+            if(ek.uyari) h.uyari = ek.uyari;                /* v2 · §3.3 */
+            /* Alternatifin ADI da yazılıyor: slug→ad tablosu yalnız burada.
+               Okuyan sayfa slug'ı güzelleştirse FABRİKASYON olurdu
+               ('sinav' → "Sinav", doğrusu "Şınav (Push-up)"). */
+            if(ek.alternatif){
+              h.alternatif   = ek.alternatif;              /* v2 · §3.3 */
+              h.alternatifAd = havuzAdi(ek.alternatif);    /* v2 · §3.3 */
+            }
+            return h;
           })
         };
       })
@@ -1346,7 +1479,18 @@ var KURALLAR = {
       leadE.textContent  = g.lead;
       footE.style.display = '';
       noE.textContent = 'Adım ' + (adim + 1) + ' / ' + ADIMLAR.length;
-      backE.style.visibility = adim === 0 ? 'hidden' : 'visible';
+      /* İlk adımda "Geri" YOK ama yeri korunuyor (visibility:hidden —
+         `display:none` düğme sırasını kaydırırdı). visibility:hidden
+         elemanı klavye sırasından düşürür ama `getClientRects()` hâlâ
+         kutu döndürür ve `innerText` boşalır: mekanik denetim bunu
+         "görünür + adsız + etkisiz" diye okuyordu (tool'un kendi kör
+         noktası, DENETIM §2). `aria-disabled` + `aria-hidden` durumu
+         hem yardımcı teknolojiye hem denetime DOĞRU söylüyor. */
+      var geriYok = adim === 0;
+      backE.style.visibility = geriYok ? 'hidden' : 'visible';
+      backE.setAttribute('aria-disabled', geriYok ? 'true' : 'false');
+      if(geriYok) backE.setAttribute('aria-hidden', 'true');
+      else        backE.removeAttribute('aria-hidden');
       nextE.innerHTML = adim === ADIMLAR.length - 1
         ? 'Planı oluştur <i class="fa-solid fa-wand-magic-sparkles"></i>'
         : 'İleri <i class="fa-solid fa-arrow-right"></i>';

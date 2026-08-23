@@ -235,3 +235,65 @@ ve doğru: görünmeyen düğme olmayan düğmedir, **ayrıca `getClientRects()`
   hepsi 0 kez geçiyor. C bölümü kanıt kademesini tutuyor: sabit `dk:25/kcal:280`
   geri gelirse kırmızıya döner.
 - `tests/bugunku-antrenman.mjs` — taban `8358446`'da **16 sorunla** kırmızı.
+
+---
+
+## 9 · SONRAKİ OTURUM — buradan devam et
+
+**Durum:** `436dc88` canlıda, ağaç temiz, her şey yeşil.
+30/30 nöbet · site taraması 0 sorun · `tools/denetim.mjs` 8 sayfada 0 bulgu.
+Ajanların hepsi boşta; açık iş yok.
+
+### Belgenin durumu: 27/29
+
+`~/Desktop/Kullanıcı Giris Sonrası/DadaFit Giriş Sonrası Kullanıcı Alanı.docx`
+— 18 bölüm, 29 eksik çıkarıldı, **27'si kapandı**. Kalan ikisi kod işi DEĞİL:
+
+1. **§9.4 Sıralama — Beyar'ın ürün kararı.** Belge sıralama istiyor; prototipin
+   bugünkü tonu tersi (`fit-planim-rozetler-v1`: "Kimseyle sıralanmazsın").
+   R9'da `hesabim-v1`'deki sıralama anahtarı **kaldırıldı**, geri alma yönergesi
+   o dosyada HTML yorumu olarak duruyor. Karar "yapılsın" olursa: anahtar +
+   sıralama bloğu + rozet sayfasının metni birlikte döner.
+2. **§16.1 DadaDiet/DadaGastro izin anahtarı** — Beyar kapsam dışı bıraktı
+   ("dadadiet ile işimiz yok"). Karar değişirse tek anahtar, küçük iş.
+
+### Beyar'ın karar vermesi gereken diğer iki şey
+
+- **D20 — program içerikleri gerçek veri değil.** `program-detay-v1` gövdesi
+  TEK bir 4 haftalık plan için elle yazılmış; öteki üç slug yalnız başlığı
+  değiştiriyor. D21·D22 ve `TOPLAM=12`'nin türetilememesi hep buna bağlı.
+  Belgede yok ama **kullanıcı açısından en görünür eksik bu**.
+- **D17 — `hesabim-v1`'de 11 ölü hesap yönetimi düğmesi** (fotoğraf yükle ·
+  kaldır ×3 · varsayılan yap · ödeme yöntemi ekle · bağla ×2 · oturum kapat ×3).
+
+Tam liste: yukarıdaki §7 (D11 · D14 · D15 · D17 · D18 · D19–D31).
+
+### Çalışma bilgisi
+
+```
+python3 -m http.server 8811 &
+export PW_HOME=~/.pw
+node tests/<ad>.mjs http://localhost:8811     # BASE'İ ELLE VER (B36)
+node tools/denetim.mjs                        # mekanik denetim
+node tools/site-tarama.mjs                    # 3 genişlik
+```
+
+- **`DENETIM.md` her turda okunur** — kanıt = sayı · görünürlük
+  `getClientRects()` · sonda önce şüphelidir · rapor üç bölümlü.
+- **Nöbet dosyalarının 8'i 8811 DIŞINDA porta varsayılan.** URL vermezsen
+  8 sahte kırmızı alırsın.
+- Kabuk dosyaları (`fit-shell.js/css`) **tek sahiplidir**; ajanlar dokunmaz.
+- Ajanlar **commit/push atmaz**. Push `gaviaworks-dev` hesabıyla
+  (`By4r` aktifken 403).
+- Şema v2 sözleşmesi: `fit-shell.js` içinde "ŞEMA v2" başlığı ·
+  `fit-plan-kayit.js` dosya başı · `fit-takvim.js` dosya başı.
+
+### Akış denetimi dokümanı
+
+Program ve challenge modüllerinin kullanıcı akışı, kanıt kademeleri ve eksikler:
+https://claude.ai/code/artifact/f47a9781-28ab-4888-934a-afcefb1aa7f0
+(Bir yargısı geri alındı — "Programa Başla ölü" YANLIŞTI; düzeltilmiş sürüm.)
+
+Dokümandaki hâlâ açık iki yara: **challenge'ın hiçbir egzersiz içeriğine
+bağlantısı yok** (0 bağlantı ölçüldü) ve **30/30'da ödül yok** (kilitli rozet
+kilitli kalıyor). İkisi de belgede yok, ayrı iş.

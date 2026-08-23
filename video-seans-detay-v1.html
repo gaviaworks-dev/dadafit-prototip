@@ -1291,7 +1291,13 @@
       var yazildi = false;
       try{
         if(window.FIT_SHELL && FIT_SHELL.state && FIT_SHELL.state.antrenmanTamamla){
-          FIT_SHELL.state.antrenmanTamamla({ad:E.ad, dk:E.dk});
+          /* kaynak:'video' — süre videonun NOMİNAL uzunluğu, ölçülmüş değil:
+             kullanıcının gerçekten yaptığını değil, izlediğini biliyoruz.
+             kcal deponun kendi katsayısından türetiliyor (aktivite-gunlugu-v1
+             :651 · antrenman 6,6 kcal/dk) — sabit 280 uydurmasını tekrarlamamak
+             için. Türetilmiş bir tahmin, kaynağı da öyle işaretli. */
+          FIT_SHELL.state.antrenmanTamamla({ad:E.ad, dk:E.dk,
+            kcal:Math.round((6.6 * (E.dk||0)) / 5) * 5, kaynak:'video'});
           yazildi = true;
         }
       }catch(e){}

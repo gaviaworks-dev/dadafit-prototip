@@ -399,6 +399,146 @@
 /* ===== Footer marka hizalama (Gastro footer dili; marka-nötr, sızma yok) ===== */
 
 </style>
+<style>
+/* =====================================================================
+   SÖZLEŞME — `pgk-` (program-gün-kurulum) · R10 · belge §4.3 · §5.2
+   ---------------------------------------------------------------------
+   "Programa Başla" bugüne kadar bir kayıt açıyordu ama takvim kurmuyordu:
+   baslangic:null · gunler:[] · saat:null. Takvime oturmayan program,
+   program değil listedir — ürün "yarın 07:30, Gün 2" diyemiyordu.
+
+   Bu blok üç soruyu soruyor (hangi günler · saat kaçta · ne zaman
+   başlıyor) ve cevapları ANINDA gerçek randevulara çeviriyor.
+
+   İMZA ÖGE — `.pgk-randevu`: sözleşme kendi çıktısına dönüşen bir defter
+   şeridi. Sol rayda hairline bir çizgi seansları birbirine bağlıyor;
+   kullanıcı bir gün çipine bastığında satırlar yeniden yazılıyor. Formun
+   ürettiği şeyi form doldururken görüyorsun. Sayfadaki tek gösterişli
+   parça bu; geri kalan her şey kabuğun sessiz diliyle.
+
+   Tarih/saat sütunları `tabular-nums` — takvim sayı tablosudur, rakamlar
+   satırdan satıra kaymamalı.
+
+   Kabuk sözleşmesine dokunulmadı: yalnız `pgk-`/`pgc-` sınıfları,
+   hepsi `#pgWrap` altında. `!important` yok, özgüllük `#pgWrap` ile
+   yükseltiliyor.
+   ===================================================================== */
+
+#pgWrap .pgk,
+#pgWrap .pgc{margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+#pgWrap .pgk[hidden],
+#pgWrap .pgc[hidden]{display:none}
+
+#pgWrap .pgk-kicker{font-size:11.5px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--fit-deep);margin:0 0 8px}
+#pgWrap .pgk-h{font-size:19px;font-weight:800;letter-spacing:-.015em;color:var(--slate);margin:0}
+#pgWrap .pgk-lead{font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.6;margin:8px 0 0;max-width:56ch}
+
+/* --- üç soru: sol soru, sağ cevap; hairline ile ayrılmış --- */
+#pgWrap .pgk-sorular{margin-top:20px;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--paper)}
+#pgWrap .pgk-satir{display:flex;gap:22px;align-items:flex-start;padding:16px 20px}
+#pgWrap .pgk-satir + .pgk-satir{border-top:1px solid var(--line)}
+#pgWrap .pgk-q{flex:none;width:172px;padding-top:5px}
+#pgWrap .pgk-q b{display:block;font-size:14px;font-weight:800;color:var(--slate);line-height:1.3}
+#pgWrap .pgk-q small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:3px;line-height:1.45}
+#pgWrap .pgk-a{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+/* Çip kümesi kendi satırını kapar; "Başka saat/tarih" alanı yanında kalan
+   yere geçer, yer yoksa alt satıra iner. Küme ile alanı aynı flex
+   bağlamına koymak @390'da çipleri tek tek alt alta düşürüyordu. */
+#pgWrap .pgk-grup{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* Hafta yedi gündür: yedisi tek satırda, eşit sütunlarda — sarmaz. */
+#pgWrap .pgk-hafta{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;flex:1 1 100%}
+#pgWrap .pgk-hafta .pgk-gun{width:auto}
+
+/* --- çipler: seçim durumu aria-pressed'te, görsel ona bağlı --- */
+#pgWrap .pgk-cip{font-family:inherit;min-height:40px;padding:0 14px;display:inline-flex;
+  align-items:center;justify-content:center;gap:7px;background:var(--paper);
+  border:1.5px solid var(--line);border-radius:var(--radius-chip);
+  font-size:13px;font-weight:700;color:var(--slate-2);cursor:pointer;
+  transition:.16s var(--ease);font-variant-numeric:tabular-nums}
+#pgWrap .pgk-cip:hover{border-color:var(--fit);color:var(--fit-deep)}
+#pgWrap .pgk-cip:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+#pgWrap .pgk-cip[aria-pressed="true"]{background:var(--fit-deep);border-color:var(--fit-deep);color:#fff}
+#pgWrap .pgk-gun{width:46px;padding:0}
+
+/* --- serbest giriş: saat / tarih --- */
+#pgWrap .pgk-alan{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;
+  font-weight:600;color:var(--muted)}
+#pgWrap .pgk-alan input{font-family:inherit;min-height:40px;padding:0 12px;
+  border:1.5px solid var(--line);border-radius:var(--radius-chip);background:var(--paper);
+  font-size:13px;font-weight:700;color:var(--slate);font-variant-numeric:tabular-nums}
+#pgWrap .pgk-alan input:focus-visible{outline:3px solid var(--fit);outline-offset:2px;border-color:var(--fit)}
+
+/* --- İMZA: randevu şeridi --- */
+#pgWrap .pgk-onizleme{margin-top:20px;background:var(--fit-tint);border:1px solid var(--fit-line);
+  border-radius:var(--radius-lg);padding:18px 20px}
+#pgWrap .pgk-randevu{list-style:none;margin:0;padding:0;position:relative}
+#pgWrap .pgk-randevu::before{content:"";position:absolute;left:26px;top:14px;bottom:14px;
+  width:1px;background:var(--fit-line)}
+#pgWrap .pgk-r{display:flex;align-items:center;gap:14px;padding:9px 0;position:relative}
+/* Nokta ORTALAMASI flex ile: `text-align:center` boş bir <i> üzerinde
+   FontAwesome'ın display kuralıyla birlikte tutmadı, nokta rayın 20 px
+   solunda kaldı (ölçüldü: dot merkezi 185.5 · ray 206). */
+#pgWrap .pgk-r-nok{flex:none;width:53px;display:flex;align-items:center;
+  justify-content:center;position:relative;z-index:1}
+#pgWrap .pgk-r-nok i{display:block;width:11px;height:11px;
+  border-radius:var(--radius-circle);background:var(--fit-deep);
+  box-shadow:0 0 0 4px var(--fit-tint)}
+#pgWrap .pgk-r-gun{flex:none;min-width:112px;font-size:13.5px;font-weight:800;color:var(--slate);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+#pgWrap .pgk-r-saat{flex:none;min-width:56px;font-size:13px;font-weight:700;color:var(--fit-deep);
+  font-variant-numeric:tabular-nums}
+#pgWrap .pgk-r-no{margin-left:auto;flex:none;font-size:11.5px;font-weight:800;letter-spacing:.03em;
+  text-transform:uppercase;color:var(--fit-deep);background:var(--paper);
+  border:1px solid var(--fit-line);border-radius:var(--radius-pill);padding:4px 11px}
+#pgWrap .pgk-r-bos{font-size:13.5px;font-weight:600;color:var(--slate-2);line-height:1.6;margin:0}
+#pgWrap .pgk-bitis{margin:14px 0 0;padding-top:13px;border-top:1px solid var(--fit-line);
+  font-size:12.5px;font-weight:600;color:var(--slate-2);font-variant-numeric:tabular-nums}
+#pgWrap .pgk-bitis b{color:var(--slate);font-weight:800}
+
+/* satırlar yeniden yazılınca kısa bir vurgu — hareketten kaçınanlarda kapalı */
+@media (prefers-reduced-motion: no-preference){
+  #pgWrap .pgk-randevu.is-yeni .pgk-r{animation:pgkIn .34s var(--ease) backwards}
+  #pgWrap .pgk-randevu.is-yeni .pgk-r:nth-child(2){animation-delay:.05s}
+  #pgWrap .pgk-randevu.is-yeni .pgk-r:nth-child(3){animation-delay:.1s}
+  @keyframes pgkIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+}
+
+#pgWrap .pgk-alt{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;align-items:center}
+#pgWrap .pgk-not{margin:12px 0 0;font-size:12px;font-weight:500;color:var(--muted);line-height:1.55}
+
+/* --- ÇAKIŞMA paneli: sessiz üzerine yazma yok --- */
+#pgWrap .pgc-kutu{border:1.5px solid #e8d5a8;background:#fff6e6;border-radius:var(--radius-lg);padding:18px 20px}
+#pgWrap .pgc-kutu h4{margin:0;font-size:15.5px;font-weight:800;color:#6b4d0c;letter-spacing:-.01em}
+#pgWrap .pgc-kutu p{margin:8px 0 0;font-size:13.5px;font-weight:500;color:#6b4d0c;line-height:1.6;max-width:62ch}
+#pgWrap .pgc-mevcut{margin-top:14px;background:var(--paper);border:1px solid #e8d5a8;
+  border-radius:var(--radius-md);padding:12px 15px;font-size:13px;font-weight:700;color:var(--slate);
+  font-variant-numeric:tabular-nums}
+#pgWrap .pgc-mevcut small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:3px}
+#pgWrap .pgc-alt{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* --- kurulmuş takvimin durum kartındaki karşılığı --- */
+#pgWrap .pgk-ozet{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#pgWrap .pgk-ozet-cip{display:inline-flex;align-items:center;gap:8px;background:var(--fit-tint);
+  border:1px solid var(--fit-line);border-radius:var(--radius-pill);padding:6px 13px;
+  font-size:12.5px;font-weight:700;color:var(--fit-deep);font-variant-numeric:tabular-nums}
+#pgWrap .pgk-ozet-cip.is-yok{background:#fff6e6;border-color:#e8d5a8;color:#8a6410}
+
+@media (max-width:720px){
+  #pgWrap .pgk-satir{flex-direction:column;gap:12px}
+  #pgWrap .pgk-q{width:auto;padding-top:0}
+  #pgWrap .pgk-a{flex-direction:column;align-items:stretch;gap:12px}
+  #pgWrap .pgk-grup{flex:none}
+  #pgWrap .pgk-alan{justify-content:space-between}
+  #pgWrap .pgk-alan input{flex:1;min-width:0;max-width:190px}
+  #pgWrap .pgk-cip{padding:0 11px;font-size:12.5px}
+  #pgWrap .pgk-hafta{gap:5px}
+  #pgWrap .pgk-r{flex-wrap:wrap;gap:10px}
+  #pgWrap .pgk-r-gun{min-width:0}
+  #pgWrap .pgk-r-no{margin-left:0}
+  #pgWrap .pgk-randevu::before{left:26px}
+}
+</style>
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
@@ -462,12 +602,15 @@
       <span><b id="pgWeek">1</b>. hafta, <b id="pgDay">1</b>. gün</span>
       <span>Kaçırılan gün: <b id="pgMiss">0</b></span>
     </div>
+    <!-- kurulmuş takvimin özeti — program başladıysa görünür (R10 · §4.3) -->
+    <div class="pgk-ozet" id="pgkOzet" hidden></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" id="pgActs">
       <button class="btn btn-primary" type="button" id="pgWorkout" hidden><i class="fa-solid fa-check"></i> Bugünkü antrenmanı tamamla</button>
       <button class="btn btn-ghost" type="button" id="pgPause"  hidden><i class="fa-solid fa-pause"></i> Duraklat</button>
       <button class="btn btn-primary" type="button" id="pgResume" hidden><i class="fa-solid fa-play"></i> Devam et</button>
       <button class="btn btn-ghost" type="button" id="pgQuit"   hidden><i class="fa-solid fa-xmark"></i> Bırak</button>
       <button class="btn btn-primary" type="button" id="pgRestart" hidden><i class="fa-solid fa-rotate-left"></i> Yeniden başlat</button>
+      <button class="btn btn-ghost" type="button" id="pgPlan" hidden aria-expanded="false" aria-controls="pgKur"><i class="fa-regular fa-calendar"></i> Takvimi kur</button>
       <a class="btn btn-ghost" href="fit-planim-programim-v1.html"><i class="fa-solid fa-bolt"></i> Fit Planım'da gör</a>
     </div>
     <div id="pgMissBox" hidden style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
@@ -478,6 +621,76 @@
         <button class="btn btn-ghost" type="button" id="pgSkip"><i class="fa-solid fa-forward"></i> Atla, devam et</button>
       </div>
     </div>
+
+    <!-- ===== ÇAKIŞMA — aktif program varken sessiz üzerine yazma YOK ===== -->
+    <div class="pgc" id="pgCakisma" hidden>
+      <div class="pgc-kutu" role="group" aria-labelledby="pgcBaslik">
+        <h4 id="pgcBaslik">Zaten devam eden bir programın var</h4>
+        <p>Bu programa başlarsan mevcut programın <b>bırakılmış sayılır ve arşive geçer</b> —
+          ilerlemesi silinmez, Fit Planım’daki “Geçmiş programların” listesinde durur. Ama aktif
+          program tektir: aynı anda ikisine birden devam edemezsin. Önce onu bitirmek istersen
+          aşağıdan sayfasına gidebilirsin.</p>
+        <div class="pgc-mevcut" id="pgcMevcut"></div>
+        <div class="pgc-alt">
+          <button class="btn btn-fit" type="button" id="pgcDegistir"><i class="fa-solid fa-right-left"></i> Yine de bu programa geç</button>
+          <a class="btn btn-ghost" id="pgcGit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-arrow-right"></i> Mevcut programı aç</a>
+          <button class="btn btn-ghost" type="button" id="pgcVazgec">Vazgeç</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SÖZLEŞME — üç soru, üç dokunuş (R10 · belge §4.3 · §5.2) ===== -->
+    <div class="pgk" id="pgKur" hidden>
+      <div role="group" aria-labelledby="pgkBaslik">
+        <p class="pgk-kicker">Programı takvimine yerleştir</p>
+        <h3 class="pgk-h" id="pgkBaslik">Üç soru, sonra gerçek randevuların olur</h3>
+        <p class="pgk-lead">Antrenman günlerin belliyse program bir listeden çıkıp takvimine
+          oturur: “yarın 07:30, Gün 2” diyebiliriz, hatırlatma kurabilirsin, bitiş tarihini
+          görürsün. İstemiyorsan atla — programı yine başlatırsın, takvimi sonra kurarsın.</p>
+
+        <div class="pgk-sorular">
+          <div class="pgk-satir">
+            <div class="pgk-q"><b>Hangi günler?</b><small>Bu program haftada 3 gün öneriyor</small></div>
+            <div class="pgk-a"><div class="pgk-grup pgk-hafta" id="pgkGunler" role="group" aria-label="Antrenman günleri"></div></div>
+          </div>
+          <div class="pgk-satir">
+            <div class="pgk-q"><b>Saat kaçta?</b><small>Hatırlatma bu saate kurulur</small></div>
+            <div class="pgk-a">
+              <div class="pgk-grup" id="pgkSaatler" role="group" aria-label="Antrenman saati"></div>
+              <label class="pgk-alan">Başka saat
+                <input type="time" id="pgkSaatAlan" step="300" aria-label="Antrenman saatini elle gir" />
+              </label>
+            </div>
+          </div>
+          <div class="pgk-satir">
+            <div class="pgk-q"><b>Ne zaman başlıyor?</b><small>İlk antrenmanın bu tarihten sonraki ilk antrenman gününde</small></div>
+            <div class="pgk-a">
+              <div class="pgk-grup" id="pgkBaslar" role="group" aria-label="Başlangıç tarihi"></div>
+              <label class="pgk-alan">Başka tarih
+                <input type="date" id="pgkTarihAlan" aria-label="Başlangıç tarihini elle gir" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pgk-onizleme">
+          <p class="pgk-kicker">Takviminde böyle görünecek</p>
+          <ol class="pgk-randevu" id="pgkOnizleme"></ol>
+          <p class="pgk-bitis" id="pgkBitis"></p>
+        </div>
+
+        <div class="pgk-alt">
+          <button class="btn btn-fit" type="button" id="pgkOnayla"><i class="fa-solid fa-calendar-check"></i> Takvimi kur ve başla</button>
+          <button class="btn btn-ghost" type="button" id="pgkGec">Şimdilik geç, yine de başlat</button>
+          <button class="btn btn-ghost" type="button" id="pgkVazgec" hidden>Vazgeç</button>
+        </div>
+        <p class="pgk-not">Seçtiklerin yalnız bu tarayıcıda tutulur ve istediğin an
+          <b>Fit Planım → Programım</b>’dan değiştirilir. Program içerikleri genel
+          bilgilendirme amaçlıdır, kişiye özel antrenman reçetesi değildir.</p>
+      </div>
+    </div>
+
+    <p class="sr-only" id="pgLive" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -987,6 +1200,8 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- TAKVİM SÖZLEŞMESİ — seans tarihleri · .ics (R10; program-detay + fit-planim-programim ortak) -->
+<script src="assets/js/fit-takvim.js"></script>
 <script>
 /* ===== §13 — benzersiz kimlik/slug: kart doğru programı açar ===== */
 (function(){
@@ -1002,6 +1217,9 @@
     document.querySelectorAll('[data-pr="'+k+'"]').forEach(function(el){ el.innerHTML = P[k]; });
   });
   document.title = P.ad + ' — Program | DadaFit';
+  /* Yaşam döngüsü bloğu slug'ı ve adı BURADAN alır; iki yerde iki ayrı
+     program tablosu tutulmasın diye tek kaynak. */
+  window.PD_PROGRAM = {slug:slug, ad:P.ad};
 })();
 </script>
 <script>
@@ -1009,11 +1227,21 @@
 (function(){
   var S = window.FIT_SHELL && window.FIT_SHELL.state;
   if(!S) return;
-  var SLUG = new URLSearchParams(location.search).get('slug') || '4-hafta-ev-antrenmani';
-  var AD   = document.querySelector('.pd-hero h1');
-  AD = AD ? AD.textContent.replace(/\s+/g,' ').trim() : '4 Hafta Ev Antrenmanı';
+  var T = window.FIT_TAKVIM;
+  var PD = window.PD_PROGRAM || {};
+  var SLUG = PD.slug || new URLSearchParams(location.search).get('slug') || '4-hafta-ev-antrenmani';
+  var AD   = PD.ad;
+  if(!AD){
+    var h1 = document.querySelector('.pd-hero h1');
+    AD = h1 ? h1.textContent.replace(/\s+/g,' ').trim() : '4 Hafta Ev Antrenmanı';
+  }
+  /* Sayfa gövdesi 4 haftalık plan için yazılmış: 4 hafta × haftada 3 = 12.
+     Öteki slug'lar bugün yalnız başlığı değiştiriyor, plan gövdesi aynı —
+     bu yüzden TOPLAM slug'a göre türetilmiyor. Rapora AÇIK olarak geçti. */
   var TOPLAM = 12;
+  var VARSAYILAN_GUNLER = [1,3,5];        /* hero: "Haftada 3 gün" */
   var el = function(id){ return document.getElementById(id); };
+  var live = function(m){ var n=el('pgLive'); if(n) n.textContent = m; };
 
   function paint(){
     var p = S.read().program;
@@ -1024,6 +1252,7 @@
     b.innerHTML = '<i class="fa-solid fa-circle"></i> ' + (mine ? S.etiket(d) : 'Başlanmadı');
 
     el('pgStart').hidden    = !!mine;
+    el('pgPlan').hidden     = !(mine && (d==='devam' || d==='duraklatildi'));
     el('pgWorkout').hidden  = !(mine && d==='devam');
     el('pgPause').hidden    = !(mine && d==='devam');
     el('pgResume').hidden   = !(mine && d==='duraklatildi');
@@ -1047,18 +1276,316 @@
       : d==='duraklatildi' ? 'Duraklattın. İlerlemen duruyor, kaybolmuyor — devam ettiğinde kaldığın yerden sürer.'
       : d==='birakildi'    ? 'Bıraktın. Program arşivinde duruyor; istediğin an baştan başlatabilirsin.'
       : 'Programı tamamladın. Özetin ve sonraki öneri Fit Planım’da.';
+
+    ozetBas(mine ? p : null);
   }
 
-  el('pgStart').addEventListener('click', function(){ S.programBasla({slug:SLUG, ad:AD, toplam:TOPLAM}); paint(); });
+  /* ------------------------------------------------------------------
+     TAKVİM ÖZETİ — "başlattım, peki ne oldu?" sorusunun cevabı.
+     Program başladıysa kullanıcı ekranda somut bir şey görür: hangi
+     günler, saat kaçta, sıradaki randevu ne zaman, tahmini bitiş.
+     Takvim kurulmadıysa bunu SAKLAMAZ, açıkça söyler ve kuracak
+     düğmeyi gösterir — sessiz eksik yok.
+     ------------------------------------------------------------------ */
+  function ozetBas(p){
+    var kutu = el('pgkOzet');
+    if(!p || !T){ kutu.hidden = true; kutu.innerHTML=''; return; }
+    var cip = function(ico, metin, yok){
+      return '<span class="pgk-ozet-cip'+(yok?' is-yok':'')+'"><i class="fa-solid '+ico+
+             '" aria-hidden="true"></i>'+metin+'</span>';
+    };
+    if(!p.baslangic || !(p.gunler||[]).length){
+      kutu.innerHTML = cip('fa-calendar-xmark','Takvim kurulmadı — “Takvimi kur” ile üç soruda kurarsın', true);
+      kutu.hidden = false; return;
+    }
+    var parca = [
+      cip('fa-calendar-week', T.gunlerMetni(p.gunler)),
+      p.saat ? cip('fa-clock', p.saat) : cip('fa-clock','Saat kurulmadı', true)
+    ];
+    var s = T.sonraki(p);
+    if(s) parca.push(cip('fa-arrow-right', T.yakinAd(s.tarih)+' · Gün '+s.no));
+    var bit = S.bitisTahmini();
+    if(bit){
+      var bd = new Date(bit);
+      if(!isNaN(bd)) parca.push(cip('fa-flag-checkered','Tahmini bitiş '+T.tarihTR(bd)));
+    }
+    kutu.innerHTML = parca.join('');
+    kutu.hidden = false;
+  }
+
+  /* ==================================================================
+     SÖZLEŞME — hangi günler · saat kaçta · ne zaman başlıyor
+     ================================================================== */
+  var KUR  = null;    /* {gunler:[], saat:'', baslangic:'YYYY-MM-DD'} */
+  var MOD  = 'basla'; /* 'basla' | 'duzenle' */
+
+  function pazartesi(){
+    var b = T.bugun(), f = (8 - T.gunNo(b)) % 7;
+    return T.ekleGun(b, f === 0 ? 7 : f);
+  }
+  var SAATLER  = ['06:30','07:30','12:30','18:30','20:00'];
+
+  function kurAc(mod){
+    if(!T) return;
+    MOD = mod;
+    var p = S.read().program;
+    var mine = p && p.slug === SLUG;
+    KUR = {
+      gunler: (mine && (p.gunler||[]).length) ? p.gunler.slice() : VARSAYILAN_GUNLER.slice(),
+      saat:   (mine && p.saat) || '07:30',
+      baslangic: (mine && p.baslangic) || T.ymd(pazartesi())
+    };
+    el('pgCakisma').hidden = true;
+    el('pgKur').hidden = false;
+    el('pgkVazgec').hidden = (mod !== 'duzenle');
+    el('pgkGec').hidden    = (mod === 'duzenle');
+    el('pgkOnayla').innerHTML = mod === 'duzenle'
+      ? '<i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Takvimi güncelle'
+      : '<i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Takvimi kur ve başla';
+    el('pgPlan').setAttribute('aria-expanded','true');
+    kurBas(false);
+    el('pgKur').scrollIntoView({block:'nearest',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    var ilk = el('pgkGunler').querySelector('button');
+    if(ilk) ilk.focus();
+    live(mod === 'duzenle' ? 'Takvim düzenleme açıldı.' : 'Programa başlamadan önce üç soru: hangi günler, saat kaçta, ne zaman başlıyor.');
+  }
+  function kurKapat(){
+    el('pgKur').hidden = true;
+    el('pgPlan').setAttribute('aria-expanded','false');
+  }
+
+  function kurBas(canlandir){
+    /* --- gün çipleri --- */
+    el('pgkGunler').innerHTML = T.GUN_KISA.map(function(ad, i){
+      var g = i+1, on = KUR.gunler.indexOf(g) >= 0;
+      return '<button type="button" class="pgk-cip pgk-gun" data-gun="'+g+'"' +
+             ' aria-pressed="'+(on?'true':'false')+'">'+
+             '<span class="sr-only">'+T.GUN_TAM[i]+'</span><span aria-hidden="true">'+ad+'</span></button>';
+    }).join('');
+
+    /* --- saat çipleri (+ "saat yok") --- */
+    el('pgkSaatler').innerHTML = SAATLER.map(function(s){
+      return '<button type="button" class="pgk-cip" data-saat="'+s+'" aria-pressed="'+
+             (KUR.saat===s?'true':'false')+'">'+s+'</button>';
+    }).join('') +
+    '<button type="button" class="pgk-cip" data-saat="" aria-pressed="'+(KUR.saat?'false':'true')+
+    '">Saat belirlemeyeceğim</button>';
+    el('pgkSaatAlan').value = KUR.saat || '';
+
+    /* --- başlangıç çipleri --- */
+    var bugunY = T.ymd(T.bugun()), yarinY = T.ymd(T.ekleGun(T.bugun(),1)), pztY = T.ymd(pazartesi());
+    el('pgkBaslar').innerHTML = [
+      ['Bugün', bugunY], ['Yarın', yarinY], ['Önümüzdeki Pazartesi', pztY]
+    ].map(function(x){
+      return '<button type="button" class="pgk-cip" data-bas="'+x[1]+'" aria-pressed="'+
+             (KUR.baslangic===x[1]?'true':'false')+'">'+x[0]+'</button>';
+    }).join('');
+    el('pgkTarihAlan').value = KUR.baslangic || '';
+    el('pgkTarihAlan').min   = bugunY;
+
+    onizleme(canlandir);
+  }
+
+  /* İMZA — sözleşme kendi çıktısına dönüşüyor: seçim değiştikçe
+     aşağıdaki üç satır gerçek tarihlerle yeniden yazılıyor. */
+  function onizleme(canlandir){
+    var liste = el('pgkOnizleme'), bitis = el('pgkBitis');
+    var sanki = {slug:SLUG, ad:AD, toplam:TOPLAM, biten:0,
+                 baslangic:KUR.baslangic, gunler:KUR.gunler, saat:KUR.saat};
+    var s = T.seanslar(sanki);
+
+    /* Gün seçilmediyse takvim kurulamaz — bunu gizlemek yerine söylüyoruz
+       ve "kur" düğmesini kaldırıyoruz. Ölü düğme bırakmıyoruz. */
+    var kurulabilir = s.length > 0;
+    el('pgkOnayla').hidden = !kurulabilir;
+    if(MOD !== 'duzenle') el('pgkGec').hidden = false;
+
+    if(!kurulabilir){
+      liste.innerHTML = '<li><p class="pgk-r-bos">Hiç antrenman günü seçilmedi. En az bir gün seç, ' +
+        'randevuların burada belirsin — ya da <b>şimdilik geç</b>, programı takvimsiz başlat.</p></li>';
+      bitis.textContent = '';
+      return;
+    }
+    liste.innerHTML = s.slice(0,3).map(function(x){
+      return '<li class="pgk-r">' +
+        '<span class="pgk-r-nok" aria-hidden="true"><i></i></span>' +
+        '<span class="pgk-r-gun">'+T.yakinAd(x.tarih)+'</span>' +
+        '<span class="pgk-r-saat">'+(KUR.saat || '—')+'</span>' +
+        '<span class="pgk-r-no">Gün '+x.no+'</span></li>';
+    }).join('');
+    if(canlandir){
+      liste.classList.remove('is-yeni');
+      void liste.offsetWidth;              /* animasyonu yeniden tetikle */
+      liste.classList.add('is-yeni');
+    }
+    var son = s[s.length-1];
+    bitis.innerHTML = '<b>'+s.length+'</b> antrenman · haftada <b>'+KUR.gunler.length+
+      '</b> gün · son antrenman <b>'+T.tarihTR(son.tarih)+'</b>' +
+      (KUR.saat ? ' · hatırlatma <b>'+KUR.saat+'</b>' : ' · saat kurulmadı');
+  }
+
+  /* --- sözleşme etkileşimleri --- */
+  el('pgkGunler').addEventListener('click', function(e){
+    var b = e.target.closest('[data-gun]'); if(!b) return;
+    var g = +b.getAttribute('data-gun'), i = KUR.gunler.indexOf(g);
+    if(i >= 0) KUR.gunler.splice(i,1); else KUR.gunler.push(g);
+    KUR.gunler.sort(function(x,y){ return x-y; });
+    kurBas(true);
+    var yeni = el('pgkGunler').querySelector('[data-gun="'+g+'"]'); if(yeni) yeni.focus();
+    live(T.GUN_TAM[g-1] + (KUR.gunler.indexOf(g)>=0 ? ' antrenman günü' : ' çıkarıldı') +
+         '. Haftada ' + KUR.gunler.length + ' gün.');
+  });
+  el('pgkSaatler').addEventListener('click', function(e){
+    var b = e.target.closest('[data-saat]'); if(!b) return;
+    KUR.saat = b.getAttribute('data-saat');
+    kurBas(true);
+    var yeni = el('pgkSaatler').querySelector('[data-saat="'+KUR.saat+'"]'); if(yeni) yeni.focus();
+    live(KUR.saat ? 'Antrenman saati '+KUR.saat : 'Saat belirlenmedi');
+  });
+  el('pgkSaatAlan').addEventListener('change', function(){
+    KUR.saat = this.value || ''; kurBas(true); el('pgkSaatAlan').focus();
+  });
+  el('pgkBaslar').addEventListener('click', function(e){
+    var b = e.target.closest('[data-bas]'); if(!b) return;
+    KUR.baslangic = b.getAttribute('data-bas');
+    kurBas(true);
+    var yeni = el('pgkBaslar').querySelector('[data-bas="'+KUR.baslangic+'"]'); if(yeni) yeni.focus();
+    live('Başlangıç ' + T.tarihTR(T.ayrist(KUR.baslangic)));
+  });
+  el('pgkTarihAlan').addEventListener('change', function(){
+    if(this.value) KUR.baslangic = this.value;
+    kurBas(true); el('pgkTarihAlan').focus();
+  });
+
+  /* --- başlat / güncelle / atla / vazgeç --- */
+  function basla(takvimli){
+    S.programBasla({slug:SLUG, ad:AD, toplam:TOPLAM,
+      baslangic: takvimli ? KUR.baslangic : null,
+      gunler:    takvimli ? KUR.gunler.slice() : [],
+      saat:      takvimli ? (KUR.saat || null) : null});
+    kurKapat(); paint();
+    el('pgWrap').scrollIntoView({block:'nearest',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    if(takvimli){
+      var s = T.sonraki(S.read().program);
+      live('Program başladı. ' + (s ? 'İlk antrenman ' + T.yakinAd(s.tarih) +
+           (KUR.saat ? ' saat ' + KUR.saat : '') + ', Gün ' + s.no + '.' : ''));
+    }else{
+      live('Program takvimsiz başladı. Takvimi “Takvimi kur” ile ya da Fit Planım’dan kurabilirsin.');
+    }
+  }
+  el('pgkOnayla').addEventListener('click', function(){
+    if(MOD === 'duzenle'){
+      S.programPlanla({baslangic:KUR.baslangic, gunler:KUR.gunler.slice(), saat:KUR.saat || null});
+      kurKapat(); paint();
+      live('Takvim güncellendi: ' + T.gunlerMetni(KUR.gunler) + (KUR.saat ? ' · ' + KUR.saat : ''));
+      el('pgPlan').focus();
+    }else{
+      basla(true);
+    }
+  });
+  el('pgkGec').addEventListener('click', function(){ basla(false); });
+  el('pgkVazgec').addEventListener('click', function(){ kurKapat(); paint(); el('pgPlan').focus(); });
+
+  /* --- ÇAKIŞMA: aktif program varken sessiz üzerine yazma yok --- */
+  function cakismaAc(p){
+    var kutu = el('pgcMevcut');
+    var pct  = p.toplam ? Math.round(p.biten / p.toplam * 100) : 0;
+    kutu.innerHTML = esc(p.ad) + '<small>%' + pct + ' tamamlandı · ' + p.biten + '/' + p.toplam +
+      ' antrenman · ' + (S.etiket(p.durum)||'') +
+      (p.baslangic ? ' · ' + T.tarihTR(T.ayrist(p.baslangic)) + ' tarihinde başladı' : ' · takvim kurulmamış') + '</small>';
+    el('pgKur').hidden = true;
+    el('pgCakisma').hidden = false;
+    el('pgCakisma').scrollIntoView({block:'nearest',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    el('pgcDegistir').focus();
+    live('Zaten devam eden bir programın var: ' + p.ad + '. Bu programa geçersen mevcut kaydın yerine geçer.');
+  }
+  function esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  el('pgcDegistir').addEventListener('click', function(){ el('pgCakisma').hidden = true; kurAc('basla'); });
+  el('pgcVazgec').addEventListener('click',  function(){ el('pgCakisma').hidden = true; el('pgStart').focus(); });
+
+  el('pgStart').addEventListener('click', function(){
+    var p = S.read().program;
+    if(p && p.slug !== SLUG && (p.durum === 'devam' || p.durum === 'duraklatildi')){ cakismaAc(p); return; }
+    if(!T){ S.programBasla({slug:SLUG, ad:AD, toplam:TOPLAM}); paint(); return; }
+    kurAc('basla');
+  });
+  el('pgPlan').addEventListener('click', function(){
+    if(el('pgKur').hidden){ kurAc('duzenle'); } else { kurKapat(); el('pgPlan').focus(); }
+  });
+
   el('pgPause').addEventListener('click',   function(){ S.programDurakla(); paint(); });
   el('pgResume').addEventListener('click',  function(){ S.programDevam(); paint(); });
-  el('pgQuit').addEventListener('click',    function(){ S.programBirak(); paint(); });
+  el('pgQuit').addEventListener('click',    function(){ S.programBirak(); kurKapat(); paint(); });
   el('pgRestart').addEventListener('click', function(){ S.programYenidenBasla(); paint(); });
-  el('pgShift').addEventListener('click',   function(){ S.gunKaydir(); paint(); });
-  el('pgSkip').addEventListener('click',    function(){ S.gunAtla(); paint(); });
+  el('pgShift').addEventListener('click',   function(){
+    S.gunKaydir(); paint();
+    live('Kaçan antrenman ötelendi. Toplam ötelenen: ' + (S.read().program.kacan||0) + '.');
+  });
+  el('pgSkip').addEventListener('click',    function(){
+    S.gunAtla(); paint(); live('Gün atlandı, program devam ediyor.');
+  });
+  /* ------------------------------------------------------------------
+     ANTRENMAN SÜRESİ — sayfanın kendi verisinden, sabitten değil.
+     ------------------------------------------------------------------
+     Buradaki çağrı `dk:25, kcal:280` sabitleriyle yapılıyordu: kullanıcı ne
+     yaparsa yapsın deftere aynı iki sayı yazılıyordu ve `kaynak` geçilmediği
+     için şema 'beyan' diyordu — sayı uydurma, kademe "kullanıcı öyle dedi".
+
+     Oysa sayfa süreyi ZATEN taşıyor: her antrenman günü kartında "~25 dk"
+     yazıyor ve haftadan haftaya artıyor (25 · 28 · 30 · 32). Süre artık o
+     kartlardan okunuyor — türetme değil, sayfanın kendi verisi.
+
+     kcal deponun kendi katsayısından türetiliyor (aktivite-gunlugu-v1:712 ·
+     `KCAL_DK.antrenman = 6.6 kcal/dk`), video-seans-detay-v1'deki desenle
+     birebir aynı. Kişinin kilosu bilinmediği için bu bir TAHMİN; o yüzden
+     kademe `beyan`: süre plandan geliyor, kullanıcı yaptığını beyan ediyor,
+     hiçbir yerde kronometre çalışmıyor. 'olculdu' demek yalan olurdu.
+     ------------------------------------------------------------------ */
+  var KCAL_DK_ANTRENMAN = 6.6;              /* aktivite-gunlugu-v1:712 ile aynı */
+  function haftaSureleri(){
+    /* {1:[25,25], 2:[28,28], …} — DOM'dan bir kez okunur */
+    var m = {};
+    document.querySelectorAll('.pd-week[data-week]').forEach(function(w){
+      var n = +w.getAttribute('data-week'), l = [];
+      w.querySelectorAll('.pd-day-stat .dst').forEach(function(d){
+        var x = /~(\d+)\s*dk/.exec(d.textContent||'');
+        if(x) l.push(+x[1]);
+      });
+      if(l.length) m[n] = l;
+    });
+    return m;
+  }
+  function seansSuresi(p){
+    var m = haftaSureleri(), haftalar = Object.keys(m).map(Number).sort(function(a,b){return a-b;});
+    if(!haftalar.length) return null;                 /* sayfada süre yoksa: bilinmiyor */
+    var no = (p && p.biten != null) ? p.biten + 1 : 1;   /* tamamlanacak seansın sırası */
+    var haftalik = (p && (p.gunler||[]).length) || 3;
+    var h = Math.ceil(no / haftalik);
+    /* Program sayfadaki hafta sayısını aşarsa son haftanın temposu sürer;
+       uydurma bir sayı değil, gösterilen son haftanın kendi verisi. */
+    var liste = m[h] || m[haftalar[haftalar.length-1]];
+    /* HAFTA İÇİ indeks — global sıra değil. Sayfa haftada 2 gün kartı
+       gösteriyor, program haftada 3 gün yapıyor (bkz. AÇIK kalem); global
+       sıra kullanınca haftanın ilk antrenmanı kartın ikinci süresini
+       alıyordu. Hafta içi indeks kartların kendi sırasını koruyor. */
+    var haftaIci = (no - 1) % haftalik;
+    return liste[haftaIci % liste.length];
+  }
+
   el('pgWorkout').addEventListener('click', function(){
-    S.antrenmanTamamla({ad:AD+' — antrenman', dk:25, kcal:280});
+    var p = S.read().program;
+    var dk = seansSuresi(p);
+    S.antrenmanTamamla(dk == null
+      ? {ad:AD+' — antrenman', kcal:null, kaynak:'beyan'}      /* süre bilinmiyor → kcal de */
+      : {ad:AD+' — antrenman', dk:dk,
+         kcal:Math.round((KCAL_DK_ANTRENMAN * dk) / 5) * 5, kaynak:'beyan'});
     paint();
+    var y = S.read().program;
+    live('Antrenman kaydedildi' + (dk!=null ? ' · '+dk+' dakika' : '') + '. ' +
+         (y ? y.biten+'/'+y.toplam+' antrenman tamamlandı.' : ''));
   });
   document.addEventListener('fit:state', paint);
   paint();

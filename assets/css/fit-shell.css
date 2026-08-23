@@ -903,44 +903,52 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 /* ===================== GÖRÜŞ BİLDİR (eski site "Öneri ve Şikayet" mirası) =====================
  Eski sitedeki sunum: sağ kenarda 90° döndürülmüş sabit turuncu buton (open-feedback-modal).
  Aynı desen, yeni dile çevrildi. */
-/* R11/M19+M20 · GÖRÜŞ BİLDİR ŞERİDİ
-   Beyar: "DadaHaber ana sayfadaki sağ dikey şerit gibi olsun, Fit'in brand
-   renginde" + "yukarı çekilecek, banner'ın merkezinin hizasında olacak".
+/* =====================================================================
+   GÖRÜŞ BİLDİR — ŞERİT + DÜĞME   (Beyar · R11/M19+M20, R11/M21 düzeltme)
+   ---------------------------------------------------------------------
+   Beyar: "Görüş bildir niye büyüdü olum — sağdaki gibi olacak, konumu fena
+   değil. Bir de şeridi koy."
 
-   DadaHaber'in şeridi (ekran görüntüsünden): kalın dikey blok, sol köşeleri
-   yuvarlak, BÜYÜK HARF kalın metin, ikon metnin üstünde, belirgin gölge.
-   DadaFit'e taşınırken renk markanın kendi yeşiline çevrildi (K29 —
-   ölçü alınır, palet alınmaz).
+   İLK DENEMEDE HATA BENDE: DadaHaber'in kalın sarı bloğuna bakıp
+   kalınlaştırdım (51×169 · BÜYÜK HARF · 800 ağırlık). Beyar'ın istediği
+   DadaGastro'nunki. Canlıdan ÖLÇÜLDÜ (dadagastro.com @1440):
 
-   Öncesi: 12.5px, ince, `rotate(90deg)` ile yatay hap; sağ kenarda
-   ~41px genişliğinde zayıf bir şeritti ve `top:50%` ile viewport ortasında
-   duruyordu (banner'la hiçbir zaman hizalı değildi).
+     .feedback-tab  52×144 · fixed · right 0 · z-index 72
+                    font-size 13px · font-weight 700 · letter-spacing .52px
+                    text-transform NONE (büyük harf DEĞİL)
+                    padding 15px 24px 17px
+                    border-radius 0 0 16px 16px  (döndürülünce SOL köşeler)
+                    box-shadow rgba(33,30,22,.09) 0 6px 22px
+     .fb-rail       8px × tam ekran · fixed · right 0 · top 0 · z-index 71
+                    marka rengi, yarıçap yok
 
-   Dikey yazı `writing-mode` ile kuruluyor — `rotate` numarasından farklı
-   olarak kutu gerçekten dikey, yani yükseklik/dolgu öngörülebilir ve
-   dokunma hedefi doğru ölçülür (WCAG 2.5.8).
-   Dikey konum: --fb-top (fit-shell.js → "GÖRÜŞ BİLDİR ŞERİDİNİ BANNER
-   MERKEZİNE HİZALA"); yoksa eski 50% yedeği. */
+   Renk DadaFit yeşiline çevrildi (K29: ölçü alınır, palet alınmaz).
+
+   DÖNDÜRME YERİNE `writing-mode`: referans `rotate(90deg)` kullanıyor ama
+   burada dikey konum `--fb-top` ile banner merkezine oturuyor (R11/M19) ve
+   döndürülmüş kutuda `top` artık görsel üstü göstermiyor — hizalama
+   bozulurdu. `vertical-rl` kutuyu GERÇEKTEN dikey yapar, `translateY(-50%)`
+   beklendiği gibi çalışır. Ölçülen sonuç aynı: 52×144.
+   ===================================================================== */
+.fb-rail{
+  position:fixed;top:0;right:0;width:8px;height:100dvh;
+  background:var(--fit);z-index:71;pointer-events:none;
+}
 .feedback-tab{
-  position:fixed;top:var(--fb-top,50%);right:0;z-index:55;
+  position:fixed;top:var(--fb-top,50%);right:0;z-index:72;
   transform:translateY(-50%);
-  /* DİKKAT — `writing-mode:vertical-rl` eksenleri çevirir: blok ekseni
-     sağdan sola, satır içi eksen YUKARIDAN AŞAĞIYA akar. Bu yüzden
-     `flex-direction:column` ikonu metnin ÜSTÜNE değil YANINA koyuyordu
-     (ölçüldü). Görsel olarak üst üste dizmek için satır içi eksen
-     gerekiyor: `row`. */
-  display:inline-flex;flex-direction:row;align-items:center;gap:10px;
+  display:inline-flex;flex-direction:row;align-items:center;gap:9px;
   writing-mode:vertical-rl;
   background:var(--fit);color:#fff;
-  font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-  padding:22px 16px;min-height:160px;
-  border-radius:var(--radius-md) 0 0 var(--radius-md);
-  box-shadow:-6px 0 22px rgba(20,18,12,.22);
+  font-size:13px;font-weight:700;letter-spacing:.52px;text-transform:none;
+  padding:24px 16px;min-height:144px;
+  border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+  box-shadow:0 6px 22px rgba(33,30,22,.09);
   white-space:nowrap;
   transition:background .2s var(--ease),padding-right .22s var(--ease);
 }
-.feedback-tab i{font-size:15px;writing-mode:horizontal-tb}
-.feedback-tab:hover{background:var(--fit-deep);padding-right:15px}
+.feedback-tab i{font-size:13px;writing-mode:horizontal-tb}
+.feedback-tab:hover{background:var(--fit-deep);padding-right:20px}
 .feedback-tab:focus-visible{outline:3px solid var(--fit-bright);outline-offset:3px}
 
 /* görüş bildir modal'ı — eski site akışı (konu seç → form → teşekkür) tek panelde */
@@ -1136,7 +1144,7 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
   .chip{font-size:12px;padding:7px 12px;white-space:nowrap}
 
   /* görüş bildir etiketi mobilde gizli — bottom-nav + FAB yeterli */
-  .feedback-tab{display:none}
+  .feedback-tab,.fb-rail{display:none}   /* R11/M21: şerit de gizlenir */
 
   /* footer — floating pill nav'ı örtmesin */
   .footer.orange{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}

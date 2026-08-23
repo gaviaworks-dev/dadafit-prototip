@@ -791,9 +791,45 @@ JS hatası **0**.
 
 ---
 
+## M21 · Görüş Bildir: Gastro ölçüsüne çekildi + sağ şerit — `KAPANDI`
+
+**İstek (Beyar, birebir):**
+> "Görüş bildir niye büyüdü olum — **sağdaki gibi olacak**, konumu fena değil.
+> Bir de **şeridi koy**."
+
+**HATA BENDEYDİ.** M20'de Beyar "DadaHaber'deki gibi" demişti, ben onun kalın
+sarı bloğuna bakıp kalınlaştırdım (51×169 · BÜYÜK HARF · 800 ağırlık).
+İstenen DadaGastro'nunkiydi. Canlıdan ölçüldü (`dadagastro.com` @1440):
+
+| | Gastro (referans) | DadaFit (şimdi) |
+|---|---|---|
+| Düğme | 52×144 | **52×144** |
+| Punto / ağırlık | 13px / 700 | **13px / 700** |
+| Büyük harf | none | **none** |
+| Harf aralığı | 0.52px | **0.52px** |
+| Yarıçap | sol köşeler 16px | **16px 0 0 16px** |
+| z-index | 72 | **72** |
+| Gölge | `0 6px 22px rgba(33,30,22,.09)` | aynı |
+| **Şerit** `.fb-rail` | 8px × tam ekran · right 0 · z 71 | **8px × 1000 · right 0 · z 71** |
+
+Şerit DadaFit'te **hiç yoktu**, eklendi. Renk marka yeşiline çevrildi
+(K29: ölçü alınır, palet alınmaz).
+
+**Döndürme yerine `writing-mode`:** referans `rotate(90deg)` kullanıyor ama
+bizde dikey konum `--fb-top` ile banner merkezine oturuyor (M19); döndürülmüş
+kutuda `top` görsel üstü göstermediği için hizalama bozulurdu. `vertical-rl`
+kutuyu gerçekten dikey yapar. Ölçülen sonuç aynı: 52×144.
+
+**Kanıt (3 farklı banner tipi):** banner merkezine **sapma 0px** (üçünde de) ·
+düğme 52×144 · şerit 8×1000 · JS hatası **0** ·
+nöbetler: header-banner · hizalama · kabuk-kalite · footer-yapi **0 sorun**.
+Mobilde (≤640) düğme ve şerit birlikte gizleniyor.
+
+---
+
 ## Kurallar (bu tur için)
 
-- Madde sırası Beyar'ın verdiği sıra: M1 … M15 (ilk tur) → M16 → M17 → M18 → M19+M20 (ikinci tur).
+- Madde sırası Beyar'ın verdiği sıra: M1 … M15 (ilk tur) → M16 → M17 → M18 → M19+M20 → M21 (ikinci tur).
 - Her madde kapanışında **sayı** üret; "yaptım" kanıt değil (`DENETIM.md` §1).
 - Görünürlük `getClientRects().length > 0` ile ölçülür (`DENETIM.md` §2).
 - Kabuk (`fit-shell.css` / `fit-shell.js`) ortak kaynak; oraya yazılan her

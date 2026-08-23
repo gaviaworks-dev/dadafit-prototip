@@ -742,7 +742,8 @@ function drawerHtml(){
 '</aside>';
 }
 
-var FEEDBACK_HTML = `<a class="feedback-tab" href="#" id="fbTab" aria-label="Görüş Bildir — öneri ve şikayet">
+var FEEDBACK_HTML = `<span class="fb-rail" aria-hidden="true"></span>
+<a class="feedback-tab" href="#" id="fbTab" aria-label="Görüş Bildir — öneri ve şikayet">
   <i class="fa-solid fa-comment-dots"></i> Görüş Bildir
 </a>
 

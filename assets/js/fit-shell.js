@@ -3382,7 +3382,16 @@ setTimeout(function(){
   while(kuyruk.length && !basildi){
     var el = kuyruk.shift();
 
-    if(el.getClientRects().length === 0){ komsu = false; continue; }
+    /* R11/M22 · SIFIR ALANLI BLOK KOMŞULUĞU KESMEZ.
+       `getClientRects().length` 0×0 bir eleman için 1 dönebiliyor; bu
+       yüzden ekranda HİÇ YER KAPLAMAYAN bloklar "araya giren blok" sayılıp
+       `is-onbanner`ı düşürüyordu. Ölçülen kusur: dadafit-hub'da hero ile
+       beyaz gövde arasında `.wrap.fit-band-panel` var ama BOŞ (kabuk
+       `.fit-band-panel:empty{display:none}` diyor) — 0×0. Gövde dikişi
+       alıyordu ama binme almıyordu, köşe beyaz üstünde beyaz kalıyordu.
+       Alanı olmayan blok görünmez sayılır ve komşuluğu bozmaz. */
+    var kutu = el.getBoundingClientRect();
+    if(el.getClientRects().length === 0 || kutu.width < 1 || kutu.height < 1) continue;
 
     var cs = getComputedStyle(el);
     if(cs.position === 'sticky' || cs.position === 'fixed'){ komsu = false; continue; }

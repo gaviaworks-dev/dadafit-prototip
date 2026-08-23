@@ -827,9 +827,40 @@ Mobilde (≤640) düğme ve şerit birlikte gizleniyor.
 
 ---
 
+## M22 · Ana sayfa hero'sunda dikiş binmiyordu — `KAPANDI`
+
+**İstek (Beyar, birebir):**
+> "Hero'daki kısımda beyaz panelde niye radius koyman gerekiyor"
+
+**ÖLÇÜM cevabı verdi:** radius ZATEN vardı (22px, tam hero'nun bittiği
+y=1000'de) ama **binme yoktu** (`margin-top:0`) — yani köşe kesiği koyu
+hero'yu değil sayfa zeminini (#f9f9f9) açıyordu, beyaz üstünde beyaz kalıyordu.
+Gözle "radius yok" görünüyordu; DOM'da vardı.
+
+**KÖK NEDEN — sondanın/işaretleyicinin kusuru:**
+`getClientRects().length` **0×0 bir eleman için 1 dönebiliyor**. Dikiş
+işaretleyicisi bu yüzden ekranda hiç yer kaplamayan blokları "araya giren
+blok" sayıp `is-onbanner`ı düşürüyordu. Ana sayfada hero ile beyaz gövde
+arasında `.wrap.fit-band-panel` var ama **BOŞ** (kabuk
+`.fit-band-panel:empty{display:none}` diyor) → 0×0. Gövde dikişi alıyordu,
+binmeyi almıyordu.
+
+**Düzeltme:** alanı olmayan blok (genişlik veya yükseklik < 1px) görünmez
+sayılır ve komşuluğu bozmaz.
+
+**Kanıt (@1440 ve @390, ikisinde de aynı):**
+dikiş **50/66** sayfa · binen (`is-onbanner`) **41 → 42** (ana sayfa eklendi) ·
+hub gövdesi `mt: 0 → -22px`, y 1000 → 978.
+Dikişsiz kalan 16: 14 plan sayfası (M17'de koyu banner beyaz profil başlığına
+döndü — dikilecek koyu kenar yok) + `giris-v1` + `profil-v1` (yapısal).
+Nöbetler: header-banner · hizalama · kabuk-kalite · crumb-home · footer-yapi ·
+plan-account → **hepsi 0 sorun**.
+
+---
+
 ## Kurallar (bu tur için)
 
-- Madde sırası Beyar'ın verdiği sıra: M1 … M15 (ilk tur) → M16 → M17 → M18 → M19+M20 → M21 (ikinci tur).
+- Madde sırası Beyar'ın verdiği sıra: M1 … M15 (ilk tur) → M16 → M17 → M18 → M19+M20 → M21 → M22 (ikinci tur).
 - Her madde kapanışında **sayı** üret; "yaptım" kanıt değil (`DENETIM.md` §1).
 - Görünürlük `getClientRects().length > 0` ile ölçülür (`DENETIM.md` §2).
 - Kabuk (`fit-shell.css` / `fit-shell.js`) ortak kaynak; oraya yazılan her

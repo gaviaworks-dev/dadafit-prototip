@@ -331,7 +331,15 @@ for (const [w, h] of [[1440, 1000], [390, 844]]) {
       kaydet: !!b,
       kapi: !!(b && b.hasAttribute('data-lg-gate')),
       gunler: document.querySelectorAll('#wgPlan .wg-gun').length,
-      baglanti: (document.getElementById('wgUrl') || {}).value || ''
+      /* R11/M11 · Beyar "sonucundaki planın bağlantısını kaldır" dedi; kopyalama
+         kutusu (#wgUrl) ekrandan kalktı. AMA ölçülen GARANTİ kutu değil,
+         kalıcılık: girişsiz kullanıcı planını URL'de taşıyabiliyor mu?
+         O mekanizma (`urlYaz()` → history.replaceState) DURUYOR, bu yüzden
+         ölçüm kutudan ADRES ÇUBUĞUNA taşındı. Mekanizma da giderse nöbet
+         yine kırmızı yanar — garanti sessizce kaybolmaz. */
+      baglanti: location.search,
+      /* kutunun gerçekten kalktığı da ölçülsün — geri gelirse haberimiz olur */
+      kopyaKutusu: !!document.getElementById('wgUrl')
     };
   });
 
@@ -339,7 +347,8 @@ for (const [w, h] of [[1440, 1000], [390, 844]]) {
   else if (!d.kaydet) rec('girişsiz akış', 'kaydet düğmesi girişsizken kayboluyor — akış kırılıyor');
   else if (!d.kapi) rec('girişsiz akış', 'kaydet düğmesi girişsizken data-lg-gate taşımıyor (sessiz kayıt ya da sessiz hata)');
   else if (!d.gunler) rec('girişsiz akış', 'girişsiz kullanıcıya plan üretilmiyor');
-  else if (!/\?plan=/.test(d.baglanti)) rec('girişsiz akış', 'plan bağlantısı yok — girişsiz kullanıcının kalıcılığı kalmıyor');
+  else if (!/[?&]plan=/.test(d.baglanti)) rec('girişsiz akış', 'adres çubuğunda ?plan= yok — girişsiz kullanıcının kalıcılığı kalmıyor');
+  else if (d.kopyaKutusu) rec('girişsiz akış', 'plan bağlantısı kopyalama kutusu (#wgUrl) geri gelmiş — R11/M11 onu kaldırmıştı');
   else {
     await page.click('#wgKaydet');
     await page.waitForTimeout(400);
@@ -349,7 +358,7 @@ for (const [w, h] of [[1440, 1000], [390, 844]]) {
                kayit: !!localStorage.getItem('dm_fit_planlar_v1') };
     });
     if (kapi.acik && !kapi.kayit)
-      ok(`girişsiz kullanıcı: plan görünüyor (${d.gunler} gün) · kaydet dürüst kapıyı açıyor · sessiz kayıt yok · ?plan= bağlantısı yerinde`);
+      ok(`girişsiz kullanıcı: plan görünüyor (${d.gunler} gün) · kaydet dürüst kapıyı açıyor · sessiz kayıt yok · ?plan= adres çubuğunda (kopyalama kutusu yok, R11/M11)`);
     else rec('girişsiz kapı', `kapı açık:${kapi.acik} · sessiz kayıt:${kapi.kayit}`);
   }
   if (konsol.length) rec('girişsiz konsol', konsol.join(' | '));

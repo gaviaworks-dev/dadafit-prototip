@@ -14,7 +14,7 @@
 
    Nöbet SİLİNMEDİ, yeni sözleşme kodlandı. Ölçüt gevşemedi: eskiden
    menü içeriği ad ad aranıyordu, şimdi hem ad ad aranıyor HEM DE tam
-   sayı (11 kalem · 3 grup) ve fazlalık yasağı (Bildirimler 0 · Planım 0)
+   sayı (11 kalem · 3 ayraç) ve fazlalık yasağı (Bildirimler 0 · Planım 0)
    ekleniyor. Üstüne eski nöbette hiç olmayan dört ölçüm geldi: header
    İlerlemem düğmesinin oturum/genişlik davranışı, yer tutucu kaleminin
    odak sırası, üyelik kaleminin dört kırılımı, alt bar etiketleri.
@@ -22,7 +22,8 @@
    NE KANITLAR
    1. Planım rayı TAM ÜÇ kalem (belge §3 Bugün · §4 Plan ve Takvim ·
       §5 İlerlemem) ve raydan inen adlar rayda DURMAZ.
-   2. Açılır menü TAM 11 kalem + TAM 3 grup başlığı; adlar belgeyle birebir.
+   2. Açılır menü TAM 11 kalem; adlar belgeyle birebir. Gruplama R11/M15'ten
+      beri BAŞLIKLA değil AYRAÇLA yapılıyor (grup başlığı 0, ayraç ≥3).
    3. Menüde "Bildirimler" 0 (belge §1: header'da durur, menüye konmaz) ve
       "Planım" 0 (R8 madde 1'den devralınan ölçüt).
    4. Raydan inen dört sayfa YETİM DEĞİL: banner h1 dolu ve GÖRÜNÜR,
@@ -159,6 +160,13 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
                  getComputedStyle(g).opacity !== '0' &&
                  g.getBoundingClientRect().height > 0
       })),
+      /* R11/M15 · gruplama artık BAŞLIKLA değil AYRAÇLA yapılıyor */
+      ayraclar: [...menu.querySelectorAll('.acct-div')]
+        .filter(d => d.getBoundingClientRect().height > 0 ||
+                     parseFloat(getComputedStyle(d).borderTopWidth) > 0 ||
+                     getComputedStyle(d).backgroundColor !== 'rgba(0, 0, 0, 0)').length,
+      /* kalem açıklaması kalkmalı: iki satıra taşan kalem olmamalı */
+      aciklamaliKalem: [...menu.querySelectorAll('a[href] small, .acct-soon small')].length,
       /* odak sırasına giren kalemler — yer tutucu buraya GİRMEMELİ */
       odak: [...menu.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])')].map(ad)
     };
@@ -170,16 +178,26 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
       rec(`açılır menü ${m.kalemler.length} kalem — belge §2 birebir ON BİR olmalı: ${m.kalemler.map(k => k.t).join(' · ')}`);
     else ok(`açılır menü 11 kalem: ${m.kalemler.map(k => k.t).join(' · ')}`);
 
-    if (m.gruplar.length !== 3)
-      rec(`menüde ${m.gruplar.length} grup başlığı — belge §2 ÜÇ grup istiyor`);
-    else ok(`3 grup başlığı: ${m.gruplar.map(g => g.t).join(' · ')}`);
+    /* ---------------------------------------------------------------
+       BEKLENTİ DEĞİŞTİ — R11/M15 (Beyar):
+         "Dropdown kısmı section'lı BAŞLIKSIZ olacak — aynı Diet'in
+          dropdown'ındaki tab menü yapısını alabilirsin."
+       Kardeş marka (dadadiet.com) hesap menüsünde grup başlığı da kalem
+       açıklaması da YOK; gruplar ince ayraçla ayrılıyor.
 
-    for (let i = 0; i < GRUPLAR.length; i++)
-      if (!m.gruplar[i] || m.gruplar[i].t !== GRUPLAR[i])
-        rec(`grup ${i + 1} "${m.gruplar[i] ? m.gruplar[i].t : '(yok)'}" — "${GRUPLAR[i]}" olmalı (belge §2 sırası)`);
-    /* DOM'da olması görünür olduğu anlamına gelmez */
-    for (const g of m.gruplar)
-      if (!g.gorunur) rec(`grup başlığı "${g.t}" DOM'da var ama GÖRÜNMÜYOR (display/visibility/opacity/yükseklik)`);
+       Belge §2'nin ASIL ŞARTI — "on bir kalem, şu adlarla, şu sırada" —
+       DEĞİŞMEDİ ve yukarıda hâlâ ölçülüyor. Değişen yalnız grupların NASIL
+       gösterildiği: başlık yerine ayraç. Nöbet artık onu şart koşuyor,
+       yani gruplama sessizce kaybolursa (ayraç da yoksa) kırmızı yanar. */
+    if (m.gruplar.length)
+      rec(`menüde ${m.gruplar.length} grup BAŞLIĞI kaldı — R11/M15 başlıkları ayraca çevirmişti: ${m.gruplar.map(g => g.t).join(' · ')}`);
+    else if (m.ayraclar < 3)
+      rec(`menüde ${m.ayraclar} ayraç var — üç grubu ayırmak için en az 3 gerekiyor (2 grup arası + Çıkış öncesi)`);
+    else ok(`grup başlığı 0 · ayraç ${m.ayraclar} (başlıksız kip, DadaDiet kalıbı)`);
+
+    if (m.aciklamaliKalem)
+      rec(`menüde ${m.aciklamaliKalem} kalemde açıklama satırı kaldı — R11/M15 bunları kaldırmıştı`);
+    else ok('kalem açıklaması 0 — kalemler tek satır');
 
     for (const beklenen of MENU)
       if (!m.kalemler.some(k => k.t === beklenen)) rec(`menüde "${beklenen}" kalemi yok (belge §2)`);
@@ -412,4 +430,4 @@ for (const [ad, kullanici, etiket, hedef] of UYELIK) {
 await browser.close();
 console.log(`\n${fail} sorun`);
 if (bad.length) { console.log('\nSORUNLAR:'); bad.forEach(b => console.log('  ✗ ' + b)); process.exit(1); }
-console.log('✓ Ray 3 kalem · menü 11 kalem 3 grup · Bildirimler menüde 0 · raydan inen 4 sayfa yetim değil · kırık hedef yok.');
+console.log('✓ Ray 3 kalem · menü 11 kalem · grup başlığı 0, ayraçla ayrılıyor (R11/M15) · Bildirimler menüde 0 · raydan inen 4 sayfa yetim değil · kırık hedef yok.');

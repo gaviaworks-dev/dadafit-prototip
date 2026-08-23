@@ -620,11 +620,28 @@ var TOPBAR = ''+
 '</div>';
 
 function accountHtml(){
+  /* R11/M15 · Beyar: "Dropdown kısmı section'lı BAŞLIKSIZ olacak — aynı
+     Diet'in dropdown'ındaki tab menü yapısını alabilirsin."
+
+     KARDEŞ MARKA (dadadiet.com hesap menüsü) ölçüldü: grup BAŞLIĞI yok,
+     kalem AÇIKLAMASI yok. İkon + tek satır etiket; gruplar ince AYRAÇ
+     çizgisiyle ayrılıyor; aktif kalem yumuşak hap ile işaretli.
+
+     Burada iki şey değişti, kalemlerin kendisi ve sırası DEĞİŞMEDİ:
+     · `{grup:'…'}` kalemi artık başlık değil AYRAÇ basıyor
+     · kalemlerin `desc` alt satırı basılmıyor (veri duruyor — mobil
+       çekmece `drawerAccountHtml()` onu kullanmaya devam ediyor;
+       orada dikey alan bol ve açıklama iş görüyor)
+     Sonuç: iki satıra taşan kalem kalmadı, menü kısaldı, kaydırma azaldı. */
+  var ilkGrupGorulduMu = false;
   return ACCOUNT.map(function(a){
     if(a.sep) return '<div class="acct-div"></div>';
-    /* §2 grup başlığı. <a> değil <p role="presentation">: menü listesinin
-       odak sırasına girmez, ama görsel olarak üç grubu ayırır. */
-    if(a.grup) return '<p class="acct-grup">'+a.grup+'</p>';
+    if(a.grup){
+      /* İlk grup profil başlığının hemen altında; orada zaten bir ayraç
+         var, ikincisini basmak çift çizgi yapardı. */
+      if(!ilkGrupGorulduMu){ ilkGrupGorulduMu = true; return ''; }
+      return '<div class="acct-div"></div>';
+    }
     /* YER TUTUCU KALEM — hedef sayfa henüz üretilmedi.
        <a href="#"> DEĞİL <span>: menüde tıklanınca sayfa başına zıplayan ölü
        bağlantı bırakmıyoruz. Mağaza düğmelerinin deseni (footer-yapi §6:
@@ -633,9 +650,10 @@ function accountHtml(){
     if(a.yerTutucu) return '<span class="acct-soon" data-yer-tutucu="'+a.yerTutucu+
       '" aria-disabled="true" aria-label="'+a.label+' — sayfa henüz yayında değil, yakında">'+
       '<i class="'+a.icon+'"></i> <span>'+a.label+'<em class="acct-soon-tag">Yakında</em>'+
-      (a.desc?'<small>'+a.desc+'</small>':'')+'</span></span>';
+      '</span></span>';
+    /* desc BASILMIYOR — R11/M15, yukarıdaki gerekçe. */
     return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> <span>'+a.label+
-           (a.desc?'<small>'+a.desc+'</small>':'')+'</span></a>';
+           '</span></a>';
   }).join('\n            ');
 }
 
@@ -909,21 +927,34 @@ var FOOTER_RAW = `<footer class="footer orange">
       <!-- 2·3·4 · HAREKET VE ÖĞREN / PROGRAMLAR VE UZMAN DESTEĞİ / ENERJİ VE DENGE -->
       <!--FOOT-COLS-->
       <!-- 5 · UYGULAMA ALANI (sağ sabit)
-           Doküman şartı: "Uygulama henüz yayımlanmadıysa mağaza butonları
-           aktif indirme bağlantısı gibi çalışmamalıdır." Uygulama YOK →
-           mağaza kutuları <a href> DEĞİL, <span aria-disabled="true">:
-           tıklanamaz, odak sırasına GİRMEZ (tabindex yok), yanıltmaz.
-           QR kod KONMADI — gerçek bir indirme adresi olmadığı için sahte
-           QR üretilmedi. Adres gelince docs/icerik-bekleyen.md'deki kalem
+           R11/M4 · Beyar: "Footer'da sağ altta 'yakında' diye bir şey
+           kalmayacak — Gourmet'teki gibi yapabilirsin."
+
+           KARDEŞ MARKALAR ÖLÇÜLDÜ (canlı, aynı gün):
+             dadadiet.com   → <span>İndir<b>App Store</b></span>
+             dadagourmet.com→ <span class="ab-store">App Store</span> · üstte "İndir"
+             dadagastro.com → <a class="store-badge" aria-disabled="true"
+                                 title="Yakında"><span>İndir</span><b>App Store</b></a>
+           Üçünde de görünen yazı "İndir"; üçünde de ayrı bir
+           "uygulama henüz yayımlanmadı" paragrafı YOK.
+
+           Doküman şartı DEVAM EDİYOR: "Uygulama henüz yayımlanmadıysa
+           mağaza butonları aktif indirme bağlantısı gibi çalışmamalıdır."
+           Bu yüzden kutular hâlâ <a href> DEĞİL, <span aria-disabled="true">:
+           tıklanamaz, odak sırasına girmez. Gastro'nun kalıbı izlenerek
+           title="Yakında" eklendi — durum bilgisi kayboldu sanılmasın,
+           yalnız görsel gürültü kalktı. Ekran okuyucu için aynı bilgi
+           aria-label icinde de duruyor.
+           QR kod KONMADI — gerçek indirme adresi olmadığı için sahte QR
+           üretilmedi. Adres gelince docs/icerik-bekleyen.md'deki kalem
            işlenecek. -->
       <div class="foot-app">
         <h5>DadaFit'i İndir</h5>
         <p class="ap-tag">Antrenmanını yanında taşı. Programların, günlük aktiviten ve enerji takibin tek uygulamada.</p>
-        <div class="ap-stores" role="group" aria-label="Mobil uygulama mağazaları — yakında">
-          <span class="ap-store" aria-disabled="true"><i class="fa-brands fa-apple" aria-hidden="true"></i><span class="fs-txt"><small>Yakında</small><b>App Store</b></span></span>
-          <span class="ap-store" aria-disabled="true"><i class="fa-brands fa-google-play" aria-hidden="true"></i><span class="fs-txt"><small>Yakında</small><b>Google Play</b></span></span>
+        <div class="ap-stores" role="group" aria-label="Mobil uygulama mağazaları — uygulama henüz yayımlanmadı">
+          <span class="ap-store" aria-disabled="true" title="Yakında"><i class="fa-brands fa-apple" aria-hidden="true"></i><span class="fs-txt"><small>İndir</small><b>App Store</b></span></span>
+          <span class="ap-store" aria-disabled="true" title="Yakında"><i class="fa-brands fa-google-play" aria-hidden="true"></i><span class="fs-txt"><small>İndir</small><b>Google Play</b></span></span>
         </div>
-        <p class="ap-soon"><span class="ap-soon-tag">Yakında</span> Uygulama henüz yayımlanmadı.</p>
       </div>
     </div>
     <!-- 6 · KURUMSAL BANT — sütunların içinde değil, ayrı yatay bant -->
@@ -965,6 +996,8 @@ if(_bot){
 }
 
 /* ---- FİT PLANIM kişisel kabuğu: banner + breadcrumb + sekme rayı ---- */
+/* R11/M17 · plan profilinin kapak görseli — tek yerde, 14 sayfa ortak */
+var PLAN_KAPAK = 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80&auto=format&fit=crop&sat=-12';
 var _plan = document.getElementById('fitPlanTop');
 if(_plan){
   var pk    = _plan.getAttribute('data-plan-page') || 'bugun';
@@ -988,10 +1021,27 @@ if(_plan){
     return '<a class="fit-tab" href="'+it.href+'" aria-selected="'+(on?'true':'false')+'"'+
            (on?' aria-current="page"':'')+'><i class="'+it.icon+'"></i> '+it.label+'</a>';
   }).join('\n        ');
+  /* R11/M17 · Beyar: "enerji-defteri'nin profilini DadaGastro'nun aynısı
+     yap — dadagastro.com/sefler/admin, burasının aynısını yapacaksın."
+
+     ÖNCESİ: 544px DÜZ KOYU banner (.lib-top.fp-top); profil altta küçük bir
+     avatar+ad satırıydı (.fp-who).
+     ŞİMDİ: kardeş markanın şef profili deseni — yuvarlak köşeli kapak
+     görseli + üstüne binen beyaz kimlik kartı + sayaç şeridi.
+     Biçim kabukta: fit-shell.css → "PLAN PROFİL BAŞLIĞI".
+
+     Desen DadaFit'te zaten vardı (profil-v1 `.pf-top`) ve referansla
+     birebirdi (banner 280/24px · avatar 128 · stats 16px) — plan sayfaları
+     onu kullanmıyordu. profil-v1'e DOKUNULMADI; rol koşullu 69 kuralı
+     taşımak yerine ölçülen değerlerle sade bir sürüm yazıldı.
+
+     Kapak görseli sabit (parallax) — kardeş markada da öyle
+     (`.pf-banner px-band`); `data-fit-px` ile kabuğun parallax bileşenine
+     bağlanıyor (R11/M2). */
   _plan.outerHTML =
-   '<section class="lib-top fp-top">\n'+
+   '<section class="fp-profil">\n'+
    '  <div class="wrap">\n'+
-   '    <nav class="lib-crumb" aria-label="Sayfa yolu">\n'+
+   '    <nav class="lib-crumb pf-crumb" aria-label="Sayfa yolu">\n'+
    '      <a href="dadafit-hub-v1.html" class="crumb-home">'+
    '<i class="fa-solid fa-house" aria-hidden="true"></i>'+
    '<span class="sr-only">DadaFit ana sayfa</span></a>\n'+
@@ -1000,12 +1050,20 @@ if(_plan){
    '      <i class="fa-solid fa-chevron-right"></i>\n'+
    '      <span class="cur">'+(cur?cur.label:ptit)+'</span>\n'+
    '    </nav>\n'+
-   '    <span class="eyebrow"><i class="fa-solid fa-bolt"></i> Fit Planım · kişisel alanın</span>\n'+
-   '    <h1>'+ptit+'</h1>\n'+
-   (psub? '    <p class="lib-sub">'+psub+'</p>\n' : '')+
-   '    <div class="fp-who">\n'+
-   '      <span class="fp-ava" style="background-image:url(\''+AVA+'\')"></span>\n'+
-   '      <span class="fp-who-txt"><b class="fp-name">Elif Şahin</b><small class="fp-state">Ücretsiz üye · 3 haftadır burada</small></span>\n'+
+   '    <div class="fp-kapak" data-fit-px style="--px-img:url(\''+PLAN_KAPAK+'\')">\n'+
+   '      <span class="fp-kapak-mark"><i class="fa-solid fa-bolt"></i> Fit Planım · kişisel alanın</span>\n'+
+   '    </div>\n'+
+   '    <div class="fp-kimlik">\n'+
+   '      <span class="fp-ava2" style="background-image:url(\''+AVA+'\')"></span>\n'+
+   '      <div class="fp-kimlik-id">\n'+
+   '        <h1>'+ptit+'</h1>\n'+
+   '        <span class="fp-handle2 fp-name">Elif Şahin</span>\n'+
+   (psub? '        <p class="fp-lead2">'+psub+'</p>\n' : '')+
+   '        <div class="fp-kimlik-meta">\n'+
+   '          <span class="fp-state"><i class="fa-solid fa-user"></i> Ücretsiz üye · 3 haftadır burada</span>\n'+
+   '          <a href="fit-planim-rozetler-v1.html"><i class="fa-solid fa-award"></i> Rozetlerim</a>\n'+
+   '        </div>\n'+
+   '      </div>\n'+
    '    </div>\n'+
    '  </div>\n'+
    '</section>\n'+
@@ -1029,6 +1087,55 @@ if(_plan){
    '  </div>\n'+
    '</div>';
 }
+
+/* ---- PLAN KABUĞU · dikişi rayın dibine çek (Beyar · Revize 1) --------
+ Ölçülen sorun: kabuk, yapışkan sekme rayı ile beyaz gövde arasına
+ `.fp-gate` (Giriş Yap / Ücretsiz hesap oluştur) basıyor; Enerji Defteri
+ sayfalarında ayrıca `.wrap.ed-subtabs` ve `.wrap.fp-actions` da araya
+ giriyor. Hepsi SAYDAM `.wrap`, yani sayfa zemini üstünde yüzüyorlar.
+ Sonuç: gövdenin yuvarlak üst köşesi banner'dan ~340px aşağı düşüyor ve
+ "banner'ın altındaki panel" okuması kayboluyor (14 sayfa).
+
+ Beyar kararı: ray DÜZ kalsın, yuvarlaklık panelde olsun. Bunun tutması
+ için araya giren saydam blokları panelin İÇİNE alıyoruz — düğmeler
+ kaybolmuyor, yerleri değişmiyor; yalnız zeminleri gri yerine panelin
+ kendisi oluyor ve panel rayın hemen altından başlıyor.
+
+ Neden burada, neden dikiş işaretleyicisinde değil: taşıma YALNIZ plan
+ kabuğuna özgü. Genel kural yapılsaydı dadafit-hub · dadafit-kopru ·
+ challenge · program-detay · antrenor-ol sayfalarındaki
+ `.wrap.fit-band-panel` (banner kenarına BİLEREK oturtulmuş koyu yüzen
+ kart) de gövdenin içine çekilir ve o tasarım bozulurdu.
+ Bu blok, dikiş işaretleyicisinden ÖNCE koşmak zorunda (dosya sonundaki
+ "BANNER → GÖVDE DİKİŞİ" bloğu taşınmış hâli görsün diye).
+ --------------------------------------------------------------------- */
+(function(){
+  var ray = document.querySelector('.pf-tabbar.fp-tabbar');
+  if(!ray) return;
+  var ana = ray.parentElement; if(!ana) return;
+
+  var tamEnEsik = ana.clientWidth * 0.94;
+  var tasinacak = [], hedef = null, n = ray.nextElementSibling, adim = 0;
+
+  while(n && adim++ < 8){                 /* 8 = kaçak döngü emniyeti */
+    var cs = getComputedStyle(n);
+    var bg = cs.backgroundColor;
+    var saydam = !bg || bg === 'transparent' ||
+                 /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)$/.test(bg);
+    var tamEn  = n.getBoundingClientRect().width >= tamEnEsik;
+
+    if(!saydam && tamEn){ hedef = n; break; }   /* gövde bandı bulundu */
+    tasinacak.push(n);
+    n = n.nextElementSibling;
+  }
+
+  if(!hedef || !tasinacak.length) return;
+
+  /* sırayı koruyarak gövdenin en başına al */
+  for(var i = tasinacak.length - 1; i >= 0; i--){
+    hedef.insertBefore(tasinacak[i], hedef.firstChild);
+  }
+})();
 
 /* hero'lu sayfa: body[data-fit-hero="1"] → header hero uzerinde seffaf baslar */
 var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
@@ -1058,8 +1165,14 @@ var HERO_MODE = document.body.getAttribute('data-fit-hero') === '1';
    sayfasında (.ol-top) header'ın koyu görselin üstünde KATI kaldığını bildirdi.
    Tek tek kovalamak yerine banner sınıflarının tamamı listelendi — her biri
    için eşlik eden yerleşim kuralı fit-shell.css'te (margin → padding çevrimi). */
+/* R11/M17 · `.fp-top` LİSTEDEN ÇIKARILDI. Plan sayfalarının banner'ı artık
+   koyu değil, BEYAZ profil başlığı (`.fp-profil`). Şeffaf header modu beyaz
+   zeminin üstünde marka yazısını da beyaz boyuyor → logo görünmez olurdu.
+   (Aynı gerekçeyle `profil-v1` de bu listede hiç olmadı: KARARLAR K23 —
+   "beyaz profil kapağı, koyu banner ailesiyle aynı dil değil".)
+   `tests/header-banner.mjs` bu sayfalarda artık KATI header bekliyor. */
 var OVER_MODE = HERO_MODE || !!document.querySelector(
-  '.lib-top, .fp-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top');
+  '.lib-top, .cp-top, .kp-top, .chl-hero, .pd-hero, .fs-top, .ol-top, .ed-top');
 if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
 
 /* ------------------------------------------------------------------
@@ -3214,5 +3327,315 @@ setTimeout(function(){
   });
 })();
 
+
+/* =====================================================================
+   BANNER → GÖVDE DİKİŞİ  (Beyar · Revize 1)
+   ---------------------------------------------------------------------
+   Banner'dan sonraki İLK opak, tam-en, yapışkan-olmayan, görünür banda
+   `.fit-seam` basar; o bant banner'ın dibine KOMŞUysa `.is-onbanner` da
+   ekler (22px binme). Biçimin tamamı CSS'te
+   (fit-shell.css → "BANNER → GÖVDE DİKİŞİ").
+
+   Neden JS: 66 sayfada gövdenin sınıf adı 30'dan fazla çeşit; ayrıca
+   #fitPlanTop gibi bloklar ÇALIŞMA ANINDA banner+ray üretiyor, yani doğru
+   kardeş ancak enjeksiyon bittikten sonra bilinebiliyor. Bu blok bilerek
+   plan kabuğu enjeksiyonundan SONRA duruyor.
+
+   ELEME ÖLÇÜTLERİ ve gerekçeleri:
+   · getClientRects().length===0 → gizli blok. DENETIM.md §2: görünürlük
+     `getClientRects()` ile ölçülür, offsetParent'a güvenilmez.
+   · position sticky/fixed → sekme rayı (.pf-tabbar z-index:40 · .fs-tabbar ·
+     .chl-tabbar) ve modal perdeleri; bunlar gövde değil.
+   · saydam zemin → .wrap.fit-band-panel · .wrap.fp-gate · .chl-pane
+   · TAM-EN ŞARTI: dikiş sayfayı boydan boya kesen bir BAND'dır. Bu şart
+     `.wrap`ları (max-width 1176) eler. Şartsız iniş yapsaydık
+     dadafit-hub / dadafit-kopru / antrenor-ol sayfalarında
+     `.fit-band-panel > *` (koyu #1e1b14 yüzen kart, kendi radius'u var)
+     dikiş sanılır ve üst köşeleri bozulurdu.
+
+   İNİŞ (descend): saydam ama TAM-EN bir sarmalayıcıya rastlarsak içine
+   iner, aynı ölçütleri çocuklarına uygularız. challenge-v1 böyle:
+   gövde `.chl-track` main'in torunu, `.chl-pane` (saydam, tam-en) içinde.
+   ===================================================================== */
+(function(){
+  var BAN = '.lib-top,.cp-top,.kp-top,.ol-top,.ed-top,.fs-top,'+
+            '.pd-hero,.chl-hero,.df-top,.au-top';
+  var main = document.querySelector('main.page-main');
+  if(!main) return;
+
+  var kids = Array.prototype.slice.call(main.children);
+  var bi = -1;
+  for(var i=0;i<kids.length;i++){
+    if(kids[i].matches && kids[i].matches(BAN)){ bi = i; break; }
+  }
+  if(bi < 0) return;                    /* koyu banner yok (ör. profil-v1) */
+
+  /* tam-en = sayfa genişliğinin en az %94'ünü kaplayan band */
+  var esik = main.clientWidth * 0.94;
+  function tamEn(el){ return el.getBoundingClientRect().width >= esik; }
+
+  var komsu = true;                     /* hâlâ banner'ın dibinde miyiz? */
+  var kuyruk = kids.slice(bi+1);
+  var basildi = false;
+
+  while(kuyruk.length && !basildi){
+    var el = kuyruk.shift();
+
+    if(el.getClientRects().length === 0){ komsu = false; continue; }
+
+    var cs = getComputedStyle(el);
+    if(cs.position === 'sticky' || cs.position === 'fixed'){ komsu = false; continue; }
+    if(!tamEn(el)){ komsu = false; continue; }
+
+    var bg = cs.backgroundColor;
+    var saydam = !bg || bg === 'transparent' ||
+                 /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)$/.test(bg);
+
+    if(saydam){
+      /* saydam ama tam-en → içine in, sırayı bozmadan başa ekle */
+      kuyruk = Array.prototype.slice.call(el.children).concat(kuyruk);
+      komsu = false;
+      continue;
+    }
+
+    el.classList.add('fit-seam');
+    if(komsu) el.classList.add('is-onbanner');
+    basildi = true;
+  }
+})();
+
+
+/* =====================================================================
+   PARALLAX BAND  (Beyar · Revize 11 · M2)
+   ---------------------------------------------------------------------
+   `data-fit-px` taşıyan banda kardeş markanın sabit-görsel düzeneğini
+   kurar (biçim: fit-shell.css → "PARALLAX BAND").
+
+   Band iki özel değer bildirir, JS onları okur:
+     --px-img   → sabit duracak GÖRSEL   (zorunlu; yoksa band atlanır)
+     --px-veil  → görselin üstündeki perde (isteğe bağlı; genelde gradient)
+   Ayrıca --px-x / --px-y ile görselin odak noktası verilebilir.
+
+   `--px-shift` scroll'da GÜNCELLENMEZ. Görsel zaten `position:fixed`;
+   parallax'ı yaratan şey bandın onun üstünden kaymasıdır. Shift yalnız
+   "bu band ekranın ortasındayken görselin hangi kısmı görünsün" sorusunu
+   çözer, o yüzden resize/load yeter — scroll dinleyicisi yok, bedava.
+   ===================================================================== */
+(function(){
+  var bantlar = [];
+
+  function guncelle(b){
+    var cs = getComputedStyle(b.band);
+    /* köşe yarıçapı banddan alınır: dikişli bir banda da uygulanabilsin */
+    b.clip.style.setProperty('--px-r',
+      (cs.borderRadius && cs.borderRadius !== '0px') ? cs.borderRadius : '0px');
+
+    var r      = b.band.getBoundingClientRect();
+    var vh     = window.innerHeight;
+    var merkez = r.top + window.scrollY + r.height / 2;
+    var enCok  = Math.max(0, document.documentElement.scrollHeight - vh);
+    var hedef  = Math.min(Math.max(merkez - vh / 2, 0), enCok);
+    b.clip.style.setProperty('--px-shift', (merkez - hedef - vh / 2).toFixed(1) + 'px');
+  }
+
+  var hedefler = document.querySelectorAll('[data-fit-px]');
+  for(var i = 0; i < hedefler.length; i++){
+    var band = hedefler[i];
+    var cs   = getComputedStyle(band);
+    var img  = (cs.getPropertyValue('--px-img') || '').trim();
+    if(!img || img === 'none') continue;          /* görsel yoksa dokunma */
+
+    if(cs.position === 'static') band.style.position = 'relative';
+
+    var clip  = document.createElement('div');
+    clip.className = 'px-clip';
+    clip.setAttribute('aria-hidden','true');
+
+    var media = document.createElement('div');
+    media.className = 'px-media';
+    media.style.backgroundImage = img;
+    clip.appendChild(media);
+
+    var perde = (cs.getPropertyValue('--px-veil') || '').trim();
+    if(perde && perde !== 'none'){
+      var veil = document.createElement('div');
+      veil.className = 'px-veil';
+      veil.style.backgroundImage = perde;
+      clip.appendChild(veil);
+    }
+
+    var ox = (cs.getPropertyValue('--px-x') || '').trim();
+    var oy = (cs.getPropertyValue('--px-y') || '').trim();
+    if(ox) clip.style.setProperty('--px-x', ox);
+    if(oy) clip.style.setProperty('--px-y', oy);
+
+    band.classList.add('px-band');
+    band.insertBefore(clip, band.firstChild);
+    bantlar.push({ band: band, clip: clip });
+  }
+
+  if(!bantlar.length) return;
+
+  function hepsi(){ for(var k = 0; k < bantlar.length; k++) guncelle(bantlar[k]); }
+  hepsi();
+  window.addEventListener('resize', hepsi);
+  window.addEventListener('load', hepsi);
+})();
+
+
+/* =====================================================================
+   SAYFALAMA MOTORU  (Beyar · Revize 11 · M6)
+   ---------------------------------------------------------------------
+   Biçim fit-shell.css → "SAYFALAMA". Bu blok yalnız davranışı kurar.
+
+   Kullanım (sayfa tarafından çağrılır):
+     var pagi = FIT_PAGI({
+       kap:     document.getElementById('libPagi'),   // <nav> kabı
+       sayfaBoy:12,
+       birim:   'hareket',                            // özet satırındaki ad
+       liste:   function(){ return gorunurKartlar },  // O ANKİ süzülmüş dizi
+       ciz:     function(gosterilecek, hepsi){ ... }  // sayfayı ekrana bas
+     });
+     pagi.yenile();     // filtre değişince — 1. sayfaya döner
+     pagi.git(3);       // belirli sayfaya
+
+   Neden kabukta: Beyar "liste sayfalarında" dedi, tek sayfa değil.
+   Tek kaynak olmazsa her liste kendi sayfalamasını yazar ve ilk/son
+   atlama bir yerde unutulur.
+
+   Kalemler:  «  ‹  1 2 3 … N  ›  »
+   · ilk/son sayfaya atla  → DadaHaber referansı
+   · önceki/sonraki        → Gastro referansı
+   · pencere: aktif sayfanın iki yanı; arada boşluk kalırsa "…"
+   ===================================================================== */
+window.FIT_PAGI = function(cfg){
+  var kap = cfg.kap;
+  if(!kap) return { yenile:function(){}, git:function(){}, ciz:function(){} };
+  var boy   = cfg.sayfaBoy || 12;
+  var birim = cfg.birim || 'kayıt';
+  var sayfa = 1;
+
+  function toplamSayfa(n){ return Math.max(1, Math.ceil(n / boy)); }
+
+  /* gösterilecek sayfa numaraları — aktifin iki yanı + ilk + son */
+  function pencere(aktif, son){
+    var set = {}, ekle = function(n){ if(n >= 1 && n <= son) set[n] = 1; };
+    ekle(1); ekle(son);
+    for(var d = -1; d <= 1; d++) ekle(aktif + d);
+    var liste = Object.keys(set).map(Number).sort(function(a,b){ return a - b; });
+    var cikti = [];
+    for(var i = 0; i < liste.length; i++){
+      if(i && liste[i] - liste[i-1] > 1) cikti.push('...');
+      cikti.push(liste[i]);
+    }
+    return cikti;
+  }
+
+  function dugme(ic, opt){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pg' + (opt.cls ? ' ' + opt.cls : '');
+    b.innerHTML = ic;
+    if(opt.label) b.setAttribute('aria-label', opt.label);
+    if(opt.aktif){ b.classList.add('active'); b.setAttribute('aria-current','page'); }
+    if(opt.kapali) b.disabled = true;
+    else if(opt.git) b.addEventListener('click', function(){ git(opt.git); });
+    return b;
+  }
+
+  function ciz(){
+    var hepsi = cfg.liste() || [];
+    var son   = toplamSayfa(hepsi.length);
+    if(sayfa > son) sayfa = son;
+
+    var bas = (sayfa - 1) * boy;
+    cfg.ciz(hepsi.slice(bas, bas + boy), hepsi);
+
+    kap.innerHTML = '';
+    /* tek sayfalık sonuçta ray gösterilmez — ama özet satırı KALIR
+       (Beyar: "bu pagination'un altında bir ufak boşluk ve yazı olacak") */
+    if(son > 1){
+      kap.appendChild(dugme('<i class="fa-solid fa-angles-left" aria-hidden="true"></i>',
+        { cls:'arrow', label:'İlk sayfa',    kapali: sayfa === 1,   git:1 }));
+      kap.appendChild(dugme('<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>',
+        { cls:'arrow', label:'Önceki sayfa', kapali: sayfa === 1,   git: sayfa - 1 }));
+
+      pencere(sayfa, son).forEach(function(n){
+        if(n === '...'){
+          var d = document.createElement('span');
+          d.className = 'pg-dots'; d.textContent = '…'; d.setAttribute('aria-hidden','true');
+          kap.appendChild(d); return;
+        }
+        kap.appendChild(dugme(String(n), { aktif: n === sayfa, git: n, label: n + '. sayfa' }));
+      });
+
+      kap.appendChild(dugme('<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>',
+        { cls:'arrow', label:'Sonraki sayfa', kapali: sayfa === son, git: sayfa + 1 }));
+      kap.appendChild(dugme('<i class="fa-solid fa-angles-right" aria-hidden="true"></i>',
+        { cls:'arrow', label:'Son sayfa',     kapali: sayfa === son, git: son }));
+    }
+
+    var not = document.createElement('span');
+    not.className = 'pagi-note';
+    not.setAttribute('aria-live','polite');
+    if(hepsi.length === 0){
+      not.textContent = 'Sonuç yok';
+    } else {
+      var ilk = bas + 1, sonKayit = Math.min(bas + boy, hepsi.length);
+      not.textContent = hepsi.length + ' ' + birim +
+        (son > 1 ? ' · ' + ilk + '–' + sonKayit + ' gösteriliyor · sayfa ' + sayfa + ' / ' + son : '');
+    }
+    kap.appendChild(not);
+  }
+
+  function git(n){
+    var son = toplamSayfa((cfg.liste() || []).length);
+    sayfa = Math.min(Math.max(1, n), son);
+    ciz();
+    /* sayfa değişince listenin başına dön — kullanıcı ortada kalmasın */
+    if(cfg.ust){
+      var y = cfg.ust.getBoundingClientRect().top + window.scrollY - 120;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+  }
+
+  return { yenile: function(){ sayfa = 1; ciz(); }, git: git, ciz: ciz };
+};
+
+
+/* =====================================================================
+   GÖRÜŞ BİLDİR ŞERİDİNİ BANNER MERKEZİNE HİZALA  (Beyar · R11/M19)
+   ---------------------------------------------------------------------
+   Beyar: "Görüş Bildir butonu her tarafta yukarı çekilecek, banner'ın
+   merkezinin hizasında olacak."
+
+   Öncesi CSS'te `top:50%` — VIEWPORT'un ortası. Banner yüksekliği sayfaya
+   göre değişiyor (544 @1440 liste · 560 detay · 607 @1024 · 726 @390) ve
+   pencere boyu da değişken; ikisi hiçbir zaman aynı yere denk gelmiyordu.
+   Burada banner'ın dikey merkezi ölçülüp `--fb-top` yazılıyor.
+   Şerit `position:fixed` kalıyor — kullanıcı kaydırırken yer değiştirmesi
+   istenmiyor, bu yüzden ölçü scroll'da yenilenmiyor (yalnız resize/load).
+   Banner taşımayan sayfada değer YAZILMAZ, CSS'teki `50%` yedeği kalır.
+   ===================================================================== */
+(function(){
+  var BAN = '.lib-top, .fp-profil .fp-kapak, .cp-top, .kp-top, .chl-hero,' +
+            '.pd-hero, .fs-top, .ol-top, .ed-top, .df-top, .au-top, .pf-banner';
+  function hizala(){
+    var el = document.querySelector(BAN);
+    if(!el || el.getClientRects().length === 0){
+      document.documentElement.style.removeProperty('--fb-top');
+      return;
+    }
+    var r = el.getBoundingClientRect();
+    var merkez = r.top + window.scrollY + r.height / 2;
+    /* pencereden taşarsa kırp — yoksa düğme görünmeyen yükseklikte kalır */
+    var enCok = Math.max(140, window.innerHeight - 140);
+    document.documentElement.style.setProperty('--fb-top',
+      Math.min(Math.max(merkez, 140), enCok).toFixed(0) + 'px');
+  }
+  hizala();
+  window.addEventListener('resize', hizala);
+  window.addEventListener('load', hizala);
+})();
 
 })();

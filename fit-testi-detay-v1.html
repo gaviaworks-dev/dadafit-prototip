@@ -174,11 +174,30 @@ button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
    boşluk var"). Ölçüm: soru alt kenarı → şık kabı üstü 27px, blok
    dolgusu 16+16. Tek satırlık bir soru için 14px font üstünde ~1.8×
    satır boşluğu; şıklar sorudan kopuk okunuyordu. */
-.ft-q{border:none;border-bottom:1px solid var(--line);padding:13px 0}
+/* R11/M13 · SORU SATIRI RİTMİ — Beyar: "test soruları kötü olmuş, mesela
+   divider'a üstten çok yakın; boşluk hiyerarşisini tekrardan revize et."
+
+   ÖLÇÜLEN İKİ KUSUR:
+   1) `<legend>` fieldset'in `padding-top`'unu ATLIYOR — legend kutusu
+      fieldset'in kenarlık bandına yerleşir, dolgu kutusunun üstünde kalır.
+      Ölçüm: ayraç çizgisi → soru metni = **0px**. 13px dolgu hiç işlemiyordu.
+      Çözüm: nefes legend'in KENDİ üst dolgusundan veriliyor.
+   2) YAKINLIK TERSTİ (Gestalt): soru metni ↔ seçenekler **21px**,
+      seçenekler ↔ alttaki ayraç **14px**. Yani seçenekler kendi sorusundan
+      çok BİR SONRAKİ soruya yapışık okunuyordu. Birbirine ait olan yakın,
+      ayrı olan uzak olmalı — oran ters çevrildi:
+        ayraç ↔ soru      22px   (gruplar arası)
+        soru  ↔ seçenek   14px   (grup içi)
+        seçenek ↔ ayraç   22px   (gruplar arası)
+   Değerler 4px ızgarasına oturuyor (tests/uiux-denetim.mjs · başlık 7). */
+.ft-q{border:none;border-bottom:1px solid var(--line);padding:0 0 22px}
 /* R9 · adımlar bitince sonuç girişini açan düğme */
 .ft-steps-done{margin-top:18px;display:flex;justify-content:flex-start}
 .ft-q:last-of-type{border-bottom:none}
-.ft-q legend{font-size:14px;font-weight:600;color:var(--slate);line-height:1.5;padding:0;margin-bottom:8px}
+.ft-q legend{font-size:14px;font-weight:600;color:var(--slate);line-height:1.5;
+  /* üst nefes BURADAN geliyor — fieldset'in padding-top'u legend'e işlemiyor */
+  padding:22px 0 0;margin-bottom:14px}
+.ft-q:first-of-type legend{padding-top:0}
 .ft-q legend .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:var(--radius-sm);background:var(--bg);color:var(--slate-2);font-size:11.5px;font-weight:800;margin-right:9px;font-variant-numeric:tabular-nums}
 .ft-opts{display:flex;gap:9px;flex-wrap:wrap}
 .ft-opt{position:relative;display:inline-flex}
@@ -256,7 +275,11 @@ button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
 .ft-lock{border:1px dashed var(--line);border-radius:var(--radius-xl);background:var(--bg);padding:34px 26px;text-align:center}
 .ft-lock .ic{width:56px;height:56px;border-radius:var(--radius-circle);background:#fff;border:1px solid var(--line);color:var(--muted);display:grid;place-items:center;font-size:21px;margin:0 auto 14px}
 .ft-lock h3{font-size:16.5px;margin-bottom:7px}
-.ft-lock p{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;max-width:420px;margin:0 auto 18px}
+/* R11/M13 · 420px, 924px'lik kartın %45'i = 47 karakter/satır — okunur
+   bandın (45–75) en dibinde ve kartın içinde yarım kalmış duruyordu.
+   560px'e çıkarıldı: %61 · ~63 karakter/satır (bandın ortası).
+   560 uydurma değil — deponun kendi ölçüsü (`.lib-sub{max-width:560px}`). */
+.ft-lock p{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;max-width:560px;margin:0 auto 18px}
 
 /* ---- ADIM ADIM UYGULAMA ---- */
 .ft-steps{list-style:none;counter-reset:ftstep;display:flex;flex-direction:column;gap:2px}
@@ -447,11 +470,17 @@ button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
             <i class="fa-solid fa-chevron-down ft-acc-ok" aria-hidden="true"></i>
           </button></h2>
           <div class="ft-acc-govde" id="ftacc-kimler" hidden>
+          <!-- R11/M13 · İŞARETLEME HATASI DÜZELTİLDİ.
+               `.ft-two` ızgarası burada ERKEN KAPANIYORDU: "is-ok" kutusundan
+               sonra fazladan bir </div> vardı, "is-no" kutusu ızgaranın
+               DIŞINDA kalıyordu. Sonuç: yeşil kutu yarım kolon (640px),
+               sarı kutu tam genişlik (1300px) — Beyar'ın "buralar saçma
+               olmuş" dediği görüntü tam olarak buydu. İkisi de artık aynı
+               ızgarada, eşit kolonda. -->
           <div class="ft-two">
             <div class="ft-who is-ok">
               <h3><i class="fa-solid fa-circle-check"></i> Bu test sana uygun olabilir</h3>
               <ul id="ftUygun"></ul>
-          </div>
             </div>
             <div class="ft-who is-no">
               <h3><i class="fa-solid fa-hand"></i> Şimdilik erteleyip uzmana danış</h3>

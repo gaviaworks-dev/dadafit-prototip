@@ -684,6 +684,11 @@ html.reduce-motion .row-track{scroll-behavior:auto}
 .ap-store .fs-txt{display:flex;flex-direction:column;line-height:1.15;min-width:0}
 .ap-store .fs-txt small{font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
 .ap-store .fs-txt b{font-size:15px;font-weight:700;color:rgba(255,255,255,.86)}
+/* ÖLÜ KURALLAR — R11/M4'te `.ap-soon` bloğu footer işaretlemesinden
+   çıkarıldı (Beyar: "footer'da sağ altta 'yakında' diye bir şey
+   kalmayacak"). Kurallar BIRAKILDI: uygulama yayımlanana kadar blok geri
+   istenirse biçimi hazır dursun. Kabuk sözleşmesi: ölü kural silinmez,
+   kütüğe yazılır — kütük tasks/REVIZYON-11.md M4. */
 .ap-soon{margin:12px 0 0;font-size:12.5px;font-weight:500;line-height:1.5;color:rgba(255,255,255,.78);text-align:left}
 .ap-soon-tag{display:inline-block;margin-right:6px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.18);
   color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em}
@@ -898,17 +903,45 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 /* ===================== GÖRÜŞ BİLDİR (eski site "Öneri ve Şikayet" mirası) =====================
  Eski sitedeki sunum: sağ kenarda 90° döndürülmüş sabit turuncu buton (open-feedback-modal).
  Aynı desen, yeni dile çevrildi. */
+/* R11/M19+M20 · GÖRÜŞ BİLDİR ŞERİDİ
+   Beyar: "DadaHaber ana sayfadaki sağ dikey şerit gibi olsun, Fit'in brand
+   renginde" + "yukarı çekilecek, banner'ın merkezinin hizasında olacak".
+
+   DadaHaber'in şeridi (ekran görüntüsünden): kalın dikey blok, sol köşeleri
+   yuvarlak, BÜYÜK HARF kalın metin, ikon metnin üstünde, belirgin gölge.
+   DadaFit'e taşınırken renk markanın kendi yeşiline çevrildi (K29 —
+   ölçü alınır, palet alınmaz).
+
+   Öncesi: 12.5px, ince, `rotate(90deg)` ile yatay hap; sağ kenarda
+   ~41px genişliğinde zayıf bir şeritti ve `top:50%` ile viewport ortasında
+   duruyordu (banner'la hiçbir zaman hizalı değildi).
+
+   Dikey yazı `writing-mode` ile kuruluyor — `rotate` numarasından farklı
+   olarak kutu gerçekten dikey, yani yükseklik/dolgu öngörülebilir ve
+   dokunma hedefi doğru ölçülür (WCAG 2.5.8).
+   Dikey konum: --fb-top (fit-shell.js → "GÖRÜŞ BİLDİR ŞERİDİNİ BANNER
+   MERKEZİNE HİZALA"); yoksa eski 50% yedeği. */
 .feedback-tab{
-  position:fixed;top:50%;right:0;z-index:55;
-  transform-origin:100% 0;transform:rotate(90deg) translateX(50%);
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--fit);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.04em;
-  padding:10px 18px 12px;border-radius:0 0 var(--radius-md) var(--radius-md);
+  position:fixed;top:var(--fb-top,50%);right:0;z-index:55;
+  transform:translateY(-50%);
+  /* DİKKAT — `writing-mode:vertical-rl` eksenleri çevirir: blok ekseni
+     sağdan sola, satır içi eksen YUKARIDAN AŞAĞIYA akar. Bu yüzden
+     `flex-direction:column` ikonu metnin ÜSTÜNE değil YANINA koyuyordu
+     (ölçüldü). Görsel olarak üst üste dizmek için satır içi eksen
+     gerekiyor: `row`. */
+  display:inline-flex;flex-direction:row;align-items:center;gap:10px;
+  writing-mode:vertical-rl;
+  background:var(--fit);color:#fff;
+  font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:22px 16px;min-height:160px;
+  border-radius:var(--radius-md) 0 0 var(--radius-md);
+  box-shadow:-6px 0 22px rgba(20,18,12,.22);
   white-space:nowrap;
-  transition:background .2s var(--ease),transform .25s var(--ease);
+  transition:background .2s var(--ease),padding-right .22s var(--ease);
 }
-.feedback-tab i{font-size:13px}
-.feedback-tab:hover{background:var(--fit-deep);transform:rotate(90deg) translateX(50%) translateY(3px)}
+.feedback-tab i{font-size:15px;writing-mode:horizontal-tb}
+.feedback-tab:hover{background:var(--fit-deep);padding-right:15px}
+.feedback-tab:focus-visible{outline:3px solid var(--fit-bright);outline-offset:3px}
 
 /* görüş bildir modal'ı — eski site akışı (konu seç → form → teşekkür) tek panelde */
 .fb-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:97;opacity:0;visibility:hidden;transition:opacity .25s var(--ease),visibility .25s}
@@ -3088,3 +3121,512 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
 
 
 @media (max-width:640px){ .vs-play{width:44px;height:44px;font-size:14px} }
+
+
+/* =====================================================================
+   BANNER → GÖVDE DİKİŞİ  (Beyar · Revize 1)
+   ---------------------------------------------------------------------
+   İstek: "Bütün sayfalarda banner'ın altındaki beyaz kısmın sol ve sağ
+   üst köşesi yuvarlak olsun." Referans kardeş marka:
+   dadagastro.com/tarifler → reference/tarif-liste/tarif-liste.css `.lst-sec`
+
+       border-radius:22px 22px 0 0; margin-top:-22px;
+       position:relative; z-index:2;
+       box-shadow:0 -12px 32px rgba(20,16,10,.18);
+
+   Değerler ORADAN ölçülerek alındı, birebir (Beyar kararı: "birebir").
+   Yarıçap tek yerden döner: --seam-r.
+
+   Neden sınıf, neden `.lib-top + section` değil:
+   66 sayfada banner'ın ardından gelen gövde 30'dan fazla farklı sınıf adı
+   taşıyor (.lib-body · .fp-body · .sec.sec-fit · .sz-body · .hs-body ·
+   .uf-body · .lg-sec · .con-sec · .ck-wrap · .pro-intro · .ladder-sec …)
+   ve bir kısmında araya YAPIŞKAN sekme rayı (.pf-tabbar / .fs-tabbar) ya
+   da ŞEFFAF sarmalayıcı (.wrap.fit-band-panel · .wrap.fp-gate) giriyor.
+   Elle kardeş listesi tutmak kırılgan olurdu: yeni sayfa açan biri listeye
+   eklemeyi unutur, dikiş sessizce kaybolur. Bunun yerine kabuk JS'i
+   çalışma anında banner'dan sonraki İLK OPAK ve YAPIŞKAN-OLMAYAN bloğu
+   bulup `.fit-seam` basıyor (bkz. fit-shell.js → "BANNER → GÖVDE DİKİŞİ").
+
+   İki kip var:
+   · .fit-seam        → yalnız yuvarlak köşe + yukarı gölge.
+   · .fit-seam.is-onbanner → gövde banner'ın DİBİNE komşu; 22px binerek üstüne
+                        çıkar. Koyu banner köşenin arkasında kaldığı için
+                        yuvarlaklık burada tam okunur.
+   Araya ray/şeffaf blok girdiği sayfalarda (Fit Planım ×9, Enerji Defteri
+   ×4, sss, destek, destek-talepleri) `is-onbanner` VERİLMEZ: binme yapılsaydı
+   köşe, z-index:40 taşıyan yapışkan rayın ALTINA girer ve hiç görünmezdi.
+   Beyar kararı gereği o sayfalarda yuvarlaklık rayın altındaki panelde
+   kalıyor; ray düz. Orada gövde zemini çoğu kez sayfa zemini ile aynı
+   (#f9f9f9 üstünde #f9f9f9) — köşe yalnız dolguyla okunmaz, bu yüzden
+   1px `--line` üst kenarı yayı çiziyor.
+   ===================================================================== */
+:root{ --seam-r:22px }
+
+.fit-seam{
+  border-radius:var(--seam-r) var(--seam-r) 0 0;
+  position:relative;
+  z-index:2;
+  box-shadow:0 -12px 32px rgba(20,16,10,.18);
+}
+
+/* banner'a komşu gövde: 22px binerek koyu banner'ın üstüne çıkar */
+.fit-seam.is-onbanner{ margin-top:calc(var(--seam-r) * -1) }
+
+/* ray/şeffaf blok araya girdiğinde köşe koyu zemin görmüyor → yayı
+   hairline çizsin (aksi hâlde #f9f9f9 üstünde #f9f9f9 = görünmez köşe) */
+.fit-seam:not(.is-onbanner){
+  border-top:1px solid var(--line);
+  box-shadow:0 -10px 26px rgba(20,16,10,.07);
+}
+
+/* NOT — `overflow:hidden` ile kırpma YOK: gövdelerin içinde yapışkan
+   bileşenler yaşıyor (ör. program-liste `.lib-filters{position:sticky}`),
+   kırpma onları öldürürdü. Köşeler zeminin kendisinden kesiliyor. */
+
+
+/* =====================================================================
+   PARALLAX BAND  (Beyar · Revize 11 · M2)
+   ---------------------------------------------------------------------
+   İstek: "Gastro ana sayfadaki Mutfak Sırları section'u gibi görselli
+   olacak — arkası sabit, scroll edildikçe kaydırılabilir bir şekilde."
+
+   Reçete kardeş markadan ÖLÇÜLEREK alındı:
+   dadagastro.com/build/assets/parallax-S2t5vFDm.css
+
+   Nasıl çalışıyor: görsel banda `background-attachment:fixed` ile
+   basılmıyor (iOS'ta çalışmaz, ayrıca `background-size:cover` ile
+   birlikte kırpması bozuk). Bunun yerine görsel, banda `clip-path` ile
+   kırpılmış bir kutunun içinde `position:fixed` duruyor:
+   · .px-clip  → banda yapışık, taşanı kesen kutu (z-index:-1)
+   · .px-media → viewport'u dolduran SABİT görsel; sayfa kayarken yerinde
+                 kalır, band üstünden geçer = parallax
+   · .px-veil  → görselin üstündeki koyu perde (metin okunurluğu)
+   `--px-shift` bandı görselin ortasına oturtur; scroll'da DEĞİŞMEZ,
+   yalnız resize/load'da yeniden hesaplanır (bkz. fit-shell.js).
+
+   DadaFit'te bu bileşen OPT-IN: yalnız `data-fit-px` taşıyan banda
+   uygulanır. Kardeş markadaki sürüm sayfadaki TÜM tam-en bölümleri
+   tarayıp otomatik dönüştürüyor; burada öyle yapılmadı, çünkü DadaFit'te
+   her sayfada koyu görselli `.lib-top` banner'ı var ve otomatik tarama
+   66 sayfanın banner'ını da parallax'a çevirirdi.
+   ===================================================================== */
+.px-band{isolation:isolate}
+.px-clip{
+  position:absolute;inset:0;z-index:-1;
+  clip-path:inset(0 round var(--px-r,0px));
+  pointer-events:none;
+}
+.px-media{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background-repeat:no-repeat;background-size:cover;
+  background-position:var(--px-x,50%) calc(var(--px-y,50%) + var(--px-shift,0px));
+}
+.px-veil{
+  position:absolute;inset:0;
+  background-repeat:no-repeat;background-size:cover;background-position:center;
+}
+/* hareket azaltma tercihi: sabitleme kalkar, görsel banda yapışır */
+@media (prefers-reduced-motion:reduce){
+  .px-media{
+    position:absolute;inset:0;width:auto;height:auto;
+    background-position:var(--px-x,50%) var(--px-y,50%);
+  }
+}
+
+
+/* =====================================================================
+   BİLGİ KUTULARINDA METİN KUTUYU DOLDURUR  (Beyar · Revize 11 · M5)
+   ---------------------------------------------------------------------
+   Beyar (üç ayrı yerde, aynı cümle): "bu yeşil infoları yayman lazım,
+   kart içerisindeki genişliğe göre — yarım kalmış yatayda."
+
+   ÖLÇÜM (anatomi-v1 `.hr-note`, @1440):
+     kutu 1176px · metin 688px = **%58** · 99 karakter/satır
+     sınırı koyan: `.hr-note p{max-width:var(--measure)}` → --measure:78ch
+
+   ÇELİŞKİ — BİLEREK DEVRİLDİ:
+   `--measure` token'ı önceki bir turda (E6/it2) BİLEREK eklenmişti;
+   kabuktaki gerekçesi: "ölçümde .hr-note paragrafı 1098px genişlikte
+   119 karakter/satır veriyordu; tipografide okunur aralık 45–75 karakter."
+   Yani dar olması kaza değil, karardı.
+   Dahası KARDEŞ MARKA DA AYNISINI YAPIYOR: dadagastro.com bilgi metnini
+   1180px kutuda 700px'e sınırlıyor = **%59**, DadaFit'in %58'iyle aynı.
+
+   Beyar bunu üç kez tekrarladı; karar onun. Uygulandı, ama kusuru
+   körlemesine bırakmadık: ölçü uzayınca gözün satır başını bulması
+   zorlaşır, bunun yerleşik karşılığı SATIR ARASINI AÇMAKTIR
+   (uzun ölçü → daha çok interlinye). `line-height` 1.6 → 1.72.
+
+   KAPSAM: yalnız KUTULU bilgi/uyarı notları. Akan gövde metinleri
+   (`.sz-lead` · `.ft-coach-in p`) `--measure`'da KALIR — onlar kutu
+   içinde değil, sayfa akışında; orada dar ölçü doğru.
+
+   GERİ ALMA: bu blok silinirse `--measure` sınırı kendiliğinden geri gelir.
+   ===================================================================== */
+.hr-note p{
+  max-width:none;
+  line-height:1.72;
+}
+
+
+/* =====================================================================
+   BANNER SAYAÇLARINDA AYRAÇ  (Beyar · Revize 11 · M8)
+   ---------------------------------------------------------------------
+   Beyar: "Fit'in banner'larındaki bu sayaç kısımlarına divider eklenecek
+   — buradaki gibi." (referans ekranı: dadagastro.com liste banner'ı)
+
+   REFERANS ÖLÇÜLDÜ — dadagastro.com/reference/tarif-liste/tarif-liste.css:
+     .lst-hero {grid-template-columns:minmax(0,1fr) auto; gap:44px}
+     .lst-stats{flex-direction:column; gap:16px;
+                padding-left:38px; border-left:1px solid rgba(255,255,255,.18)}
+     @≤1024 .lst-stats{flex-direction:row; gap:34px;
+                padding-left:0; border-left:none;
+                padding-top:18px; border-top:1px solid rgba(255,255,255,.18)}
+
+   DadaFit'te iki kolonlu banner ZATEN var ve gutter'ı `--banner-stat-gutter`
+   = **44px**, yani referansın `gap:44px`'i ile birebir aynı. Eksik olan tek
+   şey ayracın kendisiydi. Bu blok yalnız onu ekliyor: dikey kipte sol
+   kenar çizgisi + 38px iç dolgu, yatay kipte üst çizgi + 18px iç dolgu.
+
+   Mevcut kurallara DOKUNULMADI; blok dosya sonunda, kaynak sırasıyla
+   kazanıyor (aynı seçici, aynı özgüllük). Silinirse ayraç kalkar, düzen
+   olduğu gibi kalır.
+   ===================================================================== */
+
+/* ≤1024 · yatay kip: ayraç ÜSTTE */
+body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+
+/* ≥1025 · dikey kip: ayraç SOLDA */
+@media (min-width:1025px){
+  body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
+    padding-top:0;
+    border-top:none;
+    padding-left:38px;
+    border-left:1px solid rgba(255,255,255,.18);
+  }
+}
+
+
+/* =====================================================================
+   MARKA ETİKETİ  (Beyar · Revize 11 · M7)
+   ---------------------------------------------------------------------
+   Beyar: "Dada kalın, hepsi ortak — yani Gastro kendi renginde. Buradaki
+   kartların üst etiketleri: marka ikonları, yazıları, renkleri kullan.
+   Dada kalın, Gastro ince olacak, DadaFit ayrı olacak vs gibi."
+
+   YENİ BİR DİL UYDURULMADI. Kabuk zaten aynı kilidi taşıyor:
+   üst banttaki `.brand-switch` → `<span class="bd">Dada</span>` (kalın) +
+   `<span class="sf">Gastro</span>` (ince), ve marka renkleri `--bs-c`
+   değişkeninde tanımlı (satır ~1246). Bu blok o kilidi kart etiketi
+   ölçeğine taşıyor; renkler ORADAN, ikinci bir palet açılmıyor.
+
+   Öncesi (`.brg-brand`, 8 sayfa): "DADA GASTRO" tek ağırlık, BÜYÜK HARF,
+   `letter-spacing:.04em`, tek renk (`--slate-2`); marka kimliği yalnız
+   ikon renginde kalıyordu.
+   ===================================================================== */
+.brand-tag{
+  --bt-c:var(--slate-2);
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12.5px;line-height:1.2;
+  letter-spacing:.005em;text-transform:none;   /* BÜYÜK HARF kalktı */
+  color:var(--bt-c);
+}
+.brand-tag i{font-size:12.5px;color:var(--bt-c)}
+/* Kabuğun `.bs-name`'i ÜST BANTTA bilerek gizli duruyor
+   (`max-width:0;opacity:0` — hover'da açılıyor). Etikette metin her zaman
+   görünür olmalı, o yüzden ayrı sarmalayıcı: `.bt-name`. */
+.brand-tag .bt-name{display:inline-flex;gap:0;white-space:nowrap}
+.brand-tag .bd{font-weight:800}                 /* "Dada" — hepsinde ortak */
+.brand-tag .sf{font-weight:400;font-style:normal}   /* marka adı — ince */
+
+/* marka renkleri: kabuğun `.bs-*` kilidiyle BİREBİR aynı değerler */
+.brand-tag.bt-gastro { --bt-c:#E14827 }
+.brand-tag.bt-diet   { --bt-c:var(--c-mint-deep) }
+.brand-tag.bt-fit    { --bt-c:var(--fit-deep) }   /* beyaz zeminde AA: 5.45:1 */
+.brand-tag.bt-gourmet{ --bt-c:var(--c-purple) }
+.brand-tag.bt-campus { --bt-c:var(--c-petrol) }
+
+
+
+/* =====================================================================
+   ANTRENÖR KARTI  (Beyar · Revize 11 · M3)
+   ---------------------------------------------------------------------
+   Beyar: "DadaFit Onaylı antrenörler section'undaki kartları değiştir,
+   antrenör kartları olsun — 4'lü. antrenorler-v1.html'deki kartları
+   istiyorum."
+
+   Kart artık İKİ sayfada yaşıyor (antrenorler-v1 dizini + dadafit-hub
+   teaser'ı), o yüzden biçim sayfa CSS'inden KABUĞA alındı. Kopyalanmadı:
+   `antrenorler-v1.html`'deki blok SİLİNDİ ve yerine buraya işaret eden
+   yorum bırakıldı — iki kopya olsaydı biri güncellenip diğeri unutulurdu.
+
+   Taşıma sırasında hiçbir değer değişmedi. Kanıt: antrenorler-v1'in kart
+   geometrisi taşımadan önce ve sonra ölçüldü, üç genişlikte de BİREBİR
+   aynı (kart · medya · gövde · etiket · meta · cta kutuları).
+   ===================================================================== */
+.coach-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.3s var(--ease);box-shadow:var(--sh-sm)}
+.coach-card:hover{transform:translateY(-6px);border-color:#dcdcdc;box-shadow:var(--sh-lg)}
+.coach-card:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+/* full-görsel portre — div+bg cover center (img YOK) */
+.coach-media{position:relative;height:268px;background-size:cover;background-position:center top}
+.coach-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 40%,rgba(18,16,11,.72))}
+/* DadaFit Onaylı rozeti (sol üst) — yeşil, cam */
+/* ---- KART ÜST ROZET SATIRI ----
+   Rozetler eskiden ikisi de absolute'tu (biri sol üst, biri sağ üst).
+   Sol filtre kolonu gelince kart genişliği ~397px'ten ~275px'e indi ve
+   iki rozet ÜST ÜSTE BİNDİ (ölçüldü). Artık tek bir flex satırı içinde
+   duruyorlar: satır kartın üstüne absolute konumlanır, rozetler içinde
+   akar; yer yetmezse alt satıra sarar, asla çakışmaz. */
+.coach-badges{position:absolute;top:12px;left:12px;right:12px;z-index:2;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+/* Rozetler KÜÇÜLMEZ. Flex öğeleri varsayılan olarak shrink:1 taşır; dar kartta
+   uygunluk rozeti kendi içeriğinin altına sıkışıp metnini pilin dışına
+   taşırıyordu (beyaz pilde yalnız nokta kalıyor, "Danışan alıyor" yazısı
+   kartın üstüne düşüyordu). flex:0 0 auto + nowrap ile rozet bütün kalır;
+   yan yana sığmazlarsa satır SARAR ve rozet alta iner. */
+.coach-badges>*{flex:0 0 auto;white-space:nowrap}
+.coach-verify{display:inline-flex;align-items:center;gap:7px;background:var(--fit);color:#fff;font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,106,53,.34)}
+.coach-verify i{font-size:11.5px}
+/* uygunluk durumu (sağ üst) */
+.coach-status{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
+.coach-status .dot{width:7px;height:7px;border-radius:50%;background:var(--fit);display:block}
+.coach-status.busy{color:var(--slate-2)}
+.coach-status.busy .dot{background:#c4c8c4}
+/* görsel altı: isim + uzmanlık (overlay) */
+.coach-id{position:absolute;left:16px;bottom:14px;right:16px;z-index:2}
+/* İSİM VE UZMANLIK TEK SATIRA KİLİTLİ (A2).
+   Kart genişliği 275px'e indiğinde uzun ad iki satıra düşüyor ve görselin
+   içindeki isim çizgisi kartlar arasında kayıyordu. Tek satır + ellipsis
+   ile aynı satırdaki her kartın isim üst kenarı AYNI y'de kalır. */
+.coach-id b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coach-id span{display:block;color:rgba(255,255,255,.82);font-size:12.5px;font-weight:600;margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- GÖVDE: SABİT DİKEY RİTİM (A1) ----
+   Üç şerit de SABİT yükseklikte: etiket rayı 30px · meta 20px · alt bant.
+   Böylece içerik uzunluğundan bağımsız olarak her kartta aynı iskelet
+   oluşur ve aynı satırdaki kartların meta çizgisi aynı y'ye oturur.
+   (Ölçüm öncesi: metaTopSpread 36.8px — etiketler iki satıra taşıyordu.) */
+.coach-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1;gap:12px}
+
+/* etiket pill'leri — TEK SATIR, sığmayan gizlenir + "+N" (A3, kabuk yardımcısı) */
+.coach-tags{display:flex;gap:7px;height:30px;align-items:center}
+.coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm);line-height:1.5}
+.coach-tags .tagrow-more{background:#f1f2f1;border-color:var(--line);color:var(--slate-2);padding:5px 9px;line-height:1.5}
+
+/* mini istatistik şeridi — TEK SATIR, ortak taban çizgisi (A4).
+   nowrap: "142 değerlendirme" ve "Yüz yüze" dar kartta alt satıra düşüp
+   meta yüksekliğini kart kart farklılaştırıyordu. min-width:0 + ellipsis
+   ile şerit taşmadan kısalır, yüksekliği sabit kalır. */
+.coach-meta{display:flex;align-items:center;gap:14px;height:20px;font-size:12.5px;color:var(--muted);font-weight:500;
+  white-space:nowrap;overflow:hidden;min-width:0}
+.coach-meta .m{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.coach-meta .m:last-child{flex:0 0 auto}
+.coach-meta .m i{flex:0 0 auto;color:var(--fit-deep);font-size:12px;line-height:20px}
+.coach-meta .m b{color:var(--slate);font-weight:800}
+
+/* alt bant — TEK BASKIN EYLEM: tam genişlikte "Profili Gör" (A5).
+   Seans fiyatı ve para birimi kaldırıldı; kartın çağrısı tek. */
+.coach-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.coach-cta{
+  display:flex;width:100%;align-items:center;justify-content:center;gap:8px;
+  /* zemin --fit değil --fit-deep: beyaz metin #009d4f üstünde 3.54:1 ölçüldü
+     (AA altı), #007a3d üstünde 5.45:1. Marka yeşili ailesi korunuyor. */
+  background:var(--fit-deep);color:#fff;font-weight:700;font-size:13.5px;
+  padding:11px 14px;border-radius:var(--radius-md);
+  transition:background .2s var(--ease)
+}
+.coach-cta i{transition:transform .2s var(--ease)}
+.coach-card:hover .coach-cta{background:#00632f}
+.coach-card:hover .coach-cta i{transform:translateX(3px)}
+
+/* ---- antrenör kartı · dar ekran (antrenorler-v1'den birlikte taşındı) ---- */
+@media (max-width:640px){
+  .coach-media{height:208px}
+  .coach-id b{font-size:16px}
+  .coach-body{padding:13px 14px 15px}
+}
+@media (max-width:400px){
+  .coach-media{height:300px}
+}
+
+
+/* =====================================================================
+   SAYFALAMA  (Beyar · Revize 11 · M6)
+   ---------------------------------------------------------------------
+   Beyar: "Egzersiz kütüphanesinde pagination kısmı var ya — sonsuz kısım
+   var şimdi, pagination numaraları koyacaksın, Gastro'daki gibi.
+   Bir de liste sayfalarında İLK SAYFAYA / SON SAYFAYA ATLA olması lazım,
+   DadaHaber'deki gibi. Bir de bu pagination'un altında bir ufak boşluk ve
+   yazı olacak."
+
+   İKİ REFERANS BİRLEŞTİRİLDİ:
+   · Gastro (`dadagastro.com/reference/tarif-liste/tarif-liste.css` → `.pagi`)
+     ölçülen: `.pagi{gap:8px;margin-top:40px;justify-content:center}`
+              `.pg{min-width:44px;height:44px;padding:0 13px;font-size:14px;
+                   font-weight:700;border:1px solid var(--line);
+                   border-radius:var(--radius-md)}`
+              `.pg.active{marka zemini + beyaz metin}`
+              `.pg[disabled]{opacity:.4;pointer-events:none}`
+              `.pg-dots{…}` · `.pagi-note{width:100%;text-align:center;
+                   font-size:12.5px;margin-top:6px}`  ← "altındaki ufak boşluk ve yazı"
+     @dar: `.pg{min-width:40px;height:40px;font-size:13px}`
+   · DadaHaber: baştaki `«` ve sondaki `»` (ilk/son sayfaya atla)
+
+   Değerler referanstan BİREBİR; yalnız marka rengi DadaFit'e çevrildi
+   (K29 — "ölçü alınır, palet alınmaz").
+   44×44 ölçüsü tesadüf değil: WCAG 2.5.5 dokunma hedefi eşiği
+   (tests/uiux-denetim.mjs başlık 2 bunu ölçüyor).
+   ===================================================================== */
+.pagi{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:40px;flex-wrap:wrap}
+.pg{
+  min-width:44px;height:44px;padding:0 13px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:inherit;font-size:14px;font-weight:700;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  cursor:pointer;transition:.2s var(--ease);
+}
+.pg:hover:not([disabled]):not(.active){border-color:var(--fit);color:var(--fit-deep)}
+.pg:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.pg.active{background:var(--fit);border-color:var(--fit);color:#fff;cursor:default}
+.pg.arrow i{font-size:12px}
+.pg[disabled]{opacity:.4;pointer-events:none}
+.pg-dots{color:var(--muted);font-weight:700;padding:0 2px;font-size:14px;user-select:none}
+/* "pagination'un altında bir ufak boşluk ve yazı" — Beyar'ın istediği satır */
+.pagi-note{width:100%;text-align:center;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:6px}
+@media (max-width:640px){
+  .pagi{gap:6px;margin-top:32px}
+  .pg{min-width:40px;height:40px;font-size:13px;padding:0 10px}
+}
+
+
+/* =====================================================================
+   PLAN PROFİL BAŞLIĞI  (Beyar · Revize 11 · M17)
+   ---------------------------------------------------------------------
+   Beyar: "enerji-defteri'nin profilini DadaGastro'nun aynısı yap —
+   burası düz bannerlı; dadagastro.com/sefler/admin, burasının aynısını
+   yapacaksın."
+
+   ÖLÇÜM — üç kaynak yan yana konuldu:
+     dadagastro.com/sefler/admin  → `.pf-top` · `.pf-banner` 280px / 24px
+                                    yarıçap / görselli · avatar 128×128 /
+                                    %50 · `.pf-stats` 16px yarıçap · 5 kutu
+     DadaFit profil-v1.html       → AYNI SINIF ADLARI, AYNI ÖLÇÜLER
+                                    (banner 280/24 · avatar 128 · stats 16)
+     DadaFit enerji-defteri       → 544px DÜZ KOYU banner, profil altta
+                                    küçük bir avatar+ad satırı
+   Yani kalıp DadaFit'te ZATEN VARDI ve referansla birebirdi; plan
+   sayfaları onu kullanmıyordu.
+
+   NEDEN 69 KURAL KOPYALANMADI: `profil-v1`'in `.pf-*` ailesi rol koşullu
+   (diyetisyen/antrenör/işletme · fiyat · randevu · takip · mesaj).
+   Plan sayfasının hiçbirine ihtiyacı yok. Kopyalamak yerine ÖLÇÜLEN
+   değerlerle sade bir sürüm yazıldı; `profil-v1`'e DOKUNULMADI.
+   Ölçüler birebir: banner 280/24px · avatar 128px/-70px binme ·
+   kart -78px binme + 28px yan pay · stats 16px yarıçap.
+   ===================================================================== */
+.fp-profil{padding-top:calc(var(--fit-header-h) + 0px);background:var(--bg-white)}
+
+.fp-kapak{
+  position:relative;height:280px;border-radius:var(--radius-xl);overflow:hidden;
+  background-size:cover;background-position:center;box-shadow:var(--sh-md);
+}
+.fp-kapak::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(33,30,22,.14),rgba(20,18,12,.38));
+}
+/* referansın `.pf-mark`'ı: sol üstte beyaz hap, 11px/700, harf aralığı .1em */
+.fp-kapak-mark{
+  position:absolute;top:18px;left:20px;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.93);color:var(--slate);
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:8px 14px;border-radius:var(--radius-sm);
+}
+/* kimlik kartı — kapağa biner (referansta margin -78px) */
+.fp-kimlik{
+  position:relative;z-index:3;display:flex;gap:26px;align-items:flex-start;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--sh-md);padding:26px 30px 28px;margin:-78px 28px 0;
+}
+.fp-kimlik .fp-ava2{
+  flex:none;width:128px;height:128px;border-radius:var(--radius-circle);
+  background-size:cover;background-position:center;border:4px solid #fff;
+  box-shadow:var(--sh-md);margin-top:-70px;
+}
+.fp-kimlik-id{flex:1;min-width:0}
+.fp-kimlik-id h1{font-size:30px;letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fp-kimlik-id .fp-handle2{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:3px}
+.fp-kimlik-id .fp-lead2{font-size:14.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-top:12px}
+.fp-kimlik-meta{display:flex;flex-wrap:wrap;gap:7px 20px;margin-top:13px;font-size:13px;color:var(--muted);font-weight:500}
+.fp-kimlik-meta span{display:inline-flex;align-items:center;gap:7px}
+.fp-kimlik-meta i{color:var(--fit-deep)}
+/* sayaç şeridi — referansın `.pf-stats`/`.pfs` ölçüleri birebir */
+.fp-sayac{
+  display:flex;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-lg);margin:20px 28px 0;overflow:hidden;
+}
+.fp-sayac .pfs{flex:1;display:flex;align-items:center;gap:12px;padding:15px 20px;min-width:0}
+.fp-sayac .pfs + .pfs{border-left:1px solid var(--line)}
+.fp-sayac .pfs i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);
+  background:var(--fit-wash);color:var(--fit);display:grid;place-items:center;font-size:15px}
+.fp-sayac .pfs span{display:block;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+.fp-sayac .pfs b{display:block;font-size:16.5px;font-weight:700;color:var(--slate);white-space:nowrap}
+
+/* ---- dar ekran — referansın kırılımları birebir ---- */
+@media (max-width:1024px){
+  .fp-kimlik{margin:-70px 16px 0;padding:22px 22px 24px}
+  .fp-sayac{margin:18px 16px 0}
+}
+@media (max-width:640px){
+  .fp-kapak{height:170px;border-radius:var(--radius-lg)}
+  .fp-kapak-mark{top:12px;left:12px;padding:7px 11px;font-size:10px}
+  .fp-kimlik{flex-direction:column;align-items:center;text-align:center;gap:14px;margin:-52px 4px 0;padding:20px 18px 22px}
+  .fp-kimlik .fp-ava2{width:104px;height:104px;margin-top:-66px}
+  .fp-kimlik-id{width:100%}
+  .fp-kimlik-id h1{font-size:23px;justify-content:center}
+  .fp-kimlik-meta{justify-content:center;gap:6px 16px;font-size:12.5px}
+  .fp-sayac{display:grid;grid-template-columns:1fr 1fr;margin:16px 0 0}
+  .fp-sayac .pfs + .pfs{border-left:none;border-top:1px solid var(--line)}
+  .fp-sayac .pfs:nth-child(2n){border-left:1px solid var(--line)}
+  .fp-sayac .pfs:nth-child(-n+2){border-top:none}
+}
+
+
+/* =====================================================================
+   R11/M17 ek · PLAN PROFİLİNDE KIRINTI RENGİ
+   ---------------------------------------------------------------------
+   `.lib-crumb` KOYU banner için yazılmış: bağlantılar rgba(255,255,255,.6).
+   Plan başlığı M17'de BEYAZA döndü ve kırıntı beyaz zeminde beyaz kaldı —
+   ölçüldü: "DadaFit ana sayfa" ve "Fit Planım" görünmüyordu, yalnız yeşil
+   olan aktif kalem okunuyordu.
+   Değerler profil-v1'in beyaz zemin kırıntısından (`.pf-crumb`) alındı.
+   ===================================================================== */
+.fp-profil .lib-crumb{padding:18px 0 14px;font-size:13px;font-weight:500;color:var(--muted)}
+.fp-profil .lib-crumb a{color:var(--muted)}
+.fp-profil .lib-crumb a:hover{color:var(--fit)}
+.fp-profil .lib-crumb i{font-size:9px;color:#c7c7c7}
+.fp-profil .lib-crumb .cur{color:var(--slate);font-weight:700}
+.fp-profil .lib-crumb .crumb-home{color:var(--muted)}
+.fp-profil .lib-crumb .crumb-home:hover{color:var(--fit)}
+
+
+/* =====================================================================
+   GÖRÜŞ BİLDİR ŞERİDİ — BANNER MERKEZİNE HİZALI  (Beyar · R11/M19)
+   ---------------------------------------------------------------------
+   Beyar: "Görüş Bildir butonu her tarafta yukarı çekilecek, banner'ın
+   merkezinin hizasında olacak."
+
+   Öncesi `top:50%` — VIEWPORT'un ortası. Banner yüksekliği sayfaya göre
+   değişiyor (544 @1440 liste · 560 detay · 607 @1024 · 726 @390), üstelik
+   pencere boyu da değişken; ikisi hiçbir zaman aynı yere denk gelmiyordu.
+   Şimdi kabuk JS'i banner'ın dikey merkezini ölçüp `--fb-top` yazıyor;
+   banner olmayan sayfada değer basılmıyor ve eski `50%` yedeği kalıyor.
+   Kuralın kendisi yukarıdaki `.feedback-tab` bileşeninin İÇİNDE
+   (`top:var(--fb-top,50%)`) — burada ikinci kez yazılmıyor.
+   ===================================================================== */

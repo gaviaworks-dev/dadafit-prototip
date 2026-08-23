@@ -41,8 +41,15 @@ const BANNER = [
   'program-liste-v1.html',
   'hareket-rehberi-v1.html',
   'saglik-bilgilendirme-v1.html',
-  'fit-planim-v1.html',             // .fp-top
-  'enerji-defteri-v1.html',
+  /* R11/M17 (Beyar): `fit-planim-v1` ve `enerji-defteri-v1` BANNER listesinden
+     PLAIN listesine TAŞINDI — ve bütün plan ailesi (14 sayfa) onlarla birlikte.
+     Gerekçe: Beyar "enerji defterinin profilini DadaGastro'nun şef profilinin
+     aynısı yap" dedi; koyu `.fp-top` banner'ı BEYAZ profil başlığına
+     (`.fp-profil` — yuvarlak kapak + üstüne binen kimlik kartı) çevrildi.
+     Şeffaf header modu beyaz zeminde marka yazısını da beyaz boyuyor →
+     logo görünmez olurdu. `profil-v1` de tam bu gerekçeyle hep PLAIN'di
+     (KARARLAR K23: "beyaz profil kapağı, koyu banner ailesiyle aynı dil değil").
+     Yani kural değişmedi, bu iki sayfa kuralın öbür tarafına geçti. */
   'antrenor-detay-v1.html',         // .cp-top
   'antrenor-ol-v1.html',            // .ol-top
   'arama-fit-v1.html',              // .fs-top
@@ -64,7 +71,12 @@ const BANNER = [
   'giris-v1.html'                   // .au-top
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
-const PLAIN = ['profil-v1.html'];
+const PLAIN = [
+  'profil-v1.html',                 // beyaz profil kapağı (KARARLAR K23)
+  /* R11/M17 — plan ailesi artık beyaz profil başlığı taşıyor (yukarıdaki not) */
+  'fit-planim-v1.html',
+  'enerji-defteri-v1.html'
+];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;
 let fail = 0; const bad = [];

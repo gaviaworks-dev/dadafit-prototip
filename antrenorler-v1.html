@@ -138,82 +138,10 @@
 
 /* ---- ANTRENÖR KART GRID'İ — full-görsel portre kart (hub df-coach + ex-card dili) ---- */
 .lib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
-.coach-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.3s var(--ease);box-shadow:var(--sh-sm)}
-.coach-card:hover{transform:translateY(-6px);border-color:#dcdcdc;box-shadow:var(--sh-lg)}
-.coach-card:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
-/* full-görsel portre — div+bg cover center (img YOK) */
-.coach-media{position:relative;height:268px;background-size:cover;background-position:center top}
-.coach-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 40%,rgba(18,16,11,.72))}
-/* DadaFit Onaylı rozeti (sol üst) — yeşil, cam */
-/* ---- KART ÜST ROZET SATIRI ----
-   Rozetler eskiden ikisi de absolute'tu (biri sol üst, biri sağ üst).
-   Sol filtre kolonu gelince kart genişliği ~397px'ten ~275px'e indi ve
-   iki rozet ÜST ÜSTE BİNDİ (ölçüldü). Artık tek bir flex satırı içinde
-   duruyorlar: satır kartın üstüne absolute konumlanır, rozetler içinde
-   akar; yer yetmezse alt satıra sarar, asla çakışmaz. */
-.coach-badges{position:absolute;top:12px;left:12px;right:12px;z-index:2;
-  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
-/* Rozetler KÜÇÜLMEZ. Flex öğeleri varsayılan olarak shrink:1 taşır; dar kartta
-   uygunluk rozeti kendi içeriğinin altına sıkışıp metnini pilin dışına
-   taşırıyordu (beyaz pilde yalnız nokta kalıyor, "Danışan alıyor" yazısı
-   kartın üstüne düşüyordu). flex:0 0 auto + nowrap ile rozet bütün kalır;
-   yan yana sığmazlarsa satır SARAR ve rozet alta iner. */
-.coach-badges>*{flex:0 0 auto;white-space:nowrap}
-.coach-verify{display:inline-flex;align-items:center;gap:7px;background:var(--fit);color:#fff;font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,106,53,.34)}
-.coach-verify i{font-size:11.5px}
-/* uygunluk durumu (sağ üst) */
-.coach-status{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
-.coach-status .dot{width:7px;height:7px;border-radius:50%;background:var(--fit);display:block}
-.coach-status.busy{color:var(--slate-2)}
-.coach-status.busy .dot{background:#c4c8c4}
-/* görsel altı: isim + uzmanlık (overlay) */
-.coach-id{position:absolute;left:16px;bottom:14px;right:16px;z-index:2}
-/* İSİM VE UZMANLIK TEK SATIRA KİLİTLİ (A2).
-   Kart genişliği 275px'e indiğinde uzun ad iki satıra düşüyor ve görselin
-   içindeki isim çizgisi kartlar arasında kayıyordu. Tek satır + ellipsis
-   ile aynı satırdaki her kartın isim üst kenarı AYNI y'de kalır. */
-.coach-id b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.coach-id span{display:block;color:rgba(255,255,255,.82);font-size:12.5px;font-weight:600;margin-top:3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* ---- GÖVDE: SABİT DİKEY RİTİM (A1) ----
-   Üç şerit de SABİT yükseklikte: etiket rayı 30px · meta 20px · alt bant.
-   Böylece içerik uzunluğundan bağımsız olarak her kartta aynı iskelet
-   oluşur ve aynı satırdaki kartların meta çizgisi aynı y'ye oturur.
-   (Ölçüm öncesi: metaTopSpread 36.8px — etiketler iki satıra taşıyordu.) */
-.coach-body{padding:15px 18px 18px;display:flex;flex-direction:column;flex:1;gap:12px}
-
-/* etiket pill'leri — TEK SATIR, sığmayan gizlenir + "+N" (A3, kabuk yardımcısı) */
-.coach-tags{display:flex;gap:7px;height:30px;align-items:center}
-.coach-tags span{font-size:11.5px;font-weight:600;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);padding:5px 11px;border-radius:var(--radius-sm);line-height:1.5}
-.coach-tags .tagrow-more{background:#f1f2f1;border-color:var(--line);color:var(--slate-2);padding:5px 9px;line-height:1.5}
-
-/* mini istatistik şeridi — TEK SATIR, ortak taban çizgisi (A4).
-   nowrap: "142 değerlendirme" ve "Yüz yüze" dar kartta alt satıra düşüp
-   meta yüksekliğini kart kart farklılaştırıyordu. min-width:0 + ellipsis
-   ile şerit taşmadan kısalır, yüksekliği sabit kalır. */
-.coach-meta{display:flex;align-items:center;gap:14px;height:20px;font-size:12.5px;color:var(--muted);font-weight:500;
-  white-space:nowrap;overflow:hidden;min-width:0}
-.coach-meta .m{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:20px}
-.coach-meta .m:last-child{flex:0 0 auto}
-.coach-meta .m i{flex:0 0 auto;color:var(--fit-deep);font-size:12px;line-height:20px}
-.coach-meta .m b{color:var(--slate);font-weight:800}
-
-/* alt bant — TEK BASKIN EYLEM: tam genişlikte "Profili Gör" (A5).
-   Seans fiyatı ve para birimi kaldırıldı; kartın çağrısı tek. */
-.coach-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
-.coach-cta{
-  display:flex;width:100%;align-items:center;justify-content:center;gap:8px;
-  /* zemin --fit değil --fit-deep: beyaz metin #009d4f üstünde 3.54:1 ölçüldü
-     (AA altı), #007a3d üstünde 5.45:1. Marka yeşili ailesi korunuyor. */
-  background:var(--fit-deep);color:#fff;font-weight:700;font-size:13.5px;
-  padding:11px 14px;border-radius:var(--radius-md);
-  transition:background .2s var(--ease)
-}
-.coach-cta i{transition:transform .2s var(--ease)}
-.coach-card:hover .coach-cta{background:#00632f}
-.coach-card:hover .coach-cta i{transform:translateX(3px)}
+/* ---- ANTRENÖR KARTI — biçim KABUĞA taşındı (R11/M3).
+   `assets/css/fit-shell.css` → "ANTRENÖR KARTI". Kart artık bu sayfada
+   ve `dadafit-hub-v1.html` teaser'ında ortak; iki kopya tutulmuyor.
+   Dar ekran kuralları (`@≤640` · `@≤400` coach-*) da oraya gitti. ---- */
 
 /* ---- ANTRENÖR OL CTA PANELİ (diyetisyen-ol / hub join pattern) ---- */
 .coach-join{
@@ -303,15 +231,11 @@
   .lib-sort{width:100%;justify-content:space-between}
   .sort-seg button{padding:8px 12px;font-size:12.5px}
   .lib-grid{grid-template-columns:1fr 1fr;gap:14px}
-  .coach-media{height:208px}
-  .coach-id b{font-size:16px}
-  .coach-body{padding:13px 14px 15px}
   .coach-join{padding:30px 22px;margin-top:36px}
   .coach-join h2{font-size:22px}
 }
 @media (max-width:400px){
   .lib-grid{grid-template-columns:1fr}
-  .coach-media{height:300px}
 }
 
 /* ============ ADIM 3 — KABUK: brand-switch band (Fit, .bs-fit aktif) ============ */

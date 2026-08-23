@@ -85,8 +85,31 @@
 .ft-card:hover .hub-body h3{color:var(--fit-deep)}
 .ft-card .hub-media.icon{height:132px}
 /* kart içi künye satırı: süre · ekipman · kimler için */
-.ft-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
-.ft-meta span{
+/* R11/M12 · Beyar: "buradaki taglı yapılar tek satır olması gerekiyor,
+   sliderlı olsun."
+   Önce `flex-wrap:wrap` ile iki satıra taşıyordu; kart yükseklikleri
+   etikete göre değişiyor, ızgara dişli görünüyordu.
+   Kaydırma deyimi UYDURULMADI — kabuktaki `.row-track` şeridiyle aynı:
+   gizli çubuk · x-snap · overscroll kapalı · dokunma momentumu.
+   `.row-track`ın kendisi kullanılmadı çünkü o kart rayı (`>*{width:274px}`),
+   burada çip var. */
+.ft-meta{
+  display:flex;flex-wrap:nowrap;gap:8px;margin-top:13px;
+  overflow-x:auto;scroll-snap-type:x proximity;
+  scrollbar-width:none;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;padding-bottom:2px;
+}
+.ft-meta::-webkit-scrollbar{display:none}
+/* KAYDIRILABİLİRLİK İŞARETİ — çubuk gizli olduğu için şeridin devam ettiği
+   başka türlü anlaşılmıyordu (ölçüm: @1440'ta 7 kartın 5'inde, @390'da
+   7'sinde içerik taşıyor ve son çip kelime ortasından kesiliyordu).
+   Sağ uçta 22px soluklaşma, "devamı var" demenin en sessiz yolu.
+   Taşma yokken son çip zaten soluklaşmadan önce bitiyor, zarar vermiyor. */
+.ft-meta{
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);
+  mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);
+}
+.ft-meta span{flex:none;scroll-snap-align:start;
   display:inline-flex;align-items:center;gap:6px;
   font-size:11.5px;font-weight:700;color:var(--slate-2);
   background:var(--bg);border:1px solid var(--line);

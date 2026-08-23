@@ -23,7 +23,7 @@
       5. Ekipmansız havuzda ≥3 çekiş hareketi (ters-sinav · superman ·
          yuzucu) — "ekipmansız planda sırt çalışmıyor" bulgusunun nöbetçisi
       6. Filtre motoru — her data-ekipman ve data-kas değeri süzüldüğünde
-         görünen kart sayısı = veri sayısı; sayaç da aynı sayıyı yazıyor
+         sayaç = veri sayısı; görünen kart R11/M6'dan beri ilk sayfayla (≤12) sınırlı
       7. Bilinmeyen slug → HTTP 200 + görünür (anlamlı) düşüş, 404 yok
       8. Konsol hatası 0 · yatay taşma 0 — @1440 ve @390, iki sayfa
       9. Banner aileleri — kütüphane LİSTE 544/607/587 ·
@@ -316,21 +316,34 @@ console.log('\n=== 6 · filtre + sıralama ===');
         ? KANONIK.filter(x => String(x.seviye) === v).length
         : KANONIK.filter(x => x[grup] === v).length;
       const r = await sec(grup, v);
-      if (r.gorunen !== beklenen) kotu.push(`${grup}=${v} → ${r.gorunen} kart görünüyor, veride ${beklenen} var`);
-      if (r.sayac !== beklenen)   kotu.push(`${grup}=${v} → sayaç ${r.sayac}, veride ${beklenen} var`);
+      /* R11/M6 · SAYFALAMA GELDİ — ölçüm noktası değişti.
+         Önce "görünen kart = veri sayısı" varsayılıyordu; artık liste
+         sayfalanıyor (12/sayfa), yani görünen kart en fazla SAYFA BOYU.
+         Filtrenin doğruluğu SAYAÇtan ölçülür — sayaç süzülen TOPLAMı yazar
+         ve `apply()` içinde her seferinde yeniden hesaplanır.
+         Görünen kart için yeni ve doğru şart: 0 < görünen ≤ min(beklenen, 12).
+         Böylece "filtre çalışıyor mu" da "sayfalama çalışıyor mu" da ölçülür. */
+      const SAYFA_BOY = 12;
+      if (r.sayac !== beklenen)
+        kotu.push(`${grup}=${v} → sayaç ${r.sayac}, veride ${beklenen} var`);
+      const beklenenGorunen = Math.min(beklenen, SAYFA_BOY);
+      if (r.gorunen !== beklenenGorunen)
+        kotu.push(`${grup}=${v} → ${r.gorunen} kart görünüyor, ilk sayfada ${beklenenGorunen} olmalı (toplam ${beklenen})`);
     }
     await sifirla(grup);
   }
   if (!kotu.length) {
     const toplam = eksenler.reduce((n,[,d]) => n + d.length, 0);
-    ok(`filtre motoru ${toplam} facet değerinde de kart sayısı = veri sayısı (sayaç dâhil)`);
+    ok(`filtre motoru ${toplam} facet değerinde de sayaç = veri sayısı; görünen kart ilk sayfayla (≤12) sınırlı`);
   } else rec('filtre motoru', kotu.join('\n      '));
 
   /* filtre sıfırlanınca 25'e dönüyor mu — sayaç HESAPLANAN bir değer,
-     sabit değil: apply() her seferinde görünen kartı sayıp yazıyor. */
+     sabit değil: apply() her seferinde süzülen kartı sayıp yazıyor.
+     R11/M6 · görünen kart artık ilk sayfa (12); toplam sayaçtan okunur. */
   const sifir = await durum();
-  if (sifir.gorunen === 25 && sifir.sayac === 25) ok('filtre sıfırlanınca 25 kart · sayaç 25 (sayaç hesaplanıyor)');
-  else rec('sıfırlama', `görünen ${sifir.gorunen} · sayaç ${sifir.sayac}`);
+  if (sifir.sayac === 25 && sifir.gorunen === 12)
+    ok('filtre sıfırlanınca sayaç 25 · ilk sayfada 12 kart (sayaç hesaplanıyor, liste sayfalanıyor)');
+  else rec('sıfırlama', `görünen ${sifir.gorunen} (12 olmalı) · sayaç ${sifir.sayac} (25 olmalı)`);
 
   /* --- sıralama: Popüler / Yeni / A-Z, 25 kartta --- */
   const sirala = async mode => {

@@ -319,7 +319,22 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
 .br-go i{transition:.2s var(--ease)}
 
 /* ============ 7 · ANTRENÖR teaser (P1) — sertifika rozeti ============ */
-.df-coach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+/* R11/M3 · 4'lü antrenör kartı ızgarası (Beyar: "4'lü yani").
+   Kartlar artık dizindeki full-görsel portre kart; ızgara ona göre. */
+.df-coach-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+/* Etiket şeridi — M12'deki deyimin aynısı (tek satır + yatay kaydırma).
+   Dizin sayfasında taşan etiketi "+2" rozetine çeviren `data-tagrow` motoru
+   var; hub teaser'ında o motor YOK, bu yüzden `.coach-tags{height:30px}`
+   kutusunda çift satırlık çip sıkışıyordu. Kabuktaki kural DEĞİŞTİRİLMEDİ
+   (dizini bozmamak için) — özgüllük sayfa tarafında yükseltildi. */
+#antrenor .coach-tags{
+  flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;
+  scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);
+  mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);
+}
+#antrenor .coach-tags::-webkit-scrollbar{display:none}
+#antrenor .coach-tags span{flex:none;scroll-snap-align:start;white-space:nowrap}
 .df-coach{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px;transition:.25s var(--ease)}
 .df-coach:hover{border-color:var(--fit-line);box-shadow:var(--sh-md);transform:translateY(-4px)}
 .df-coach-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -416,19 +431,95 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
 .df-goal:hover .gl-go i{transform:translateX(3px)}
 
 /* --- Beslenme × Hareket combo — spor görseli + yeşil gradient + cam yemek paneli --- */
-.df-combo{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.df-combo-card{position:relative;overflow:hidden;border-radius:var(--radius-lg);min-height:310px;display:flex;flex-direction:column;justify-content:flex-end;background-size:cover;background-position:center;cursor:pointer;transition:.3s var(--ease)}
-.df-combo-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,.08) 16%,rgba(0,72,37,.72) 62%,rgba(0,54,28,.93))}
-.df-combo-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
-.dc-pair{position:absolute;top:16px;left:16px;z-index:2;display:flex;align-items:center;gap:7px}
-.dc-pair span{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:rgba(20,18,12,.55);backdrop-filter:blur(4px);padding:6px 10px;border-radius:var(--radius-sm)}
-.dc-pair .plus{background:var(--fit);width:22px;height:22px;justify-content:center;padding:0;border-radius:var(--radius-circle);font-size:9px}
-.df-combo-in{position:relative;z-index:2;padding:22px}
-.df-combo-in h4{color:#fff;font-size:18px;margin-bottom:6px;letter-spacing:-.01em}
-.df-combo-in p{color:rgba(255,255,255,.84);font-size:12.5px;font-weight:500;line-height:1.5;margin-bottom:14px}
-.df-combo-meal{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-md);padding:10px 12px}
-.df-combo-meal .cm-thumb{width:44px;height:44px;border-radius:var(--radius-sm);background-size:cover;background-position:center;flex:none}
-.df-combo-meal .cm-tx{min-width:0}
+/* ---- R11/M2+M16 · TARİF BANDI: sabit görselli parallax bölüm ----
+   Kabuk yalnız düzeneği kuruyor (fit-shell.css/js "PARALLAX BAND");
+   hangi görsel ve hangi perde olacağını band burada bildiriyor.
+
+   R11/M16 · Beyar: "burada DadaGastro'nun rengi olması lazım, burada Fit
+   rengi var." Bölüm DadaGastro köprüsü; perde ve vurgular Fit yeşilinden
+   Gastro'nun marka rengine (#E14827) çevrildi.
+   Perdenin kendisi koyu KALIYOR — metin beyaz, kontrast şart; yeşil yerine
+   sıcak koyu (kavrulmuş) tona geçti, üstündeki turuncu vurgu onunla oturuyor.
+   `--gs` = bu bölümün marka rengi; tek yerden döner. */
+.df-recipe-band{
+  position:relative;
+  --gs:#E14827;                       /* DadaGastro marka rengi (literal —
+                                         bu sayfada --fit YEŞİL'e swap'lı) */
+  --gs-light:#ff8a68;                 /* koyu zeminde okunan açık tonu */
+  background:#241611;                 /* görsel yüklenene kadarki zemin */
+  --px-img:url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1800&q=80&auto=format&fit=crop&sat=-14');
+  --px-veil:linear-gradient(180deg,rgba(30,17,12,.88) 0%,rgba(36,22,15,.74) 46%,rgba(24,14,10,.92) 100%);
+  --px-y:42%;
+}
+.df-recipe-band .sec-head h2{color:#fff}
+.df-recipe-band .sec-head .lead{color:rgba(255,255,255,.80)}
+.df-recipe-band .eyebrow-gastro{color:#fff}
+/* R11/M16 · Beyar: "etiket DadaGastro zaten ama FILLED TAG CHIP ile yapılmış,
+   taglı olmasın DÜZ olsun." Zemin/kenarlık/dolgu kalktı; marka kilidi
+   (Dada kalın + Gastro ince) duruyor, koyu bandda okunan açık tona geçti. */
+.df-recipe-band .dg-mark{
+  background:none;border:none;padding:0;border-radius:0;
+  color:var(--gs-light);
+}
+/* .see-all kabukta DOLU BEYAZ hap (`background:var(--paper)`); koyu bandın
+   üstünde beyaz kutu içinde beyaz metin = görünmez düğme oldu. Banner CTA'sı
+   için kabuğun kendi camsı dili var (`.lib-cta-ghost`) — aynı dil burada da
+   kullanıldı, yeni bir görünüm uydurulmadı. */
+.df-recipe-band .see-all{
+  color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.26);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+.df-recipe-band .see-all:hover{
+  background:rgba(225,72,39,.92);border-color:var(--gs);color:#fff;
+}
+/* wrap içeriği sabit görselin ÜSTÜNDE kalsın (.px-clip z-index:-1) */
+.df-recipe-band>.wrap{position:relative;z-index:1}
+/* ---- R11/M16 · TARİF KARTI ----
+   Yapı kardeş markadan ÖLÇÜLEREK alındı (dadagastro.com `.r-card`):
+     .r-card {border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+     .r-media{height:200px;background-size:cover}
+     .r-chip {position:absolute;top:13px;left:13px;background:#fffffff0;
+              font-size:11.5px;font-weight:700;padding:6px 12px}
+     .r-body {padding:17px 18px 19px}
+     .r-body h4{font-size:18px;margin-bottom:11px}
+     .r-facts{font-size:12.5px;color:var(--muted);margin-bottom:13px}
+     .r-foot {margin-top:auto;padding-top:13px;border-top:1px solid var(--line)}
+   Ölçüler birebir; yalnız kart KOYU BANDIN üstünde durduğu için zemin ve
+   kenarlık camsı dile çevrildi (K29: ölçü alınır, palet alınmaz). */
+.rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.rc-card{
+  display:flex;flex-direction:column;overflow:hidden;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius-lg);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  transition:.3s var(--ease);
+}
+.rc-card:hover{transform:translateY(-6px);border-color:var(--gs);box-shadow:0 18px 44px rgba(0,0,0,.34)}
+.rc-card:focus-visible{outline:3px solid var(--gs-light);outline-offset:3px}
+.rc-media{position:relative;height:200px;background-size:cover;background-position:center;transition:.5s var(--ease)}
+.rc-card:hover .rc-media{transform:scale(1.04)}
+/* kategori çipi — referansın `.r-chip`'i: beyaz hap, sol üst, 6/12 dolgu */
+.rc-chip{
+  position:absolute;top:13px;left:13px;
+  background:#fffffff0;color:var(--slate);
+  font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  padding:6px 12px;border-radius:var(--radius-sm);
+}
+.rc-body{padding:17px 18px 19px;display:flex;flex-direction:column;flex:1}
+.rc-body h4{font-size:18px;color:#fff;letter-spacing:-.01em;margin-bottom:11px}
+.rc-facts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-size:12.5px;font-weight:500;color:rgba(255,255,255,.72);margin-bottom:13px}
+.rc-macro b{color:#fff;font-weight:800}
+.rc-go{
+  display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:13px;
+  border-top:1px solid rgba(255,255,255,.16);
+  font-size:13px;font-weight:700;color:var(--gs-light);
+}
+.rc-go i{font-size:11px;transition:transform .2s var(--ease)}
+.rc-card:hover .rc-go i{transform:translateX(3px)}
+/* ÖLÜ KURALLAR — R11/M16'da `.df-combo-*` kartları tarif kartına
+   (`.rc-card`) dönüştü. Kurallar SİLİNMEDİ, kütüğe yazıldı
+   (tasks/REVIZYON-11.md M16); combo dili geri istenirse hazır dursun. */
 .df-combo-meal b{font-size:13px;color:#fff;font-weight:700;display:block;line-height:1.2}
 .df-combo-meal span{font-size:11px;color:rgba(255,255,255,.78);font-weight:500}
 .df-combo-meal .cm-go{margin-left:auto;color:#7fe7af;font-size:13px;flex:none}
@@ -457,15 +548,15 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
   .df-hero{grid-template-columns:1fr;gap:30px;padding-bottom:40px}
   .df-bridge-card,.df-chal,.df-tdee{grid-template-columns:1fr;gap:28px;padding:32px}
   .hub-grid{grid-template-columns:1fr 1fr}
-  .df-fcards,.df-coach-grid{grid-template-columns:1fr 1fr}
+  .df-fcards,.df-coach-grid{grid-template-columns:1fr 1fr}   /* R11/M3: 4 → 2 */
   .df-pro-grid{grid-template-columns:1fr}
   .df-goals{grid-template-columns:1fr 1fr}
-  .df-combo{grid-template-columns:1fr 1fr}
+  .rc-grid{grid-template-columns:1fr 1fr}   /* R11/M16 */
   .df-women{min-height:340px}
   .df-women-in{padding:36px;max-width:none}
 }
 @media (max-width:640px){
-  .df-goals,.df-combo{grid-template-columns:1fr}
+  .df-goals,.rc-grid{grid-template-columns:1fr}   /* R11/M16 */
   .df-goal{min-height:200px}
   .df-women h2{font-size:23px}
   .df-women-in{padding:28px}
@@ -946,8 +1037,13 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
   </div>
 </section>
 
-<!-- ===== BESLENME × HAREKET COMBO — köprü tezini somutlaştıran paketler ===== -->
-<section class="sec sec-fit" style="background:var(--bg-white)">
+<!-- ===== BESLENME × HAREKET COMBO — köprü tezini somutlaştıran paketler =====
+     R11/M2 · Beyar: "Section'u görselli olsun — Gastro ana sayfadaki Mutfak
+     Sırları gibi, arkası sabit, scroll edildikçe kaydırılabilir."
+     Bileşen kabukta: fit-shell.css "PARALLAX BAND" + fit-shell.js aynı ad.
+     Band yalnız GÖRSELİNİ ve PERDESİNİ bildirir (--px-img / --px-veil);
+     sabitleme ve kırpma işini kabuk yapar. -->
+<section class="sec sec-fit df-recipe-band" data-fit-px>
   <div class="wrap">
     <div class="sec-head">
       <div>
@@ -970,42 +1066,55 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
         <h2>Antrenmanına uygun tarif</h2>
         <p class="lead">Her hareketin bir mutfak karşılığı var — ikisini birlikte planla, dengeyi koru.</p>
       </div>
+      <!-- R11/M2 · Beyar: "tümünü gör dediğimizde Gastro'da belirlenmiş
+           sağlıklı tariflere gitsin". Hedef, deponun Gastro tarafı için
+           kullandığı adres kalıbı (38 bağlantı aynı kalıpta). -->
+      <div class="sec-tools">
+        <a class="see-all" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=hafif">Tümünü Gör <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
     </div>
-    <div class="df-combo">
-      <a class="df-combo-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <div class="dc-pair"><span><i class="fa-solid fa-bolt"></i> HIIT</span><span class="plus"><i class="fa-solid fa-plus"></i></span><span><i class="fa-solid fa-bowl-food"></i> Tarif</span></div>
-        <div class="df-combo-in">
-          <h4>HIIT + Protein Bowl</h4>
-          <p>Yoğun seans sonrası kasları toparlayan, yüksek proteinli bir kâse.</p>
-          <div class="df-combo-meal">
-            <span class="cm-thumb" style="background-image:url('https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=160&q=80&auto=format&fit=crop')"></span>
-            <div class="cm-tx"><b>Protein Bowl</b><span>38 g protein · 420 kcal</span></div>
-            <i class="fa-solid fa-arrow-right cm-go"></i>
-          </div>
+    <!-- R11/M16 · Beyar: "buraya tarif kartları gelecek, bunlar tarif kartı
+         değil". Öncesi `.df-combo-card` idi: ANA GÖRSELİ ANTRENMAN fotoğrafı,
+         yemek ise altta küçük bir cam panelde duruyordu — yani antrenman
+         kartıydı, tarif kartı değil.
+         Şimdi kardeş markanın tarif kartı yapısı (dadagastro.com `.r-card`:
+         görsel + sol üstte kategori çipi + gövde: başlık · künye · alt satır).
+         VERİ UYDURULMADI: tarif adları, yemek görselleri ve protein/kcal
+         değerleri bu bölümde ZATEN vardı; kategori çipi de sayfanın kendi
+         eşleştirmesinden geliyor (HIIT/Yoga/Güç → "… sonrası").
+         Gastro'nun kartındaki süre/zorluk/porsiyon ve yazar/puan alanları
+         EKLENMEDİ — o veri bu depoda yok, uydurulmazdı. -->
+    <div class="rc-grid">
+      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">HIIT sonrası</span>
+        </div>
+        <div class="rc-body">
+          <h4>Protein Bowl</h4>
+          <div class="rc-facts"><span class="rc-macro"><b>38 g</b> protein</span><span class="rc-macro"><b>420</b> kcal</span></div>
+          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </div>
       </a>
-      <a class="df-combo-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <div class="dc-pair"><span><i class="fa-solid fa-spa"></i> Yoga</span><span class="plus"><i class="fa-solid fa-plus"></i></span><span><i class="fa-solid fa-bowl-food"></i> Tarif</span></div>
-        <div class="df-combo-in">
-          <h4>Yoga + Hafif Akşam</h4>
-          <p>Sakin bir akıştan sonra mideyi yormayan, hafif ve doyurucu bir tabak.</p>
-          <div class="df-combo-meal">
-            <span class="cm-thumb" style="background-image:url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=160&q=80&auto=format&fit=crop')"></span>
-            <div class="cm-tx"><b>Mevsim Salatası</b><span>Hafif · 280 kcal</span></div>
-            <i class="fa-solid fa-arrow-right cm-go"></i>
-          </div>
+
+      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=hafif">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">Yoga sonrası</span>
+        </div>
+        <div class="rc-body">
+          <h4>Mevsim Salatası</h4>
+          <div class="rc-facts"><span class="rc-macro"><b>280</b> kcal</span></div>
+          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </div>
       </a>
-      <a class="df-combo-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein" style="background-image:url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <div class="dc-pair"><span><i class="fa-solid fa-dumbbell"></i> Güç</span><span class="plus"><i class="fa-solid fa-plus"></i></span><span><i class="fa-solid fa-bowl-food"></i> Tarif</span></div>
-        <div class="df-combo-in">
-          <h4>Güç + Toparlanma Tabağı</h4>
-          <p>Ağırlık çalışması sonrası protein ve karbonhidratı dengeleyen tabak.</p>
-          <div class="df-combo-meal">
-            <span class="cm-thumb" style="background-image:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=160&q=80&auto=format&fit=crop')"></span>
-            <div class="cm-tx"><b>Tavuklu Kâse</b><span>42 g protein · 480 kcal</span></div>
-            <i class="fa-solid fa-arrow-right cm-go"></i>
-          </div>
+
+      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">Güç sonrası</span>
+        </div>
+        <div class="rc-body">
+          <h4>Tavuklu Kâse</h4>
+          <div class="rc-facts"><span class="rc-macro"><b>42 g</b> protein</span><span class="rc-macro"><b>480</b> kcal</span></div>
+          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </div>
       </a>
     </div>
@@ -1042,25 +1151,76 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
       </div>
       <div class="sec-tools"><a class="see-all" href="antrenorler-v1.html" style="color:var(--fit-deep)">Tümünü Gör <i class="fa-solid fa-arrow-right"></i></a></div>
     </div>
+    <!-- R11/M3 · Beyar: "buraya antrenör kartı koyulacak, 4'lü —
+         antrenorler-v1.html'deki kartları istiyorum."
+         Kartlar UYDURULMADI: dizinin ilk dördü birebir alındı (Selin Aksoy ·
+         Derya Yıldız · Ayşe Kaplan · Merve Tan) — isim, uzmanlık, etiket,
+         puan, değerlendirme sayısı ve görsel dizindekiyle aynı, iki sayfa
+         çelişmiyor. Yalnız dizine özel filtre nitelikleri (data-uzmanlik ·
+         data-format · data-durum · data-pop) ve etiket taşırma kancası
+         (data-tagrow) çıkarıldı — hub'da filtre/sıralama yok.
+         Biçim kabuktan geliyor (fit-shell.css → "ANTRENÖR KARTI"). -->
     <div class="df-coach-grid">
-      <div class="df-coach">
-        <div class="df-coach-top">
-          <span class="df-coach-av" style="background-image:url('https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
-          <div><b>Burak Demir</b><span>Güç &amp; Kondisyon</span></div>
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=selin-aksoy">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <div class="coach-badges">
+            <span class="coach-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı</span>
+            <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          </div>
+          <div class="coach-id"><b>Selin Aksoy</b><span>Güç &amp; Kondisyon · Evde Antrenman</span></div>
         </div>
-        <span class="df-cert"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı · Sertifikalı</span>
-        <div class="df-coach-tags"><span>Evde antrenman</span><span>Kilo yönetimi</span><span>Başlangıç dostu</span></div>
-        <a class="btn btn-ghost" href="profil-v1.html?role=antrenor&view=public">Profili Gör</a>
-      </div>
-      <div class="df-coach">
-        <div class="df-coach-top">
-          <span class="df-coach-av" style="background-image:url('https://images.unsplash.com/photo-1594381898411-846e7d193883?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
-          <div><b>Selin Aksoy</b><span>Mobilite &amp; Pilates</span></div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Evde antrenman</span><span>Kilo yönetimi</span><span>Başlangıç dostu</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 120 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
         </div>
-        <span class="df-cert"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı · Sertifikalı</span>
-        <div class="df-coach-tags"><span>Esneklik</span><span>Postür</span><span>Düşük tempo</span></div>
-        <a class="btn btn-ghost" href="profil-v1.html?role=antrenor&view=public">Profili Gör</a>
-      </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=derya-yildiz">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <div class="coach-badges">
+            <span class="coach-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı</span>
+            <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          </div>
+          <div class="coach-id"><b>Derya Yıldız</b><span>Mobilite &amp; Pilates · Postür</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Esneklik</span><span>Postür</span><span>Düşük tempo</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>5.0</b> · 86 değerlendirme</span><span class="m"><i class="fa-solid fa-arrows-left-right"></i> Hibrit</span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=ayse-kaplan">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <div class="coach-badges">
+            <span class="coach-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı</span>
+            <span class="coach-status"><span class="dot"></span> Danışan alıyor</span>
+          </div>
+          <div class="coach-id"><b>Ayşe Kaplan</b><span>Kilo Yönetimi · Başlangıç</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Sürdürülebilir alışkanlık</span><span>Beden-pozitif</span><span>Evde</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.8</b> · 64 değerlendirme</span><span class="m"><i class="fa-solid fa-video"></i> Online</span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
+      <a class="coach-card" href="antrenor-detay-v1.html?slug=merve-tan">
+        <div class="coach-media" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
+          <div class="coach-badges">
+            <span class="coach-verify"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı</span>
+            <span class="coach-status busy"><span class="dot"></span> Liste dolu</span>
+          </div>
+          <div class="coach-id"><b>Merve Tan</b><span>Güç &amp; Kondisyon · Kilo Yönetimi</span></div>
+        </div>
+        <div class="coach-body">
+          <div class="coach-tags"><span>Kuvvet temeli</span><span>Form odaklı</span><span>Stüdyo</span></div>
+          <div class="coach-meta"><span class="m"><i class="fa-solid fa-star"></i> <b>4.9</b> · 142 değerlendirme</span><span class="m"><i class="fa-solid fa-people-group"></i> Yüz yüze</span></div>
+          <div class="coach-foot"><span class="coach-cta">Profili Gör <i class="fa-solid fa-arrow-right"></i></span></div>
+        </div>
+      </a>
+
       <div class="df-coach-join">
         <div>
           <b>Antrenör müsün?</b>

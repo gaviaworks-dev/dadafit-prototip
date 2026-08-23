@@ -310,12 +310,15 @@
    katmanı yüzünden iki yana yaslıydı; @390'da 322 px'lik kutuda her satırda
    görünür "nehir" açıyordu (K12'nin gerekçesiyle aynı durum).
    Geri alma: bu bloktaki text-align iki satırını sil. */
+/* R11/M9 · Beyar: "yazılar genişlikte yay". Ölçü sınırı kalktı, uzayan
+   ölçünün karşılığı olarak satır arası zaten 1.75 (kabuktaki bilgi
+   kutularında 1.72'ye açtığımız değerle aynı aile). */
 .sz-detail>p{font-size:14.5px;font-weight:500;color:var(--slate-2);line-height:1.75;
-  max-width:var(--measure);margin:0 0 12px;text-align:left;text-align-last:auto}
+  max-width:none;margin:0 0 12px;text-align:left;text-align-last:auto}
 /* referans `.td-ex`: 13.5px / 1.55 / 500, ikincil metin rengi, 12/16 boşluk */
 .sd-ex{display:block;margin:12px 0 16px;padding-left:13px;border-left:2px solid var(--fit);
   font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.55;font-style:italic;
-  max-width:var(--measure);text-align:left;text-align-last:auto}
+  max-width:none;text-align:left;text-align-last:auto}
 .sd-foot{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:0}
 .sd-foot .lbl{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--muted)}
 .sd-foot .lbl i{color:var(--fit-deep);font-size:12px}
@@ -335,13 +338,31 @@
 /* R6 madde 9 — DETAY SAYFASINA TEK GİRİŞ. Sağdaki ok kalktı; terimin kendi
    sayfasına giden yol artık açılan kaydın içinde ve DOLU yeşil eylem.
    Zemin --fit-deep (beyazla 5.45:1, S4 ölçümü) — --fit 3.52:1'de kalıyordu. */
+/* R11/M9 · Beyar: "açılmış tile'da ilgili terim sayfası kısmı SAĞ ALTTA
+   olacak, EN SAĞDA. Gastro'da sağ altta biraz minimal bir yazı butonu var —
+   `dadagastro.com/mutfak-ansiklopedisi`'nden alacağız aslında."
+
+   REFERANS ÖLÇÜLDÜ (canlı, `.ans-dgo` · `.ans-dgo-row`):
+     13px · font-weight 700 · marka rengi ·
+     background none · border none · padding 0 · border-radius 0 ·
+     kapsayıcının SAĞ kenarına dayalı (ölçülen sapma 0px)
+   Yani dolu düğme değil, düz metin bağlantısı.
+
+   Öncesi: `--fit-deep` zeminli, 40px yüksekliğinde DOLU YEŞİL düğme,
+   sola dayalı. Kontrast gerekçesi (5.45:1) artık geçerli değil — metin
+   beyaz zemin üstünde `--fit-deep` ile zaten AA'yı geçiyor. */
 .sd-more{
-  display:inline-flex;align-items:center;gap:9px;margin-top:16px;
-  height:40px;padding:0 18px;border-radius:var(--radius-sm);
-  background:var(--fit-deep);color:#fff;font-size:13px;font-weight:700;
-  transition:background .18s var(--ease);
+  display:inline-flex;align-items:center;gap:8px;margin-top:16px;
+  margin-left:auto;                   /* satırın SAĞ ucuna dayar */
+  background:none;border:none;padding:0;border-radius:0;
+  color:var(--fit-deep);font-size:13px;font-weight:700;line-height:1.55;
+  transition:color .18s var(--ease);
 }
-.sd-more:hover{background:var(--fit-deeper);color:#fff}
+/* akordiyon gövdesi blok akışı; `margin-left:auto` tek başına iş görmez —
+   bağlantı kendi satırında sağa yaslanır */
+.sz-detail{display:flex;flex-direction:column;align-items:stretch}
+.sz-detail>.sd-more{align-self:flex-end}
+.sd-more:hover{color:var(--fit-deeper)}
 .sd-more:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
 .sd-more i{font-size:11px;transition:transform .2s var(--ease)}
 .sd-more:hover i{transform:translateX(3px)}

@@ -283,7 +283,11 @@
 .wg-kaydet .kico{flex:none;width:38px;height:38px;border-radius:var(--radius-circle);background:var(--fit);color:#fff;display:grid;place-items:center;font-size:15px}
 
 /* alt aksiyon */
-.wg-done{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+/* R11/M11 · Beyar: "alttaki 3'lü butonları merkezi yap ve altındaki
+   infoyla mesafeyi koy". Ortalandı; alt boşluk 24 → 40px (bilgi kutusunun
+   kendi `margin-top:34px`'i ile toplam nefes belirgin ayrım veriyor).
+   Değerler 4px ızgarasına oturuyor. */
+.wg-done{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px;margin-bottom:40px}
 
 @media (max-width:1024px){
   .sec{padding:var(--sec-pad) 0}
@@ -1442,7 +1446,12 @@ var KURALLAR = {
     return ozetHtml(plan) + kaydetHtml() +
       '<div class="wg-gunler" id="wgPlan">' +
       plan.gunler.map(function(gun){ return gunHtml(plan, gun); }).join('') +
-      '</div>' + secimlerinHtml() + nasilHtml(false) + baglantiHtml() + altAksiyonHtml();
+      /* R11/M11 · Beyar: "sonucundaki planın bağlantısını kaldır".
+         `baglantiHtml()` çağrısı ÇIKARILDI. Fonksiyonun kendisi ve
+         `planUrl()` DURUYOR — plan hâlâ `?plan=` ile paylaşılabiliyor
+         (tests/plan-kayit.mjs bunu ölçüyor), yalnız kopyalama kutusu
+         ekrandan kalktı. Blok geri istenirse tek çağrı yeter. */
+      '</div>' + secimlerinHtml() + nasilHtml(false) + altAksiyonHtml();
   }
 
   function isaretle(){

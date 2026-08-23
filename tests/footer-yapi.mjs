@@ -22,7 +22,8 @@
    6  MAĞAZA BUTONLARI <a href> DEĞİL: doküman "uygulama henüz
       yayımlanmadıysa mağaza butonları aktif indirme bağlantısı gibi
       çalışmamalıdır" diyor. <span>, href yok, aria-disabled="true",
-      .focus() tutmuyor (odak sırasına girmiyor), "Yakında" görünür.
+      .focus() tutmuyor (odak sırasına girmiyor). Durum bilgisi R11/M4'ten
+      beri GÖRÜNÜR YAZI değil, title + grup aria-label ile taşınıyor.
    7  SOSYAL: yalnız Instagram + YouTube. X · Facebook · LinkedIn = 0.
       İkisi de yer tutucu işaretli (data-yer-tutucu + durumu anlatan
       aria-label) ve docs/icerik-bekleyen.md'de kalemi var.
@@ -384,7 +385,12 @@ console.log('\n--- 6 · mağaza butonları ---');
       appIcindeBaglanti: document.querySelectorAll('.foot-app a[href]').length,
       yakindaGorunur: [...document.querySelectorAll('.foot-app *')]
         .filter(e => e.children.length === 0 && /yakında/i.test(e.textContent) && gorunur(e))
-        .map(e => e.textContent.trim())
+        .map(e => e.textContent.trim()),
+      /* R11/M4 · durum bilgisi artık GÖRÜNÜR YAZI değil, title/aria ile
+         taşınıyor. Nöbet "bilgi var mı"yı buradan ölçüyor. */
+      durumBilgisi: list.filter(e => /yakında/i.test(e.getAttribute('title') || '')).length,
+      grupEtiketi: (document.querySelector('.foot-app .ap-stores') || {}).getAttribute
+        ? (document.querySelector('.foot-app .ap-stores').getAttribute('aria-label') || '') : ''
     };
   });
   if (r.n !== 2) rec('6 · mağaza', `${r.n} mağaza kutusu var, 2 olmalı`);
@@ -394,8 +400,25 @@ console.log('\n--- 6 · mağaza butonları ---');
   if (!r.appVar) rec('6 · mağaza', 'uygulama alanı (.foot-app) YOK');
   else if (r.appIcindeBaglanti) rec('6 · mağaza', `uygulama alanında ${r.appIcindeBaglanti} adet <a href> var — indirme bağlantısı gibi görünür`);
   else ok('uygulama alanında hiç <a href> yok (QR de yok — gerçek adres olmadan sahte QR üretilmedi)');
-  if (!r.yakindaGorunur.length) rec('6 · mağaza', '"Yakında" etiketi görünmüyor');
-  else ok('"Yakında" görünür: ' + r.yakindaGorunur.map(t => `"${t}"`).join(' · '));
+  /* ---------------------------------------------------------------
+     BEKLENTİ DEĞİŞTİ — R11/M4 (Beyar):
+       "Footer'da sağ altta 'yakında' diye bir şey kalmayacak.
+        Gourmet'teki gibi yapabilirsin."
+     Kardeş markalar canlıdan ölçüldü: dadadiet · dadagourmet · dadagastro
+     üçünde de görünen yazı "İndir"; ayrı bir "yayımlanmadı" satırı yok.
+     Gastro ayrıca title="Yakında" taşıyor.
+
+     Dokümanın ASIL ŞARTI ("yayımlanmadıysa aktif indirme bağlantısı gibi
+     çalışmamalı") DEĞİŞMEDİ ve yukarıda hâlâ ölçülüyor: <span>, href yok,
+     aria-disabled, tabIndex -1, odak tutmuyor.
+     Değişen yalnız durumun NASIL duyurulduğu: görünür etiket yerine
+     title + grup aria-label. Nöbet artık onu şart koşuyor — yani bilgi
+     sessizce kaybolursa yine kırmızı yanar.
+     --------------------------------------------------------------- */
+  if (r.yakindaGorunur.length) rec('6 · mağaza', 'footer\'da görünür "Yakında" yazısı KALDI (R11/M4 bunu kaldırmıştı): ' + r.yakindaGorunur.join(' · '));
+  if (r.durumBilgisi !== 2) rec('6 · mağaza', `mağaza kutusunda title="Yakında" ${r.durumBilgisi}/2 — uygulama yayımlanmadı bilgisi kayboldu`);
+  else if (!/yayımlanmadı|yakında/i.test(r.grupEtiketi)) rec('6 · mağaza', `grup aria-label durumu söylemiyor: "${r.grupEtiketi}"`);
+  else ok(`durum bilgisi görünür yazı DEĞİL: 2/2 kutuda title="Yakında" · grup etiketi "${r.grupEtiketi}"`);
   await ctx.close();
 }
 

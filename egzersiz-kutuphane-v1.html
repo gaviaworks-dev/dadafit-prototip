@@ -172,6 +172,9 @@
 .ex-card:hover .ex-foot .go i{transform:translateX(3px)}
 
 /* ---- DAHA FAZLA YÜKLE ---- */
+/* ÖLÜ KURALLAR — R11/M6'da "Daha fazla yükle" bloğu kaldırıldı, yerine
+   kabuktaki gerçek sayfalama geldi. Kurallar SİLİNMEDİ (kabuk sözleşmesi:
+   ölü kural silinmez, kütüğe yazılır — kütük tasks/REVIZYON-11.md M6). */
 .lib-more{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:40px}
 .lib-more .btn-more{
   display:inline-flex;align-items:center;gap:10px;font-family:inherit;font-size:14.5px;font-weight:700;
@@ -681,11 +684,15 @@
       <button class="btn btn-fit" type="button" id="emptyReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
     </div>
 
-    <!-- DAHA FAZLA YÜKLE -->
-    <div class="lib-more" id="libMore">
-      <button class="btn-more" type="button" id="loadMore"><i class="fa-solid fa-circle-down"></i> Daha fazla hareket yükle</button>
-      <span class="more-note"><b id="moreSeen">25</b> / <b>25</b> hareket gösteriliyor</span>
-    </div>
+    <!-- SAYFALAMA — R11/M6 · Beyar: "sonsuz kısım var şimdi, pagination
+         numaraları koyacaksın, Gastro'daki gibi; bir de ilk sayfaya /
+         son sayfaya atla olması lazım, DadaHaber'deki gibi."
+         Öncesi: "Daha fazla hareket yükle" düğmesi — üstelik gerçek sayfa
+         çekmiyor, mevcut kartların 8'ini KLONLUYORDU (aynı hareket iki kez
+         listeleniyordu). O mekanizma tamamen kalktı.
+         Biçim ve davranış kabukta: fit-shell.css "SAYFALAMA" +
+         fit-shell.js "SAYFALAMA MOTORU" (FIT_PAGI). -->
+    <nav class="pagi" id="libPagi" aria-label="Sayfalama"></nav>
 
   </div>
 </section>
@@ -726,9 +733,7 @@
   var cards=Array.prototype.slice.call(grid.querySelectorAll('.ex-card'));
   var filters=document.getElementById('libFilters');
   var countEl=document.getElementById('libCount');
-  var moreSeen=document.getElementById('moreSeen');
   var emptyEl=document.getElementById('libEmpty');
-  var moreWrap=document.getElementById('libMore');
  // aktif seçim: her grup için Set (all = filtre yok)
   /* Eksen listesi TEK YERDE: markup'taki .fgroup[data-group] kalemlerinden
      türetilir. Yeni eksen eklemek için motora dokunmak gerekmez. */
@@ -768,17 +773,22 @@
     });
   }
 
-  function apply(){
-    var shown=0;
-    cards.forEach(function(card){
-      var ok=matches(card);
-      card.style.display=ok?'':'none';
-      if(ok)shown++;
+  /* R11/M6 · apply() artık kartları DOĞRUDAN göstermiyor: süzülen listeyi
+     hesaplayıp sayfalayıcıya veriyor, ekrana basmayı o yapıyor.
+     Liste DOM SIRASINDAN okunuyor (`cards` dizisinden değil) — sıralama
+     düğmeleri kartları `grid.appendChild` ile yeniden diziyor, dizi sırası
+     DOM sırasıyla uyuşmuyor; sayfalama yanlış sayfayı gösterirdi. */
+  var eslesen = [];
+  function suzulmus(){
+    return Array.prototype.filter.call(grid.children, function(c){
+      return c.classList && c.classList.contains('ex-card') && matches(c);
     });
-    countEl.textContent=shown;
-    if(moreSeen)moreSeen.textContent=shown;
-    emptyEl.classList.toggle('show',shown===0);
-    if(moreWrap)moreWrap.style.display=shown===0?'none':'';
+  }
+  function apply(){
+    eslesen = suzulmus();
+    countEl.textContent = eslesen.length;
+    emptyEl.classList.toggle('show', eslesen.length === 0);
+    if(window.FIT_LIB_PAGI) window.FIT_LIB_PAGI.yenile();
   }
 
   filters.querySelectorAll('.fgroup').forEach(function(g){
@@ -813,6 +823,9 @@
         else if(mode==='yeni')arr.reverse();
         else if(mode==='az')arr.sort(function(a,c){return a.getAttribute('data-name').localeCompare(c.getAttribute('data-name'),'tr');});
         arr.forEach(function(card){grid.appendChild(card);});
+        /* R11/M6 · sıralama DOM'u yeniden diziyor → sayfalanan liste de
+           yeniden okunmalı, yoksa 1. sayfada eski sıra kalır. */
+        apply();
       });
     });
   }
@@ -822,36 +835,34 @@
   if(searchInput){
     searchInput.addEventListener('input',function(){
       var q=searchInput.value.trim().toLocaleLowerCase('tr');
-      var shown=0;
-      cards.forEach(function(card){
-        var nameOk=!q || card.getAttribute('data-name').toLocaleLowerCase('tr').indexOf(q)>-1;
-        var ok=matches(card)&&nameOk;
-        card.style.display=ok?'':'none';
-        if(ok)shown++;
+      /* R11/M6 · arama da sayfalayıcıdan geçer; ekrana basmayı o yapar */
+      eslesen = Array.prototype.filter.call(grid.children, function(c){
+        if(!(c.classList && c.classList.contains('ex-card'))) return false;
+        var nameOk = !q || c.getAttribute('data-name').toLocaleLowerCase('tr').indexOf(q) > -1;
+        return matches(c) && nameOk;
       });
-      countEl.textContent=shown;
-      if(moreSeen)moreSeen.textContent=shown;
-      emptyEl.classList.toggle('show',shown===0);
-      if(moreWrap)moreWrap.style.display=shown===0?'none':'';
+      countEl.textContent = eslesen.length;
+      emptyEl.classList.toggle('show', eslesen.length === 0);
+      if(window.FIT_LIB_PAGI) window.FIT_LIB_PAGI.yenile();
     });
   }
 
- // "daha fazla yükle" — mockup: aynı kartları klonlayıp ekler (gerçekte API sayfası)
-  var loadMore=document.getElementById('loadMore');
-  if(loadMore){
-    var loaded=false;
-    loadMore.addEventListener('click',function(){
-      if(loaded){loadMore.parentElement.style.display='none';return;}
-      cards.slice(0,8).forEach(function(card){
-        var clone=card.cloneNode(true);
-        grid.appendChild(clone);
-        cards.push(clone);
+ /* R11/M6 · "daha fazla yükle" KALDIRILDI. Eski kod gerçek sayfa çekmiyor,
+    mevcut kartların ilk 8'ini KLONLAYIP listeye ekliyordu — yani aynı
+    hareket listede iki kez görünüyordu. Yerine gerçek sayfalama geldi. */
+  window.FIT_LIB_PAGI = FIT_PAGI({
+    kap: document.getElementById('libPagi'),
+    ust: document.getElementById('libGrid'),
+    sayfaBoy: 12,
+    birim: 'hareket',
+    liste: function(){ return eslesen; },
+    ciz: function(gosterilecek){
+      Array.prototype.forEach.call(grid.children, function(c){
+        if(c.classList && c.classList.contains('ex-card')) c.style.display = 'none';
       });
-      loaded=true;
-      apply();
-      loadMore.innerHTML='<i class="fa-solid fa-check"></i> Tüm hareketler yüklendi';
-    });
-  }
+      gosterilecek.forEach(function(c){ c.style.display = ''; });
+    }
+  });
 
  // deep-link: dropdown'dan ?bolge= / ?ekipman= ile gelince ilgili chip'leri auto-activate et
  // (dropdown taksonomisi → kütüphane data-val eşlemesi)

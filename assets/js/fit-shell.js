@@ -1963,6 +1963,9 @@ setTimeout(function(){
        bugun.su            bardak      → §6 su takibi (D16: oturumluktu)
        bugun.gunSonu{}     §3.7 alanları (not·zorluk·efor·enerji·agri)
        gecmis[].kaynak     KANIT KADEMESİ — aşağıda
+       program.tasimalar{} 1=Pzt kalıbının TEK SEANSLIK istisnası → §4.3/2
+       program.dinlenmeler[] belirli tarihi dinlenmeye çevirir → §4.3/3
+       arsiv[]             biten/bırakılan programlar → "Geçmiş programların"
 
      KANIT KADEMESİ (akış denetiminden geldi, belgede yok):
      Bugüne kadar aynı "antrenman tamamlandı" dört ayrı yerde dört farklı
@@ -1975,7 +1978,7 @@ setTimeout(function(){
      kullanıcı kendi geçmişinin ne kadar sağlam olduğunu görebilir.
      ============================================================ */
   var KAYNAKLAR = ['olculdu','video','cihaz','beyan'];
-  var BOS = { surum:2, program:null, challenge:null, randevular:[],
+  var BOS = { surum:2, program:null, arsiv:[], challenge:null, randevular:[],
               bugun:{dk:0,kcal:0,tamam:false,su:0,gunSonu:null},
               gecmis:[], hafta:[62,74,90,96,118,142] };
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -1990,10 +1993,17 @@ setTimeout(function(){
     v.bugun = v.bugun || {dk:0,kcal:0,tamam:false};
     if(typeof v.bugun.su !== 'number') v.bugun.su = 0;
     if(!('gunSonu' in v.bugun))        v.bugun.gunSonu = null;
+    if(!Array.isArray(v.arsiv)) v.arsiv = [];
     if(v.program){
       if(!('baslangic' in v.program)) v.program.baslangic = null;
       if(!Array.isArray(v.program.gunler)) v.program.gunler = [];
       if(!('saat' in v.program))      v.program.saat = null;
+      /* tasimalar: TEK seansın istisnası. gunler[] haftalık KALIP, istisnayı
+         tutamaz. Anahtar seans numarası, değer o seansın yeni tarihi. */
+      if(!v.program.tasimalar)  v.program.tasimalar  = {};
+      /* dinlenmeler: belirli bir TARİHİ antrenman günü olmaktan çıkarır.
+         gunler[]'den gün silmek başka şey — o kalıcı kalıp değişikliği. */
+      if(!Array.isArray(v.program.dinlenmeler)) v.program.dinlenmeler = [];
     }
     /* Eski geçmiş kayıtlarının kaynağı BİLİNMİYOR. 'olculdu' demek yalan
        olurdu; en zayıf kademeye değil, dürüst olana yazıyoruz. */
@@ -2013,8 +2023,32 @@ setTimeout(function(){
     read:read, write:write, reset:function(){ return write(clone(BOS)); },
 
     /* ---- program yaşam döngüsü (belge §8.3 · §11) ---- */
+    /* Aktif program varken yenisine başlamak ESKİSİNİ SİLİYORDU: biten, kacan,
+       baslangic sessizce yok oluyordu ve "Geçmiş programların" kartını
+       besleyecek veri kalmıyordu (kart bu yüzden sabit HTML'di). Artık eski
+       program arşive geçiyor. Sessiz veri kaybı bir kusurdur, özellik değil. */
+    programArsivle:function(){
+      var s=read();
+      if(s.program){
+        s.arsiv.unshift({slug:s.program.slug, ad:s.program.ad,
+          durum:s.program.durum, biten:s.program.biten||0, kacan:s.program.kacan||0,
+          toplam:s.program.toplam||0, baslangic:s.program.baslangic||null,
+          bitis:new Date().toISOString()});
+        s.program=null;
+      }
+      return write(s);
+    },
     programBasla:function(p){
       var s=read();
+      /* Üzerine yazmadan önce arşivle. Çağıran ayrıca uyarmalı — bu yalnız
+         veriyi kurtarır, kullanıcıya sormanın yerini tutmaz. */
+      if(s.program){
+        s.arsiv.unshift({slug:s.program.slug, ad:s.program.ad,
+          durum:s.program.durum==='tamamlandi'?'tamamlandi':'birakildi',
+          biten:s.program.biten||0, kacan:s.program.kacan||0,
+          toplam:s.program.toplam||0, baslangic:s.program.baslangic||null,
+          bitis:new Date().toISOString()});
+      }
       s.program={slug:p.slug,ad:p.ad,durum:'devam',hafta:1,gun:1,
                  toplam:p.toplam||12,biten:0,kacan:0,
                  /* v2 — program artık TAKVİME oturuyor. Bunlar olmadan program
@@ -2022,7 +2056,26 @@ setTimeout(function(){
                     aylık görünüm çizilemez, bitiş tarihi hesaplanamaz. */
                  baslangic:(p&&p.baslangic)||null,
                  gunler:(p&&p.gunler)||[],
-                 saat:(p&&p.saat)||null};
+                 saat:(p&&p.saat)||null,
+                 tasimalar:{}, dinlenmeler:[]};
+      return write(s);
+    },
+    /* §4.3 madde 2 — tek seansı başka güne taşı. Kalıbı değiştirmez. */
+    seansTasi:function(seansNo, tarih){
+      var s=read();
+      if(s.program){ if(tarih) s.program.tasimalar[String(seansNo)]=tarih;
+                     else delete s.program.tasimalar[String(seansNo)]; }
+      return write(s);
+    },
+    /* §4.3 madde 3 — belirli bir tarihi dinlenme günü yap / geri al. */
+    dinlenmeEkle:function(tarih){
+      var s=read();
+      if(s.program && s.program.dinlenmeler.indexOf(tarih)<0) s.program.dinlenmeler.push(tarih);
+      return write(s);
+    },
+    dinlenmeKaldir:function(tarih){
+      var s=read();
+      if(s.program) s.program.dinlenmeler=s.program.dinlenmeler.filter(function(t){return t!==tarih;});
       return write(s);
     },
     /* Takvimi sonradan da kurulabilsin: kullanıcı programı başlatırken
@@ -2041,12 +2094,27 @@ setTimeout(function(){
     bitisTahmini:function(){
       var s=read(), p=s.program;
       if(!p||!p.baslangic) return null;
+      var bas=new Date(p.baslangic);
+      if(isNaN(bas)) return null;
       var haftalik=(p.gunler&&p.gunler.length)||3;
       var kalan=Math.max(0,(p.toplam||0)-(p.biten||0))+(p.kacan||0);
-      var d=new Date(p.baslangic);
-      if(isNaN(d)) return null;
-      d.setDate(d.getDate()+Math.ceil(kalan/haftalik)*7);
-      return d.toISOString();
+      /* KUSUR DÜZELTİLDİ (R10): kalan haftalar BAŞLANGIÇ tarihine ekleniyordu.
+         Oysa biten seanslar zaten zaman tüketti — fonksiyon "hiç antrenman
+         yapılmamış gibi" hesaplıyordu ve `biten` arttıkça tahmini bitiş GERİYE
+         gidiyordu (biten=toplam olduğunda bitiş neredeyse başlangıç oluyordu).
+         Ölçülen çelişki: aylık takvim son antrenmanı 18 Eylül'e çizerken çip
+         31 Ağustos diyordu.
+         Doğrusu: kalan süre BUGÜNE eklenir. Program henüz başlamadıysa
+         (başlangıç ileri tarihli) referans başlangıçtır. */
+      var bugun=new Date(); bugun.setHours(0,0,0,0);
+      var ref=new Date(Math.max(bas.getTime(), bugun.getTime()));
+      ref.setDate(ref.getDate()+Math.ceil(kalan/haftalik)*7);
+      /* Saat 12:00'ye sabitleniyor. Yerel GECE YARISI kullanınca `toISOString()`
+         UTC'ye çevirirken günü geriye atıyordu: TR (UTC+3) için bitmiş bir
+         program "dün" bitiyor görünüyordu. Öğlen, ±12 saatlik hiçbir dilimde
+         gün sınırını geçmez. */
+      ref.setHours(12,0,0,0);
+      return ref.toISOString();
     },
 
     /* §6 — su takibi. D16'da "oturumluk" diye açık kalmıştı; artık kalıcı. */
@@ -2079,12 +2147,23 @@ setTimeout(function(){
 
     /* ---- tamamlanan antrenman → Enerji Defteri + ilerleme (belge §19) ---- */
     antrenmanTamamla:function(a){
-      var s=read(), dk=(a&&a.dk)||25, kcal=(a&&a.kcal)||280, ad=(a&&a.ad)||'Antrenman';
+      var s=read(), dk=(a&&a.dk)||25, ad=(a&&a.ad)||'Antrenman';
+      /* kcal ÜÇ DURUM taşır — eskiden ikisi aynıydı ve bu, kanıt kademesinin
+         tam da öldürmeye çalıştığı uydurmayı üretiyordu:
+           sayı verildi (0 dahil) → o sayı
+           açıkça null verildi   → BİLİNMİYOR, sayıya çevrilmez
+           hiç verilmedi         → 280 (eski çağrılar kırılmasın)
+         Eskiden `(a&&a.kcal)||280` yüzünden `kcal:0` ve `kcal:null` de 280'e
+         düşüyordu: çağıran "bilmiyorum" diyemiyor, uydurmak zorunda kalıyordu. */
+      var kcal;
+      if      (a && typeof a.kcal === 'number') kcal = a.kcal;
+      else if (a && 'kcal' in a)                kcal = null;
+      else                                      kcal = 280;
       /* KANIT KADEMESİ — çağıran neye dayandığını SÖYLEMEK ZORUNDA.
          Söylemezse 'beyan' yazılır, çünkü söylenmeyen şey ölçülmüş sayılamaz.
          Uydurma bir kademe yazmaktansa zayıf ama doğru olanı yazıyoruz. */
       var kaynak = (a&&a.kaynak && KAYNAKLAR.indexOf(a.kaynak)>=0) ? a.kaynak : 'beyan';
-      s.bugun.dk += dk; s.bugun.kcal += kcal; s.bugun.tamam = true;
+      s.bugun.dk += dk; s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
       s.gecmis.unshift({tarih:'bugün',ad:ad,dk:dk,kcal:kcal,kaynak:kaynak});
       if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += dk;
       if(s.program && s.program.durum==='devam'){

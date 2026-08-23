@@ -27,7 +27,8 @@
                ekipman   : ['dambıl'],  // v2 · gereken ekipman
                video     : 'slug',      // v2 · form videosu (egzersiz-detay slug'ı)
                uyari     : '…',         // v2 · form/güvenlik uyarısı
-               alternatif: 'slug'       // v2 · "bu bana uymuyor" karşılığı
+               alternatif  : 'slug',    // v2 · "bu bana uymuyor" karşılığı
+               alternatifAd: 'Şınav (Push-up)'  // v2 · alternatifin GÖRÜNEN adı
            } ]
        } ],
        ilerleme  : {                            // anahtar: 'g<gunNo>-h<hareketIdx>'
@@ -48,6 +49,10 @@
      hareketler[].video (slug)      → §3.3 form videosu
      hareketler[].uyari             → §3.3 form/güvenlik uyarısı
      hareketler[].alternatif (slug) → §3.3 "bu hareket bana uymuyor"
+     hareketler[].alternatifAd      → alternatifin GÖRÜNEN adı. Slug→ad tablosu
+       yalnız Oluşturucu'da; okuyan sayfa slug'ı güzelleştirirse FABRİKASYON
+       yapar ('sinav' → "Sinav", doğrusu "Şınav (Push-up)"). Ad yoksa okuyan
+       taraf etiketi adsız basar — uydurmaz.
      ilerleme[k].agirlik/tekrarYapilan/efor → §5.3 performans · §5.4 hareket bazlı
        Bu üçü aynı zamanda KANIT: yalnız gerçekten yapan girebilir.
 
@@ -177,8 +182,14 @@
     },
 
     /* Tek hareketi işaretler.
-       durum: {yapildi:boolean, seviye:'tam'|'yarim'|'atlandi'}
-       yapildi:false verilirse kayıt SİLİNİR (işaret geri alınır). */
+       durum: {yapildi:boolean, seviye:'tam'|'yarim'|'atlandi',
+               agirlik?:number, tekrarYapilan?:number, efor?:1..10}
+       yapildi:false verilirse kayıt SİLİNİR (işaret geri alınır).
+
+       v2 — son üç alan §5.3 performans ve §5.4 hareket bazlı ilerlemeyi
+       besliyor; aynı zamanda KANIT: yalnız gerçekten yapan girebilir.
+       Verilmezse YAZILMAZ (undefined alan üretilmiyor); var olan bir kaydın
+       üzerine kısmi güncelleme gelirse eski değerler KORUNUR. */
     isaretle: function (id, gunNo, hareketIdx, durum) {
       var d = oku();
       var p = d.planlar.filter(function (x) { return x.id === id; })[0];
@@ -192,11 +203,20 @@
         delete p.ilerleme[k];
       } else {
         var sev = SEVIYELER.indexOf(durum.seviye) > -1 ? durum.seviye : 'tam';
-        p.ilerleme[k] = {
+        var eski = p.ilerleme[k] || {};
+        var yeni = {
           yapildi: true,
           seviye:  sev,
           tarih:   durum.tarih || new Date().toISOString()
         };
+        /* v2 alanları: verilmişse yaz, verilmemişse ESKİSİNİ KORU.
+           Kısmi güncelleme (yalnız seviye değişti) performans verisini
+           silmemeli — sessiz veri kaybı kusurdur. */
+        ['agirlik','tekrarYapilan','efor'].forEach(function(alan){
+          if (typeof durum[alan] === 'number')      yeni[alan] = durum[alan];
+          else if (typeof eski[alan] === 'number')  yeni[alan] = eski[alan];
+        });
+        p.ilerleme[k] = yeni;
       }
       p.guncelleme = new Date().toISOString();
       if (!yaz(d)) return false;

@@ -41,6 +41,24 @@ Bu depoda dört ayrı tuzak yakalandı; hepsi "var" derken görünmüyordu:
 `offsetParent`, `querySelector` varlığı ve `innerText` içinde kelime aramak
 görünürlük kanıtı **değildir**.
 
+## 2b · Metin araması — nerede aradığın da ölçümün parçası
+
+Bir metnin ekranda olup olmadığını ararken üç ayrı yerde arayabilirsin ve
+üçü farklı cevap verir. Bu turda üçü de yanlış cevaba yol açtı:
+
+| Nerede aradın | Ne yakalar | Tuzağı |
+|---|---|---|
+| kaynak dosyada `grep` | **yorumları da** | Kaldırılan metni açıklayan yorum eşleşir → "iş yapılmamış" sanılır |
+| `querySelectorAll('body *')` | **`<script>` ve `<style>` içeriğini de** | `textContent` kaynak kodudur; ekranda basılmayan metin eşleşir |
+| `document.body.innerText` | yalnız **basılan** metni | `text-transform:uppercase` gördüğünü değiştirir ("Gün 1" → "GÜN 1") |
+
+**Kural:** "ekranda var mı" sorusunun cevabı `innerText`tedir, kaynakta değil.
+`innerText` ararken de büyük/küçük harfe duyarsız ara. Kaynakta arama yalnız
+"bu kod var mı" sorusu içindir, "kullanıcı bunu görüyor mu" sorusu için değil.
+
+**Karşı kural — yazan taraf için:** kaldırdığın metni açıklayıcı yorumunda
+**birebir alıntılama**. Alıntılarsan, kaynakta arayan her denetimi yanıltırsın.
+
 ## 3 · Sonda önce şüphelidir
 
 Bir ölçüm kırmızı döndüğünde sıra şudur:
@@ -117,9 +135,16 @@ yer tutucu kırpılması ve form boşluğu yalnız görüntüye bakınca yakalan
 
 `tools/denetim.mjs` şunları mekanik olarak arar:
 
-- **Ölü etkileşim** — düğme gibi görünüp hiçbir şey yapmayan öğe. Bu turda üç
-  kez çıktı: challenge'ın takvim altı CTA'sı · takvim gün kutuları · katalogda
-  "Programa Başla". En pahalı kusur sınıfı bu.
+- **Ölü etkileşim** — düğme gibi görünüp hiçbir şey yapmayan öğe. En pahalı
+  kusur sınıfı bu; araç ilk gerçek koşusunda **15 örnek** kapattırdı, dördü
+  aylardır oradaydı ve hiçbir nöbet yakalamamıştı. Yakaladıkları: challenge'ın
+  takvim altı CTA'sı · takvimin 30 gün kutusu · randevu sayfasındaki dokuz
+  düğme · "Yeni koleksiyon" · "Bir bardak ekle".
+
+  DÜZELTME: bu listede bir zamanlar "katalogda Programa Başla" da yazıyordu.
+  **Yanlıştı** — düğme çalışıyordu, ekip arkadaşı ölçümle itiraz etti ve haklı
+  çıktı. Lead'in ölçümü hatalıydı. Yanlış bulgu silinmiyor, kayıtta kalıyor:
+  bu protokolün kendisi de aynı kurala tabidir.
 - **Sahte durum** — sayfaya sabit yazılmış, depodan gelmesi gereken sayı
   (ör. ana sayfada sabit `7 / 30`, Fit Planım'da sabit `Gün 7`).
 - **JS hatası** — konsolda hata olan sayfa.

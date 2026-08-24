@@ -471,6 +471,31 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
   background:none;border:none;padding:0;border-radius:0;
   color:var(--gs-light);
 }
+/* ---- R13/K16 · MARKA LOCKUP'I: ayraç rengi + hiyerarşi ----
+   (a) Ayraç çizgisi. Kabuktaki taban `.eyebrow::before{background:currentColor}`
+   idi; bu sayfanın 43. satırındaki `.sec-fit .eyebrow::before{background:var(--fit)}`
+   onu eziyordu → çizgi FİT YEŞİLİ çıkıyordu (ölçüldü: rgb(0,157,79)).
+   Beyar: "ayraç çizgisi DadaGastro renginde olsun (yeşil değil)" ve
+   "marka rengini kardeş markanın canlı sitesinden ölç".
+   ÖLÇÜM (iki bağımsız yöntem, dadagastro.com/tarifler canlı):
+     1) hesaplanmış stil `.r-facts i` → rgb(225,72,39)
+     2) `build/assets/tokens-CKdF8VGW.css` → `:root{--tomato:#E14827}`
+   İkisi de #E14827. Depodaki `--gs` literali zaten bu; yeni renk uydurulmadı.
+   Beyar açık tonu (#ff8a68, kontrast 6.18:1) değil SAF marka rengini seçti
+   (S13); koyu bandda ölçülen kontrast 3.51:1 — metin değil, dekoratif
+   çizgi olduğu için WCAG 1.4.11'in metin-dışı 3:1 eşiğinin üstünde.
+   (b) Hiyerarşi. Ölçüm: "DadaGastro" 11.5px, "KÖPRÜ İŞ BAŞINDA" 12px —
+   yani marka yazısı komşusundan KÜÇÜKTÜ. Beyar: marka büyük ve belirgin,
+   kuyruk yazısı ondan küçük. Marka 16px'e çıktı, kuyruk 10.5px'e indi
+   (oran 1 : 1.52). "Gastro" ağırlığı 400 → 300: referansın kendi
+   amblemiyle parite (`dadagastro.com` `.brand-word` → Dada 800 / Gastro 300,
+   canlıdan ölçüldü). */
+.df-recipe-band .eyebrow-gastro::before{background:var(--gs)}
+.df-recipe-band .eyebrow-gastro{gap:12px}
+.df-recipe-band .dg-mark i{font-size:15px}
+.df-recipe-band .dg-wm{font-size:16px;letter-spacing:-.01em}
+.df-recipe-band .dg-wm em{font-weight:300}
+.df-recipe-band .eb-tail{font-size:10.5px;letter-spacing:.18em;color:rgba(255,255,255,.72)}
 /* .see-all kabukta DOLU BEYAZ hap (`background:var(--paper)`); koyu bandın
    üstünde beyaz kutu içinde beyaz metin = görünmez düğme oldu. Banner CTA'sı
    için kabuğun kendi camsı dili var (`.lib-cta-ghost`) — aynı dil burada da
@@ -504,8 +529,25 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
    Süre/zorluk/porsiyon/yazar/puan/görüntülenme referansta var ama bu
    depoda YOK; R11/M16'da uydurulmadığı gibi R27'de de uydurulmadı — gerçek
    veri (protein/kcal) korundu. */
-.rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+/* ---- R13/K15 · KART YAPISI REFERANSA ÇEKİLDİ ----
+   Beyar: "tarif kartları kardeş markanın kalıbına geçsin". Yapı
+   `dadagastro.com/tarifler` CANLIDAN ölçüldü (@1440, 30 kart, hepsi
+   birebir aynı) — hem hesaplanmış stil hem `kart-fMfp465y.css` kaynağıyla:
+     .r-save   38×38 daire · abs 11/11 · rgba(255,255,255,.94) · ikon 15px · z2
+     h4        18px/700 · line-clamp 2 · min/max-height 2lh (kart yüksekliği eşitlenir)
+     h4 a::after inset:0 · z1  → tüm kart tıklanır (stretched link)
+     .r-facts  tek satır nowrap · 12px/500 · ikon 12px · ikon-metin gap 5
+               ayraç: ilk kalemden sonra margin-left:8 + padding-left:8 + border-left 1px
+     .r-foot   margin-top:auto · pt 13 · border-top 1px · space-between · gap 10
+     .av 28×28 daire · ad 12.5px/700 · puan 13px/700 · görüntülenme 12px/500
+     ızgara 3 kolon · gap 24 (@1024 2 · @640 1)
+   RENK DADAFIT PALETİNDE: referans künye ikonlarını ve dolu ₺ işaretini
+   `--tomato` ile boyuyor; burada `--fit-deep`e çevrildi — bandın Gastro
+   turuncusu (`--gs`) karta SİZMEDI. Yıldız `--yellow` (#FAC045): bu DadaFit'in
+   kendi "yalnız puan" token'ı (fit-shell.css:94), Gastro'dan alınma değil. */
+.rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .rc-card{
+  position:relative;                 /* stretched link (`h4 a::after`) için */
   display:flex;flex-direction:column;overflow:hidden;
   background:var(--bg-white);border:1px solid var(--line);
   border-radius:var(--radius-lg);
@@ -513,7 +555,6 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
   transition:.3s var(--ease);
 }
 .rc-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
-.rc-card:focus-visible{outline:3px solid var(--fit);outline-offset:3px}
 .rc-media{position:relative;height:200px;background-size:cover;background-position:center;transition:.5s var(--ease)}
 .rc-card:hover .rc-media{transform:scale(1.04)}
 /* kategori çipi — referansın `.r-chip`'i: beyaz hap, sol üst, 6/12 dolgu (opak kartta da değişmedi) */
@@ -523,10 +564,62 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
   font-size:11.5px;font-weight:700;letter-spacing:.02em;
   padding:6px 12px;border-radius:var(--radius-sm);
 }
+/* kaydet düğmesi — referansın `.r-save`'i. Referansta POST + `data-lg-gate`;
+   DadaFit'in kendi giriş kapısı zaten aynı kancayı kullanıyor
+   (fit-shell.js `[data-lg-gate]`, 10 sayfada canlı), yeni mekanizma
+   UYDURULMADI. z-index:2 → stretched link'in üstünde kalır. */
+.rc-save{
+  position:absolute;top:11px;right:11px;z-index:2;
+  width:38px;height:38px;border:0;border-radius:var(--radius-circle);
+  background:#fffffff0;color:var(--slate);font-size:15px;
+  display:grid;place-items:center;cursor:pointer;
+  transition:background .2s var(--ease),transform .2s var(--ease);
+}
+.rc-save:hover{background:#fff;transform:scale(1.06)}
+.rc-save:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
 .rc-body{padding:17px 18px 19px;display:flex;flex-direction:column;flex:1}
-.rc-body h4{font-size:18px;color:var(--slate);letter-spacing:-.01em;margin-bottom:11px}
-.rc-facts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  font-size:12.5px;font-weight:500;color:var(--muted);margin-bottom:13px}
+/* başlık iki satıra sabitlenir — referansın kart yükseklikleri bu yüzden
+   tek değer (363px). `2lh` desteklenmeyen tarayıcıda em karşılığına düşer. */
+.rc-body h4{
+  font-size:18px;color:var(--slate);letter-spacing:-.01em;margin-bottom:11px;
+  overflow:hidden;min-height:2.24em;max-height:2.24em;
+}
+@supports (height:1lh){ .rc-body h4{min-height:2lh;max-height:2lh} }
+.rc-body h4 a{color:inherit;text-decoration:none}
+.rc-body h4 a::after{content:"";position:absolute;inset:0;z-index:1}
+.rc-body h4 a:focus-visible{outline:3px solid var(--fit);outline-offset:3px;border-radius:4px}
+/* künye — tek satır, kalemler arası dikey ayraç (referansta gap YOK,
+   ayraç margin-left:8 + padding-left:8 + border-left ile kuruluyor) */
+.rc-facts{display:flex;align-items:center;flex-wrap:nowrap;
+  font-size:12px;font-weight:500;color:var(--muted);margin-bottom:13px}
+.rc-facts>*{display:flex;align-items:center;gap:5px;flex:none;white-space:nowrap}
+.rc-facts>*+*{margin-left:8px;padding-left:8px;border-left:1px solid var(--line)}
+.rc-facts i{font-size:12px;color:var(--fit-deep)}
+.rc-cost{gap:1px;font-weight:700;letter-spacing:-.02em}
+.rc-cost .rc-on{color:var(--fit-deep)}
+.rc-cost .rc-off{color:#d6d6d6}
+/* alt satır — referansın `.r-foot`'u: yazar solda, puan/görüntülenme sağda */
+.rc-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:auto;padding-top:13px;border-top:1px solid var(--line);
+}
+/* referansta `.r-author` bir BAĞLANTI (şef profili) olduğu için z-index:2
+   taşıyor; DadaFit'te şef profili yok, yazar düz metin. z-index verilseydi
+   stretched link'in üstünde kalır ve kartın alt satırı ölü bölge olurdu —
+   ölçüldü (elementFromPoint yazar noktasında <b> döndü, bağlantı değil). */
+.rc-author{display:flex;align-items:center;gap:9px;min-width:0}
+.rc-av{flex:none;width:28px;height:28px;border-radius:var(--radius-circle);
+  background-size:cover;background-position:center;background-color:var(--bg)}
+.rc-author b{font-size:12.5px;font-weight:700;color:var(--slate);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-stats{display:flex;align-items:center;gap:12px;flex:none}
+.rc-rate{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--slate)}
+.rc-rate i{font-size:13px;color:var(--yellow)}
+.rc-views{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--muted)}
+.rc-views i{font-size:12px}
+/* ÖLÜ KURALLAR — R13/K15'te kartın alt satırı "Tarifi Gör" bağlantısından
+   referansın yazar+puan satırına geçti; kartın kendisi artık stretched link.
+   Kurallar SİLİNMEDİ (kabuk sözleşmesi), geri istenirse hazır dursun. */
 .rc-macro b{color:var(--slate);font-weight:800}
 .rc-go{
   display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:13px;
@@ -1079,7 +1172,7 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
             <i class="fa-solid fa-utensils" aria-hidden="true"></i>
             <span class="dg-wm"><b>Dada</b><em>Gastro</em></span>
           </span>
-          Köprü İş Başında
+          <span class="eb-tail">Köprü İş Başında</span>
         </span>
         <h2>Antrenmanına uygun tarif</h2>
         <p class="lead">Her hareketin bir mutfak karşılığı var — ikisini birlikte planla, dengeyi koru.</p>
@@ -1091,50 +1184,132 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
         <a class="see-all" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=hafif">Tümünü Gör <i class="fa-solid fa-arrow-right"></i></a>
       </div>
     </div>
-    <!-- R11/M16 · Beyar: "buraya tarif kartları gelecek, bunlar tarif kartı
-         değil". Öncesi `.df-combo-card` idi: ANA GÖRSELİ ANTRENMAN fotoğrafı,
-         yemek ise altta küçük bir cam panelde duruyordu — yani antrenman
-         kartıydı, tarif kartı değil.
-         Şimdi kardeş markanın tarif kartı yapısı (dadagastro.com `.r-card`:
-         görsel + sol üstte kategori çipi + gövde: başlık · künye · alt satır).
-         VERİ UYDURULMADI: tarif adları, yemek görselleri ve protein/kcal
-         değerleri bu bölümde ZATEN vardı; kategori çipi de sayfanın kendi
-         eşleştirmesinden geliyor (HIIT/Yoga/Güç → "… sonrası").
-         Gastro'nun kartındaki süre/zorluk/porsiyon ve yazar/puan alanları
-         EKLENMEDİ — o veri bu depoda yok, uydurulmazdı. -->
+    <!-- R13/K15 · Beyar: "tarif kartları kardeş markanın kalıbına geçsin …
+         DadaFit'te olmayan veriyi UYDURMA".
+         Yapı `dadagastro.com/tarifler` canlısından ölçüldü (bkz. yukarıdaki
+         CSS notu). VERİ SORUNU VE ÇÖZÜMÜ: referansın künyesi
+         (süre · zorluk · kişi · maliyet) ve alt satırı (yazar · puan ·
+         görüntülenme) DadaFit'te YOK; öncesinde burada protein/kcal vardı.
+         Beyar'ın kararı (S13): uydurma yerine kartların ZATEN gittiği
+         DadaGastro prototipinden GERÇEK tarifler yansıtılsın. Aşağıdaki üç
+         kartın her alanı — ad, görsel, kategori, süre, zorluk, kişi,
+         maliyet (dolu/boş ₺ sayısı ve bütçe etiketi), yazar adı, avatar,
+         puan, görüntülenme — `by4r.github.io/dadamutfak-view/v7-6cu356/
+         tarif-liste-v1.html` kartlarından BİREBİR alındı, tek değer
+         uydurulmadı; kartlar da o listenin tarif detayına gidiyor.
+         Kategori rozeti artık tarifin GERÇEK kategorisi (Salata · Çorba ·
+         Zeytinyağlı). Önceki "HIIT/Yoga/Güç sonrası" eşleştirmesi kaldırıldı:
+         bu tarifler için öyle bir eşleştirme verisi yok, yazılsaydı uydurma
+         olurdu. Bölümün antrenman bağı başlık ve lead'de duruyor.
+         Protein/kcal DÜŞTÜ — bu tariflerin makro verisi kaynakta yok. -->
     <div class="rc-grid">
-      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein">
-        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&q=80&auto=format&fit=crop')">
-          <span class="rc-chip">HIIT sonrası</span>
+      <article class="rc-card">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">Salata</span>
         </div>
+        <!-- kaydet düğmesi kartın DOĞRUDAN çocuğu (referansta da `.r-save`
+             `article`'ın çocuğu). `.rc-media` hover'da `transform` alıyor;
+             transform yeni yığın bağlamı açtığı için düğme oraya konsaydı
+             z-index:2 kart bağlamında geçersiz kalır, stretched link
+             (`h4 a::after`) düğmenin üstünü kapatırdı — ölçüldü, tıklama
+             başlık bağlantısına düşüyordu. -->
+        <button class="rc-save" type="button" aria-label="Tarifi kaydet"
+                data-lg-gate data-lg-title="Kaydetmek için giriş yap"
+                data-lg-desc="Tarifleri kaydetmek ve antrenmanına uygun önerileri takip etmek için DadaFit hesabına giriş yapman gerekiyor.">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+        </button>
         <div class="rc-body">
-          <h4>Protein Bowl</h4>
-          <div class="rc-facts"><span class="rc-macro"><b>38 g</b> protein</span><span class="rc-macro"><b>420</b> kcal</span></div>
-          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          <h4><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-detay-v1.html">Izgara Tavuklu Sezar Salata</a></h4>
+          <div class="rc-facts">
+            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> 20 dk</span>
+            <span><i class="fa-solid fa-gauge-simple" aria-hidden="true"></i> Çok Kolay</span>
+            <span><i class="fa-solid fa-utensils" aria-hidden="true"></i> 2 kişilik</span>
+            <span class="rc-cost" title="Orta bütçe"><b class="rc-on">₺</b><b class="rc-on">₺</b><b class="rc-off">₺</b></span>
+          </div>
+          <div class="rc-foot">
+            <div class="rc-author">
+              <span class="rc-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&auto=format&fit=crop')" role="img" aria-label="Onur T."></span>
+              <span><b>Onur T.</b></span>
+            </div>
+            <div class="rc-stats">
+              <span class="rc-rate"><i class="fa-solid fa-star" aria-hidden="true"></i> 4.5</span>
+              <span class="rc-views" title="73B görüntülenme"><i class="fa-solid fa-eye" aria-hidden="true"></i> 73B</span>
+            </div>
+          </div>
         </div>
-      </a>
+      </article>
 
-      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=hafif">
-        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=700&q=80&auto=format&fit=crop')">
-          <span class="rc-chip">Yoga sonrası</span>
+      <article class="rc-card">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1547592180-85f173990554?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">Çorba</span>
         </div>
+        <!-- kaydet düğmesi kartın DOĞRUDAN çocuğu (referansta da `.r-save`
+             `article`'ın çocuğu). `.rc-media` hover'da `transform` alıyor;
+             transform yeni yığın bağlamı açtığı için düğme oraya konsaydı
+             z-index:2 kart bağlamında geçersiz kalır, stretched link
+             (`h4 a::after`) düğmenin üstünü kapatırdı — ölçüldü, tıklama
+             başlık bağlantısına düşüyordu. -->
+        <button class="rc-save" type="button" aria-label="Tarifi kaydet"
+                data-lg-gate data-lg-title="Kaydetmek için giriş yap"
+                data-lg-desc="Tarifleri kaydetmek ve antrenmanına uygun önerileri takip etmek için DadaFit hesabına giriş yapman gerekiyor.">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+        </button>
         <div class="rc-body">
-          <h4>Mevsim Salatası</h4>
-          <div class="rc-facts"><span class="rc-macro"><b>280</b> kcal</span></div>
-          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          <h4><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-detay-v1.html">Köz Domatesli Ev Çorbası</a></h4>
+          <div class="rc-facts">
+            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> 25 dk</span>
+            <span><i class="fa-solid fa-gauge-simple" aria-hidden="true"></i> Kolay</span>
+            <span><i class="fa-solid fa-utensils" aria-hidden="true"></i> 4 kişilik</span>
+            <span class="rc-cost" title="Ekonomik"><b class="rc-on">₺</b><b class="rc-off">₺</b><b class="rc-off">₺</b></span>
+          </div>
+          <div class="rc-foot">
+            <div class="rc-author">
+              <span class="rc-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop')" role="img" aria-label="Gül Demir"></span>
+              <span><b>Gül Demir</b></span>
+            </div>
+            <div class="rc-stats">
+              <span class="rc-rate"><i class="fa-solid fa-star" aria-hidden="true"></i> 4.6</span>
+              <span class="rc-views" title="51B görüntülenme"><i class="fa-solid fa-eye" aria-hidden="true"></i> 51B</span>
+            </div>
+          </div>
         </div>
-      </a>
+      </article>
 
-      <a class="rc-card" href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-liste-v1.html?filtre=protein">
-        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&q=80&auto=format&fit=crop')">
-          <span class="rc-chip">Güç sonrası</span>
+      <article class="rc-card">
+        <div class="rc-media" style="background-image:url('https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=700&q=80&auto=format&fit=crop')">
+          <span class="rc-chip">Zeytinyağlı</span>
         </div>
+        <!-- kaydet düğmesi kartın DOĞRUDAN çocuğu (referansta da `.r-save`
+             `article`'ın çocuğu). `.rc-media` hover'da `transform` alıyor;
+             transform yeni yığın bağlamı açtığı için düğme oraya konsaydı
+             z-index:2 kart bağlamında geçersiz kalır, stretched link
+             (`h4 a::after`) düğmenin üstünü kapatırdı — ölçüldü, tıklama
+             başlık bağlantısına düşüyordu. -->
+        <button class="rc-save" type="button" aria-label="Tarifi kaydet"
+                data-lg-gate data-lg-title="Kaydetmek için giriş yap"
+                data-lg-desc="Tarifleri kaydetmek ve antrenmanına uygun önerileri takip etmek için DadaFit hesabına giriş yapman gerekiyor.">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+        </button>
         <div class="rc-body">
-          <h4>Tavuklu Kâse</h4>
-          <div class="rc-facts"><span class="rc-macro"><b>42 g</b> protein</span><span class="rc-macro"><b>480</b> kcal</span></div>
-          <span class="rc-go">Tarifi Gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          <h4><a href="https://by4r.github.io/dadamutfak-view/v7-6cu356/tarif-detay-v1.html">Zeytinyağlı Enginar Dolması</a></h4>
+          <div class="rc-facts">
+            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> 55 dk</span>
+            <span><i class="fa-solid fa-gauge-simple" aria-hidden="true"></i> Orta</span>
+            <span><i class="fa-solid fa-utensils" aria-hidden="true"></i> 4 kişilik</span>
+            <span class="rc-cost" title="Orta bütçe"><b class="rc-on">₺</b><b class="rc-on">₺</b><b class="rc-off">₺</b></span>
+          </div>
+          <div class="rc-foot">
+            <div class="rc-author">
+              <span class="rc-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop')" role="img" aria-label="Sevgi Aydın"></span>
+              <span><b>Sevgi Aydın</b></span>
+            </div>
+            <div class="rc-stats">
+              <span class="rc-rate"><i class="fa-solid fa-star" aria-hidden="true"></i> 4.7</span>
+              <span class="rc-views" title="22B görüntülenme"><i class="fa-solid fa-eye" aria-hidden="true"></i> 22B</span>
+            </div>
+          </div>
         </div>
-      </a>
+      </article>
     </div>
   </div>
 </section>

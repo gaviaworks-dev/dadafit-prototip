@@ -26,6 +26,12 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K12 | Linkleri "şu linkte şunu değiştirdim" biçiminde ver | **BITTI** | aşağıdaki listede |
 | K13 | R14 · destek-v1 + pro-v1 profil kalıbı | **BEKLIYOR** | Beyar kararı bekliyor (kapak görseli/kimlik verisi yok) |
 | K14 | R35 · Yeni Başlayanlar giriş metni `justify` + canlıya al | **BITTI** | mevcut `.jt-flow` kancası kullanıldı · @390'da otomatik sola dönüyor (nehir yok) · commit `174db5a` |
+| K15 | R1 · Ana sayfa tarif kartları DadaGastro `/tarifler` kart yapısına geçsin (rozet sol üst, kalp sağ üst, görsel, başlık, tek satır künye, ayraçlı yazar satırı) — olmayan veri uydurulmayacak | **BEKLIYOR** | Keşif yapıldı, onay bekliyor |
+| K16 | R2 · Bölüm başlığındaki marka lockup'ı: ayraç çizgisi DadaGastro renginde, "DadaGastro" yazısı büyük, "KÖPRÜ İŞ BAŞINDA" daha küçük | **BEKLIYOR** | Keşif yapıldı, onay bekliyor |
+| K17 | R3 · `hareket-yeni-baslayanlar-v1` en alttaki bilgilendirme kutusu header genişliğine yayılsın; aynı desen başka sayfalarda varsa hepsi birden | **BEKLIYOR** | Kanon genişlik sayfadan alınacak, desen envanteri çıkarılacak |
+| K18 | R5 · `hesabim-v1` Faturalar sekmesi: "Fatura Bilgilerim" formu popup'a taşınsın, başlık sağ üstüne düzenle düğmesi, Kurumsal/Bireysel'e göre zorunlu alan, gömülü form kalksın | **BEKLIYOR** | Sitedeki mevcut modal kalıbı ölçülecek |
+| K19 | R6 · `hesabim-v1` Diğer Modüller sekmesi: ızgaranın içine kart gibi düşmüş bölünmüş cümle ("yukarıdaki bölümden" / "seçersin.") tek parça ve ızgara dışına | **BEKLIYOR** | Kök neden DOM'dan ölçülecek |
+| K20 | R7 · `hareket-hedefe-gore-v1` sayfasındaki yazı justify olsun | **BEKLIYOR** | K14'teki `.jt-flow` kancası kullanılacak |
 
 ---
 

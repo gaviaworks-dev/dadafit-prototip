@@ -5,6 +5,9 @@ yazılır, durumu BEKLIYOR olur. Sırayla işlenir; biten BITTI olur ve tek sat�
 verilir. Bir iş bitince yeni mesaj beklenmeden kuyruğa bakılır, BEKLIYOR varsa
 doğrudan ona geçilir. Kuyruk boşalınca "kuyruk boş" denir.
 
+**Ek kural (Beyar):** iş bitince **doğrudan canlıya alınır** — sormadan push edilir.
+Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltilir.
+
 ---
 
 | # | İstek | Durum | Not |
@@ -19,8 +22,8 @@ doğrudan ona geçilir. Kuyruk boşalınca "kuyruk boş" denir.
 | K8 | R28 · akordeon başlığı altına soft ayraç | **BITTI** | soft ayraç `rgb(216,235,224)` · nefes 18/18 simetrik · commit `69ea772` |
 | K9 | R29 · "ÖNCE OKU"da tek bölüm açık kalsın | **BITTI** | 3 tıklamada da tam 1 açık · klavye ✓ · commit `1339368` |
 | K10 | R33 · video seans detay sayaç hizası | **BITTI** | kök neden: kırık HTML yorumu ekranda hayalet metin olarak kalmış, flex'i 641px'e şişirmiş · 641→107px · commit `4f7e5bc` |
-| K11 | Bağımsız ölçüm + push + canlı doğrulama (R26–R34) | **ISLENIYOR** | `olcum-6` · tüm builder'lar kapandı |
-| K12 | Linkleri "şu linkte şunu değiştirdim" biçiminde ver | **BEKLIYOR** | Tüm revizeler bitince |
+| K11 | Bağımsız ölçüm + push + canlı doğrulama (R26–R34) | **BITTI** | yerel 11/11 + canlı 11/11 GEÇTİ · push `f37845b..e7ced9c` |
+| K12 | Linkleri "şu linkte şunu değiştirdim" biçiminde ver | **BITTI** | aşağıdaki listede |
 | K13 | R14 · destek-v1 + pro-v1 profil kalıbı | **BEKLIYOR** | Beyar kararı bekliyor (kapak görseli/kimlik verisi yok) |
 
 ---

@@ -1065,10 +1065,26 @@ if(_plan){
    '      <span class="fp-ava2" style="background-image:url(\''+AVA+'\')"></span>\n'+
    '      <div class="fp-kimlik-id">\n'+
    '        <h1>'+ptit+'</h1>\n'+
-   '        <span class="fp-handle2 fp-name">Elif Şahin</span>\n'+
+   /* R12 EK TUR · R21 — Beyar: "rozetlerim kısmını düzeltmei istiyorum
+      bursı saçma olmuş". Ölçüldü: "Rozetlerim" DOM'da zaten bu meta
+      satırındaydı (S13 önerisi zaten karşılanmıştı) ama yalnız görünüyordu
+      — kök neden komşu `.fp-state`/`.fp-name` sınıfları eski KOYU banner
+      kitinden kalmaydı (`.fp-state{color:rgba(255,255,255,.66)}` ·
+      `.fp-name{color:#fff}`, fit-shell.css ~line 1678); beyaz karta
+      taşınırken de kullanılmaya devam etmişler ve beyaz zeminde
+      beyaza-yakın metin bırakmışlar (docs/lessons.md §2 — sonda/göz
+      körlüğü, ekran görüntüsüyle doğrulandı). "Elif Şahin" yalnız daha
+      özgül bir kural (.fp-kimlik-id .fp-handle2) sayesinde okunur kalmıştı.
+      Düzeltme: iki span da hesabim-v1.html'in ZATEN DOĞRU çalışan meta
+      satırı kalıbına (düz <span>, .fp-kimlik-meta'dan miras --muted rengi)
+      çekildi — yeni sınıf icat edilmedi. `.fp-state`/`.fp-name` ve eski
+      `.fp-who`/`.fp-ava`/`.fp-who-txt` kiti bu değişiklikle son canlı
+      referanslarını da kaybediyor → ÖLÜ KURAL (fit-shell.css'te işaretli,
+      KARARLAR.md K68). */
+   '        <span class="fp-handle2">Elif Şahin</span>\n'+
    (psub? '        <p class="fp-lead2">'+psub+'</p>\n' : '')+
    '        <div class="fp-kimlik-meta">\n'+
-   '          <span class="fp-state"><i class="fa-solid fa-user"></i> Ücretsiz üye · 3 haftadır burada</span>\n'+
+   '          <span><i class="fa-solid fa-user"></i> Ücretsiz üye · 3 haftadır burada</span>\n'+
    '          <a href="fit-planim-rozetler-v1.html"><i class="fa-solid fa-award"></i> Rozetlerim</a>\n'+
    '        </div>\n'+
    '      </div>\n'+

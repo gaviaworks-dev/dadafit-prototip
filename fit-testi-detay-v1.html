@@ -1434,14 +1434,24 @@ button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
     });
   })();
 
-  /* R9 · "Önce oku" akordiyonu */
+  /* R9 · "Önce oku" akordiyonu — R12/R29: aynı anda en fazla 1 bölüm açık.
+     Tıklanan zaten açıksa hepsi kapanır (hepsi-kapalı serbest); değilse
+     önce hepsi kapatılır, sonra yalnız tıklanan açılır. Buton native
+     click davranışı sayesinde Enter/Space de aynı yoldan geçer. */
   document.addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('button.ft-acc') : null;
     if (!b) return;
     var acik = b.getAttribute('aria-expanded') === 'true';
-    b.setAttribute('aria-expanded', acik ? 'false' : 'true');
-    var g = document.getElementById(b.getAttribute('aria-controls'));
-    if (g) g.hidden = acik;
+    document.querySelectorAll('button.ft-acc').forEach(function(btn){
+      btn.setAttribute('aria-expanded', 'false');
+      var gg = document.getElementById(btn.getAttribute('aria-controls'));
+      if (gg) gg.hidden = true;
+    });
+    if (!acik) {
+      b.setAttribute('aria-expanded', 'true');
+      var g = document.getElementById(b.getAttribute('aria-controls'));
+      if (g) g.hidden = false;
+    }
   });
 
   var mform = el('ftMForm');

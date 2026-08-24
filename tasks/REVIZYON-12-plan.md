@@ -309,3 +309,53 @@ sekme rayı ↔ ilk içerik **208px** · iki bölüm dolgusu üst üste binip **
 
 Agent: `enerji-zemin-12` (tek dosya: `enerji-defteri-v1.html`). Kabuk `.sec-fit`
 66 sayfada ortak → dokunmak yasak, 5 başka sayfada etkilenmediği kanıtlanacak.
+
+---
+
+# EK TUR 3 — DALGA PLANI (R26–R34)
+
+**Beyar onayı:** "liste bitti başlayabilirsin" — plan onayı önden verildi.
+Belirsiz noktalar lead tarafından **önerilen şıkla** karara bağlandı (Beyar'ın duran
+talimatı: "bundan sonraki soruları önerilen olarak seç").
+
+## Lead kararları (soru sorulmadan, gerekçeli)
+
+| # | Belirsizlik | Karar | Gerekçe |
+|---|---|---|---|
+| K-a | **R27** · kart koyu parallax bandın üstünde kalacak mı? | **Bant kalıyor, kart opak beyaza dönüyor.** | Bant R11/M2'de parallax olarak kuruldu ve ölçülerek doğrulandı; kaldırmak bu maddenin kapsamı dışında. Referansın istediği **kartın kendisi**. |
+| K-b | **R30** · "+N" nasıl görünecek? | Mevcut etiket çipiyle **aynı biçimde**, metni `+N`. | Yeni bileşen üretilmez (kabuk sözleşmesi). |
+| K-c | **R26** · hero nasıl uzayacak? | Hero yüksekliği **dikişin 22px binmesini kapsayacak** kadar artar (`100vh + var(--seam-r)`), dikiş kuralına **dokunulmaz**. | Dikiş 50 sayfada ortak; kurala dokunmak hepsini bozar. |
+| K-d | **R34** · ortalama nereye yazılacak? | **Kabuğa**, `.fit-tabs` plan rayı için; `fit-planim-gecmis-v1.html`'deki sayfaya özel kural **kaldırılır**. | Tek kaynak. R15'te kapsam dar tutulduğu için tutarsızlık doğdu; kök çözüm kabukta. `KARARLAR.md`'ye yazılır (DadaDiet referansı sola dayalı, bilinçli sapma). |
+
+## Grup tablosu (5 grup · dosya çakışması sıfır)
+
+| Grup | Agent | SAHİP dosyalar | Maddeler |
+|---|---|---|---|
+| **F1** | `kabuk-12b` | `assets/css/fit-shell.css` · `assets/js/fit-shell.js` · `fit-planim-gecmis-v1.html` · `KARARLAR.md` | **R32 · R34** |
+| **F2** | `hub-12` | `dadafit-hub-v1.html` | **R26 · R27** |
+| **F3** | `video-12` | `video-seanslari-v1.html` | **R30 · R31** |
+| **F4** | `akordeon-12` | `hareket-yeni-baslayanlar-v1.html` · `fit-testi-detay-v1.html` | **R28 · R29** |
+| **F5** | `seans-detay-12` | `video-seans-detay-v1.html` | **R33** |
+
+**Çakışma denetimi:** Kabuk CSS/JS yalnız F1'de. `fit-planim-gecmis-v1.html` yalnız F1'de
+(R34'ün sayfa kuralını kaldırıyor). Diğer dört grubun dosyaları birbirinden ayrık.
+
+## Dalga sırası
+
+**DALGA 1 (4 agent):** `kabuk-12b` · `hub-12` · `video-12` · `akordeon-12`
+**DALGA 2 (1 agent):** `seans-detay-12`
+
+**Neden R33 ikinci dalgada:** `.lib-stats` / `.lib-row` kabuk sınıfları. Çözüm sayfa
+içinde kurulacak ama kabuk agent'ı Dalga 1'de o dosyalara yazıyor — aynı anda çalışırsa
+ölçüm ve commit karışır. Kabuk kapandıktan sonra güvenle koşar.
+
+## Risk notları
+
+| # | Risk | Önlem |
+|---|---|---|
+| 1 | **R32 topbar 66 sayfada** · **R34 kabuk rayı 14 plan sayfasında** | Önce/sonra ölçüm zorunlu; F1 her iki değişikliği de kapsam dışı sayfalarda ölçüp kanıtlayacak. |
+| 2 | **R34, R15'in kapsamını değiştiriyor** | `fit-planim-gecmis`'teki sayfa kuralı kaldırılacak, çift kural kalmayacak; 14 sayfada tek değer ölçülecek. |
+| 3 | **R26 dikiş kuralına dokunma yasağı** | Hero yüksekliği sayfada artırılacak; `docs/qa/dikis-olcum.mjs` tabanı **49/66 · 42 · 7 · 17** korunacak. |
+| 4 | **R27 yeni bileşen riski** | Referans (`dadagastro.com/tarifler`) **canlıdan ölçülüp** kütüğe yazılacak; uydurma değer yasak. Renkler DadaFit paletinde kalır (`docs/lessons.md` §8). |
+| 5 | **R31, R5'in kalıbını tekrarlıyor** | `fit-testleri`'ndeki `min-height` çözümü örnek alınacak; kart yüksekliği tek değer kalacak, metin kırpılmayacak. |
+| 6 | **Paralel git index yarışı** | Tüm builder'lara pathspec'li commit ve `git show --stat` doğrulaması şart koşuldu. |

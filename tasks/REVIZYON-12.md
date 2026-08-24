@@ -1237,7 +1237,9 @@ sekme rayı ↔ ilk içerik arası ≤80px; ardışık bölümler arası boşluk
 Durum: TOPLANDI
 URL: http://127.0.0.1:8788/dadafit-hub-v1.html
 
-**Beyar'ın sözü:** "burdaki hero tam ekran olacak yani alttaki beyaz paneli gormeyecegim ilk basta"
+**Beyar'ın sözü:** "burdaki hero tam ekran olacak yani alttaki beyaz paneli gormeyecegim
+ilk basta" · **netleştirme:** "bak dedim ki buradki hero tam ekran olacak aşığıdaki
+beyaz radisulu paneli birazdaha aşayğıya çek"
 
 **Görselden okunan:** Hero ekranı dolduruyor ama en altta ince bir beyaz şerit görünüyor —
 bir sonraki bölümün üst kenarı ekrana giriyor.
@@ -1345,7 +1347,9 @@ Durum: TOPLANDI
 URL: http://127.0.0.1:8788/hareket-yeni-baslayanlar-v1.html
 
 **Beyar'ın sözü:** "accordtionun altina divider koy aciklamanin ustunde gelecek
-dividerlar dabbsoluk birak"
+dividerlar dabbsoluk birak" · **netleştirme:** "burdakı accordrıtonun tıtleın altına
+bir divider koy **soft**"
+Görsel: `docs/screenshots/R12-28-accordion-divider.png`
 
 **Anlaşılan istek:** Açılan soru kartında, soru başlığı ile cevap metni arasına ayraç
 çizgisi girsin; ayracın altında ve üstünde boşluk olsun.
@@ -1371,10 +1375,12 @@ paragrafı — arada ne çizgi ne nefes var, metin başlığa yapışık başlı
 Tasarım dokunuşu: **EVET**
 Bağımlılık: YOK
 
-**Bitti kriteri:** Açık soru kartında `.qa-head` ile `.qa-body` arasında `1px` ayraç
-(`--line` ya da kartın mevcut kenarlık rengi) var; ayracın üstünde ve altında **eşit**
-nefes (4px ızgarasında, ≥14px). Kapalı kartlarda ayraç **görünmüyor**. `.qa` kullanan
-diğer sayfalar etkilenmişse hepsinde tutarlı.
+**Bitti kriteri:** Açık soru kartında `.qa-head` ile `.qa-body` arasında `1px` **soft**
+ayraç var — Beyar "soft" dedi: sert `--line` değil, kartın kendi yumuşak yeşilimsi
+kenarlık rengi (`rgb(216,235,224)`, `.qa.open` üzerinde ölçüldü) ya da ondan da hafifi.
+Ayracın üstünde ve altında **eşit** nefes (4px ızgarasında, ≥14px).
+Kapalı kartlarda ayraç **görünmüyor**. `.qa` kullanan diğer sayfalar etkilenmişse
+hepsinde tutarlı.
 
 ---
 
@@ -1518,3 +1524,51 @@ Bağımlılık: YOK
 **Bitti kriteri:** `video-seans-detay-v1.html`'de `.lib-stats` genişliği ve konumu diğer
 liste sayfalarıyla **aynı davranışta** — içeriğine göre daralıyor, sağ kenara yaslı,
 sayaçlar sağda toplanıyor. Beş kardeş sayfada ölçüm **değişmemiş** olacak.
+
+---
+
+## R34 — Plan sayfaları: sekme rayı 14 sayfanın 13'ünde sola dayalı, biri ortalı
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/enerji-defteri-v1.html · http://127.0.0.1:8788/fit-planim-kaydettiklerim-v1.html
+
+**Beyar'ın sözü:** "burdaki tableri merkezi hale getir … ilk açıldıklarında merkeziler
+sonra tıklayınca sola yalı oluyoyorlar"
+
+**Görselden okunan:** İki plan sayfasında da profil kartının altındaki sekme rayı
+(Bugün · Plan ve Takvim · İlerlemem) **sola dayalı** duruyor; kartın kendisi ortalı
+olduğu için ray yalnız başına sola kaçmış görünüyor.
+
+**Canlı DOM ölçümü — 14 plan sayfası, `nav.fit-tabs` (1440px):**
+| Sayfa | `justify-content` | sol boşluk | sağ boşluk | Sonuç |
+|---|---|---|---|---|
+| **fit-planim-gecmis** | **`center`** | **405** | **405** | **ORTALI** |
+| enerji-defteri · -dengele · -haftalik · -su | `normal` | 5 | 805 | sola dayalı |
+| fit-planim · -ilerleme · -kaydettiklerim · -programim · -randevular · -rozetler · -saglik-profil · -veri-izin | `normal` | 5 | 805 | sola dayalı |
+| fit-test-sonuclarim | `normal` | 5 | 805 | sola dayalı |
+
+**Kök neden — bu turun kendi tutarsızlığı:** R15'te Beyar "sekmeler merkezi değil" dediği
+için `fit-planim-gecmis-v1` **tek sayfaya** ortalama uygulandı
+(`body[data-fit-page="fit-planim-gecmis-v1"] … {justify-content:center}`), çünkü DadaDiet
+referansı sola dayalıydı ve kabuk kuralına dokunmamak için kapsam dar tutulmuştu.
+Sonuç: **1 sayfa ortalı, 13 sayfa sola dayalı.** Beyar'ın "tıklayınca sola yaslı oluyor"
+dediği tam bu — Aktivite Kayıtlarım'dan başka bir plan sayfasına geçince hiza değişiyor.
+
+**Dosyalar:**
+- `assets/css/fit-shell.css` — `.fit-tabs` ve Dalga 1'de eklenen **`.fit-tabs.is-center`**
+  opt-in sınıfı (hazır, şu an yalnız dolaylı olarak bir sayfada etkili)
+- `fit-planim-gecmis-v1.html` — R15'te eklenen sayfaya özel ortalama kuralı
+  (kabuğa taşınırsa **kaldırılmalı**, çift kural kalmamalı)
+- 13 plan sayfası — `nav.fit-tabs` işaretlemesi (kabuk JS'i `#fitPlanTop` ile basıyor)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R15** (o kararın kapsamını genişletiyor)
+
+**Bitti kriteri:** 14 plan sayfasının **hepsinde** `nav.fit-tabs` ortalı — ilk sekmenin
+sol boşluğu ile son sekmenin sağ boşluğu eşit (sapma ≤2px), `justify-content:center`.
+`fit-planim-gecmis`'teki sayfaya özel kural kaldırılmış, tek kaynak kabukta.
+`.fit-tabs` plan sayfaları **dışında** da kullanılıyorsa oralar **etkilenmemiş**
+(ölçülerek kanıtlanacak).
+
+**NOT:** DadaDiet referansı bu rayı **sola dayalı** kullanıyor (R15'te ölçüldü).
+Beyar referanstan bilinçli olarak ayrılıyor — karar `KARARLAR.md`'ye yazılmalı.

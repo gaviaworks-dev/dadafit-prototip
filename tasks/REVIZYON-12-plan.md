@@ -190,3 +190,17 @@ Parola hiçbir dosyaya yazılmadı (repo grep ile doğrulandı: 0 eşleşme).
 ikinci sekme rayı kalkacak · kalemleri kaybolmadan taşınacak · sondaki fazladan gri bölüm
 birleşecek · birinci rayın `sticky` davranışına dokunulmayacak (referansta sticky yok ama
 `.pf-tabbar` 14 plan sayfasında ortak) · ray **ortalanmayacak** (referans sola dayalı).
+- **R12 (ek tur) — YEŞİL** · DadaDiet referansı ölçüldükten sonra `enerji-defteri-12` kapattı: ikinci sekme rayı kalktı (2→1), üç kalem `.df-hcta` şeridine taşındı, self-link "Bugün" düşürüldü, sondaki gri bölüm aynı zemine alındı · bağımsız ölçüm `olcum-4`: 7/7 GEÇTİ, kırık çapa 0/10, 11 nöbet 0 sorun, **14/14 madde regresyonu korundu** · commit `4abd837` `9ef5625`
+- **CANLI YAYIN DOĞRULANDI** (2026-08-24) · `olcum-4` canlıda ölçtü: Y0–Y6 hepsi GEÇTİ · R1 gölge none (2 sayfa) · R6 aside x=960 w=348, @390 tek kolon · R13 `.fp-profil` + logo kontrastı 16.7:1 + `#hsRail` 10 sekme + `#uyelik` çapası · dropdown 12 kalem, hedef 200 · R12 `nav.fit-tabs`=1 · dikiş envanteri canlıda da 49/42/7/17
+  - Not: canlı dikiş sondası ilk denemede CDN gecikmesiyle flaky çıktı (48/41/7/18), ikinci koşuda yerelle birebir aynı. Sonda bekleme süresi tek sayfada yetmiyor — canlıya karşı koşulurken tekrar edilmeli.
+
+## 8 · Turun kapanışı
+
+**13/15 madde kapandı ve canlıda doğrulandı.** Açık kalan iki madde:
+- **R14** — `destek-v1` + `pro-v1`: `.fp-profil` uygulanmadı (kimlik verisi ve kapak görseli yok, uydurma içerik yasak). Alternatif: kapak görseli vererek düz bannerı kırmak — ayrı tasarım kararı.
+- **Zebra (R15 eki)** — Beyar "zebra deseni var" dedi, ölçüm bulamadı. Hangi ekran kastedildiği netleşmeli.
+
+**Devir notunda güncellenecek (`tasks/handoff.md`):**
+§3 dikiş ölçümü 50/66 · binen 42 · ray-altı 8 → **49/66 · binen 42 · ray-altı 7**
+§5 "dikişsiz kalan 16 sayfa" → **17 sayfa**, yeni üye `hesabim-v1` (R13'te koyu bannerını kaybetti)
+§4 nöbet tablosu: `header-banner` artık `hesabim-v1` (PLAIN) + `destek-v1`/`pro-v1` (BANNER) kapsıyor; `plan-account` 11 → **12 kalem**

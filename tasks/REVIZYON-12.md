@@ -1313,6 +1313,29 @@ palet alınmaz — renkler DadaFit paletinde kalır).
 
 **SORU:** Kart koyu parallax bandın üstünde duruyor. Referans kartları **beyaz zeminde**.
 Bant koyu kalırsa beyaz kart üstünde mi duracak, yoksa bandın kendisi mi açılacak?
+→ **Lead kararı K-a (`REVIZYON-12-plan.md`):** Bant kalıyor, kart opak beyaza dönüyor.
+
+**REFERANS ÖLÇÜMÜ (dadagastro.com/tarifler, canlı, 2026-08-24, `article.r-card`, @1440):**
+
+| Parça | Ölçü |
+|---|---|
+| Kart | 275×363 · radius **16px** · `overflow:hidden` (radius kartın kendisinde) |
+| Gölge | `0 1px 2px rgba(33,30,22,.04), 0 2px 6px rgba(33,30,22,.05)` — çok ince çift katman |
+| Kenarlık | `1px solid rgb(236,236,236)` |
+| Zemin | `rgb(255,255,255)` — opak |
+| Izgara | `display:grid` 3 eşit kolon, `gap:24px` |
+| Görsel (`.r-media`) | **200px** yükseklik, tam genişlik, kendi radius'u yok (kart kırpıyor) |
+| Kategori çipi | `position:absolute; top:13px; left:13px`, dolgu `6px 12px`, `11.5px/700`, zemin `rgba(255,255,255,.94)`, metin `rgb(33,30,22)`, radius `8px` |
+| Kalp düğmesi | `position:absolute; top:11px; right:11px`, **38×38** daire, zemin `rgba(255,255,255,.94)`, ikon `rgb(33,30,22)` |
+| Gövde dolgusu (`.r-body`) | `17px 18px 19px` |
+| Başlık (`h4`) | `18px/700`, satır yüksekliği `20.16px` (~1.12), `margin-bottom:11px`, **2 satırda kırpılır** (`-webkit-line-clamp:2`) |
+| Meta satırı (`.r-facts`) | `12px`, renk `rgb(111,111,111)` (soluk gri), `margin-bottom:13px`, tek satır (`flex-wrap:nowrap`); sıra: ⏱ süre · ● zorluk · 🍴 kişilik · ₺₺₺ (aktif/pasif ₺ karakterleri) |
+| Ayraç (`.r-foot`) | `border-top:1px solid rgb(236,236,236)`, `padding-top:13px`, `display:flex; justify-content:space-between` (sol yazar, sağ istatistik) |
+| Yazar satırı (`.r-author`) | `16px/500`, `gap:9px`; avatar (`.av`) **28×28** daire, baş harf, `16px` |
+| İstatistik (`.r-stats`) | `16px`, `gap:12px`; ★ puan · 👁 görüntülenme |
+
+Not: DadaFit'in mevcut `.rc-body{padding:17px 18px 19px}` ve `.rc-body h4{font-size:18px}` ile
+`.rc-media{height:200px}` **zaten referansla birebir** — bu üçü değişmiyor, geri kalanı ekleniyor.
 
 ---
 

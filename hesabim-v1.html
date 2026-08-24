@@ -31,8 +31,10 @@
  onunla uyarılamaz → sayfa kendi kırmızısını tanımlıyor (aşağıda).
  ===================================================================== */
 
-/* ---- banner görseli (kabuk .lib-top kiti; yükseklik/gradient kabukta) ---- */
-.lib-top{--lib-img:url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18');--lib-pos:center 34%}
+/* R13 (Beyar): düz koyu .lib-top banner kalktı, yerine kabuğun beyaz
+   .fp-profil kalıbı geldi (aşağıda). Bu kural sayfaya özgüydü (kabuk
+   kuralı değil), .lib-top artık DOM'da yok — silindi. Aynı kapak
+   görseli .fp-kapak'a taşındı. */
 
 /* ---- YIKICI İŞLEM RENGİ (§20) --------------------------------------
  Kabuktaki --fit DadaFit yeşilidir; "sil / dondur" yeşille uyarılamaz.
@@ -358,21 +360,44 @@
 
 <main class="page-main" id="pageMain">
 
-<!-- ===== BANNER + BREADCRUMB (kabuk .lib-top kiti) ===== -->
-<section class="lib-top">
+<!-- ===== PROFİL BAŞLIĞI (R13 · Beyar: "diette ayarlara girdiğimizde yine
+     profil kartı var, burada düz bannerlı yapı çıkıyor" — S6 kararı)
+     Kalıp kabuğun ".fp-profil" ailesi (fit-shell.css → "PLAN PROFİL
+     BAŞLIĞI"); canlı örneği enerji-defteri-v1.html / fit-planim-gecmis-v1.html
+     (kapak 280px/24px radius/parallax · avatar 128px/-70px binme · kimlik
+     kartı -78px binme). O sayfalar bu markup'ı #fitPlanTop + fit-shell.js'in
+     PLAN_PAGES mekanizmasıyla üretiyor — o mekanizma Fit Planım'a özgü
+     (breadcrumb "Fit Planım"a gider, sekmeler PLAN_TABS'tan gelir) ve
+     fit-shell.js'e dokunmadan buraya uyarlanamaz. Bu yüzden aynı sınıf
+     adları ve ölçülerle markup burada ELLE yazıldı; #hsRail sekme rayı
+     (aşağıda, .hs-body içinde) DEĞİŞMEDİ.
+     Kırıntı rengi: `.fp-profil .lib-crumb` kuralı zaten kabukta var
+     (R11/M17 eki, docs/lessons.md §10) — beyaz zeminde otomatik okunur
+     renk veriyor, burada ayrıca tanımlamaya gerek yok.
+     Header: OVER_MODE seçicisi DOM'da `.lib-top` arıyor (fit-shell.js);
+     o sınıf artık sayfada yok → over-mode kendiliğinden düşüyor, header
+     katı/okunur kalıyor — fit-shell.js'e dokunulmadı. -->
+<section class="fp-profil">
   <div class="wrap">
-    <nav class="lib-crumb" aria-label="Sayfa yolu">
+    <nav class="lib-crumb pf-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Hesap Ayarları</span>
     </nav>
-    <span class="eyebrow"><i class="fa-solid fa-gear"></i> Hesabım</span>
-    <h1>Hesap Ayarları</h1>
-    <p class="lib-sub">Profilin, bildirim tercihlerin, DadaFit üyeliğin, ödeme ve fatura kayıtların, güvenlik ve birim tercihlerin tek yerde. Sağlık verilerin ve izinlerin ayrı bölümlerde yönetilir. Prototipte hesap gerçekten güncellenmez, ödeme alınmaz ve fatura üretilmez; isim, tarih ve tutarlar ekran akışını göstermek için konmuş örneklerdir.</p>
-    <div class="lib-stats">
-      <div class="lib-stat"><b>Elif Şahin</b><span>@elifsahin</span></div>
-      <div class="lib-stat"><b>DadaFit Pro</b><span>aktif üyelik</span></div>
-      <div class="lib-stat"><b>Mart 2026</b><span>üyelik başlangıcı</span></div>
+    <div class="fp-kapak" data-fit-px style="--px-img:url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18')">
+      <span class="fp-kapak-mark"><i class="fa-solid fa-gear"></i> Hesabım · kişisel alanın</span>
+    </div>
+    <div class="fp-kimlik">
+      <span class="fp-ava2" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
+      <div class="fp-kimlik-id">
+        <h1>Elif Şahin</h1>
+        <span class="fp-handle2">@elifsahin</span>
+        <p class="fp-lead2">Profilin, bildirim tercihlerin, DadaFit üyeliğin, ödeme ve fatura kayıtların, güvenlik ve birim tercihlerin tek yerde. Sağlık verilerin ve izinlerin ayrı bölümlerde yönetilir. Prototipte hesap gerçekten güncellenmez, ödeme alınmaz ve fatura üretilmez; isim, tarih ve tutarlar ekran akışını göstermek için konmuş örneklerdir.</p>
+        <div class="fp-kimlik-meta">
+          <span><i class="fa-solid fa-crown"></i> DadaFit Pro · aktif üyelik</span>
+          <span><i class="fa-solid fa-calendar-days"></i> Üyelik başlangıcı: Mart 2026</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>

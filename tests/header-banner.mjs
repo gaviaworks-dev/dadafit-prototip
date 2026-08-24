@@ -68,14 +68,30 @@ const BANNER = [
      KATI beyaz durup görseli kesiyordu (ölçüldü @1440: at-top yok,
      background rgb(255,255,255), üst 113px kesik). Sayfa artık kabuğun
      kendi anahtarını taşıyor: body[data-fit-hero="1"]. */
-  'giris-v1.html'                   // .au-top
+  'giris-v1.html',                  // .au-top
+  /* R12 · Dalga 3 — kapsam boşluğu kapatıldı. `hesabim-12` R13'ü bitirip
+     hesabim-v1'in koyu `.lib-top`'unu kaldırdığında bu nöbet dosyası
+     hesabim-v1 / destek-v1 / pro-v1'i HİÇ TARAMIYORDU — ne BANNER ne PLAIN
+     listesindeydiler, denetimsizdiler. `destek-v1.html` ve `pro-v1.html`
+     canlıda ölçüldü (@1440): `.lib-top` VAR · yükseklik 544 ·
+     zemin rgb(27,25,19) · `body[data-fit-over="1"]` · header at-top şeffaf.
+     İkisi de hâlâ fotoğrafsız düz koyu banner (`--lib-img:none`) — BANNER'a
+     eklendi. `hesabim-v1.html` aşağıdaki PLAIN listesinde. */
+  'destek-v1.html',
+  'pro-v1.html'
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
 const PLAIN = [
   'profil-v1.html',                 // beyaz profil kapağı (KARARLAR K23)
   /* R11/M17 — plan ailesi artık beyaz profil başlığı taşıyor (yukarıdaki not) */
   'fit-planim-v1.html',
-  'enerji-defteri-v1.html'
+  'enerji-defteri-v1.html',
+  /* R12/R13 (Beyar) — `hesabim-12` ajanı koyu `.lib-top`'u kaldırıp beyaz
+     `.fp-profil` profil başlığına çevirdi (commit 29a9b72). Canlıda
+     ölçüldü (@1440): `.lib-top` YOK · `.fp-profil` VAR ·
+     `body[data-fit-over]` null · header solid beyaz — over-mode kendiliğinden
+     düştü, ayrı bir kabuk değişikliği gerekmedi. `profil-v1`/K23 kalıbı. */
+  'hesabim-v1.html'
 ];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;

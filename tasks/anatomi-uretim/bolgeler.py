@@ -163,16 +163,50 @@ KADIN_KIRP = {
    'trapez-ust':      [('ust',1)],                  # R9/K22 · eğik sınır
    'trapez-orta-alt': [('alt',1)],                  # R9/K22 · eğik sınır + romboid çıkarılmış
    'romboid':         [('romb',1,None,None,None,None)],
-   'latissimus':      [('kirp',21,None,None,None,612),('kirp',22,None,None,None,612)],
+   # R9/K22-b · latissimus artık erector-spinae'yi ÇIKARIYOR (bkz. _omurga notu)
+   'latissimus':      [('lat',21),('lat',22)],
    'gluteus-maximus': [('kirp',33,None,None,None,None),('kirp',22,None,None,612,None)],
-   'erector-spinae':  [('kirp',21,339,419,430,620),('kirp',22,339,419,430,620)],
+   # R9/K22-b · omurga şeridi: sabit dikdörtgen değil, aşağı indikçe genişleyen kolon
+   'erector-spinae':  [('omurga',21),('omurga',22)],
  },
 }
+
+# ===========================================================================
+# R9/K22-b · KADIN ARKA: ERECTOR SPINAE DİKDÖRTGENİ → OMURGA ŞERİDİ
+# ---------------------------------------------------------------------------
+# ÖLÇÜLEN KUSUR (denetim ajanının B maddesi, tarayıcıda doğrulandı):
+# kadin-arka `latissimus` dolgusunun **%34'ü** `erector-spinae` altında
+# kalıyordu — kullanıcı sırtın ortasına tıklayınca panel "Bel ve Sırt
+# Dikleştiricileri" açıyordu. (Diğer 71 bölgede örtüşme %0.)
+#
+# KÖK NEDEN: kadın arka render'ında sırt TEK plaka (bileşen 21 sol · 22 sağ);
+# erector-spinae ayrı çizilmemiş. Üreteç onu düz bir DİKDÖRTGENLE kesiyordu
+# (x 339..419 · y 430..620) ve bu dikdörtgen latissimus'un içine biniyordu —
+# iki bölge birbirini DIŞLAMIYORDU, üst üste iki path vardı.
+#
+# ÇÖZÜM İKİ PARÇA:
+#  1) Şekil: sabit genişlikli dikdörtgen yerine omurga boyunca inen, aşağı
+#     doğru GENİŞLEYEN kolon (bel bölgesinde erector spinae kalınlaşır).
+#     Yarı genişlik y=430'da 26u → y=620'de 46u. Dış sınır yine plakanın
+#     kendi konturu (`m &`).
+#  2) Bölüşme: latissimus artık plakadan erector-spinae'yi ÇIKARIYOR, yani
+#     iki bölge örtüşmüyor. Tıklama hedefi tek sahibe düşüyor.
+# ===========================================================================
+OMURGA_Y0, OMURGA_Y1, OMURGA_W0, OMURGA_W1 = 430.0, 620.0, 26.0, 46.0
+
+def _omurga(m):
+    """Plakanın omurga boyunca inen, aşağı doğru genişleyen şeridi."""
+    dx = np.abs(XX - MID)
+    t  = np.clip((YY - OMURGA_Y0) / (OMURGA_Y1 - OMURGA_Y0), 0.0, 1.0)
+    w  = OMURGA_W0 + (OMURGA_W1 - OMURGA_W0) * t
+    return m & (YY >= OMURGA_Y0) & (YY < OMURGA_Y1) & (dx <= w)
 
 def _kirp(lab, spec):
     kip=spec[0]; cid=spec[1]
     m=(lab==cid)
     if kip in ('ust','alt'): return _yariya_uygula(m, kip)   # R9/K22
+    if kip=='omurga': return _omurga(m)                      # R9/K22-b
+    if kip=='lat':    return (m & (YY < 612)) & ~_omurga(m)  # R9/K22-b · örtüşme yok
     if kip=='romb':
         return _yariya_uygula(m,'romb')          # R9/K22 · bkz. _yariya_uygula notu
     x0,x1,y0,y1=spec[2],spec[3],spec[4],spec[5]

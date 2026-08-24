@@ -25,6 +25,7 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K11 | Bağımsız ölçüm + push + canlı doğrulama (R26–R34) | **BITTI** | yerel 11/11 + canlı 11/11 GEÇTİ · push `f37845b..e7ced9c` |
 | K12 | Linkleri "şu linkte şunu değiştirdim" biçiminde ver | **BITTI** | aşağıdaki listede |
 | K13 | R14 · destek-v1 + pro-v1 profil kalıbı | **BEKLIYOR** | Beyar kararı bekliyor (kapak görseli/kimlik verisi yok) |
+| K14 | R35 · Yeni Başlayanlar giriş metni `justify` + canlıya al | **BITTI** | mevcut `.jt-flow` kancası kullanıldı · @390'da otomatik sola dönüyor (nehir yok) · commit `174db5a` |
 
 ---
 

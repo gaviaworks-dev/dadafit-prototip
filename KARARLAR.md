@@ -2632,3 +2632,31 @@ içindeki R21 yorum bloğu · `hesabim-v1.html` → profil kartı işaretlemesi 
 `#fotoDurum` JS'i.
 
 ---
+
+## K69 · Plan sekme rayı KABUKTA ortalandı — REFERANSTAN BİLİNÇLİ AYRIŞMA (R12 ek tur 3/R34)
+
+**Ne değişti.** 14 plan sayfasının ortak sekme rayı (`.pf-tabbar.fp-tabbar
+> nav.fit-tabs`, kabuk JS'i `#fitPlanTop`'tan üretiyor) artık hepsinde
+ortalı. Önceden yalnız `fit-planim-gecmis-v1` ortalıydı (R15'te eklenen
+sayfaya özel kural); diğer 13 sayfa sola dayalıydı — sayfadan sayfaya
+geçince ray zıplıyordu. Kural `assets/css/fit-shell.css` dosya sonuna
+eklendi (`.pf-tabbar.fp-tabbar .fit-tabs{justify-content:center}`),
+`fit-planim-gecmis-v1.html`'deki sayfaya özel kural kaldırıldı — tek
+kaynak kabukta.
+
+**Neden K — DadaDiet referansından BİLİNÇLİ ayrışma.** R15'te ölçülen
+DadaDiet karşılığı (`.pf-tabs`, `/planim`·`/hesabim`) bu rayı **sola
+dayalı** kullanıyor (`justify-content:normal`, ilk kalem sol boşluk 5px).
+DadaFit'te Beyar açıkça "tableri merkezi hale getir" dedi — referanstan
+saparak ortalama isteniyor. Sapma bilinçli, ölçülerek doğrulandı.
+
+**Etki alanı.** Yalnız `.pf-tabbar.fp-tabbar` içine yerleşen `.fit-tabs`
+etkilendi (14 plan sayfası). `.fit-tabs`'ın tek başka canlı kullanımı
+(`antrenor-detay-v1.html` → `.cp-tabbar .fit-tabs`) ayrı bir sarmalayıcı
+taşıdığı ve zaten kendi `justify-content:center` kuralına sahip olduğu
+için dokunulmadı; `.pf-tabbar` kullanan ama `.fit-tabs` içermeyen altı
+sayfa (destek-v1 · destek-talepleri-v1 · profil-v1 · hesabim-v1 · sss-v1 ·
+uyelik-faturalandirma-v1) farklı bir bileşen (`.pf-tabs`) kullandığı için
+etkilenmedi.
+
+---

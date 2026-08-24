@@ -3763,3 +3763,46 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
 @media (max-width:640px){
   .fp-kapak-edit{top:12px;right:12px;padding:8px 13px;font-size:11px;gap:6px}
 }
+
+/* =====================================================================
+   R34 · REVİZYON-12 EK TUR 3 — plan sekme rayı KABUKTA ortalandı
+   ---------------------------------------------------------------------
+   Beyar: "burdaki tableri merkezi hale getir … ilk açıldıklarında
+   merkeziler sonra tıklayınca sola yalı oluyoyorlar."
+
+   Ölçüm — 14 plan sayfası, `nav.fit-tabs` (1440px): yalnız
+   `fit-planim-gecmis-v1` ortalıydı (sayfaya özel kural,
+   `body[data-fit-page="fit-planim-gecmis-v1"]`, R15'te eklenmişti — o
+   turda kapsam BİLEREK dar tutulmuştu, kabuğa dokunulmasın diye). Diğer
+   13 sayfa `justify-content:normal` ile sola dayalıydı (sol boşluk 5px ·
+   sağ boşluk 805px). Sonuç: sayfadan sayfaya geçince ray zıplıyordu —
+   Beyar'ın "tıklayınca sola yaslı oluyor" dediği tam bu.
+
+   Lead kararı (REVİZYON-12-plan.md, EK TUR 3, K-d): ortalama TEK KAYNAK
+   olarak kabuğa taşınır; `fit-planim-gecmis-v1.html`'deki sayfa kuralı
+   kaldırılır (bkz. o dosyadaki değişiklik). Hazır duran `.fit-tabs.is-center`
+   opt-in sınıfı KULLANILMADI — hiçbir sayfa markup'ı değişmeden, yalnız
+   kabuk JS'inin bastığı `.pf-tabbar.fp-tabbar` sarmalayıcısı üstünden
+   bağlamsal bir kural yeter; JS şablonu (`fit-shell.js` #fitPlanTop bloğu)
+   14 sayfada da AYNI (`.pf-tabbar.fp-tabbar` > `nav.fit-tabs`).
+
+   NEDEN GÜVENLİ: `.fit-tabs` başka bir yerde `.pf-tabbar` içine
+   YERLEŞMİYOR — envanter (repo genelinde "fit-tabs" geçen tek diğer
+   sayfa): `antrenor-detay-v1.html`, orada `.cp-tabbar .fit-tabs` (KENDİ
+   ayrı sarmalayıcısı, zaten kendi justify-content:center kuralını
+   taşıyor, satır ~279) kullanıyor — bu kural ona hiç değmiyor.
+   `.pf-tabbar` sınıfını `.fit-tabs` OLMADAN kullanan altı sayfa
+   (destek-v1 · destek-talepleri-v1 · profil-v1 · hesabim-v1 · sss-v1 ·
+   uyelik-faturalandirma-v1) farklı bir bileşen kullanıyor (`.pf-tabs`,
+   tekil `s`, ayrı sınıf) — bu kural onları da etkilemiyor.
+
+   Satır 1690'daki orijinal `.pf-tabbar .fit-tabs{...width:100%}` kuralı
+   SİLİNMEDİ; nav zaten `width:100%` olduğu için ray hep tam genişlikte —
+   `justify-content` yalnız İÇİNDEKİ sekme kalemlerinin toplu blokunu
+   ortalıyor. `.fp-tabbar` eklenmesi özgüllüğü de bilerek yükseltiyor.
+
+   NOT — DadaDiet referansı (R15'te ölçüldü, `.pf-tabs` `justify-content:
+   normal`, sola dayalı) bu rayı SOLA DAYALI kullanıyor. Beyar referanstan
+   BİLİNÇLİ olarak ayrılıyor: KARARLAR.md K69.
+   ===================================================================== */
+.pf-tabbar.fp-tabbar .fit-tabs{justify-content:center}

@@ -55,12 +55,16 @@ const RAYDA_OLMAMALI = ['Aktivite Kayıtlarım', 'Kaydettiklerim', 'Antrenörüm
   'Enerji Defteri', 'Enerji Defterim', 'Enerji Köprüsü', 'Challenge ve Rozetler',
   "Challenge'larım ve Rozetlerim", 'Sağlık ve Hareket Profilim', 'Veri ve İzinlerim'];
 
-/* ---- belge §2 · menünün on bir kalemi, üç grup, SIRASIYLA ---- */
+/* ---- belge §2 · menünün on iki kalemi, üç grup, SIRASIYLA ----
+   R12/S10 (Beyar) · DadaDiet paritesi için "Aboneliğim ve Ödemelerim" kalemi
+   eklendi (hesabim-v1.html#uyelik), "Hesap ve Ayarlar"ın hemen üstünde.
+   ASIL GARANTİ (adlar + sıra + kırık hedef yok, docs/lessons.md §5) DEĞİŞMEDİ,
+   yalnız kalem SAYISI 11 → 12'ye taşındı. */
 const GRUPLAR = ['Günlük Takibim', 'Gelişimim', 'Profil ve Üyelik'];
 const MENU = ['Enerji Defterim', 'Aktivite Kayıtlarım', 'Kaydettiklerim',
   "Challenge'larım ve Rozetlerim", 'Fit Test Sonuçlarım', 'Antrenörüm',
   'Sağlık ve Hareket Profilim', /* üyelik kalemi kademeye göre ad değiştirir → ayrı ölçülür */
-  'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
+  'Aboneliğim ve Ödemelerim', 'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
 /* menüde ASLA bulunmayacaklar */
 const MENUDE_OLMAMALI = ['Bildirimler', 'Bildirim Tercihlerim', 'Planım'];
 
@@ -174,9 +178,9 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
 
   if (!m) rec('açılır menü bulunamadı (.acct-menu yok — üye kipi açılmadı mı?)');
   else {
-    if (m.kalemler.length !== 11)
-      rec(`açılır menü ${m.kalemler.length} kalem — belge §2 birebir ON BİR olmalı: ${m.kalemler.map(k => k.t).join(' · ')}`);
-    else ok(`açılır menü 11 kalem: ${m.kalemler.map(k => k.t).join(' · ')}`);
+    if (m.kalemler.length !== 12)
+      rec(`açılır menü ${m.kalemler.length} kalem — R12/S10 sonrası ON İKİ olmalı: ${m.kalemler.map(k => k.t).join(' · ')}`);
+    else ok(`açılır menü 12 kalem: ${m.kalemler.map(k => k.t).join(' · ')}`);
 
     /* ---------------------------------------------------------------
        BEKLENTİ DEĞİŞTİ — R11/M15 (Beyar):
@@ -430,4 +434,4 @@ for (const [ad, kullanici, etiket, hedef] of UYELIK) {
 await browser.close();
 console.log(`\n${fail} sorun`);
 if (bad.length) { console.log('\nSORUNLAR:'); bad.forEach(b => console.log('  ✗ ' + b)); process.exit(1); }
-console.log('✓ Ray 3 kalem · menü 11 kalem · grup başlığı 0, ayraçla ayrılıyor (R11/M15) · Bildirimler menüde 0 · raydan inen 4 sayfa yetim değil · kırık hedef yok.');
+console.log('✓ Ray 3 kalem · menü 12 kalem (R12/S10) · grup başlığı 0, ayraçla ayrılıyor (R11/M15) · Bildirimler menüde 0 · raydan inen 4 sayfa yetim değil · kırık hedef yok.');

@@ -435,6 +435,13 @@ var ACCOUNT = [
   {grup:'Profil ve Üyelik'},
   {label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',  desc:'Kısıt, hedef, tercih'},
   uyelikKalemi(),
+  /* R12/S10 · DadaDiet dropdown'ındaki alt üçlüde (Aboneliğim ve Ödemelerim ·
+     Hesap ve Ayarlar · Destek Merkezi) DadaFit'te bu kalem eksikti — uyelikKalemi()
+     yalnız YÜKSELTME/DURUM göstergesi (kademeye göre ad değişir), fatura/ödeme
+     yönetimine giden sabit bir kalem değil. Beyar kararı: yeni sayfa üretilmeyecek,
+     hesabim-v1.html'in mevcut "Üyelik" sekmesine (#uyelik, hesabim-v1.html:624)
+     bağlanacak. Çapa G1 tarafından doğrulandı — var. */
+  {label:'Aboneliğim ve Ödemelerim', href:'hesabim-v1.html#uyelik',        icon:'fa-solid fa-receipt',           desc:'Paket, fatura ve ödeme yöntemin'},
   {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-gear',              desc:'Profil, güvenlik, dil, birimler, veri'},
   {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-circle-question',   desc:'Yardım ve taleplerin'},
   {sep:true},

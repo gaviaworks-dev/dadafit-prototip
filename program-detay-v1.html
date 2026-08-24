@@ -245,7 +245,22 @@
  section'in beyaz/gri dikisine tam yapisikti.
  Sabit px YAZILMADI: kabugun kendi "siki bolum nefesi" token'i kullanildi,
  boylece K-A rampasiyla birlikte hareket eder (32 @1440·1024 · 26 @768 · 22 @390). */
-#pgWrap{padding-top:var(--sec-pad-sm);padding-bottom:var(--sec-pad-sm)}
+/* R12/R4: #pgWrap artik #genel-bakis section'inin ICINE, ilk cocuk olarak
+ tasindi (Beyar: "program durumun ayri bir section degilki bir butun genel
+ bakisin ustune koy"). Once seffaf .wrap sibling oldugu icin dikis
+ isaretleyicisi (fit-shell.js) onu atlayip bir alttaki #genel-bakis'e
+ basiyordu, banner'a komsu olmadigi icin is-onbanner de dusuyordu — arada
+ main'in gri (#f9f9f9) zemini gorunuyordu. Artik #pgWrap #genel-bakis'in
+ ICINDE oldugu icin main'in DOGRUDAN cocugu #genel-bakis'in kendisi oldu;
+ isaretleyici ona hem .fit-seam hem .is-onbanner basiyor — tek opak beyaz
+ yuzey, dogru blokta 22px koseli dikis.
+ Ritim BILINCLI olarak boyle devredildi: #genel-bakis kendi --sec-pad (74px)
+ ust dolgusunu veriyor; R8/27'nin SIKI 32px ust ritmini korumak icin bu
+ dolgu negatif margin ile geri alinip yerine --sec-pad-sm konuldu — iki
+ token da AYNI breakpoint'lerde birlikte degistigi icin oran (K-A rampasi)
+ her ekranda korunuyor. Alt dolgu (32px) aynen kaldi: karti "Genel Bakis"
+ basligindan bilerek siki ama olculebilir bir nefesle ayiriyor. */
+#pgWrap{padding-bottom:var(--sec-pad-sm);margin-top:calc(var(--sec-pad-sm) - var(--sec-pad))}
 .pd-over-main p{font-size:15.5px;color:var(--slate-2);font-weight:500;line-height:1.7;margin-bottom:14px}
 .pd-gains{list-style:none;display:grid;gap:12px;margin-top:8px}
 .pd-gains li{display:flex;gap:13px;font-size:14.5px;font-weight:500;color:var(--slate);line-height:1.5}
@@ -585,118 +600,117 @@
   </div>
 </section>
 
-<!-- PROGRAM YAŞAM DÖNGÜSÜ — durum bazlı (belge §8.3 · §11) -->
-<div class="wrap" id="pgWrap">
-  <div class="fp-card">
-    <div class="fp-head">
-      <h3><i class="fa-solid fa-clipboard-check"></i> Program durumun</h3>
-      <span class="fp-badge off" id="pgBadge"><i class="fa-solid fa-circle"></i> Başlanmadı</span>
-    </div>
-    <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0" id="pgLine">
-      Bu programa henüz başlamadın. Başlayınca haftalık planın Fit Planım'a işlenir; istediğin an duraklatır, bırakır ya da baştan başlarsın.
-    </p>
-    <div class="fp-bar"><span id="pgBar" style="width:0%"></span></div>
-    <div class="fp-meta">
-      <span><b id="pgPct">%0</b> tamamlandı</span>
-      <span><b id="pgDone">0</b> / <b id="pgTotal">12</b> antrenman</span>
-      <span><b id="pgWeek">1</b>. hafta, <b id="pgDay">1</b>. gün</span>
-      <span>Kaçırılan gün: <b id="pgMiss">0</b></span>
-    </div>
-    <!-- kurulmuş takvimin özeti — program başladıysa görünür (R10 · §4.3) -->
-    <div class="pgk-ozet" id="pgkOzet" hidden></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" id="pgActs">
-      <button class="btn btn-primary" type="button" id="pgWorkout" hidden><i class="fa-solid fa-check"></i> Bugünkü antrenmanı tamamla</button>
-      <button class="btn btn-ghost" type="button" id="pgPause"  hidden><i class="fa-solid fa-pause"></i> Duraklat</button>
-      <button class="btn btn-primary" type="button" id="pgResume" hidden><i class="fa-solid fa-play"></i> Devam et</button>
-      <button class="btn btn-ghost" type="button" id="pgQuit"   hidden><i class="fa-solid fa-xmark"></i> Bırak</button>
-      <button class="btn btn-primary" type="button" id="pgRestart" hidden><i class="fa-solid fa-rotate-left"></i> Yeniden başlat</button>
-      <button class="btn btn-ghost" type="button" id="pgPlan" hidden aria-expanded="false" aria-controls="pgKur"><i class="fa-regular fa-calendar"></i> Takvimi kur</button>
-      <a class="btn btn-ghost" href="fit-planim-programim-v1.html"><i class="fa-solid fa-bolt"></i> Fit Planım'da gör</a>
-    </div>
-    <div id="pgMissBox" hidden style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
-      <b style="font-size:14.5px">Bir gün kaçırdın mı? Sorun değil.</b>
-      <p style="font-size:13.5px;color:var(--muted);font-weight:500;margin:5px 0 12px">Program seni geri saymaz. Kaçan antrenmanı haftanın sonuna kaydırabilir ya da atlayıp devam edebilirsin.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-ghost" type="button" id="pgShift"><i class="fa-solid fa-calendar-plus"></i> Haftanın sonuna al</button>
-        <button class="btn btn-ghost" type="button" id="pgSkip"><i class="fa-solid fa-forward"></i> Atla, devam et</button>
-      </div>
-    </div>
-
-    <!-- ===== ÇAKIŞMA — aktif program varken sessiz üzerine yazma YOK ===== -->
-    <div class="pgc" id="pgCakisma" hidden>
-      <div class="pgc-kutu" role="group" aria-labelledby="pgcBaslik">
-        <h4 id="pgcBaslik">Zaten devam eden bir programın var</h4>
-        <p>Bu programa başlarsan mevcut programın <b>bırakılmış sayılır ve arşive geçer</b> —
-          ilerlemesi silinmez, Fit Planım’daki “Geçmiş programların” listesinde durur. Ama aktif
-          program tektir: aynı anda ikisine birden devam edemezsin. Önce onu bitirmek istersen
-          aşağıdan sayfasına gidebilirsin.</p>
-        <div class="pgc-mevcut" id="pgcMevcut"></div>
-        <div class="pgc-alt">
-          <button class="btn btn-fit" type="button" id="pgcDegistir"><i class="fa-solid fa-right-left"></i> Yine de bu programa geç</button>
-          <a class="btn btn-ghost" id="pgcGit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-arrow-right"></i> Mevcut programı aç</a>
-          <button class="btn btn-ghost" type="button" id="pgcVazgec">Vazgeç</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== SÖZLEŞME — üç soru, üç dokunuş (R10 · belge §4.3 · §5.2) ===== -->
-    <div class="pgk" id="pgKur" hidden>
-      <div role="group" aria-labelledby="pgkBaslik">
-        <p class="pgk-kicker">Programı takvimine yerleştir</p>
-        <h3 class="pgk-h" id="pgkBaslik">Üç soru, sonra gerçek randevuların olur</h3>
-        <p class="pgk-lead">Antrenman günlerin belliyse program bir listeden çıkıp takvimine
-          oturur: “yarın 07:30, Gün 2” diyebiliriz, hatırlatma kurabilirsin, bitiş tarihini
-          görürsün. İstemiyorsan atla — programı yine başlatırsın, takvimi sonra kurarsın.</p>
-
-        <div class="pgk-sorular">
-          <div class="pgk-satir">
-            <div class="pgk-q"><b>Hangi günler?</b><small>Bu program haftada 3 gün öneriyor</small></div>
-            <div class="pgk-a"><div class="pgk-grup pgk-hafta" id="pgkGunler" role="group" aria-label="Antrenman günleri"></div></div>
-          </div>
-          <div class="pgk-satir">
-            <div class="pgk-q"><b>Saat kaçta?</b><small>Hatırlatma bu saate kurulur</small></div>
-            <div class="pgk-a">
-              <div class="pgk-grup" id="pgkSaatler" role="group" aria-label="Antrenman saati"></div>
-              <label class="pgk-alan">Başka saat
-                <input type="time" id="pgkSaatAlan" step="300" aria-label="Antrenman saatini elle gir" />
-              </label>
-            </div>
-          </div>
-          <div class="pgk-satir">
-            <div class="pgk-q"><b>Ne zaman başlıyor?</b><small>İlk antrenmanın bu tarihten sonraki ilk antrenman gününde</small></div>
-            <div class="pgk-a">
-              <div class="pgk-grup" id="pgkBaslar" role="group" aria-label="Başlangıç tarihi"></div>
-              <label class="pgk-alan">Başka tarih
-                <input type="date" id="pgkTarihAlan" aria-label="Başlangıç tarihini elle gir" />
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="pgk-onizleme">
-          <p class="pgk-kicker">Takviminde böyle görünecek</p>
-          <ol class="pgk-randevu" id="pgkOnizleme"></ol>
-          <p class="pgk-bitis" id="pgkBitis"></p>
-        </div>
-
-        <div class="pgk-alt">
-          <button class="btn btn-fit" type="button" id="pgkOnayla"><i class="fa-solid fa-calendar-check"></i> Takvimi kur ve başla</button>
-          <button class="btn btn-ghost" type="button" id="pgkGec">Şimdilik geç, yine de başlat</button>
-          <button class="btn btn-ghost" type="button" id="pgkVazgec" hidden>Vazgeç</button>
-        </div>
-        <p class="pgk-not">Seçtiklerin yalnız bu tarayıcıda tutulur ve istediğin an
-          <b>Fit Planım → Programım</b>’dan değiştirilir. Program içerikleri genel
-          bilgilendirme amaçlıdır, kişiye özel antrenman reçetesi değildir.</p>
-      </div>
-    </div>
-
-    <p class="sr-only" id="pgLive" role="status" aria-live="polite"></p>
-  </div>
-</div>
-
-
 <!-- ===== 2 · GENEL BAKIŞ: açıklama + kazanımlar + kime uygun ===== -->
 <section class="sec sec-fit" id="genel-bakis" style="background:var(--bg-white)">
+  <!-- PROGRAM YAŞAM DÖNGÜSÜ — durum bazlı (belge §8.3 · §11) -->
+  <div class="wrap" id="pgWrap">
+    <div class="fp-card">
+      <div class="fp-head">
+        <h3><i class="fa-solid fa-clipboard-check"></i> Program durumun</h3>
+        <span class="fp-badge off" id="pgBadge"><i class="fa-solid fa-circle"></i> Başlanmadı</span>
+      </div>
+      <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0" id="pgLine">
+        Bu programa henüz başlamadın. Başlayınca haftalık planın Fit Planım'a işlenir; istediğin an duraklatır, bırakır ya da baştan başlarsın.
+      </p>
+      <div class="fp-bar"><span id="pgBar" style="width:0%"></span></div>
+      <div class="fp-meta">
+        <span><b id="pgPct">%0</b> tamamlandı</span>
+        <span><b id="pgDone">0</b> / <b id="pgTotal">12</b> antrenman</span>
+        <span><b id="pgWeek">1</b>. hafta, <b id="pgDay">1</b>. gün</span>
+        <span>Kaçırılan gün: <b id="pgMiss">0</b></span>
+      </div>
+      <!-- kurulmuş takvimin özeti — program başladıysa görünür (R10 · §4.3) -->
+      <div class="pgk-ozet" id="pgkOzet" hidden></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" id="pgActs">
+        <button class="btn btn-primary" type="button" id="pgWorkout" hidden><i class="fa-solid fa-check"></i> Bugünkü antrenmanı tamamla</button>
+        <button class="btn btn-ghost" type="button" id="pgPause"  hidden><i class="fa-solid fa-pause"></i> Duraklat</button>
+        <button class="btn btn-primary" type="button" id="pgResume" hidden><i class="fa-solid fa-play"></i> Devam et</button>
+        <button class="btn btn-ghost" type="button" id="pgQuit"   hidden><i class="fa-solid fa-xmark"></i> Bırak</button>
+        <button class="btn btn-primary" type="button" id="pgRestart" hidden><i class="fa-solid fa-rotate-left"></i> Yeniden başlat</button>
+        <button class="btn btn-ghost" type="button" id="pgPlan" hidden aria-expanded="false" aria-controls="pgKur"><i class="fa-regular fa-calendar"></i> Takvimi kur</button>
+        <a class="btn btn-ghost" href="fit-planim-programim-v1.html"><i class="fa-solid fa-bolt"></i> Fit Planım'da gör</a>
+      </div>
+      <div id="pgMissBox" hidden style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+        <b style="font-size:14.5px">Bir gün kaçırdın mı? Sorun değil.</b>
+        <p style="font-size:13.5px;color:var(--muted);font-weight:500;margin:5px 0 12px">Program seni geri saymaz. Kaçan antrenmanı haftanın sonuna kaydırabilir ya da atlayıp devam edebilirsin.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost" type="button" id="pgShift"><i class="fa-solid fa-calendar-plus"></i> Haftanın sonuna al</button>
+          <button class="btn btn-ghost" type="button" id="pgSkip"><i class="fa-solid fa-forward"></i> Atla, devam et</button>
+        </div>
+      </div>
+
+      <!-- ===== ÇAKIŞMA — aktif program varken sessiz üzerine yazma YOK ===== -->
+      <div class="pgc" id="pgCakisma" hidden>
+        <div class="pgc-kutu" role="group" aria-labelledby="pgcBaslik">
+          <h4 id="pgcBaslik">Zaten devam eden bir programın var</h4>
+          <p>Bu programa başlarsan mevcut programın <b>bırakılmış sayılır ve arşive geçer</b> —
+            ilerlemesi silinmez, Fit Planım’daki “Geçmiş programların” listesinde durur. Ama aktif
+            program tektir: aynı anda ikisine birden devam edemezsin. Önce onu bitirmek istersen
+            aşağıdan sayfasına gidebilirsin.</p>
+          <div class="pgc-mevcut" id="pgcMevcut"></div>
+          <div class="pgc-alt">
+            <button class="btn btn-fit" type="button" id="pgcDegistir"><i class="fa-solid fa-right-left"></i> Yine de bu programa geç</button>
+            <a class="btn btn-ghost" id="pgcGit" href="fit-planim-programim-v1.html"><i class="fa-solid fa-arrow-right"></i> Mevcut programı aç</a>
+            <button class="btn btn-ghost" type="button" id="pgcVazgec">Vazgeç</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SÖZLEŞME — üç soru, üç dokunuş (R10 · belge §4.3 · §5.2) ===== -->
+      <div class="pgk" id="pgKur" hidden>
+        <div role="group" aria-labelledby="pgkBaslik">
+          <p class="pgk-kicker">Programı takvimine yerleştir</p>
+          <h3 class="pgk-h" id="pgkBaslik">Üç soru, sonra gerçek randevuların olur</h3>
+          <p class="pgk-lead">Antrenman günlerin belliyse program bir listeden çıkıp takvimine
+            oturur: “yarın 07:30, Gün 2” diyebiliriz, hatırlatma kurabilirsin, bitiş tarihini
+            görürsün. İstemiyorsan atla — programı yine başlatırsın, takvimi sonra kurarsın.</p>
+
+          <div class="pgk-sorular">
+            <div class="pgk-satir">
+              <div class="pgk-q"><b>Hangi günler?</b><small>Bu program haftada 3 gün öneriyor</small></div>
+              <div class="pgk-a"><div class="pgk-grup pgk-hafta" id="pgkGunler" role="group" aria-label="Antrenman günleri"></div></div>
+            </div>
+            <div class="pgk-satir">
+              <div class="pgk-q"><b>Saat kaçta?</b><small>Hatırlatma bu saate kurulur</small></div>
+              <div class="pgk-a">
+                <div class="pgk-grup" id="pgkSaatler" role="group" aria-label="Antrenman saati"></div>
+                <label class="pgk-alan">Başka saat
+                  <input type="time" id="pgkSaatAlan" step="300" aria-label="Antrenman saatini elle gir" />
+                </label>
+              </div>
+            </div>
+            <div class="pgk-satir">
+              <div class="pgk-q"><b>Ne zaman başlıyor?</b><small>İlk antrenmanın bu tarihten sonraki ilk antrenman gününde</small></div>
+              <div class="pgk-a">
+                <div class="pgk-grup" id="pgkBaslar" role="group" aria-label="Başlangıç tarihi"></div>
+                <label class="pgk-alan">Başka tarih
+                  <input type="date" id="pgkTarihAlan" aria-label="Başlangıç tarihini elle gir" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="pgk-onizleme">
+            <p class="pgk-kicker">Takviminde böyle görünecek</p>
+            <ol class="pgk-randevu" id="pgkOnizleme"></ol>
+            <p class="pgk-bitis" id="pgkBitis"></p>
+          </div>
+
+          <div class="pgk-alt">
+            <button class="btn btn-fit" type="button" id="pgkOnayla"><i class="fa-solid fa-calendar-check"></i> Takvimi kur ve başla</button>
+            <button class="btn btn-ghost" type="button" id="pgkGec">Şimdilik geç, yine de başlat</button>
+            <button class="btn btn-ghost" type="button" id="pgkVazgec" hidden>Vazgeç</button>
+          </div>
+          <p class="pgk-not">Seçtiklerin yalnız bu tarayıcıda tutulur ve istediğin an
+            <b>Fit Planım → Programım</b>’dan değiştirilir. Program içerikleri genel
+            bilgilendirme amaçlıdır, kişiye özel antrenman reçetesi değildir.</p>
+        </div>
+      </div>
+
+      <p class="sr-only" id="pgLive" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
   <div class="wrap">
     <div class="pd-over">
       <div class="pd-over-main">

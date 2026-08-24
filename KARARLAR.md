@@ -2568,3 +2568,67 @@ gölge değerleri hâlâ orada duruyor, yalnız dosya sonundaki `box-shadow:none
 kaynak sırasıyla üstüne biniyor).
 
 ---
+
+## K68 · Plan profili kapağı DadaDiet paritesine çekildi (280px → 240px) — REFERANSTAN BİLİNÇLİ AYRIŞMA (R12 ek tur/R19)
+
+**Ne değişti.** `.fp-kapak{height:280px}` (line ~3560) dosya sonunda
+eklenen `.fp-kapak{height:240px}` ile geçersiz kılındı — 14 plan sayfası +
+`hesabim-v1` ortak. `.fp-kimlik{margin-top:-78px}` ve `.fp-ava2{margin-top:
+-70px}` binme değerlerine **dokunulmadı** (Beyar'ın açık talimatı).
+
+**Neden K.** 280px, R11/M17'de **DadaGastro**'nun `sefler/admin` `.pf-top`
+kalıbından ölçülerek alınmıştı (bkz. K-öncesi "PLAN PROFİL BAŞLIĞI" bloğu,
+fit-shell.css ~line 3533). R12 ek turda Beyar canlı gezerken "profil biraz
+daha yaklaşmış ... tam olmamış" dedi; `ref-diet` ajanının ölçtüğü
+`dadadiet.com/planim` referansında kapak **240px**, binme değerleri
+(-78/-70) ise DadaFit ile **birebir aynıydı** — tek fark kapak yüksekliğiydi.
+İki kardeş marka (Gastro/Diet) burada farklı ölçü kullanıyor; Beyar bu kez
+açıkça DadaDiet'e benzemesini istedi. K8/§8 kuralının tersi bir istisna
+değil — Gastro referansı **doğruydu** (o turda), tercih **değişti**.
+
+**Etki.** `docs/qa/plan-profili-olcum.mjs` + özel 15 sayfalık ölçüm scripti
+ile @1440 doğrulandı: 14 plan sayfası + `hesabim-v1` hepsinde `.fp-kapak`
+yüksekliği **tek değer** (240px), `.fp-kimlik`/`.fp-ava2` `margin-top`
+değişmedi (-78px/-70px), parallax (`data-fit-px`) ve `.fp-kapak-mark`
+etiketi bozulmadı (bant yüksekliğini çalışma anında `getBoundingClientRect`
+ile okuyor, sabit sayı taşımıyor). `@640` kırılımının kendi değeri (170px)
+bu kararın kapsamı dışında, dokunulmadı.
+
+**Aynı turda, aynı bileşende ikinci karar — R20 (zemin).** `.fp-profil{
+background:var(--bg-white)}` (line 3557) dosya sonunda eklenen
+`.fp-profil{background:var(--bg)}` ile geçersiz kılındı: kart altındaki
+"beyaz → gri → beyaz" üç katmanlı zemin tekli sayfa zeminine indi (DadaDiet
+`/planim`'de de profil bölgesi sayfa zemini, yalnız kart beyaz). Kart
+(`.fp-kimlik`) kendi beyazı + mevcut `border:1px solid var(--line)` +
+`box-shadow:var(--sh-md)` ile okunur kalıyor — **yeni gölge eklenmedi**
+(K67 kararına ters düşmesin diye).
+
+**Üçüncü karar, aynı bileşende — R21 (Rozetlerim) + ölü kural.**
+"Rozetlerim" bağlantısı `.fp-kimlik-meta`'da zaten vardı ama komşusu
+`.fp-state`(beyazda beyaz metin, eski koyu-banner kalıntısı) görünmez
+olduğu için tek başınaymış gibi okunuyordu. `fit-shell.js`'teki
+`.fp-state`/`.fp-name` kullanımı `hesabim-v1.html`'in zaten doğru çalışan
+düz-`<span>` kalıbına çekildi; `.fp-who`/`.fp-ava`/`.fp-who-txt`/`.fp-name`/
+`.fp-state` (fit-shell.css ~line 1675) bu değişiklikle **ÖLÜ KURAL** oldu —
+silinmedi, dosyada işaretlendi.
+
+**Dördüncü karar, aynı bileşende — R22 (kapak/avatar kontrolleri).**
+`hesabim-v1.html`'deki form içi fotoğraf yükleme bloğu (`.ava-row`) kalktı;
+kapak/avatar değiştirme kontrolleri profil kartına taşındı —
+`.fp-kapak-edit` (kapağın sağ üstü) + `.fp-ava-edit` (avatarın sağ altı),
+fit-shell.css'e **opt-in sınıfla** eklendi (`.fp-profil.is-editable`,
+Dalga 1'deki `.fit-tabs.is-center` kalıbının aynısı). Yalnız
+`hesabim-v1.html` bu sınıfı taşıyor; 14 plan sayfası etkilenmedi. Düğmeler
+gerçek dosya yüklemiyor — tıklanınca dürüst durum metni (`#fotoDurum`),
+`data-demo-dl`/fatura ile aynı kalıp. Kaldırılan formun boyut/format
+bilgisi ("JPG veya PNG, en az 200×200 px. Kare kırpılır.") kaybolmadı:
+hem yeni düğmelerin `title` ipucunda hem `#fotoDurum` satırında yaşıyor.
+
+**Geri almak istenirse nereye bakılacak:** `assets/css/fit-shell.css` →
+dosya sonu, "R12 EK TUR · R19/R20/R22" başlıklı üç blok (kaynak sırasıyla
+üstteki orijinal `.fp-kapak`/`.fp-profil` bildirimlerini geçersiz kılıyor,
+onlar silinmedi) · `assets/js/fit-shell.js` → "PLAN PROFİL BAŞLIĞI" şablonu
+içindeki R21 yorum bloğu · `hesabim-v1.html` → profil kartı işaretlemesi +
+`#fotoDurum` JS'i.
+
+---

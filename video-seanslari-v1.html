@@ -1024,6 +1024,30 @@
 })();
 </script>
 <script>
+/* ===== R30 · KART ETİKETLERİ: 2'den fazla çip "+N" rozetine toplansın =====
+ Beyar: "tag 2 den fazla olunca + seklinde gosterilecek". Bugün her kartın
+ .vs-meta'sı sabit 2 çip taşıyor (antrenör + ekipman) — markette 3. çipe
+ çıkan kart yok, ama kural VERİ SAYISINA göre çalışmalı, kart sayısına göre
+ değil (ileride 3. çip eklenirse kırılmasın). Lead kararı K-b: "+N" mevcut
+ .vs-meta çipiyle AYNI biçimde — kabuğun `.vs-meta span` kuralı zaten her
+ <span>'ı biçimlendiriyor, o yüzden yeni sınıf/stil üretmeye gerek yok. */
+(function(){
+  'use strict';
+  var MAX_VISIBLE=2;
+  Array.prototype.forEach.call(document.querySelectorAll('.vs-meta'),function(meta){
+    var chips=Array.prototype.slice.call(meta.children);
+    if(chips.length<=MAX_VISIBLE)return;
+    var hiddenChips=chips.slice(MAX_VISIBLE);
+    var hiddenLabels=hiddenChips.map(function(c){ return c.textContent.trim(); });
+    hiddenChips.forEach(function(c){ c.remove(); });
+    var more=document.createElement('span');
+    more.textContent='+'+hiddenChips.length;
+    more.title=hiddenLabels.join(', ');
+    meta.appendChild(more);
+  });
+})();
+</script>
+<script>
 /* ===== SAYFA JS — VİDEO SEANSLARI · sekiz filtreli süzme motoru (belge §10) ===
  Tek doğru kaynak: `sel` (grup → Set). URL bu durumun serileştirilmiş hâli.
 

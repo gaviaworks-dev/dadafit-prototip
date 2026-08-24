@@ -32,6 +32,10 @@
 .lib-top{--lib-img:url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1680&q=80&auto=format&fit=crop&exp=8&gam=8&sat=-22');--lib-pos:center 38%}
 
 /* banner istatistik şeridi — sayılar VERİDEN hesaplanıp JS ile basılır */
+/* ÖLÜ KURAL — R9/K23'te banner şeridi kanon `.lib-stat` kalemine geçti
+   (bkz. sayfa JS'indeki "banner istatistik şeridi" notu). `.an-fact`
+   artık işaretlemede YOK; kabuk sözleşmesi gereği silinmedi, kütüğe
+   yazıldı — eski satır-içi şerit geri istenirse hazır dursun. */
 .lib-stats .an-fact{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.74)}
 .lib-stats .an-fact i{color:var(--fit-bright);font-size:13px}
 .lib-stats .an-fact b{color:#fff;font-weight:800;font-size:15px}
@@ -466,13 +470,43 @@
     return out;
   }
 
-  /* ---- banner istatistik şeridi: sayı VERİDEN ---- */
+  /* ---- banner istatistik şeridi: sayı VERİDEN ----
+     R9/K23 · Beyar: "sağdaki sayaç bloğu kanon düzende değil. Referans:
+     antrenorler-v1 — sayaçlar sağda dikey sütun, sayı büyük ve üstte,
+     etiket altında küçük, sola border-left ayraç."
+
+     ÖLÇÜLDÜ: kanon `.lib-stats > .lib-stat` bileşeni (fit-shell.css
+     "R6 · MADDE 4" bloğu + dosya sonundaki "BANNER SAYAÇLARINDA AYRAÇ").
+     Kap (`.lib-stats`) zaten kanondaydı — ayraç, gutter ve iki kolonlu
+     yerleşim çalışıyordu. Kanona GİRMEYEN şey kalemlerdi: `.an-fact`
+     span'ları ikon + tek satır satır-içi metin basıyordu (13px, sayı
+     15px/800), oysa kanon kalem `<b>` 29px/700 blok + `<span>` 12.5px/500
+     altında. Referanstan ölçülen değerler: b 29px/700 #fff · span
+     12.5px/500 rgba(255,255,255,.85) · span margin-top 6px · kalem
+     display:block · gap 16px.
+
+     SAYISAL OLMAYAN KALEMLER — Beyar'ın sorusunun cevabı: EVET, kanon
+     yalnız "büyük sayı + küçük etiket" basıyor; `.lib-stat` iki çocuk
+     bekliyor. Eski şeritteki üç kalemin ikisi sayısal değildi
+     ("Ön (16) ve arka (15) görünüm" · "Erkek ve kadın gövde modeli").
+     UYDURMA SAYI ÜRETİLMEDİ: ikisi de zaten VERİDE bulunan sayılara
+     ayrıldı — `V.sayim().on`/`.arka` (16/15) iki ayrı kaleme, gövde
+     modeli sayısı da `V.haritalar` anahtarlarındaki AYRI CİNSİYET
+     sayısından (erkek + kadın = 2) hesaplanıyor. Hiçbir değer elle
+     yazılmadı; veri değişirse şerit kendiliğinden değişir. */
   (function stat() {
     var c = V.sayim();
+    var cinsiyetler = {}, k;
+    for (k in HARITA) if (Object.prototype.hasOwnProperty.call(HARITA, k)) cinsiyetler[k.split('-')[0]] = 1;
+    var modelSayisi = Object.keys(cinsiyetler).length;
+    function kalem(sayi, etiket) {
+      return '<div class="lib-stat"><b>' + sayi + '</b><span>' + etiket + '</span></div>';
+    }
     statlar.innerHTML =
-      '<span class="an-fact"><i class="fa-solid fa-person-rays"></i> <b>' + c.toplam + '</b>&nbsp;kas bölgesi</span>' +
-      '<span class="an-fact"><i class="fa-solid fa-repeat"></i> Ön (' + c.on + ') ve arka (' + c.arka + ') görünüm</span>' +
-      '<span class="an-fact"><i class="fa-solid fa-venus-mars"></i> Erkek ve kadın gövde modeli</span>';
+      kalem(c.toplam, 'kas bölgesi') +
+      kalem(c.on, 'ön görünüm kası') +
+      kalem(c.arka, 'arka görünüm kası') +
+      kalem(modelSayisi, 'gövde modeli');
   })();
 
   /* =================================================================

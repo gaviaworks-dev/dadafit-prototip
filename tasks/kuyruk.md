@@ -32,9 +32,9 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K18 | R5 · `hesabim-v1` fatura bilgileri popup'a | **BITTI** | Kabuğun `.fb-*` modalı yeniden kullanıldı (yeni bileşen yok) · odak tuzağı 14 Tab GEÇTİ · Escape/dışarı tıklama/odak geri dönüşü ✓ · Kurumsal'da vergi dairesi zorunlu (form geçersiz), Bireysel'de değil · gömülü form kalktı, tekrarlı ID yok |
 | K19 | R6 · `hesabim-v1` Diğer Modüller bozuk metni | **BITTI** | Kök neden: kartın `<a>`si İÇİNE ikinci `<a href="#bildirim">` yazılmış; iç içe `<a>` geçersiz, ayrıştırıcı dış bağlantıyı orada kapatıyor → bağlantı ızgaranın 6. kartı, "seçersin." anonim ızgara kalemi oluyordu · cümle ızgara dışına `.hs-state` not satırı olarak alındı · anonim metin 0, iç içe bağlantı 0, kart 7→6 (3 genişlik) |
 | K20 | `hareket-hedefe-gore-v1` yazı justify | **BITTI** | Giriş metnine `.jt-flow` (kardeş sayfa R35/K14 ile birebir kalıp) · @1440 kelime arası 1.55×/1.34×, @1024 1.81×, @640 2.62×, @390 otomatik sola dönüyor · @640 nehri bilinen açık borç (devir notu §3.2), kardeş sayfada da var (2.01×) |
-| K21 | R7 · `anatomi-v1` kas haritası didik didik denetlensin — 4 görünüm × 31 kas, ayrı ajan, tıklayarak ölç, tablo çıkar, DÜZELTMEDEN ÖNCE Beyar'a göster | **ISLENIYOR** | Ajan `anatomi-denetim` çalışıyor |
-| K22 | R8 · `anatomi-v1` seçim şekli kasın konturunu izlesin (romboid/trapez dikdörtgen çıkıyor) — kaç kas, kök neden | **BEKLIYOR** | K21'in çıktısına bağlı |
-| K23 | R9 · `anatomi-v1` banner sayaç bloğu kanona (`antrenorler-v1` ölçüsü) | **BEKLIYOR** | Sayısal olmayan iki kalem raporlanacak, uydurma sayı yok |
+| K21 | R7 · `anatomi-v1` kas haritası denetimi | **BITTI** | 4 görünüm × 18 bölge = **72/72 ÇALIŞIYOR** · doğru kas 72/72 · `kas` parametresi 72/72 · panel 72/72 · ipucu↔panel uyumsuz 0 · JS hatası 0 · KUSUR YOK, düzeltme gerekmedi |
+| K22 | R8 · seçim şekli kasın konturunu izlesin | **BITTI** | 72 bölgenin 66'sı zaten plaka konturundan; kutu görünen **6** bölge (2 arka harita × trapez-ust·trapez-orta-alt·romboid) eksen hizalı düz çizgilerle kesiliyordu · üreteç düzeltildi (kas lifi yönünde eğik kesim) · ayrıca kadın haritasında romboid TEK TARAFA düşüyordu, giderildi · ön haritalar birebir değişmedi |
+| K23 | R9 · banner sayaç bloğu kanona | **BITTI** | `.an-fact` satır-içi şerit → kanon `.lib-stat` (b 29px/700 · span 12.5px/500 · mt 6px — referansla birebir) · sayısal olmayan iki kalem VERİDEKİ sayılara ayrıldı (16 ön · 15 arka · 2 gövde modeli), uydurma sayı yok · banner yüksekliği referansla aynı (544/607/587) |
 
 ---
 

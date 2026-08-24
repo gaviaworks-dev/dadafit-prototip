@@ -32,8 +32,74 @@ ARKA = {
 ARKA_BOL={'trapez-ust':[(2,'tum'),(1,'ust'),(3,'ust')],
           'trapez-orta-alt':[(1,'alt'),(3,'alt')],
           'romboid':[(1,'romb'),(3,'romb')]}
-Y_TRAP=305; ROMB=(305,430)
 YY=np.arange(H)[:,None]; XX=np.arange(W)[None,:]
+
+# ===========================================================================
+# R9/K22 · TRAPEZ PLAKASININ İÇ KESİMLERİ — DÜZ BANTTAN KAS BİÇİMİNE
+# ---------------------------------------------------------------------------
+# Beyar: "Bazı kaslar seçilince yeşil alan dikdörtgen çıkıyor — kasın kendi
+# şeklini almıyor. Romboid ve trapez orta bölgede net görünüyor."
+#
+# ÖLÇÜLDÜ, TAHMİN EDİLMEDİ. 72 bölgenin (4 harita × 18) tamamı <path>;
+# ne <rect> var ne de ayrı bir vurgu katmanı — seçim doğrudan path'i
+# boyuyor (`.an-bolge[aria-pressed="true"]{fill}`), `outline:none`.
+# 66 bölge render'ın DÜZ RENKLİ PLAKASINDAN findContours ile çıkıyor,
+# yani konturu zaten birebir izliyor. Kutu görünen 6 bölge (iki arka
+# haritada trapez-ust · trapez-orta-alt · romboid) plaka DEĞİL: tek bir
+# trapez plakasının EKSEN HİZALI düz çizgilerle kesilmesiyle üretiliyordu
+#   eski: ust  = YY < 305                       (yatay düz çizgi)
+#         romb = 305 <= YY < 430  ∧  iç %42     (yatay bant × düşey çizgi)
+#         alt  = YY >= 305  −  romb             (kalan)
+# Bu üç düz çizgi ekranda dikdörtgen olarak okunuyordu.
+#
+# NEDEN PLAKA YOK: romboid anatomik olarak trapezin ALTINDA kalır, render
+# onu ayrı bir plaka olarak çizmiyor; üst/orta trapez ayrımı da tek plakada.
+# Yani izlenecek bir kontur YOK, bölge sentezlenmek zorunda. Yapılan:
+# sentezi düz banttan KAS LİFİ YÖNÜNE çevirmek.
+#   · romboid  → paralelkenar: lifler omurgadan aşağı-DIŞA gider, üst ve
+#                alt kenar orta hattan uzaklaştıkça birlikte aşağı kayar
+#   · trapez-ust ↔ orta/alt sınırı → skapula dikeni yönünde EĞİK çizgi
+#                (orta hatta daha aşağıda, omuz ucunda daha yukarıda)
+# Dış sınır her koşulda plakanın kendi konturu (maskeler `m &` ile
+# kesiliyor), yani render ile hizasızlık yine imkânsız.
+#
+# İKİNCİ KUSUR — KADIN HARİTASINDA TEK TARAF. Eski kesim bileşenin
+# ortalama x'ine bakıp "sol mu sağ mı" diye tek yön seçiyordu. Erkekte
+# trapez iki ayrı bileşen (1 sol · 3 sağ) olduğu için çalışıyordu; kadında
+# plaka TEK bileşen (x 260..496, iki yakayı da kapsıyor) → romboid ve
+# trapez kesimleri yalnız BİR yarıya uygulanıyor, diğer yarı boş kalıyordu
+# (ölçüm: kadin-arka romboid tek alt-yol, erkekte iki). Kesimler artık
+# tuval orta hattına (MID) göre her iki yarıya AYRI AYRI uygulanıyor.
+# ===========================================================================
+MID = W / 2                 # tuval orta hattı (omurga)
+TRAP_Y0, TRAP_EGIM = 318.0, 0.26   # üst/orta trapez sınırı: y = Y0 − eğim·dx
+ROMB_UST, ROMB_ALT, ROMB_EGIM, ROMB_ORAN = 300.0, 415.0, 0.52, 0.42
+
+def _yariya_uygula(m, kip):
+    """Kesimi orta hattın iki yanına AYRI AYRI uygular ve birleştirir.
+       Bir yarıda hiç piksel yoksa o yarı atlanır (erkekte bileşen zaten
+       tek yakada)."""
+    out = np.zeros((H, W), bool)
+    for taraf in ('sol', 'sag'):
+        yari = m & ((XX < MID) if taraf == 'sol' else (XX >= MID))
+        if not yari.any():
+            continue
+        ys, xs = np.where(yari)
+        dx = np.abs(XX - MID)                      # orta hattan uzaklık
+        gen = xs.max() - xs.min()                  # bu yarının genişliği
+        if kip == 'ust':
+            out |= yari & (YY < TRAP_Y0 - TRAP_EGIM * dx)
+        elif kip == 'romb':
+            out |= yari & (dx <= ROMB_ORAN * gen) \
+                        & (YY >= ROMB_UST + ROMB_EGIM * dx) \
+                        & (YY <  ROMB_ALT + ROMB_EGIM * dx)
+        elif kip == 'alt':
+            ust  = yari & (YY < TRAP_Y0 - TRAP_EGIM * dx)
+            romb = yari & (dx <= ROMB_ORAN * gen) \
+                        & (YY >= ROMB_UST + ROMB_EGIM * dx) \
+                        & (YY <  ROMB_ALT + ROMB_EGIM * dx)
+            out |= yari & ~ust & ~romb
+    return out
 
 def parca(lab,cid,kip):
     m=(lab==cid); ys,xs=np.where(m)
@@ -43,12 +109,7 @@ def parca(lab,cid,kip):
         orta=(xs.min()+xs.max())/2
         icTaraf = (XX>=orta) if sol else (XX<=orta)
         return m & (icTaraf if kip=='ic' else ~icTaraf)
-    if kip=='ust':  return m & (YY<Y_TRAP)
-    if kip=='romb':
-        gen=xs.max()-xs.min()
-        icx=(XX>xs.max()-0.42*gen) if sol else (XX<xs.min()+0.42*gen)
-        return m & (YY>=ROMB[0]) & (YY<ROMB[1]) & icx
-    if kip=='alt':  return m & (YY>=Y_TRAP) & ~parca(lab,cid,'romb')
+    if kip in ('ust','romb','alt'): return _yariya_uygula(m, kip)
     raise ValueError(kip)
 
 def erkek_maske(g):
@@ -99,8 +160,8 @@ KADIN = {
 KADIN_KIRP = {
  'on':   {'deltoid-on':[(7,'ic'),(8,'ic')], 'deltoid-yan':[(7,'dis'),(8,'dis')]},
  'arka': {
-   'trapez-ust':      [('kirp',1,None,None,None,305)],
-   'trapez-orta-alt': [('kirp',1,None,None,305,None)],
+   'trapez-ust':      [('ust',1)],                  # R9/K22 · eğik sınır
+   'trapez-orta-alt': [('alt',1)],                  # R9/K22 · eğik sınır + romboid çıkarılmış
    'romboid':         [('romb',1,None,None,None,None)],
    'latissimus':      [('kirp',21,None,None,None,612),('kirp',22,None,None,None,612)],
    'gluteus-maximus': [('kirp',33,None,None,None,None),('kirp',22,None,None,612,None)],
@@ -111,10 +172,9 @@ KADIN_KIRP = {
 def _kirp(lab, spec):
     kip=spec[0]; cid=spec[1]
     m=(lab==cid)
+    if kip in ('ust','alt'): return _yariya_uygula(m, kip)   # R9/K22
     if kip=='romb':
-        ys,xs=np.where(m); sol=xs.mean()<W/2; gen=xs.max()-xs.min()
-        icx=(XX>xs.max()-0.42*gen) if sol else (XX<xs.min()+0.42*gen)
-        return m & (YY>=ROMB[0]) & (YY<ROMB[1]) & icx
+        return _yariya_uygula(m,'romb')          # R9/K22 · bkz. _yariya_uygula notu
     x0,x1,y0,y1=spec[2],spec[3],spec[4],spec[5]
     if x0 is not None: m &= (XX>=x0)
     if x1 is not None: m &= (XX<x1)

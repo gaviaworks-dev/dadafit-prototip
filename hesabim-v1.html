@@ -106,6 +106,13 @@
 .fk-grid.c3{grid-template-columns:repeat(3,1fr)}
 .fk-grid+.fk-grid{margin-top:18px}
 .fk-grid+.fk-field,.fk-field+.fk-grid{margin-top:22px}
+/* R5/K18 · fatura bilgileri modalı — kabuğun `.fb-*` kabuğu, sayfa ölçüsü.
+   `#agModal` kalıbının aynısı: kapalıyken yerleşimden çıkar (odak sırasına
+   ve ölçüme girmesin), panel genişliği iki kolonlu `.fk-grid.c2`yi taşıyacak
+   kadar. */
+#ftModal:not(.show){display:none}
+#ftModal .fb-panel{width:min(620px,100%)}
+#ftModal .fb-body{padding:24px 26px 26px}
 
 /* şifre göster/gizle */
 .fk-pass{position:relative}
@@ -862,6 +869,18 @@
               <h2 id="faturaH"><i class="fa-solid fa-file-invoice"></i> Faturalarım</h2>
               <p>Her tahsilat için düzenlenen fatura belgesi. Faturalar aynı zamanda e-posta adresine gönderilir.</p>
             </div>
+            <!-- R5/K18 · Beyar: "başlığın sağ üstüne bir düğme gelsin … düğme
+                 kalıbı sayfada zaten kullanılan ikincil düğme desenini izlesin".
+                 Kalıp bu sayfanın kendi ikincil düğmesi: `.btn.btn-ghost` +
+                 kompakt ölçü (satır 849, "Ödeme Yöntemi Ekle" ile birebir aynı
+                 padding/font). Yeni bileşen yazılmadı. `.fc-head` zaten
+                 `justify-content:space-between` (satır 73), sağ üst yerleşim
+                 için ek kural gerekmedi. -->
+            <button class="btn btn-ghost" type="button" id="ftEdit"
+                    style="padding:11px 18px;font-size:13.5px;flex:none"
+                    aria-haspopup="dialog" aria-controls="ftModal">
+              <i class="fa-solid fa-building-columns" aria-hidden="true"></i> Fatura Bilgilerim
+            </button>
           </div>
 
           <div class="sub-inv-list">
@@ -898,42 +917,9 @@
           </div>
           <p class="hs-state" id="faturaDurum" role="status" style="margin-top:12px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bu prototipte indirilebilir bir fatura belgesi üretilmez.</span></p>
 
-          <h3 style="font-size:15px;margin:24px 0 12px;display:flex;align-items:center;gap:9px"><i class="fa-solid fa-building-columns" style="color:var(--fit-deep);font-size:14px" aria-hidden="true"></i> Fatura Bilgilerim</h3>
-          <form data-savecard>
-            <div class="fk-grid c2">
-              <div class="fk-field">
-                <label class="fk-label" for="ftTip">Fatura tipi</label>
-                <select class="fk-select" id="ftTip">
-                  <option selected>Bireysel</option>
-                  <option>Kurumsal</option>
-                </select>
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="ftUnvan">Ad soyad / unvan <span class="req">*</span></label>
-                <input class="fk-input" id="ftUnvan" type="text" value="Elif Şahin" required />
-              </div>
-            </div>
-            <div class="fk-grid c2">
-              <div class="fk-field">
-                <label class="fk-label" for="ftKimlik">TCKN / Vergi kimlik no <span class="req">*</span></label>
-                <input class="fk-input" id="ftKimlik" type="text" inputmode="numeric" value="••••••••••1" required aria-describedby="ftKimlikHelp" />
-                <span class="fk-help" id="ftKimlikHelp"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Güvenlik için yalnız son hane gösterilir.</span>
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="ftDaire">Vergi dairesi <span class="opt">(kurumsalda zorunlu)</span></label>
-                <input class="fk-input" id="ftDaire" type="text" placeholder="Örn. Kadıköy" />
-              </div>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ftAdres">Fatura adresi <span class="req">*</span></label>
-              <textarea class="fk-textarea" id="ftAdres" rows="3" required>Bağdat Cad. No:14 D:3, Kadıköy / İstanbul</textarea>
-            </div>
-            <div class="hs-save">
-              <span class="note">Değişiklik bir sonraki faturadan itibaren geçerli olur.</span>
-              <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
-              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Fatura Bilgilerini Kaydet</button>
-            </div>
-          </form>
+          <!-- R5/K18 · gömülü "Fatura Bilgilerim" formu buradan KALDIRILDI;
+               aynı form artık `#ftModal` popup'ında (sayfa sonunda). Beyar:
+               "sayfadaki gömülü form kaldırılsın, iki yerde birden durmasın." -->
         </div>
       </section>
 
@@ -1332,6 +1318,64 @@
 
 </main>
 
+<!-- ===== R5/K18 · FATURA BİLGİLERİ MODALI =========================
+     Kabuğun `.fb-*` modal kabuğu yeniden kullanıldı — sitede zaten var,
+     yenisi YAZILMADI. Ölçülen kalıp: `assets/js/fit-shell.js` "GÖRÜŞ BİLDİR"
+     (`#fbModal`) ve onu sayfa düzeyinde kullanan `aktivite-gunlugu-v1.html`
+     (`#agModal`). Kabuk JS'i yalnız `#fbModal`/`#fbOverlay`/`#fbClose`
+     ID'lerine bağlı olduğu için bu panelin kendi ID'leriyle çakışma yok.
+     Odak tuzağı, kaydırma kilidi ve odağın açan düğmeye dönüşü kabuğun
+     `FIT_SHELL.trapFocus` / `lockScroll` / `unlockScroll` sözleşmesiyle. -->
+<div class="fb-overlay" id="ftOverlay"></div>
+<div class="fb-modal" id="ftModal" role="dialog" aria-modal="true" aria-labelledby="ftModalTitle">
+  <div class="fb-panel">
+    <div class="fb-head">
+      <div>
+        <h3 id="ftModalTitle">Fatura Bilgilerim</h3>
+        <p id="ftModalSub">Faturalarının kime ve hangi adrese düzenleneceğini belirler.</p>
+      </div>
+      <button class="fb-close" id="ftClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="fb-body">
+      <form id="ftForm" data-savecard>
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="ftTip">Fatura tipi</label>
+            <select class="fk-select" id="ftTip">
+              <option value="bireysel" selected>Bireysel</option>
+              <option value="kurumsal">Kurumsal</option>
+            </select>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="ftUnvan"><span id="ftUnvanLbl">Ad soyad</span> <span class="req">*</span></label>
+            <input class="fk-input" id="ftUnvan" type="text" value="Elif Şahin" required />
+          </div>
+        </div>
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="ftKimlik"><span id="ftKimlikLbl">TCKN</span> <span class="req">*</span></label>
+            <input class="fk-input" id="ftKimlik" type="text" inputmode="numeric" value="••••••••••1" required aria-describedby="ftKimlikHelp" />
+            <span class="fk-help" id="ftKimlikHelp"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Güvenlik için yalnız son hane gösterilir.</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="ftDaire">Vergi dairesi <span class="opt" id="ftDaireOpt">(kurumsalda zorunlu)</span></label>
+            <input class="fk-input" id="ftDaire" type="text" placeholder="Örn. Kadıköy" />
+          </div>
+        </div>
+        <div class="fk-field">
+          <label class="fk-label" for="ftAdres">Fatura adresi <span class="req">*</span></label>
+          <textarea class="fk-textarea" id="ftAdres" rows="3" required>Bağdat Cad. No:14 D:3, Kadıköy / İstanbul</textarea>
+        </div>
+        <div class="hs-save">
+          <span class="note">Değişiklik bir sonraki faturadan itibaren geçerli olur.</span>
+          <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
+          <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Fatura Bilgilerini Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
 <div id="fitShellBottom"></div>
 
@@ -1495,6 +1539,72 @@
       ok._t = setTimeout(function(){ ok.classList.remove('show'); }, 2500);
     });
   });
+
+  /* ---------- R5/K18 · FATURA BİLGİLERİ MODALI ----------
+     Açma/kapama, odak yönetimi ve kaydırma kilidi kabuğun sözleşmesiyle
+     (`FIT_SHELL.trapFocus` / `lockScroll` / `unlockScroll`); kalıp
+     `aktivite-gunlugu-v1.html` `#agModal`'dan birebir alındı — display
+     grid/none dansı dahil (`.fb-modal` kapalıyken `display:none`, önce
+     yerleşime al, SONRAKİ karede `.show`, yoksa opacity geçişi başlangıç
+     değerini bulamıyor).
+     Fatura tipi mantığı: "Kurumsal"da vergi dairesi ZORUNLU olur ve
+     zorunluluk görsel olarak belirir (`.opt` ipucu → `.req` yıldızı,
+     sayfanın kendi form kiti); "Bireysel"de gerekmez. Etiketler de tipe
+     göre değişir (Ad soyad ↔ Şirket unvanı · TCKN ↔ Vergi kimlik no). */
+  (function(){
+    var modal   = document.getElementById('ftModal');
+    var overlay = document.getElementById('ftOverlay');
+    var openBtn = document.getElementById('ftEdit');
+    if(!modal || !overlay || !openBtn) return;
+    var tip = document.getElementById('ftTip');
+    var daire = document.getElementById('ftDaire');
+    var daireOpt = document.getElementById('ftDaireOpt');
+    var unvanLbl = document.getElementById('ftUnvanLbl');
+    var kimlikLbl = document.getElementById('ftKimlikLbl');
+    var release = null;
+
+    function syncTip(){
+      var kurumsal = tip.value === 'kurumsal';
+      unvanLbl.textContent  = kurumsal ? 'Şirket unvanı' : 'Ad soyad';
+      kimlikLbl.textContent = kurumsal ? 'Vergi kimlik no' : 'TCKN';
+      daire.required = kurumsal;
+      daire.setAttribute('aria-required', kurumsal ? 'true' : 'false');
+      daire.placeholder = kurumsal ? 'Örn. Kadıköy' : 'Örn. Kadıköy (isteğe bağlı)';
+      daireOpt.textContent = kurumsal ? '*' : '(kurumsalda zorunlu)';
+      daireOpt.className   = kurumsal ? 'req' : 'opt';
+    }
+    tip.addEventListener('change', syncTip);
+    syncTip();
+
+    function open(){
+      if(modal.classList.contains('show')) return;
+      modal.style.display = 'grid';
+      void modal.offsetHeight;
+      modal.classList.add('show');
+      overlay.classList.add('show');
+      if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+      if(window.FIT_SHELL && FIT_SHELL.trapFocus) release = FIT_SHELL.trapFocus(modal);
+      /* `.fb-modal` görünürlüğü geçişle açılıyor; ilk karede odak no-op
+         olabiliyor — geçiş bitince ilk alanı kesin odakla. */
+      setTimeout(function(){ if(modal.classList.contains('show')) tip.focus(); }, 300);
+    }
+    function close(){
+      if(!modal.classList.contains('show')) return;
+      modal.classList.remove('show');
+      overlay.classList.remove('show');
+      setTimeout(function(){ if(!modal.classList.contains('show')) modal.style.display = ''; }, 300);
+      if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if(release){ release(); release = null; }
+      else if(openBtn.focus) openBtn.focus();
+    }
+    openBtn.addEventListener('click', open);
+    document.getElementById('ftClose').addEventListener('click', close);
+    overlay.addEventListener('click', close);
+    modal.addEventListener('click', function(e){ if(e.target === modal) close(); });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && modal.classList.contains('show')) close();
+    });
+  })();
 
   /* demo fatura indirme — gerçek belge yok, durum satırında bildirilir */
   var fd = document.getElementById('faturaDurum');

@@ -29,9 +29,12 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K15 | R1 · Ana sayfa tarif kartları DadaGastro `/tarifler` kart yapısına geçsin | **BITTI** | Yapı canlıdan ölçüldü · kart yüksekliği tek değer 363px (referans 363) · veri uydurulmadı, Gastro prototipinden 3 gerçek tarif yansıtıldı · Gastro turuncusu sızıntısı 0 · commit `d2c5f0e` |
 | K16 | R2 · Bölüm başlığındaki marka lockup'ı | **BITTI** | Ayraç yeşilden #E14827'ye (renk canlıdan iki yöntemle ölçüldü) · marka 11.5→16px, Gastro ağırlığı 300 (referans paritesi) · kuyruk 12→10.5px · commit `d2c5f0e` |
 | K17 | R3 · Bilgilendirme kutusu header menü genişliğine | **BITTI** | Kusur öncülü doğrulanmadı: kutu üstündeki ızgarayla ZATEN hizalıydı, dar olan makale kolonunun tamamıydı · köprü kartları + kutu kanon 1176'ya çıktı, okuma kolonu 840'ta kaldı · 8 sayfa × 3 genişlik GEÇTİ |
-| K18 | R5 · `hesabim-v1` Faturalar sekmesi: "Fatura Bilgilerim" formu popup'a taşınsın, başlık sağ üstüne düzenle düğmesi, Kurumsal/Bireysel'e göre zorunlu alan, gömülü form kalksın | **BEKLIYOR** | Sitedeki mevcut modal kalıbı ölçülecek |
+| K18 | R5 · `hesabim-v1` fatura bilgileri popup'a | **BITTI** | Kabuğun `.fb-*` modalı yeniden kullanıldı (yeni bileşen yok) · odak tuzağı 14 Tab GEÇTİ · Escape/dışarı tıklama/odak geri dönüşü ✓ · Kurumsal'da vergi dairesi zorunlu (form geçersiz), Bireysel'de değil · gömülü form kalktı, tekrarlı ID yok |
 | K19 | R6 · `hesabim-v1` Diğer Modüller sekmesi: ızgaranın içine kart gibi düşmüş bölünmüş cümle ("yukarıdaki bölümden" / "seçersin.") tek parça ve ızgara dışına | **BEKLIYOR** | Kök neden DOM'dan ölçülecek |
-| K20 | R7 · `hareket-hedefe-gore-v1` sayfasındaki yazı justify olsun | **BEKLIYOR** | K14'teki `.jt-flow` kancası kullanılacak |
+| K20 | `hareket-hedefe-gore-v1` sayfasındaki yazı justify olsun | **BEKLIYOR** | K14'teki `.jt-flow` kancası kullanılacak |
+| K21 | R7 · `anatomi-v1` kas haritası didik didik denetlensin — 4 görünüm × 31 kas, ayrı ajan, tıklayarak ölç, tablo çıkar, DÜZELTMEDEN ÖNCE Beyar'a göster | **ISLENIYOR** | Ajan `anatomi-denetim` çalışıyor |
+| K22 | R8 · `anatomi-v1` seçim şekli kasın konturunu izlesin (romboid/trapez dikdörtgen çıkıyor) — kaç kas, kök neden | **BEKLIYOR** | K21'in çıktısına bağlı |
+| K23 | R9 · `anatomi-v1` banner sayaç bloğu kanona (`antrenorler-v1` ölçüsü) | **BEKLIYOR** | Sayısal olmayan iki kalem raporlanacak, uydurma sayı yok |
 
 ---
 

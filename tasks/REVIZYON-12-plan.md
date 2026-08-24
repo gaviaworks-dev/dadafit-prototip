@@ -204,3 +204,108 @@ birleşecek · birinci rayın `sticky` davranışına dokunulmayacak (referansta
 §3 dikiş ölçümü 50/66 · binen 42 · ray-altı 8 → **49/66 · binen 42 · ray-altı 7**
 §5 "dikişsiz kalan 16 sayfa" → **17 sayfa**, yeni üye `hesabim-v1` (R13'te koyu bannerını kaybetti)
 §4 nöbet tablosu: `header-banner` artık `hesabim-v1` (PLAIN) + `destek-v1`/`pro-v1` (BANNER) kapsıyor; `plan-account` 11 → **12 kalem**
+
+---
+
+# EK TUR — DALGA PLANI (R16–R22)
+
+**Durum:** ONAY BEKLİYOR · agent açılmadı
+**Kütük:** `tasks/REVIZYON-12.md` → "EK TUR" bölümü (7 madde, hepsi canlı DOM'da ölçüldü)
+
+## Beyar'ın kararları (2026-08-24 öğlen)
+
+| # | Karar |
+|---|---|
+| R19 | **Kapak 280 → 240px.** Binme değerlerine (−78 / −70) **dokunulmayacak**. 14 plan sayfası + `hesabim-v1` **birlikte** ölçülecek. |
+| R20 | `.fp-profil`'in beyazı kalkacak, **sayfa zemini görünecek**. |
+| R21 | Lead önerisi onaylandı: "Rozetlerim" **meta satırına ikon + metin** olarak katılacak. |
+| R22 | Okuma doğru: fotoğraf bloğu formdan kalkacak, kapak/avatar kontrolleri karta gelecek. **Sahte yükleme akışı taklit edilmeyecek.** |
+
+## Grup tablosu (3 grup · dosya çakışması sıfır)
+
+| Grup | Agent | SAHİP dosyalar | Maddeler |
+|---|---|---|---|
+| **E1** | `profil-kalibi-12` | `assets/css/fit-shell.css` · `assets/js/fit-shell.js` · `hesabim-v1.html` · plan sayfalarındaki "Rozetlerim" işaretlemesi (envanterle netleşecek) | **R20 → R19 → R21 → R22** (bu sırayla) |
+| **E2** | `fit-testleri-12b` | `fit-testleri-v1.html` | **R16 · R17** |
+| **E3** | `antrenorler-12b` | `antrenorler-v1.html` | **R18** |
+
+**Neden E1 tek agent:** R19·R20·R21·R22'nin dördü de aynı kabuk bileşenine
+(`PLAN PROFİL BAŞLIĞI` → `.fp-kapak` · `.fp-profil` · `.fp-kimlik` · `.fp-ava2`) dokunuyor.
+Bölmek lost-update riski. R22 ayrıca `hesabim-v1.html` gerektiriyor; o dosya bu turda
+başka hiçbir grupta yok.
+
+**Çakışma denetimi:** `fit-testleri-v1.html` yalnız E2'de · `antrenorler-v1.html` yalnız
+E3'te · kabuk CSS/JS ve `hesabim-v1.html` yalnız E1'de. Kesişim yok.
+
+## Dalga sırası — TEK DALGA (3 agent)
+
+Üçü de birbirinden bağımsız, aynı anda koşabilir (≤4 sınırı içinde).
+Bağımlı madde çifti yok: R16↔R17 aynı agentta sıralı, R19–R22 aynı agentta sıralı.
+
+| Agent | Maddeler | Not |
+|---|---|---|
+| `profil-kalibi-12` | R20 → R19 → R21 → R22 | Zemin önce (R20), sonra ölçü (R19), sonra içerik (R21), en son yeni kontrol (R22) |
+| `fit-testleri-12b` | R16 · R17 | R17, R5'in kazanımını bozmadan yapılacak |
+| `antrenorler-12b` | R18 | Kabuk `.pagi` + `FIT_PAGI`'ye taşıma; kabuk dosyalarına **yazmadan** |
+
+Dalga bitince bağımsız ölçüm ajanı (`olcum-5`) tabloyu çıkarır; yeşilse commit + push.
+
+## Risk notları
+
+| # | Risk | Önlem |
+|---|---|---|
+| 1 | **R19 · R20 kabuk kuralı, 15 sayfayı birden etkiliyor** (14 plan + `hesabim-v1`). | Beyar'ın talimatı: **birlikte ölçülecek**. Önce/sonra ölçüm zorunlu; kalıp 15 sayfada **tek değer** olmalı. |
+| 2 | **R19 DadaGastro paritesinden bilinçli sapma.** 280px R11/M17'de `sefler/admin`'den ölçülmüştü. | `KARARLAR.md`'ye yeni madde: "kapak DadaDiet paritesine çekildi (240), Gastro'dan ayrıldı", gerekçesiyle. |
+| 3 | **R20 zemin kalkınca kart kenarı kaybolabilir** — kart beyaz, zemin gri olacak; sınır kartın kendi gölgesi/kenarlığına kalıyor. | Ölçümle doğrulanacak; kenar okunmuyorsa R3'teki gibi 1px `--line` çözümü (yeni gölge eklenmeyecek). |
+| 4 | **R22 yeni kontrol = yeni bileşen riski.** | Kabuk sözleşmesi: mevcut kalıptan türet, dosya sonuna ekle, gerekçeyi yaz. Dokunma hedefi ≥44×44. |
+| 5 | **R22 prototip dürüstlüğü.** | Düğmeler gerçek yükleme yapmayacak; sahte akış taklit edilmeyecek, dürüst geri bildirim verecek. |
+| 6 | **R17, R5'in kazanımını bozabilir.** | `.ft-meta` hizası (sapma 0px) ve kart yüksekliği eşitliği önce/sonra ölçülecek. |
+| 7 | **R16 sütun kalkınca satır uzunluğu artar** (1098px'te ~119 karakter). R11/M5 kararı `max-width`'i kaldırmıştı. | S1'e bakılacak. |
+| 8 | **R18'de eski `.pager` CSS'i.** | Kabuk sözleşmesi: silme, "ÖLÜ KURAL" yorumuyla işaretle ve kütüğe yaz. |
+
+## Ek tur soruları — cevaplandı (Beyar, 2026-08-24)
+
+| # | Madde | Karar | Sonucu |
+|---|---|---|---|
+| S11 | R16 | **Tam genişlik tek sütun** | `column-count` kalkar, metin kutuyu doldurur. R11/M5 kararı aynen sürüyor; Egzersiz Kütüphanesi'ndeki aynı kutuyla tutarlı. `--measure` geri getirilmeyecek. |
+| S12 | R17 | **16px — kabuk değerine dön** | `.ft-card .hub-foot{margin-top:auto}` çip rayına 0px bırakıyor; kabuğun `.hub-foot{margin-top:16px}` nefesi geri kazanılacak. Yeni sayı uydurulmayacak. |
+| S13 | R22 | **Kabuğa, opt-in sınıfla** | Kontroller kabukta tanımlanır, yalnız işaret sınıfı taşıyan sayfada görünür (Dalga 1'deki `.fit-tabs.is-center` kalıbı). `hesabim-v1` dışındaki 14 plan sayfası etkilenmez. |
+
+**Tüm sorular kapandı.** Plan onaya hazır: tek dalga, 3 agent
+(`profil-kalibi-12` · `fit-testleri-12b` · `antrenorler-12b`).
+
+## EK TUR SONUCU — YEŞİL (2026-08-24)
+
+**R16–R22 kapandı ve canlıda doğrulandı.** Bağımsız ölçüm `olcum-5`: 12 ölçüt + Ö7c/Ö7d
++ canlı Y0–Y7 — **tamamı GEÇTİ**. 11 nöbet 0 sorun. Commit `6e2cda5` `ba84f81` `8797ec2`
+`7dc9042` `a0a1503` `fb18068` `9814062` → push `421caa9..9814062`.
+
+Öne çıkanlar:
+- **R19:** kapak 240px · binme −78/−70 · **15/15 sayfada tek değer** (@1440 ve @390 ayrı ayrı;
+  @390'da kabuk kendi kırılımını uyguluyor: −52/−66, avatar 104×104 — yine tek değer).
+  `KARARLAR.md` **K68**: DadaGastro paritesinden bilinçli sapma.
+- **R21 kök nedeni tahminden farklı çıktı:** sorun hizalama değil **görünmezlikti** —
+  komşu `.fp-state` eski koyu-banner sınıfından `color:rgba(255,255,255,.66)` taşıyordu,
+  beyaz kartta beyaza yakın metin (`docs/lessons.md` §10'un kardeşi). Düzeltme sonrası
+  kontrast **4.88:1**, AA geçiyor.
+- **R22 · Beyar'ın gördüğü bozuk konum kodda değildi.** Ekranı 14:08, kontrollerin
+  commit'i `a0a1503` 14:11 — üç dakika önce. Ölçüm ajanı **kontrollü deneyle** kanıtladı:
+  konumlama kuralını canlı DOM'da kaldırınca düğme sol üste düşüp `.fp-kapak-mark` ile
+  **3140px² çakıştı**, Beyar'ın tarifiyle birebir eşleşti. Sunucu `Cache-Control`
+  göndermiyor (yalnız `Last-Modified` + 304), heuristik önbellek mekanik olarak mümkün.
+- **R18 · özellik kaybı (açık borç):** eski `?sayfa=N` derin bağlantısı kalktı;
+  `FIT_PAGI` desteklemiyor, Egzersiz Kütüphanesi'nde de yok. Motor bu turda başka
+  agentın mülküydü. İstenirse ayrı maddede tüm `.pagi` kullanıcılarına birden eklenir.
+
+## R23 · R24 · R25 — ACİL EK (Beyar, öğleden sonra)
+
+Beyar canlıda gezerken buldu: `enerji-defteri-v1` zemin tutarsızlığı + gereksiz üst
+boşluk + eşit olmayan bölüm araları. **Kök neden R12'nin ters yönü:** o adımda "sondaki
+gri bölüm" beyaza çevrilmişti, oysa referansın (DadaDiet `/planim`) tek zemini **gri**.
+R20'de profil bölgesi griye dönünce fark açığa çıktı.
+
+Ölçüm: `body`/`main`/`.fp-profil`/`.pf-tabbar` gri · iki gövde bölümü **beyaz** ·
+sekme rayı ↔ ilk içerik **208px** · iki bölüm dolgusu üst üste binip **148px** yığılma.
+
+Agent: `enerji-zemin-12` (tek dosya: `enerji-defteri-v1.html`). Kabuk `.sec-fit`
+66 sayfada ortak → dokunmak yasak, 5 başka sayfada etkilenmediği kanıtlanacak.

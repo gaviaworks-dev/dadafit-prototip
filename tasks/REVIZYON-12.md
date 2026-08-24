@@ -814,3 +814,684 @@ ardışık satırlarda iki değer arasında düzenli değişiyor.
 - **S8 (R12+R13+R15):** DadaDiet referansları giriş duvarında — nasıl ilerleyelim?
 - **S9 (R15):** Bu sayfada ölçümde tek sekme rayı var; "2 tab" Enerji Defteri'ne mi aitti?
 - **S10 (R11):** "Aboneliğim ve Ödemelerim" kalemi nereye bağlansın?
+
+---
+---
+
+# EK TUR — Beyar'ın gözden geçirmesi (2026-08-24, öğlen)
+
+Liste kapandıktan sonra Beyar canlı gezerken bulduğu maddeler. Aynı kayıt biçimi.
+
+---
+
+## R16 — Fit Testleri: bilgi kutusu metni iki sütuna bölünüyor, cümle ortadan kesiliyor
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/fit-testleri-v1.html
+Görsel: `docs/screenshots/R12-16-hr-note-iki-sutun.png`
+
+**Beyar'ın sözü:** "burdaki yazıyı niye böldün"
+
+**Anlaşılan istek:** Sayfa altındaki sağlık uyarısı tek akan metin olsun; iki sütuna
+bölünüp cümlenin ortasından kesilmesin.
+
+**Görselden okunan:** Açık yeşil bilgi kutusu, ortasında dikey ayraç çizgisi. Sol sütun
+"Fit Testleri tıbbi teşhis… Ağrı, baş dönmesi, **göğüste**" diye bitiyor, sağ sütun
+"**sıkışma** ya da nefes darlığı hissedersen…" diye başlıyor. Tek cümle iki sütuna
+bölünmüş; göz sol sütunun dibinden sağ sütunun tepesine dönmek zorunda.
+
+**Canlı DOM ölçümü (1440px):**
+| Eleman | Değer |
+|---|---|
+| `div#ftHrNot.hr-note.ft-hr-son` | `display:flex` · 1176×114 |
+| `.hr-note p` | **`column-count:2`** · `column-gap:40px` · `column-rule:1px solid` · genişlik 1098 |
+
+Kaynak: `fit-testleri-v1.html:63` →
+`.ft-hr-son p{column-count:2;column-gap:40px;column-rule:1px solid var(--fit-line)}`
+Kabuk kuralı değil, **sayfaya özgü**. Kıyas: `egzersiz-kutuphane-v1.html`'in aynı bilgi
+kutusu tek akış (Beyar'ın ikinci görselinde görülüyor) — orada sütun kuralı yok.
+
+**Dosyalar:**
+- `fit-testleri-v1.html:63` — `.ft-hr-son p{column-count:2 …}`
+- `assets/css/fit-shell.css` — `BİLGİ KUTULARINDA METİN KUTUYU DOLDURUR` (`.hr-note p`, R11/M5)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: YOK
+
+**Bitti kriteri:** `.ft-hr-son p` üzerinde `column-count` = `auto`; metin tek sütunda
+akıyor, hiçbir cümle sütun sınırında kesilmiyor. R11/M5 kararı (metin kutuyu doldurur,
+`max-width` yok) korunuyor.
+
+---
+
+## R17 — Fit Testleri: çip rayı ile altındaki ayraç çizgisi arasında boşluk yok (0px)
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/fit-testleri-v1.html
+Görsel: `docs/screenshots/R12-17-cip-divider-yakin.png` · `docs/screenshots/R12-17b-cip-divider-yakin.png`
+(Beyar aynı maddeyi ikinci kez işaretledi — kayıt tek, önem vurgusu iki)
+
+**Beyar'ın sözü:** "burdaki kartlar varya slider chiplerin altındaki divider çok yakın
+boşluk bıraktır"
+
+**Anlaşılan istek:** Kart içindeki çip rayı ile hemen altındaki ayraç çizgisi arasına
+nefes girsin.
+
+**Görselden okunan:** Kartlarda "~10 dk · Mat + duvar · Kuvvete başlayanlar" çip rayı,
+hemen altında ince gri çizgi ve "Uygunluk taramasıyla başlar · Teste git" satırı.
+Çizgi çiplerin dibine yapışık.
+
+**Canlı DOM ölçümü (1440px, ilk kart):**
+| Ölçü | Değer |
+|---|---|
+| `.ft-meta` (çip rayı) alt kenarı | 1180 |
+| `.hub-foot` (ayraç + alt satır) üst kenarı | **1180** |
+| **Aradaki nefes** | **0px** |
+| `.hub-foot` `margin-top` | **`auto`** (hesaplanan 0) |
+| `.hub-foot` `padding-top` | 14px (çizginin ALTINDA, üstünde değil) |
+| `.hub-body p` ↔ `.ft-meta` arası (kıyas) | 13px |
+
+Kök neden: kabuk `assets/css/fit-shell.css:1548` → `.hub-foot{margin-top:16px; …}`
+16px nefes veriyor, ama sayfa kuralı `fit-testleri-v1.html:129` →
+`.ft-card .hub-foot{margin-top:auto}` bunu **eziyor**. `margin-top:auto` flex'te artan
+boşluğu yutar; R5'te paragraf `min-height` ile sabitlenince artan boşluk 0'a indi ve
+16px'lik nefes tümüyle kayboldu. R5 öncesinde de 0px'ti (aynı satır o zaman da vardı),
+ama kartlar hizasız olduğu için göze çarpmıyordu.
+
+**Dosyalar:**
+- `fit-testleri-v1.html:129` — `.ft-card .hub-foot{margin-top:auto;padding-top:14px}`
+- `fit-testleri-v1.html:84-94` — R5'te eklenen `.ft-card .hub-body p{min-height:6.2em}`
+- `assets/css/fit-shell.css:1548` — kabuk `.hub-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}`
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R5** (aynı kartın hiza çözümü — bozulmamalı)
+
+**Bitti kriteri:** `.ft-meta` alt kenarı ↔ `.hub-foot` üst kenarı arası 4px ızgarasında
+ve **≥14px**; R5'in kazanımı korunuyor — aynı satırdaki kartlarda `.ft-meta` üst kenarı
+hâlâ tek değer (sapma 0px) ve kart yükseklikleri eşit.
+
+---
+
+## R18 — Antrenörler: sayfalama kabuk kalıbına gelsin ("Önceki/Sonraki" → `« ‹ 1 2 3 › »`)
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/antrenorler-v1.html
+Referans: http://127.0.0.1:8765/besin-kutuphanesi (Beyar netleştirdi) · aynı kalıp: http://127.0.0.1:8788/egzersiz-kutuphane-v1.html
+
+**Beyar'ın sözü:** "burdaki pagination tutarlı değil önceki sonraki diyor ne alaka …
+burdaki gibi yap [egzersiz-kutuphane] … düzelmesini istediğim pagination burda [antrenorler]"
+
+**Anlaşılan istek:** Antrenörler sayfasındaki sayfalama, Egzersiz Kütüphanesi'ndeki
+kabuk sayfalama bileşeninin aynısı olsun.
+
+**Görselden okunan:** Antrenörler'de "‹ Önceki · **1** · 2 · Sonraki ›" — metin etiketli,
+köşeleri düz. Egzersiz Kütüphanesi'nde "« ‹ **1** 2 3 › »" — yalnız ikon ve rakam,
+kare yuvarlak düğmeler, ortalı.
+
+**Canlı DOM ölçümü (1440px):**
+| | Antrenörler | Egzersiz Kütüphanesi |
+|---|---|---|
+| Kapsayıcı | `nav#libPage.lib-page` · `justify-content:normal` · gap 13px | `nav#libPagi.pagi` · **`center`** · gap 8px |
+| Düğme kabı | `div#pager.pager` (292×42) | doğrudan `button.pg` |
+| Düğme | metin: "Önceki 1 2 Sonraki" · 16px/500 · **radius 0** | **44×44** · 14px/**700** · **radius 12px** |
+| İlk/son atlama (`«` `»`) | **yok** | var (`button.pg.arrow`) |
+| Özet satırı | `span#pageNote.page-note` 12.5px — "1–6 / 8 antrenör gösteriliyor · sayfa 1 / 2" | `.pagi-note` 12.5px — "25 hareket · 1–12 gösteriliyor · sayfa 1 / 3" |
+
+Hedef bileşen kabukta hazır: `assets/css/fit-shell.css` → `SAYFALAMA` (`.pagi` · `.pg` ·
+`.pg-dots` · `.pagi-note`) ve `assets/js/fit-shell.js` → `SAYFALAMA MOTORU` (`FIT_PAGI`),
+R11/M6'da DadaGastro'dan ölçülerek alınmıştı (44×44 · 14px/700 · `.pagi-note` 12.5px).
+
+**Dosyalar:**
+- `antrenorler-v1.html` — `nav#libPage.lib-page` · `div#pager.pager` · `span#pageNote.page-note`
+  işaretlemesi ve bunları basan sayfa JS'i
+- `assets/css/fit-shell.css` — `SAYFALAMA` bloğu (hedef bileşen, dokunulmayacak)
+- `assets/js/fit-shell.js` — `SAYFALAMA MOTORU` / `FIT_PAGI` (hedef motor, dokunulmayacak)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: YOK
+
+**Bitti kriteri:** `antrenorler-v1.html`'de sayfalama `.pagi` / `.pg` sınıflarını taşıyor;
+düğmeler **44×44**, 14px/700, radius 12px, ray ortalı; `«` ve `»` düğmeleri var; özet
+satırı `.pagi-note` biçiminde ve antrenör sayısını doğru gösteriyor; filtre değişince
+sayfalama doğru güncelleniyor (8 antrenör · 6/sayfa · 2 sayfa).
+
+**REFERANS ÖLÇÜMÜ — DadaDiet besin kütüphanesi (yerel `127.0.0.1:8765`, 2026-08-24)**
+Beyar referansı netleştirdi: `http://127.0.0.1:8765/besin-kutuphanesi`
+(görsel: `docs/screenshots/R12-18-ref-besin-kutuphanesi-pagi.png`).
+
+| Ölçü | DadaDiet `nav.pagi` | DadaFit kabuk `.pagi` | Durum |
+|---|---|---|---|
+| Kapsayıcı | `display:flex` · `justify-content:center` · gap **8px** | aynı | **birebir** |
+| Düğme | **44×44** · 14px/**700** · radius **12px** · zemin #fff · kenarlık 1px `rgb(236,236,236)` | aynı | **birebir** |
+| Aktif düğme | zemin `rgb(28,122,78)` (Diet yeşili) | Fit yeşili | palet farkı, ölçü aynı |
+| Ellipsis | `span.pg-dots` "…" · 13×22 · 14px/700 | `.pg-dots` kabukta var | **birebir** |
+| Dizilim | `« ‹ 1 2 3 … 17 › »` — ilk/son atlama + kısaltma + **son sayfa numarası** | aynı motor (`FIT_PAGI`) | **birebir** |
+| Özet satırı | `span.pagi-note` 12.5px/500 — "399 besin · sayfa 1 / 17" | `.pagi-note` 12.5px | **birebir** |
+
+**Sonuç:** Referans ile DadaFit'in kabuk `.pagi` bileşeni **aynı bileşen** — R11/M6'da
+zaten bu kalıptan ölçülerek alınmıştı. Yeni bileşen üretilmeyecek, yeni ölçü
+alınmayacak; `antrenorler-v1.html`'deki eski `.pager` işaretlemesi kabuk `.pagi` +
+`FIT_PAGI` motoruna **taşınacak**, o kadar.
+
+Tek yapısal fark: DadaDiet'te `.pagi-note` `nav.pagi`'nin **içinde**, DadaFit'te
+kardeşi olarak dışında. Görsel sonuç aynı; taşırken DadaFit'in mevcut yapısı korunur
+(kabuk 66 sayfada onu kullanıyor).
+
+**Not — sayfa sayısı:** Antrenörler'de 8 kayıt · 6/sayfa = **2 sayfa**, yani `…`
+kısaltması ve son-sayfa numarası bu sayfada **görünmeyecek** (görünecek kadar sayfa yok).
+Bu kusur değil; aynı motor Egzersiz Kütüphanesi'nde 3 sayfada da göstermiyor.
+Kalıbın doğru kurulduğu, düğme ölçüsü ve `«` `»` varlığıyla doğrulanacak.
+
+---
+
+## R19 — Plan profili: kart/avatar kapağa fazla biniyor, referansa göre yukarıda duruyor
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/enerji-defteri-v1.html · http://127.0.0.1:8788/hesabim-v1.html
+Referans: `dadadiet.com/planim` (Beyar'ın ekranı)
+Görsel: `docs/screenshots/R12-19-ref-diet-planim-profil.png` (referans) ·
+`R12-19-fit-enerji-defteri-profil.png` · `R12-19b-fit-hesabim-profil.png`
+
+**Beyar'ın sözü:** "profil birazdaha yaklaşmış … biraz fazla fark var güncellemeni
+istiyorum tam olmamış bence"
+
+**Anlaşılan istek:** Profil kartı ve avatarın kapağa binme oranı DadaDiet'teki gibi olsun;
+avatar kapağın ortasında değil, alt kenarına yakın dursun.
+
+**Görselden okunan:** DadaDiet'te avatar kapağın **alt kenarına** yakın, kartın üst
+kenarıyla hizada başlıyor; kapak avatarın arkasında ince bir şerit gibi kalıyor.
+DadaFit'te avatar kapağın **içine** daha derin giriyor, kapağın orta-alt bölgesinde duruyor.
+
+**Canlı DOM ölçümü (1440px, `enerji-defteri-v1`):**
+| Ölçü | DadaFit | DadaDiet (ölçülmüştü) |
+|---|---|---|
+| `.fp-kapak` / `.pf-banner` | 1176×**280** · radius 24px | **240** · radius 24px |
+| `.fp-kimlik` / `.pf-head` `margin-top` | **−78px** | **−78px** |
+| Kartın kapağa binmesi | **78px** | 78px |
+| `.fp-ava2` / avatar | 128×128 · `margin-top:−70px` | 128×128 · −70px |
+| Avatarın kapağa binmesi | **121px** | (aynı formül, kapak 40px kısa) |
+
+**Kök neden:** Binme değerleri **birebir aynı** (−78 / −70). Tek fark **kapak yüksekliği**:
+DadaFit 280px, DadaDiet 240px. Aynı negatif margin, 40px daha uzun kapakta avatarı
+oransal olarak daha yukarıda bırakıyor — Beyar'ın gördüğü fark bu.
+
+**Dosyalar:**
+- `assets/css/fit-shell.css` — `PLAN PROFİL BAŞLIĞI` bloğu (`.fp-kapak` yüksekliği ·
+  `.fp-kimlik{margin-top:-78px}` · `.fp-ava2{margin-top:-70px}`)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R20** (aynı bileşen, aynı agent) · **R13** (hesabim aynı kalıbı kullanıyor)
+
+**Bitti kriteri:** Avatarın kapak alt kenarına uzaklığı DadaDiet oranıyla aynı;
+14 plan sayfasında + `hesabim-v1`'de kalıp **tek değer** (sapma 0px).
+
+**LEAD NOTU — 280 nereden geldi:** R11/M17'de plan profili **DadaGastro'nun**
+`sefler/admin` `.pf-top` kalıbından ölçülmüştü (handoff §3: "kapak 280/24px"),
+DadaDiet'ten değil. İki kardeş marka farklı ölçü kullanıyor. Beyar şimdi açıkça
+DadaDiet'e benzemesini istiyor.
+**Önerim:** kapak **240px**'e çekilsin (DadaDiet paritesi), binme değerlerine
+(−78/−70) dokunulmasın. Bu 14 plan sayfası + `hesabim-v1`'i birden etkiler,
+`KARARLAR.md`'ye yazılır.
+
+---
+
+## R20 — Plan profili: profil bölgesi ile sekme rayı iki ayrı zemin katmanı oluşturuyor
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/enerji-defteri-v1.html
+Görsel: `docs/screenshots/R12-20-fit-iki-katman-zemin.png`
+
+**Beyar'ın sözü:** "bide mesela diette arka plan gri ama burda 2 katman var fitte
+bi profil tarafında bide tabin ord"
+
+**Anlaşılan istek:** DadaDiet'te profil bölgesinin arkası tek gri zemin; DadaFit'te
+profil bölgesi beyaz, sekme rayı gri — iki katman görünüyor. Tek zemine insin.
+
+**Görselden okunan:** Profil kartının arkasındaki alan beyaz, hemen altındaki sekme
+rayının arkası ise gri. İki blok arasında görünür bir zemin sınırı var; kart sanki
+beyaz bir tabakanın üstünde, ray başka bir tabakada duruyor.
+
+**Canlı DOM ölçümü (1440px):**
+| Katman | y | h | zemin |
+|---|---|---|---|
+| `section.fp-profil` | 0 | 568 | **`rgb(255,255,255)` beyaz** |
+| `div.pf-tabbar.fp-tabbar` | 568 | 75 | **`rgba(249,249,249,.94)` gri** |
+| `section#yediklerim.sec.sec-fit` (gövde) | 643 | 1866 | `rgb(255,255,255)` beyaz |
+| `body` / `main` | — | — | `rgb(249,249,249)` gri |
+
+Üç farklı zemin arka arkaya: beyaz → gri → beyaz. Kart zaten kendi beyazını taşıyor
+(`.fp-kimlik` `#fff`), dolayısıyla `.fp-profil`'in beyaz olması gereksiz bir katman yaratıyor.
+DadaDiet'te profil bölgesinin zemini **sayfa zemini** (gri), yalnız kart beyaz.
+
+**Dosyalar:**
+- `assets/css/fit-shell.css` — `PLAN PROFİL BAŞLIĞI` (`.fp-profil` zemini · `.pf-tabbar` zemini)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R19** (aynı bileşen, aynı agent)
+
+**Bitti kriteri:** `.fp-profil` ile `.pf-tabbar` `backgroundColor` değerleri **aynı**
+(sayfa zemini `rgb(249,249,249)`); kart (`.fp-kimlik`) beyaz kalıyor ve kenarı okunuyor;
+14 plan sayfası + `hesabim-v1`'de aynı sonuç.
+
+---
+
+## R21 — Plan profili: "Rozetlerim" satırı kartın içinde yalnız ve zayıf duruyor
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/enerji-defteri-v1.html
+Görsel: `docs/screenshots/R12-21-rozetlerim.png` (Beyar'ın ekranı)
+
+**Beyar'ın sözü:** "rozetlerim kısmını düzeltmei istiyorum bursı saçma olmuş"
+
+**Anlaşılan istek:** Profil kartındaki "Rozetlerim" bağlantısı şu anki hâliyle
+anlamsız/zayıf duruyor; düzgün bir yere ve biçime kavuşsun.
+
+**Görselden okunan:** Profil kartında sıra: başlık "Enerji Defteri" → alt satır
+"Elif Şahin" → açıklama paragrafı ("Defter seni yargılamaz…") → altında **tek başına,
+ortalanmış**, küçük bir ikon + "Rozetlerim" metni. Ne düğme ne etiket; kartın
+ortasında asılı kalmış tek bir bağlantı. Kartın geri kalanı sola dayalıyken bu ortada.
+
+**Dosyalar:**
+- `assets/css/fit-shell.css` — `PLAN PROFİL BAŞLIĞI` (`.fp-kimlik` içi)
+- `enerji-defteri-v1.html` — "Rozetlerim" bağlantısının işaretlemesi
+- (aynı satır başka plan sayfalarında da olabilir — dalga başında envanter çıkarılacak)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R19 · R20** (aynı bileşen, aynı agent)
+
+**Bitti kriteri:** "Rozetlerim" kartın hizalama düzenine uyuyor (sola dayalı ya da
+tanımlı bir eylem bölgesinde), tek başına ortada asılı kalmıyor; hedefi
+(`fit-planim-rozetler-v1.html`) çalışıyor.
+
+**SORU:** Bu satır ne olmalı — kaldırılsın mı, kartın meta satırına mı katılsın
+(DadaDiet'te "Üyelik: 20 Ağustos 2026" satırı gibi), yoksa sağdaki eylem bölgesine
+düğme mi olsun (DadaDiet'te "Programa Dön" düğmesi orada)?
+**Önerim:** DadaDiet kalıbına uyulsun — meta satırına ikon + metin olarak katılsın,
+sağdaki eylem bölgesi düğme için ayrılsın.
+
+---
+
+## R22 — Hesabım: fotoğraf yükleme formdan kalksın, kapak/avatar değiştirme profil kartına gelsin
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/hesabim-v1.html
+Referans: `dadadiet.com/hesabim` (Beyar'ın ekranları)
+Görsel: `docs/screenshots/R12-22-ref-diet-hesabim-kapak-avatar-degistir.png` (referans kart) ·
+`R12-22-ref-diet-form-fotograf-yok.png` (referans form) ·
+`R12-22-fit-hesabim-kart-kontrol-yok.png` (DadaFit kart) ·
+`R12-22-fit-form-fotograf-yukle-var.png` (DadaFit form)
+
+**Beyar'ın sözü:** "normalde böyle ayarları tıkladığımızda … gördün mü bak nasıl oluyor …
+ama bak fitte nasıl … yani bak buraya burada foto yüklemesin ayarları tıkladğımda
+kapak ve profil değiştir çıkıyor haberin olsun öyle olmasını istiyorum"
+
+**Anlaşılan istek:** Hesap ve Ayarlar sayfasında fotoğraf yükleme işi **formun içinden**
+çıksın; onun yerine profil kartının kendisinde — kapakta "Kapağı Değiştir" düğmesi,
+avatarda kamera ikonu — belirsin. DadaDiet'teki davranışın aynısı.
+
+**Görselden okunan (referans akışı, DadaDiet):**
+1. `/planim` — profil kartı sade: avatar düz, kamera ikonu **yok**; sağda "Programa Dön" düğmesi.
+2. `/hesabim` (ayarlar) — **aynı kart**, ama artık kapağın sağ üstünde beyaz
+   **"📷 Kapağı Değiştir"** düğmesi, avatarın sağ altında yuvarlak **kamera rozeti** var.
+   Yani düzenleme kontrolleri yalnız ayarlar sayfasında beliriyor.
+3. `/hesabim` formu — "Profil bilgilerim" kartında **fotoğraf alanı YOK**: yalnız
+   Ad · Soyad · Telefon · Kullanıcı adı · E-posta ve "Bilgileri Kaydet".
+
+**Görselden okunan (DadaFit mevcut):**
+4. `enerji-defteri-v1` — kart sade, kamera yok (referansla uyumlu, doğru).
+5. `hesabim-v1` — kart aynı sade hâlde: kapakta "Kapağı Değiştir" **yok**, avatarda
+   kamera rozeti **yok**.
+6. `hesabim-v1` "Profil Bilgilerim" formunda **fotoğraf bloğu VAR**: yuvarlak önizleme +
+   "📷 Fotoğraf Yükle" + "Kaldır" + "JPG veya PNG, en az 200×200 px. Kare kırpılır."
+
+**Kaynak (ölçüldü):**
+| Ne | Nerede |
+|---|---|
+| Kaldırılacak fotoğraf bloğu | `hesabim-v1.html:445-452` → `div.ava-row` (`.hs-ava` + `.ava-btns` + `Fotoğraf Yükle` + `.ava-del` + `.ava-note`) |
+| Kapak (kontrol eklenecek) | `hesabim-v1.html:~387` → `div.fp-kapak[data-fit-px]` + `span.fp-kapak-mark` |
+| Avatar (kamera rozeti eklenecek) | `hesabim-v1.html:~391` → `span.fp-ava2` |
+| Ortak bileşen | `assets/css/fit-shell.css` → `PLAN PROFİL BAŞLIĞI` (`.fp-kapak` · `.fp-ava2` · `.fp-kimlik`) |
+
+**Dosyalar:**
+- `hesabim-v1.html` — fotoğraf bloğunun kaldırılması + kart üstü kontrollerin eklenmesi
+- `assets/css/fit-shell.css` — yeni kontroller kabuk bileşenine eklenecekse
+  (`.fp-kapak` üstü düğme · `.fp-ava2` kamera rozeti) — **yalnız kabuk sahibi agent yazar**
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R13** (kartı bu tur kurdu) · **R19 · R20 · R21** (aynı bileşen, aynı agent)
+
+**Bitti kriteri:** `hesabim-v1.html`'de `div.ava-row` fotoğraf bloğu **yok**;
+profil kartının kapağında "Kapağı Değiştir" düğmesi ve avatarda kamera rozeti **var**,
+ikisi de dokunma hedefi ≥44×44; aynı kontroller `enerji-defteri-v1` ve diğer plan
+sayfalarında **görünmüyor** (yalnız ayarlar sayfasına özgü); kaldırılan alandaki
+"JPG veya PNG, en az 200×200 px" bilgisi kaybolmuyor (yeni kontrolün yanında ya da
+ipucunda yaşıyor).
+
+**NOT — prototip dürüstlüğü:** Sayfa zaten "Prototipte hesap gerçekten güncellenmez"
+diyor. Yeni düğmeler de gerçek yükleme yapmayacak; mevcut kalıba uygun biçimde
+davranmalı (tıklanınca dürüst bir geri bildirim), **sahte bir yükleme akışı taklit
+edilmemeli**.
+
+---
+
+## R23 · R24 · R25 — Enerji Defteri: zemin tutarsızlığı, gereksiz boşluk, eşit olmayan bölüm araları
+
+Durum: TOPLANDI · **ACİL** (Beyar: "burayi acilen guncelle")
+URL: http://127.0.0.1:8788/enerji-defteri-v1.html
+Referans: `dadadiet.com/planim` (Beyar'ın tam sayfa ekranı)
+
+**Beyar'ın sözü:** "burda renk farki olmasin ya … buranin tam gri renk farkli degil …
+burasinda renk farki var bide yukardian gereksiz bosluk var … sectionlar arasinda
+bosluklar esit degil bide griden beyaza gecmis dietei baz al burayi acilen guncel;e"
+
+**Görselden okunan (referans, DadaDiet `/planim` tam sayfa):** Sayfanın **tamamı** gri
+zemin; profil kartı, sekme rayı ve içerik kartları **beyaz** kutular olarak o grinin
+üstünde duruyor. Hiçbir yerde gri→beyaz bölüm geçişi yok — tek zemin, üstünde kartlar.
+
+**Görselden okunan (DadaFit mevcut):** Profil bölgesi ve sekme rayı gri (R20 ile
+düzeldi), ama **gövde bölümleri beyaz**. Sekme rayının altında geniş beyaz bir alan,
+sonra CTA şeridi. "YEDİKLERİM" ve "HAREKETLERİM" bölümleri arasında eşit olmayan
+boşluklar; bir yerde gri, bir yerde beyaz.
+
+**Canlı DOM ölçümü (1440px):**
+| Blok | y | h | zemin |
+|---|---|---|---|
+| `body` / `main` | — | — | `rgb(249,249,249)` gri |
+| `section.fp-profil` | 0 | 528 | `rgb(249,249,249)` gri ✓ |
+| `div.pf-tabbar.fp-tabbar` | 528 | 75 | `rgba(249,249,249,.94)` gri ✓ |
+| `section#yediklerim.sec.sec-fit` | 603 | 1866 | **`rgb(255,255,255)` BEYAZ ✗** |
+| `section.sec.sec-fit` (Hareketlerim) | 2469 | 705 | **`rgb(255,255,255)` BEYAZ ✗** |
+
+- Bölüm dolguları: her ikisi de `padding: 74px 0` → iki bölüm arasında **148px** yığılma.
+- Sekme rayı alt kenarı **603** → ilk içerik kartı **811** = **208px** boşluk.
+
+**KÖK NEDEN — R12'de yanlış yöne çevrilmiş:** R12'de "sondaki gri bölüm" beyaza
+çevrilmişti (builder: *"zemin `var(--bg-white)`'a çevrildi… referans tek zeminde
+akıyordu"*). Referansın tek zemini **gri**, beyaz değil. O düzeltme doğru gerekçeyle
+yanlış yöne gitti; R20'de profil bölgesi griye dönünce fark açığa çıktı.
+
+**Maddeler:**
+- **R23 — zemin:** gövde bölümleri sayfa zeminine (gri) dönsün; beyaz olan yalnız
+  kartlar olsun. Sayfada gri→beyaz bölüm geçişi kalmasın.
+- **R24 — üst boşluk:** sekme rayı ile ilk içerik arasındaki 208px gereksiz boşluk insin.
+- **R25 — bölüm araları:** bölümler arası boşluklar eşit olsun (şu an 148px yığılma
+  + eşitsiz aralıklar).
+
+**Dosyalar:**
+- `enerji-defteri-v1.html` — bölüm zeminleri, `.sec.sec-fit` kullanımı, dolgular
+- `assets/css/fit-shell.css` — `.sec-fit` ortak sınıfı (**66 sayfada kullanımda**,
+  dokunulursa önce/sonra ölçüm zorunlu)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R12** (aynı sayfa, ters yöne düzeltmeyi geri alıyor) · **R20** (aynı zemin kararı)
+
+**Bitti kriteri:** `enerji-defteri-v1.html` @1440'te `<main>` altındaki tüm blokların
+`backgroundColor` değeri **aynı** (`rgb(249,249,249)`); beyaz olan yalnız kartlar;
+sekme rayı ↔ ilk içerik arası ≤80px; ardışık bölümler arası boşluklar **tek değer**
+(sapma ≤4px). Diğer 65 sayfada `.sec-fit` kullanımı **etkilenmemiş** (ölçülerek kanıtlanacak).
+
+---
+
+## R26 — Ana sayfa: hero tam ekran olsun, altındaki beyaz panel ilk bakışta görünmesin
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/dadafit-hub-v1.html
+
+**Beyar'ın sözü:** "burdaki hero tam ekran olacak yani alttaki beyaz paneli gormeyecegim ilk basta"
+
+**Görselden okunan:** Hero ekranı dolduruyor ama en altta ince bir beyaz şerit görünüyor —
+bir sonraki bölümün üst kenarı ekrana giriyor.
+
+**Canlı DOM ölçümü (dört ekran boyu):**
+| Ekran | `section.df-top` | `#kopru` üst kenarı | Ekran altında görünen |
+|---|---|---|---|
+| 1440×900 | `min-height:900px` · h=900 | **878** | beyaz panelin **22px**'i |
+| 1440×1000 | 1000 · h=1000 | **978** | 22px |
+| 1512×982 | 982 · h=982 | **960** | 22px |
+| 390×844 | 844 · h=844 | **822** | 22px |
+
+**Kök neden:** Hero **zaten `100vh`** — kusur orada değil. `section#kopru` dikiş taşıyor
+(`.fit-seam.is-onbanner` → `margin-top:-22px`, R1/M1'de kurulan binme). O binme yüzünden
+beyaz panelin **üst 22px'i** hero'nun içine giriyor ve ekranın dibinde şerit olarak
+görünüyor. Yani sorun hero yüksekliği değil, **dikiş binmesinin ekran sınırına denk gelmesi**.
+
+**Dosyalar:**
+- `dadafit-hub-v1.html` — `section.df-top` yüksekliği
+- `assets/css/fit-shell.css` — `BANNER → GÖVDE DİKİŞİ` (`.fit-seam.is-onbanner{margin-top:-22px}`,
+  **50 sayfada ortak** — dokunulursa hepsi etkilenir)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R1** (aynı dikiş mekanizması)
+
+**Bitti kriteri:** Dört ekran boyunda da (900 · 982 · 1000 · 844) ilk açılışta hero
+ekranın tamamını kaplıyor; bir sonraki bölümün hiçbir pikseli görünmüyor
+(ekran altında görünen = **0px**). Dikiş binmesi (yuvarlak köşe + 22px) **korunuyor** —
+kaydırınca hâlâ görünüyor. Diğer 49 dikişli sayfa **etkilenmiyor**.
+
+---
+
+## R27 — Ana sayfa: tarif kartları DadaGastro kalıbına gelsin
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/dadafit-hub-v1.html
+Referans: **https://dadagastro.com/tarifler** (Beyar'ın ekranı)
+
+**Beyar'ın sözü:** "ana satfadaki tarif kartlari soyle olacak … https://dadagastro.com/tarifler gybncelle"
+
+**Görselden okunan (referans, DadaGastro tarifler):** Beyaz **opak** kart, üstte tam
+genişlik yemek görseli, görselin sol üstünde kategori çipi (Kahvaltılık · Pilav · Kek ve
+Pasta), sağ üstünde yuvarlak beyaz **kalp** düğmesi; altta koyu başlık (2 satıra kadar),
+meta satırı ikonlarla (⏱ 47 dk · ● Orta · 🍴 4 kişilik · ₺₺₺), en altta ince ayraç ve
+yazar satırı (avatar + ad + ★ 5.0 + 👁 105).
+
+**Görselden okunan (DadaFit mevcut):** Kartlar koyu parallax bandın üstünde **yarı saydam**
+duruyor — arkadaki görsel içeriden okunuyor, kart "cam" gibi. Başlık + iki metrik
+(38 g protein · 420 kcal) + "Tarifi Gör" bağlantısı var; yazar/puan/görüntülenme yok,
+kalp yok, meta ikonları yok.
+
+**Canlı DOM ölçümü (1440px):**
+| Ölçü | DadaFit `a.rc-card` |
+|---|---|
+| Boyut | 380×336 · radius 16px |
+| Zemin | **`rgba(255,255,255,0.07)`** — yarı saydam |
+| Kenarlık | `1px rgba(255,255,255,0.16)` |
+| Gölge | **yok** |
+| Yapı | `.rc-media` (kategori çipi) + `.rc-body` (başlık · metrikler · "Tarifi Gör") |
+| Kapsayıcı | `div.rc-grid`, koyu parallax bandın üstünde |
+
+**Dosyalar:**
+- `dadafit-hub-v1.html` — `.rc-card` · `.rc-media` · `.rc-body` · `.rc-grid` kuralları ve işaretleme
+- (referans ölçümü dalga başında canlıdan alınacak: `dadagastro.com/tarifler`)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R26** (aynı sayfa) · R16/M2 (tarif bandı R11'de kurulmuştu)
+
+**Bitti kriteri:** Kart zemini **opak** ve referansla aynı ölçülerde (kart genişliği,
+radius, gölge, görsel oranı, çip konumu, meta satırı); referans **canlıdan ölçülüp**
+kütüğe yazılmış olacak, uydurma değer olmayacak (`docs/lessons.md` §8: ölçü alınır,
+palet alınmaz — renkler DadaFit paletinde kalır).
+
+**SORU:** Kart koyu parallax bandın üstünde duruyor. Referans kartları **beyaz zeminde**.
+Bant koyu kalırsa beyaz kart üstünde mi duracak, yoksa bandın kendisi mi açılacak?
+
+---
+
+## R28 — Yeni Başlayanlar: açılan soruda başlık ile cevap arasına ayraç ve nefes
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/hareket-yeni-baslayanlar-v1.html
+
+**Beyar'ın sözü:** "accordtionun altina divider koy aciklamanin ustunde gelecek
+dividerlar dabbsoluk birak"
+
+**Anlaşılan istek:** Açılan soru kartında, soru başlığı ile cevap metni arasına ayraç
+çizgisi girsin; ayracın altında ve üstünde boşluk olsun.
+
+**Görselden okunan:** "Spora başlamak için geç mi kaldım?" başlığı, hemen altında cevap
+paragrafı — arada ne çizgi ne nefes var, metin başlığa yapışık başlıyor.
+
+**Canlı DOM ölçümü (1440px, ilk soru açık):**
+| Ölçü | Değer |
+|---|---|
+| `button.qa-head` alt kenarı | 1137 |
+| `div.qa-body` üst kenarı | **1137** |
+| **Aradaki nefes** | **0px** |
+| `.qa-body` `border-top` | **`0px`** (ayraç yok) |
+| `.qa-body` `padding-top` | 0px |
+| `.qa.open` kart kenarlığı | `1px rgb(216,235,224)` |
+| Sayfadaki soru kartı sayısı | (dalga başında sayılacak) |
+
+**Dosyalar:**
+- `hareket-yeni-baslayanlar-v1.html` — `.qa` · `.qa-head` · `.qa-body` kuralları
+- (`.qa` başka sayfalarda da kullanılıyorsa dalga başında envanter çıkarılacak)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: YOK
+
+**Bitti kriteri:** Açık soru kartında `.qa-head` ile `.qa-body` arasında `1px` ayraç
+(`--line` ya da kartın mevcut kenarlık rengi) var; ayracın üstünde ve altında **eşit**
+nefes (4px ızgarasında, ≥14px). Kapalı kartlarda ayraç **görünmüyor**. `.qa` kullanan
+diğer sayfalar etkilenmişse hepsinde tutarlı.
+
+---
+
+## R29 — Fit Testi Detay: "ÖNCE OKU" akordeonunda aynı anda tek bölüm açık olsun
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/fit-testi-detay-v1.html?test=baslangic-seviyesi
+
+**Beyar'ın sözü:** "buradaki accordotion kisminda tikladigimiz zaman digeri kapansin
+tama mmi max 1 tanesi acik olsun anladin mi … once oku accordotion u"
+
+**Canlı DOM ölçümü:** `button.ft-acc` **3 adet** (Test amacı · Kimler için uygun olduğu ·
+Güvenlik uyarısı). Başlangıçta yalnız ilki açık. **İkincisine tıklandı** →
+`aria-expanded` = `["true","true","false"]` → **aynı anda açık 2**. Yani her bölüm
+bağımsız açılıp kapanıyor, biri diğerini kapatmıyor.
+
+**Dosyalar:** `fit-testi-detay-v1.html:457-470` civarı (`.ft-acc` · `.ft-acc-govde` ·
+`aria-expanded` mekanizması) ve bunları yöneten sayfa JS'i
+
+Tasarım dokunuşu: **HAYIR** (davranış)
+Bağımlılık: YOK
+
+**Bitti kriteri:** Herhangi bir başlığa tıklandığında **aynı anda açık bölüm sayısı 1**;
+açık olana tekrar tıklanınca kapanıyor (hepsi kapalı da olabilir); `aria-expanded`
+değerleri gerçek duruma uyuyor; klavyeyle de çalışıyor.
+
+---
+
+## R30 — Video Seansları: kart içi ayraç boşluğu + ikiden fazla etiket "+N" olsun
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/video-seanslari-v1.html
+
+**Beyar'ın sözü:** "burda alttakı dıvıderla boşluk olacak tag 2 den fazla olunca
++ seklinde gosterilecek"
+
+**Canlı DOM ölçümü (1440px, ilk 3 kart):** `a.hub-card.vs-card` · 18 kart · yükseklik 390.
+Etiket satırında **3 öğe** görünüyor (süre · seviye · ekipman/antrenör çipleri).
+Etiketlerin altı ile alt ayraç arası ölçüldü: **110px** (kart içi boşluk dengesiz).
+
+**İki iş:**
+- Etiket satırı ile altındaki ayraç arasına düzenli boşluk (R17'deki 16px kalıbıyla tutarlı).
+- Etiket sayısı **2'yi aşınca** fazlası **"+N"** rozetiyle gösterilsin
+  (ör. `Derya Yıldız` · `Mat` · `+1`).
+
+**Dosyalar:** `video-seanslari-v1.html` — `.vs-card` · etiket satırı · alt ayraç kuralları
+ve kartları basan JS şablonu
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R31** (aynı kart, aynı agent)
+
+**Bitti kriteri:** Etiket satırı ↔ ayraç arası tüm kartlarda **tek değer** ve 4px
+ızgarasında; 2'den fazla etiketi olan kartlarda görünen etiket **2 + "+N"**;
+"+N" sayısı gizlenen etiket sayısıyla birebir; hiçbir kartta etiket taşması yok.
+
+---
+
+## R31 — Video Seansları: başlık 2 satır + açıklama en uzun hâlde kart bozulmasın
+
+Durum: TOPLANDI
+URL: http://127.0.0.1:8788/video-seanslari-v1.html
+
+**Beyar'ın sözü:** "title 2 atir oldugunu dusun max yazi aciklamada oyle aralarindaki
+bosluklari koru"
+
+**Canlı DOM ölçümü (1440px):** Kart yüksekliği 390 (tek değer) ama içerik uzunlukları
+farklı: başlık **1 satır** (bazılarında 2), açıklama **2–3 satır** arasında değişiyor.
+Yani içerik uzadıkça iç boşluklar eziliyor.
+
+**Anlaşılan istek:** Kart, başlık **2 satır** ve açıklama **en uzun** hâldeyken de
+bozulmayacak biçimde tasarlansın; bileşenler arası boşluklar bu durumda da korunsun.
+(R5'te `fit-testleri` kartlarında aynı sorun `min-height` ile çözülmüştü — aynı kalıp.)
+
+**Dosyalar:** `video-seanslari-v1.html` — `.vs-card` içi başlık/açıklama kuralları
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: **R30** (aynı kart, aynı agent) · R5 (aynı kalıp, oradaki çözüm örnek alınacak)
+
+**Bitti kriteri:** 18 kartın hepsinde yükseklik **tek değer**; başlık 2 satıra çıktığında
+ve açıklama en uzun hâlindeyken alt ayraç ve etiket satırı **aynı y'de** kalıyor
+(sapma 0px); hiçbir kartta metin kırpılmıyor. @1440 · @1024 · @390.
+
+---
+
+## R32 — Üst çubuk: dil seçicinin solundaki ayraç ile arasına boşluk
+
+Durum: TOPLANDI
+URL: (kabuk · her sayfada) örn. http://127.0.0.1:8788/video-seanslari-v1.html
+
+**Beyar'ın sözü:** "ingilizcedeki ikon setine soldaki divider ile bosluk ver"
+
+**Görselden okunan:** Üst koyu çubuğun sağında kardeş marka ikonları, sonra dikey ayraç
+çizgisi, hemen ardından `🌐 EN` dil seçici. Ayraç ile dil seçici **birbirine yapışık**;
+soldaki ikon grubuyla arasındaki nefes de dengesiz.
+
+**Dosyalar:** `assets/css/fit-shell.css` — `.topbar` dil seçici ve ayraç kuralları
+(**66 sayfada ortak** — dokunulursa hepsi etkilenir, önce/sonra ölçüm zorunlu)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: YOK
+
+**Bitti kriteri:** Ayraç ile dil seçici arası ve ayraç ile soldaki ikon grubu arası
+**eşit** (4px ızgarasında); üst çubuğun toplam yüksekliği değişmiyor; 66 sayfada
+tutarlı; @1440 · @1024 · @390.
+
+---
+
+## R33 — Video Seans Detay: banner sayaçları diğer sayfalarla aynı hizada değil
+
+Durum: TOPLANDI · **ACİL**
+URL: http://127.0.0.1:8788/video-seans-detay-v1.html?seans=ekipmansiz-kondisyon
+
+**Beyar'ın sözü:** "buradaki detay patlamis … burdaki istatistikler sayaclar her yerde
+saga yasli ya budrda niye merkeze"
+
+**Canlı DOM ölçümü — `.lib-stats` bloğu, altı sayfada karşılaştırmalı (1440px):**
+| Sayfa | `.lib-stats` x | genişlik | sağ boşluk |
+|---|---|---|---|
+| video-seanslari | 1192 | **116** | 0 |
+| egzersiz-kutuphane | 1213 | **96** | 0 |
+| antrenorler | 1175 | **133** | 0 |
+| fit-testleri | 1173 | **135** | 0 |
+| **video-seans-detay** | **667** | **641** | 0 |
+
+**Kök neden:** Blok her sayfada sağ kenara yaslı (sağ boşluk 0), ama video-seans-detay'da
+**641px** genişlikte — diğerlerinin ~5 katı. İçindeki üç sayaç (`div.lib-stat`, 68 · 36 ·
+59 px) bloğun **soluna** yaslı olduğu için sayaçlar banner'ın ortasında duruyor.
+Diğer sayfalarda blok içeriğine göre daralıyor, burada `.lib-row` içinde kalan alanı
+dolduruyor (`.lib-main` içeriği kısa olduğu için).
+
+**Sayfa "patlamış" değil:** JS hatası **0**, yatay taşma **yok**, içerik dolu (6967 karakter),
+üç ana bölüm yerinde. Kusur yalnız bu hizalama.
+
+**Dosyalar:**
+- `video-seans-detay-v1.html` — `section#vsdTop.lib-top` içindeki `.lib-row` / `.lib-stats` yapısı
+- `assets/css/fit-shell.css` — `.lib-row` · `.lib-stats` · `.lib-stat` (ortak, dikkat)
+
+Tasarım dokunuşu: **EVET**
+Bağımlılık: YOK
+
+**Bitti kriteri:** `video-seans-detay-v1.html`'de `.lib-stats` genişliği ve konumu diğer
+liste sayfalarıyla **aynı davranışta** — içeriğine göre daralıyor, sağ kenara yaslı,
+sayaçlar sağda toplanıyor. Beş kardeş sayfada ölçüm **değişmemiş** olacak.

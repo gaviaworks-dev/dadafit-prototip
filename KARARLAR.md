@@ -2535,3 +2535,36 @@ hover ile açılıp ölçülünce üç başlık da `display:block` ·
 > mimarinin ne olduğunu okumak için en doğru yer odur.
 
 ---
+
+## K67 · Dikiş gölgesi TÜMÜYLE kalktı — REFERANSTAN BİLİNÇLİ AYRIŞMA (R12/S1)
+
+**Ne değişti.** `.fit-seam` ve `.fit-seam:not(.is-onbanner)` üzerindeki
+`box-shadow` kuralları `none`'a çekildi (`assets/css/fit-shell.css`,
+dosya sonuna eklendi, kaynak sırası önceki iki bildirimi geçersiz kılıyor —
+satırlar silinmedi). Dikiş bundan sonra yalnız **22px yuvarlak köşe** +
+`.is-onbanner` binmesiyle okunuyor. `.fit-seam:not(.is-onbanner)` üzerindeki
+`border-top:1px solid var(--line)` KORUNDU — o gölge değil, ray/şeffaf blok
+araya girdiğinde köşenin (çoğu zaman #f9f9f9 üstünde #f9f9f9 zemin
+eşleşmesinde) görünür kalmasını sağlayan hairline.
+
+**Neden K.** Bu gölge R11/M1'de DadaGastro'dan birebir ölçülerek alınmıştı
+(bkz. bu dosyanın ilgili maddesi) — kardeş marka referansıydı. R12 kütüğünde
+Beyar üç ayrı sayfada (R1 · R3 · R4, hepsi aynı `.fit-seam` kaynaklı) "burda
+gölge olmasın" dedi. Karar (S1, 2026-08-24): gölge **tümüyle** kalksın.
+Bu, K8/§8 kuralının ("referanstan ölçü alınır, kusur alınmaz") tersi yönde
+bir istisna değil — referans **doğruydu**, tercih **değişti**. Kayıt altına
+alınıyor çünkü 50 sayfayı etkiliyor ve gelecekte "neden Gastro'dan farklı"
+sorusu tekrar gelirse buraya bakılsın.
+
+**Etki.** `docs/qa/dikis-olcum.mjs` ile ölçüldü: dikiş sayısı **değişmedi**
+(50/66 · binen 42 · ray-altı 8) — yalnız gölge kalktı, köşe/binme mekaniği
+aynı. `is-onbanner` ve `not(.is-onbanner)` örneklerinde `box-shadow:none`
+doğrulandı (`hareket-yeni-baslayanlar-v1.html`, `sozluk-v1.html`,
+`destek-v1.html`, `sss-v1.html`, `destek-talepleri-v1.html`).
+
+**Geri almak istenirse nereye bakılacak:** `assets/css/fit-shell.css` →
+"BANNER → GÖVDE DİKİŞİ" bloğunun ilk bildirimi (satır ~3174-3189, orijinal
+gölge değerleri hâlâ orada duruyor, yalnız dosya sonundaki `box-shadow:none`
+kaynak sırasıyla üstüne biniyor).
+
+---

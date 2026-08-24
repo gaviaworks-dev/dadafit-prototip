@@ -167,9 +167,13 @@
 /* R6 m5: `.lib-cta` ve `.lib-cta-ghost` KABUĞA taşındı (fit-shell.css) —
    aynı yuvada iki sayfa iki ayrı dil konuşuyordu, tek kaynağa indi. */
 
-/* ---- SAYFALAMA — "daha fazla yükle" yerine numaralı sayfalar ----
- Dizin sayfası: kullanıcı kaçıncı sayfada olduğunu görmeli, geri
- dönebilmeli ve derin bağlantı verebilmeli. */
+/* ---- SAYFALAMA ----
+ R12/R18 · ÖLÜ KURAL — bu blok artık kullanılmıyor. Sayfalama kabuk
+ .pagi/.pg/.pg-dots/.pagi-note bileşenine taşındı (assets/css/fit-shell.css
+ "SAYFALAMA", assets/js/fit-shell.js "SAYFALAMA MOTORU" / FIT_PAGI);
+ işaretleme artık nav#libPage/div#pager/span#pageNote basmıyor, doğrudan
+ nav.pagi#libPagi kullanıyor. Kabuk sözleşmesi gereği (docs/lessons.md §9)
+ silinmedi, sadece işaretlendi — bkz. tasks/REVIZYON-12.md → R18. */
 .lib-page{display:flex;flex-direction:column;align-items:center;gap:13px;margin-top:40px}
 .pager{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
 .pager button,.pager span.gap{
@@ -191,6 +195,7 @@
   .pager .pg-edge span{display:none}      /* dar ekranda ok metni gizlenir, ikon kalır */
   .pager .pg-edge{padding:0 12px;min-width:42px}
 }
+/* ÖLÜ KURAL sonu */
 
 /* boş durum (filtre eşleşmezse) */
 .lib-empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:54px 20px}
@@ -580,11 +585,14 @@
       <button class="btn btn-fit" type="button" id="emptyReset"><i class="fa-solid fa-rotate-left"></i> Filtreyi sıfırla</button>
     </div>
 
-    <!-- SAYFALAMA — sonuç kolonunun altında (referans kurgu) -->
-    <nav class="lib-page" id="libPage" aria-label="Sayfalama">
-      <div class="pager" id="pager"></div>
-      <span class="page-note" id="pageNote"></span>
-    </nav>
+    <!-- SAYFALAMA — R12/R18 · kabuk .pagi bileşenine taşındı (Beyar: "burdaki
+         pagination tutarlı değil … burdaki gibi yap [egzersiz-kutuphane]").
+         Eski elle-basılan .lib-page/.pager/.page-note KALKTI; biçim
+         fit-shell.css "SAYFALAMA" + davranış fit-shell.js "SAYFALAMA MOTORU"
+         (FIT_PAGI) — ikisine de dokunulmadı, R11/M6'da DadaGastro'dan zaten
+         ölçülmüştü ve R12/R18'de DadaDiet besin kütüphanesiyle birebir
+         doğrulandı. -->
+    <nav class="pagi" id="libPagi" aria-label="Sayfalama"></nav>
 
     </div><!-- /.lst-main -->
     </div><!-- /.lst-layout -->
@@ -763,8 +771,12 @@
 /* ===== SAYFA JS — ANTRENÖR DİZİNİ · filtre + sıralama + arama + SAYFALAMA =====
  Dizin sayfası kurgusu (kardeş üründeki diyetisyen dizini muadili):
  filtre → sonuç sayısı + sıralama → kart ızgarası → numaralı sayfalama.
- "Daha fazla yükle" kaldırıldı; kullanıcı kaçıncı sayfada olduğunu görür,
- geri döner ve ?sayfa=N ile derin bağlantı verebilir. */
+ R12/R18 · Beyar: "burdaki pagination tutarlı değil önceki sonraki diyor ne
+ alaka … burdaki gibi yap [egzersiz-kutuphane]". Elle yazılan renderPager()/go()
+ KALKTI; sayfalama artık kabuk motoruna (fit-shell.js → FIT_PAGI) devrediliyor,
+ aynı kalıp egzersiz-kutuphane-v1.html'de kullanılıyor. Bununla birlikte eski
+ ?sayfa=N derin bağlantısı da kalktı — FIT_PAGI (ve referans aldığı
+ egzersiz-kutuphane) bunu desteklemiyor, motoru değiştirmeden eklenemez. */
 (function(){
   var grid=document.getElementById('libGrid');
   if(!grid)return;
@@ -772,12 +784,8 @@
   var filters=document.getElementById('libFilters');
   var countEl=document.getElementById('libCount');
   var emptyEl=document.getElementById('libEmpty');
-  var pageWrap=document.getElementById('libPage');
-  var pagerEl=document.getElementById('pager');
-  var noteEl=document.getElementById('pageNote');
   var searchInput=document.getElementById('libSearchInput');
 
-  var PER_PAGE=6, page=1;
  // aktif seçim: her grup için Set (all = filtre yok)
   var sel={uzmanlik:new Set(),format:new Set(),durum:new Set()};
 
@@ -795,8 +803,7 @@
       if(sel[group].size===0){sel[group].clear();allBtn.classList.add('on');}
       else{allBtn.classList.remove('on');}
     }
-    page=1;                      // filtre değişti → ilk sayfaya dön
-    apply();
+    apply();                     // apply() → FIT_PAGI.yenile() → ilk sayfaya döner
   }
 
  // kart-token bir gruptaki seçimle kesişiyor mu? (kart çoklu etiket taşır → OR)
@@ -816,79 +823,15 @@
     return true;
   }
 
-  /* ---- sayfalama çubuğu: 1 … 3 [4] 5 … 9 deseni ---- */
-  function renderPager(totalPages){
-    pagerEl.innerHTML='';
-    if(totalPages<=1){ pageWrap.hidden=true; return; }
-    pageWrap.hidden=false;
-
-    function mk(label,opts){
-      var b=document.createElement('button');
-      b.type='button';
-      b.innerHTML=label;
-      if(opts&&opts.cls)b.className=opts.cls;
-      if(opts&&opts.on){b.classList.add('on');b.setAttribute('aria-current','page');}
-      if(opts&&opts.disabled)b.disabled=true;
-      if(opts&&opts.label)b.setAttribute('aria-label',opts.label);
-      if(opts&&opts.go)b.addEventListener('click',function(){go(opts.go);});
-      pagerEl.appendChild(b);
-      return b;
-    }
-    function gap(){ var s=document.createElement('span'); s.className='gap'; s.textContent='…'; pagerEl.appendChild(s); }
-
-    mk('<i class="fa-solid fa-chevron-left"></i> <span>Önceki</span>',
-       {cls:'pg-edge',disabled:page===1,go:page-1,label:'Önceki sayfa'});
-
-    var nums=[];
-    for(var i=1;i<=totalPages;i++){
-      if(i===1||i===totalPages||Math.abs(i-page)<=1) nums.push(i);
-    }
-    var prev=0;
-    nums.forEach(function(n){
-      if(prev && n-prev>1) gap();
-      mk(String(n),{on:n===page,go:n,label:n+'. sayfa'});
-      prev=n;
-    });
-
-    mk('<span>Sonraki</span> <i class="fa-solid fa-chevron-right"></i>',
-       {cls:'pg-edge',disabled:page===totalPages,go:page+1,label:'Sonraki sayfa'});
-  }
-
-  function go(n){
-    page=n;
-    apply();
-    /* liste başına dön — sayfa değişince kullanıcı sonucun başında olsun */
-    var top=document.querySelector('.lib-body');
-    if(top){
-      var y=top.getBoundingClientRect().top+window.scrollY-130;
-      window.scrollTo({top:y,behavior:'smooth'});
-    }
-    /* derin bağlantı: geri tuşu sayfayı korusun */
-    var url=new URL(location.href);
-    if(page>1)url.searchParams.set('sayfa',page); else url.searchParams.delete('sayfa');
-    history.replaceState(null,'',url.pathname+url.search+url.hash);
-  }
-
+  /* R12/R18 · süzülen listeyi hesaplar, ekrana basmayı FIT_PAGI'ye devreder
+     (egzersiz-kutuphane'deki "eslesen" kalıbının aynısı). */
+  var eslesen=[];
   function apply(){
-    var hits=cards.filter(matches);
-    var total=hits.length;
-    var totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
-    if(page>totalPages)page=totalPages;
-
-    var from=(page-1)*PER_PAGE, to=from+PER_PAGE;
-    cards.forEach(function(c){ c.style.display='none'; });
-    hits.slice(from,to).forEach(function(c){ c.style.display=''; });
-
-    countEl.textContent=total;
-    emptyEl.classList.toggle('show',total===0);
-    grid.style.display=total===0?'none':'';
-
-    renderPager(totalPages);
-    if(total===0){ pageWrap.hidden=true; }
-    else{
-      noteEl.innerHTML='<b>'+(from+1)+'–'+Math.min(to,total)+'</b> / '+total+' antrenör gösteriliyor'+
-                       (totalPages>1?(' · sayfa <b>'+page+'</b> / '+totalPages):'');
-    }
+    eslesen=cards.filter(matches);
+    countEl.textContent=eslesen.length;
+    emptyEl.classList.toggle('show',eslesen.length===0);
+    grid.style.display=eslesen.length===0?'none':'';
+    if(window.ANT_PAGI) window.ANT_PAGI.yenile();
   }
 
   filters.querySelectorAll('.fgroup').forEach(function(g){
@@ -904,7 +847,6 @@
       g.querySelectorAll('.df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
     });
     if(searchInput)searchInput.value='';
-    page=1;
     apply();
   }
   var fClear=document.getElementById('fClear');
@@ -926,7 +868,6 @@
         else if(mode==='az')arr.sort(function(a,c){return a.getAttribute('data-name').localeCompare(c.getAttribute('data-name'),'tr');});
         arr.forEach(function(card){grid.appendChild(card);});
         cards=arr;
-        page=1;
         apply();
       });
     });
@@ -934,12 +875,23 @@
 
  // arama → kart adına göre süz (üst panel + filtre birlikte)
   if(searchInput){
-    searchInput.addEventListener('input',function(){ page=1; apply(); });
+    searchInput.addEventListener('input',function(){ apply(); });
   }
 
-  /* derin bağlantı: ?sayfa=N */
-  var qp=new URLSearchParams(location.search).get('sayfa');
-  if(qp && +qp>0) page=+qp;
+  /* R12/R18 · kabuk sayfalama motoru — biçim fit-shell.css "SAYFALAMA",
+     davranış fit-shell.js "SAYFALAMA MOTORU" (FIT_PAGI); dokunulmadı.
+     ust: sayfa değişince kaydırma hedefi, eskisi gibi .lib-body. */
+  window.ANT_PAGI=FIT_PAGI({
+    kap: document.getElementById('libPagi'),
+    ust: document.querySelector('.lib-body'),
+    sayfaBoy: 6,
+    birim: 'antrenör',
+    liste: function(){ return eslesen; },
+    ciz: function(gosterilecek){
+      cards.forEach(function(c){ c.style.display='none'; });
+      gosterilecek.forEach(function(c){ c.style.display=''; });
+    }
+  });
 
   apply();
 })();

@@ -98,6 +98,8 @@
 }
 .fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
 .fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
+/* R12 ek tur · R22 — fotoğraf durum satırı geçici olarak vurgulanır (bkz. #fotoDurum JS'i) */
+.fk-help.done{color:var(--fit-deep)}
 .fk-grid{display:grid;gap:16px 18px}
 .fk-grid .fk-field{margin-bottom:0}
 .fk-grid.c2{grid-template-columns:1fr 1fr}
@@ -111,15 +113,19 @@
 .fk-eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.18s var(--ease)}
 .fk-eye:hover{color:var(--fit-deep);background:var(--fit-wash)}
 
-/* ---- avatar satırı ---- */
-.hs-ava{flex:none;width:74px;height:74px;border-radius:var(--radius-circle);background-size:cover;background-position:center;border:3px solid #fff;box-shadow:var(--sh-md)}
-.ava-row{display:flex;align-items:center;gap:18px;margin-bottom:24px}
-.ava-row .hs-ava{width:84px;height:84px}
-.ava-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.ava-btns .btn{padding:11px 18px;font-size:13px}
-.ava-del{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;padding:10px 6px;transition:.18s}
-.ava-del:hover{color:var(--hs-danger)}
-.ava-note{width:100%;font-size:12px;color:var(--muted);font-weight:500}
+/* ÖLÜ KURAL — R12 EK TUR · R22'de kaldırılan form içi fotoğraf bloğuna
+   (`.ava-row`) aitti; kontroller profil kartına taşındı (`.fp-kapak-edit` ·
+   `.fp-ava-edit`, fit-shell.css). Bu sayfa dışında hiçbir yerde
+   kullanılmadığı doğrulandı (`grep -n "hs-ava\b"`), o yüzden burada
+   (page-local dosya, 66 sayfayı etkilemiyor) silindi — sürüm geçmişinde
+   duruyor. .ava-row{display:flex;align-items:center;gap:18px;
+   margin-bottom:24px} .ava-row .hs-ava{width:84px;height:84px}
+   .ava-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+   .ava-btns .btn{padding:11px 18px;font-size:13px} .ava-del{background:none;
+   border:none;font-family:inherit;font-size:13px;font-weight:700;
+   color:var(--muted);cursor:pointer;padding:10px 6px;transition:.18s}
+   .ava-del:hover{color:var(--hs-danger)} .ava-note{width:100%;
+   font-size:12px;color:var(--muted);font-weight:500} */
 
 /* ---- kaydet barı ---- */
 .hs-save{display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
@@ -318,7 +324,6 @@
   .form-card,.warn-card,.danger-card{padding:20px 16px}
   .fc-head{flex-direction:column;gap:10px;margin-bottom:18px;padding-bottom:14px}
   .fk-grid.c2,.fk-grid.c3{grid-template-columns:1fr}
-  .ava-row{flex-wrap:wrap;gap:14px}
   .hs-facts{grid-template-columns:1fr}
   .hs-go{grid-template-columns:1fr}
   .set-row{flex-wrap:wrap;gap:10px 14px}
@@ -377,7 +382,12 @@
      Header: OVER_MODE seçicisi DOM'da `.lib-top` arıyor (fit-shell.js);
      o sınıf artık sayfada yok → over-mode kendiliğinden düşüyor, header
      katı/okunur kalıyor — fit-shell.js'e dokunulmadı. -->
-<section class="fp-profil">
+<!-- R12 EK TUR · R22 — Beyar: "ayarları tıkladığımda kapak ve profil
+     değiştir çıkıyor haberin olsun öyle olmasını istiyorum" (DadaDiet
+     /hesabim referansı). `.is-editable` kabuğun opt-in sınıfı (S13):
+     `.fp-kapak-edit`/`.fp-ava-edit` kuralları fit-shell.css'te, yalnız bu
+     sayfada aktif — 14 plan sayfası bu sınıfı taşımıyor. -->
+<section class="fp-profil is-editable">
   <div class="wrap">
     <nav class="lib-crumb pf-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
@@ -386,9 +396,12 @@
     </nav>
     <div class="fp-kapak" data-fit-px style="--px-img:url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18')">
       <span class="fp-kapak-mark"><i class="fa-solid fa-gear"></i> Hesabım · kişisel alanın</span>
+      <button type="button" class="fp-kapak-edit" data-photo-edit="kapak" title="JPG veya PNG, en az 200×200 px. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i> Kapağı Değiştir</button>
     </div>
     <div class="fp-kimlik">
-      <span class="fp-ava2" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
+      <span class="fp-ava2" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')">
+        <button type="button" class="fp-ava-edit" data-photo-edit="avatar" aria-label="Profil fotoğrafını değiştir" title="JPG veya PNG, en az 200×200 px. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i></button>
+      </span>
       <div class="fp-kimlik-id">
         <h1>Elif Şahin</h1>
         <span class="fp-handle2">@elifsahin</span>
@@ -442,14 +455,13 @@
             </div>
           </div>
 
-          <div class="ava-row">
-            <div class="hs-ava" role="img" aria-label="Profil fotoğrafın" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></div>
-            <div class="ava-btns">
-              <button class="btn btn-ghost" type="button"><i class="fa-solid fa-camera"></i> Fotoğraf Yükle</button>
-              <button class="ava-del" type="button">Kaldır</button>
-              <span class="ava-note">JPG veya PNG, en az 200×200 px. Kare kırpılır.</span>
-            </div>
-          </div>
+          <!-- R12 EK TUR · R22 — fotoğraf yükleme formdan kalktı, kontroller
+               yukarıdaki profil kartına taşındı (`.fp-kapak-edit` ·
+               `.fp-ava-edit`). Eski `.ava-row` bloğunun boyut/format bilgisi
+               ("JPG veya PNG, en az 200×200 px. Kare kırpılır.") kaybolmadı
+               — hem yeni düğmelerin `title` ipucunda hem aşağıdaki satırda
+               yaşıyor. -->
+          <p class="fk-help" id="fotoDurum" role="status" style="margin-bottom:22px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Fotoğrafını kartın üstündeki <i class="fa-solid fa-camera" aria-hidden="true"></i> düğmelerinden değiştirebilirsin — JPG veya PNG, en az 200×200 px, kare kırpılır.</span></p>
 
           <div class="fk-grid c2">
             <div class="fk-field">
@@ -1495,6 +1507,26 @@
       fd._t = setTimeout(function(){
         fd.classList.remove('done');
         fd.querySelector('span').textContent = 'Bu prototipte indirilebilir bir fatura belgesi üretilmez.';
+      }, 4000);
+    });
+  });
+
+  /* R12 EK TUR · R22 — kapak/avatar düğmeleri (profil kartı) gerçek dosya
+     yüklemez; sahte bir yükleme akışı taklit ETMEZ (Beyar'ın kararı) —
+     `data-demo-dl`/fatura ile aynı dürüst-durum kalıbı: tek satır metin,
+     birkaç saniye sonra varsayılana döner. */
+  var fotoDurum = document.getElementById('fotoDurum');
+  var fotoVarsayilan = fotoDurum ? fotoDurum.querySelector('span').textContent : '';
+  document.querySelectorAll('[data-photo-edit]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if(!fotoDurum) return;
+      var ne = b.getAttribute('data-photo-edit') === 'kapak' ? 'Kapak fotoğrafı' : 'Profil fotoğrafı';
+      fotoDurum.classList.add('done');
+      fotoDurum.querySelector('span').textContent = ne + ' değiştirme burada bir prototip adımıdır; gerçek bir dosya yüklenmez.';
+      clearTimeout(fotoDurum._t);
+      fotoDurum._t = setTimeout(function(){
+        fotoDurum.classList.remove('done');
+        fotoDurum.querySelector('span').textContent = fotoVarsayilan;
       }, 4000);
     });
   });

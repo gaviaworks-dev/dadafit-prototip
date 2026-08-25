@@ -95,9 +95,27 @@
  🔴 KANONUN İKİ ESNETİLMİŞ KALEMİ (§7.1) — ikisi de burada uygulanıyor:
    D-1 · `.pc-title` GERÇEK `<h2>` basar. Diet'in `<span>` biçimi kanon
          DEĞİL. Fit'in 14 `<h2>`'si BELGE ANA HATTINDA KALIR.
-         Zorunlu CSS: 0 satır — Fit'te global sıfırlama (`fit-shell.css:138`)
-         ve `h1,h2,h3,h4` kuralı (`:148`) Diet'inkiyle BİREBİR AYNI değerleri
-         taşıyor (ölçüldü); `<h2>`ye geçmek çatışma üretmiyor.
+
+         🔴 NÖTRLEME SATIRI GEREKMİYOR — ÖLÇÜLDÜ, VARSAYILMADI.
+         Diet'te D-1 bir SORUN üretiyor çünkü orada `.pc-title` bir `<span>`di
+         ve gövdeden `line-height:1.55` miras alıyordu; `<h2>` olunca
+         `h1,h2,h3,h4{line-height:1.12}` devreye giriyor ve başlık düşüyor.
+         Diet'in düzeltmesi `line-height:1.55` yazmaktır.
+         🔴 **FİT'TE BU DURUM YOK: başlık P12'den ÖNCE DE `<h2>` idi**
+         (`.fc-head h2`), yani 1.12 ve -.02em zaten uygulanıyordu.
+         Playwright ölçümü (1440px, 14 başlığın hepsi, iki sürüm yan yana):
+           P12 ÖNCESİ  font-size 20px · line-height 22.40px · letter-spacing -0.40px
+           P12 SONRASI font-size 16px · line-height 17.92px · letter-spacing -0.32px
+         İkisi de `font-size × 1.12` ve `font-size × -0.02em`. Yeni devreye
+         giren bir bildirim YOK; nötrlenecek bir şey de yok.
+         ⚠ DIET'İN 1.55'İ BURAYA KOPYALANMAZ — kopyalansaydı başlık
+         17.92px'den 24.80px'e çıkar, yani BUGÜN OLMAYAN bir kayma
+         ÜRETİLİRDİ. Kalan fark yalnız kanonun kendi ölçüsüdür (20px → 16px).
+         KART RİTMİ BOZULMUYOR: başlık bloğu 14 kartın HEPSİNDE aynı miktarda
+         iniyor (82.14 → 80.05 px · iki satırlı açıklamalılarda 102.28 →
+         100.19 px), yani Diet'teki "rozetsiz kart düşüyor, rozetli sabit
+         kalıyor" ayrışması Fit'te oluşmuyor — Fit'in 14 başlığının 14'ünde
+         de açıklama var, ayrışacak iki küme yok.
    D-2 · `.pc-head` AÇIKLAMA SATIRI taşır. Fit'in 14 açıklama metni KALIR.
          Bunun için `align-items` açıklamalı başlıkta `flex-start`a döner —
          `:has(p)` ile, değiştirici sınıf uydurmadan (ölçümün adlandırdığı
@@ -136,10 +154,15 @@
 .pc-body.flush{padding:0}
 .pc-foot{padding:14px 22px;border-top:1px solid var(--line)}
 
-/* D-2 · açıklama yuvası — ölçümün öngördüğü üç satır (§10.2.2) */
+/* D-2 · açıklama yuvası — üç kural (§10.2.2, DÜZELTİLMİŞ hâli).
+   ⚠ `min-width:0` de `:has(p)` KAPISININ İÇİNDE: şartsız yazılırsa
+   açıklamasız kartların başlık hizası da etkilenir. Fit'te bugün 14 başlığın
+   14'ünde de açıklama var, yani kapı hep açık — ama kapının kendisi ileride
+   açıklamasız bir kart eklendiğinde koruyucudur, o yüzden şartsız
+   bırakılmadı. */
 .pc-head:has(p){align-items:flex-start}
+.pc-head:has(p)>:first-child{min-width:0}
 .pc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:5px}
-.pc-head>div:first-child{min-width:0}
 
 /* ---- FK ALAN KİTİ ---- */
 .fk-field{margin-bottom:22px}

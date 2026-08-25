@@ -1,4 +1,4 @@
-sozlesme v2.2 · 2026-08-25
+sozlesme v2.3 · 2026-08-26
 
 # Hesap Sözleşmesi — dört marka
 
@@ -9,6 +9,10 @@ Ortak depo, symlink ve dış yol bağımlılığı **yoktur** — her şerit ken
 ağacındaki bu dosyayı okur. Değiştiren, **dördünü birden** değiştirir ve
 yukarıdaki sürüm damgasını yükseltir. Sapma her dalga sonunda `md5` ile
 ölçülür.
+
+**v2.2 → v2.3:** §7 eklendi — hesap arayüz yapısı (P12, kanon Diet)
+ve kanonun iki esnetilmiş kalemi (başlık öğesi · açıklama satırı).
+⚠ §6 renumber EDİLMEDİ; birden çok belge ona atıf yapıyor.
 
 **v2.1 → v2.2:** §3.1'in Gourmet satırı, `ayarlar`ın ikinci adres
 gramerini de alacak biçimde tamamlandı (B8).
@@ -586,3 +590,59 @@ yakınsama yapmaz, migration yazmaz.
 ---
 
 *Sözleşme v2 sonu. Değiştiren dördünü birden değiştirir ve damgayı yükseltir.*
+
+---
+
+## 7 · Hesap arayüzü — yapı (P12)
+
+🔴 **ORTAK HÜKÜM. KANON = DIET.** Dört markada da hesap arayüzü Diet'in
+yapısına uyar: **sayfa düzeni · sekme yapısı · kart kompozisyonu · başlık
+hiyerarşisi · boşluk ritmi.** Kart kiti Diet'inkidir.
+
+⚠ **Bu bölüm YAPIYI bağlar, ADRES PARAMETRESİNİ değil.** `?sekme=` ↔ `?tab=`
+sorusu **§6'da hâlâ 🔴 AÇIK** ve P12 onu kapatmaz.
+
+### 7.1 · Kanonun iki esnetilmiş kalemi
+
+Kanon Diet'tir, **ama şu ikisinde Diet'in bugünkü hâli değil, aşağıdaki hâl
+kanondur** (Beyar kararı, 2026-08-26):
+
+**D-1 · Kart başlığı GERÇEK BAŞLIK ÖĞESİ basar.**
+`.pc-title` bir `<h2>`dir (bölüm içi alt başlık `<h3>`). Diet'in bugünkü
+`<span class="pc-title">` biçimi **kanon değildir ve Diet de buna uyar.**
+
+🔴 **Gerekçe ölçülmüştür:** span biçimi üç markaya uygulansaydı
+**33 `<h2>` + 9 `<h3>`** belge ana hattından çıkacak (Gastro 6 · Gourmet 13 ·
+Fit 14), **ekran okuyucuda başlıkla gezinme üç markada birden kalkacaktı.**
+**Sözleşme bir erişilebilirlik gerilemesi taşımaz.**
+
+**D-2 · Kart başlığı bloğu AÇIKLAMA SATIRI taşır.**
+Başlığın altında isteğe bağlı bir `<p>` durur. Diet'in bugünkü yalnız-başlık
+`.pc-head`'i **kanon değildir ve Diet de buna uyar.**
+
+🔴 **Gerekçe ölçülmüştür:** açıklama yuvası olmasaydı **52 metin** düşecekti
+(Gastro 23 · Gourmet 15 · Fit 14). O metinler kullanıcıya kartın ne yaptığını
+anlatır — kayıpları **biçim değil İÇERİK kaybı** olurdu.
+
+### 7.2 · Uyacak taraflar
+
+| Marka | Bugünkü yapı | Durum |
+|---|---|---|
+| **Diet** | tek sayfa + `?sekme=` · `.pnl-card` kiti | **kanon** — ama **D-1 ve D-2 için Diet de değişir** |
+| **Gastro** | tek sayfa + `?tab=` · `.form-card` kiti | yapı yakın; **kart kiti · başlık · ritim** kapsamda |
+| **Gourmet** | 🔴 **iki sayfa, iki gramer**, `GET /hesabim` **yok** | **en ağır taşıma** |
+| **Fit** | statik maket, `#çapa` · `.form-card` kiti | kart kiti kapsamda · **P13 gereği ayrı şeritte** |
+
+### 7.3 · Bu bölümün bağlamadığı
+
+- **Adres parametresi** (§6, açık).
+- **Sekme davranışı** (`pushState`/`popstate`/ok tuşu/`aria-controls`) —
+  kapsama girip girmediği **ayrı karardır**. ⚠ Ölçüm: **Gastro bugün
+  `replaceState` kullanıyor** ve üç kardeşinden de geride.
+- **Fit'in şerit sırası** — P13 gereği Fit dalga sırasını beklemez; **kanon
+  yine de Fit'i bağlar.**
+
+⚠ **İş hacmi (`dadagastro/docs/hesap-mimarisi/14-arayuz-tutarlilik.md §9`)
+kanon esnetilmeden ÖNCE ölçüldü ve Diet'i 0 saydı.** D-1 ve D-2 Diet'i de
+değiştirdiği için o toplam **eksiktir** — YP12.2 başlamadan Diet'in maliyeti
+ölçülmelidir.

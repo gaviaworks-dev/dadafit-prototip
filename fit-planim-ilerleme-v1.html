@@ -438,8 +438,14 @@ var FPX = (function () {
     var st;
     try { st = S.read(); } catch(e){ return []; }
     return (st.gecmis || []).map(function(g, i){
+      /* R14-B · dk/kcal BİLİNMİYOR olabilir (şema: açıkça null). Eskiden
+         `|| 0` ile sıfıra çevriliyordu ve ekran "0 dk · 0 kcal" diyordu —
+         bilinmeyeni sıfır göstermek uydurmadır, kanıt kademesinin tam
+         tersi. null KORUNUYOR; basan taraf "—" yazar, toplamlar atlar. */
       return { sira:i, tarih:g.tarih || '—', ad:g.ad || 'Antrenman',
-               dk:g.dk || 0, kcal:g.kcal || 0, kaynak:kanitKod(g.kaynak) };
+               dk:(typeof g.dk === 'number' ? g.dk : null),
+               kcal:(typeof g.kcal === 'number' ? g.kcal : null),
+               kaynak:kanitKod(g.kaynak) };
     });
   }
 
@@ -941,7 +947,12 @@ var FPX = (function () {
     sat.push('');
     sat.push(['Tarih', 'Antrenman', 'Süre (dk)', 'Enerji (kcal)', 'Kayıt neye dayanıyor'].map(kacis).join(';'));
     r.kayit.forEach(function (k) {
-      sat.push([k.tarih, k.ad, k.dk, k.kcal, FPX.KANIT[k.kaynak].uzun].map(kacis).join(';'));
+      /* R14-B — CSV'de bilinmeyen süre/kalori BOŞ hücre olarak çıkar.
+         `null` yazmak da 0 yazmak da veriyi okuyan tarafta yalan üretir. */
+      sat.push([k.tarih, k.ad,
+                (typeof k.dk   === 'number' ? k.dk   : ''),
+                (typeof k.kcal === 'number' ? k.kcal : ''),
+                FPX.KANIT[k.kaynak].uzun].map(kacis).join(';'));
     });
     return { metin: '﻿' + sat.join('\r\n'), satir: r.kayit.length, r: r };
   }

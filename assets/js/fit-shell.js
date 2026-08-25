@@ -2314,7 +2314,23 @@ setTimeout(function(){
 
     /* ---- tamamlanan antrenman → Enerji Defteri + ilerleme (belge §19) ---- */
     antrenmanTamamla:function(a){
-      var s=read(), dk=(a&&a.dk)||25, ad=(a&&a.ad)||'Antrenman';
+      var s=read(), ad=(a&&a.ad)||'Antrenman';
+      /* R14-B · dk ARTIK ÜÇ DURUMLU — kcal ile simetrik.
+         Eskiden `(a&&a.dk)||25` idi: süresi bilinmeyen bir kayıt sessizce
+         "25 dk" oluyordu. Plan köprüsü tam bu duruma düşüyor — üretilen
+         planda seans süresi YOK (`secimler`de süre alanı yok,
+         `hareketler[].sure` null), yalnız set/tekrar/dinlenme var. 25
+         yazmak uydurma olurdu; kanıt kademesinin öldürmeye çalıştığı şey
+         de bu (fit-planim-v1.html'de `antrenmanTamamla` bu yüzden hiç
+         çağrılmıyordu: "gecmis'e 'Gün sonu · 0 dk' diye sahte bir
+         antrenman kaydı düşürür").
+           sayı verildi (0 dahil) → o sayı
+           açıkça null verildi    → BİLİNMİYOR, sayıya çevrilmez
+           hiç verilmedi          → 25 (eski çağrılar kırılmaz) */
+      var dk;
+      if      (a && typeof a.dk === 'number') dk = a.dk;
+      else if (a && 'dk' in a)                dk = null;
+      else                                    dk = 25;
       /* kcal ÜÇ DURUM taşır — eskiden ikisi aynıydı ve bu, kanıt kademesinin
          tam da öldürmeye çalıştığı uydurmayı üretiyordu:
            sayı verildi (0 dahil) → o sayı
@@ -2330,9 +2346,9 @@ setTimeout(function(){
          Söylemezse 'beyan' yazılır, çünkü söylenmeyen şey ölçülmüş sayılamaz.
          Uydurma bir kademe yazmaktansa zayıf ama doğru olanı yazıyoruz. */
       var kaynak = (a&&a.kaynak && KAYNAKLAR.indexOf(a.kaynak)>=0) ? a.kaynak : 'beyan';
-      s.bugun.dk += dk; s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
+      s.bugun.dk += (dk||0); s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
       s.gecmis.unshift({tarih:'bugün',ad:ad,dk:dk,kcal:kcal,kaynak:kaynak});
-      if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += dk;
+      if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += (dk||0);
       if(s.program && s.program.durum==='devam'){
         s.program.biten++;
         if(s.program.biten>=s.program.toplam){ s.program.durum='tamamlandi'; }
@@ -2396,6 +2412,43 @@ setTimeout(function(){
   };
   window.FIT_SHELL = window.FIT_SHELL || {};
   window.FIT_SHELL.state = API;
+
+  /* ============================================================
+     PLAN → PROGRAM KÖPRÜSÜ  (R14-B · Beyar kararı #4)
+     ------------------------------------------------------------
+     Ölçülen kopukluk: iki ayrı sistem birbirine hiç dokunmuyordu.
+       PLAN    → FIT_PLAN / dm_fit_planlar_v1 · Tam/Yarım/Atlandı
+       PROGRAM → bu modül / dm_fit           · biten++ · arşiv · geçmiş
+     Plan %100 olduğunda bile `program` null, `bugun.tamam` false,
+     `gecmis` ve `arsiv` boş kalıyordu. `antrenmanTamamla()` dört
+     sayfadan çağrılıyordu ama Programım sayfası listede yoktu.
+
+     Köprü BURADA duruyor, sayfada değil: `FIT_PLAN.isaretle()` üç ayrı
+     sayfadan çağrılıyor (programim · ilerleme · gecmis); köprüyü sayfaya
+     yazsaydık ya çoğaltılır ya eksik kalırdı. Kabuk 66 sayfada var.
+
+     KANIT KADEMESİ 'beyan' (Beyar kararı): kullanıcı kendi işaretledi,
+     bu bir beyandır — ölçülmüş değil, ama YOK da sayılmaz.
+     SÜRE ve KALORİ açıkça null: üretilen planda seans süresi yok, uydurmak
+     kanıt kademesini anlamsız kılardı. Okuyan ekranlar "—" basar.
+
+     TEK SEFERLİK: mühür FIT_PLAN.gunDurum[k].kayit. Kullanıcı işareti geri
+     alıp günü tekrar tamamlarsa ikinci kayıt yazılmaz.
+     ============================================================ */
+  window.addEventListener('fit-plan-degisti', function (e) {
+    var d = (e && e.detail) || {};
+    if (!d.gunTamamlandi || !window.FIT_PLAN) return;
+    var p = FIT_PLAN.getir(d.id);
+    if (!p) return;
+    var g = (p.gunler || []).filter(function (x) { return x.no === d.gunTamamlandi; })[0];
+    API.antrenmanTamamla({
+      ad:     (g && g.ad) || ('Gün ' + d.gunTamamlandi),
+      dk:     null,          /* BİLİNMİYOR — planda seans süresi yok */
+      kcal:   null,          /* BİLİNMİYOR */
+      kaynak: 'beyan'
+    });
+    FIT_PLAN.gunKayitIsaretle(p.id, d.gunTamamlandi);
+  });
 })();
 
 /* ============================================================

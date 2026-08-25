@@ -495,8 +495,14 @@ var FPX = (function () {
     var st;
     try { st = S.read(); } catch(e){ return []; }
     return (st.gecmis || []).map(function(g, i){
+      /* R14-B · dk/kcal BİLİNMİYOR olabilir (şema: açıkça null). Eskiden
+         `|| 0` ile sıfıra çevriliyordu ve ekran "0 dk · 0 kcal" diyordu —
+         bilinmeyeni sıfır göstermek uydurmadır, kanıt kademesinin tam
+         tersi. null KORUNUYOR; basan taraf "—" yazar, toplamlar atlar. */
       return { sira:i, tarih:g.tarih || '—', ad:g.ad || 'Antrenman',
-               dk:g.dk || 0, kcal:g.kcal || 0, kaynak:kanitKod(g.kaynak) };
+               dk:(typeof g.dk === 'number' ? g.dk : null),
+               kcal:(typeof g.kcal === 'number' ? g.kcal : null),
+               kaynak:kanitKod(g.kaynak) };
     });
   }
 
@@ -758,10 +764,15 @@ var FPX = (function () {
     }
     bos.classList.remove('show');
 
-    var toplamDk = 0, olculdu = 0, enUzun = 0;
+    /* R14-B — süresi BİLİNMEYEN kayıt (dk:null) toplama katılmaz.
+       Sıfır saymak toplamı bozmazdı ama "en uzun" ve ortalamalar için
+       bilinmeyeni sıfır saymak yanlış cevap üretir. Kaç kaydın süresi
+       bilinmiyor, ölçümde ayrıca görünsün diye sayılıyor. */
+    var toplamDk = 0, olculdu = 0, enUzun = 0, suresiz = 0;
     kayit.forEach(function (k) {
-      toplamDk += k.dk;
       if (k.kaynak === 'olculdu') olculdu++;
+      if (typeof k.dk !== 'number') { suresiz++; return; }
+      toplamDk += k.dk;
       if (k.dk > enUzun) enUzun = k.dk;
     });
 
@@ -769,14 +780,16 @@ var FPX = (function () {
       '<div class="fp-stat is-fit"><b>' + kayit.length + '</b><span>tamamlanan antrenman</span></div>' +
       '<div class="fp-stat"><b>' + sureUzun(toplamDk) + '</b><span>toplam hareket süresi</span></div>' +
       '<div class="fp-stat"><b>' + olculdu + ' / ' + kayit.length + '</b><span>kronometreyle ölçülmüş</span></div>' +
-      '<div class="fp-stat"><b>' + enUzun + ' dk</b><span>en uzun antrenman</span></div>';
+      '<div class="fp-stat"><b>' + (enUzun ? enUzun + ' dk' : '—') + '</b><span>en uzun antrenman</span></div>';
 
     liste.innerHTML = kayit.slice(0, 12).map(function (k) {
       return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + IKON[k.kaynak] + '" aria-hidden="true"></i></span>' +
         '<span class="txt"><b>' + FPX.esc(k.ad) + '</b>' +
-        '<small>' + FPX.esc(k.tarih) + ' · ' + k.dk + ' dk</small>' +
+        '<small>' + FPX.esc(k.tarih) + ' · ' +
+          (typeof k.dk === 'number' ? k.dk + ' dk' : 'süre —') + '</small>' +
         '<small class="fpx-hgel-olcu">' + FPX.kanitRozet(k.kaynak, true) + '</small></span>' +
-        '<span class="end">' + k.kcal + ' kcal<br><span class="fp-badge ok">Tamamlandı</span></span></div>';
+        '<span class="end">' + (typeof k.kcal === 'number' ? k.kcal + ' kcal' : '—') +
+        '<br><span class="fp-badge ok">Tamamlandı</span></span></div>';
     }).join('');
 
     sozluk.innerHTML = FPX.kanitSozluk();

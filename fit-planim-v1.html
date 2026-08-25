@@ -623,7 +623,12 @@ var FPX = (function () {
       acts: DOLU_ACTS,
       stats: [
         { deger: '%' + o.oran,                     etiket: 'plan tamam',      fit: true },
-        { deger: o.aktifGun + ' / ' + o.gunSayisi, etiket: 'gün' },
+        /* R14-B · #2 — "kaçıncı gündesin" değil "kaç gün bitti".
+           `aktifGun` plan bitince son güne düşüyordu; 3 günlük bitmiş bir
+           planda "3 / 3 gün" doğru görünüyordu ama 2. gündeyken de
+           "2 / 3" diyordu — ikisi aynı sayı, iki ayrı anlam. `bitenGun`
+           karar almış gün sayısıdır ve etiketle birebir uyuşur. */
+        { deger: o.bitenGun + ' / ' + o.gunSayisi, etiket: 'gün' },
         { deger: o.yapilan + ' / ' + o.toplam,     etiket: 'hareket işaretli' }
       ]
     });
@@ -750,7 +755,17 @@ var FPX = (function () {
     bitirGuncelle();
 
     rozet.hidden = false;
-    var bitti = yapilan >= toplam;
+    /* R14-B · #1 — GÜN TAMAMLANMA ÖLÇÜTÜ TEK KAYNAKTAN.
+       Buradaki eski ölçüt `yapilan >= toplam` idi ve `yapilan` 'atlandi'yı
+       saymıyor: atlanan tek hareketi olan bir gün BURADA hiç
+       tamamlanamıyordu, Programım sayfasında ise tamamlanıyor olacaktı.
+       İki ekran aynı güne farklı şey diyemez. Tanım artık şema v3'te
+       (karar ölçütü: tam|yarim|atlandi) ve `FIT_PLAN.gunDurumu()` ile
+       okunuyor. Rozetin SAYAÇ yüzü (`yapilan / toplam`) değişmedi — o
+       "ne kadarını yaptın" sorusunu cevaplıyor, "bu günle işin bitti mi"
+       sorusunu değil. */
+    var gd = window.FIT_PLAN ? FIT_PLAN.gunDurumu(plan.id, g.no) : null;
+    var bitti = !!(gd && gd.durum === 'tamamlandi');
     rozet.className = 'fp-badge ' + (bitti ? 'ok' : 'off');
     rozet.innerHTML = bitti
       ? '<i class="fa-solid fa-check" aria-hidden="true"></i> Gün tamamlandı'

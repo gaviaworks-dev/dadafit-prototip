@@ -71,7 +71,23 @@
 .pp-gun>summary:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
 .pp-gun[open]>summary .pp-ok{transform:rotate(90deg)}
 .pp-ok{flex:none;color:var(--muted);font-size:13px;transition:transform .18s var(--ease)}
-.pp-simdi{flex:none;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--fit);border-radius:var(--radius-pill);padding:4px 10px}
+/* R14-B · #3 — DURUM YUVASI. Bu pill eskiden yalnız "Sırada" basıyordu;
+   artık günün hâlini taşıyor: Sırada (sıradaki gün) VEYA Tamamlandı.
+   İkisi aynı anda çıkmaz, yeni eleman EKLENMEDİ — satırın flex ritmi
+   (.pp-gun-head gap:13px) ve sıra düzeni aynen duruyor.
+
+   Geometri: taban kurala 1px SAYDAM kenar eklendi. Amaç iki durumun
+   birebir aynı yükseklikte olması (dolu hap ile kenarlı hap arasında
+   2px zıplama olmasın) — üstelik bu, aynı satırdaki .pp-gun-oran hapıyla
+   da (padding:4px 11px + 1px kenar) yüksekliği eşitliyor.
+
+   Ses düzeyi bilinçli: "Sırada" bir ÇAĞRIDIR, dolu aksanla en yüksek
+   sesle konuşur. "Tamamlandı" bir KAYITTIR, aynı geometride ama tint +
+   kenarla daha alçak sesle. Biten iş, yapılacak işten yüksek sesle
+   konuşmamalı. */
+.pp-simdi{flex:none;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--fit);border:1px solid transparent;border-radius:var(--radius-pill);padding:4px 10px;display:inline-flex;align-items:center;gap:5px}
+.pp-simdi.is-done{background:var(--fit-tint);color:var(--fit-deep);border-color:var(--fit-line)}
+.pp-simdi i{font-size:10px}
 .pp-gun-head{display:flex;align-items:center;gap:13px;padding:15px 22px;background:var(--paper);flex-wrap:wrap}
 .pp-gun[open] .pp-gun-head{border-bottom:1px solid var(--line)}
 .pp-no{flex:none;width:32px;height:32px;border-radius:var(--radius-circle);background:var(--fit);color:#fff;display:grid;place-items:center;font-size:13.5px;font-weight:800}
@@ -294,6 +310,19 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
 }
 @media (max-width:640px){
   .pp-gun-head{padding:14px 18px}
+  /* R14-B · #3 — DAR EKRANDA GÜN ADI KENDİ SATIRINI ALIR.
+     Ölçüm @390: durum hapı satıra girince `.pp-gun-ad` 117px'ten 44px'e
+     düşüyor ve "İtiş Günü" iki satıra kırılıyor — birincil bilgi (günün
+     adı) ikincil bilgiye (durum hapı 107px) eziliyordu. Satır zaten
+     flex-wrap; ada 100%-eksi-numara genişliğinde bir taban verilince
+     künye kalemleri kendiliğinden ikinci satıra iniyor. Bilgi GİZLENMİYOR,
+     yalnız sıraya giriyor — bu sayfanın kendi kanonu (yukarıdaki .ptk-h
+     kuralı da dar ekranda aynı kararı veriyor: asıl bilgi kalır).
+     45px = .pp-no 32 + .pp-gun-head gap 13. */
+  .pp-gun-ad{flex:1 1 calc(100% - 45px)}
+  /* ikinci satır numaranın altından değil, adın hizasından başlasın */
+  .pp-simdi{margin-left:45px}
+  .pp-simdi+.pp-gun-kalip{margin-left:0}
   .pp-isaret{width:100%}
   .pp-sat{padding:14px 18px;gap:12px}
   .pp-recete{width:100%;padding-left:42px}
@@ -475,8 +504,13 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
     return '<div class="fp-card pp-kart">' +
       '<div class="fp-head"><h3><i class="fa-solid fa-wand-magic-sparkles"></i> Oluşturduğun plan</h3>' +
       '<span class="fp-badge ' + (ozet.oran === 100 ? 'ok' : (ozet.oran ? 'wait' : 'off')) + '">' +
-      '<i class="fa-solid fa-' + (ozet.oran === 100 ? 'flag-checkered' : (ozet.oran ? 'play' : 'circle')) + '"></i> ' +
-      (ozet.oran === 100 ? 'Tamamlandı' : (ozet.oran ? 'Devam ediyor' : 'Başlanmadı')) + '</span></div>' +
+      /* R14-B · #1 — rozet ölçütü orandan KARARA geçti. Tamamı "Atlandı"
+         işaretlenmiş bir plan bitmiştir ama oranı 0'dır; eski ölçüt
+         (oran===100) böyle bir planı sonsuza kadar "Devam ediyor"
+         gösteriyordu. Çubuk oranı basmaya devam ediyor — iki sayı iki
+         ayrı soruyu cevaplıyor. */
+      '<i class="fa-solid fa-' + (ozet.bitti ? 'flag-checkered' : (ozet.oran ? 'play' : 'circle')) + '"></i> ' +
+      (ozet.bitti ? 'Tamamlandı' : (ozet.oran ? 'Devam ediyor' : 'Başlanmadı')) + '</span></div>' +
       '<b class="pp-ad">' + esc(plan.ad) + '</b>' +
       '<p class="pp-alt">Antrenman Oluşturucu · ' + tarih(plan.olusturma) + ' tarihinde kuruldu' +
       (ozet.sonTarih ? ' · son işaret ' + tarih(ozet.sonTarih) : '') + '</p>' +
@@ -485,7 +519,12 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       '<div class="fp-meta" id="ppOzet">' +
         '<span><b>%' + ozet.oran + '</b> tamamlandı</span>' +
         '<span><b>' + ozet.yapilan + '/' + ozet.toplam + '</b> hareket yapıldı</span>' +
-        '<span><b>' + ozet.aktifGun + '.</b> gün sırada</span>' +
+        /* üçüncü ölçüm duruma göre iş değiştirir; dördüncü ölçüm
+           EKLENMEDİ — döşeme üç hücre kalıyor (K28 dersi: ızgarayı
+           bozan hücre vurgudan önce gelir). */
+        (ozet.bitti
+          ? '<span><b>' + ozet.bitenGun + '/' + ozet.gunSayisi + '</b> gün tamamlandı</span>'
+          : '<span><b>' + ozet.aktifGun + '.</b> gün sırada</span>') +
       '</div>' +
       '<div class="pp-eylem">' +
         (s.kod ? '<a class="btn btn-ghost" href="antrenman-olusturucu-v1.html?plan=' + esc(s.kod) + '">' +
@@ -518,12 +557,18 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       var d = FIT_PLAN.isaret(plan.id, gun.no, i);
       return d && d.seviye !== 'atlandi';
     }).length;
+    /* R14-B · #3 — gün tamamlanma hâli TEK KAYNAKTAN (FIT_PLAN.gunDurumu).
+       Sayfa "her hareket işaretli mi" diye kendi hesabını YAPMAZ; tanım
+       şema v3'te (karar ölçütü: tam|yarim|atlandi). */
+    var gd = FIT_PLAN.gunDurumu(plan.id, gun.no);
+    var bitti = !!(gd && gd.durum === 'tamamlandi');
 
     return '<details class="fp-card pp-gun' + (simdi ? ' is-now' : '') + '" data-gun="' + gun.no + '"' +
       (simdi ? ' open' : '') + '>' +
       '<summary class="pp-gun-head"><span class="pp-no">' + gun.no + '</span>' +
       '<span class="pp-gun-ad">' + esc(gun.ad) + '</span>' +
-      (simdi ? '<span class="pp-simdi">Sırada</span>' : '') +
+      (bitti ? '<span class="pp-simdi is-done"><i class="fa-solid fa-check" aria-hidden="true"></i>Tamamlandı</span>'
+             : (simdi ? '<span class="pp-simdi">Sırada</span>' : '')) +
       (gun.odak ? '<span class="pp-gun-kalip">' + esc(gun.odak) + '</span>' : '') +
       '<span class="pp-gun-oran">' + yapilan + '/' + hrk.length + '</span>' +
       '<i class="fa-solid fa-chevron-right pp-ok" aria-hidden="true"></i></summary>' +
@@ -559,7 +604,10 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       '<i class="fa-solid fa-chevron-down"></i> Tüm günleri aç</button></div>' +
       '<div class="pp-gunler">' +
       (plan.gunler || []).map(function(g){
-        return gunHtml(plan, g, g.no === ozet.aktifGun);
+        /* R14-B · #2 — plan bitmişse HİÇBİR gün "Sırada" değildir.
+           ozet.aktifGun geriye dönük uyum için bitince de son günü
+           döndürüyor; ölçüt önce ozet.bitti. */
+        return gunHtml(plan, g, !ozet.bitti && g.no === ozet.aktifGun);
       }).join('') +
       '</div>';
 
@@ -601,9 +649,22 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
                                    '"][data-pp-s="' + sv + '"]');
       if(yeni) yeni.focus();
       var o = FIT_PLAN.ozet(plan.id);
+      /* R14-B · #3 — GÜN VE PLAN DÖNÜM NOKTALARI DUYURULUR.
+         Görsel kullanıcı gün başlığındaki "Tamamlandı" hapını görüyor;
+         ekran okuyucu kullanıcısı hiçbir şey duymuyordu. Cümle yalnız
+         DEĞİŞİM anında ekleniyor — her işarette tekrarlanan bir kuyruk
+         gürültüdür. */
+      var gd  = FIT_PLAN.gunDurumu(plan.id, g);
+      var gAd = ((plan.gunler[g - 1] || {}).ad) || ('Gün ' + g);
+      var ek  = '';
+      if(!geriAl && gd && gd.durum === 'tamamlandi'){
+        ek = o.bitti
+          ? ' ' + gAd + ' tamamlandı — planın tüm günleri bitti.'
+          : ' ' + gAd + ' tamamlandı. Sırada ' + o.aktifGun + '. gün var.';
+      }
       if(live) live.textContent = (ad ? ad.ad + ' ' : '') +
         (geriAl ? 'işareti kaldırıldı' : SEV[sv].ad.toLocaleLowerCase('tr') + ' olarak işaretlendi') +
-        '. Plan %' + o.oran + ' tamamlandı.';
+        '. Plan %' + o.oran + ' tamamlandı.' + ek;
       return;
     }
     var hep = e.target.closest('#ppHepsi');

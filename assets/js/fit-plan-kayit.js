@@ -34,6 +34,9 @@
        ilerleme  : {                            // anahtar: 'g<gunNo>-h<hareketIdx>'
           'g1-h0': { yapildi:true, seviye:'tam', tarih:'2026-08-21T…',
                      agirlik:12, tekrarYapilan:10, efor:7 }   // v2 · §5.3/§5.4
+       },
+       gunDurum  : {                            // v3 · R14-B — anahtar: 'g<gunNo>'
+          'g1': { durum:'tamamlandi', tarih:'2026-08-21T…', kayit:true }
        }
      }
 
@@ -60,6 +63,30 @@
      'tam'    → tamamlandı
      'yarim'  → yarım bırakıldı
      'atlandi'→ atlandı
+
+   ŞEMA v3 — R14-B · GÜN TAMAMLANMA (Beyar kararı, 2026-08-25)
+     Ölçülen kusur: Tam/Yarım/Atlandı akışı `isaretle()` çağrısında bitiyordu.
+     Gün de plan da "tamamlandı" diye bir hâl bilmiyordu; ekranda hiçbir şey
+     olmuyor, geçmişe hiçbir kayıt düşmüyordu.
+
+     "GÜN TAMAMLANDI" TANIMI — kararla tanım, oranla değil:
+       Günün HER hareketi bir karar almışsa gün tamamlanmıştır.
+       Karar = tam | yarim | ATLANDI. Atlanan da karardır: kullanıcı o
+       hareketle işini bitirmiştir. Hiç dokunulmamış tek hareket varsa gün
+       bitmemiştir.
+
+     BU TANIM `oran`I DEĞİŞTİRMEZ. `oran`/`yapilan` eskisi gibi 'atlandi'yı
+     YAPILMIŞ SAYMAZ — tamamı atlanmış bir gün "tamamlandı" olur ama oranı
+     0 kalır. İki soru ayrı sorudur: "bu günle işin bitti mi" ve "ne kadarını
+     gerçekten yaptın". Tek sayıya indirmek ikisini de yalan yapardı.
+
+     gunDurum[k].kayit — KÖPRÜ MÜHRÜ. Gün tamamlanınca kabuk bir kez
+     `antrenmanTamamla()` çağırıp Aktivite Kayıtlarım'a kayıt düşürür
+     (fit-shell.js → "PLAN → PROGRAM KÖPRÜSÜ"). Bu bayrak o kaydın
+     yazıldığını söyler. Kullanıcı bir işareti geri alıp günü tekrar
+     tamamlarsa `durum` yeniden 'tamamlandi' olur ama `kayit` DURUR ve
+     ikinci bir geçmiş kaydı yazılmaz — geçmişe yazılan geri alınamaz,
+     ama çoğaltılamaz da.
    ===================================================================== */
 (function (kok) {
   'use strict';
@@ -95,12 +122,33 @@
     return 'g' + gunNo + '-h' + hareketIdx;
   }
 
+  function gunAnahtari(gunNo) { return 'g' + gunNo; }
+
+  /* v3 — günün HER hareketi karar almış mı (tam|yarim|atlandi fark etmez).
+     Hareketsiz gün tamamlanmış sayılmaz: boş listeye "bitti" demek
+     kullanıcının yapmadığı bir şeyi yaptı saymaktır. */
+  function gunKararli(p, g) {
+    var h = (g && g.hareketler) || [];
+    if (!h.length) return false;
+    for (var i = 0; i < h.length; i++) {
+      var it = (p.ilerleme || {})[ilerlemeAnahtari(g.no, i)];
+      if (!it || !it.yapildi) return false;
+    }
+    return true;
+  }
+
+  function gunuBul(p, gunNo) {
+    return (p.gunler || []).filter(function (g) { return g.no === gunNo; })[0] || null;
+  }
+
   /* ---- olay: kayıt değişince dinleyenler haberdar olsun ------------ */
-  function haberVer(tur, id) {
+  function haberVer(tur, id, ek) {
     try {
-      kok.dispatchEvent(new CustomEvent('fit-plan-degisti', {
-        detail: { tur: tur, id: id }
-      }));
+      var d = { tur: tur, id: id };
+      /* v3 — gün tamamlanma geçişi olayla duyurulur; köprüyü kabuk kurar
+         (bu modül FIT_SHELL'i BİLMEZ, sözleşme modülü bağımsız kalır). */
+      if (ek) { for (var a in ek) if (ek.hasOwnProperty(a)) d[a] = ek[a]; }
+      kok.dispatchEvent(new CustomEvent('fit-plan-degisti', { detail: d }));
     } catch (e) {}
   }
 
@@ -129,6 +177,7 @@
       if (!p.id) p.id = yeniId();
       if (!p.olusturma) p.olusturma = new Date().toISOString();
       if (!p.ilerleme || typeof p.ilerleme !== 'object') p.ilerleme = {};
+      if (!p.gunDurum || typeof p.gunDurum !== 'object') p.gunDurum = {};   /* v3 */
       if (!Array.isArray(p.gunler)) p.gunler = [];
       p.guncelleme = new Date().toISOString();
 
@@ -218,10 +267,59 @@
         });
         p.ilerleme[k] = yeni;
       }
+
+      /* ---- v3 · GÜN DURUMU (R14-B · Beyar kararı #1) ----------------
+         İşaret değişti; bu günün "her hareket karar aldı mı" hâli
+         yeniden hesaplanır. Tek kaynak burası — sayfalar kendi
+         tamamlanma mantığını yazmaz, `gunDurumu()` ile okur. */
+      if (!p.gunDurum) p.gunDurum = {};
+      var gk      = gunAnahtari(gunNo);
+      var onceki  = p.gunDurum[gk] || null;
+      var kararli = gunKararli(p, gunuBul(p, gunNo));
+      var gecis   = false;
+
+      if (kararli) {
+        if (!onceki || onceki.durum !== 'tamamlandi') {
+          p.gunDurum[gk] = {
+            durum: 'tamamlandi',
+            tarih: new Date().toISOString(),
+            /* mühür KORUNUR: daha önce geçmişe yazıldıysa bir daha yazılmaz */
+            kayit: !!(onceki && onceki.kayit)
+          };
+          gecis = !p.gunDurum[gk].kayit;
+        }
+      } else if (onceki && onceki.durum === 'tamamlandi') {
+        /* gün geri açıldı — durum düşer, mühür DURUR */
+        p.gunDurum[gk] = { durum: 'devam', tarih: onceki.tarih, kayit: !!onceki.kayit };
+      }
+
       p.guncelleme = new Date().toISOString();
       if (!yaz(d)) return false;
-      haberVer('ilerleme', id);
+      haberVer('ilerleme', id, gecis ? { gunTamamlandi: gunNo } : null);
       return true;
+    },
+
+    /* v3 — bir günün tamamlanma kaydı. Yoksa null.
+       {durum:'tamamlandi'|'devam', tarih, kayit} */
+    gunDurumu: function (id, gunNo) {
+      var p = API.getir(id);
+      if (!p || !p.gunDurum) return null;
+      return p.gunDurum[gunAnahtari(gunNo)] || null;
+    },
+
+    /* v3 — köprü mührü. Kabuk, geçmiş kaydını YAZDIKTAN SONRA çağırır.
+       İkinci kez çağrılması zararsızdır (mühür zaten basılı). */
+    gunKayitIsaretle: function (id, gunNo) {
+      var d = oku();
+      var p = d.planlar.filter(function (x) { return x.id === id; })[0];
+      if (!p) return false;
+      if (!p.gunDurum) p.gunDurum = {};
+      var gk = gunAnahtari(gunNo);
+      var g  = p.gunDurum[gk];
+      if (!g) return false;
+      if (g.kayit) return true;
+      g.kayit = true;
+      return yaz(d);
     },
 
     isaret: function (id, gunNo, hareketIdx) {
@@ -233,31 +331,48 @@
     /* Özet — Fit Planım üst kartı bunu basar.
        toplam  : plandaki hareket sayısı
        yapilan : 'tam' + 'yarim' işaretli hareket sayısı ('atlandi' sayılmaz)
-       oran    : 0–100 tam sayı
-       aktifGun: ilk tamamlanmamış günün no'su (hepsi bittiyse son gün) */
+       oran    : 0–100 tam sayı  ← ATLANANI SAYMAZ, v3'te DEĞİŞMEDİ
+       aktifGun: sırada bekleyen ilk günün no'su
+       bitti   : v3 — planın TÜM günleri karar almış mı
+
+       R14-B · #2 — KÖR NOKTA GİDERİLDİ. `aktifGun` eskiden "hepsi bittiyse
+       SON GÜN" dönüyordu; ekran %100'de bile son güne "Sırada" yazıyordu,
+       yani "bitti" ile "son gündeyim" ayırt edilemiyordu. Artık `bitti`
+       ayrı bir alan; `aktifGun` bittiğinde de son günü döndürmeye devam
+       ediyor (eski çağıranlar kırılmasın) ama okuyan taraf ÖNCE `bitti`ye
+       bakar.
+
+       AKTİF GÜN ÖLÇÜTÜ DE DÜZELDİ: eskiden "yapılan < toplam" idi ve
+       'atlandi' yapılmış sayılmadığı için tamamı atlanmış bir gün sonsuza
+       kadar "sırada" kalıyordu. Artık ölçüt KARAR (bkz. şema v3). */
     ozet: function (id) {
       var p = API.getir(id || (oku().aktifId));
       if (!p) return null;
 
       var toplam = 0, yapilan = 0, sonTarih = null, aktifGun = null;
+      var gunSayisi = (p.gunler || []).length, kararliGun = 0;
 
       (p.gunler || []).forEach(function (g) {
         var gToplam = (g.hareketler || []).length;
-        var gYapilan = 0;
         toplam += gToplam;
 
         (g.hareketler || []).forEach(function (_, i) {
           var it = (p.ilerleme || {})[ilerlemeAnahtari(g.no, i)];
           if (!it || !it.yapildi) return;
-          if (it.seviye !== 'atlandi') { yapilan++; gYapilan++; }
+          /* oran ölçütü — DEĞİŞMEDİ: atlanan yapılmış sayılmaz */
+          if (it.seviye !== 'atlandi') yapilan++;
           if (it.tarih && (!sonTarih || it.tarih > sonTarih)) sonTarih = it.tarih;
         });
 
-        if (aktifGun === null && gToplam > 0 && gYapilan < gToplam) aktifGun = g.no;
+        /* gün ölçütü — KARAR (şema v3), orandan bağımsız */
+        if (gunKararli(p, g)) kararliGun++;
+        else if (aktifGun === null) aktifGun = g.no;
       });
 
-      if (aktifGun === null && (p.gunler || []).length) {
-        aktifGun = p.gunler[p.gunler.length - 1].no;
+      var bitti = gunSayisi > 0 && kararliGun === gunSayisi;
+
+      if (aktifGun === null && gunSayisi) {
+        aktifGun = p.gunler[gunSayisi - 1].no;
       }
 
       return {
@@ -268,7 +383,9 @@
         oran:     toplam ? Math.round((yapilan / toplam) * 100) : 0,
         sonTarih: sonTarih,
         aktifGun: aktifGun,
-        gunSayisi:(p.gunler || []).length
+        gunSayisi:gunSayisi,
+        bitenGun:kararliGun,   /* v3 — karar almış gün sayısı */
+        bitti:   bitti         /* v3 — plan tamamlandı mı */
       };
     },
 

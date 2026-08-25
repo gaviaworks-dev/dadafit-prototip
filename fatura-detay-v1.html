@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fatura Detayı — Hesabım · DadaFit</title>
+<meta name="description" content="DadaFit fatura belgesinin ayrıntısı: fatura numarası, dönem, kalem dökümü, vergi ve ödeme bilgisi. Faturalarım listesinden açılır." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<style>
+/* =====================================================================
+ KALEM #5 · FATURA DETAY EKRANI  (envanter §4/5)
+ ---------------------------------------------------------------------
+ `hesabim-v1.html#fatura` listesi bu ekranı VADEDİYORDU (her satırda bir
+ PDF düğmesi vardı) ama tekil belge yüzeyi HİÇ ÇİZİLMEMİŞTİ. Gastro'da
+ `/hesabim/faturalar/{invoice}` + `/pdf`, Diet'te `…/fatura/{invoice}` +
+ `/yazdir` var; Fit'te karşılığı yoktu.
+ Adres: `fatura-detay-v1.html?fatura=DFT-2026-004128`
+ Numara kalıbı Dalga 1'de ÖLÇÜLDÜ: `DFT-YYYY-NNNNNN`.
+
+ 🔴 SÖZLEŞME UYUMU:
+   §7 · kart kiti Diet kanonu (.pnl-card · .pc-head · .pc-title <h2> · .pc-body · .pc-foot)
+   §1.5 · tutarlar KURUŞ tabanlı gösterilir · kart verisi tutulmaz
+          (yalnız marka + son dört hane)
+ ⚠ BACKEND YOK: PDF üretilmez. Yazdırma tarayıcının kendi yazdırma
+ penceresini açar — sahte bir dosya indirtilmez.
+ ===================================================================== */
+.fd-body{background:var(--bg-cream);padding:0 0 var(--sec-pad)}
+.fd-col{max-width:860px;margin:0 auto}
+.fd-rail{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.fd-rail .btn{padding:12px 20px;font-size:13.5px}
+.fd-rail .fd-geri{margin-right:auto}
+
+/* kart kiti — KANON DIET (sözleşme §7), planim.css:33-37 · 96-107'den birebir.
+   `.pc-title i` Diet'te `var(--green)` okur; Fit'in marka yeşili `--fit`,
+   `--green` bu depoda Diet mintidir → marka tokeni eşlendi (hesabim ile aynı). */
+.pnl-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm)}
+.pnl-card+.pnl-card{margin-top:16px}
+.pc-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.pc-title{font-size:16px;font-weight:700;color:var(--slate);display:flex;align-items:center;gap:10px}
+.pc-title i{color:var(--fit);font-size:15px}
+.pc-body{padding:22px}
+.pc-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pc-foot .note{font-size:12.5px;color:var(--muted);font-weight:500}
+/* D-2 · açıklama yuvası, üç kural da `:has(p)` kapısında (sözleşme §7.1) */
+.pc-head:has(p){align-items:flex-start}
+.pc-head:has(p)>:first-child{min-width:0}
+.pc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:5px}
+
+.fd-durum{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;padding:3px 10px;border-radius:var(--radius-sm);color:var(--fit-deep);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24);white-space:nowrap}
+.fd-kunye{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px}
+.fd-kunye>div{padding:14px 16px;border-right:1px solid var(--line)}
+.fd-kunye>div:last-child{border-right:none}
+.fd-kunye dt{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.fd-kunye dd{font-size:14px;font-weight:700;color:var(--slate)}
+.fd-taraf{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.fd-taraf section{border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;background:var(--bg)}
+.fd-taraf h3{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fd-taraf p{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6}
+.fd-taraf b{color:var(--slate)}
+.fd-tablo{width:100%;border-collapse:collapse;font-size:13.5px}
+.fd-tablo th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:0 0 12px;border-bottom:1px solid var(--line)}
+.fd-tablo th.sag,.fd-tablo td.sag{text-align:right}
+.fd-tablo td{padding:13px 0;border-bottom:1px solid var(--line);color:var(--slate-2);font-weight:500;vertical-align:top}
+.fd-tablo td b{display:block;color:var(--slate);font-weight:700;margin-bottom:2px}
+.fd-tablo td small{display:block;font-size:12px;color:var(--muted)}
+.fd-toplam{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.fd-toplam li{display:flex;justify-content:space-between;gap:16px;font-size:13.5px;color:var(--slate-2);font-weight:500}
+.fd-toplam li.genel{padding-top:12px;border-top:1px solid var(--line);font-size:17px;font-weight:800;color:var(--slate)}
+.fd-odeme{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13.5px;color:var(--slate-2);font-weight:500}
+.fd-odeme .cc{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg);font-weight:700;color:var(--slate)}
+.fd-odeme .cc i{font-size:18px;color:var(--slate-2)}
+
+@media (max-width:760px){
+  .fd-kunye{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fd-kunye>div:nth-child(2){border-right:none}
+  .fd-kunye>div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .fd-taraf{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .fd-kunye{grid-template-columns:1fr}
+  .fd-kunye>div{border-right:none;border-bottom:1px solid var(--line)}
+  .fd-kunye>div:last-child{border-bottom:none}
+  .pc-head{flex-direction:column;align-items:flex-start;gap:10px;padding:16px}
+  .pc-body{padding:16px}
+  .pc-foot{padding:14px 16px}
+  .fd-rail .btn{width:100%}
+  .fd-tablo{font-size:13px}
+}
+
+/* yazdırma: kabuk ve eylemler kâğıda çıkmaz */
+@media print{
+  #fitShellTop,#fitShellBottom,.lib-top .lib-crumb,.fd-rail,.pc-foot{display:none !important}
+  .fd-body{background:#fff;padding:0}
+  .pnl-card{box-shadow:none;border-color:#ddd;break-inside:avoid}
+}
+</style>
+<!-- Metin yaslama katmanı (tek kaynak) — sayfa stillerinden SONRA yüklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="hesabim">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- ===== BANNER + BREADCRUMB (kabuk .lib-top kiti) ===== -->
+<section class="lib-top">
+  <div class="wrap">
+    <nav class="lib-crumb" aria-label="Sayfa yolu">
+      <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hesabim-v1.html">Hesap Ayarları</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <a href="hesabim-v1.html#fatura">Faturalarım</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span class="cur" id="fdCrumb">DFT-2026-004128</span>
+    </nav>
+    <span class="eyebrow"><i class="fa-solid fa-file-invoice"></i> Hesabım</span>
+    <h1>Fatura detayı</h1>
+    <p class="lib-sub">Bu belgenin dökümü, vergi ayrımı ve hangi ödeme yöntemiyle tahsil edildiği. Faturaların e-posta adresine de gönderilir.</p>
+  </div>
+</section>
+
+<section class="fd-body">
+  <div class="wrap">
+    <div class="fd-col">
+
+      <div class="fd-rail">
+        <a class="btn btn-ghost fd-geri" href="hesabim-v1.html#fatura"><i class="fa-solid fa-arrow-left"></i> Faturalarıma Dön</a>
+        <button class="btn btn-ghost" type="button" id="fdYazdir"><i class="fa-solid fa-print"></i> Yazdır</button>
+        <button class="btn btn-primary" type="button" id="fdIndir"><i class="fa-solid fa-download"></i> PDF İndir</button>
+      </div>
+
+      <div class="pnl-card">
+        <div class="pc-head">
+          <div>
+            <h2 class="pc-title"><i class="fa-solid fa-file-invoice"></i> <span id="fdNo">DFT-2026-004128</span></h2>
+            <p>Fatura belgesinin künyesi ve kalem dökümü.</p>
+          </div>
+          <span class="fd-durum"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Ödendi</span>
+        </div>
+        <div class="pc-body">
+
+          <dl class="fd-kunye">
+            <div><dt>Fatura no</dt><dd id="fdNo2">DFT-2026-004128</dd></div>
+            <div><dt>Düzenlenme</dt><dd id="fdTarih">15 Ağustos 2026</dd></div>
+            <div><dt>Dönem</dt><dd id="fdDonem">15 Ağu – 14 Eyl 2026</dd></div>
+            <div><dt>Tutar</dt><dd id="fdTutar">₺99,00</dd></div>
+          </dl>
+
+          <div class="fd-taraf">
+            <section>
+              <h3>Düzenleyen</h3>
+              <p data-placeholder="fatura-satici-kunyesi"><b>DadaFit</b><br />Ticari unvan, adres, vergi dairesi ve vergi numarası satışa açılmadan önce yazılacak.</p>
+            </section>
+            <section>
+              <h3>Alıcı</h3>
+              <p><b>Elif Şahin</b><br />TCKN ••••••••••1<br />Bağdat Cad. No:14 D:3<br />Kadıköy / İstanbul</p>
+            </section>
+          </div>
+
+          <table class="fd-tablo">
+            <caption class="sr-only">Fatura kalemleri</caption>
+            <thead>
+              <tr><th scope="col">Kalem</th><th scope="col" class="sag">Adet</th><th scope="col" class="sag">Birim</th><th scope="col" class="sag">Tutar</th></tr>
+            </thead>
+            <tbody id="fdKalemler">
+              <tr>
+                <td><b>DadaFit Pro — Aylık</b><small>Platform paketi · 15 Ağu – 14 Eyl 2026 dönemi</small></td>
+                <td class="sag">1</td><td class="sag">₺99,00</td><td class="sag">₺99,00</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ul class="fd-toplam">
+            <li><span>Ara toplam</span><span id="fdAra">₺83,90</span></li>
+            <li><span>KDV (%20)</span><span id="fdKdv">₺16,10</span></li>
+            <li class="genel"><span>Genel toplam</span><span id="fdGenel">₺99,00</span></li>
+          </ul>
+        </div>
+        <div class="pc-foot">
+          <span class="note">Tutarlar kuruş tabanlı tutulur ve gösterimde biçimlendirilir.</span>
+        </div>
+      </div>
+
+      <div class="pnl-card">
+        <div class="pc-head">
+          <div>
+            <h2 class="pc-title"><i class="fa-regular fa-credit-card"></i> Ödeme</h2>
+            <p>Bu fatura hangi yöntemle ve ne zaman tahsil edildi.</p>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="fd-odeme">
+            <span class="cc"><i class="fa-brands fa-cc-visa" aria-hidden="true"></i> Visa •••• 4242</span>
+            <span>15 Ağustos 2026, 09:14 · tek çekim</span>
+          </div>
+          <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kart bilgileri ödeme sağlayıcısında saklanır; DadaFit tam kart numarasını görmez, yalnız markayı ve son dört haneyi tutar.</p>
+        </div>
+        <div class="pc-foot">
+          <span class="note">Faturayla ilgili bir sorun mu var?</span>
+          <a class="btn btn-ghost" href="destek-talepleri-v1.html#yeni-talep" style="margin-left:auto;padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-headset"></i> Destek Talebi Aç</a>
+        </div>
+      </div>
+
+      <p class="hs-state" id="fdDurumNot" role="status" style="margin-top:14px;font-size:12.5px;color:var(--muted);font-weight:500;display:flex;align-items:flex-start;gap:8px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bu prototipte indirilebilir bir fatura belgesi üretilmez; "Yazdır" tarayıcının kendi yazdırma penceresini açar.</span></p>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak) -->
+<script src="assets/js/fit-shell.js"></script>
+<script>
+/* =====================================================================
+ SAYFA JS — fatura detayı
+ `?fatura=<no>` ile hangi belgenin açıldığı yazılır. Kayıt burada duruyor
+ çünkü Fit'te sunucu yok; hesabim-v1'in listesindeki dört numara birebir
+ aynı. Tanınmayan numara gelirse ilk faturaya düşer (hesap sayfasının
+ sekme davranışıyla aynı ilke: sessizce ilk kayda düş).
+ ⚠ BACKEND YOK: PDF üretilmez. "PDF İndir" de yazdırma penceresini açar
+ ve durum satırı bunu açıkça söyler — sahte dosya indirtilmez.
+ ===================================================================== */
+(function(){
+  var FATURA={
+    'DFT-2026-004128':{tarih:'15 Ağustos 2026',donem:'15 Ağu – 14 Eyl 2026',
+      kalem:[['DadaFit Pro — Aylık','Platform paketi · 15 Ağu – 14 Eyl 2026 dönemi',1,9900]],
+      kart:'Visa •••• 4242', marka:'fa-cc-visa', saat:'15 Ağustos 2026, 09:14'},
+    'DFT-2026-003901':{tarih:'20 Temmuz 2026',donem:'Tek seferlik',
+      kalem:[['Antrenör paketi — Mert Özkan','Birebir seans · 5 seanslık paket',1,225000]],
+      kart:'Visa •••• 4242', marka:'fa-cc-visa', saat:'20 Temmuz 2026, 14:02'},
+    'DFT-2026-004095':{tarih:'2 Ağustos 2026',donem:'2 Ağu – 1 Eyl 2026',
+      kalem:[['Antrenör paketi — Selin Aksoy','Kuvvet Temeli · ayda 4 online seans',1,140000]],
+      kart:'Visa •••• 4242', marka:'fa-cc-visa', saat:'2 Ağustos 2026, 08:31'},
+    'DFT-2026-003844':{tarih:'15 Temmuz 2026',donem:'15 Tem – 14 Ağu 2026',
+      kalem:[['DadaFit Pro — Aylık','Platform paketi · 15 Tem – 14 Ağu 2026 dönemi',1,9900]],
+      kart:'Visa •••• 4242', marka:'fa-cc-visa', saat:'15 Temmuz 2026, 09:11'},
+    'DFT-2026-003512':{tarih:'15 Haziran 2026',donem:'15 Haz – 14 Tem 2026',
+      kalem:[['DadaFit Pro — Aylık','Platform paketi · 15 Haz – 14 Tem 2026 dönemi',1,9900]],
+      kart:'Visa •••• 4242', marka:'fa-cc-visa', saat:'15 Haziran 2026, 09:08'}
+  };
+  var ILK='DFT-2026-004128';
+
+  /* tutarlar KURUŞ tamsayısı tutulur, gösterimde biçimlenir (sözleşme §1.5) */
+  function tl(kurus){
+    var t=Math.round(kurus)/100;
+    return '₺'+t.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d),)/g,'.');
+  }
+  function esc(t){ return String(t).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  var no=new URLSearchParams(location.search).get('fatura');
+  if(!no || !FATURA[no]) no=ILK;
+  var F=FATURA[no];
+
+  document.getElementById('fdCrumb').textContent=no;
+  document.getElementById('fdNo').textContent=no;
+  document.getElementById('fdNo2').textContent=no;
+  document.getElementById('fdTarih').textContent=F.tarih;
+  document.getElementById('fdDonem').textContent=F.donem;
+  document.title=no+' — Fatura Detayı · DadaFit';
+
+  var toplam=0, satirlar='';
+  F.kalem.forEach(function(k){
+    var tutar=k[2]*k[3]; toplam+=tutar;
+    satirlar+='<tr><td><b>'+esc(k[0])+'</b><small>'+esc(k[1])+'</small></td>'+
+              '<td class="sag">'+k[2]+'</td><td class="sag">'+tl(k[3])+'</td>'+
+              '<td class="sag">'+tl(tutar)+'</td></tr>';
+  });
+  document.getElementById('fdKalemler').innerHTML=satirlar;
+
+  /* KDV %20 dâhil fiyattan ayrıştırılır — oran burada TEK YERDE durur */
+  var KDV=20;
+  var ara=Math.round(toplam/(1+KDV/100));
+  document.getElementById('fdAra').textContent=tl(ara);
+  document.getElementById('fdKdv').textContent=tl(toplam-ara);
+  document.getElementById('fdGenel').textContent=tl(toplam);
+  document.getElementById('fdTutar').textContent=tl(toplam);
+
+  var cc=document.querySelector('.fd-odeme .cc');
+  if(cc) cc.innerHTML='<i class="fa-brands '+F.marka+'" aria-hidden="true"></i> '+esc(F.kart);
+  var saat=document.querySelector('.fd-odeme span:last-child');
+  if(saat) saat.textContent=F.saat+' · tek çekim';
+
+  function yazdir(){ window.print(); }
+  document.getElementById('fdYazdir').addEventListener('click',yazdir);
+  document.getElementById('fdIndir').addEventListener('click',function(){
+    var not=document.getElementById('fdDurumNot');
+    if(not) not.querySelector('span').innerHTML=
+      'Bu prototipte indirilebilir bir belge üretilmez. Tarayıcının yazdırma penceresi açılıyor; ' +
+      'oradan <b>PDF olarak kaydet</b> seçeneğini kullanabilirsin.';
+    setTimeout(yazdir,400);
+  });
+})();
+</script>
+</body>
+</html>

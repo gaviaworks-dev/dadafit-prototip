@@ -61,6 +61,13 @@
    sığmayıp sarabiliyor; sayfa JS'i rayı ölçüp bu değişkeni yazar.
    Buradaki 128px, JS'ten önceki ilk boyamada geçerli güvenli tabandır. */
 .hs-sec{scroll-margin-top:var(--hs-anchor-pad,128px)}
+/* K27 · panel gizleme. `hidden` niteliği kullanılıyor (erişilebilirlik
+   ağacından da düşsün); bazı sıfırlamalar display'i ezdiği için kural
+   açıkça yazıldı. İşaretlemede hiçbir panel `hidden` DOĞMAZ — gizlemeyi
+   JS yapar, böylece JS düşerse hepsi açık kalır ve çapalar çalışır. */
+.hs-sec[hidden]{display:none}
+.hs-sec:focus{outline:none}
+.hs-sec:focus-visible{outline:3px solid var(--fit);outline-offset:6px;border-radius:var(--radius-lg)}
 .hs-sec>h2{font-size:15px;font-weight:800;letter-spacing:.02em;color:var(--slate-2);margin-bottom:12px;display:flex;align-items:center;gap:10px}
 .hs-sec>h2 .hs-no{flex:none;width:24px;height:24px;border-radius:var(--radius-circle);background:var(--fit-wash);color:var(--fit-deep);font-size:11.5px;font-weight:800;display:grid;place-items:center}
 
@@ -425,25 +432,35 @@
 <section class="hs-body">
   <div class="wrap">
 
-    <!-- BÖLÜM RAYI — kabuk .pf-tabbar/.pf-tabs/.dt kiti, kalemler gerçek çapa
-         bağlantısı. Sekme DEĞİL: bu sayfanın bölümleri gizlenmiyor, ray yalnız
-         atlama listesi. Sebep ölçülebilir: kabuk hesap menüsü 47 sayfada
-         hesabim-v1.html#bildirim / #uyelik / #odeme / #fatura / #guvenlik /
-         #dil / #dondur / #sil adreslerine bağlanıyor; gizli sekme panelinde
-         duran bir çapaya tarayıcı kaydırmaz. Bölümler açıkta → çapalar
-         JS olmadan da çalışır. -->
+    <!-- BÖLÜM RAYI — kabuk .pf-tabbar/.pf-tabs/.dt kiti.
+         K27 · Beyar: "buradaki tablar onepage olmuş, böyle olmayacak; her
+         tabe tıklanınca alttaki sayfa değişsin, render olsun."
+         Ray artık GERÇEK SEKME (WAI-ARIA tabs deseni): tablist + tab +
+         tabpanel, ok tuşlarıyla gezinme, gezici tabindex. Kalıp
+         uydurulmadı — depoda zaten çalışan panel değiştiren sekme var
+         (`challenge-v1.html` `.chl-tb`/`.chl-pane`), oradaki sözleşme
+         ARIA deseniyle tamamlandı.
+
+         47 SAYFADAN GELEN DERİN BAĞLANTI KORUNDU. Kalemler `<a href="#id">`
+         OLARAK KALDI ve paneller işaretlemede AÇIK doğuyor; gizlemeyi JS
+         yapıyor (aşamalı iyileştirme). Yani JS düşerse sayfa eski hâline
+         döner, bütün çapalar yine çalışır — kabuk hesap menüsünün
+         `hesabim-v1.html#bildirim` / `#uyelik` / `#odeme` / `#fatura` /
+         `#guvenlik` / `#dil` / `#dondur` / `#sil` bağlantıları kırılmaz.
+         JS varken aynı adresler doğru sekmeyi AÇIYOR; geri/ileri tuşu ve
+         sayfa içi `<a href="#odeme">` gibi bağlantılar da sekme değiştiriyor. -->
     <div class="pf-tabbar hs-rail">
-      <nav class="pf-tabs" id="hsRail" aria-label="Hesap ayarları bölümleri">
-        <a class="dt" href="#profil"><i class="fa-solid fa-id-card"></i> Profil</a>
-        <a class="dt" href="#bildirim"><i class="fa-regular fa-bell"></i> Bildirimler</a>
-        <a class="dt" href="#uyelik"><i class="fa-solid fa-crown"></i> Üyelik</a>
-        <a class="dt" href="#odeme"><i class="fa-solid fa-receipt"></i> Ödeme</a>
-        <a class="dt" href="#fatura"><i class="fa-solid fa-file-invoice"></i> Faturalar</a>
-        <a class="dt" href="#guvenlik"><i class="fa-solid fa-lock"></i> Güvenlik</a>
-        <a class="dt" href="#dil"><i class="fa-solid fa-globe"></i> Dil ve Bölge</a>
-        <a class="dt" href="#diger"><i class="fa-solid fa-shield-halved"></i> Diğer Modüller</a>
-        <a class="dt" href="#dondur"><i class="fa-solid fa-circle-pause"></i> Dondurma</a>
-        <a class="dt" href="#sil"><i class="fa-solid fa-user-xmark"></i> Hesap Silme</a>
+      <nav class="pf-tabs" id="hsRail" role="tablist" aria-label="Hesap ayarları bölümleri">
+        <a class="dt" role="tab" id="tab-profil" href="#profil" aria-controls="profil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-id-card"></i> Profil</a>
+        <a class="dt" role="tab" id="tab-bildirim" href="#bildirim" aria-controls="bildirim" aria-selected="false" tabindex="-1"><i class="fa-regular fa-bell"></i> Bildirimler</a>
+        <a class="dt" role="tab" id="tab-uyelik" href="#uyelik" aria-controls="uyelik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-crown"></i> Üyelik</a>
+        <a class="dt" role="tab" id="tab-odeme" href="#odeme" aria-controls="odeme" aria-selected="false" tabindex="-1"><i class="fa-solid fa-receipt"></i> Ödeme</a>
+        <a class="dt" role="tab" id="tab-fatura" href="#fatura" aria-controls="fatura" aria-selected="false" tabindex="-1"><i class="fa-solid fa-file-invoice"></i> Faturalar</a>
+        <a class="dt" role="tab" id="tab-guvenlik" href="#guvenlik" aria-controls="guvenlik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-lock"></i> Güvenlik</a>
+        <a class="dt" role="tab" id="tab-dil" href="#dil" aria-controls="dil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-globe"></i> Dil ve Bölge</a>
+        <a class="dt" role="tab" id="tab-diger" href="#diger" aria-controls="diger" aria-selected="false" tabindex="-1"><i class="fa-solid fa-shield-halved"></i> Diğer Modüller</a>
+        <a class="dt" role="tab" id="tab-dondur" href="#dondur" aria-controls="dondur" aria-selected="false" tabindex="-1"><i class="fa-solid fa-circle-pause"></i> Dondurma</a>
+        <a class="dt" role="tab" id="tab-sil" href="#sil" aria-controls="sil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-xmark"></i> Hesap Silme</a>
       </nav>
     </div>
 
@@ -452,7 +469,7 @@
       <!-- ============================================================
        1 · PROFİL BİLGİLERİM  (§5)
        ============================================================ -->
-      <section class="hs-sec" id="profil" aria-labelledby="profilH">
+      <section class="hs-sec" id="profil" role="tabpanel" tabindex="0" aria-labelledby="tab-profil">
         <form class="form-card" data-savecard>
           <div class="fc-head">
             <div>
@@ -578,7 +595,7 @@
       <!-- ============================================================
        2 · BİLDİRİM TERCİHLERİM  (§5 · kabuk çapası #bildirim)
        ============================================================ -->
-      <section class="hs-sec" id="bildirim" aria-labelledby="bildirimH">
+      <section class="hs-sec" id="bildirim" role="tabpanel" tabindex="0" aria-labelledby="tab-bildirim">
         <form class="form-card" data-savecard>
           <div class="fc-head">
             <div>
@@ -665,7 +682,7 @@
        Ödeme geçmişi ve faturalar kendi bölümlerinde (#odeme / #fatura),
        çünkü kabuk menüsü onlara ayrı ayrı bağlanıyor.
        ============================================================ -->
-      <section class="hs-sec" id="uyelik" aria-labelledby="uyelikH">
+      <section class="hs-sec" id="uyelik" role="tabpanel" tabindex="0" aria-labelledby="tab-uyelik">
         <div class="form-card">
           <div class="fc-head">
             <div>
@@ -774,7 +791,7 @@
       <!-- ============================================================
        4 · ÖDEME GEÇMİŞİM  (§5 · §15 · kabuk çapası #odeme)
        ============================================================ -->
-      <section class="hs-sec" id="odeme" aria-labelledby="odemeH">
+      <section class="hs-sec" id="odeme" role="tabpanel" tabindex="0" aria-labelledby="tab-odeme">
         <div class="form-card">
           <div class="fc-head">
             <div>
@@ -862,7 +879,7 @@
       <!-- ============================================================
        5 · FATURALARIM  (§5 · §15 · kabuk çapası #fatura)
        ============================================================ -->
-      <section class="hs-sec" id="fatura" aria-labelledby="faturaH">
+      <section class="hs-sec" id="fatura" role="tabpanel" tabindex="0" aria-labelledby="tab-fatura">
         <div class="form-card">
           <div class="fc-head">
             <div>
@@ -926,7 +943,7 @@
       <!-- ============================================================
        6 · GÜVENLİK  (§5 · kabuk çapası #guvenlik)
        ============================================================ -->
-      <section class="hs-sec" id="guvenlik" aria-labelledby="guvenlikH">
+      <section class="hs-sec" id="guvenlik" role="tabpanel" tabindex="0" aria-labelledby="tab-guvenlik">
         <form class="form-card" data-savecard>
           <div class="fc-head">
             <div>
@@ -1033,7 +1050,7 @@
        eski sayfada tarif/porsiyon tercihi vardı, burada hareket ve
        enerji ölçüsü var.
        ============================================================ -->
-      <section class="hs-sec" id="dil" aria-labelledby="dilH">
+      <section class="hs-sec" id="dil" role="tabpanel" tabindex="0" aria-labelledby="tab-dil">
         <form class="form-card" data-savecard>
           <div class="fc-head">
             <div>
@@ -1147,7 +1164,7 @@
        de doğrudan o sayfalara bağlanıyor. Burada yalnız yönlendirme var,
        böylece Hesabım alanı 14 modülün tamamını görünür kılıyor.
        ============================================================ -->
-      <section class="hs-sec" id="diger" aria-labelledby="digerH">
+      <section class="hs-sec" id="diger" role="tabpanel" tabindex="0" aria-labelledby="tab-diger">
         <div class="form-card">
           <div class="fc-head">
             <div>
@@ -1224,7 +1241,7 @@
        çalışmaz ve uyarı yalnız renkle değil ikon + "Uyarı:" metni +
        kilitli düğme durumu ile verilir.
        ============================================================ -->
-      <section class="hs-sec" id="dondur" aria-labelledby="dondurH">
+      <section class="hs-sec" id="dondur" role="tabpanel" tabindex="0" aria-labelledby="tab-dondur">
         <div class="warn-card">
           <div class="fc-head">
             <div>
@@ -1277,7 +1294,7 @@
        ifadesini elle yazmak zorunda. Uyarı ikon + "Uyarı:" metni +
        kilitli düğme + durum satırıyla verilir, renkle değil.
        ============================================================ -->
-      <section class="hs-sec" id="sil" aria-labelledby="silH">
+      <section class="hs-sec" id="sil" role="tabpanel" tabindex="0" aria-labelledby="tab-sil">
         <div class="danger-card">
           <div class="fc-head">
             <div>
@@ -1413,108 +1430,138 @@
  saklıyordu. Bu yüzden pay ölçülüp CSS değişkenine yazılır.
  --------------------------------------------------------------------- */
 (function(){
+  /* =====================================================================
+     K27 · GERÇEK SEKME — WAI-ARIA "tabs" deseni
+     ---------------------------------------------------------------------
+     Beyar: "buradaki tablar onepage olmuş, böyle olmayacak; her tabe
+     tıklanınca alttaki sayfa değişsin, render olsun."
+
+     ÖNCESİ: ray bir atlama listesiydi; on bölüm alt alta duruyor, tıklama
+     yalnız çapaya kaydırıyordu. Sayfa 900+ satırlık tek akıştı ve rayın
+     aktif kalemini bir kaydırma takipçisi (scrollspy) tahmin ediyordu —
+     devir notundaki "#uyelik/#odeme çapa gecikmesi" kusuru da buradan
+     geliyordu. Sekmeye geçince o takipçinin işi kalmadı, SİLİNDİ
+     (yerine bu blok geçti); `--hs-anchor-pad` ölçümü yalnız sticky rayın
+     altına saklanan başlıklar için vardı, tek panel görünürken gereksiz.
+
+     KALIP UYDURULMADI: depoda panel değiştiren sekme zaten var
+     (`challenge-v1.html` `.chl-tb`/`.chl-pane`); oradaki sözleşme
+     (tek aktif panel + aria-selected) ARIA tabs deseniyle tamamlandı —
+     ok tuşlarıyla gezinme, Home/End, gezici tabindex, panel odaklanabilir.
+
+     DERİN BAĞLANTI KORUNDU (§23): kalemler `<a href="#id">` kaldı,
+     paneller işaretlemede AÇIK doğuyor, gizlemeyi bu blok yapıyor.
+     JS düşerse sayfa eski hâline döner ve kabuk hesap menüsünün 47
+     sayfadan gelen `#bildirim`/`#uyelik`/… bağlantıları yine çalışır.
+     JS varken aynı adresler doğru sekmeyi açar; geri/ileri tuşu
+     (`hashchange`) ve sayfa içi `<a href="#odeme">` bağlantıları da
+     sekme değiştirir.
+     ===================================================================== */
   var rail = document.getElementById('hsRail');
-  var bar  = rail && rail.closest('.pf-tabbar');
-  if(!bar) return;
+  if(!rail) return;
+  var tabs   = [].slice.call(rail.querySelectorAll('.dt[role="tab"]'));
+  var panels = [].slice.call(document.querySelectorAll('.hs-sec[role="tabpanel"]'));
+  if(!tabs.length || !panels.length) return;
 
-  /* Sabit header payını kabuk veriyor (html{scroll-padding-top}); burada
-     yalnız sticky rayın payı hesaplanır. İkisini de eklemek 112px fazladan
-     boşluk üretiyordu (ölçüldü). */
-  function chromePad(){
-    var sp = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
-    return isNaN(sp) ? 0 : sp;
-  }
-  function syncPad(){
-    var pad = Math.round(bar.offsetHeight + 16);
-    document.documentElement.style.setProperty('--hs-anchor-pad', pad + 'px');
-    return pad;
-  }
+  var VARSAYILAN = tabs[0].getAttribute('aria-controls');
 
-  /* ---- ray: aktif bölüm işareti ----
-     mark() land()'den ÖNCE tanımlanır: land() ilk çağrıda mark()'ı kullanıyor
-     ve `var links` hoisting'i yüzünden aşağıda kalırsa değeri undefined olur
-     (ölçüldü: "Cannot read properties of undefined (reading 'forEach')"
-     atılıyor, IIFE'nin kalanı — scroll dinleyicisi dahil — hiç kurulmuyordu). */
-  var links = [].slice.call(rail.querySelectorAll('.dt'));
-  function mark(id){
-    links.forEach(function(a){
-      var on = a.getAttribute('href') === '#' + id;
-      a.classList.toggle('active', on);
-      if(on) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current');
-    });
-  }
-  links.forEach(function(a){
-    a.addEventListener('click', function(){ mark(a.getAttribute('href').slice(1)); });
-  });
-
-  /* Tarayıcı sayfayı çapaya, pay hesaplanmadan ÖNCE kaydırmış olabilir
-     (ikon fontu/görsel geldikçe yükseklikler de oynar). Payı yazdıktan
-     sonra hedefe bir kez daha götür. */
-  function land(){
-    var h = location.hash;
-    if(!h || h.length < 2) return;
-    var el = null;
-    try{ el = document.querySelector(h); }catch(e){ return; }
-    if(!el) return;
-    syncPad();
-    el.scrollIntoView();
-    mark(h.slice(1));
-  }
-
-  syncPad();
-  window.addEventListener('resize', syncPad, {passive:true});
-  window.addEventListener('load', function(){ land(); });
-  land();
-  setTimeout(land, 260);
-
-  /* Kaydırma takibi: en üstteki, çapa payının altına girmiş bölüm aktiftir.
-     IntersectionObserver yerine basit ölçüm — bölüm sayısı 10, maliyet yok. */
-  var secs = [].slice.call(document.querySelectorAll('.hs-sec[id]'));
-  var raf = 0, tail = 0;
-  function spy(){
-    raf = 0;
-    var pad = chromePad() +
-      (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hs-anchor-pad')) || 128);
-    var cur = secs[0];
-    for(var i=0;i<secs.length;i++){
-      if(secs[i].getBoundingClientRect().top <= pad + 8) cur = secs[i];
-    }
-    /* sayfa sonunda son bölüm aktif kalsın */
-    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) cur = secs[secs.length-1];
-    if(cur) mark(cur.id);
-  }
-  /* rAF anlık tepki verir; kuyruktaki setTimeout kaydırma DURDUKTAN sonra son
-     ölçümü alır — yumuşak kaydırma (html{scroll-behavior:smooth}) sırasında
-     yalnız rAF'e güvenmek bayrağı animasyonun ortasında dondurabiliyor. */
-  window.addEventListener('scroll', function(){
-    if(!raf) raf = requestAnimationFrame(spy);
-    clearTimeout(tail); tail = setTimeout(spy, 180);
-  }, {passive:true});
-  spy();
-})();
-
-/* ---------------------------------------------------------------------
- 2 · ESKİ DEEP-LINK ALIAS'I — bu sayfa Faz 2'ye kadar sekmeliydi ve dış
- bağlantılar ?tab=… ile geliyordu. Sekmeler bölüme dönüştüğü için o
- adresler artık çapaya çözülür; kırık deep-link bırakılmaz (§23).
- --------------------------------------------------------------------- */
-(function(){
-  if(location.hash) return;                   /* çapa varsa ona dokunma */
-  var t = new URLSearchParams(location.search).get('tab');
-  if(!t) return;
-  var map = {
+  /* Eski `?tab=` adresleri (sayfa Faz 2'ye kadar sekmeliydi, sonra bölüme
+     dönmüştü, şimdi yine sekme). Kırık deep-link bırakılmaz. */
+  var ALIAS = {
     profil:'profil', gizlilik:'profil',
     bildirim:'bildirim',
     sifre:'guvenlik', guvenlik:'guvenlik',
     uyelik:'uyelik', abonelik:'uyelik', abonelikler:'uyelik', uyelikler:'uyelik',
     kartlarim:'odeme', odeme:'odeme',
     adreslerim:'fatura', fatura:'fatura',
-    dil:'dil', dondur:'dondur', sil:'sil'
+    dil:'dil', diger:'diger', dondur:'dondur', sil:'sil'
   };
-  var id = map[t];
-  var el = id && document.getElementById(id);
-  if(el) el.scrollIntoView();
+
+  function panelBul(id){
+    for(var i=0;i<panels.length;i++) if(panels[i].id===id) return panels[i];
+    return null;
+  }
+
+  /* Görünür tek panel + rayın tek durağı. `odakla` yalnız gerçek kullanıcı
+     hareketinde true: derin bağlantıyla açılışta odak çalınmaz. */
+  function ac(id, odakla){
+    if(!panelBul(id)) id = VARSAYILAN;
+    tabs.forEach(function(t){
+      var on = t.getAttribute('aria-controls') === id;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      /* gezici tabindex: Tab rayda TEK durak açar, içinde ok tuşlarıyla
+         gezilir (kabuk anatomi haritasında da aynı desen). */
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      if(on) t.setAttribute('aria-current','true'); else t.removeAttribute('aria-current');
+    });
+    panels.forEach(function(pn){
+      if(pn.id === id) pn.removeAttribute('hidden'); else pn.setAttribute('hidden','');
+    });
+    if(odakla){
+      var t = rail.querySelector('.dt[aria-controls="' + id + '"]');
+      if(t && t.focus) t.focus();
+      /* Yeni panel baştan okunsun: sticky ray ekranda kalacak şekilde
+         rayın üstüne dön. Sabit header payını kabuk veriyor
+         (html{scroll-padding-top}), burada tekrarlanmaz. */
+      var bar = rail.closest('.pf-tabbar');
+      if(bar){
+        var ust = bar.getBoundingClientRect().top + window.scrollY -
+                  (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
+        if(window.scrollY > ust) window.scrollTo({top:ust, behavior:'smooth'});
+      }
+    }
+    return id;
+  }
+
+  function adresten(){
+    var h = (location.hash || '').slice(1);
+    if(h && panelBul(h)) return h;
+    var t = new URLSearchParams(location.search).get('tab');
+    if(t && ALIAS[t] && panelBul(ALIAS[t])) return ALIAS[t];
+    return VARSAYILAN;
+  }
+
+  /* Tıklama: varsayılan çapa kaydırması KESİLİR (panel zaten görünür olacak);
+     adres çubuğu pushState ile güncellenir → geri tuşu sekmeler arasında gezer. */
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      var id = t.getAttribute('aria-controls');
+      if(location.hash.slice(1) !== id) history.pushState({tab:id}, '', '#' + id);
+      ac(id, true);
+    });
+  });
+
+  /* Klavye — ARIA tabs deseni: ok tuşları sekme değiştirir, Home/End uçlara. */
+  rail.addEventListener('keydown', function(e){
+    var i = tabs.indexOf(document.activeElement);
+    if(i < 0) return;
+    var j = null;
+    if(e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % tabs.length;
+    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + tabs.length) % tabs.length;
+    else if(e.key === 'Home') j = 0;
+    else if(e.key === 'End') j = tabs.length - 1;
+    if(j === null) return;
+    e.preventDefault();
+    var id = tabs[j].getAttribute('aria-controls');
+    history.pushState({tab:id}, '', '#' + id);
+    ac(id, true);
+  });
+
+  /* Sayfa içi `<a href="#odeme">` gibi bağlantılar ve geri/ileri tuşu */
+  window.addEventListener('hashchange', function(){ ac(adresten(), false); });
+  window.addEventListener('popstate',  function(){ ac(adresten(), false); });
+
+  ac(adresten(), false);
 })();
+
+/* ---------------------------------------------------------------------
+ 2 · ESKİ DEEP-LINK ALIAS'I — `?tab=…` haritası K27'de sekme denetleyicisinin
+ İÇİNE taşındı (yukarıdaki ALIAS tablosu). Ayrı IIFE kaldırıldı: iki yerde
+ iki harita tutmak, biri güncellenip diğeri unutulduğunda sessiz kırık
+ deep-link üretiyordu.
+ --------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------
  3 · FORM DAVRANIŞLARI

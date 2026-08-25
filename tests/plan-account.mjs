@@ -76,7 +76,12 @@ const RAY_DISI = ['fit-planim-gecmis-v1.html', 'fit-planim-kaydettiklerim-v1.htm
 const UYELIK = [
   ['kademe yok', { auth: true, roles: ['kullanici'] }, "Pro'ya Yükselt", 'pro-v1.html'],
   ['pro', { auth: true, roles: ['kullanici'], paket: 'pro' }, 'Aboneliğim', 'uyelik-faturalandirma-v1.html'],
-  ['pro_max', { auth: true, roles: ['kullanici'], paket: 'pro_max' }, 'Pro Max Üyeliğim', 'uyelik-faturalandirma-v1.html'],
+  /* P8 (2026-08-25) · paket ad alanı tekleşti: `pro_max` → `pro_max_ai`,
+     etiket "Pro Max AI Üyeliğim". İkinci satır, tarayıcıda kalmış ESKİ demo
+     kaydının (`pro_max`) sessizce yeni ada düştüğünü kilitler — göç akışı
+     değil, kabuktaki tek satırlık normalizasyon. */
+  ['pro_max_ai', { auth: true, roles: ['kullanici'], paket: 'pro_max_ai' }, 'Pro Max AI Üyeliğim', 'uyelik-faturalandirma-v1.html'],
+  ['eski pro_max kaydı', { auth: true, roles: ['kullanici'], paket: 'pro_max' }, 'Pro Max AI Üyeliğim', 'uyelik-faturalandirma-v1.html'],
   ['ödeme sorunu', { auth: true, roles: ['kullanici'], paket: 'pro', odemeSorunu: true },
     'Aboneliğim — İşlem Gerekli', 'uyelik-faturalandirma-v1.html']
 ];

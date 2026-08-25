@@ -89,9 +89,15 @@ Yenileme tarihi · Ödeme geçmişi · Faturalar · Paket değiştirme · Abonel
 - Ücretsiz: Temel egzersiz kütüphanesi · Başlangıç programı · Temel Enerji Defteri ·
   Su takibi · Temel Challenge · Hareket Rehberi
 - Pro: Tüm programlar · Video seansları · Gelişmiş ilerleme · Fit Testleri ·
-  Aktivite ve cihaz bağlantıları · Program önerileri · Gelişmiş Challenge sistemi
-- Pro Max: Pro özelliklerinin tamamı · Antrenör görüşmesi avantajları · Kişisel program
-  değerlendirmesi · Dada Diet entegrasyonu · Dada Gastro tarif önerileri · Öncelikli destek
+  Aktivite ve cihaz bağlantıları · Program önerileri · Gelişmiş Challenge sistemi ·
+  Antrenör görüşmesi avantajları · Kişisel program değerlendirmesi · Öncelikli destek ·
+  Dada Diet entegrasyonu · Dada Gastro tarif önerileri
+- Pro Max AI: Pro'nun tamamı + yapay zekâ katmanı. 🔴 **SATIŞA KAPALI** (P3) —
+  vitrinde görünür, satın alma yolu açılmaz; AI özelliklerinin hiçbiri yazılmaz.
+
+⚠ P8 (2026-08-25): üçüncü kademenin adı **Pro Max AI**'dır ve dört markada aynıdır.
+Eski "Pro Max" adı bu üçlünün dışındaydı; içeriği AI değil antrenör/ekosistem
+paketiydi ve o kalemler Pro'ya taşındı.
 
 "Paketlerin içerikleri **karşılaştırma tablosunda** açıkça gösterilmelidir."
 `pro-v1.html` ve `pro-odeme-v1.html` ile çelişme — ikisini de oku, aynı adları kullan.

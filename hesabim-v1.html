@@ -410,11 +410,17 @@
     </nav>
     <div class="fp-kapak" data-fit-px style="--px-img:url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-18')">
       <span class="fp-kapak-mark"><i class="fa-solid fa-gear"></i> Hesabım · kişisel alanın</span>
-      <button type="button" class="fp-kapak-edit" data-photo-edit="kapak" title="JPG veya PNG, en az 200×200 px. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i> Kapağı Değiştir</button>
+      <!-- SÖZLEŞME §4.2 · İ3 — SAYI DEĞİL, TÜRETME BAĞLANIR.
+           Kapağın en küçük genişliği kabuğun kendi ölçüsünden çıkar:
+           `--wrap:1240px` (fit-shell.css :root) eksi `.wrap` yatay dolgusu
+           2×32px = **1176px**. 2x retina çarpımı YAPILMAZ (component-token
+           §6). Yükseklik kapak şeridinin CSS yüksekliğinden gelir: 240px.
+           Profil fotoğrafı kare kırpıldığı için en küçük kenar 200px. -->
+      <button type="button" class="fp-kapak-edit" data-photo-edit="kapak" title="JPG veya PNG, en az 1176×240 px, en çok 5 MB. Şerit olarak kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i> Kapağı Değiştir</button>
     </div>
     <div class="fp-kimlik">
       <span class="fp-ava2" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')">
-        <button type="button" class="fp-ava-edit" data-photo-edit="avatar" aria-label="Profil fotoğrafını değiştir" title="JPG veya PNG, en az 200×200 px. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i></button>
+        <button type="button" class="fp-ava-edit" data-photo-edit="avatar" aria-label="Profil fotoğrafını değiştir" title="JPG veya PNG, en az 200×200 px, en çok 5 MB. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i></button>
       </span>
       <div class="fp-kimlik-id">
         <h1>Elif Şahin</h1>
@@ -453,7 +459,7 @@
       <nav class="pf-tabs" id="hsRail" role="tablist" aria-label="Hesap ayarları bölümleri">
         <a class="dt" role="tab" id="tab-profil" href="#profil" aria-controls="profil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-id-card"></i> Profil</a>
         <a class="dt" role="tab" id="tab-bildirim" href="#bildirim" aria-controls="bildirim" aria-selected="false" tabindex="-1"><i class="fa-regular fa-bell"></i> Bildirimler</a>
-        <a class="dt" role="tab" id="tab-uyelik" href="#uyelik" aria-controls="uyelik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-crown"></i> Üyelik</a>
+        <a class="dt" role="tab" id="tab-uyelik" href="#uyelik" aria-controls="uyelik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-crown"></i> Üyelik ve Paketler</a>
         <a class="dt" role="tab" id="tab-odeme" href="#odeme" aria-controls="odeme" aria-selected="false" tabindex="-1"><i class="fa-solid fa-receipt"></i> Ödeme</a>
         <a class="dt" role="tab" id="tab-fatura" href="#fatura" aria-controls="fatura" aria-selected="false" tabindex="-1"><i class="fa-solid fa-file-invoice"></i> Faturalar</a>
         <a class="dt" role="tab" id="tab-guvenlik" href="#guvenlik" aria-controls="guvenlik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-lock"></i> Güvenlik</a>
@@ -485,7 +491,7 @@
                ("JPG veya PNG, en az 200×200 px. Kare kırpılır.") kaybolmadı
                — hem yeni düğmelerin `title` ipucunda hem aşağıdaki satırda
                yaşıyor. -->
-          <p class="fk-help" id="fotoDurum" role="status" style="margin-bottom:22px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Fotoğrafını kartın üstündeki <i class="fa-solid fa-camera" aria-hidden="true"></i> düğmelerinden değiştirebilirsin — JPG veya PNG, en az 200×200 px, kare kırpılır.</span></p>
+          <p class="fk-help" id="fotoDurum" role="status" style="margin-bottom:22px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Fotoğrafını kartın üstündeki <i class="fa-solid fa-camera" aria-hidden="true"></i> düğmelerinden değiştirebilirsin — JPG veya PNG, en çok 5 MB. Profil fotoğrafı en az 200×200 px (kare kırpılır), kapak en az 1176×240 px (şerit kırpılır).</span></p>
 
           <div class="fk-grid c2">
             <div class="fk-field">
@@ -645,7 +651,18 @@
             </div>
           </div>
 
+          <!-- SÖZLEŞME §1.4 · GÜVENLİK BİLDİRİMİ MATRİSİN DIŞINDADIR.
+               Diet emsali (`GUVENLIK_KONUSU = 'supheli-giris'`): yoksa
+               kullanıcı güvenlik uyarısını kampanya e-postasıyla aynı ızgarada
+               görür ve kapatabilir. Bu yüzden satır yukarıdaki 7×2 matrisin
+               İÇİNDE DEĞİL, altında ve anahtarsız duruyor — kapatılamaz.
+               Kanal alanı da yok: konu × kanal ızgarasına hiç girmez. -->
           <div class="set-list" style="margin-top:8px;border-top:1px solid var(--line)">
+            <div class="set-row">
+              <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+              <div class="sr-txt"><b>Güvenlik uyarıları</b><span>Yeni cihazdan giriş, şifre değişikliği ve iki adımlı doğrulama işlemleri her zaman e-posta ile bildirilir. Bu bildirim kapatılamaz.</span></div>
+              <span class="sr-on"><i class="fa-solid fa-lock" aria-hidden="true"></i> Her zaman açık</span>
+            </div>
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
               <div class="sr-txt"><b>Hatırlatma saati</b><span>Günlük hareket hatırlatmasının varsayılan saati.</span></div>
@@ -676,18 +693,35 @@
       </section>
 
       <!-- ============================================================
-       3 · ÜYELİK VE PAKETİM  (§5 · §15 · kabuk çapası #uyelik)
+       3 · ÜYELİK VE PAKETLER  (§5 · §15 · kabuk çapası #uyelik)
        Belge §15'in istediği alanlar: aktif paket · başlangıç · bitiş ·
        yenileme tarihi · paket değiştirme · abonelik iptali.
        Ödeme geçmişi ve faturalar kendi bölümlerinde (#odeme / #fatura),
        çünkü kabuk menüsü onlara ayrı ayrı bağlanıyor.
+
+       🔴 SÖZLEŞME §1.6 · BU ÇAPADA İKİ AYRI KUTU VAR, KARIŞTIRILMAZLAR:
+         KUTU 1 — PLATFORM PAKETİ. DadaFit'e ödenir. Ad alanı dört markada
+           tektir ve istisnasızdır (P8): **Ücretsiz · Pro · Pro Max AI**.
+           ⚠ ÜCRETSİZ PAKET BİR SATIR DEĞİLDİR — plansızlık t0'dır; ücretsiz
+           üyenin bu kutuda bir abonelik kaydı bulunmaz, yükseltme daveti
+           bulunur. ⚠ Pro Max AI vitrinde görünür ama SATIŞA KAPALIDIR (P3);
+           bu yüzden buradaki "Paketi Değiştir" yolu da o kademeye çıkmaz.
+         KUTU 2 — ANTRENÖR HİZMET PAKETİ. Antrenöre ödenir (K4 · P7/2).
+           Platform paketiyle aynı ad alanını PAYLAŞMAZ, bedeli abonelik
+           bedeline DÂHİL DEĞİLDİR (P5), ayrı tahsil edilir ve ayrı iptal
+           edilir.
+       🔴 ÜÇÜNCÜ BİR PARA İLİŞKİSİ YOKTUR. Üyeden üyeye ücretli abonelik
+       (Patreon modeli) yalnız Gastro'nundur; Fit'te kurulmaz (P7). Bu
+       çapada ve profil-v1.html'de o yapıya ait hiçbir kalan bırakılmadı.
+       ⚠ Komisyon · hakediş · alt sınır · fatura eşiği bu ekranda YOKTUR:
+       K13 gereği panelden okunur, Dalga 6'nın konusudur.
        ============================================================ -->
       <section class="hs-sec" id="uyelik" role="tabpanel" tabindex="0" aria-labelledby="tab-uyelik">
         <div class="form-card">
           <div class="fc-head">
             <div>
-              <h2 id="uyelikH"><i class="fa-solid fa-crown"></i> Üyelik ve Paketim</h2>
-              <p>Aktif paketin, dönem tarihleri ve yenileme durumu. Paketini değiştirebilir ya da aboneliğini iptal edebilirsin.</p>
+              <h2 id="uyelikH"><i class="fa-solid fa-crown"></i> DadaFit Üyeliğim</h2>
+              <p><b>Platform paketin</b> — DadaFit'e ödediğin site geneli üyelik. Aktif paketin, dönem tarihleri ve yenileme durumu burada; paketini değiştirebilir ya da aboneliğini iptal edebilirsin. Antrenör paketlerin <b>ayrı bir kutuda</b>, bu bölümün altında.</p>
             </div>
           </div>
 
@@ -719,9 +753,13 @@
             </div>
 
             <div class="sub-tier-acts">
-              <a class="btn btn-primary" href="pro-v1.html"><i class="fa-solid fa-arrows-up-down"></i> Paketi Değiştir</a>
+              <a class="btn btn-primary" href="uyelik-faturalandirma-v1.html#paket-degistir"><i class="fa-solid fa-arrows-up-down"></i> Paketi Değiştir</a>
               <a class="btn btn-ghost" href="pro-v1.html#karsilastir"><i class="fa-solid fa-table-list"></i> Paketleri Karşılaştır</a>
             </div>
+            <!-- P8 · Kademe üçlüsü: Ücretsiz · Pro · Pro Max AI. P3 gereği
+                 Pro Max AI vitrinde görünür ama SATIŞA KAPALIDIR; paket
+                 değiştirme ekranında o sütunun düğmesi kapalı gelir. -->
+            <p class="hs-state" style="margin-top:12px"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> <span>Kademeler: <b>Ücretsiz · Pro · Pro Max AI</b>. Pro Max AI henüz satışa açılmadı; kapsamı açıklandığında buradan yükseltebileceksin.</span></p>
           </div>
 
           <div class="set-list" style="margin-top:20px;border-top:1px solid var(--line)">
@@ -760,14 +798,25 @@
           <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Üyelik ve iptal koşullarının tamamı <a href="yasal-v1.html?metin=kullanim">kullanım koşullarında</a>. Faturalandırma soruların için <a href="destek-talepleri-v1.html">destek talebi</a> açabilirsin.</span></div>
         </div>
 
-        <!-- ANTRENÖR PAKETİ — DURUM ÖZETİ. Yönetim (randevu, mesaj, paket
-             değişimi) Planım › Antrenörüm sekmesinde; burada mükerrer
-             yönetim bloğu YOK, yalnız hesap tarafındaki tahsilat özeti. -->
+        <!-- ==========================================================
+             KUTU 2 · ANTRENÖR HİZMET PAKETLERİM  (K4 · P5 · P7/2)
+             Fit'in ikinci ve TEK diğer para ilişkisi: üye antrenörden
+             HİZMET satın alır. Bu kart, P7'nin sökülen üyeden-üyeye
+             abonelik yapısının yerine geçen yüzeydir ve tek satırlık
+             "tahsilat özeti"nden gerçek bir paket defterine büyütüldü:
+             paket tipi · dönem · SEANS HAKKI · durum · geçmiş paketler.
+             Randevu ve mesajlaşma hâlâ Planım › Antrenörüm'de — burada
+             mükerrer yönetim bloğu yok.
+             ⚠ BOŞ DURUM (makette çizilmedi, kural burada yazılı): hiç
+             paket yoksa liste yerine tek satırlık davet basılır —
+             "Henüz bir antrenör paketin yok" + antrenör dizini bağlantısı.
+             Boş kutu veya "yakında" BASILMAZ.
+             ========================================================== -->
         <div class="form-card" style="margin-top:18px">
           <div class="fc-head">
             <div>
-              <h2><i class="fa-solid fa-user-check"></i> Antrenör Paketlerim</h2>
-              <p>Antrenörle sürdürdüğün paketlerin tahsilat özeti. Randevu ve mesajlaşma <a href="fit-planim-randevular-v1.html" style="color:var(--fit-deep);font-weight:700">Planım › Antrenörüm</a> sekmesinde.</p>
+              <h2><i class="fa-solid fa-user-check"></i> Antrenör Hizmet Paketlerim</h2>
+              <p><b>DadaFit Pro üyeliğinden ayrı bir kutudur.</b> Bedeli antrenöre ödersin, ayrı tahsil edilir ve ayrı iptal edilir. Randevu ve mesajlaşma <a href="fit-planim-randevular-v1.html" style="color:var(--fit-deep);font-weight:700">Planım › Antrenörüm</a> sekmesinde.</p>
             </div>
           </div>
           <div class="uys-list">
@@ -775,16 +824,68 @@
               <span class="uys-ava" role="img" aria-label="Selin Aksoy" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
               <div class="uys-info">
                 <b>Selin Aksoy <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
-                <span class="uys-plan">Kuvvet Temeli — ayda 4 online seans</span>
-                <span class="uys-renew"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Sonraki yenileme: 2 Eylül 2026</span>
+                <span class="uys-plan">Kuvvet Temeli — aylık paket · ayda 4 online seans</span>
+                <span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> Bu dönemde 2 / 4 seans kullanıldı · 2 seans hakkın duruyor</span>
+                <span class="uys-renew"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Sonraki yenileme: 2 Eylül 2026 · otomatik</span>
               </div>
               <div class="uys-price"><b>₺1.400</b><span>/ ay</span></div>
+              <!-- F-A2 · "Randevu Al" artık randevu ALIYOR. Önceki hedef
+                   `fit-planim-randevular-v1.html` idi; o sayfa randevu
+                   LİSTESİdir, randevu modalı yoktur (grep `aptModal` → 0).
+                   Yeni hedef antrenörün kendi sayfası + `?randevu=1`
+                   parametresi: modal açılış anında geliyor ve `&paket=` ile
+                   bu satırın hizmeti önceden seçili oluyor. Modal
+                   kopyalanmadı, tek kaynağı `antrenor-detay-v1.html:1051`. -->
               <div class="uys-acts">
+                <a class="uys-manage" href="antrenor-detay-v1.html?slug=selin-aksoy&amp;randevu=1&amp;paket=Ayl%C4%B1k%20Paket"><i class="fa-solid fa-calendar-check"></i> Randevu Al</a>
                 <a class="uys-manage" href="antrenor-detay-v1.html?slug=selin-aksoy"><i class="fa-solid fa-arrow-right"></i> Antrenör Profili</a>
               </div>
             </div>
+            <div class="uys-row">
+              <!-- ⚠ SLUG DÜZELTMESİ (F-A2 turunda ölçüldü): bu satır
+                   `?slug=mert-ekinci` diyordu ama `antrenor-detay-v1.html`in
+                   slug haritasında (`:1120-1133`) öyle bir kayıt YOK — sayfa
+                   sessizce Selin Aksoy'a düşüyordu. Haritadaki gerçek kayıt
+                   `mert-ozkan` / "Mert Özkan"; ad ve slug ona çekildi. -->
+              <span class="uys-ava" role="img" aria-label="Mert Özkan" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
+              <div class="uys-info">
+                <b>Mert Özkan <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
+                <span class="uys-plan">Birebir seans — 5 seanslık paket · süre sınırı yok</span>
+                <span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> 5 seansın 3'ü kullanıldı · 2 seans hakkın duruyor</span>
+                <span class="uys-renew"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Yenilenmez — haklar bitince paket kapanır</span>
+              </div>
+              <div class="uys-price"><b>₺2.250</b><span>tek seferlik</span></div>
+              <div class="uys-acts">
+                <a class="uys-manage" href="antrenor-detay-v1.html?slug=mert-ozkan&amp;randevu=1&amp;paket=Birebir%20Seans"><i class="fa-solid fa-calendar-check"></i> Randevu Al</a>
+                <a class="uys-manage" href="antrenor-detay-v1.html?slug=mert-ozkan"><i class="fa-solid fa-arrow-right"></i> Antrenör Profili</a>
+              </div>
+            </div>
           </div>
-          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Antrenör paketleri DadaFit Pro üyeliğinden ayrı tahsil edilir; iptali antrenörünle anlaştığın koşullara bağlıdır. Yeni antrenör aramak için <a href="antrenorler-v1.html">antrenör dizinine</a> bakabilirsin.</span></div>
+
+          <h3 style="font-size:15px;margin:24px 0 12px;display:flex;align-items:center;gap:9px"><i class="fa-solid fa-clock-rotate-left" style="color:var(--fit-deep);font-size:14px" aria-hidden="true"></i> Sona Eren Paketler</h3>
+          <div class="uys-list">
+            <div class="uys-row">
+              <!-- ⚠ Aynı slug düzeltmesi: `deniz-arda` haritada yok,
+                   gerçek kayıt `deniz-kaya` / "Deniz Kaya". -->
+              <span class="uys-ava" role="img" aria-label="Deniz Kaya" style="background-image:url('https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
+              <div class="uys-info">
+                <b>Deniz Kaya <span class="hs-pill off">Sona erdi</span></b>
+                <span class="uys-plan">Başlangıç Programı — 8 haftalık takip</span>
+                <span class="uys-renew"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> 14 Şubat 2026 – 11 Nisan 2026 · 8 seansın 8'i tamamlandı</span>
+              </div>
+              <div class="uys-price"><b>₺2.400</b><span>tamamlandı</span></div>
+              <div class="uys-acts">
+                <a class="uys-manage" href="antrenor-detay-v1.html?slug=deniz-kaya&amp;randevu=1"><i class="fa-solid fa-rotate-right"></i> Tekrar Çalış</a>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px"><a class="btn btn-ghost" href="antrenorler-v1.html" style="padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-magnifying-glass"></i> Antrenör Dizinine Bak</a></div>
+
+          <!-- P5 · ORTAK HÜKÜM'ün ekrandaki karşılığı: değişken maliyetli
+               hizmet abonelik bedeline dâhil değildir. Abonelik indirim veya
+               öncelik sağlayabilir, bedeli KAPSAMAZ. -->
+          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Antrenör paketleri <b>DadaFit Pro üyeliğine dâhil değildir</b> ve ayrı tahsil edilir; Pro üyeliğin yalnız öncelikli randevu avantajı sağlar. Paketin iptali antrenörünle anlaştığın koşullara bağlıdır. Tahsilat kayıtları <a href="#odeme" style="color:var(--fit-deep);font-weight:700">Ödeme Geçmişim</a>, belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</span></div>
         </div>
       </section>
 
@@ -796,7 +897,7 @@
           <div class="fc-head">
             <div>
               <h2 id="odemeH"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişim</h2>
-              <p>DadaFit üyeliğin ve antrenör paketlerin için alınan tahsilatlar. Fatura belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</p>
+              <p>İki kutunun da tahsilatı burada birlikte durur: <b>DadaFit üyeliğin</b> (platform paketi) ve <b>antrenör hizmet paketlerin</b>. Her satırın hangi kutuya ait olduğu işlem adında yazar. Fatura belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</p>
             </div>
           </div>
 
@@ -817,6 +918,12 @@
               <span class="sub-inv-date">2 Ağu 2026</span>
               <span class="sub-inv-desc">Antrenör paketi — Selin Aksoy<small>Visa •••• 4242</small></span>
               <span class="sub-inv-amt">₺1.400,00</span>
+              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
+            </div>
+            <div class="sub-inv-row">
+              <span class="sub-inv-date">20 Tem 2026</span>
+              <span class="sub-inv-desc">Antrenör paketi — Mert Özkan · 5 seans<small>Visa •••• 4242 — tek seferlik</small></span>
+              <span class="sub-inv-amt">₺2.250,00</span>
               <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
             </div>
             <div class="sub-inv-row">
@@ -920,6 +1027,12 @@
               <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
             </div>
             <div class="sub-inv-row">
+              <span class="sub-inv-date">20 Tem 2026</span>
+              <span class="sub-inv-desc">DFT-2026-003901<small>Antrenör paketi — Mert Özkan · 5 seans</small></span>
+              <span class="sub-inv-amt">₺2.250,00</span>
+              <span class="sub-inv-st"><button class="sub-inv-dl" type="button" data-demo-dl><i class="fa-solid fa-download" aria-hidden="true"></i> PDF</button></span>
+            </div>
+            <div class="sub-inv-row">
               <span class="sub-inv-date">15 Tem 2026</span>
               <span class="sub-inv-desc">DFT-2026-003844<small>DadaFit Pro — Aylık · Temmuz dönemi</small></span>
               <span class="sub-inv-amt">₺99,00</span>
@@ -994,6 +1107,17 @@
               <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
               <div class="sr-txt"><b>İki adımlı doğrulama</b><span>Açıkken girişte telefonuna gelen 6 haneli kod istenir.</span></div>
               <label class="tgl" for="gv2fa"><input type="checkbox" id="gv2fa" checked /><span class="tk"></span><span class="sr-only">İki adımlı doğrulama</span></label>
+            </div>
+            <!-- SÖZLEŞME §1.2 · 2FA ÜÇ KOLONDUR: `two_factor_secret` ·
+                 `two_factor_recovery_codes` · `two_factor_confirmed_at`.
+                 Üçüncüsü yukarıdaki anahtarın durumu, birincisi kurulum
+                 sırrı; İKİNCİSİNİN üye yüzünde bir karşılığı olmalı — yoksa
+                 telefonunu kaybeden üyenin hesaba dönüş yolu kalmıyor.
+                 Satır bu yüzden eklendi. -->
+            <div class="set-row">
+              <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-key"></i></span>
+              <div class="sr-txt"><b>Kurtarma kodların</b><span>Telefonuna erişemezsen bu tek kullanımlık kodlarla giriş yaparsın. 10 koddan <b>8</b> tanesi kullanılmadan duruyor.</span></div>
+              <div class="sr-act"><button class="uys-manage" type="button">Kodları Göster</button><button class="uys-manage" type="button">Yenile</button></div>
             </div>
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
@@ -1269,7 +1393,16 @@
           <form class="hs-gate" data-confirm>
             <div class="fk-field">
               <label class="fk-label" for="dondurSure">Dondurma süresi</label>
+              <!-- SÖZLEŞME §2.1 · SÜRE LİSTESİ BİRLEŞTİRİLDİ.
+                   Ölçülen iki liste ayrıydı: Gastro `1-hafta · 2-hafta ·
+                   1-ay · 3-ay · sinirsiz`, Fit `2-hafta · 1-ay · 3-ay ·
+                   süresiz`. Fark tek kalemdi ("1 hafta") ve eklendi; birleşim
+                   artık beş. 🔴 Dondurma akışının BEŞ ADIMI (uyarı kutusu →
+                   maddeler → süre seçimi → onay kutusu → kapalı başlayan
+                   düğme) Fit kanonudur ve sözleşme §2.1'de ORTAK HÜKÜM oldu —
+                   sıra ve adım sayısı değiştirilmedi. -->
               <select class="fk-select" id="dondurSure">
+                <option>1 hafta</option>
                 <option selected>2 hafta</option>
                 <option>1 ay</option>
                 <option>3 ay</option>

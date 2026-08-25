@@ -3828,3 +3828,45 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
    ===================================================================== */
 .topbar .tb-right{gap:16px}
 .tb-lang::before{margin-right:16px}
+
+
+/* =====================================================================
+   K28 · ÜST ÜSTE BİNEN .lead PARAGRAFLARI — ÖLÇÜLEN KUSUR
+   ---------------------------------------------------------------------
+   `.sec-head` bir ızgara ve `.lead` kuralı her lead'i AYNI hücreye
+   pinliyor (`grid-row:3; grid-column:1/-1`, satır ~194). Başlık bloğunda
+   İKİ paragraf varsa ikisi aynı hücreye düşüyor ve metin metnin ÜSTÜNE
+   biniyor — okunmuyor.
+
+   ÖLÇÜM: 66 sayfa tarandı, kusur `aktivite-gunlugu-v1`de İKİ yerde
+   (“Bu veriler nereden geliyor?” ve “Aktivite kayıtların”); başka sayfada
+   yok. Sayfaya yama yazmak yerine tuzak KAYNAKTA kapatılıyor — aynı
+   işaretleme yarın başka sayfada yazılırsa sessizce kırılmasın.
+
+   İlk lead 3. satırda kalır (mevcut düzen değişmez); sonrakiler otomatik
+   yerleşir, yani ikinci 4., üçüncü 5. satıra geçer — sayı sınırı yok.
+   Tam genişlik ve üst boşluk korunur.
+   ===================================================================== */
+.sec-head .lead+.lead,
+.cat-head .lead+.lead,
+.guide-head .lead+.lead{
+  grid-row:auto;grid-column:1/-1;margin-top:10px;
+}
+
+/* =====================================================================
+   K28 · `.ff-pop-clear` — DOKUNMA HEDEFİ + KONTRAST
+   ---------------------------------------------------------------------
+   Filtre açılırındaki "Temizle" düğmesi ölçüldü: **49×19 px** (WCAG 2.5.8
+   eşiği 24×24) ve metin kontrastı **3.54:1** (eşik 4.5:1 — 12px kalın
+   metin "large text" sayılmaz).
+   Renk düzeltmesi YENİ BİR KARAR DEĞİL: kabuk aynı işi R6'da `.eyebrow`
+   için yapmıştı — `--fit` (#009d4f, 3.54:1) yerine `--fit-deep`
+   (#007a3d, 5.45:1). Aynı token, aynı gerekçe.
+   Yükseklik 19 → 26px'e dolguyla çıkıyor; açılırın düzeni bozulmasın diye
+   yatay dolgu negatif kenar boşluğuyla dengeleniyor.
+   ===================================================================== */
+.ff-pop-clear{
+  color:var(--fit-deep);
+  padding:5px 8px;margin:-5px -8px;
+  min-height:26px;
+}

@@ -38,7 +38,7 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K25 | Anatomi @390 dokunma hedefi: 10 bölge WCAG 2.5.8 (24px) altında, dokuzu kadın gövdesinde | **BEKLIYOR** | Ajan ölçümü, doğrulanmadı — kapsam dışıydı |
 | K26 | Ön gövdedeki 5 kasa tıklayınca model arkaya dönüyor (baldır·trapez / TFL·brachioradialis·adduktor) — kusur mu tasarım mı | **BEKLIYOR** | Beyar kararı |
 | K27 | `hesabim-v1` gerçek sekme | **BITTI** | WAI-ARIA tabs deseni (tablist/tab/tabpanel + ok tuşları + gezici tabindex) · kalıp `challenge-v1`den · 10/10 sekme doğru · derin bağlantı, `?tab=` alias, geri tuşu, sayfa içi çapa hepsi çalışıyor · sayfa 10454px → 2226px · paneller işaretlemede AÇIK doğuyor (JS düşerse 47 sayfadan gelen çapalar kırılmaz) |
-| K28 | `aktivite-gunlugu-v1` — `frontend-design` skill'iyle best-practice revizyon, sonra doğrudan canlıya | **BEKLIYOR** | K27'den sonra |
+| K28 | `aktivite-gunlugu-v1` best-practice revizyon | **BITTI** | En ağır kusur: iki başlık bloğunda İKİ `.lead` üst üste biniyordu, metin okunmuyordu — kabuk ızgarası her lead'i aynı hücreye pinliyor · tuzak kaynakta kapatıldı (66 sayfa tarandı, kusur yalnız bu sayfada) · `.ff-pop-clear` 49×19 → 57×26 ve kontrast 3.54 → 5.45 · birincil ölçüm döşemesine tipografik hiyerarşi (yayılma denendi, ızgarayı bozdu, geri alındı) · denetçi hata 7 → 6 |
 | K23 | R9 · banner sayaç bloğu kanona | **BITTI** | `.an-fact` satır-içi şerit → kanon `.lib-stat` (b 29px/700 · span 12.5px/500 · mt 6px — referansla birebir) · sayısal olmayan iki kalem VERİDEKİ sayılara ayrıldı (16 ön · 15 arka · 2 gövde modeli), uydurma sayı yok · banner yüksekliği referansla aynı (544/607/587) |
 
 ---

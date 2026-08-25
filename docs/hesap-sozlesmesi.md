@@ -1,4 +1,4 @@
-sozlesme v2.3 · 2026-08-26
+sozlesme v2.4 · 2026-08-26
 
 # Hesap Sözleşmesi — dört marka
 
@@ -9,6 +9,9 @@ Ortak depo, symlink ve dış yol bağımlılığı **yoktur** — her şerit ken
 ağacındaki bu dosyayı okur. Değiştiren, **dördünü birden** değiştirir ve
 yukarıdaki sürüm damgasını yükseltir. Sapma her dalga sonunda `md5` ile
 ölçülür.
+
+**v2.3 → v2.4:** §7.4 eklendi — yer tutucu içerik kuralı
+(`data-yer-tutucu` + `docs/icerik-bekleyen.md`, tek defter).
 
 **v2.2 → v2.3:** §7 eklendi — hesap arayüz yapısı (P12, kanon Diet)
 ve kanonun iki esnetilmiş kalemi (başlık öğesi · açıklama satırı).
@@ -646,3 +649,29 @@ anlatır — kayıpları **biçim değil İÇERİK kaybı** olurdu.
 kanon esnetilmeden ÖNCE ölçüldü ve Diet'i 0 saydı.** D-1 ve D-2 Diet'i de
 değiştirdiği için o toplam **eksiktir** — YP12.2 başlamadan Diet'in maliyeti
 ölçülmelidir.
+
+### 7.4 · Yer tutucu içerik — tek nitelik, tek defter
+
+🔴 **ORTAK HÜKÜM** (Beyar kararı, 2026-08-26).
+
+Gerçek içeriği henüz belli olmayan her metin **yer tutucudur** ve üç kuralı
+birden taşır:
+
+1. **Metin TÜRKÇE olur.** 🔴 **Lorem ipsum yasaktır.** Yer tutucu, gerçek
+   içeriğin yerini tutar; okunduğunda ne geleceği anlaşılmalıdır.
+2. **`data-yer-tutucu="<slug>"` niteliği taşır.** Nitelik adı **budur** —
+   `data-placeholder` **değil.**
+3. **`docs/icerik-bekleyen.md`ye kaydedilir.** Kayıt: dosya·satır · bugün ne
+   yazıyor · gerçek içerik ne olacak. **Anahtar, koddaki `data-yer-tutucu`
+   değeriyle BİREBİR aynıdır.**
+
+🔴 **TEK DEFTER, TEK NİTELİK.** İkinci bir liste (`todo.md` vb.) ve ikinci
+bir nitelik açılmaz. İki defter, birinin unutulması demektir.
+
+⚠ **Bu hüküm ölçümle doğdu.** Fit'te bir tur boyunca **iki paralel defter**
+oluştu: depoda kurulu olan `data-yer-tutucu`/`icerik-bekleyen.md` ile yeni
+açılan `data-placeholder`/`todo.md`. Şerit çakışmayı **fark edip bildirdi**;
+karar **depoda zaten kurulu olan sözleşmenin kazanması** yönünde verildi.
+
+**Denetim:** `grep -rn "data-placeholder"` → **0** olmalı; `icerik-bekleyen.md`
+deki her anahtar kodda **birebir** bulunmalıdır.

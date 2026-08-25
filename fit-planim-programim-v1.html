@@ -31,6 +31,42 @@
 .pp-cips span{display:inline-flex;align-items:center;gap:7px;background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:700;color:var(--fit-deep)}
 .pp-eylem{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 
+/* ===== R14-B/#6 · BİTİŞ ÖZET KARTI =====================================
+   Beyar: "Son gün tamamlandığı anda sayfanın üstünde bir özet kartı
+   belirsin… Ton sakin olsun — kutlama abartısı yok, bir kayıt tonu.
+   Mevcut kart kitini kullan, yeni bileşen yazma."
+
+   Yeni bileşen YOK: kart `.fp-card`, başlığı `.fp-head`, adı `.pp-ad`,
+   tarih satırı `.pp-alt`, sayıları `.fp-meta`, düğmeleri `.pp-eylem` —
+   hepsi bu sayfada zaten kullanılan kalemler. Buraya yalnız kartın kendi
+   üst şeridi, kapatma düğmesi ve üç durumlu döküm satırı yazıldı.
+
+   Ritim `.pp-kart`tan alındı (ad 20px → alt 6px → grup 14px → eylem 18px),
+   uydurma aralık yok. Kartın alt marjı `.pp-kart` ile aynı 22px, yani
+   sayfanın blok kanonu (R13/K32) korunuyor.
+
+   Dökümün renkleri işaret düğmelerinin RENKLERİYLE aynı: tam --fit,
+   yarım #8a6410, atlandı --slate-2. Kullanıcı bu üç rengi işaretlerken
+   zaten öğrendi; özet aynı dili konuşmalı. Zemin tonları `.pp-sat.is-*`
+   satır zeminleriyle birebir — sakin kalsın diye dolu değil tint. */
+.pp-bitis{margin-bottom:22px;border-color:var(--fit-line)}
+.pp-bitis .fp-head{align-items:flex-start}
+.pp-bitis-kapat{flex:none;margin-left:auto;width:36px;height:36px;display:grid;place-items:center;
+  background:transparent;border:1px solid var(--line);border-radius:var(--radius-sm);
+  color:var(--muted);font-size:13px;cursor:pointer;transition:.18s var(--ease)}
+.pp-bitis-kapat:hover{background:var(--bg-cream);color:var(--slate);border-color:var(--line)}
+.pp-bitis-kapat:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.pp-dokum{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pp-dokum span{display:inline-flex;align-items:baseline;gap:6px;font-size:12.5px;font-weight:600;
+  color:var(--slate-2);border-radius:var(--radius-pill);padding:6px 13px;border:1px solid transparent}
+.pp-dokum span b{font-size:14px;font-weight:800}
+.pp-dokum .d-tam{background:var(--fit-tint);border-color:var(--fit-line)}
+.pp-dokum .d-tam b{color:var(--fit-deep)}
+.pp-dokum .d-yarim{background:#fff6e6;border-color:#f0e0c0}
+.pp-dokum .d-yarim b{color:#8a6410}
+.pp-dokum .d-atlandi{background:#f4f4f3;border-color:var(--line)}
+.pp-dokum .d-atlandi b{color:var(--slate-2)}
+
 /* birden çok kayıt — hangisi aktif */
 .pp-secim{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
 .pp-secim>b{display:block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
@@ -399,7 +435,7 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
         <div id="ptkKacan"></div>
       </div>
 
-      <div class="fp-card">
+      <div class="fp-card" id="gecmis-arsiv">
         <div class="fp-head"><h3><i class="fa-solid fa-box-archive"></i> Geçmiş programların</h3></div>
         <div id="ptkArsiv"></div>
         <div style="margin-top:14px"><a class="btn btn-ghost" href="programlar-merkezi-v1.html">Yeni program seç</a></div>
@@ -527,6 +563,13 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
           : '<span><b>' + ozet.aktifGun + '.</b> gün sırada</span>') +
       '</div>' +
       '<div class="pp-eylem">' +
+        /* R14-B — YENİDEN BAŞLAT yalnız BİTMİŞ planda görünür. Bitmemiş bir
+           planda "işaretleri sıfırla" bir kazanç değil, kaza riskidir.
+           Bitiş kartı kapatılsa da bu düğme kalır: kullanıcı planı haftalar
+           sonra tekrar açtığında da yeni tura başlayabilmeli. */
+        (ozet.durum === 'tamamlandi'
+          ? '<button class="btn btn-fit" type="button" data-pp-yeniden="' + esc(plan.id) + '">' +
+            '<i class="fa-solid fa-rotate-right"></i> Yeniden başlat</button>' : '') +
         (s.kod ? '<a class="btn btn-ghost" href="antrenman-olusturucu-v1.html?plan=' + esc(s.kod) + '">' +
                  '<i class="fa-solid fa-rotate"></i> Seçimleri değiştir</a>' : '') +
         '<a class="btn btn-ghost" href="antrenman-olusturucu-v1.html">' +
@@ -537,6 +580,58 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       '<p class="pp-not">Bu plan <b>genel bilgilendirme</b> amaçlıdır, kişiye özel reçete değildir. ' +
       'İşaretlerin yalnız bu tarayıcıda tutulur.</p>' +
       secim + '</div>';
+  }
+
+  /* R14-B/#6 — BİTİŞ ÖZET KARTI.
+     Yalnız plan bittiğinde ve kullanıcı BU TURUN kartını kapatmadığında
+     basılır. Kapatma tur numarasıyla tutuluyor — bayrakla tutulunca
+     yeniden başlatılan planın 2. turu bittiğinde kart bir daha hiç
+     açılmıyordu (ölçüldü).
+     Ton: kayıt. Başlık olay adını söyler, gövde sayıları verir, alt satır
+     iki yol açar. Sıfat yok, ünlem yok. */
+  function bitisHtml(plan, ozet){
+    if(ozet.durum !== 'tamamlandi') return '';
+    if(ozet.bitisKartKapali === ozet.tur) return '';
+    var sa = ozet.sayim || {tam:0,yarim:0,atlandi:0};
+    var dokum = [];
+    if(sa.tam)     dokum.push('<span class="d-tam"><b>'+sa.tam+'</b> tam</span>');
+    if(sa.yarim)   dokum.push('<span class="d-yarim"><b>'+sa.yarim+'</b> yarım</span>');
+    if(sa.atlandi) dokum.push('<span class="d-atlandi"><b>'+sa.atlandi+'</b> atlandı</span>');
+    /* Tarih satırı: aynı gün kurulup aynı gün bitmiş bir planda
+       "X tarihinde kuruldu · X tarihinde bitti" demek aynı tarihi iki kez
+       yazmaktır — @390'da iki satıra da kırılıyor (ölçüldü). Aynı günse
+       tek cümle kurulur. Gün karşılaştırması yerel tarihe göre, saat
+       farkına takılmadan. */
+    var tarihler = [];
+    var kurT = ozet.olusturma   ? tarih(ozet.olusturma)   : null;
+    var bitT = ozet.bitisTarihi ? tarih(ozet.bitisTarihi) : null;
+    if(kurT && bitT && kurT === bitT)  tarihler.push(kurT + ' tarihinde kuruldu ve bitti');
+    else {
+      if(kurT) tarihler.push(kurT + ' tarihinde kuruldu');
+      if(bitT) tarihler.push(bitT + ' tarihinde bitti');
+    }
+    return '<div class="fp-card pp-bitis" id="ppBitis" role="status">' +
+      '<div class="fp-head"><h3><i class="fa-solid fa-flag-checkered"></i> Plan tamamlandı</h3>' +
+      (ozet.tur > 1 ? '<span class="fp-badge ok">' + ozet.tur + '. tur</span>' : '') +
+      '<button class="pp-bitis-kapat" type="button" data-pp-bitis-kapat="' + esc(plan.id) + '" ' +
+      'aria-label="Özeti kapat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>' +
+      '<b class="pp-ad">' + esc(plan.ad) + '</b>' +
+      (tarihler.length ? '<p class="pp-alt">' + tarihler.join(' · ') + '</p>' : '') +
+      '<div class="fp-meta">' +
+        '<span><b>' + ozet.gunSayisi + '</b> gün</span>' +
+        '<span><b>' + ozet.toplam + '</b> hareket</span>' +
+        '<span><b>%' + ozet.oran + '</b> tamamlandı</span>' +
+      '</div>' +
+      (dokum.length ? '<div class="pp-dokum">' + dokum.join('') + '</div>' : '') +
+      '<div class="pp-eylem">' +
+        '<a class="btn btn-fit" href="antrenman-olusturucu-v1.html">' +
+        '<i class="fa-solid fa-wand-magic-sparkles"></i> Yeni plan kur</a>' +
+        '<a class="btn btn-ghost" href="#gecmis-arsiv">' +
+        '<i class="fa-solid fa-box-archive"></i> Arşive git</a>' +
+      '</div>' +
+      '<p class="pp-not">Bu kayıt arşivde duruyor. Aynı planı yeniden başlatırsan ' +
+      'işaretlerin sıfırlanır, bu turun kaydı silinmez.</p>' +
+    '</div>';
   }
 
   function isaretHtml(plan, gunNo, i){
@@ -597,7 +692,7 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       ? [].map.call(kok.querySelectorAll('.pp-gun'), function(d){ return d.open; })
       : null;                                   /* yeniden basarken açık günler korunsun */
 
-    kok.innerHTML = ustHtml(plan, ozet, hepsi) +
+    kok.innerHTML = bitisHtml(plan, ozet) + ustHtml(plan, ozet, hepsi) +
       '<div class="pp-gunler-ust"><b>Günler · ' + ozet.gunSayisi + ' gün · ' +
       ozet.toplam + ' hareket</b>' +
       '<button class="btn btn-ghost" type="button" id="ppHepsi" aria-expanded="false">' +
@@ -665,6 +760,32 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
       if(live) live.textContent = (ad ? ad.ad + ' ' : '') +
         (geriAl ? 'işareti kaldırıldı' : SEV[sv].ad.toLocaleLowerCase('tr') + ' olarak işaretlendi') +
         '. Plan %' + o.oran + ' tamamlandı.' + ek;
+      return;
+    }
+    /* R14-B/#6 — özet kartını kapat. Kapanma KALICI (plan kaydına yazılır);
+       sayfa yenilenince geri gelmez. */
+    var kap = e.target.closest('[data-pp-bitis-kapat]');
+    if(kap){
+      FIT_PLAN.bitisKartiKapat(kap.getAttribute('data-pp-bitis-kapat'));
+      bas();
+      if(live) live.textContent = 'Plan özeti kapatıldı.';
+      return;
+    }
+    /* R14-B — YENİDEN BAŞLAT. Yıkıcı görünüyor ama değil: arşiv kaydı
+       duruyor, yalnız bu planın işaretleri sıfırlanıyor. Yine de onay
+       isteniyor — geri alınamayan her işlem sorulur (plan silme kalıbı). */
+    var yb = e.target.closest('[data-pp-yeniden]');
+    if(yb){
+      var yid = yb.getAttribute('data-pp-yeniden');
+      var yp  = FIT_PLAN.getir(yid); if(!yp) return;
+      var yoz = FIT_PLAN.ozet(yid) || {};
+      if(!window.confirm('“' + yp.ad + '” yeniden başlasın mı?\n\n' +
+        'İşaretlerin sıfırlanır ve ' + ((yoz.tur||1)+1) + '. tur başlar. ' +
+        'Bu turun kaydı arşivde kalır, silinmez.')) return;
+      FIT_PLAN.yenidenBasla(yid);
+      bas();
+      if(live) live.textContent = yp.ad + ' yeniden başladı. ' +
+        ((yoz.tur||1)+1) + '. tur, işaretler sıfırlandı.';
       return;
     }
     var hep = e.target.closest('#ppHepsi');
@@ -1075,20 +1196,38 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
     var a = S.read().arsiv || [];
     if(!a.length){
       k.innerHTML = '<p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">' +
-        'Henüz arşivlenmiş program yok. Bir programı bitirdiğinde ya da bıraktığında ' +
-        'ilerlemesiyle birlikte burada durur.</p>';
+        'Henüz arşivlenmiş kayıt yok. Bir planı ya da programı bitirdiğinde — ya da ' +
+        'bıraktığında — ilerlemesiyle birlikte burada durur.</p>';
       return;
     }
+    /* R14-B/#5 — arşiv artık iki kaynaktan besleniyor: PROGRAM (Programlar
+       Merkezi) ve PLAN (Antrenman Oluşturucu). Satır hangisi olduğunu
+       kaydın kendi `kaynak` alanından okur; alan yoksa kayıt bu turdan
+       ÖNCE yazılmıştır ve o zamanlar yalnız program yazıyordu — 'program'
+       varsaymak burada bir tahmin değil, kütükteki gerçek.
+       Plan kaydında birim GÜNDÜR (bir gün bir antrenman), program
+       kaydında seans; etiket ona göre değişir. Aynı planın birden çok
+       turu varsa tur numarası yazılır, yoksa yazılmaz. */
     k.innerHTML = '<div class="fp-list">' + a.slice(0,6).map(function(x){
       var bitti = x.durum === 'tamamlandi';
-      var oran  = x.toplam ? Math.round(x.biten / x.toplam * 100) : 0;
+      var plan  = x.kaynak === 'plan';
+      /* plan kaydı kendi oranını taşır (hareket düzeyi); program kaydında
+         böyle bir alan yok, orada seans sayısından türetilir. */
+      var oran  = (typeof x.oran === 'number') ? x.oran
+                : (x.toplam ? Math.round(x.biten / x.toplam * 100) : 0);
       var t = x.bitis ? new Date(x.bitis) : null;
+      var kunye = [
+        bitti ? 'Tamamlandı' : 'Bırakıldı',
+        x.biten + '/' + x.toplam + (plan ? ' gün' : ' antrenman'),
+        '%' + oran
+      ];
+      if(plan && x.tur > 1) kunye.push(x.tur + '. tur');
+      if(t && !isNaN(t))    kunye.push(T.tarihTR(t));
       return '<div class="fp-row"><span class="ico"><i class="fa-solid ' +
         (bitti?'fa-check':'fa-box-archive')+'"></i></span>' +
-        '<span class="txt"><b>'+esc(x.ad)+'</b><small>' +
-        (bitti?'Tamamlandı':'Bırakıldı')+' · '+x.biten+'/'+x.toplam+' antrenman · %'+oran +
-        (t && !isNaN(t) ? ' · '+T.tarihTR(t) : '')+'</small></span>' +
-        '<span class="end"><span class="fp-badge '+(bitti?'ok':'off')+'">'+(bitti?'Bitti':'Arşiv')+'</span></span></div>';
+        '<span class="txt"><b>'+esc(x.ad)+'</b><small>' + kunye.join(' · ') + '</small></span>' +
+        '<span class="end"><span class="fp-badge '+(bitti?'ok':'off')+'">'+
+        (plan?'Plan':'Program')+'</span></span></div>';
     }).join('') + '</div>';
   }
 

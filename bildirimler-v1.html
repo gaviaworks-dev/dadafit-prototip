@@ -223,7 +223,7 @@
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Bildirimler</span>
     </nav>
-    <p class="nt-demo"><i class="fa-solid fa-circle-info"></i> Akıştaki bildirimler prototip için üretilmiştir</p>
+    <p class="nt-demo" id="ntDemo"><i class="fa-solid fa-circle-info"></i> Akıştaki bildirimler prototip için üretilmiştir</p>
     <div class="nt-head">
       <div>
         <h1>Bildirimler <span class="nt-unread-badge" id="ntBadge">3 okunmamış</span></h1>
@@ -338,7 +338,10 @@
           </span>
           <span class="ntr-dot" aria-label="okunmadı"></span>
         </div>
-        <div class="ntr" data-type="program">
+        <!-- R14-B/#7 · ÖRNEK SATIR. Gerçek plan/gün bildirimi VARSA aşağıdaki
+             sayfa JS'i bu satırı kaldırır ve yerine depodan gelenleri basar
+             (uydurma bir "3. gün tamamlandı" gerçeğin yanında durmamalı). -->
+        <div class="ntr" data-type="program" data-ornek="plan">
           <span class="ntr-ico"><i class="fa-solid fa-circle-check"></i></span>
           <span class="ntr-txt">
             <p><b>"4 Haftada Temel Güç" programında 3. gün tamamlandı.</b> Sıradaki gün planında yarın görünüyor.</p>
@@ -452,6 +455,107 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak) -->
 <script src="assets/js/fit-shell.js"></script>
+<script>
+/* =====================================================================
+   R14-B/#7 · GERÇEK BİLDİRİMLER — VERİDEN
+   ---------------------------------------------------------------------
+   Bu sayfa tamamen sabit HTML'di; "…3. gün tamamlandı" satırı ekranda
+   duruyor ama hiçbir veriye bağlı değildi. Artık plan akışının gerçek
+   olayları (gün tamamlandı · plan bitti) `FIT_SHELL.state.bildirimler[]`
+   içine yazılıyor ve burada basılıyor.
+
+   NEDEN AŞAĞIDAKİ SAYFA JS'İNDEN ÖNCE: o blok satırlara TEK TEK dinleyici
+   bağlıyor (`col.querySelectorAll('.ntr').forEach`). Sonradan eklenen bir
+   satır o dinleyiciyi alamaz, "tıkla → okundu" çalışmazdı. Satırlar DOM'a
+   önce girsin ki mevcut davranışın tamamını miras alsınlar.
+
+   Satır iskeleti örnek satırlarla BİREBİR aynı (.ntr > ico + txt + ops +
+   dot) — yeni bileşen yazılmadı, `data-op` işlemleri olduğu gibi çalışıyor.
+   ===================================================================== */
+(function(){
+  var col = document.getElementById('ntCol'); if(!col) return;
+  var S = window.FIT_SHELL && window.FIT_SHELL.state; if(!S) return;
+  var kayit;
+  try { kayit = (S.read().bildirimler || []); } catch(e){ return; }
+  if(!kayit.length) return;
+
+  var liste = col.querySelector('[data-day-list]'); if(!liste) return;
+
+  /* gerçek kayıt geldiyse aynı türün ÖRNEK satırı kalkar */
+  col.querySelectorAll('[data-ornek="plan"]').forEach(function(x){ x.remove(); });
+
+  function esc(t){ return String(t==null?'':t)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* Tarih SERBEST METNE çevrilmez: "12 dk önce" gibi bir şey yazmak için
+     saat farkını hesaplamak gerekir ve kayıt ISO taşıyor — gerçek fark
+     hesaplanıp yazılıyor, uydurma yok. */
+  function ne_zaman(iso){
+    var t = new Date(iso); if(isNaN(t)) return '';
+    var fark = Math.floor((Date.now() - t.getTime())/60000);
+    if(fark < 1)   return 'az önce';
+    if(fark < 60)  return fark + ' dk önce';
+    if(fark < 1440) return Math.floor(fark/60) + ' saat önce';
+    return Math.floor(fark/1440) + ' gün önce';
+  }
+
+  kayit = kayit.filter(function(b){ return !b.silindi; });
+  if(!kayit.length) return;
+
+  var html = kayit.slice(0, 12).map(function(b){
+    return '<div class="ntr' + (b.okundu ? '' : ' unread') + '" data-type="program"' +
+      ' data-bildirim="' + esc(b.anahtar) + '">' +
+      '<span class="ntr-ico"><i class="fa-solid fa-circle-check"></i></span>' +
+      '<span class="ntr-txt">' +
+        '<p><b>' + esc(b.baslik) + '</b>' + (b.metin ? ' ' + esc(b.metin) : '') + '</p>' +
+        '<span class="ntr-meta"><span class="tt">' +
+        '<i class="fa-solid fa-list-check"></i> Program</span> · <span>' +
+        esc(ne_zaman(b.tarih)) + '</span></span>' +
+      '</span>' +
+      '<span class="ntr-ops">' +
+        (b.href ? '<a class="ntr-op" href="' + esc(b.href) + '" aria-label="İlgili sayfaya git" ' +
+                  'title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' : '') +
+        '<button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" ' +
+        'title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>' +
+        '<button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" ' +
+        'title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>' +
+        '<button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" ' +
+        'title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+      '</span>' +
+      '<span class="ntr-dot" aria-label="okunmadı"></span>' +
+    '</div>';
+  }).join('');
+  liste.insertAdjacentHTML('afterbegin', html);
+
+  /* "prototip için üretilmiştir" cümlesi artık akışın TAMAMI için doğru
+     değil — kaç tanesinin gerçek olduğu söyleniyor. */
+  var demo = document.getElementById('ntDemo');
+  if(demo) demo.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
+    kayit.length + ' bildirim kendi kayıtlarından geliyor; akıştaki diğerleri prototip için üretilmiştir';
+
+  /* Okundu ve silindi DEPOYA da yazılır — yenilenince geri gelmesin.
+     Aşağıdaki sayfa JS'i DOM tarafını (görünürlük, sayaç, geri al şeridi)
+     zaten yönetiyor; burada yalnız kalıcılık ekleniyor, davranış
+     çoğaltılmıyor. Geri al düğmesine basılınca silme işareti kalkar. */
+  col.addEventListener('click', function(e){
+    var r = e.target.closest('[data-bildirim]'); if(!r) return;
+    var ah = r.getAttribute('data-bildirim');
+    var op = e.target.closest('.ntr-op');
+    if(op){
+      var tur = op.getAttribute('data-op');
+      if(tur === 'read') S.bildirimOkundu(ah);
+      if(tur === 'del'){ S.bildirimSil(ah, false); sonSilinen = ah; }
+      return;
+    }
+    S.bildirimOkundu(ah);   /* satır gövdesine tıklama = okundu */
+  });
+  var sonSilinen = null;
+  var gbtn = document.getElementById('ntUndoBtn');
+  if(gbtn) gbtn.addEventListener('click', function(){
+    if(sonSilinen){ S.bildirimSil(sonSilinen, true); sonSilinen = null; }
+  });
+})();
+</script>
 <script>
 /* ===== SAYFA JS — BİLDİRİMLER (filtre · okundu/okunmadı · ?empty=1) =====
  Kabuk davranışı buraya girmez: alt bar/çerez şerit yöneticisi, kaydırma

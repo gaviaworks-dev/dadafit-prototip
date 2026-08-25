@@ -2145,7 +2145,7 @@ setTimeout(function(){
      kullanıcı kendi geçmişinin ne kadar sağlam olduğunu görebilir.
      ============================================================ */
   var KAYNAKLAR = ['olculdu','video','cihaz','beyan'];
-  var BOS = { surum:2, program:null, arsiv:[], challenge:null, randevular:[],
+  var BOS = { surum:2, program:null, arsiv:[], bildirimler:[], challenge:null, randevular:[],
               bugun:{dk:0,kcal:0,tamam:false,su:0,gunSonu:null},
               gecmis:[], hafta:[62,74,90,96,118,142] };
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -2155,12 +2155,19 @@ setTimeout(function(){
      depoyu hiç açmasa bile eski kayıt yeni koda güvenli girer. */
   function goc(v){
     if(!v || typeof v !== 'object') return clone(BOS);
+    /* R14-B/#7 — `bildirimler` v2 yayınlandıktan SONRA eklendi; surum===2
+       kayıtlar erken dönüyor ve alanı hiç görmüyordu. Sürüm numarasını
+       yükseltmek yerine alan bazlı tamamlama: eski kayıt kırılmaz, yeni
+       alan her okumada güvenceye alınır. */
+    if(!Array.isArray(v.bildirimler)) v.bildirimler = [];
     if(v.surum === 2) return v;
     v.surum = 2;
     v.bugun = v.bugun || {dk:0,kcal:0,tamam:false};
     if(typeof v.bugun.su !== 'number') v.bugun.su = 0;
     if(!('gunSonu' in v.bugun))        v.bugun.gunSonu = null;
     if(!Array.isArray(v.arsiv)) v.arsiv = [];
+    /* R14-B/#7 — bildirim akışı artık VERİDEN. Eski kayıtlarda alan yok. */
+    if(!Array.isArray(v.bildirimler)) v.bildirimler = [];
     if(v.program){
       if(!('baslangic' in v.program)) v.program.baslangic = null;
       if(!Array.isArray(v.program.gunler)) v.program.gunler = [];
@@ -2357,6 +2364,70 @@ setTimeout(function(){
       return write(s);
     },
 
+    /* ---- R14-B/#5 · PLAN ARŞİVİ -------------------------------------
+       Arşiv ekranı (fit-planim-programim → arsivBas) ve şeması hazırdı
+       ({durum, biten, toplam, bitis}) ama yalnız PROGRAM tarafından
+       besleniyordu; biten bir plan hiçbir yere düşmüyor, ekran "Henüz
+       arşivlenmiş program yok" demeye devam ediyordu.
+
+       `kaynak` alanı ekleniyor: bir arşiv satırının programdan mı plandan
+       mı geldiği kaydın kendisinden okunmalı. Eski kayıtlarda alan yok —
+       okuyan taraf yokluğu 'program' sayar (o güne kadar yalnız program
+       yazıyordu, bu bir varsayım değil kayıt altındaki gerçek).
+       `biten/toplam` planda GÜN sayısıdır: bir gün bir antrenmandır. */
+    planArsivle:function(k){
+      var s=read();
+      s.arsiv.unshift({
+        kaynak:'plan', slug:k.slug, ad:k.ad, durum:'tamamlandi',
+        biten:k.biten||0, kacan:0, toplam:k.toplam||0,
+        /* `oran` AYRI TAŞINIYOR, biten/toplam'dan türetilmiyor. Planda bu iki
+           sayı iki ayrı şeyi ölçer: biten/toplam GÜN sayısıdır (hepsi karar
+           aldıysa 3/3), oran ise HAREKET düzeyindedir ve atlananı saymaz.
+           Türetseydik arşiv "%100" derken bitiş kartı "%93" diyecekti —
+           aynı kayıt için iki farklı yüzde. */
+        oran:(typeof k.oran==='number'?k.oran:null),
+        baslangic:k.baslangic||null, bitis:k.bitis||new Date().toISOString(),
+        tur:k.tur||1
+      });
+      return write(s);
+    },
+
+    /* ---- R14-B/#7 · BİLDİRİM AKIŞI ----------------------------------
+       bildirimler-v1 tamamen sabit HTML'di; "3. gün tamamlandı" satırı
+       ekranda duruyordu ama hiçbir veriye bağlı değildi. Artık gerçek
+       olaylar buraya yazılıyor, sayfa bunları basıyor.
+       Aynı olay iki kez yazılmasın diye `anahtar` benzersizdir. */
+    bildirimEkle:function(b){
+      var s=read();
+      if(!Array.isArray(s.bildirimler)) s.bildirimler=[];
+      var ah = b && b.anahtar;
+      if(ah && s.bildirimler.some(function(x){ return x.anahtar===ah; })) return s;
+      s.bildirimler.unshift({
+        anahtar: ah || ('b_'+Date.now()),
+        tur:     (b&&b.tur)||'sistem',
+        baslik:  (b&&b.baslik)||'',
+        metin:   (b&&b.metin)||'',
+        href:    (b&&b.href)||null,
+        tarih:   (b&&b.tarih)||new Date().toISOString(),
+        okundu:  false
+      });
+      if(s.bildirimler.length>50) s.bildirimler.length=50;
+      return write(s);
+    },
+    bildirimOkundu:function(anahtar){
+      var s=read();
+      (s.bildirimler||[]).forEach(function(x){ if(!anahtar||x.anahtar===anahtar) x.okundu=true; });
+      return write(s);
+    },
+    /* Silme GERİ ALINABİLİR olmalı — sayfada zaten bir "geri al" şeridi var.
+       Kaydı diziden çıkarmak geri almayı imkânsız kılardı; işaretleniyor.
+       İşaretli kayıt basılmaz. */
+    bildirimSil:function(anahtar, geriAl){
+      var s=read();
+      (s.bildirimler||[]).forEach(function(x){ if(x.anahtar===anahtar) x.silindi = !geriAl; });
+      return write(s);
+    },
+
     /* ---- challenge (belge §8.4) ---- */
     challengeKatil:function(c){
       var s=read();
@@ -2437,17 +2508,62 @@ setTimeout(function(){
      ============================================================ */
   window.addEventListener('fit-plan-degisti', function (e) {
     var d = (e && e.detail) || {};
-    if (!d.gunTamamlandi || !window.FIT_PLAN) return;
+    if (!window.FIT_PLAN) return;
+    if (!d.gunTamamlandi && !d.planTamamlandi) return;
     var p = FIT_PLAN.getir(d.id);
     if (!p) return;
-    var g = (p.gunler || []).filter(function (x) { return x.no === d.gunTamamlandi; })[0];
-    API.antrenmanTamamla({
-      ad:     (g && g.ad) || ('Gün ' + d.gunTamamlandi),
-      dk:     null,          /* BİLİNMİYOR — planda seans süresi yok */
-      kcal:   null,          /* BİLİNMİYOR */
-      kaynak: 'beyan'
-    });
-    FIT_PLAN.gunKayitIsaretle(p.id, d.gunTamamlandi);
+    var tur = (typeof p.tur === 'number' ? p.tur : 1);
+
+    /* --- gün bitti: geçmiş kaydı + bildirim --- */
+    if (d.gunTamamlandi) {
+      var g   = (p.gunler || []).filter(function (x) { return x.no === d.gunTamamlandi; })[0];
+      var gAd = (g && g.ad) || ('Gün ' + d.gunTamamlandi);
+      API.antrenmanTamamla({
+        ad:     gAd,
+        dk:     null,          /* BİLİNMİYOR — planda seans süresi yok */
+        kcal:   null,          /* BİLİNMİYOR */
+        kaynak: 'beyan'
+      });
+      FIT_PLAN.gunKayitIsaretle(p.id, d.gunTamamlandi);
+
+      /* R14-B/#7 — bildirim metni VERİDEN kuruluyor; sıradaki gün gerçekten
+         varsa söylenir, yoksa cümle uydurulmaz. */
+      var o       = FIT_PLAN.ozet(p.id) || {};
+      var sonraki = (p.gunler || []).filter(function (x) { return x.no > d.gunTamamlandi; })[0];
+      API.bildirimEkle({
+        anahtar: p.id + '|t' + tur + '|g' + d.gunTamamlandi,
+        tur:     'program',
+        baslik:  '"' + (p.ad || 'Planın') + '" planında ' + gAd + ' tamamlandı.',
+        metin:   sonraki
+                   ? 'Sıradaki gün: ' + (sonraki.ad || ('Gün ' + sonraki.no)) + '.'
+                   : 'Planın son günüydü.',
+        href:    'fit-planim-programim-v1.html?plan=' + p.id
+      });
+    }
+
+    /* --- plan bitti: arşiv kaydı + bildirim --- */
+    if (d.planTamamlandi) {
+      var oz = FIT_PLAN.ozet(p.id) || {};
+      API.planArsivle({
+        slug:      p.id,
+        ad:        p.ad || 'Planım',
+        biten:     oz.bitenGun || 0,
+        toplam:    oz.gunSayisi || 0,
+        oran:      (typeof oz.oran === 'number' ? oz.oran : null),
+        baslangic: p.olusturma || null,
+        bitis:     p.bitis || null,
+        tur:       tur
+      });
+      FIT_PLAN.planArsivIsaretle(p.id);
+      API.bildirimEkle({
+        anahtar: p.id + '|t' + tur + '|plan',
+        tur:     'program',
+        baslik:  '"' + (p.ad || 'Planın') + '" planını bitirdin.',
+        metin:   (oz.gunSayisi || 0) + ' gün, ' + (oz.toplam || 0) + ' hareket. ' +
+                 'Özet Plan ve Takvim sayfasında, kayıt arşivde.',
+        href:    'fit-planim-programim-v1.html?plan=' + p.id
+      });
+    }
   });
 })();
 

@@ -37,7 +37,12 @@
        },
        gunDurum  : {                            // v3 · R14-B — anahtar: 'g<gunNo>'
           'g1': { durum:'tamamlandi', tarih:'2026-08-21T…', kayit:true }
-       }
+       },
+       durum     : 'devam' | 'tamamlandi',      // v4 · R14-B/#5
+       bitis     : '2026-08-25T…' | null,       // v4 · son gün karar aldığı an
+       arsivlendi: true,                        // v4 · arşive bir kez düştü (mühür)
+       tur       : 2,                           // v4 · kaçıncı tur (yeniden başlat)
+       bitisKartKapali: 2 | null                // v4 · #6 kartı KAÇINCI TURDA kapatıldı
      }
 
    ŞEMA v2 — R10 · belge §3.3 · §5.3 · §5.4
@@ -79,6 +84,25 @@
      YAPILMIŞ SAYMAZ — tamamı atlanmış bir gün "tamamlandı" olur ama oranı
      0 kalır. İki soru ayrı sorudur: "bu günle işin bitti mi" ve "ne kadarını
      gerçekten yaptın". Tek sayıya indirmek ikisini de yalan yapardı.
+
+     ŞEMA v4 — R14-B/#5·#6 · PLAN TAMAMLANMA (Beyar, 2026-08-25)
+       Gün tamamlanma v3'te çözüldü ama PLAN hâlâ "bitti" diye bir hâl
+       bilmiyordu: arşiv boş kalıyor, bitişte hiçbir geri bildirim
+       olmuyordu.
+         durum/bitis  → planın kendi tamamlanma kaydı
+         arsivlendi   → arşive BİR KEZ düşer (gunDurum.kayit ile aynı mantık)
+         tur          → yeniden başlatma sayacı; her tur ayrı arşiv kaydı
+         bitisKartKapali → #6 özet kartını kullanıcının kapattığı TUR.
+                        Bayrak değil TUR NUMARASI: "kapatıldı/kapatılmadı"
+                        ile tutulunca yeniden başlatılan planın 2. turu
+                        bittiğinde kart bir daha hiç açılmıyordu (ölçüldü).
+                        Kart görünürlüğü = durum==='tamamlandi' &&
+                        bitisKartKapali !== tur. Böylece kapatma O TURA
+                        aittir; yeni tur yeni bir bitiştir, kartını hak eder.
+
+     YENİDEN BAŞLAT (`yenidenBasla`): aynı plan, işaretler sıfır, `tur`+1.
+     Eski turun ARŞİV KAYDI SİLİNMEZ — yeni tur eskisinin üstüne yazmaz,
+     yanına yazılır. Sessiz veri kaybı kusurdur.
 
      gunDurum[k].kayit — KÖPRÜ MÜHRÜ. Gün tamamlanınca kabuk bir kez
      `antrenmanTamamla()` çağırıp Aktivite Kayıtlarım'a kayıt düşürür
@@ -178,6 +202,9 @@
       if (!p.olusturma) p.olusturma = new Date().toISOString();
       if (!p.ilerleme || typeof p.ilerleme !== 'object') p.ilerleme = {};
       if (!p.gunDurum || typeof p.gunDurum !== 'object') p.gunDurum = {};   /* v3 */
+      if (p.durum !== 'tamamlandi') p.durum = 'devam';                      /* v4 */
+      if (typeof p.tur !== 'number' || p.tur < 1) p.tur = 1;
+      if (!('bitis' in p)) p.bitis = null;
       if (!Array.isArray(p.gunler)) p.gunler = [];
       p.guncelleme = new Date().toISOString();
 
@@ -293,9 +320,79 @@
         p.gunDurum[gk] = { durum: 'devam', tarih: onceki.tarih, kayit: !!onceki.kayit };
       }
 
+      /* ---- v4 · PLAN DURUMU (R14-B/#5) ------------------------------
+         Gün durumu değişti; planın tamamı karar aldı mı? Gün mantığıyla
+         AYNI kalıp: geçiş anı yakalanır, mühür (`arsivlendi`) ikinci
+         kaydı engeller. */
+      var hepsi = (p.gunler || []).length > 0 &&
+                  (p.gunler || []).every(function (x) { return gunKararli(p, x); });
+      var planGecis = false;
+
+      if (hepsi) {
+        if (p.durum !== 'tamamlandi') {
+          p.durum = 'tamamlandi';
+          p.bitis = new Date().toISOString();
+          planGecis = !p.arsivlendi;
+        }
+      } else if (p.durum === 'tamamlandi') {
+        /* bir gün geri açıldı — plan artık bitmiş değil. `bitis` temizlenir
+           (yanlış bir bitiş tarihi göstermektense tarih göstermemek doğru),
+           `arsivlendi` mührü DURUR: arşive düşen kayıt geri alınmaz. */
+        p.durum = 'devam';
+        p.bitis = null;
+      }
+
       p.guncelleme = new Date().toISOString();
       if (!yaz(d)) return false;
-      haberVer('ilerleme', id, gecis ? { gunTamamlandi: gunNo } : null);
+      var ek = null;
+      if (gecis || planGecis) {
+        ek = {};
+        if (gecis)     ek.gunTamamlandi  = gunNo;
+        if (planGecis) ek.planTamamlandi = true;
+      }
+      haberVer('ilerleme', id, ek);
+      return true;
+    },
+
+    /* v4 — arşiv mührü. Kabuk, arşiv kaydını YAZDIKTAN SONRA çağırır. */
+    planArsivIsaretle: function (id) {
+      var d = oku();
+      var p = d.planlar.filter(function (x) { return x.id === id; })[0];
+      if (!p) return false;
+      if (p.arsivlendi) return true;
+      p.arsivlendi = true;
+      return yaz(d);
+    },
+
+    /* v4 — #6 özet kartını kapat. Kapatma BU TURA yazılır. */
+    bitisKartiKapat: function (id) {
+      var d = oku();
+      var p = d.planlar.filter(function (x) { return x.id === id; })[0];
+      if (!p) return false;
+      p.bitisKartKapali = (typeof p.tur === 'number' ? p.tur : 1);
+      if (!yaz(d)) return false;
+      haberVer('bitisKart', id);
+      return true;
+    },
+
+    /* v4 — YENİDEN BAŞLAT: aynı plan, işaretler sıfır, yeni tur.
+       Eski turun arşiv kaydına DOKUNULMAZ. Çağıranın önce arşivi yazmış
+       olması beklenir (kabuk köprüsü bunu plan bitince zaten yapıyor). */
+    yenidenBasla: function (id) {
+      var d = oku();
+      var p = d.planlar.filter(function (x) { return x.id === id; })[0];
+      if (!p) return false;
+      p.ilerleme   = {};
+      p.gunDurum   = {};
+      p.durum      = 'devam';
+      p.bitis      = null;
+      p.arsivlendi = false;          /* yeni tur kendi arşiv kaydını hak eder */
+      /* bitisKartKapali'ya DOKUNULMAZ: eski turun numarasını taşıyor, yeni
+         turla eşleşmiyor, dolayısıyla yeni bitişte kart kendiliğinden açılır */
+      p.tur        = (typeof p.tur === 'number' ? p.tur : 1) + 1;
+      p.guncelleme = new Date().toISOString();
+      if (!yaz(d)) return false;
+      haberVer('yenidenBasla', id, { tur: p.tur });
       return true;
     },
 
@@ -351,6 +448,10 @@
 
       var toplam = 0, yapilan = 0, sonTarih = null, aktifGun = null;
       var gunSayisi = (p.gunler || []).length, kararliGun = 0;
+      /* v4 · #6 — bitiş özet kartı "kaç tam / yarım / atlandı" istiyor.
+         Bu üç sayı ORANDAN farklı bir şey söyler: oran ne kadar yapıldığını,
+         bu döküm neye nasıl karar verildiğini gösterir. */
+      var sayim = { tam: 0, yarim: 0, atlandi: 0, karasiz: 0 };
 
       (p.gunler || []).forEach(function (g) {
         var gToplam = (g.hareketler || []).length;
@@ -358,7 +459,8 @@
 
         (g.hareketler || []).forEach(function (_, i) {
           var it = (p.ilerleme || {})[ilerlemeAnahtari(g.no, i)];
-          if (!it || !it.yapildi) return;
+          if (!it || !it.yapildi) { sayim.karasiz++; return; }
+          if (sayim.hasOwnProperty(it.seviye)) sayim[it.seviye]++;
           /* oran ölçütü — DEĞİŞMEDİ: atlanan yapılmış sayılmaz */
           if (it.seviye !== 'atlandi') yapilan++;
           if (it.tarih && (!sonTarih || it.tarih > sonTarih)) sonTarih = it.tarih;
@@ -385,7 +487,13 @@
         aktifGun: aktifGun,
         gunSayisi:gunSayisi,
         bitenGun:kararliGun,   /* v3 — karar almış gün sayısı */
-        bitti:   bitti         /* v3 — plan tamamlandı mı */
+        bitti:   bitti,        /* v3 — plan tamamlandı mı */
+        sayim:   sayim,        /* v4 — {tam, yarim, atlandi, karasiz} */
+        durum:   p.durum || 'devam',              /* v4 */
+        bitisTarihi: p.bitis || null,             /* v4 */
+        olusturma:   p.olusturma || null,         /* v4 */
+        tur:     (typeof p.tur === 'number' ? p.tur : 1),
+        bitisKartKapali: (typeof p.bitisKartKapali === 'number' ? p.bitisKartKapali : null)
       };
     },
 

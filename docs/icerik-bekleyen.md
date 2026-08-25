@@ -4,6 +4,13 @@ Prototipte **yer tutucu** olarak duran, gerçek içeriği/adresi henüz
 belirlenmemiş kalemlerin tek listesi. Amaç: `href="#"` ve "yakında"
 etiketlerinin unutulup canlıya çıkmasını engellemek.
 
+⚠ **İKİNCİ BİR LİSTE VAR — `todo.md` (depo kökü).** 2026-08-26'daki
+"12 eksik kalem" turu, görev metninin isteğiyle **`data-placeholder`**
+niteliğini ve **`todo.md`** dosyasını kullandı; bu dosyanın sözleşmesi ise
+`data-yer-tutucu` + slug'dır. İki sözleşmeyi birleştirmek bir karardır ve
+verilmedi — **yer tutucu ararken İKİ dosyaya da bak**, iki niteliği de
+`grep`le: `data-yer-tutucu` ve `data-placeholder`.
+
 ## Kurallar
 
 1. Yer tutucu bırakan **kodda yorum satırı** düşer

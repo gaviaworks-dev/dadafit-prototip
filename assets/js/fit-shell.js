@@ -368,6 +368,35 @@ var PLAN_EXTRA = [
   {key:'saglik',    label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',            desc:'Kısıt, hedef, tercih'},
   {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın · uygulama tercihleri'}
 ];
+/* ------------------------------------------------------------------
+ R10 · K29 — ENERJİ DEFTERİ RAYI (bölüm rayı, ikinci ray DEĞİL)
+ ------------------------------------------------------------------
+ Ölçülen kusur: dört defter sayfasının hepsinde üstteki profil rayında
+ HİÇBİR kalem aktif değildi (K66'da ray üçe inince 'defter' anahtarı
+ raydan düşmüştü, aşağıdaki RAY_UST eşlemesi ölü kaldı), üstelik üçünde
+ profil rayının ~271px altında İKİNCİ bir .fit-tabs şeridi vardı. İki
+ rayda da "Bugün" kalemi geçiyordu ama hedefleri farklıydı
+ (fit-planim-v1 vs enerji-defteri-v1) — kullanıcı arafta kalıyordu.
+
+ R12 · G7 bu ikinci rayı ZATEN kaldırmıştı, ama yalnız enerji-defteri-v1
+ sayfasında; üç kardeşi elde kaldı (docs/lessons.md §15 — dar kapsam).
+
+ Çözüm (Beyar kararı, R10): ray BÖLÜME GÖRE değişir, sayfa başına bir
+ tane. Planım sayfalarında PLAN_TABS (K66 · üç kalem, dokunulmadı),
+ Enerji Defteri sayfalarında DEFTER_TABS. Böylece aktif kalem 4/4
+ defter sayfasında doğru ve "Bugün" tekrarı ortadan kalkar — buradaki
+ "Bugün" defterin kendi anasayfasıdır.
+
+ Anahtarlar PLAN_EXTRA'da DURMAYA DEVAM EDER: banner başlığı ve
+ breadcrumb çözümü PLAN_PAGES üzerinden yürüyor.
+ ------------------------------------------------------------------ */
+var DEFTER_TABS = [
+  {key:'defter',          label:'Bugün',         href:'enerji-defteri-v1.html',          icon:'fa-solid fa-sun'},
+  {key:'defter-dengele',  label:'Dengele',       href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced'},
+  {key:'defter-su',       label:'Su Takibi',     href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet'},
+  {key:'defter-haftalik', label:'Haftalık Özet', href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week'}
+];
+
 var PLAN_PAGES = PLAN_TABS.concat(PLAN_EXTRA);
 /* geriye dönük ad — kabuk içinde "Planım alanının tamamı" anlamında kullanılıyordu */
 var PLAN_NAV = PLAN_PAGES;
@@ -1019,13 +1048,14 @@ if(_plan){
      Sayfa geçişi kipi: kalemler <a>, aktif olan aria-selected="true" +
      aria-current="page" taşır; bileşen JS'i bu kipte panel yönetmez,
      yalnız rolleri kurar (bkz. fit-shell.js → [data-fit-tabs]). */
-  /* Alt sayfalar rayda ÜST kalemini işaretler: defter-su / defter-dengele /
-     defter-haftalik açıkken ray "Enerji Defteri"ni aktif gösterir. Ölçümde
-     bu üç sayfada raydaki hiçbir kalem aktif değildi. */
-  var RAY_UST = {'defter-dengele':'defter','defter-su':'defter','defter-haftalik':'defter'};
-  var rayKey = RAY_UST[pk] || pk;
-  var tabs = PLAN_TABS.map(function(it){
-    var on = it.key===rayKey;
+  /* R10 · K29 — RAY BÖLÜME GÖRE SEÇİLİR (yukarıdaki DEFTER_TABS yorumuna bak).
+     Eski RAY_UST eşlemesi alt sayfaları 'defter' anahtarına çeviriyordu, ama
+     K66'dan beri 'defter' PLAN_TABS'te yok — hiçbir kalem aktif olmuyordu. */
+  var rayKit    = DEFTER_TABS.some(function(it){ return it.key===pk; }) ? DEFTER_TABS : PLAN_TABS;
+  var rayAdi    = (rayKit===DEFTER_TABS) ? 'defter' : 'planim';
+  var rayEtiket = (rayKit===DEFTER_TABS) ? 'Enerji Defteri bölümleri' : 'Fit Planım bölümleri';
+  var tabs = rayKit.map(function(it){
+    var on = it.key===pk;
     return '<a class="fit-tab" href="'+it.href+'" aria-selected="'+(on?'true':'false')+'"'+
            (on?' aria-current="page"':'')+'><i class="'+it.icon+'"></i> '+it.label+'</a>';
   }).join('\n        ');
@@ -1093,7 +1123,7 @@ if(_plan){
    '</section>\n'+
    '<div class="pf-tabbar fp-tabbar">\n'+
    '  <div class="wrap">\n'+
-   '    <nav class="fit-tabs" data-fit-tabs="planim" aria-label="Fit Planım bölümleri">\n        '+tabs+'\n    </nav>\n'+
+   '    <nav class="fit-tabs" data-fit-tabs="'+rayAdi+'" aria-label="'+rayEtiket+'">\n        '+tabs+'\n    </nav>\n'+
    '  </div>\n'+
    '</div>\n'+
    /* R8 madde 36 — PROTOTİP UYARISI ÇIKTI, GİRİŞ KAPISI KALDI.

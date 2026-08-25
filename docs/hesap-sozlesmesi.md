@@ -1,4 +1,4 @@
-sozlesme v2.4 · 2026-08-26
+sozlesme v2.5 · 2026-08-26
 
 # Hesap Sözleşmesi — dört marka
 
@@ -9,6 +9,9 @@ Ortak depo, symlink ve dış yol bağımlılığı **yoktur** — her şerit ken
 ağacındaki bu dosyayı okur. Değiştiren, **dördünü birden** değiştirir ve
 yukarıdaki sürüm damgasını yükseltir. Sapma her dalga sonunda `md5` ile
 ölçülür.
+
+**v2.4 → v2.5:** §7.4'ün denetim kuralı iki yöne ayrıldı —
+defterde olup kodda niteliği olmayan kalem ihlal değildir (yokluk kaydı).
 
 **v2.3 → v2.4:** §7.4 eklendi — yer tutucu içerik kuralı
 (`data-yer-tutucu` + `docs/icerik-bekleyen.md`, tek defter).
@@ -673,5 +676,21 @@ oluştu: depoda kurulu olan `data-yer-tutucu`/`icerik-bekleyen.md` ile yeni
 açılan `data-placeholder`/`todo.md`. Şerit çakışmayı **fark edip bildirdi**;
 karar **depoda zaten kurulu olan sözleşmenin kazanması** yönünde verildi.
 
-**Denetim:** `grep -rn "data-placeholder"` → **0** olmalı; `icerik-bekleyen.md`
-deki her anahtar kodda **birebir** bulunmalıdır.
+**Denetim — iki yön, iki farklı ölçüt:**
+
+- **Kod → defter (KATI):** kodda `data-yer-tutucu` taşıyan **her** anahtar
+  defterde bulunmalıdır. İstisnası yoktur.
+- **Defter → kod (ESNEK):** defterde olup kodda niteliği **olmayan** kalem
+  **ihlal değildir** — yer tutucu bir **YOKLUĞU** kaydediyor olabilir
+  (üretilmemiş bir QR, konmamış bir bağlantı, basılmamış bir satır).
+  Niteliği takacak öğe yoksa nitelik de olmaz. **Ama defter satırı, içerik
+  gelince NEREYE gireceğini yazmak zorundadır.**
+
+⚠ **Bu ayrım ölçümle doğdu:** Fit'in defterinde dört anahtarın kodda
+karşılığı yok ve **dördü de bilinçli** (*"sahte QR üretilmedi"* gibi).
+Tek yönlü katı bir denetim onları ihlal sayardı ve düzeltmeye çalışan bir tur
+ya sahte nitelik ekler ya meşru kaydı silerdi.
+
+⚠ **`data-placeholder` yasağının denetimi de dar okunur:** yasak **kod** için
+geçerlidir (`*.html` · `*.js` · `*.css` → **0**). Bu bölümün kendisi yasağı
+koyabilmek için adı anmak zorundadır; sözleşme metnindeki geçişler sayılmaz.

@@ -31,10 +31,23 @@ KARARLAR.md       ürün kararları
 ## Stil sistemi — ölçülmüş gerçek
 
 - **Token dosyası `tokens.css` DEĞİLDİR.** Bu depoda öyle bir dosya yok
-  (ölçüldü). Token sistemi **`assets/css/fit-shell.css`**'in `:root` bloğudur:
-  **95 CSS değişkeni** (`--fit-header-h`, `--hero-pt`, `--sec-pad`,
-  `--banner-h-liste` …). Tipografi `fit-type.css`'te (12 değişken),
-  Fit Planım yüzeyi `fit-planim.css`'te (6 değişken).
+  (ölçüldü). Token sistemi **`assets/css/fit-shell.css`**'in `:root`
+  bloklarıdır: **64 benzersiz CSS değişkeni** (`--fit-header-h`, `--hero-pt`,
+  `--sec-pad`, `--banner-h-liste` …).
+  **SAYMA YÖNTEMİ (bağlayıcı — bir daha tartışılmasın):** *`:root` seçicisinde
+  tanımlı **benzersiz** özel değişken; yorumlar hariç, kırılım noktalarındaki
+  yeniden tanımlar tek sayılır, `:root` dışında tanımlananlar sayılmaz.*
+  Ölçüm (2026-08-25): dosyada **7 `:root` bloğu** var — 1'i kökte (50
+  deklarasyon), 6'sı `@media` içinde aynı tokenleri kırılım noktalarında
+  yeniden tanımlıyor. Toplam **81 deklarasyon**, **64 benzersiz ad**;
+  9 token birden fazla tanımlanıyor (17 fazla deklarasyon).
+  Ayrıca `:root` **dışında** 7 değişken var (`--bs-*`, `--bt-c`, `--lib-*`) —
+  bunlar `.bs-*`/`.brand-tag`/`.lib-top` bileşenlerinin **yerel parametreleri**
+  olduğu için token sayılmaz; dosya geneli benzersiz sayı **71**'dir.
+  ⚠ Eski "95" rakamı hiçbir yöntemle üretilemedi ve düzeltildi.
+  ⚠ **Tipografi ve Fit Planım rakamları da yanlıştı:** `fit-type.css` **1**
+  değişken tanımlıyor (`--jt-min`, "12" değil), `fit-planim.css` **hiç
+  değişken tanımlamıyor** ("6" değil) — ikisi de aynı yöntemle ölçüldü.
 - **Yeni renk/radius/gölge icat edilmez** — değişken varsa o kullanılır, yoksa
   önce `fit-shell.css`e eklenir.
 - Kabuk (header/footer/çekmece/modal) `fit-shell.js` + `fit-shell.css`

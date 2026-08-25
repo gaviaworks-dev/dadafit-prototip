@@ -3675,6 +3675,48 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
 .fit-tabs.is-center{justify-content:center}
 
 /* =====================================================================
+   .pf-tabs — OPT-IN ORTALAMA VARYANTI  (R11 · K30)
+   ---------------------------------------------------------------------
+   Beyar: "destek-v1 sekme rayı ('Destek' ve 'Taleplerim') sola dayalı,
+   ortalansın. Kanonu diğer ortalanmış sekme raylarından al."
+
+   Ölçüm @1440 — `.pf-tabs` kullanan yedi sayfa:
+     destek-v1 · destek-talepleri-v1  içSol 5  · içSağ 953  SOLA DAYALI
+     hesabim-v1                       içSol 5  · içSağ  77  SOLA DAYALI
+     profil-v1                        içSol 5  · içSağ 241  SOLA DAYALI
+     sss-v1                           içSol 5  · içSağ 180  SOLA DAYALI
+     uyelik-faturalandirma-v1         içSol 5  · içSağ 383  SOLA DAYALI
+     giris-v1                         içSol 5  · içSağ   5  (kutusu 442px,
+                                      dar wrap içinde zaten ortada)
+   Ortalı kanon (R34 · K3): `.pf-tabbar.fp-tabbar .fit-tabs{justify-content:center}`
+   → 14 plan sayfasında içSol=içSağ=405.
+
+   NEDEN OPT-IN SINIF, NEDEN SAYFA KURALI DEĞİL: R34 tam olarak bunun
+   tersini temizlemişti — `body[data-fit-page="…"]` ile tek sayfaya
+   yazılan ortalama, 13 kardeşi sola dayalı bırakmış ve "tıklayınca sola
+   kayıyor" olarak geri dönmüştü (docs/lessons.md §15). Burada kural
+   kabukta tek yerde durur, taşıyan sayfa markup'ıyla katılır.
+
+   KAPSAM: destek rayı TEK bir raydır ve İKİ sayfada birden görünür
+   (destek-v1 · destek-talepleri-v1). Yalnız birini ortalamak R34'teki
+   zıplamayı birebir geri getirirdi, o yüzden ikisi de işaretlendi.
+   Diğer dört sola dayalı sayfa (hesabim · profil · sss · uyelik) BİLEREK
+   dokunulmadan bırakıldı — ayrı raylar, ayrı karar (kuyruk: Beyar'a soru).
+
+   Taşma güvenliği: `.pf-tabs` ≤900px'te `flex-wrap:nowrap;overflow-x:auto`
+   olur; kaydırılabilir bir rayda düz `center` sol kenarı erişilemez kılar.
+   İlk deneme bunu `@media (max-width:900px)` ile kapatmıştı — ÖLÇÜM bunun
+   fazla kaba olduğunu gösterdi: destek rayı iki kalem, @390'da bile
+   sağında 146px boşluk kalıyor ve HİÇ kaydırılabilir olmuyor, yani dört
+   dar genişlikte ortalama boşuna kapanıyordu. Onun yerine CSS'in kendi
+   taşma hizalama anahtarı: `safe center` içerik sığmadığında kendiliğinden
+   başa hizalanır. Desteklemeyen motorlar önceki satırdaki düz `center`'da
+   kalır.
+   ===================================================================== */
+.pf-tabs.is-center{justify-content:center}
+.pf-tabs.is-center{justify-content:safe center}
+
+/* =====================================================================
    R12 EK TUR · R20 — PLAN PROFİLİNİN BEYAZ ZEMİNİ KALKTI
    ---------------------------------------------------------------------
    Beyar: "diette arka plan gri ama burda 2 katman var fitte bi profil

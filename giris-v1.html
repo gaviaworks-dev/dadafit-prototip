@@ -258,6 +258,19 @@
 
 .au-back:hover{color:var(--fit)}
 
+/* ---- KALEM #6 · şifre kuralı listesi (ys-*) ----
+   Kurallar canlı işaretlenir; renk/ikon tokenden, yeni değer icat yok. */
+.ys-kural{list-style:none;display:flex;flex-direction:column;gap:7px;margin:-10px 0 22px}
+.ys-kural li{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:500;color:var(--muted);transition:color .18s var(--ease)}
+.ys-kural li i{flex:none;font-size:12px;color:var(--line)}
+.ys-kural li.ok{color:var(--fit-deep)}
+.ys-kural li.ok i{color:var(--fit)}
+
+/* ---- KALEM #7 · doğrulama durumları (dg-*) ---- */
+.dg-acts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.dg-acts .btn{flex:1 1 auto;justify-content:center}
+@media (max-width:520px){ .dg-acts .btn{flex:1 1 100%} }
+
 .au-back i{font-size:11px}
 
 
@@ -754,6 +767,114 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
           </div>
         </div>
 
+
+        <!-- =====================================================================
+         KALEM #6 · YENİ ŞİFRE BELİRLEME  (envanter §4/6)
+         ---------------------------------------------------------------------
+         Zincirin ikinci halkasıydı ve HİÇ ÇİZİLMEMİŞTİ: "Şifremi unuttum"
+         isteği vardı, e-postadaki bağlantıdan gelinen ekran yoktu.
+         Adres: `giris-v1.html?tab=yeni-sifre` (bağlantı `&kod=` da taşır).
+         Rayda GÖRÜNMEZ — `sifre` panesi gibi köprüyle açılır; bu yüzden
+         role="tabpanel" değil, sıradan bir bölge.
+         ⚠ BACKEND YOK: jeton doğrulanmaz. Ekran biçim denetimi yapar
+         (uzunluk · büyük/küçük · rakam · özel karakter · eşleşme) ve
+         prototip olduğunu açıkça yazar.
+         ===================================================================== -->
+        <div class="au-pane" id="auPaneYeniSifre" data-pane="yeni-sifre" role="group" aria-labelledby="auYeniSifreTitle" hidden>
+          <div class="au-head">
+            <h1 id="auYeniSifreTitle">Yeni şifreni belirle</h1>
+            <p>Bağlantı <b id="auYsHesap" data-placeholder="sifre-sifirlama-hesabi">e***@eposta.com</b> hesabı için açıldı. Yeni şifreni iki kez yaz.</p>
+          </div>
+
+          <form id="formYeniSifre" novalidate>
+            <div class="fk-field">
+              <label class="fk-label" for="ysYeni">Yeni şifren <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
+              <div class="fk-pass">
+                <input class="fk-input" id="ysYeni" name="ysYeni" type="password" autocomplete="new-password" placeholder="En az 8 karakter" required aria-describedby="ysKurallar" />
+                <button class="fk-eye" type="button" data-eye="ysYeni" aria-label="Şifreyi göster" aria-pressed="false"><i class="fa-regular fa-eye"></i></button>
+              </div>
+            </div>
+            <ul class="ys-kural" id="ysKurallar">
+              <li data-kural="uzunluk"><i class="fa-regular fa-circle" aria-hidden="true"></i> En az 8 karakter</li>
+              <li data-kural="buyuk"><i class="fa-regular fa-circle" aria-hidden="true"></i> Bir büyük harf</li>
+              <li data-kural="kucuk"><i class="fa-regular fa-circle" aria-hidden="true"></i> Bir küçük harf</li>
+              <li data-kural="rakam"><i class="fa-regular fa-circle" aria-hidden="true"></i> Bir rakam</li>
+              <li data-kural="ozel"><i class="fa-regular fa-circle" aria-hidden="true"></i> Bir özel karakter (!, @, #, $ vb.)</li>
+            </ul>
+            <div class="fk-field">
+              <label class="fk-label" for="ysTekrar">Yeni şifren (tekrar) <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
+              <div class="fk-pass">
+                <input class="fk-input" id="ysTekrar" name="ysTekrar" type="password" autocomplete="new-password" placeholder="Tekrar yaz" required aria-describedby="ysTekrarErr" />
+                <button class="fk-eye" type="button" data-eye="ysTekrar" aria-label="Şifreyi göster" aria-pressed="false"><i class="fa-regular fa-eye"></i></button>
+              </div>
+              <span class="fk-error" id="ysTekrarErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> İki şifre birbirini tutmuyor.</span>
+            </div>
+            <button class="btn btn-primary au-submit" type="submit" id="ysGonder" disabled><i class="fa-solid fa-key" aria-hidden="true"></i> Şifremi Güncelle</button>
+            <div class="captcha-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Bağlantı 30 dakika geçerlidir ve yalnız bir kez kullanılabilir. Bu prototipte gerçek bir şifre değişmez.</div>
+          </form>
+
+          <div class="fb-success" id="ysOk" hidden>
+            <span class="ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <h4>Şifren güncellendi</h4>
+            <p>Artık yeni şifrenle giriş yapabilirsin. Açık olan diğer oturumların güvenlik gereği kapatıldı.</p>
+            <button class="btn btn-primary" type="button" data-goto="giris" style="margin-top:22px"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Girişe Dön</button>
+          </div>
+        </div>
+
+        <!-- =====================================================================
+         KALEM #7 · E-POSTA DOĞRULAMA  (envanter §4/7)
+         ---------------------------------------------------------------------
+         Hesabım ekranı bu ekranı METİNLE VADEDİYORDU ("Değiştirirsen yeni
+         adrese doğrulama bağlantısı gönderilir") ama ekran yoktu.
+         Sözleşme §1.1 `email_verified_at` alanını dört markada da sayıyor.
+         Adres: `giris-v1.html?tab=dogrula` · `&durum=basarili|suresi-doldu`.
+         ⚠ BACKEND YOK: jeton doğrulanmaz; üç durumun hangisinin basılacağı
+         adres parametresinden gelir ve ekranda prototip olduğu yazılıdır.
+         ===================================================================== -->
+        <div class="au-pane" id="auPaneDogrula" data-pane="dogrula" role="group" aria-labelledby="auDogrulaTitle" hidden>
+          <div class="au-head">
+            <h1 id="auDogrulaTitle">E-postanı doğrula</h1>
+            <p>Hesabını kullanmaya başlamadan önce adresinin sana ait olduğunu doğruluyoruz.</p>
+          </div>
+
+          <!-- bekleyen -->
+          <div class="dg-durum" data-durum="bekliyor">
+            <div class="fb-success" style="padding-top:0">
+              <span class="ok"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i></span>
+              <h4>Bağlantı yola çıktı</h4>
+              <p><b id="auDgHesap" data-placeholder="dogrulama-hesabi">elif.sahin@eposta.com</b> adresine bir doğrulama bağlantısı gönderdik. Gelen kutusu boşsa spam klasörüne de bak — bağlantı <b>24 saat</b> geçerli.</p>
+            </div>
+            <div class="dg-acts">
+              <button class="btn btn-ghost" type="button" id="dgTekrar"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Bağlantıyı Yeniden Gönder</button>
+              <button class="btn btn-ghost" type="button" data-goto="giris"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Girişe Dön</button>
+            </div>
+            <p class="hs-state" id="dgSayac" role="status" hidden><i class="fa-solid fa-clock" aria-hidden="true"></i> <span></span></p>
+            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Adresi yanlış mı yazdın? <a href="hesabim-v1.html#profil">Hesabım &rsaquo; Profil</a> bölümünden düzeltebilirsin.</p>
+          </div>
+
+          <!-- doğrulandı -->
+          <div class="dg-durum" data-durum="basarili" hidden>
+            <div class="fb-success" style="padding-top:0">
+              <span class="ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+              <h4>E-postan doğrulandı</h4>
+              <p>Adresin onaylandı. Artık bildirimlerin ve fatura belgelerin bu adrese gönderilir.</p>
+            </div>
+            <div class="dg-acts">
+              <a class="btn btn-primary" href="fit-planim-v1.html"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Planıma Git</a>
+              <a class="btn btn-ghost" href="hesabim-v1.html#bildirim"><i class="fa-regular fa-bell" aria-hidden="true"></i> Bildirim Tercihlerim</a>
+            </div>
+          </div>
+
+          <!-- süresi dolmuş -->
+          <div class="dg-durum" data-durum="suresi-doldu" hidden>
+            <p class="hs-warn"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> <span><b>Bağlantının süresi dolmuş.</b> Doğrulama bağlantıları 24 saat geçerlidir. Yenisini isteyip tekrar deneyebilirsin.</span></p>
+            <div class="dg-acts">
+              <button class="btn btn-primary" type="button" id="dgYeni"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Yeni Bağlantı Gönder</button>
+              <button class="btn btn-ghost" type="button" data-goto="giris"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Girişe Dön</button>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /.au-card -->
     </div>
   </div>
@@ -784,8 +905,14 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
 (function(){
   var tabs=document.getElementById('auTabs'); if(!tabs)return;
   var crumb=document.getElementById('auCrumb');
-  var LABELS={giris:'Giriş Yap',kayit:'Kayıt Ol',sifre:'Şifremi Unuttum'};
-  var TITLES={giris:'DadaFit Girişi',kayit:'DadaFit Üyeliği — Kayıt Ol',sifre:'DadaFit — Şifremi Unuttum'};
+  /* KALEM #6 · #7 — iki pane daha. İkisi de RAYDA GÖRÜNMEZ (`sifre` gibi);
+     köprüyle ya da adresle açılır, bu yüzden ray odağı giriş sekmesinde
+     kalır ve yetim tabindex bırakılmaz. */
+  var LABELS={giris:'Giriş Yap',kayit:'Kayıt Ol',sifre:'Şifremi Unuttum',
+              'yeni-sifre':'Yeni Şifre Belirle', dogrula:'E-posta Doğrulama'};
+  var TITLES={giris:'DadaFit Girişi',kayit:'DadaFit Üyeliği — Kayıt Ol',sifre:'DadaFit — Şifremi Unuttum',
+              'yeni-sifre':'DadaFit — Yeni Şifre Belirle', dogrula:'DadaFit — E-posta Doğrulama'};
+  var RAYSIZ = ['sifre','yeni-sifre','dogrula'];
   var tabBtns=[].slice.call(tabs.querySelectorAll('.dt'));
 
   function show(name){
@@ -797,8 +924,8 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
    // roving tabindex: rayda Tab bir kez durur, sekmeler arasında ok tuşuyla gezilir
       t.setAttribute('tabindex',on?'0':'-1');
     });
- // "sifre" rayda yok → ray odağı giriş sekmesinde kalır (yetim tabindex bırakmaz)
-    if(name==='sifre'){ tabBtns[0].setAttribute('tabindex','0'); }
+ // rayda olmayan pane'ler → ray odağı giriş sekmesinde kalır (yetim tabindex bırakmaz)
+    if(RAYSIZ.indexOf(name)>-1){ tabBtns[0].setAttribute('tabindex','0'); }
     crumb.textContent=LABELS[name]||LABELS.giris;
     document.title=TITLES[name]||TITLES.giris;
   }
@@ -1053,6 +1180,87 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
   if(qs.get('err')==='1'){show('giris');document.getElementById('loginErr').classList.add('show');}
   if(qs.get('sent')==='1'){show('sifre');fSifre.hidden=true;document.getElementById('sifreOk').hidden=false;}
   if(qs.get('ok')==='1'){show('kayit');fKayit.hidden=true;document.getElementById('kayitAlt').hidden=true;document.getElementById('kayitOk').hidden=false;}
+
+ /* ---- KALEM #6 · YENİ ŞİFRE BELİRLEME ----
+    Beş kural canlı işaretlenir; düğme kurallar VE eşleşme tamamlanana kadar
+    kapalı kalır. BACKEND YOK: jeton (`?kod=`) doğrulanmaz, yalnız adresin
+    hangi hesap için açıldığını yazmakta kullanılır. */
+  (function(){
+    var yeni=document.getElementById('ysYeni'), tekrar=document.getElementById('ysTekrar'),
+        gonder=document.getElementById('ysGonder'), form=document.getElementById('formYeniSifre'),
+        ok=document.getElementById('ysOk'), err=document.getElementById('ysTekrarErr'),
+        liste=document.getElementById('ysKurallar');
+    if(!yeni||!tekrar||!gonder) return;
+    var KURAL={ uzunluk:function(v){return v.length>=8;},
+                buyuk:function(v){return v!==v.toLocaleLowerCase('tr');},
+                kucuk:function(v){return v!==v.toLocaleUpperCase('tr');},
+                rakam:function(v){return /[0-9]/.test(v);},
+                ozel:function(v){return /[^\p{L}\p{N}]/u.test(v);} };
+    function boya(){
+      var v=yeni.value, hepsi=true;
+      liste.querySelectorAll('li').forEach(function(li){
+        var ad=li.getAttribute('data-kural'), gecti=KURAL[ad](v);
+        if(!gecti) hepsi=false;
+        li.classList.toggle('ok',gecti);
+        li.querySelector('i').className = gecti
+          ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle';
+      });
+      var esit = tekrar.value.length>0 && tekrar.value===v;
+      if(err) err.classList.toggle('show', tekrar.value.length>0 && !esit);
+      gonder.disabled = !(hepsi && esit);
+    }
+    yeni.addEventListener('input',boya);
+    tekrar.addEventListener('input',boya);
+    if(form) form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(gonder.disabled) return;
+      form.hidden=true; if(ok) ok.hidden=false;
+    });
+    var hesap=document.getElementById('auYsHesap');
+    if(hesap && qs.get('hesap')) hesap.textContent=qs.get('hesap');
+  })();
+
+ /* ---- KALEM #7 · E-POSTA DOĞRULAMA ----
+    Üç durum: bekliyor (varsayılan) · basarili · suresi-doldu.
+    `?durum=` ile seçilir. BACKEND YOK: bağlantı jetonu doğrulanmaz,
+    "yeniden gönder" yalnız 60 saniyelik bir bekleme sayacı çalıştırır. */
+  (function(){
+    var pane=document.getElementById('auPaneDogrula');
+    if(!pane) return;
+    var d=qs.get('durum')||'bekliyor';
+    pane.querySelectorAll('.dg-durum').forEach(function(x){
+      x.hidden = x.getAttribute('data-durum')!==d;
+    });
+    if(!pane.querySelector('.dg-durum:not([hidden])')){
+      pane.querySelector('.dg-durum[data-durum="bekliyor"]').hidden=false;
+    }
+    var hesap=document.getElementById('auDgHesap');
+    if(hesap && qs.get('hesap')) hesap.textContent=qs.get('hesap');
+    var sayac=document.getElementById('dgSayac');
+    function bekle(btn){
+      if(!btn||btn.disabled) return;
+      var kalan=60; btn.disabled=true;
+      if(sayac){ sayac.hidden=false; }
+      var yaz=function(){
+        if(sayac) sayac.querySelector('span').textContent =
+          'Yeni bağlantı isteyebilmen için '+kalan+' saniye bekle. (Prototipte gerçek e-posta gönderilmez.)';
+      };
+      yaz();
+      var t=setInterval(function(){
+        kalan--; if(kalan>0){ yaz(); return; }
+        clearInterval(t); btn.disabled=false;
+        if(sayac) sayac.querySelector('span').textContent='Yeni bağlantı isteyebilirsin.';
+      },1000);
+    }
+    var b1=document.getElementById('dgTekrar'), b2=document.getElementById('dgYeni');
+    if(b1) b1.addEventListener('click',function(){ bekle(b1); });
+    if(b2) b2.addEventListener('click',function(){
+      pane.querySelectorAll('.dg-durum').forEach(function(x){
+        x.hidden = x.getAttribute('data-durum')!=='bekliyor';
+      });
+      bekle(document.getElementById('dgTekrar'));
+    });
+  })();
  // ?role=antrenor → R9/3'ten sonra antrenör kaydının yeri antrenor-ol-v1.html.
  // Tıklamayla aynı yere gitmesi için derin bağlantı da oraya taşınır (replace:
  // geri tuşu kullanıcıyı bu sayfaya geri fırlatıp döngü kurmasın).

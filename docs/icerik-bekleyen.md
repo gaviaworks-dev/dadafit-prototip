@@ -4,13 +4,6 @@ Prototipte **yer tutucu** olarak duran, gerçek içeriği/adresi henüz
 belirlenmemiş kalemlerin tek listesi. Amaç: `href="#"` ve "yakında"
 etiketlerinin unutulup canlıya çıkmasını engellemek.
 
-⚠ **İKİNCİ BİR LİSTE VAR — `todo.md` (depo kökü).** 2026-08-26'daki
-"12 eksik kalem" turu, görev metninin isteğiyle **`data-placeholder`**
-niteliğini ve **`todo.md`** dosyasını kullandı; bu dosyanın sözleşmesi ise
-`data-yer-tutucu` + slug'dır. İki sözleşmeyi birleştirmek bir karardır ve
-verilmedi — **yer tutucu ararken İKİ dosyaya da bak**, iki niteliği de
-`grep`le: `data-yer-tutucu` ve `data-placeholder`.
-
 ## Kurallar
 
 1. Yer tutucu bırakan **kodda yorum satırı** düşer
@@ -44,6 +37,16 @@ verilmedi — **yer tutucu ararken İKİ dosyaya da bak**, iki niteliği de
 
 
 | `dadagastro-amblemi` | **DadaGastro amblemi** (köprü bölümü üst etiketi) | `dadafit-hub-v1.html` → "Köprü İş Başında" bölümünün eyebrow'u, `.dg-mark` | `data-yer-tutucu="dadagastro-amblemi"` + `role="img"` + durumu anlatan `aria-label`. **Amblem dosyası `assets/` altında YOK** (arandı: `assets/img`, `assets/svg` — yalnız DadaFit'in kendi `logo-official.png`'si var), yeni amblem **üretilmedi**. Yerinde duran şey deponun kendi DadaGastro işareti: `fit-shell.js:568` brand-switch kilidi — `fa-utensils` + marka rengi **#E14827** + "Dada"(ExtraBold)/"Gastro"(Light). Yani sahte görsel değil, mevcut marka dili | Gerçek amblem gelince `assets/img/` altına koy, `.dg-mark` içindeki `<i>` + `.dg-wm` yerine `<img alt="DadaGastro">` yaz, `data-yer-tutucu` / `role="img"` / `aria-label`'ı ve YER TUTUCU yorumunu sil, `tests/hub-program-r8.mjs` §22'deki yer-tutucu beklentisini güncelle |
+
+<!-- 2026-08-26 · "12 eksik kalem" turu · hesap ailesi ekranları -->
+
+| `fatura-satici-kunyesi` | **DadaFit'in ticari künyesi** — ticari unvan · açık adres · vergi dairesi · vergi kimlik numarası | `fatura-detay-v1.html` → "Düzenleyen" kutusu, `.fd-taraf` ilk `<section>` | `data-yer-tutucu="fatura-satici-kunyesi"` — kutuda **DadaFit** adı ve "ticari unvan, adres, vergi dairesi ve vergi numarası satışa açılmadan önce yazılacak" cümlesi duruyor. Sahte bir unvan/VKN **uydurulmadı** | 🔴 **Satış açılmadan (`BILLING_SALES_OPEN`) ÖNCE ZORUNLU** — faturada yasal olarak bulunması gerekir. Gerçek künyeyi yaz, `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `veri-listesi-sayilari` | **Üyenin gerçek kayıt sayıları ve ilk kayıt tarihleri** | `fit-planim-veri-izin-v1.html` → "Verini gör, indir, sil" kartı, `#vzListe` tablosunun `<tbody>`si | `data-yer-tutucu="veri-listesi-sayilari"` — sekiz veri grubu örnek sayılarla. **Grup adları ve saklama süreleri gerçektir**, yalnız sayılar ve tarihler örnek | Sayı ve tarihleri üyenin kendi kaydından bas; grup adlarına ve saklama sürelerine dokunma; `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `sifre-sifirlama-hesabi` | **Sıfırlama bağlantısının açıldığı hesabın maskeli adresi** | `giris-v1.html` → `?tab=yeni-sifre` panesi, `#auYsHesap` | `data-yer-tutucu="sifre-sifirlama-hesabi"` — `e***@eposta.com`. Adres `?hesap=` parametresinden de gelebiliyor | Jetondan çözülen adresi **maskeli** bas — tam adres basılmaz, bağlantıyı ele geçiren biri hesabı öğrenmemeli. `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `dogrulama-hesabi` | **Doğrulama bağlantısının gönderildiği adres** | `giris-v1.html` → `?tab=dogrula` panesi, `#auDgHesap` | `data-yer-tutucu="dogrulama-hesabi"` — `elif.sahin@eposta.com` | Üyenin adresini **tam** bas (burada maskelenmez: kullanıcı kendi kutusuna bakacak). `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `2fa-kurulum-anahtari` | **TOTP kurulum anahtarı** (doğrulayıcı uygulamaya girilen sır) | `hesabim-v1.html` → `#tfaModal`, 2. adım, `.tfa-sir > code` | `data-yer-tutucu="2fa-kurulum-anahtari"` — `JBSW Y3DP EHPK 3PXP` | Sunucunun ürettiği anahtarı bas; **yalnız kurulum sırasında bir kez** göster. 🔴 Bu bir SIRDIR: kayda, günlüğe, ekran görüntüsüne ve QA çıktısına girmemeli. `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `2fa-kurtarma-kodlari` | **On tek kullanımlık kurtarma kodu** | `hesabim-v1.html` → `#tfaModal`, 3. adım, `#tfaKodlar` | `data-yer-tutucu="2fa-kurtarma-kodlari"` — liste boş doğar, sayfa JS'i on kod üretir. Karışan karakterler (`0/O` · `1/I/l`) alfabeden **ayıklı** | Sunucuda üretilip **hash'lenerek** saklanan kodları bas. Karakter ayıklama kuralını **koru** — destek talep numarasıyla aynı ilke (sözleşme §1.7). `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
+| `islem-kaydi-satirlari` | **Üyenin gerçek erişim kaydı** | `veri-islem-kaydi-v1.html` → `#ikListe` | `data-yer-tutucu="islem-kaydi-satirlari"` — on beş örnek kayıt (sen · antrenörün · bağlı uygulamalar · yönetim). **Dört erişim türü, süzgeç ve "satırlar silinmez" kuralı gerçektir**, yalnız satırlar örnek | Kayıtları gerçek erişim günlüğünden bas; sayfalama ("Daha Fazla Göster") ve süzgeç kalsın — sözleşme §1.2'nin ORTAK ŞERHİ sonsuz liste basılmamasını istiyor. `data-yer-tutucu` niteliğini ve YER TUTUCU yorumunu sil |
 
 ## Çözülenler
 

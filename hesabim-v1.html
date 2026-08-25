@@ -21,7 +21,8 @@
  Kabuk (token · header · footer · drawer · .pf-tabbar/.pf-tabs/.dt sekme
  rayı · .lib-top banner · .btn · .sr-only) fit-shell.css'te.
  Burada yalnız bu sayfanın kendi parçaları var:
-   .form-card/.fc-head + .fk-* form kiti · .set-row tercih satırı ·
+   .pnl-card/.pc-head/.pc-body/.pc-foot kart kiti (KANON DIET · §7) +
+   .fk-* form kiti · .set-row tercih satırı ·
    .tgl anahtar · .ntf-matrix kanal matrisi · .hs-facts §15 alan ızgarası ·
    .sub-* paket/fatura kutuları · .cc-* kart satırı · .uys-* paket satırı ·
    .hs-go başka sayfaya yönlendirme kartı · .warn-card/.danger-card.
@@ -49,7 +50,12 @@
 
 /* ---- sayfa gövdesi ---- */
 .hs-body{background:var(--bg-cream);padding:0 0 var(--sec-pad)}
-.hs-col{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+/* P12 · sütun kabının FLEX+GAP'i kalktı — kartlar arası boşluk artık
+   kanonun kendi kuralından geliyor (`.pnl-card+.pnl-card{margin-top:16px}`).
+   `max-width`/`margin` KALDI: sayfa sütununun genişliği kart kitinin değil,
+   sayfanın kararıdır ve Diet'in kitinde de karşılığı yoktur (ölçüldü —
+   `planim.css`te hiçbir sütun genişliği tanımlı değil). */
+.hs-col{max-width:900px;margin:0 auto}
 
 /* bölüm — çapa hedefi.
    DİKKAT — sabit header payı BURADA TEKRARLANMAZ: kabuk zaten
@@ -75,13 +81,65 @@
 .hs-rail{margin-bottom:22px}
 .hs-rail .dt{text-decoration:none}
 
-/* ---- FORM KARTI ---- */
-.form-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:28px}
-.fc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
-.fc-head h2{font-size:20px;display:flex;align-items:center;gap:11px}
-.fc-head h2 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-wash);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
-.fc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:5px}
-.fc-head>div:first-child{min-width:0}
+/* =====================================================================
+ KART KİTİ — KANON DIET  (sözleşme §7 · P12 · v2.3)
+ ---------------------------------------------------------------------
+ Kaynak: `dadadiet` referansı `css/planim.css:33-37, 96-107`.
+ Kurallar BİREBİR kopyalandı; yeniden adlandırma YOK (ölçüm üç hedefte de
+ sıfır çakışma buldu — 14-arayuz-tutarlilik.md §9.0.3).
+
+ ESKİ KİT SÖKÜLDÜ: `.form-card` (padding:28px, içerik doğrudan çocuk) ·
+ `.fc-head` (margin-bottom+padding-bottom+border-bottom). Yerine kartın
+ üç ayağı geldi: `.pc-head` · `.pc-body` · `.pc-foot`.
+
+ 🔴 KANONUN İKİ ESNETİLMİŞ KALEMİ (§7.1) — ikisi de burada uygulanıyor:
+   D-1 · `.pc-title` GERÇEK `<h2>` basar. Diet'in `<span>` biçimi kanon
+         DEĞİL. Fit'in 14 `<h2>`'si BELGE ANA HATTINDA KALIR.
+         Zorunlu CSS: 0 satır — Fit'te global sıfırlama (`fit-shell.css:138`)
+         ve `h1,h2,h3,h4` kuralı (`:148`) Diet'inkiyle BİREBİR AYNI değerleri
+         taşıyor (ölçüldü); `<h2>`ye geçmek çatışma üretmiyor.
+   D-2 · `.pc-head` AÇIKLAMA SATIRI taşır. Fit'in 14 açıklama metni KALIR.
+         Bunun için `align-items` açıklamalı başlıkta `flex-start`a döner —
+         `:has(p)` ile, değiştirici sınıf uydurmadan (ölçümün adlandırdığı
+         iki seçenekten biri, 14-arayuz-tutarlilik.md §10.2.2).
+
+ ⚠ MARKA TOKENİ EŞLEMESİ: Diet'in `.pc-title i` kuralı `var(--green)` okur —
+ bu Diet'in MARKA yeşilidir. Fit'te de `--green` VAR ama `#3BB77E`tir ve
+ kendi tanımının yorumu "yalnız sağlık bloğu" der; Fit'in marka yeşili
+ `--fit` (#009d4f). Birebir kopyalamak Fit'in kart ikonlarını DIET yeşiline
+ boyardı, o yüzden marka tokeni eşlendi: `--green` → `--fit`. Yeni renk
+ icat edilmedi, var olan token kullanıldı.
+
+ ⚠ KOPYALANMAYAN ÜÇ KURAL AİLESİ, sebebiyle:
+   · `.pnl-page-head` (+h1/.ph-sub/.ph-actions) — sayfa başlığı kiti. Fit'in
+     hesap sayfası kabuğun `.fp-profil` banner'ını kullanıyor; kopyalansa
+     ÖLÜ CSS olurdu.
+   · `.pnl-empty` + `.pe-ico`/h4/p — bu sayfada boş durum kartı YOK. Ayrıca
+     `.pe-ico` `var(--green-tint)` okuyor ve Fit'te o değişken YOK (ölçüldü);
+     eşlemesi marka kararıdır ve verilmedi.
+   · `.pc-link` — bu sayfada kullanılan sağ-kalem yok (`#fatura`nın sağ
+     kalemi `.btn.btn-ghost`). Ölü CSS eklenmedi.
+   Üçü de gerektiğinde kaynağından aynen alınır.
+ ===================================================================== */
+.pnl-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--sh-sm);
+}
+.pnl-card+.pnl-card{margin-top:16px}
+.pc-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:18px 22px;border-bottom:1px solid var(--line);
+}
+.pc-title{font-size:16px;font-weight:700;color:var(--slate);display:flex;align-items:center;gap:10px}
+.pc-title i{color:var(--fit);font-size:15px}
+.pc-body{padding:22px}
+.pc-body.flush{padding:0}
+.pc-foot{padding:14px 22px;border-top:1px solid var(--line)}
+
+/* D-2 · açıklama yuvası — ölçümün öngördüğü üç satır (§10.2.2) */
+.pc-head:has(p){align-items:flex-start}
+.pc-head p{font-size:13px;color:var(--muted);font-weight:500;margin-top:5px}
+.pc-head>div:first-child{min-width:0}
 
 /* ---- FK ALAN KİTİ ---- */
 .fk-field{margin-bottom:22px}
@@ -142,11 +200,23 @@
    font-size:12px;color:var(--muted);font-weight:500} */
 
 /* ---- kaydet barı ---- */
-.hs-save{display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
-.hs-save .note{font-size:12.5px;color:var(--muted);font-weight:500}
-.hs-save .note a{color:var(--fit-deep);font-weight:700}
-.hs-save .note a:hover{text-decoration:underline;text-underline-offset:2px}
-.hs-save>.btn{margin-left:auto;padding:14px 26px}
+/* P12 · KAYDET BARI — kartın içindekiler `.pc-foot` ayağına taşındı.
+   Kutu bildirimleri (padding · border-top) artık KANONDAN geliyor, yukarıdaki
+   `.pc-foot` kuralından; eski `.hs-save`in margin-top/padding-top/border-top
+   üçlüsü SÖKÜLDÜ.
+   ⚠ `.hs-save` ADI SİLİNMEDİ, tek bir yerde yaşamaya devam ediyor: fatura
+   bilgileri AÇILIR PENCERESİ (`#ftModal`). Sebebi ölçüldü — o pencere kart
+   kitini değil kabuğun `.fb-*` modal kitini kullanıyor ve `.fb-body` kendi
+   dolgusunu (`24px 26px 26px`) taşıyor; `.pc-foot`un kenardan kenara dolgusu
+   ile üst çizgisi orada içeriden başlayan, panele değmeyen bir bant üretirdi.
+   Sözleşme §7 hesap KARTI kompozisyonunu bağlar, modal kitini değil.
+   Yerleşim bildirimleri iki kap için TEK KAYNAKTA tutuldu. */
+.pc-foot,.hs-save{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hs-save{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.pc-foot .note,.hs-save .note{font-size:12.5px;color:var(--muted);font-weight:500}
+.pc-foot .note a,.hs-save .note a{color:var(--fit-deep);font-weight:700}
+.pc-foot .note a:hover,.hs-save .note a:hover{text-decoration:underline;text-underline-offset:2px}
+.pc-foot>.btn,.hs-save>.btn{margin-left:auto;padding:14px 26px}
 .hs-saved{display:none;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--fit-deep)}
 .hs-saved.show{display:inline-flex;animation:fadeUp .3s var(--ease)}
 
@@ -236,13 +306,19 @@
 .hs-state.done{color:var(--fit-deep)}
 
 /* ---- yıkıcı bölüm kutuları ---- */
-.warn-card,.danger-card{background:var(--paper);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--sh-sm)}
-.warn-card{border:1px solid var(--hs-warn-line)}
-.danger-card{border:1px solid var(--hs-danger-line)}
-.warn-card .fc-head{border-bottom-color:var(--hs-warn-line)}
-.warn-card .fc-head h2 i{background:var(--hs-warn-tint);color:var(--hs-warn)}
-.danger-card .fc-head{border-bottom-color:var(--hs-danger-line)}
-.danger-card .fc-head h2 i{background:var(--hs-danger-tint);color:var(--hs-danger)}
+/* P12 · UYARI/TEHLİKE KARTI — artık kanon kabın (.pnl-card) ÜSTÜNE oturan
+   bir varyant. Kutu bildirimleri (zemin · yuvarlaklık · gölge · dolgu)
+   kanondan geliyor; burada yalnız KENARLIK RENGİ ve başlık ikonunun tonu
+   kalıyor.
+   ⚠ Bu, sözleşme §9.5.2'nin A2 kalemini KARARA BAĞLAMAZ — "Diet'te tehlike
+   kartı varyantı yok, kalsın mı" sorusu hâlâ AÇIK. Burada yapılan yalnız
+   var olan varyantı yeni kompozisyona uydurmaktır; varyant silinmedi. */
+.warn-card{border-color:var(--hs-warn-line)}
+.danger-card{border-color:var(--hs-danger-line)}
+.warn-card .pc-head{border-bottom-color:var(--hs-warn-line)}
+.warn-card .pc-title i{color:var(--hs-warn)}
+.danger-card .pc-head{border-bottom-color:var(--hs-danger-line)}
+.danger-card .pc-title i{color:var(--hs-danger)}
 .btn-danger{background:var(--hs-danger);color:#fff}
 .btn-danger:hover{background:var(--hs-danger-dark);transform:translateY(-2px)}
 .btn-warn{background:var(--paper);color:var(--hs-warn);border:1px solid var(--hs-warn-line)}
@@ -322,21 +398,25 @@
 /* ===================== MOBİL (≤640px) ===================== */
 @media (max-width:640px){
   /* YASLAMA İSTİSNASI (dar ekran) — ölçüldü, tahmin değil.
-     390px'te en geniş kelime arası: .fc-head p 14.6–27.5px · .hs-warn 14.7–18.8px
+     390px'te en geniş kelime arası: kart açıklaması 14.6–27.5px · .hs-warn
+     14.7–18.8px (ölçüm P12 öncesi, seçici o gün `.fc-head p` idi)
      (normal 3.4px, yani 4–8 katı). Sebep: fit-type.css `p`yi yaslıyor ve dar
      kutu için 20rem=320px'lik container-query istisnası tanıyor, ama bu
-     kutular 324px kalıyor (eşiğin 4px üstünde) ve .form-card/.warn-card
+     kutular 324px kalıyor (eşiğin 4px üstünde) ve .pnl-card/.warn-card
      `container-type` bildirmiyor → istisna hiç açılmıyor. Chromium Türkçe
      tireleme sözlüğü de taşımıyor (HANDOFF §8), o yüzden satır kelime
      aralarına yayılıyor. Kart açıklaması ve tek cümlelik uyarı bu genişlikte
      sola yaslı okunur. Özgüllük (0,1,1) fit-type.css'in (0,0,1) kuralını
      yener — YÜKLEME SIRASINA DOKUNULMADI, fit-type.css hâlâ en sonda. */
-  .fc-head p, .hs-warn, .hs-warn>span{text-align:left;text-align-last:auto}
+  .pc-head p, .hs-warn, .hs-warn>span{text-align:left;text-align-last:auto}
 
   .hs-body{padding-bottom:var(--sec-pad)}
-  .hs-col{gap:18px}
-  .form-card,.warn-card,.danger-card{padding:20px 16px}
-  .fc-head{flex-direction:column;gap:10px;margin-bottom:18px;padding-bottom:14px}
+  /* P12 · dar ekranda kartın üç ayağı da daralır; eski `.form-card`ın tek
+     `padding:20px 16px` bildirimi yerine ayak ayak. `.hs-col{gap}` kalktı
+     çünkü sütun kabı artık boşluk üretmiyor (kanon `.pnl-card+.pnl-card`). */
+  .pc-head{flex-direction:column;align-items:flex-start;gap:10px;padding:16px}
+  .pc-body{padding:16px}
+  .pc-foot{padding:14px 16px}
   .fk-grid.c2,.fk-grid.c3{grid-template-columns:1fr}
   .hs-facts{grid-template-columns:1fr}
   .hs-go{grid-template-columns:1fr}
@@ -344,10 +424,10 @@
   .set-row .fk-select{width:100%}
   .set-row .tgl,.set-row .sr-act,.set-row .sr-on{margin-left:auto}
   .ntf-row{grid-template-columns:minmax(0,1fr) 56px 56px;gap:8px}
-  .hs-save{flex-wrap:wrap}
-  .hs-save>.btn{width:100%;margin-left:0;order:1}
-  .hs-save .note{order:2}
-  .hs-save .hs-saved{order:3}
+  .pc-foot,.hs-save{flex-wrap:wrap}
+  .pc-foot>.btn,.hs-save>.btn{width:100%;margin-left:0;order:1}
+  .pc-foot .note,.hs-save .note{order:2}
+  .pc-foot .hs-saved,.hs-save .hs-saved{order:3}
   .hs-gate-acts .btn{width:100%}
   .sub-tier-top{flex-wrap:wrap;gap:12px}
   .sub-tier-price{order:3;margin-left:auto;text-align:left}
@@ -476,14 +556,15 @@
        1 · PROFİL BİLGİLERİM  (§5)
        ============================================================ -->
       <section class="hs-sec" id="profil" role="tabpanel" tabindex="0" aria-labelledby="tab-profil">
-        <form class="form-card" data-savecard>
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2 id="profilH"><i class="fa-solid fa-id-card"></i> Profil Bilgilerim</h2>
+              <h2 id="profilH" class="pc-title"><i class="fa-solid fa-id-card"></i> Profil Bilgilerim</h2>
 <!-- R9 · sıralama ifadesi çıkarıldı (bkz. Profil Görünürlüğü'ndeki tek ses notu) -->
               <p>Adın ve fotoğrafın antrenörüne ve herkese açık profilinde görünür.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <!-- R12 EK TUR · R22 — fotoğraf yükleme formdan kalktı, kontroller
                yukarıdaki profil kartına taşındı (`.fp-kapak-edit` ·
@@ -539,20 +620,22 @@
             <textarea class="fk-textarea" id="hsBio" name="hakkimda" maxlength="160">Haftada üç gün kuvvet, iki gün yürüyüş. Masa başı çalışıyorum, mobiliteyi ihmal etmemeye çalışıyorum.</textarea>
           </div>
 
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note">Son güncelleme: 2 gün önce</span>
             <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet</button>
           </div>
         </form>
 
-        <form class="form-card" data-savecard style="margin-top:18px">
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2><i class="fa-solid fa-eye"></i> Profil Görünürlüğü</h2>
+              <h2 class="pc-title"><i class="fa-solid fa-eye"></i> Profil Görünürlüğü</h2>
               <p>Profilinin ve ilerlemenin kimlere göründüğünü buradan seç. Sağlık verisi paylaşımı ve uygulama izinleri <a href="fit-planim-veri-izin-v1.html" style="color:var(--fit-deep);font-weight:700">Veri ve İzinlerim</a> bölümünde yönetilir.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="set-list">
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-id-badge"></i></span>
@@ -590,7 +673,8 @@
               <label class="tgl" for="vsSeo"><input type="checkbox" id="vsSeo" /><span class="tk"></span><span class="sr-only">Arama motorlarında görün</span></label>
             </div>
           </div>
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note"><a href="fit-planim-veri-izin-v1.html#indir">KVKK kapsamında verilerimi indir</a></span>
             <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Tercihleri Kaydet</button>
@@ -602,13 +686,14 @@
        2 · BİLDİRİM TERCİHLERİM  (§5 · kabuk çapası #bildirim)
        ============================================================ -->
       <section class="hs-sec" id="bildirim" role="tabpanel" tabindex="0" aria-labelledby="tab-bildirim">
-        <form class="form-card" data-savecard>
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2 id="bildirimH"><i class="fa-regular fa-bell"></i> Bildirim Tercihlerim</h2>
+              <h2 id="bildirimH" class="pc-title"><i class="fa-regular fa-bell"></i> Bildirim Tercihlerim</h2>
               <p>Hangi bildirimi hangi kanaldan alacağını seç. Antrenman hatırlatmaları planındaki seans saatine göre gönderilir.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <div class="ntf-matrix">
             <div class="ntf-row head"><span>Bildirim</span><span>E-posta</span><span>Push</span></div>
@@ -684,7 +769,8 @@
 
           <div class="ntf-foot"><i class="fa-regular fa-bell" aria-hidden="true"></i> <span>Gelen bildirimlerini görmek için <a href="bildirimler-v1.html">bildirim akışına git</a>. Antrenman hatırlatmalarının hangi günlere düştüğü <a href="fit-planim-programim-v1.html">Plan ve Takvim</a> sekmesinden gelir.</span></div>
 
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note">Bu tercihler yalnız DadaFit bildirimlerini kapsar.</span>
             <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Tercihleri Kaydet</button>
@@ -717,13 +803,14 @@
        K13 gereği panelden okunur, Dalga 6'nın konusudur.
        ============================================================ -->
       <section class="hs-sec" id="uyelik" role="tabpanel" tabindex="0" aria-labelledby="tab-uyelik">
-        <div class="form-card">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2 id="uyelikH"><i class="fa-solid fa-crown"></i> DadaFit Üyeliğim</h2>
+              <h2 id="uyelikH" class="pc-title"><i class="fa-solid fa-crown"></i> DadaFit Üyeliğim</h2>
               <p><b>Platform paketin</b> — DadaFit'e ödediğin site geneli üyelik. Aktif paketin, dönem tarihleri ve yenileme durumu burada; paketini değiştirebilir ya da aboneliğini iptal edebilirsin. Antrenör paketlerin <b>ayrı bir kutuda</b>, bu bölümün altında.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <div class="sub-tier-card">
             <div class="sub-tier-top">
@@ -796,6 +883,7 @@
           </form>
 
           <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Üyelik ve iptal koşullarının tamamı <a href="yasal-v1.html?metin=kullanim">kullanım koşullarında</a>. Faturalandırma soruların için <a href="destek-talepleri-v1.html">destek talebi</a> açabilirsin.</span></div>
+          </div>
         </div>
 
         <!-- ==========================================================
@@ -812,13 +900,14 @@
              "Henüz bir antrenör paketin yok" + antrenör dizini bağlantısı.
              Boş kutu veya "yakında" BASILMAZ.
              ========================================================== -->
-        <div class="form-card" style="margin-top:18px">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2><i class="fa-solid fa-user-check"></i> Antrenör Hizmet Paketlerim</h2>
+              <h2 class="pc-title"><i class="fa-solid fa-user-check"></i> Antrenör Hizmet Paketlerim</h2>
               <p><b>DadaFit Pro üyeliğinden ayrı bir kutudur.</b> Bedeli antrenöre ödersin, ayrı tahsil edilir ve ayrı iptal edilir. Randevu ve mesajlaşma <a href="fit-planim-randevular-v1.html" style="color:var(--fit-deep);font-weight:700">Planım › Antrenörüm</a> sekmesinde.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="uys-list">
             <div class="uys-row">
               <span class="uys-ava" role="img" aria-label="Selin Aksoy" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
@@ -886,6 +975,7 @@
                hizmet abonelik bedeline dâhil değildir. Abonelik indirim veya
                öncelik sağlayabilir, bedeli KAPSAMAZ. -->
           <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Antrenör paketleri <b>DadaFit Pro üyeliğine dâhil değildir</b> ve ayrı tahsil edilir; Pro üyeliğin yalnız öncelikli randevu avantajı sağlar. Paketin iptali antrenörünle anlaştığın koşullara bağlıdır. Tahsilat kayıtları <a href="#odeme" style="color:var(--fit-deep);font-weight:700">Ödeme Geçmişim</a>, belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</span></div>
+          </div>
         </div>
       </section>
 
@@ -893,13 +983,14 @@
        4 · ÖDEME GEÇMİŞİM  (§5 · §15 · kabuk çapası #odeme)
        ============================================================ -->
       <section class="hs-sec" id="odeme" role="tabpanel" tabindex="0" aria-labelledby="tab-odeme">
-        <div class="form-card">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2 id="odemeH"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişim</h2>
+              <h2 id="odemeH" class="pc-title"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişim</h2>
               <p>İki kutunun da tahsilatı burada birlikte durur: <b>DadaFit üyeliğin</b> (platform paketi) ve <b>antrenör hizmet paketlerin</b>. Her satırın hangi kutuya ait olduğu işlem adında yazar. Fatura belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <div class="sub-inv-list">
             <div class="sub-inv-row head" aria-hidden="true">
@@ -980,6 +1071,7 @@
           <div style="margin-top:14px"><button class="btn btn-ghost" type="button" style="padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-plus"></i> Ödeme Yöntemi Ekle</button></div>
 
           <div class="ntf-foot"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Kart bilgileri ödeme sağlayıcısında saklanır; DadaFit tam kart numarasını görmez. Bu prototipte gerçek bir tahsilat yapılmaz.</span></div>
+          </div>
         </div>
       </section>
 
@@ -987,10 +1079,10 @@
        5 · FATURALARIM  (§5 · §15 · kabuk çapası #fatura)
        ============================================================ -->
       <section class="hs-sec" id="fatura" role="tabpanel" tabindex="0" aria-labelledby="tab-fatura">
-        <div class="form-card">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2 id="faturaH"><i class="fa-solid fa-file-invoice"></i> Faturalarım</h2>
+              <h2 id="faturaH" class="pc-title"><i class="fa-solid fa-file-invoice"></i> Faturalarım</h2>
               <p>Her tahsilat için düzenlenen fatura belgesi. Faturalar aynı zamanda e-posta adresine gönderilir.</p>
             </div>
             <!-- R5/K18 · Beyar: "başlığın sağ üstüne bir düğme gelsin … düğme
@@ -1006,6 +1098,7 @@
               <i class="fa-solid fa-building-columns" aria-hidden="true"></i> Fatura Bilgilerim
             </button>
           </div>
+          <div class="pc-body">
 
           <div class="sub-inv-list">
             <div class="sub-inv-row head" aria-hidden="true">
@@ -1050,6 +1143,7 @@
           <!-- R5/K18 · gömülü "Fatura Bilgilerim" formu buradan KALDIRILDI;
                aynı form artık `#ftModal` popup'ında (sayfa sonunda). Beyar:
                "sayfadaki gömülü form kaldırılsın, iki yerde birden durmasın." -->
+          </div>
         </div>
       </section>
 
@@ -1057,13 +1151,14 @@
        6 · GÜVENLİK  (§5 · kabuk çapası #guvenlik)
        ============================================================ -->
       <section class="hs-sec" id="guvenlik" role="tabpanel" tabindex="0" aria-labelledby="tab-guvenlik">
-        <form class="form-card" data-savecard>
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2 id="guvenlikH"><i class="fa-solid fa-lock"></i> Güvenlik</h2>
+              <h2 id="guvenlikH" class="pc-title"><i class="fa-solid fa-lock"></i> Güvenlik</h2>
               <p>Şifreni değiştir, iki adımlı doğrulamayı yönet, açık oturumlarını gör.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="fk-field">
             <label class="fk-label" for="pwCur">Mevcut şifren <span class="req">*</span></label>
             <div class="fk-pass">
@@ -1088,20 +1183,22 @@
             </div>
           </div>
           <span class="fk-help" id="pwHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> En az 8 karakter; büyük harf, küçük harf, rakam ve özel karakter (!, @, #, $ vb.) içermeli. Başka sitede kullandığın şifreyi tekrar etme.</span>
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note">Son şifre değişikliği: 4 ay önce</span>
             <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-key"></i> Şifreyi Güncelle</button>
           </div>
         </form>
 
-        <form class="form-card" data-savecard style="margin-top:18px">
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2><i class="fa-solid fa-mobile-screen-button"></i> İki Adımlı Doğrulama ve Giriş Yöntemleri</h2>
+              <h2 class="pc-title"><i class="fa-solid fa-mobile-screen-button"></i> İki Adımlı Doğrulama ve Giriş Yöntemleri</h2>
               <p>Hesabına giriş yollarını ve ek doğrulama katmanını yönet.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="set-list">
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
@@ -1135,15 +1232,17 @@
               <div class="sr-act"><button class="uys-manage" type="button">Bağla</button></div>
             </div>
           </div>
+          </div>
         </form>
 
-        <div class="form-card" style="margin-top:18px">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2><i class="fa-solid fa-desktop"></i> Açık Oturumlarım</h2>
+              <h2 class="pc-title"><i class="fa-solid fa-desktop"></i> Açık Oturumlarım</h2>
               <p>Hesabına giriş yapılmış cihazlar. Tanımadığın bir cihaz varsa oturumu kapat ve şifreni değiştir.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="set-list">
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></span>
@@ -1161,7 +1260,8 @@
               <div class="sr-act"><button class="uys-manage" type="button">Oturumu Kapat</button></div>
             </div>
           </div>
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note">Bu cihaz dışındaki tüm oturumlar kapatılır; yeniden giriş yapman gerekir.</span>
             <button class="btn btn-ghost" type="button"><i class="fa-solid fa-right-from-bracket"></i> Diğer Tüm Oturumları Kapat</button>
           </div>
@@ -1175,13 +1275,14 @@
        enerji ölçüsü var.
        ============================================================ -->
       <section class="hs-sec" id="dil" role="tabpanel" tabindex="0" aria-labelledby="tab-dil">
-        <form class="form-card" data-savecard>
-          <div class="fc-head">
+        <form class="pnl-card" data-savecard>
+          <div class="pc-head">
             <div>
-              <h2 id="dilH"><i class="fa-solid fa-globe"></i> Dil ve Bölge</h2>
+              <h2 id="dilH" class="pc-title"><i class="fa-solid fa-globe"></i> Dil ve Bölge</h2>
               <p>Arayüz dili, bölge ve ölçü birimleri. Birim tercihin hareket kayıtlarında, program setlerinde ve ilerleme grafiklerinde geçerli olur.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="fk-grid c2">
             <div class="fk-field">
               <label class="fk-label" for="dlDil">Arayüz dili</label>
@@ -1274,7 +1375,8 @@
               </select>
             </div>
           </div>
-          <div class="hs-save">
+          </div>
+          <div class="pc-foot">
             <span class="note">Birim değişikliği geçmiş kayıtlarını silmez, yalnız gösterimi çevirir.</span>
             <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Tercihleri Kaydet</button>
@@ -1289,13 +1391,14 @@
        böylece Hesabım alanı 14 modülün tamamını görünür kılıyor.
        ============================================================ -->
       <section class="hs-sec" id="diger" role="tabpanel" tabindex="0" aria-labelledby="tab-diger">
-        <div class="form-card">
-          <div class="fc-head">
+        <div class="pnl-card">
+          <div class="pc-head">
             <div>
-              <h2 id="digerH"><i class="fa-solid fa-shield-halved"></i> Diğer Hesap Modüllerim</h2>
+              <h2 id="digerH" class="pc-title"><i class="fa-solid fa-shield-halved"></i> Diğer Hesap Modüllerim</h2>
               <p>Bu modüller kendi sayfalarında yönetiliyor — burada kopyası tutulmuyor.</p>
             </div>
           </div>
+          <div class="pc-body">
           <div class="hs-go">
             <a href="fit-planim-saglik-profil-v1.html">
               <i class="go-ico fa-solid fa-heart-pulse" aria-hidden="true"></i>
@@ -1356,6 +1459,7 @@
                ikon, `#faturaDurum`da da kullanılıyor) tek parça olarak kondu.
                Bağlantı artık iç içe değil, kendi satırında. -->
           <p class="hs-state" style="margin-top:14px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Hangi bildirimi alacağını yukarıdaki <a href="#bildirim" style="color:var(--fit-deep);font-weight:700">Bildirim Tercihlerim</a> bölümünden seçersin.</span></p>
+          </div>
         </div>
       </section>
 
@@ -1366,13 +1470,14 @@
        kilitli düğme durumu ile verilir.
        ============================================================ -->
       <section class="hs-sec" id="dondur" role="tabpanel" tabindex="0" aria-labelledby="tab-dondur">
-        <div class="warn-card">
-          <div class="fc-head">
+        <div class="pnl-card warn-card">
+          <div class="pc-head">
             <div>
-              <h2 id="dondurH"><i class="fa-solid fa-circle-pause"></i> Hesabı Dondurma</h2>
+              <h2 id="dondurH" class="pc-title"><i class="fa-solid fa-circle-pause"></i> Hesabı Dondurma</h2>
               <p>Bir süre ara vermek istersen hesabını kapatmadan dondurabilirsin.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <p class="hs-warn">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -1418,6 +1523,7 @@
               <p class="hs-state blocked" id="dondurDurum" role="status" data-confirm-state><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Düğme kapalı: dondurmak için önce onay kutusunu işaretle.</span></p>
             </div>
           </form>
+          </div>
         </div>
       </section>
 
@@ -1428,13 +1534,14 @@
        kilitli düğme + durum satırıyla verilir, renkle değil.
        ============================================================ -->
       <section class="hs-sec" id="sil" role="tabpanel" tabindex="0" aria-labelledby="tab-sil">
-        <div class="danger-card">
-          <div class="fc-head">
+        <div class="pnl-card danger-card">
+          <div class="pc-head">
             <div>
-              <h2 id="silH"><i class="fa-solid fa-user-xmark"></i> Hesabımı Sil</h2>
+              <h2 id="silH" class="pc-title"><i class="fa-solid fa-user-xmark"></i> Hesabımı Sil</h2>
               <p>Hesabını kalıcı olarak kapatır. Ara vermek istiyorsan <a href="#dondur" style="color:var(--hs-danger-dark);font-weight:700">dondurma</a> geri alınabilir bir seçenektir.</p>
             </div>
           </div>
+          <div class="pc-body">
 
           <p class="hs-warn">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -1475,6 +1582,7 @@
           </form>
 
           <div class="ntf-foot"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span>Kararsızsan silmek yerine <a href="#bildirim">bildirimleri kapatabilir</a>, <a href="#dondur">hesabını dondurabilir</a> ya da <a href="destek-talepleri-v1.html">bize yazabilirsin</a>.</span></div>
+          </div>
         </div>
       </section>
 

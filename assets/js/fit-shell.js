@@ -426,7 +426,18 @@ var PLAN_NAV = PLAN_PAGES;
  ============================================================ */
 
 /* §14 · üyelik kalemi kademeye göre ad değiştirir. Kaynak: dm_user.paket.
-   Prototip kancası — kademe yoksa "ucretsiz" varsayılır. */
+   Prototip kancası — kademe yoksa "ucretsiz" varsayılır.
+
+   PAKET AD ALANI (P8, 2026-08-25) — dört markada TEK üçlü:
+   `ucretsiz` · `pro` · `pro_max_ai`. Eski `pro_max` anahtarı bu üçlünün
+   dışındaydı ve içeriği antrenör/ekosistem paketiydi; P8 ad alanını
+   tekleştirdi. Gerçek abone ve gerçek ödeme olmadığı için GÖÇ AKIŞI
+   YAZILMADI — tek yaptığımız, tarayıcıda kalmış eski demo kaydının
+   sessizce "Pro'ya Yükselt"e düşmesini engellemek.
+
+   🔴 Antrenör hizmet paketi bir PLATFORM paketi DEĞİLDİR ve bu anahtarı
+   hiç kullanmaz; iki ayrı kutudur (P5 · P7/2). Antrenör paketleri
+   hesabim-v1.html#uyelik'in ikinci kartında yaşar. */
 function uyelikKalemi(){
   var paket='ucretsiz', odemeSorunu=false;
   try{
@@ -434,9 +445,10 @@ function uyelikKalemi(){
     if(u && u.paket) paket=String(u.paket);
     odemeSorunu = !!(u && u.odemeSorunu);
   }catch(e){}
+  if(paket==='pro_max') paket='pro_max_ai';   /* eski demo kaydı — P8 adına çevrilir */
   if(odemeSorunu) return {label:'Aboneliğim — İşlem Gerekli', href:'uyelik-faturalandirma-v1.html#paket',
                           icon:'fa-solid fa-triangle-exclamation', cls:'acct-uyari', desc:'Ödeme alınamadı, güncelle'};
-  if(paket==='pro_max')  return {label:'Pro Max Üyeliğim', href:'uyelik-faturalandirma-v1.html#paket',
+  if(paket==='pro_max_ai') return {label:'Pro Max AI Üyeliğim', href:'uyelik-faturalandirma-v1.html#paket',
                                  icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
   if(paket==='pro')      return {label:'Aboneliğim',       href:'uyelik-faturalandirma-v1.html#paket',
                                  icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};

@@ -8,6 +8,12 @@ doğrudan ona geçilir. Kuyruk boşalınca "kuyruk boş" denir.
 **Ek kural (Beyar):** iş bitince **doğrudan canlıya alınır** — sormadan push edilir.
 Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltilir.
 
+**Ek kural (Beyar, 2026-08-25) — TEMPO:** Bir madde tek sayfa için geldiyse önce O
+SAYFA düzeltilir, ölçülür, kapatılır. Aynı kusurun başka sayfalarda olup olmadığı
+AYRI bir madde olarak kuyruğa yazılır, o turda taranmaz. 66 sayfa taraması ancak
+Beyar "her yer" derse yapılır. Bir maddeye 10 dakikadan fazla harcanıyorsa durulur,
+bulunan söylenir ve devam sorulur.
+
 ---
 
 | # | İstek | Durum | Not |
@@ -40,6 +46,11 @@ Tek istisna: bağımsız ölçüm KIRMIZI dönerse push edilmez, önce düzeltil
 | K27 | `hesabim-v1` gerçek sekme | **BITTI** | WAI-ARIA tabs deseni (tablist/tab/tabpanel + ok tuşları + gezici tabindex) · kalıp `challenge-v1`den · 10/10 sekme doğru · derin bağlantı, `?tab=` alias, geri tuşu, sayfa içi çapa hepsi çalışıyor · sayfa 10454px → 2226px · paneller işaretlemede AÇIK doğuyor (JS düşerse 47 sayfadan gelen çapalar kırılmaz) |
 | K28 | `aktivite-gunlugu-v1` best-practice revizyon | **BITTI** | En ağır kusur: iki başlık bloğunda İKİ `.lead` üst üste biniyordu, metin okunmuyordu — kabuk ızgarası her lead'i aynı hücreye pinliyor · tuzak kaynakta kapatıldı (66 sayfa tarandı, kusur yalnız bu sayfada) · `.ff-pop-clear` 49×19 → 57×26 ve kontrast 3.54 → 5.45 · birincil ölçüm döşemesine tipografik hiyerarşi (yayılma denendi, ızgarayı bozdu, geri alındı) · denetçi hata 7 → 6 |
 | K23 | R9 · banner sayaç bloğu kanona | **BITTI** | `.an-fact` satır-içi şerit → kanon `.lib-stat` (b 29px/700 · span 12.5px/500 · mt 6px — referansla birebir) · sayısal olmayan iki kalem VERİDEKİ sayılara ayrıldı (16 ön · 15 arka · 2 gövde modeli), uydurma sayı yok · banner yüksekliği referansla aynı (544/607/587) |
+| K29 | R10 · Plan sayfalarındaki İKİNCİ sekme rayı kalksın, kalemleri üstteki profil rayına taşınsın | **BITTI** | Ray artık BÖLÜME göre: planım sayfalarında 3 kalem (K66 korundu), 4 defter sayfasında `DEFTER_TABS` 4 kalem · ikinci ray **3 sayfadan** kalktı (`dengele`·`su`·`haftalik`) · kök neden: K66'da `defter` anahtarı raydan düşünce kabuktaki `RAY_UST` eşlemesi ÖLÜ kalmış, 4/4 defter sayfasında hiçbir kalem aktif değildi · R12·G7 aynı kaldırmayı yalnız `enerji-defteri-v1`e uygulamıştı (dersler §15) · doğrulama: 14 sayfa × 4 genişlik ray=1 · 16/16 tıklama @1440 · 32/32 tıklama @390 (çerez banner'ı açık ve kapalı) · **bağlantı kaybı 0**, dört hedef de +1 |
+| K30 | R11 · `destek-v1` sekme rayı ortalansın | **BITTI** | `.pf-tabs.is-center` opt-in sınıfı kabuğa eklendi (`.fit-tabs.is-center` kanonunun ikizi), destek çiftine işaretlendi · ilk deneme `@media(max-width:900px)` ile ortalamayı kapatıyordu — ölçüm bunun kaba olduğunu gösterdi (ray 2 kalem, @390'da bile taşmıyor), `justify-content:safe center`e geçildi · 5 genişlik × 2 sayfa sol=sağ · KAPSAM: destek rayı TEK ray, iki sayfada birden görünüyor; yalnız birini ortalamak R34'teki zıplamayı geri getirirdi |
+| K31 | R12 · `destek-talepleri-v1` beyaz panelin üst köşeleri 22px radius | **BITTI** | Öncül yanlış, kusur gerçek (dersler §18): 22px yarıçap ZATEN uygulanmıştı, okunmayan **dolguydu** — panel `--bg-cream`, altındaki sayfa zemini de aynı · envanter: 49 dikişten 42'si `is-onbanner` (köşe koyu banner'da okunur, 6'sı krem ve sorunsuz), **7'si ray-altı** (köşe YALNIZ dolguyla okunur) · ray-altı 4 beyaz / **3 krem** → `destek-talepleri`·`antrenor-ol`·`arama-fit` `--paper`e çekildi, ray-altı 7/7 beyaz · piksel nöbeti 47/48 okunuyor · render 3/3 doğrulandı, kart kiti kenarla ayrışmaya devam ediyor |
+| K32 | R13 · `fit-planim-programim-v1` bölüm başlığı ile kart arası nefes | **BITTI** | Öncül sayfa adında kaydı: "Alt Vücut ve Core" `fit-planim-programim`'de sabit metin değil — **5 günlük** üretilmiş planın 5. gününün adı (`antrenman-olusturucu` PPL şablonu), sayfaya `dm_fit_planlar_v1`'den geliyor; kusuru üretmek için gerçek plan üretildi, veri uydurulmadı · Ölçüm (3 genişlikte birebir aynı): `.pp-kok` → koyu `.fp-card.is-dark` **0px** — sayfadaki TEK aykırı aralık · sayfanın kendi ritmi: pp-kart→gunler-ust **22px**, gunler-ust→gunler 14px, gün kartları arası 16px, koyu kart→fp-grid **22px**, fp-grid→hr-note 34px · `.pp-kok{margin-bottom:22px}` — değer sayfanın kendi blok kanonundan, iki yerde zaten geçiyor · render planlı ve boş durumda doğrulandı |
+| K33 | R14-B · Program tamamlanma akışı — SPEC KEŞFİ (kod yazma, ölç+raporla, sonra DUR) | **BEKLIYOR** | ⚠ eski K13'teki "R14" farklı iştir, karıştırma |
 
 ---
 

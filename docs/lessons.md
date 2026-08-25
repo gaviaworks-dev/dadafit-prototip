@@ -303,3 +303,83 @@ yeniden açıldı — bu kez kabuğa yazıldı, sayfaya özel kural kaldırıld�
 konuşulur: "yalnız bu sayfa mı, hepsi mi?" Dar kapsam güvenli görünür ama
 tutarsızlık bir sonraki turda geri döner. Opt-in sınıf (`.fit-tabs.is-center`
 kalıbı) iki dünyayı da verir: kabukta tanımlı, yalnız işaretli sayfada etkili.
+
+---
+
+## 16 · "Herhangi bir noktası tıklanıyor mu" ≠ "çalışıyor"
+
+**Ne oldu (R13).** `anatomi-v1` haritasının 72 bölgesini tek tek tıklayıp
+"72/72 ÇALIŞIYOR" raporladım. Denetim ajanı aynı sayfada gerçek bir kusur
+buldu: kadın/arka `latissimus` dolgusunun **%34'ü** `erector-spinae`
+altında kalıyordu ve kullanıcı sırtın ortasına tıklayınca yanlış panel
+açılıyordu. Benim sondam bölgenin İÇİNDE elementFromPoint'in o elemanı
+döndürdüğü **bir** nokta buluyor ve "tıklanıyor" diyordu.
+
+**Kural.** Örtüşen/katmanlı hedeflerde ölçüt "bir nokta tutuyor mu" değil,
+**"kendi dolgusunun yüzde kaçı üstte"** olmalı. Eşik: %95'in altı bulgudur,
+ve örtenin ADI raporlanır. Ölçüm:
+```js
+// bölgenin dolgusunu tara; her noktada elementFromPoint === el mi
+if(!el.isPointInFill(nokta)) continue;
+ic++; if(document.elementFromPoint(x,y)===el) ust++;
+// ustOran = 100*ust/ic
+```
+
+**Aynı ailenin tuzağı — ağırlık merkezi ölçütü iki loblu şekillerde
+GEÇERSİZDİR.** Sol+sağ kas çiftinin ağırlık merkezi iki lobun ARASINA,
+gövde orta hattına düşer; orada şekil yoktur, tıklama zemine gider ve
+"önceki seçim duruyor" diye okunur. Bu ölçütle koşan sonda 18 bölgenin
+15'inde sahte kusur üretti. Merkez ölçütü yalnız TEK parçalı şekillerde
+kullanılabilir.
+
+---
+
+## 17 · Üreteci olan çıktıyı elle düzenleme — önce KONTROL KOŞUSU
+
+**Ne oldu (R13).** Anatomi SVG'leri `tasks/anatomi-uretim/` betikleriyle
+render'dan üretiliyor; BENIOKU açıkça "elle düzenlenen bir SVG bir daha
+üretilemez ve render ile hizası bozulur" diyor. Kusuru düzeltmek için
+üreteci güncelledim — ama ÖNCE hiçbir şey değiştirmeden koşturdum ve
+dört SVG'nin de **birebir aynı** çıktığını doğruladım.
+
+**Kural.** Üretilen çıktıyı değiştirmeden önce üreteci olduğu gibi koştur
+ve çıktının bit bit aynı olduğunu kanıtla. Bu iki şeyi birden verir:
+üretecin hâlâ çalıştığını, ve sonraki farkın YALNIZ senin değişikliğinden
+geldiğini. Kontrol koşusu olmadan "üreteç mi bozuldu, ben mi bozdum"
+ayrımı yapılamaz.
+
+**Ara dosyalar oturum scratchpad'inde yaşıyorsa yolunu devir notuna yaz** —
+bu turda `*-nlab.npy` dosyaları hâlâ duruyordu ve üreteç koşabildi;
+kaybolsalardı normalizasyon adımı baştan koşmak gerekecekti.
+
+---
+
+## 18 · Kusurun ÖNCÜLÜ yanlış olabilir, kusur yine gerçektir
+
+**Ne oldu (R13).** Beyar "bilgilendirme kutusu üstündeki ızgaradan dar"
+dedi. Ölçüm öncülü yalanladı: kutu (776px) ve üstündeki üç kart
+**piksel piksel hizalıydı** (ikisi de 332→1108). Ama gördüğü sorun
+gerçekti — dar olan tek kutu değil, **makale kolonunun tamamıydı**
+(`.art-wrap` 840px), ve sayfa header'ı 1176px'ti.
+
+**Kural.** §13'ün devamı: öncülü ölçüp yanlışlamak işi bitirmez. "Öncül
+yanlış" demek "kusur yok" demek DEĞİLDİR. Ölçümü raporla, gerçek kök
+nedeni göster ve kullanıcının hangi kanonu istediğini SOR — bu turda
+"header ile aynı genişlik" cümlesi "en üstteki header menü genişliği"
+diye netleşti ve kapsam (yalnız kutu mu, ızgara da mı) ona göre kuruldu.
+
+---
+
+## 19 · Ekran görüntüsüne bakmadan tasarım kararı verme
+
+**Ne oldu (R13).** `aktivite-gunlugu`'nda altı özet döşemesi düz bir
+ızgaraydı; yalnız biri hedefi olan ölçümdü. Birincil döşemeyi iki kolona
+yaydım — ölçüm doğruydu (779 vs 381px). Ekran görüntüsüne bakınca ızgara
+6 hücreden 7'ye çıkmış, son satırda tek başına bir döşeme kalmıştı;
+düzen öncekinden KÖTÜ oldu. Geri alındı, hiyerarşi ızgaraya dokunmadan
+tipografiyle kuruldu.
+
+**Kural.** Geometri ölçümü "düzen iyi mi" sorusunu cevaplamaz. Tasarım
+dokunuşundan sonra RENDER'a bak. Tertip (ızgaranın kapanması) vurgudan
+önce gelir; 6 hücrelik ızgarada bir hücreyi 2'ye çıkarmak aritmetik
+olarak ragged satır üretir.

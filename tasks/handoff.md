@@ -486,3 +486,136 @@ DadaDiet sola dayalı olduğu hâlde bilinçli sapma).
 7. **Kuyruk dosyası işe yarıyor.** `tasks/kuyruk.md` — gelen her istek tek tek
    yazılır, BEKLIYOR/ISLENIYOR/BITTI ile izlenir. Beyar hızlı ve paralel istek
    gönderdiğinde madde kaybını bu önledi.
+
+
+---
+---
+
+# DEVİR NOTU — REVİZYON-13 (Beyar turu, 2026-08-25)
+
+**Özet:** 14 kuyruk maddesi geldi, **12'si kapandı ve canlıda doğrulandı**;
+2'si Beyar kararında. **10 commit**, hepsi `main`'de ve yayında
+(`37c44df..e96123a`). Working tree **temiz**, `ahead=0`. Nöbetler koşuldu:
+`hizalama-nobeti` · `kabuk-kalite` · `header-banner` · `footer-yapi` ·
+`plan-account` · `crumb-home` · `a11y-focus` · `anatomi` → **hepsi 0 sorun**.
+
+---
+
+## 1 · Ekip durumu
+
+| Ajan | İş | Durum |
+|---|---|---|
+| `anatomi-denetim` | `anatomi-v1` 4 görünüm × 18 bölge tıklama denetimi + R8 ön bulgusu | **KAPANDI — yeniden açma** |
+
+Devir bilgisi: ajanın raporu bu oturumda değerlendirildi, bulguları
+doğrulandı, düzeltmeler `bd7a4d8` ve `5b607e2` commit'lerinde. Ajanın
+ölçüm scriptleri oturum scratchpad'inde kaldı (kalıcı değil); yeniden
+gerekirse `docs/qa/` kalıbıyla yazılır.
+
+**Ajanın yakaladığı, benim kaçırdığım kusur — ders:** ben "bölgenin
+herhangi bir noktası tıklanıyor mu" diye ölçmüştüm, ajan "dolgusunun NE
+KADARI tıklanıyor" diye baktı. `latissimus`'un %34'ü komşusunun altındaydı
+ve ilk denetimim bunu "ÇALIŞIYOR" diye raporlamıştı.
+
+---
+
+## 2 · Kapananlar
+
+| # | İş | Commit |
+|---|---|---|
+| K15 | Hub tarif kartları DadaGastro `.r-card` yapısına (kalp + künye + yazar satırı) | `0988ddc` |
+| K16 | Marka lockup'ı: ayraç `#E14827`, marka 11.5→16px, kuyruk 12→10.5px | `0988ddc` |
+| K17 | 8 makale sayfasında köprü kartları + bilgilendirme kutusu kanon 1176'ya | `20dd7a8` |
+| K18 | `hesabim-v1` fatura bilgileri formu popup'a (kabuk `.fb-*` modalı) | `afae254` |
+| K19 | `hesabim-v1` Diğer Modüller: iç içe `<a>` yüzünden ızgaraya düşen cümle | `cf0bdc1` |
+| K20 | `hareket-hedefe-gore` giriş metni `.jt-flow` ile yaslandı | `0ed307a` |
+| K21 | `anatomi-v1` 72 hücrelik tıklama denetimi — kusur yok, düzeltme gerekmedi | — |
+| K22 | Anatomi seçim şekli: 9 bölge düz çizgiyle kesiliyordu → lif yönünde kesim | `bd7a4d8` `5b607e2` |
+| K23 | Anatomi banner sayaçları kanon `.lib-stat`e | `bd7a4d8` |
+| K27 | `hesabim-v1` bölüm rayı → gerçek sekme (WAI-ARIA tabs) | `4d4d10b` |
+| K28 | `aktivite-gunlugu` üst üste binen paragraflar + denetim bulguları | `e96123a` |
+
+**Kabuğa eklenen/değişen kurallar** (`assets/css/fit-shell.css`, dosya sonu):
+1. `K28 · ÜST ÜSTE BİNEN .lead PARAGRAFLARI` — `.sec-head .lead+.lead{grid-row:auto}`
+2. `K28 · .ff-pop-clear` — dokunma hedefi 26px + `--fit-deep` kontrast
+
+**Üreteç değişti:** `tasks/anatomi-uretim/bolgeler.py` — trapez iç kesimleri
+ve kadın omurga şeridi. SVG'ler ELLE düzenlenmedi; üreteç yeniden
+koşturuldu. Ara dosyalar **hâlâ duruyor**:
+`ANATOMI_SP=/private/tmp/claude-501/-Users-gaviaworks-Developer-Projects-dadafit-prototip/ce69d8d5-864c-420f-9bb0-96a0f9364f91/scratchpad`
+(kalıcı değil — kaybolursa normalizasyon adımı yeniden koşulmalı, bkz. `tasks/anatomi-uretim/BENIOKU.md`).
+
+---
+
+## 3 · AÇIK / SONRAKİ ADIM — hepsi Beyar kararında
+
+Öncelik sırası:
+
+1. **K24 · Çerez banner'ı anatomi haritasını yiyor.** İlk ziyarette @1440
+   harita alanının %12'si kapalı, `adduktor` **%97 erişilemez**. Kabuk
+   düzeyinde (`.cookie-banner` `position:fixed; z-index:95`, 66 sayfa) —
+   düzeltme kapsamı baştan konuşulmalı.
+2. **K13 · `destek-v1` + `pro-v1` profil kalıbı (R14).** İki sayfada da
+   kapak görseli (`--lib-img:none`) ve gösterilecek kimlik verisi yok;
+   `.fp-profil` bir kimlik kartı olduğu için uydurma avatar/kapak
+   gerekirdi. **Alternatif:** kapak görseli verip düz bannerı kırmak.
+3. **K26 · Görünüm takla atması.** Ön gövdedeki `gastrocnemius`/`trapez-ust`
+   ve arka gövdedeki `tensor-fasya-lata`/`brachioradialis`/`adduktor`
+   tıklanınca model karşı tarafa dönüyor. Teknik olarak doğru
+   (`veri.gorunum` neyse oraya gidiyor) — kusur mu tasarım mı?
+4. **K25 · Anatomi @390 dokunma hedefi.** 10 bölge WCAG 2.5.8 (24px)
+   altında, dokuzu kadın gövdesinde (kadın render'ı daha ince).
+   **Ajan ölçümü, benim tarafımdan DOĞRULANMADI.**
+
+### Önceki turlardan devam eden açık borçlar
+- **`?sayfa=N` derin bağlantısı** — R18'de kalktı, `FIT_PAGI` desteklemiyor.
+- **Zebra deseni** — `fit-planim-gecmis`'te Beyar "zebra var" dedi, ölçüm bulamadı.
+- **justify satır uzunluğu** — `hareket-hedefe-gore` @640'ta kelime arası
+  **2.62×** (kardeş sayfada 2.01×). Kök neden satır uzunluğu; `--measure`
+  M5'te bilinçli devrilmişti. Üç seçenek: böyle bırak / `.jt-flow` eşiğini
+  yükselt (kabuk) / metni daralt.
+
+---
+
+## 4 · Bu turda değişen taban değerler
+
+| Ölçüm | Eski | **Yeni** |
+|---|---|---|
+| Hub tarif kartı | protein/kcal künyesi, "Tarifi Gör" alt satırı | **referans yapısı · yükseklik tek değer 363px** |
+| `hesabim-v1` sayfa yüksekliği | 10454px (tek akış) | **2226px (tek panel)** |
+| `hesabim-v1` ray | atlama listesi + scrollspy | **WAI-ARIA tabs · scrollspy SİLİNDİ** |
+| Anatomi bölge örtüşmesi | 1/72 (`latissimus` %34 örtülü) | **0/72** |
+| Anatomi banner kalemi | 3 (ikisi sayısal değil) | **4, hepsi veriden sayısal** |
+| `.hr-note` kanon dışı sayfa | 15 | **7** (8'i düzeltildi) |
+
+---
+
+## 5 · Dersler (bu turun kısa listesi)
+
+1. **"Herhangi bir noktası tıklanıyor mu" ≠ "çalışıyor".** Örtüşme
+   ölçümünde doğru ölçüt, bölgenin dolgusunun YÜZDE KAÇININ üstte
+   olduğudur. Bu turda 72 hücreyi "temiz" raporladım, bir bölge
+   alanının %34'ünü komşusuna kaptırıyordu.
+2. **Ağırlık merkezi ölçütü iki loblu şekillerde geçersizdir.** Sol+sağ
+   kas çiftinin merkezi iki lobun ARASINA düşer; orada şekil yoktur.
+   Bu ölçütle koşan sonda 15/18 sahte kusur üretti.
+3. **Kullanıcının tarif ettiği kusurun öncülü yanlış olabilir, kusur
+   yine gerçektir.** R3'te "kutu üstündeki ızgaradan dar" öncülü
+   ölçümle yalanlandı (ikisi piksel piksel hizalıydı) ama Beyar'ın
+   gördüğü sorun gerçekti: dar olan makale kolonunun tamamıydı.
+4. **Üreteci olan çıktıyı elle düzenleme; önce KONTROL KOŞUSU yap.**
+   Anatomi SVG'lerini değiştirmeden önce üreteci olduğu gibi koşturup
+   dört dosyanın birebir aynı çıktığını doğruladım — ancak ondan sonra
+   değişikliğin etkisini izole edebildim.
+5. **Ekran görüntüsüne bakmadan tasarım kararı verme.** K28'de birincil
+   döşemeyi iki kolona yaymak ölçümde doğruydu ama render'da ızgarayı
+   ragged bıraktı; geri alındı.
+
+---
+
+## 6 · Yeni QA sondaları (oturum scratchpad'inde, kalıcı DEĞİL)
+
+Kalıcılaştırılmak istenirse `docs/qa/` altına taşınmalı:
+`an-denetim.mjs` (72 hücre tıklama) · `an-ortusme.mjs` (bölge örtüşmesi) ·
+`k28-cakisma.mjs` (66 sayfada üst üste binen `.lead`) ·
+`k27-dogrula.mjs` (sekme davranışı) · `dogrula-r3.mjs` (kanon genişlik).

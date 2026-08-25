@@ -1054,7 +1054,17 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
       <div class="apt-av" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=300&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></div>
       <div>
         <h3>Randevu Al</h3>
-        <p><i class="fa-solid fa-circle-check"></i> Selin Aksoy · DadaFit Onaylı Antrenör</p>
+        <!-- 🔴 ÖLÇÜLDÜ VE DÜZELTİLDİ (F-A2 turu): bu ad SABİT YAZILIYDI ve
+             `?slug=` haritasına bağlı değildi — Mert Özkan'ın sayfasında modal
+             "Selin Aksoy" diyordu. Kusur önceden de vardı ama modal yalnız
+             sayfadaki düğmeyle açıldığı için göze çarpmıyordu; `?randevu=1`
+             ile modal artık doğrudan açılabildiğinden yanlış kimlik görünür
+             hâle geldi. Sayfanın kendi mekanizmasına bağlandı
+             (`[data-at="ad"]`, `:1137`), yeni bir alan uydurulmadı.
+             ⚠ KALAN: modaldeki avatar hâlâ sabit — slug haritasında
+             (`:1120-1133`) fotoğraf alanı YOK; eklemek veri modeli kararıdır
+             ve bu turda verilmedi. -->
+        <p><i class="fa-solid fa-circle-check"></i> <span data-at="ad">Selin Aksoy</span> · DadaFit Onaylı Antrenör</p>
       </div>
       <button class="apt-close" id="aptClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -1278,6 +1288,28 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
       aptModal.classList.remove('show');aptOv.classList.remove('show');document.body.style.overflow='';if(window.__bnUpdate)window.__bnUpdate();}
     var ctaBook=document.getElementById('ctaBook');
     if(ctaBook)ctaBook.addEventListener('click',function(){openApt(ctaBook);});
+
+    /* ---- F-A2 · ?randevu=1 [&paket=<hizmet adı>] ----
+       Ölçülen kusur: hesabım ve Planım yüzeylerindeki "Randevu Al" düğmeleri
+       randevu ALMA akışına değil randevu LİSTESİNE gidiyordu; etiket ile hedef
+       örtüşmüyordu. Modal İKİNCİ BİR SAYFAYA KOPYALANMADI — tek kaynak burada
+       kaldı, dışarıdan adresle açılabilir hâle getirildi. Deponun kendi
+       parametre deyimi izlendi (`?flw=1` · `?lg=1` · `?empty=1`).
+       `&paket=` hizmeti önceden seçer; eşleşme `.svc-book`taki gibi
+       METİN üzerinden yapılır, yeni kimlik alanı uydurulmadı. */
+    (function(){
+      var qs=new URLSearchParams(location.search);
+      if(qs.get('randevu')!=='1')return;
+      var istenen=(qs.get('paket')||'').trim();
+      if(istenen){
+        document.querySelectorAll('#aptSvc label').forEach(function(lb){
+          var b=lb.querySelector('.si b');
+          if(b && b.textContent.trim()===istenen){ lb.querySelector('input').checked=true; }
+        });
+      }
+      /* kabuk katmanları kurulduktan sonra aç — odak tuzağı hazır olsun */
+      setTimeout(function(){ openApt(ctaBook||null); },300);
+    })();
     /* R9 · "Seanslar" kartlarındaki Randevu düğmeleri de aynı modali açıyor;
        kartın seansı modalde ÖNCEDEN seçili geliyor (kart adı ↔ modal satırı
        adı birebir aynı, eşleşme metin üzerinden). */

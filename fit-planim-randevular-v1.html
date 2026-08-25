@@ -45,7 +45,7 @@
         <div class="fp-bar" id="fpxBar" hidden><span style="width:0%"></span></div>
         <div class="fpx-sum-meta" id="fpxMeta" hidden></div>
         <div class="fpx-gunler" id="fpxGunler" hidden></div>
-        <div class="fpx-acts" id="fpxActs"><a class="btn btn-fit" href="antrenorler-v1.html"><i class="fa-solid fa-user-tie"></i> Yeni randevu al</a><a class="btn btn-ghost" href="antrenor-detay-v1.html">Antrenörünün profili</a></div>
+        <div class="fpx-acts" id="fpxActs"><a class="btn btn-fit" href="antrenor-detay-v1.html?slug=selin-aksoy&amp;randevu=1"><i class="fa-solid fa-calendar-check"></i> Randevu al</a><a class="btn btn-ghost" href="antrenor-detay-v1.html?slug=selin-aksoy">Antrenörünün profili</a></div>
       </div>
       <div class="fpx-stats" id="fpxStats" aria-live="polite"></div>
     </section>
@@ -130,7 +130,14 @@
         <div class="fp-card span-2">
           <div class="fp-head">
             <h3><i class="fa-solid fa-calendar-check"></i> Yaklaşan randevular</h3>
-            <a class="fp-act" href="antrenorler-v1.html">Yeni randevu al <i class="fa-solid fa-arrow-right"></i></a>
+            <!-- F-A2 · Bu sayfada randevu ALMA modalı YOK ve olmayacak: modal
+                 antrenörün kendi sayfasında tek kaynak olarak duruyor
+                 (`antrenor-detay-v1.html:1051`). Buradan iki ayrı yol açıldı:
+                 mevcut antrenörle randevu (`?randevu=1` ile modal açılır) ve
+                 yeni antrenör arama (dizin). Önceden yalnız dizin vardı, yani
+                 "yeni randevu al" mevcut antrenörünle randevu almanın yolunu
+                 hiç göstermiyordu. -->
+            <a class="fp-act" href="antrenor-detay-v1.html?slug=selin-aksoy&amp;randevu=1">Selin ile randevu al <i class="fa-solid fa-arrow-right"></i></a>
           </div>
           <div class="fp-list" id="fpxYaklasan">
             <div class="fp-row"><span class="ico"><i class="fa-solid fa-video"></i></span>
@@ -465,8 +472,17 @@ var FPX = (function () {
         : 'Antrenörler sayfasından uygun bir antrenör seçip randevu alabilirsin. Randevu durumları burada açıkça yazılır.',
       oran: null,
       meta: [], gunler: '',
-      acts: '<a class="btn btn-fit" href="antrenorler-v1.html"><i class="fa-solid fa-user-tie"></i> Yeni randevu al</a>' +
-            '<a class="btn btn-ghost" href="antrenor-detay-v1.html">Antrenörünün profili</a>',
+      /* F-A2 · ÖLÇÜLDÜ VE DÜZELTİLDİ: bu `acts` dizesi KOŞULSUZDU, yani
+         hem randevusu olan hem olmayan kullanıcıya AYNI düğmeleri basıyordu
+         ve statik işaretlemedeki (`:48`) düğmeleri her açılışta eziyordu.
+         Artık başlık/alt satırın kullandığı `y` üçlüsüyle aynı dalı izliyor:
+           y > 0 → antrenörü var  → randevu modalını açan bağlantı
+           y = 0 → antrenörü yok  → dizin (modal açılacak bir antrenör yok) */
+      acts: y
+        ? '<a class="btn btn-fit" href="antrenor-detay-v1.html?slug=selin-aksoy&amp;randevu=1"><i class="fa-solid fa-calendar-check"></i> Randevu al</a>' +
+          '<a class="btn btn-ghost" href="antrenor-detay-v1.html?slug=selin-aksoy">Antrenörünün profili</a>'
+        : '<a class="btn btn-fit" href="antrenorler-v1.html"><i class="fa-solid fa-user-tie"></i> Antrenör bul</a>' +
+          '<a class="btn btn-ghost" href="antrenorler-v1.html">Antrenör dizini</a>',
       stats: y || okunmamis ? [
         { deger: String(y),         etiket: 'yaklaşan randevu', fit: true },
         { deger: String(bekleyen),  etiket: 'onay bekliyor' },

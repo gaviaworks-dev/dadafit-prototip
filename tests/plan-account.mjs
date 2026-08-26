@@ -64,7 +64,12 @@ const GRUPLAR = ['Günlük Takibim', 'Gelişimim', 'Profil ve Üyelik'];
 const MENU = ['Enerji Defterim', 'Aktivite Kayıtlarım', 'Kaydettiklerim',
   "Challenge'larım ve Rozetlerim", 'Fit Test Sonuçlarım', 'Antrenörüm',
   'Sağlık ve Hareket Profilim', /* üyelik kalemi kademeye göre ad değiştirir → ayrı ölçülür */
-  'Aboneliğim ve Ödemelerim', 'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
+  /* 🔴 1. KALEM FIT'TE İKAME (Beyar 2026-08-26 · sözleşme §7.6.2):
+     "Aboneliğim ve Ödemelerim" → "Hizmet Paketlerim". Fit'te ABONELİK YOK
+     (K6); karşılığı antrenör hizmet paketidir. Sıra · yer · ikon kanondan,
+     DİZGİ markanın gerçek yeteneğinden (§7.6.1). Kayıt güncellendi, ölçüt
+     zayıflatılmadı. */
+  'Hizmet Paketlerim', 'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
 /* menüde ASLA bulunmayacaklar */
 const MENUDE_OLMAMALI = ['Bildirimler', 'Bildirim Tercihlerim', 'Planım'];
 
@@ -200,9 +205,15 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
        yani gruplama sessizce kaybolursa (ayraç da yoksa) kırmızı yanar. */
     if (m.gruplar.length)
       rec(`menüde ${m.gruplar.length} grup BAŞLIĞI kaldı — R11/M15 başlıkları ayraca çevirmişti: ${m.gruplar.map(g => g.t).join(' · ')}`);
-    else if (m.ayraclar < 3)
-      rec(`menüde ${m.ayraclar} ayraç var — üç grubu ayırmak için en az 3 gerekiyor (2 grup arası + Çıkış öncesi)`);
-    else ok(`grup başlığı 0 · ayraç ${m.ayraclar} (başlıksız kip, DadaDiet kalıbı)`);
+    /* AYRAÇ SAYISI TAM ÜÇ (Beyar kararı 2026-08-26, kanon Diet):
+       profil başlığı altı + 2 grup arası. 🔴 ÇIKIŞ'IN ÜSTÜNE DÖRDÜNCÜ AYRAÇ
+       KONMAZ — Çıkış "Üyelik ve Hesap" grubunun İÇİNDEDİR. Önceki ölçüt
+       `>= 3` idi ve gerekçesi "Çıkış öncesi" diyordu; o gerekçe kanonla
+       çeliştiği için ölçüt tam sayıya çevrildi (dördüncü ayraç ölçüldü ve
+       kaldırıldı). */
+    else if (m.ayraclar !== 3)
+      rec(`menüde ${m.ayraclar} ayraç var — TAM 3 olmalı (profil altı + 2 grup arası); Çıkış'ın üstüne ayraç konmaz`);
+    else ok(`grup başlığı 0 · ayraç ${m.ayraclar} (başlıksız kip, DadaDiet kalıbı · Çıkış grubun içinde)`);
 
     if (m.aciklamaliKalem)
       rec(`menüde ${m.aciklamaliKalem} kalemde açıklama satırı kaldı — R11/M15 bunları kaldırmıştı`);

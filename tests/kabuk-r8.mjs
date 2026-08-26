@@ -329,7 +329,14 @@ console.log('\n--- 6 · Avatar dropdown: destek için tek giriş ---');
   else ok(`destek-v1 → destek-talepleri: ${zincir} görünür bağlantı (erişim kaybı yok)`);
 
   /* HEDEF kontrolü — HTTP değil, h1 metni. */
-  const HEDEF = [['destek-v1.html', 'Destek'],
+  /* 🔴 AD KAYDI — BEYAR, 2026-08-26 (bağlayıcı, son hâl):
+     "Ad kanonu 'Destek Merkezi'. Fit'teki sayfanın adı da öyle olsun.
+      Çözüm Merkezi ayrı sayfa (SSS tarafı), o adla kalabilir."
+       destek-v1.html  → "Destek Merkezi"   (destek yüzeyi · menü hedefi)
+       sss-v1.html     → "Çözüm Merkezi"    (SSS tarafı · ayrı sayfa)
+     Hesap menüsünün "Destek Merkezi" kalemi artık AYNI ADI taşıyan sayfaya
+     iniyor; ad ile hedef arasındaki çelişki (S1) kapandı. */
+  const HEDEF = [['destek-v1.html', 'Destek Merkezi'],
                  ['destek-talepleri-v1.html', 'Destek Taleplerim']];
   for (const [h, h1bek] of HEDEF) {
     await page.goto(`${BASE}/${h}`, { waitUntil:'domcontentloaded' });

@@ -4,9 +4,20 @@
    Nöbette tuttuğu davranışlar:
 
    1  İKİ AKIŞ VAR ve HEDEFİ DOĞRU.  HTTP değil HEDEF ölçülür:
-        destek-v1.html            → h1 "Destek"
+        destek-v1.html            → h1 "Çözüm Merkezi"
         destek-talepleri-v1.html  → h1 "Destek Taleplerim"
         destek-talebi-detay-v1.html → h1 boş değil
+
+      ⚠ AD KAYDI İKİ KEZ DEĞİŞTİ (2026-08-26). Sıralama:
+        1) R8 kaydı: destek-v1 → "Destek"
+        2) C3 uygulaması: destek-v1 → "Çözüm Merkezi"
+        3) 🔴 BEYAR (bağlayıcı, son): "Ad kanonu 'Destek Merkezi'. Fit'teki
+           sayfanın adı da öyle olsun. Çözüm Merkezi ayrı sayfa (SSS
+           tarafı), o adla kalabilir."
+      Sonuç: destek-v1 = **Destek Merkezi** · sss-v1 = **Çözüm Merkezi**.
+      İki ad iki AYRI sayfaya dağıldı; hesap menüsünün "Destek Merkezi"
+      kalemi artık aynı adı taşıyan sayfaya iniyor. Kayıt güncellendi,
+      testin kendisi zayıflatılmadı.
    2  SEKME RAYI iki sayfada da var: tam 2 sekme, hedefleri iki akış,
       tam 1 tanesi aktif ve aktif olanda aria-current="page".
    3  İSKELET EŞİTLİĞİ — destek-v1'in konu kartı, kardeş markadan
@@ -41,7 +52,7 @@ const DETAY = 'destek-talebi-detay-v1.html';
 const SSS   = 'sss-v1.html';
 
 /* HTTP değil HEDEF: beklenen h1 kaydı */
-const H1 = { [HUB]:'Destek', [LISTE]:'Destek Taleplerim' };
+const H1 = { [HUB]:'Destek Merkezi', [LISTE]:'Destek Taleplerim' };
 
 let fail = 0; const bad = []; const notlar = [];
 const rec = (t,m) => { fail++; bad.push(`${t}\n      ${m}`); };

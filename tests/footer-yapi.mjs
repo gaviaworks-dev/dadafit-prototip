@@ -102,12 +102,16 @@ const KURUMSAL = [
   ['Hakkımızda',                    'hakkimizda-v1.html'],
   ['Künye',                         'hakkimizda-v1.html#kunye'],
   ['İletişim',                      'iletisim-v1.html'],
-  /* R8 madde 6+35 — kalem BANTTA, yalnız hedefi değişti:
-     destek-talepleri-v1.html → destek-v1.html (destek hub'ı).
-     Nöbet zayıflamadı: bant yine 8 kalem ve hedef yine birebir aranıyor;
+  /* R8 madde 6+35 — kalem BANTTA, hedefi İKİ KEZ değişti.
+     ESKİ: destek-talepleri-v1.html → destek-v1.html (destek hub'ı).
+     🔴 GÜNCEL — BEYAR KARARI, 2026-08-26: destek-v1.html → sss-v1.html.
+     NEDEN: ad kanonu değişti; `destek-v1.html` artık "Destek Merkezi",
+     "Çözüm Merkezi" adı `sss-v1.html`e geçti. Etiketin, adını taşımayan
+     bir sayfaya inmesi kullanıcıyı yanıltıyordu.
+     Nöbet ZAYIFLAMADI: bant yine 8 kalem, hedef yine birebir aranıyor;
      değişen tek şey beklenen hedefin kendisi. Footer'da
      `destek-talepleri-v1` bulunmaması ayrıca kalem 35'in şartı. */
-  ['Çözüm Merkezi',                 'destek-v1.html'],
+  ['Çözüm Merkezi',                 'sss-v1.html'],
   ['Öneri ve Şikâyet',              'iletisim-v1.html#conForm'],
   ['İş Birliği',                    'reklam-ver-v1.html#isbirligi'],
   ['Reklam ve Marka İş Birlikleri', 'reklam-ver-v1.html#reklam'],

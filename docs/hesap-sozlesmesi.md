@@ -1,4 +1,4 @@
-sozlesme v2.5 · 2026-08-26
+sozlesme v2.6 · 2026-08-26
 
 # Hesap Sözleşmesi — dört marka
 
@@ -9,6 +9,11 @@ Ortak depo, symlink ve dış yol bağımlılığı **yoktur** — her şerit ken
 ağacındaki bu dosyayı okur. Değiştiren, **dördünü birden** değiştirir ve
 yukarıdaki sürüm damgasını yükseltir. Sapma her dalga sonunda `md5` ile
 ölçülür.
+
+**v2.5 → v2.6:** §7.5 ve §7.6 eklendi — kimlik kartı (kapağa
+binen beyaz kart) ve hesap menüsünün alt bloğu (üç kalem, tek sıra).
+Her iki bölüm de dört markadaki bugünkü uyumu ÖLÇÜLMÜŞ hâliyle taşır;
+açık kararlara dokunulmadı (Gastro'nun `<h1>`i · Fit'in abonelik kalemi).
 
 **v2.4 → v2.5:** §7.4'ün denetim kuralı iki yöne ayrıldı —
 defterde olup kodda niteliği olmayan kalem ihlal değildir (yokluk kaydı).
@@ -694,3 +699,136 @@ ya sahte nitelik ekler ya meşru kaydı silerdi.
 ⚠ **`data-placeholder` yasağının denetimi de dar okunur:** yasak **kod** için
 geçerlidir (`*.html` · `*.js` · `*.css` → **0**). Bu bölümün kendisi yasağı
 koyabilmek için adı anmak zorundadır; sözleşme metnindeki geçişler sayılmaz.
+
+### 7.5 · Kimlik kartı — kapağın üstüne binen beyaz kart
+
+🔴 **ORTAK HÜKÜM. KANON = DIET** (Beyar kararı, 2026-08-26).
+Kaynak: `dadadiet/resources/views/components/hesap/kimlik-bandi.blade.php`
++ `public/reference/diet/css/planim.css:280-294`.
+
+Hesap yüzeyinin kimlik alanı **iki katmandır**: üstte kapak, onun **üstüne
+binen** beyaz bir kart. Kimlik bilgileri **kartın içindedir**, kapağın
+üstünde çıplak durmaz.
+
+**Bağlanan yapı:**
+
+| Katman | Hüküm |
+|---|---|
+| **Kapak** | Zemin görseli. 🔴 `<img>` **değil** — `div` + `background-image` + `cover/center` (görsel kuralları) |
+| **Kart** | Kapağın üstüne **binen** kap: beyaz zemin · ince çerçeve · yuvarlatılmış köşe · gölge. 🔴 **Bindirmeyi NEGATİF ÜST BOŞLUK yapar** — kartın kendi kuralının parçasıdır, ayrı bir konumlandırma hilesi değildir |
+| **Avatar** | Kartın içinde, **daire**, beyaz halka + gölge, kendi negatif üst boşluğuyla kartın kenarından yukarı taşar. Görsel yoksa **adın ilk harfi** basılır |
+| **Ad** | 🔴 **`<h1>` DEĞİL.** Sayfanın tek `<h1>`i bölüm başlığıdır; kimlik satırı vurgulu bir metin öğesidir. Çift `<h1>` bu ailede bir kez kusur olarak düzeltildi |
+| **Kullanıcı adı** | Adın altında, `@` önekli, ikincil renk |
+| **Üyelik tarihi** | Meta satırında, takvim ikonuyla |
+| **Eylem sütunu** | İsteğe bağlı. 🔴 **BOŞSA KAP HİÇ BASILMAZ** — boş bir kap bırakmak, eylem uydurmak kadar yanlıştır |
+
+🔴 **NE BAĞLANIR, NE BAĞLANMAZ.** Kanondan **ölçü · boşluk · yarıçap · gölge
+· katman sırası** gelir. 🔴 **RENK GELMEZ.** Kanondaki kural marka
+token'larına (`--paper` · `--line` gibi) atıf yapar ve **aynı ad her depoda
+aynı değere çözülmez** (ölçüldü: `--tomato` bir depoda kırmızı, birinde nane,
+birinde mor). Uygulayan şerit hedef kabuğun token'ının **hangi değere
+çözüldüğünü `getComputedStyle` ile ÖLÇER** ve kendi deposunun değerini yazar.
+
+⚠ **Var olan bandı baştan yazmak hüküm değildir.** Depoda `.pf-*` karşılıkları
+zaten varsa yalnız **eksik parça** eklenir.
+
+**Bugünkü uyum — ÖLÇÜLDÜ (2026-08-26), yakınsama dayatılmadı:**
+
+| Marka | Kart yapısı | Şerh |
+|---|---|---|
+| **Diet** | ✅ kanon | — |
+| **Gastro** | ✅ yapı uyuyor | 🔴 adı **`<h1>`** ile basıyor — aşağıya bak |
+| **Gourmet** | ✅ bu turda taşındı | — |
+| **Fit** | 🔴 **hesap yüzeyinde kart YOK** | `.pf-head`/`.pf-banner` yalnız profil ve antrenör detay ekranlarında var; `hesabim-v1.html`de yok. **Bu turun kapsamında değildi.** |
+
+🔴 **`<h1>` HÜKMÜ GASTRO İÇİN BAĞLAYICI DEĞİLDİR — konu ZATEN AÇIK BİR
+KARARDIR.** Gastro'nun kimlik bandı adı `<h1>` ile basar ve bileşen
+`sefler/show` ekranında da kullanılır; kanonun *"tek `<h1>` bölüm
+başlığıdır"* kuralına çevirmek **iki yüzeyi birden** etkiler. Karar üç şıkla
+Beyar'da beklemektedir ve **bu bölüm onu kapatmaz** (U2: açık başlıkta
+yakınsama yapılmaz). Diğer üç marka kuralı uygular.
+
+⚠ **Fit'in eksiği bir borçtur, ihlal değildir.** Kalem kaydedildi; kapanışı
+Fit'in kendi şerit sırasına aittir.
+
+### 7.6 · Hesap menüsünün alt bloğu — üç kalem, tek sıra
+
+🔴 **ORTAK HÜKÜM. KANON = DIET** (Beyar kararı, 2026-08-26).
+Kaynak: `dadadiet/public/reference/diet/js/dd-shell.js` — GRUP 3
+*"Üyelik ve Hesap"*.
+
+Hesap açılır menüsünün **en altındaki grup** dört markada **aynı kalemleri,
+aynı sırayla, aynı metinlerle** taşır:
+
+| # | Metin (🔴 birebir) | İkon | Koşullu mu |
+|---|---|---|:--:|
+| 1 | **Aboneliğim ve Ödemelerim** | `fa-receipt` | ✅ |
+| 2 | **Hesap ve Ayarlar** | `fa-sliders` | ❌ hep basılır |
+| 3 | **Destek Merkezi** | `fa-headset` | ✅ |
+| 4 | Çıkış | `fa-right-from-bracket` | ❌ |
+
+- Grup, kendinden önceki gruptan **tek ayraçla** ayrılır.
+- 🔴 **ÇIKIŞ'IN ÜSTÜNE İKİNCİ BİR AYRAÇ KONMAZ** — Çıkış bu grubun
+  **içindedir**.
+- 🔴 **KOŞULLU KALEM KURALI:** hedef rota **kayıtlı değilse kalem HİÇ
+  ÇİZİLMEZ.** "Yakında" rozeti **yoktur**. Gerekçe: *kaydı olmayan rotanın
+  menü kalemi görünürse tıklayan 404 alır.* Rota doğduğu gün kalem
+  **kendiliğinden** belirir.
+- Menü birden çok yüzeyde basılıyorsa (masaüstü açılır menü + mobil çekmece)
+  **hepsi aynı üçlüyü aynı sırayla** taşır.
+
+⚠ **İkonlar uydurulmamıştır**; her biri kanon deposunun kendi yüzeyinden
+gelir. Bir markada aynı ikon **başka bir anlam** taşıyorsa şerit **ölçer ve
+raporlar**, tek başına değiştirmez.
+
+#### 7.6.1 · Abonelik kaleminin METNİ marka kararıdır
+
+🔴 **ŞERH (Beyar kararı, 2026-08-26).** Yukarıdaki tablonun **1. kaleminin
+metni SABİT DEĞİLDİR.** Sıra, yer, koşulluluk ve ikon bağlanır; **dizgi
+bağlanmaz.**
+
+- **Gastro'da kalem DÖRT DURUMLUDUR** (`Pro'ya Yükselt` · `Aboneliğim` ·
+  `Paketim ve Ödemeler` · `Aboneliğim — İşlem Gerekli`; ikon da durumla
+  değişir) ve bu **önceki bir Beyar kararıdır**, testlerle kilitlidir.
+  **Aynen kalır.**
+- Diğer üç marka tek metin (**"Aboneliğim ve Ödemelerim"**) kullanabilir.
+
+⚠ Bu, §7.6'nın *"birebir aynı metinler"* hükmünün **tek istisnasıdır** ve
+yalnız 1. kalemi kapsar. 2. ve 3. kalemin dizgileri bağlayıcıdır.
+
+#### 7.6.2 · Markada karşılığı OLMAYAN kalem — yetenek yoksa kalem de yok
+
+🔴 **ORTAK HÜKÜM** (Beyar kararı, 2026-08-26). Bir markada kalemin işaret
+ettiği **yetenek yoksa**, kalem **o adla basılmaz**. §1.5 gereği dört marka
+*yok olan yetenek için aynı dili* konuşur; kalemi olduğu gibi basmak
+**yeteneğin var olduğunu varsaymak** olurdu.
+
+**Bağlanan karar — Fit (K6: Fit'te abonelik YOKTUR):**
+
+| | Hüküm |
+|---|---|
+| **"Aboneliğim ve Ödemelerim"** | 🔴 Fit'te **GÖRÜNMEZ** |
+| Yerine | **"Hizmet Paketlerim"** — antrenör hizmet paketlerine gider |
+
+⚠ Bu bir **ikame**dir, kalemin silinmesi değil: grubun 1. sırası doludur,
+yalnız markanın gerçek yeteneğini adlandırır (K4/P7: Fit'te üye üreticiden
+**hizmet satın alır**, üyeden üyeye abonelik yoktur).
+
+#### 7.6.3 · İKON marka kararıdır — çakışma varsa depo kendi ikonunu kullanır
+
+🔴 **ŞERH (Beyar kararı, 2026-08-26).** Yukarıdaki tablonun ikonları
+**yol göstericidir, bağlayıcı değildir.** Bir markada aynı ikon **başka bir
+anlam** taşıyorsa, o depo **kendi ikonunu kullanır**; menü kalemi
+markanın kendi görsel sözlüğüne uyar.
+
+**Ölçülmüş emsal:** kanon *"Hesap ve Ayarlar"* için `fa-sliders` der; Gourmet'te
+`fa-sliders` **"Filtrele"nin ikonudur** (5 çağrı yeri: sonuç çubuğu + faset
+paneli). Orada kalem `fa-gear` ile basılır — deponun kendi ayar ikonu, 3
+yüzeyde kurulu. **Sapma onaylandı ve kalıcıdır.**
+
+⚠ Dört markada ikon birliği bir gün istenirse doğru çözüm **menü kalemini
+değil, çakışan yüzeyin ikonunu** taşımaktır — ve o **ayrı, daha pahalı bir
+karardır**. Bu bölüm onu açmaz.
+
+⚠ Bağlayıcı olan **sıra · yer · koşulluluk · 2. ve 3. kalemin dizgisidir**.
+İkon ve 1. kalemin dizgisi (§7.6.1) marka kararıdır.

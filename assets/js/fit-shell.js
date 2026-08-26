@@ -240,7 +240,8 @@ var FOOTER_COLS = [
  diğer altı kalemle AYNI biçimde (aynı punto, ağırlık, renk).
 
  Hedefler diskte doğrulandı, hiçbiri uydurulmadı:
-   Çözüm Merkezi    → destek-v1.html              (destek hub'ı — R8 madde 6+35)
+   Çözüm Merkezi    → sss-v1.html                 (SSS tarafı — R8 madde 6+35
+     GÜNCELLENDİ, Beyar kararı 2026-08-26; aşağıdaki şerhe bak)
    Öneri ve Şikâyet → iletisim-v1.html#conForm   (ayrı sayfası YOK;
      iletişim formu "Öneri ve şikâyetlerini de bu formdan iletebilirsin"
      diyor ve konu seçimine göre ilgili ekibe yönlendiriyor)
@@ -249,19 +250,28 @@ var FOOTER_CORP = [
   {label:'Hakkımızda',                    href:'hakkimizda-v1.html'},
   {label:'Künye',                         href:'hakkimizda-v1.html#kunye'},
   {label:'İletişim',                      href:'iletisim-v1.html'},
-  /* R8 madde 6+35 — "Çözüm Merkezi" BANTTA KALIYOR, yalnız HEDEFİ değişti:
-     `destek-talepleri-v1.html` → `destek-v1.html`.
-     Ara bir turda kalem banttan tamamen kaldırılmıştı (bant 8→7); lead
-     bunu geri aldı ve F'nin ölçümüyle gerekçelendirdi:
-     gastro footer'ındaki "Çözüm Merkezi" misafirde `/sss`'ye, girişte
-     `/hesabim/destek`'e gidiyor — yani TALEP LİSTESİNE değil DESTEK
-     HUB'INA. Karşılığımız `destek-v1.html` (h1 "Destek", AJAN-F üretti).
-     Üç şart birden kapanıyor:
+  /* R8 madde 6+35 — kalem BANTTA KALIYOR, hedefi İKİ KEZ değişti.
+     ESKİ HÂL (R8/6+35): `destek-talepleri-v1.html` → `destek-v1.html`.
+     Gerekçesi: gastro footer'ındaki "Çözüm Merkezi" misafirde `/sss`'ye,
+     girişte `/hesabim/destek`'e gidiyor — TALEP LİSTESİNE değil DESTEK
+     HUB'INA; o gün `destek-v1.html` h1'i "Destek"ti.
+
+     🔴 GÜNCEL HÂL — BEYAR KARARI, 2026-08-26: hedef `sss-v1.html`.
+     NEDEN DEĞİŞTİ: ad kanonu Beyar kararıyla yeniden bağlandı —
+     `destek-v1.html` artık **Destek Merkezi**, "Çözüm Merkezi" adı
+     `sss-v1.html`e (SSS tarafı) geçti. Etiket ile hedef ayrışmıştı:
+     "Çözüm Merkezi" yazan bağlantı, o adı TAŞIMAYAN bir sayfaya iniyordu
+     ve kullanıcıyı yanıltıyordu. Artık etiket = hedefin h1'i.
+     Eski karar SİLİNMEDİ, ÜSTÜNE YAZILDI (bkz. KARARLAR.md K64/2).
+
+     Üç şart hâlâ kapalı:
        · kalem 35 → footer'da `destek-talepleri-v1` geçişi 0
        · 9. tur dokümanı → "Çözüm Merkezi geri plana atılmamalıdır" korunur
+         (kalem bantta, 4. sırada, aynı biçimde)
        · `tests/footer-yapi.mjs` → kurumsal bant 8 kalem kalır
-     K29 uyumlu: ölçü referanstan alındı, hedef DadaFit'in kendi sayfası. */
-  {label:'Çözüm Merkezi',                 href:'destek-v1.html'},
+     Destek hub'ının footer girişi kaybolmadı: hesap menüsündeki
+     "Destek Merkezi" kalemi `destek-v1.html`e iniyor (§7.6). */
+  {label:'Çözüm Merkezi',                 href:'sss-v1.html'},
   {label:'Öneri ve Şikâyet',              href:'iletisim-v1.html#conForm'},
   {label:'İş Birliği',                    href:'reklam-ver-v1.html#isbirligi'},
   {label:'Reklam ve Marka İş Birlikleri', href:'reklam-ver-v1.html#reklam'},
@@ -482,10 +492,56 @@ var ACCOUNT = [
      yönetimine giden sabit bir kalem değil. Beyar kararı: yeni sayfa üretilmeyecek,
      hesabim-v1.html'in mevcut "Üyelik" sekmesine (#uyelik, hesabim-v1.html:624)
      bağlanacak. Çapa G1 tarafından doğrulandı — var. */
-  {label:'Aboneliğim ve Ödemelerim', href:'hesabim-v1.html#uyelik',        icon:'fa-solid fa-receipt',           desc:'Paket, fatura ve ödeme yöntemin'},
-  {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-gear',              desc:'Profil, güvenlik, dil, birimler, veri'},
-  {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-circle-question',   desc:'Yardım ve taleplerin'},
-  {sep:true},
+  /* ===== AÇILIR MENÜ ALT ÜÇLÜSÜ — KANON DIET (Beyar kararı, 2026-08-26) =====
+     Dört markada da bu üçlü AYNI SIRAYLA, AYNI YERDE, BİREBİR AYNI METİNLERLE
+     durur. Kaynak: `dadadiet` → `dd-shell.js:838-841` (grup 3 "Üyelik ve Hesap").
+
+       1  Aboneliğim ve Ödemelerim   fa-receipt              (koşullu)
+       2  Hesap ve Ayarlar           fa-sliders
+       3  Destek Merkezi             fa-headset              (koşullu)
+       4  Çıkış                      fa-right-from-bracket
+
+     🔴 ÇIKIŞ BU GRUBUN İÇİNDEDİR — üstüne ayrı ayraç KONMAZ. Önceki hâlde
+     buraya `{sep:true}` yazılıydı ve dördüncü bir çizgi basıyordu (ölçüldü:
+     menüde 4 ayraç); kanon üç grubun arasına ÜÇ ayraç ister, dördüncüsünü
+     değil. Kalem silindi, ayraç sayısı 4 → 3'e indi.
+
+     🔴 İKİ İKON KANONA ÇEVRİLDİ, metinler zaten kanondaydı:
+       `Hesap ve Ayarlar`  fa-gear            → fa-sliders
+       `Destek Merkezi`    fa-circle-question → fa-headset
+     Yeni ikon icat edilmedi; ikisi de FontAwesome 6.5.2'de var ve Diet'in
+     kullandığı adların aynısı.
+
+     ✅ S1 KAPANDI (Beyar, 2026-08-26): "Ad kanonu 'Destek Merkezi'. Fit'teki
+     sayfanın adı da öyle olsun." `destek-v1.html`in `<h1>`i "Destek Merkezi"
+     oldu; "Çözüm Merkezi" adı `sss-v1.html`e (SSS tarafı) geçti. Menü kalemi
+     "Destek Merkezi" adıyla "Destek Merkezi"ne iniyor — ad ile hedef artık
+     ÇELİŞMİYOR.
+     🔴 AÇIK KALAN: kurumsal footer bandındaki `Çözüm Merkezi` kalemi hâlâ
+     `destek-v1.html`e iniyor (R8/6+35 kararı, `tests/footer-yapi.mjs:110`
+     ile kilitli). O kalem artık "Destek Merkezi"ne inen bir "Çözüm Merkezi"
+     etiketidir. Kendi başına DEĞİŞTİRİLMEDİ — bir Beyar kararını geri almak
+     olurdu; lead'e ayrı bir soru olarak raporlandı.
+
+     🔴 1. KALEMİN METNİ FIT'TE İKAME EDİLDİ — Beyar kararı, 2026-08-26;
+     sözleşmeye **§7.6.2** olarak işlendi: *yetenek yoksa kalem O ADLA
+     basılmaz.* K6 gereği Fit'te ABONELİK YOKTUR; karşılığı **antrenör
+     hizmet paketidir** (K4/P7: üye üreticiden hizmet SATIN ALIR).
+       "Aboneliğim ve Ödemelerim"  →  "Hizmet Paketlerim"
+     Bu bir SİLME DEĞİL İKAMEDİR: grubun 1. sırası dolu kalır, sıra · yer ·
+     koşulluluk · ikon (`fa-receipt`) kanondan gelir, yalnız DİZGİ markanın
+     gerçek yeteneğini adlandırır (§7.6.1: "dizgi bağlanmaz").
+
+     ⚠ HEDEF ÖLÇÜLDÜ, DEĞİŞMEDİ — `hesabim-v1.html#uyelik`. Gerekçe: bu
+     menü ÜYENİN menüsüdür ve üyenin SATIN ALDIĞI antrenör paketi kutusu
+     zaten orada duruyor (`hesabim-v1.html:1112` — "Antrenör paketleri
+     DadaFit Pro üyeliğine dâhil değildir…"). `antrenor-panelim-v1.html`
+     ANTRENÖRÜN kendi tarafıdır ve oradaki paketler antrenörün SATTIĞI
+     paketlerdir; üyenin menüsünü oraya bağlamak iki tarafı karıştırırdı.
+     `fa-receipt` Fit'te başka bir anlam taşımıyor (ölçüldü), korundu. */
+  {label:'Hizmet Paketlerim',    href:'hesabim-v1.html#uyelik',            icon:'fa-solid fa-receipt',           desc:'Antrenör paketlerin, fatura ve ödeme yöntemin'},
+  {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-sliders',           desc:'Profil, güvenlik, dil, birimler, veri'},
+  {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-headset',           desc:'Yardım ve taleplerin'},
   /* "DadaMutfak'a dön" kalemi burada YOK (belge §1: DadaFit'in hesap ve üyelik
      yapısı bağımsız görünmeli). Ekosistem geçişi üst banttaki marka barında. */
   {label:'Çıkış', href:FIT_LOGOUT, icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}

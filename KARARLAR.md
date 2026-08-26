@@ -2274,6 +2274,11 @@ listesine değil destek hub'ına**. DadaFit'te de öyle yapıldı:
 | Konum | Önce | Sonra |
 |---|---|---|
 | footer kurumsal bant "Çözüm Merkezi" | `destek-talepleri-v1.html` | **`destek-v1.html`** |
+
+🔴 **BU SATIR ARTIK GÜNCEL DEĞİL — `K70` onu geçersiz kıldı** (Beyar,
+2026-08-26): footer kalemi `destek-v1.html`den **`sss-v1.html`e** taşındı.
+Satır silinmedi; hangi kararın hangisini geçersiz kıldığı görünsün diye
+duruyor. Gerekçe için K70'e bak.
 | avatar dropdown | "Destek Taleplerim" ×1 | **"Destek" → `destek-v1.html`** + **"Taleplerim" → `destek-talepleri-v1.html`** |
 
 Yani destek **geri plana atılmadı**, girişi ikiye çıktı: footer'da hub, menüde
@@ -2660,3 +2665,63 @@ uyelik-faturalandirma-v1) farklı bir bileşen (`.pf-tabs`) kullandığı için
 etkilenmedi.
 
 ---
+
+---
+
+## K70 · Footer "Çözüm Merkezi" hedefi `sss-v1.html`e taşındı — **K70, K64/2'yi (R8 madde 6+35) geçersiz kılar**
+
+🔴 **Beyar kararı, 2026-08-26.** *"Footer çelişkisini kapat — Fit ve
+Gourmet'te birlikte. Kurumsal banttaki 'Çözüm Merkezi' etiketi sss sayfasına
+insin. R8 kararını bu yönde güncelle, `footer-yapi.mjs`i de hizala."*
+
+**ESKİ HÂL (K64/2 · R8 madde 6+35):** kurumsal banttaki **"Çözüm Merkezi"**
+kalemi `destek-v1.html`e iniyordu. O gün doğruydu: `destek-v1.html`in `h1`i
+**"Destek"**ti ve karar, kardeş marka ölçümüyle *"footer kalemi talep
+listesine değil destek hub'ına gitmeli"* diye gerekçelendirilmişti.
+
+**NEDEN DEĞİŞTİ — ad kanonu Beyar kararıyla yeniden bağlandı** (aynı gün,
+`docs/deploy-oncesi.md §8.1`):
+
+| Dosya | `<h1>` | Rolü |
+|---|---|---|
+| `destek-v1.html` | **Destek Merkezi** | destek yüzeyi · hesap menüsünün hedefi |
+| `destek-talepleri-v1.html` | Destek Taleplerim | liste + form |
+| `sss-v1.html` | **Çözüm Merkezi** | SSS tarafı, ayrı sayfa |
+
+Ad taşınınca etiket ile hedef **ayrıştı**: footer'da "Çözüm Merkezi" yazan
+bağlantı, artık o adı **taşımayan** bir sayfaya (Destek Merkezi'ne) iniyordu.
+Kullanıcı için bu doğrudan yanıltıcıdır — tıkladığı ad ile açılan sayfanın
+başlığı tutmuyordu. K64/2'nin gerekçesi (hub ↔ liste ayrımı) değil,
+**dayandığı ad** bayatladı.
+
+| Konum | Önce (K64/2) | Sonra (K70) |
+|---|---|---|
+| footer kurumsal bant "Çözüm Merkezi" | `destek-v1.html` | **`sss-v1.html`** |
+| hesap menüsü "Destek Merkezi" | `destek-v1.html` | **değişmedi** |
+
+**K64/2'nin üç şartı hâlâ kapalı:**
+
+- kalem **banttan kalkmadı** — 4. sırada, aynı biçimde; 9. tur dokümanının
+  *"Çözüm Merkezi geri plana atılmamalıdır"* şartı korunuyor,
+- kurumsal bant **8 kalem**,
+- footer'da `destek-talepleri-v1` geçişi **0** (kalem 35).
+- Destek hub'ının girişi kaybolmadı: hesap menüsündeki **"Destek Merkezi"**
+  kalemi `destek-v1.html`e iniyor (sözleşme §7.6).
+
+**Değiştirilen üç yer:** `assets/js/fit-shell.js` (`FOOTER_CORP` — footer'ın
+TEK kaynağı; kurumsal bant hiçbir HTML'de elle basılmıyor, `footerCorpHtml()`
+buradan üretiyor) · `tests/footer-yapi.mjs` (beklenen hedef; **nöbet
+zayıflatılmadı** — bant yine 8 kalem, hedef yine birebir aranıyor, değişen
+tek şey beklenen dizgi) · `docs/deploy-oncesi.md §8.1` (açık çelişki kaydı
+kapatıldı).
+
+**Kapatan ölçüm (2026-08-26):** `node tests/footer-yapi.mjs` → **0 sorun** ·
+kırık dosya hedefi **0** · kırık çapa **0** · `destek-akisi` · `destek-kanon` ·
+`kabuk-r8` · `hesap-ailesi-qa` · `a11y-focus` · `header-banner` → hepsi yeşil.
+
+> **Kural (K64'ün kuralının tekrarı, tersinden):** bir kararın gerekçesi
+> **başka bir kararın çıktısına** dayanıyorsa (burada: sayfanın adı), o çıktı
+> değiştiğinde karar sessizce ayakta bırakılmaz. Ad değişikliği yapan tur
+> çelişkiyi **açık kalem** olarak kayda geçirdi (`deploy-oncesi §8.1`) ve
+> kendi başına karara bağlamadı — doğrusu budur; kararı geri alma yetkisi
+> Beyar'dadır.

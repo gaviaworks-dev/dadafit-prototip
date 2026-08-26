@@ -383,3 +383,59 @@ tipografiyle kuruldu.
 dokunuşundan sonra RENDER'a bak. Tertip (ızgaranın kapanması) vurgudan
 önce gelir; 6 hücrelik ızgarada bir hücreyi 2'ye çıkarmak aritmetik
 olarak ragged satır üretir.
+
+---
+
+## 20 · Aynı sözcük iki markada TERS anlama gelir — durum sözlüğü kopyalanmaz, EŞLENİR
+
+**Ne oldu (Dalga 3 · destek kanonu uyarlaması).** Fit'in üç durumu şöyleydi:
+`acik` rozetinde **"Yanıt bekleniyor"** yazıyordu, `yanitlandi` rozetinde
+**"Yanıtlandı"**. Kanonun dördü ise `acik` = *sıra destek ekibinde* ·
+`yanit-bekleyen` = *sıra ÜYEDE*.
+
+Yani Fit'in **"Yanıt bekleniyor"u kanonun `acik`ıdır**, `yanit-bekleyen`i
+DEĞİL — iki dizgi bir harf farkla neredeyse aynı, anlattıkları taraf ise
+**birbirinin tersi**. Dizgiye bakıp eşleme yapan bir tur `acik`i
+`yanit-bekleyen`e taşırdı ve iki sekme aynı kümeyi gösterirdi; hiçbir test
+yakalamazdı, çünkü ikisi de geçerli bir durum adı.
+
+**Nasıl yakalandı.** Kanonun §1'i "kimde sıra" sütununu ayrıca yazıyor.
+Eşleme dizgiden değil o sütundan yapıldı:
+`Yanıt bekleniyor → acik` · `Yanıtlandı → yanit-bekleyen` · `Kapatıldı → kapatilan`.
+
+**Kural.** Durum sözlüğü paylaşılırken **etiket değil TANIM** eşlenir.
+"Bu sözcük bizde de var" bir eşleme kanıtı değildir; ölçüt *"bu durumda sıra
+kimdedir / bu satırı kim yazar"*dır. Kanonun `Acik` için "Açık" değil
+**"Açık talep"** demesinin sebebi de budur — tek başına "Açık" bu ekranda
+"Yanıt bekleyen"le karışıyor.
+
+---
+
+## 21 · Aynı token adı, başka değer: renk kanondan gelmez
+
+**Ne oldu (Dalga 3).** Kanon dört durumu üç rozet varyantına indiriyor
+(`ok · wait · off`) ve Diet'in kendi renklerini yazıyor. Fit'e **token adıyla**
+kopyalansaydı: Diet'in `--green`i marka yeşilidir, Fit'te `--green` **#3BB77E**
+ve kendi tanımının yorumu *"yalnız sağlık bloğu"* der — markanın yeşili `--fit`.
+Rozet, sağlık bloğunun rengiyle boyanırdı ve hiçbir kapı bunu görmezdi.
+
+**Kural.** Kanondan **ölçü · boşluk · yarıçap · gölge** gelir; **renk GELMEZ.**
+Varyantı eklemeden önce hedef kabuğun token'ının hangi **DEĞERE** çözüldüğü
+ölçülür ve kural **literal** yazılır. Bu turda üç varyantın da değerleri
+sayfanın zaten ölçülmüş üç çiftinden alındı; yeni renk icat edilmedi, yalnız
+hangi durumun hangi çifte düştüğü kanona göre yeniden dağıtıldı.
+
+---
+
+## 22 · Liste ile detay ayrı numara kümesi taşırsa bağlantılar sessizce ölür
+
+**Ne oldu (Dalga 3, R8'den devralınan kusur).** `destek-talepleri-v1` sekiz
+talebi `DF-2418` kalıbıyla listeliyordu; `destek-talebi-detay-v1` ise sekiz
+yazışmayı `DF-2026-0412` kalıbıyla tutuyordu. İki küme **hiç kesişmiyordu**:
+listedeki her satır detayda "talep bulunamadı"ya iniyordu. Sayfaların ikisi de
+tek başına "çalışıyor" görünüyordu; kırık olan **aradaki sözleşmeydi**.
+
+**Kural.** İki sayfa aynı kaydı gösteriyorsa kimlik **tek defterden** üretilir
+ve iki tarafa oradan basılır. Maket veride bile bu geçerlidir — "nasılsa örnek"
+diye ayrışan iki küme, bağlantıların hepsini sessizce koparır. Kapı da kimliğin
+kendisidir: numara kalıbını ve alfabeyi ölçen bir test, iki tarafı birden tutar.

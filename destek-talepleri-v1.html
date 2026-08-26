@@ -105,23 +105,39 @@
    li'yi (0,0,1) yendiği için yükleme sırasından bağımsız çalışır. */
 .tk-item, .tk-item h3, .tk-meta{text-align:left;text-align-last:auto}
 
-/* rozet kolonu 152px: en uzun durum "Yanıt bekleniyor" (ikon+boşluk+iç pay
-   dahil 12px/700'de ~145px ölçüldü) tek satırda kalsın, üç rozet hizalansın */
+/* rozet kolonu 152px: ölçü R8'de en uzun durum "Yanıt bekleniyor" için
+   alınmıştı (12px/700'de ~145px). Kanon etiketleri geldiğinde en uzun kalem
+   "Yanıt bekleyen"e KISALDI — kolon dokunulmadan payı arttı, dört rozet
+   hizalı kalıyor. */
 .tk-row{display:grid;grid-template-columns:152px minmax(0,1fr) 18px;align-items:center;gap:16px;
   border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);
   padding:15px 16px;transition:border-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)}
 .tk-row:hover{border-color:var(--fit);box-shadow:var(--sh-sm);transform:translateY(-1px)}
 .tk-row:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
 
-/* Durum rozeti: renk TEK sinyal değil — her rozette ikon + yazılı durum var.
-   Kontrast ölçüldü (WCAG AA 4.5:1 eşiği): açık #007a3d/#eaf6ef 4.93:1 ·
-   yanıtlandı #006072/#e6f1f4 6.26:1 · kapandı #56514a/#f1f1f1 6.96:1. */
+/* DÖRT DURUM, ÜÇ ROZET — destek kanonu §1.2 (docs/destek-kanonu.md).
+   Ayrım rozetin RENGİNDE değil ETİKETİNDE taşınır: `acik` ile `yanit-bekleyen`
+   aynı `wait` varyantını paylaşır, ikisini "Açık talep" / "Yanıt bekleyen"
+   dizgisi ve ikonu (fa-inbox / fa-reply) ayırır. Renk tek sinyal değildir.
+
+   🔴 RENK KANONDAN GELMEZ — kanon §1.2'nin token şerhi: aynı token adı başka
+   depoda başka renge çözülür ve hiçbir test yakalamaz. Bu depoda `--green`
+   #3BB77E'dir ve kendi tanımının yorumu "yalnız sağlık bloğu" der; markanın
+   yeşili `--fit`tir. O yüzden üç varyantın değerleri BU SAYFANIN ZATEN
+   ÖLÇÜLMÜŞ üç çifti; yeni renk icat edilmedi, yalnız hangi durumun hangi
+   çifte düştüğü kanona göre yeniden dağıtıldı.
+   Kontrast (WCAG AA normal metin eşiği 4.5:1):
+     wait  #006072 / #e6f1f4  6.26:1   → acik · yanit-bekleyen
+     ok    #007a3d / #eaf6ef  4.93:1   → cozulen   (--fit-deep / --fit-tint)
+     off   #56514a / #f1f1f1  6.96:1   → kapatilan
+   Rozet kolonu 152px DEĞİŞMEDİ: en uzun etiket "Yanıt bekleniyor"dan
+   "Yanıt bekleyen"e kısaldı, yani tek satırda kalma payı arttı. */
 .tk-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
   font-size:12px;font-weight:700;letter-spacing:.01em;padding:7px 10px;border-radius:var(--radius-sm);white-space:nowrap}
 .tk-badge i{font-size:10.5px}
-.st-acik{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-deep)}
-.st-yanit{background:#e6f1f4;border:1px solid #cadfe5;color:var(--c-petrol)}
-.st-kapali{background:#f1f1f1;border:1px solid #e2e2e2;color:var(--slate-2)}
+.st-wait{background:#e6f1f4;border:1px solid #cadfe5;color:var(--c-petrol)}
+.st-ok{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-deep)}
+.st-off{background:#f1f1f1;border:1px solid #e2e2e2;color:var(--slate-2)}
 
 .tk-main{min-width:0}
 .tk-subject{font-size:15px;font-weight:700;color:var(--slate);line-height:1.35;margin:0 0 6px}
@@ -160,6 +176,8 @@
 /* Zorunlu yıldızı --fit yerine --fit-ink (#006a35): iletisim-v1'de ölçülen
    aynı sebep — #009d4f beyaz üzerinde 3.54:1 ile AA altında kalıyor. */
 .fk-label .req{color:var(--fit-ink);font-weight:700}
+/* isteğe bağlı alan işareti — hesabim-v1.html'in fk kitinden birebir */
+.fk-label .opt{font-size:11.5px;color:var(--muted);font-weight:500}
 .fk-label .fk-count{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
 
 .fk-input,.fk-select,.fk-textarea{
@@ -191,6 +209,21 @@
 .fk-summary{display:flex;align-items:flex-start;gap:9px;margin:0 0 20px;padding:13px 15px;border-radius:var(--radius-md);background:#fdecea;border:1px solid #efc2bd;color:#8c1d18;font-size:13px;font-weight:600;line-height:1.5}
 .fk-summary i{font-size:14px;margin-top:1px;flex:none}
 .fk-summary[hidden]{display:none}
+
+/* ---- EK DOSYA (kanon §8.1: MESAJ başına TEK dosya, alan adı `ek`) ----
+   Görsel dil hesabim-v1.html'in fotoğraf yükleme alanından alındı (gizli
+   <input type=file> + görünür etiket düğmesi); yeni kit uydurulmadı.
+   Odak halkası input'un kendisinde görünmez (.sr-only kırpıyor), o yüzden
+   kardeş seçiciyle etikete taşındı. */
+.fk-file{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fk-file-btn{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:11px 16px;cursor:pointer;transition:.18s var(--ease)}
+.fk-file-btn:hover{border-color:var(--fit);color:var(--fit-deep)}
+.fk-file input[type=file]:focus-visible+.fk-file-btn{outline:3px solid var(--fit-wash);outline-offset:2px}
+.fk-file-name{font-size:12.5px;color:var(--slate-2);font-weight:600;min-width:0;overflow-wrap:anywhere}
+.fk-file-clear{border:none;background:none;padding:0;color:var(--fit-ink);font-size:12.5px;font-weight:700;cursor:pointer;
+  font-family:inherit;text-decoration:underline;text-underline-offset:2px}
+.fk-file-clear[hidden]{display:none}
 
 /* gönderi sonrası onay şeridi (form yerinde kalır, liste güncellenir) */
 .tk-ok{display:flex;align-items:flex-start;gap:10px;margin:0 0 20px;padding:13px 15px;border-radius:var(--radius-md);
@@ -258,21 +291,21 @@
       <i class="fa-solid fa-chevron-right"></i>
       <a href="hesabim-v1.html">Hesap Ayarları</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <a href="destek-v1.html">Destek</a>
+      <a href="destek-v1.html">Destek Merkezi</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span class="cur">Taleplerim</span>
+      <span class="cur">Destek Taleplerim</span>
     </nav>
     <span class="eyebrow"><i class="fa-solid fa-headset"></i> Hesabım</span>
     <h1>Destek Taleplerim</h1>
     <p class="lib-sub">Açtığın destek taleplerini durumuna göre süz, hangisinin yanıtlandığını gör ve gerekirse yeni bir talep oluştur. Her talebin kendi numarası ve yazışma geçmişi var.</p>
     <div class="chips">
       <a class="btn btn-fit" href="#yeni-talep"><i class="fa-solid fa-plus"></i> Yeni talep oluştur</a>
-      <a class="btn btn-ghost" href="destek-v1.html"><i class="fa-solid fa-headset"></i> Hızlı çözümlere bak</a>
+      <a class="btn btn-ghost" href="destek-v1.html"><i class="fa-solid fa-headset"></i> Destek Merkezi'ne bak</a>
     </div>
     <div class="lib-stats">
-      <div class="lib-stat"><b id="stTotal">8</b><span>toplam talep</span></div>
-      <div class="lib-stat"><b id="stOpen">3</b><span>yanıt bekleyen</span></div>
-      <div class="lib-stat"><b id="stAns">2</b><span>yanıtlanan talep</span></div>
+      <div class="lib-stat"><b id="stTotal">12</b><span>toplam talep</span></div>
+      <div class="lib-stat"><b id="stOpen">3</b><span>açık talep</span></div>
+      <div class="lib-stat"><b id="stWait">3</b><span>yanıt bekleyen</span></div>
     </div>
   </div>
 </section>
@@ -281,8 +314,8 @@
 <div class="pf-tabbar">
   <div class="wrap">
     <div class="pf-tabs is-center" role="group" aria-label="Destek akışları">
-      <a class="dt" href="destek-v1.html"><i class="fa-solid fa-headset" aria-hidden="true"></i> Destek</a>
-      <a class="dt active" href="destek-talepleri-v1.html" aria-current="page"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Taleplerim <span class="cnt">8</span></a>
+      <a class="dt" href="destek-v1.html"><i class="fa-solid fa-headset" aria-hidden="true"></i> Destek Merkezi</a>
+      <a class="dt active" href="destek-talepleri-v1.html" aria-current="page"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Destek Taleplerim <span class="cnt">12</span></a>
     </div>
   </div>
 </div>
@@ -294,7 +327,7 @@
     <div class="tk-panel">
       <div class="tk-head">
         <div>
-          <h2 id="talepH"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Taleplerim</h2>
+          <h2 id="talepH"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Destek Taleplerim</h2>
           <p>Bir talebi açmak için satırına dokun. Talep numarası, yazışmayla ilgili her yerde aynı kalır. Aşağıdaki talepler, tarihler ve numaralar prototipte ekran akışını göstermek için konmuş örneklerdir.</p>
         </div>
       </div>
@@ -302,137 +335,211 @@
       <!-- DURUM SÜZGECİ — kabuğun .fgroup + .df-fchip kiti.
            Gerçekten süzer, aria-pressed taşır, seçim ?durum= parametresine
            yazılır; geri/ileri ve sayfa yenileme seçimi korur (belge §23/§20). -->
+      <!-- Dört durum + "Tümü" · destek kanonu §1 ve §6.2.
+           🔴 "Tümü" bir DURUM DEĞİLDİR, bir GÖRÜNÜM SEÇİMİDİR: hiçbir kartın
+           `data-durum`u `tumu` olmaz. Kanon §6.2'nin gerekçesi — enum'a case
+           olarak girseydi `status` kolonuna yazılabilir hâle gelirdi. -->
       <div class="tk-filter">
         <div class="fgroup" role="group" aria-label="Talep durumuna göre süz" id="tkFilter">
-          <button type="button" class="df-fchip on" data-f="tumu" aria-pressed="true"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tümü <span class="tk-c" data-c="tumu">8</span></button>
-          <button type="button" class="df-fchip" data-f="acik" aria-pressed="false"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor <span class="tk-c" data-c="acik">3</span></button>
-          <button type="button" class="df-fchip" data-f="yanitlandi" aria-pressed="false"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı <span class="tk-c" data-c="yanitlandi">2</span></button>
-          <button type="button" class="df-fchip" data-f="kapandi" aria-pressed="false"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı <span class="tk-c" data-c="kapandi">3</span></button>
+          <button type="button" class="df-fchip on" data-f="tumu" aria-pressed="true"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tümü <span class="tk-c" data-c="tumu">12</span></button>
+          <button type="button" class="df-fchip" data-f="acik" aria-pressed="false"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep <span class="tk-c" data-c="acik">3</span></button>
+          <button type="button" class="df-fchip" data-f="yanit-bekleyen" aria-pressed="false"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen <span class="tk-c" data-c="yanit-bekleyen">3</span></button>
+          <button type="button" class="df-fchip" data-f="cozulen" aria-pressed="false"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen <span class="tk-c" data-c="cozulen">2</span></button>
+          <button type="button" class="df-fchip" data-f="kapatilan" aria-pressed="false"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan <span class="tk-c" data-c="kapatilan">4</span></button>
         </div>
       </div>
 
-      <p class="tk-count" id="tkCount" role="status" aria-live="polite"><b>8</b> talep gösteriliyor — süzgeç: tümü.</p>
+      <!-- role="status"/aria-live BİLEREK KALDIRILDI: sayfalama motorunun kendi
+           `.pagi-note`u zaten aria-live="polite" ve aynı listeye bakıyor; iki
+           canlı bölge her süzgeç dokunuşunda üst üste okunuyordu. Satır ekranda
+           YAZILI kalıyor (belge §20'nin istediği kanal bu), duyurma işini
+           `.pagi-note` tek başına yapıyor. -->
+      <p class="tk-count" id="tkCount"><b>12</b> talep gösteriliyor — süzgeç: tümü.</p>
 
-      <!-- Numaralandırma, durum sözcükleri ve rozet ikonları
-           destek-talebi-detay-v1.html ile HİZALI (DF-2xxx · "Yanıt bekleniyor /
-           Yanıtlandı / Kapatıldı" · hourglass/circle-check/lock). Yıldızlı üç
-           talep detay sayfasında gerçekten yazışma içeriğiyle duruyor. -->
+      <!-- TEK DEFTER: on iki talebin numarası, konusu, durumu ve tarihi
+           destek-talebi-detay-v1.html ile BİREBİR aynı; oradaki her talebin
+           tam yazışması var, yani listedeki on iki bağlantının on ikisi de
+           gerçek bir yazışmaya iniyor (R8'de liste ile detay ayrı numara
+           kümesi taşıyordu ve satırların bir kısmı "talep bulunamadı"ya
+           düşüyordu — ölçüldü ve kapatıldı).
+           Durum dili kanondan: "Açık talep" · "Yanıt bekleyen" · "Çözülen" ·
+           "Kapatılan"; ikonlar fa-inbox / fa-reply / fa-circle-check / fa-lock. -->
       <ul class="tk-list" id="tkList" aria-labelledby="talepH">
 
-        <li class="tk-item" data-durum="acik" data-no="DF-2418">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2418">
-            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+        <li class="tk-item" data-durum="cozulen" data-no="DF-2026-K7WQ9M">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-K7WQ9M">
+            <span class="tk-badge st-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen</span>
             <span class="tk-main">
-              <h3 class="tk-subject">Pro üyeliğim yenilendi ama video seansları kilitli görünüyor</h3>
+              <h3 class="tk-subject">Pro üyeliğim yenilendi ama paket ücretsize düştü</h3>
               <span class="tk-meta">
                 <span><i class="fa-solid fa-tag" aria-hidden="true"></i> DadaFit Pro ve ödeme</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-11">11 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2418</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-14">14 Ağustos 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-K7WQ9M</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="acik" data-no="DF-2412">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2412">
-            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+        <li class="tk-item" data-durum="acik" data-no="DF-2026-B4TXN2">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-B4TXN2">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
             <span class="tk-main">
               <h3 class="tk-subject">Apple Health adım verisi iki gündür aktarılmıyor</h3>
               <span class="tk-meta">
                 <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-09">9 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2412</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-11">11 Ağustos 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-B4TXN2</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="acik" data-no="DF-2404">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2404">
-            <span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>
+        <li class="tk-item" data-durum="acik" data-no="DF-2026-H9DKR6">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-H9DKR6">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
             <span class="tk-main">
               <h3 class="tk-subject">Video seansı ortasında baştan başlıyor</h3>
               <span class="tk-meta">
                 <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Video seansları</span>
                 <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-06">6 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2404</span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-H9DKR6</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="yanitlandi" data-no="DF-2390">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2390">
-            <span class="tk-badge st-yanit"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Antrenman geçmişimde iki günlük boşluk görünüyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-29">29 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2390</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="yanitlandi" data-no="DF-2377">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2377">
-            <span class="tk-badge st-yanit"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Yanıtlandı</span>
+        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-QW3JZ8">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-QW3JZ8">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
             <span class="tk-main">
               <h3 class="tk-subject">Programını Bul sonucundaki program planıma eklenmedi</h3>
               <span class="tk-meta">
                 <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Programlar ve planım</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-24">24 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2377</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-29">29 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-QW3JZ8</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="kapandi" data-no="DF-2352">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2352">
-            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-M2VYP7">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-M2VYP7">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
             <span class="tk-main">
-              <h3 class="tk-subject">Antrenör randevum takvimde iki kez göründü</h3>
+              <h3 class="tk-subject">Antrenman geçmişimde iki günlük boşluk görünüyor</h3>
               <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-12">12 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2352</span>
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-27">27 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-M2VYP7</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="kapandi" data-no="DF-2334">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2334">
-            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+        <li class="tk-item" data-durum="acik" data-no="DF-2026-T6NGX4">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-T6NGX4">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
             <span class="tk-main">
-              <h3 class="tk-subject">Bildirim tercihlerim her girişte sıfırlanıyor</h3>
+              <h3 class="tk-subject">Challenge rozetim tamamlandığı hâlde düşmedi</h3>
               <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Hesap ve giriş</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-03">3 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2334</span>
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-23">23 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-T6NGX4</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
           </a>
         </li>
 
-        <li class="tk-item" data-durum="kapandi" data-no="DF-2311">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2311">
-            <span class="tk-badge st-kapali"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatıldı</span>
+        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-Z4KMD9">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-Z4KMD9">
+            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
             <span class="tk-main">
               <h3 class="tk-subject">Fatura adresimi güncellemek istiyorum</h3>
               <span class="tk-meta">
                 <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Üyelik ve fatura</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-06-18">18 Haziran 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2311</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-22">22 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-Z4KMD9</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-A8RUC3">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-A8RUC3">
+            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Antrenör randevumu ertelemek istiyorum</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-21">21 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-A8RUC3</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-P7XBW2">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-P7XBW2">
+            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Antrenör randevum takvimde iki kez göründü</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-17">17 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-P7XBW2</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-E3QHT6">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-E3QHT6">
+            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Bildirim tercihlerim her girişte sıfırlanıyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Hesap ve giriş</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-10">10 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-E3QHT6</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-N9GVJ4">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-N9GVJ4">
+            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-03">3 Temmuz 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-N9GVJ4</span>
+              </span>
+            </span>
+            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </a>
+        </li>
+
+        <li class="tk-item" data-durum="cozulen" data-no="DF-2026-U2FZR8">
+          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-U2FZR8">
+            <span class="tk-badge st-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen</span>
+            <span class="tk-main">
+              <h3 class="tk-subject">Enerji defterinde su takibi her gün sıfırlanıyor</h3>
+              <span class="tk-meta">
+                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
+                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-06-26">26 Haziran 2026</time></span>
+                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-U2FZR8</span>
               </span>
             </span>
             <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
@@ -448,6 +555,15 @@
         <p>Seçtiğin durumda görüntülenecek bir destek talebi bulunmuyor. Tümünü görmek için süzgeci sıfırlayabilirsin.</p>
         <button class="btn btn-fit" type="button" id="tkEmptyReset"><i class="fa-solid fa-rotate-left"></i> Tüm talepleri göster</button>
       </div>
+
+      <!-- SAYFALAMA — kanon §9/D5: Diet'te `paginate` YOK, kaynak GASTRO'dur
+           (`paginate(10)->withQueryString()`). Sayfa boyu 10 oradan alındı.
+           `withQueryString()`in maket karşılığı: sayfa değişimi adres çubuğuna
+           DOKUNMAZ, `?durum=` seçimi olduğu gibi kalır; süzgeç değişince
+           `pagi.yenile()` 1. sayfaya döner.
+           Biçim + davranış kabukta: fit-shell.css "SAYFALAMA" +
+           fit-shell.js "SAYFALAMA MOTORU" (FIT_PAGI). Yeni CSS yazılmadı. -->
+      <nav class="pagi" id="tkPagi" aria-label="Talep sayfaları"></nav>
     </div>
 
   </div>
@@ -461,7 +577,7 @@
       <form class="form-card" id="tkForm" novalidate>
         <div class="fc-head">
           <h2 id="yeniH"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Yeni destek talebi</h2>
-          <p>Yıldız (*) ile işaretli alanlar zorunludur. Talebini gönderdiğinde listenin en üstünde <b>Yanıt bekleniyor</b> durumuyla görünür ve kendi talep numarasını alır.</p>
+          <p>Yıldız (*) ile işaretli alanlar zorunludur. Talebini gönderdiğinde listenin en üstünde <b>Açık talep</b> durumuyla görünür ve kendi talep numarasını alır.</p>
         </div>
 
         <!-- gönderi sonrası onay (rol=status) -->
@@ -518,6 +634,28 @@
           <p class="fk-err" id="tkMesajErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
         </div>
 
+        <!-- EK DOSYA — kanon §8.1: MESAJ başına TEK dosya, alan adı `ek`.
+             "Ne kabul ediliyor" metni UYDURULMADI, kuralın kendisinden türetildi:
+               · 5 MB + JPG/PNG/WebP → BU DEPONUN kendi ölçülmüş yükleme sınırı
+                 (hesabim-v1.html:1752 ve :1854 — profil/kapak fotoğrafı).
+               · PDF → kanon §8.1'in bu uca özel şerhi: genel mime listesine
+                 EKLENMEZ, yalnız destek ucuna eklenir, çünkü ödeme/fatura
+                 kategorileri doğası gereği belge taşır. Bu formda o iki
+                 kategori ("DadaFit Pro ve ödeme" · "Üyelik ve fatura") var.
+               · "mesaj başına tek dosya" → kolon tekil (kanon §8.1). -->
+        <div class="fk-field">
+          <label class="fk-label" for="tkEk">Ek dosya <span class="opt">(isteğe bağlı)</span></label>
+          <div class="fk-file">
+            <input class="sr-only" type="file" id="tkEk" name="ek"
+                   accept="image/jpeg,image/png,image/webp,application/pdf"
+                   aria-describedby="tkEkHelp" />
+            <label class="fk-file-btn" for="tkEk"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> Dosya seç</label>
+            <span class="fk-file-name" id="tkEkName">Dosya seçilmedi</span>
+            <button type="button" class="fk-file-clear" id="tkEkClear" hidden>Kaldır</button>
+          </div>
+          <p class="fk-help" id="tkEkHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Ekran görüntüsü ya da belge: JPG, PNG, WebP veya PDF · en çok 5 MB · mesaj başına tek dosya.</p>
+        </div>
+
         <div class="tk-submit">
           <p class="sub-note">Talebini gönderdikten sonra yazışmayı talebin detay sayfasından sürdürebilir, çözüldüyse talebi kapatabilirsin. Prototipte talep kimseye iletilmez ve yanıtlanmaz.</p>
           <button class="btn btn-fit" type="submit"><i class="fa-solid fa-paper-plane"></i> Talebi gönder</button>
@@ -569,9 +707,18 @@
  =================================================================== */
 (function(){
   'use strict';
-  var VALID = ['tumu','acik','yanitlandi','kapandi'];
-  /* durum sözcükleri destek-talebi-detay-v1.html ile birebir aynı */
-  var LABEL = {tumu:'tümü', acik:'yanıt bekleniyor', yanitlandi:'yanıtlandı', kapandi:'kapatıldı'};
+  /* DÖRT DURUM — destek kanonu §1. Anahtarlar ve etiketler
+     destek-talebi-detay-v1.html ile BİREBİR aynı.
+     🔴 'tumu' bu dizide bir GÖRÜNÜM SEÇİMİ olarak duruyor, DURUM olarak değil:
+     hiçbir kartın data-durum'u 'tumu' olmaz (kanon §6.2).
+     🔴 BEYAZ LİSTE: adresten gelen geçersiz `?durum=` SESSİZCE 'tumu'ya düşer.
+     Eski üç değer (`yanitlandi` · `kapandi`) yer imi ya da paylaşılan bağlantıda
+     kalmış olabilir; onlar da aynı kapıdan 'tumu'ya düşer. Eski→yeni bir
+     eşleme tablosu YAZILMADI: kanonun kuralı beyaz liste + sessiz düşme;
+     takma ad tablosu kanonda olmayan bir davranış olurdu. */
+  var VALID = ['tumu','acik','yanit-bekleyen','cozulen','kapatilan'];
+  var LABEL = {tumu:'tümü', 'acik':'açık talepler', 'yanit-bekleyen':'yanıt bekleyenler',
+               'cozulen':'çözülenler', 'kapatilan':'kapatılanlar'};
 
   var bar   = document.getElementById('tkFilter');
   var list  = document.getElementById('tkList');
@@ -589,7 +736,7 @@
   /* çip sayaçları ve banner istatistikleri tek yerden hesaplanır */
   function recount(){
     var all = items();
-    var n = {tumu:all.length, acik:0, yanitlandi:0, kapandi:0};
+    var n = {tumu:all.length, 'acik':0, 'yanit-bekleyen':0, 'cozulen':0, 'kapatilan':0};
     all.forEach(function(li){
       var d = li.getAttribute('data-durum');
       if(n[d] !== undefined) n[d]++;
@@ -600,21 +747,42 @@
     });
     var t = document.getElementById('stTotal'),
         o = document.getElementById('stOpen'),
-        a = document.getElementById('stAns');
+        w = document.getElementById('stWait');
     if(t) t.textContent = n.tumu;
-    if(o) o.textContent = n.acik;
-    if(a) a.textContent = n.yanitlandi;
+    if(o) o.textContent = n['acik'];
+    if(w) w.textContent = n['yanit-bekleyen'];
+    var cn = document.querySelector('.pf-tabs .dt.active .cnt');
+    if(cn) cn.textContent = n.tumu;
     return n;
   }
 
-  function apply(f, push){
-    if(VALID.indexOf(f) < 0) f = 'tumu';
-    var shown = 0;
-    items().forEach(function(li){
-      var hit = (f === 'tumu') || (li.getAttribute('data-durum') === f);
-      li.hidden = !hit;
-      if(hit) shown++;
+  /* O ANKİ süzgeci geçen satırlar — sayfalama motorunun beslendiği dizi */
+  var secili = 'tumu';
+  function eslesen(){
+    return items().filter(function(li){
+      return secili === 'tumu' || li.getAttribute('data-durum') === secili;
     });
+  }
+
+  /* SAYFALAMA — kabuk motoru (fit-shell.js → FIT_PAGI). Sayfa boyu 10:
+     kaynak Gastro'nun `paginate(10)` ölçüsü (kanon §9/D5). */
+  var pagi = window.FIT_PAGI ? FIT_PAGI({
+    kap: document.getElementById('tkPagi'),
+    ust: document.getElementById('talepH'),
+    sayfaBoy: 10,
+    birim: 'talep',
+    liste: eslesen,
+    ciz: function(gosterilecek, hepsi){
+      items().forEach(function(li){ li.hidden = true; });
+      gosterilecek.forEach(function(li){ li.hidden = false; });
+      if(empty) empty.classList.toggle('show', hepsi.length === 0);
+      list.hidden = (hepsi.length === 0);
+    }
+  }) : null;
+
+  function apply(f, push){
+    if(VALID.indexOf(f) < 0) f = 'tumu';   /* beyaz liste — geçersiz sessizce "Tümü" */
+    secili = f;
 
     bar.querySelectorAll('.df-fchip').forEach(function(b){
       var on = b.getAttribute('data-f') === f;
@@ -622,9 +790,20 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
 
+    var shown = eslesen().length;
     cnt.innerHTML = '<b>' + shown + '</b> talep gösteriliyor — süzgeç: ' + LABEL[f] + '.';
-    if(empty) empty.classList.toggle('show', shown === 0);
-    list.hidden = (shown === 0);
+
+    /* Süzgeç değişti → 1. sayfaya dön (Gastro'nun `paginate()` davranışı).
+       Sayfa numarası adres çubuğuna yazılmaz, yani `?durum=` seçimi sayfa
+       değişiminden etkilenmez — `withQueryString()`in maket karşılığı. */
+    if(pagi) pagi.yenile();
+    else {
+      items().forEach(function(li){
+        li.hidden = !(f === 'tumu' || li.getAttribute('data-durum') === f);
+      });
+      if(empty) empty.classList.toggle('show', shown === 0);
+      list.hidden = (shown === 0);
+    }
 
     if(push){
       var url = location.pathname + (f === 'tumu' ? '' : '?durum=' + f) + location.hash;
@@ -713,20 +892,57 @@
   var msg = document.getElementById('tkMesaj'), mc = document.getElementById('tkMsgCount');
   if(msg && mc) msg.addEventListener('input', function(){ mc.textContent = msg.value.length; });
 
-  /* mevcut en büyük numaranın bir fazlası — DF-2xxx (detay sayfasıyla aynı kalıp) */
+  /* TALEP NUMARASI — destek kanonu §5.
+     Kalıp: DF-<yıl>-<6 karakter>.  Alfabe 30 karakter; I·O·S·0·1·5 YOK,
+     çünkü numarayı telefonda okuyup yazan İNSANDIR ve I/1 · O/0 · S/5 karışır.
+     Sıralı sayı BİLEREK kullanılmıyor (kanon §4.3/2): kaç talep açıldığını
+     sızdırır ve komşu numarayı denemeye davet eder.
+     🔴 SESSİZ DÖNGÜ YOK (kanon §5.3): 8 deneme, hepsi çakışırsa null döner ve
+     çağıran kullanıcıya YAZILI hata gösterir — sessizce geçilmez. */
+  var ALFABE  = 'ABCDEFGHJKLMNPQRTUVWXYZ2346789';   /* 30 karakter */
+  var DENEME  = 8;
+
+  function rastgeleKarakter(){
+    /* kriptografik kaynak (kanon: random_int()). 240 = 8×30 — üstündeki
+       değerler ELENİR, yoksa modulo ilk 16 karakteri kayırırdı. */
+    var b = new Uint8Array(1);
+    do { crypto.getRandomValues(b); } while(b[0] >= 240);
+    return ALFABE.charAt(b[0] % ALFABE.length);
+  }
+
   function nextNo(){
-    var max = 0;
-    items().forEach(function(li){
-      var m = /(\d+)$/.exec(li.getAttribute('data-no')||'');
-      if(m && +m[1] > max) max = +m[1];
-    });
-    return 'DF-' + (max + 1);
+    var alinmis = {};
+    items().forEach(function(li){ alinmis[li.getAttribute('data-no')] = 1; });
+    for(var d = 0; d < DENEME; d++){
+      var kod = '';
+      for(var i = 0; i < 6; i++) kod += rastgeleKarakter();
+      var no = 'DF-' + new Date().getFullYear() + '-' + kod;
+      if(!alinmis[no]) return no;
+    }
+    return null;
   }
   function esc(s){
     return String(s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
+
+  /* ---- ek dosya: seçilen dosyanın adı YAZIYLA gösterilir (renk tek sinyal
+         değil), "Kaldır" ile geri alınır. Mesaj başına TEK dosya olduğu için
+         input `multiple` taşımaz. ---- */
+  var ekInput = document.getElementById('tkEk');
+  var ekName  = document.getElementById('tkEkName');
+  var ekClear = document.getElementById('tkEkClear');
+  function ekYaz(){
+    if(!ekInput || !ekName) return;
+    var f = ekInput.files && ekInput.files[0];
+    ekName.textContent = f ? f.name : 'Dosya seçilmedi';
+    if(ekClear) ekClear.hidden = !f;
+  }
+  if(ekInput) ekInput.addEventListener('change', ekYaz);
+  if(ekClear) ekClear.addEventListener('click', function(){
+    ekInput.value = ''; ekYaz(); ekInput.focus();
+  });
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -746,6 +962,18 @@
     if(sum) sum.hidden = true;
 
     var no  = nextNo();
+    if(!no){
+      /* Kanon §5.3'ün maket karşılığı: 8 denemenin hepsi çakışırsa bu
+         GÖRÜLECEK bir arızadır, sessizce geçilecek değil. */
+      if(okBox) okBox.hidden = true;
+      if(sum && sumText){
+        sumText.textContent = 'Talep numarası üretilemedi. Talebin gönderilmedi — sayfayı yenileyip tekrar dener misin?';
+        sum.hidden = false;
+        sum.setAttribute('tabindex','-1');
+        try{ sum.focus({preventScroll:true}); }catch(err){ sum.focus(); }
+      }
+      return;
+    }
     var kat = document.getElementById('tkKategori').value;
     var bas = document.getElementById('tkBaslik').value.trim();
     var d   = new Date();
@@ -758,7 +986,7 @@
     li.setAttribute('data-no', no);
     li.innerHTML =
       '<a class="tk-row is-new" href="destek-talebi-detay-v1.html?talep=' + esc(no) + '">' +
-        '<span class="tk-badge st-acik"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Yanıt bekleniyor</span>' +
+        '<span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>' +
         '<span class="tk-main">' +
           '<h3 class="tk-subject">' + esc(bas) + '</h3>' +
           '<span class="tk-meta">' +
@@ -772,8 +1000,9 @@
     list.insertBefore(li, list.firstElementChild);
 
     recount();
-    /* yeni talep "yanıt bekleniyor" — hangi süzgeç seçiliyse ona göre yeniden süzülür */
-    apply(readParam(), false);
+    /* Yeni talep "Açık talep" doğar (kanon §1: DB default 'acik').
+       Hangi süzgeç seçiliyse ona göre yeniden süzülür ve 1. sayfaya dönülür. */
+    apply(secili, false);
 
     if(okBox){
       okBox.querySelector('span').innerHTML =
@@ -786,6 +1015,7 @@
     form.reset();
     fields.forEach(function(el){ delete el.dataset.seen; mark(el, ''); });
     if(mc) mc.textContent = '0';
+    ekYaz();
     if(okBox){ okBox.setAttribute('tabindex','-1'); try{ okBox.focus({preventScroll:true}); }catch(err){ okBox.focus(); } }
   });
 })();

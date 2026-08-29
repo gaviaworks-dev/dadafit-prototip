@@ -238,3 +238,46 @@ kaydet düğmesinin sınır kutusu, aynı kart içindeki `position:absolute`
 her öğeyle **0 px² kesişmeli** — üç genişlikte (1440 · 1024 · 390).
 R15'te bu ölçüm yapılmadığı için `.ex-level` ve `.pr-level` düğmenin altına
 düştü: kesişim **1162 px²**, iki sayfada **21 kartın 21'inde**, üç genişlikte de.
+
+---
+
+## 13 · Yönetim paneli kiti — `.adm-*`
+
+🔴 **Yalnız admin sayfalarında kullanılır.** Public yüzeyde karşılığı yoktur ve
+`assets/css/fit-admin.css`te yaşar — `fit-shell.css`e karıştırılmaz, çünkü 60
+public sayfanın hiç kullanmayacağı kuralları her ziyarette indirtirdi.
+
+Admin, kitin geri kalanını **aynen** kullanır: kart (`.pnl-card` ölçüleri) ·
+düğme (§4) · rozet (§5) · sekme (§6) · form (§7) · boş durum (§9). Aşağıdakiler
+o kitte karşılığı olmayan, admin'e özgü beş kalemdir.
+
+| Token | Değer | Neden yeni |
+|---|---|---|
+| `--adm-side-w` | `276px` | Gastro'nun sidebar'ı ölçüldü: `340px`. Fit'in admin ekranlarının çoğu tablo ve 340 kolonları sıkıştırıyordu; 276'da kalan gövde `--wrap`ın (1240) içinde kalıyor. Gerekçe: `docs/fit-admin-plan.md` §7/1 |
+| `--adm-top-h` | `64px` | 44px dokunma hedefi + 2×10px nefes |
+
+| Bileşen | Ölçü | Not |
+|---|---|---|
+| `.adm-side` | `276px` · `--paper` · sağ kenarlık `--line` | `position:fixed`; ≤1100px'te çekmeceye döner |
+| `.adm-sec` | `10.5px/800`, `.12em` harf aralığı, `--muted` | Bölüm başlığı **ayraç değildir** — ölçüldü (devir §10): "Gastro bölümleri başlık ile ayırıyor, ayrı bir çizgi öğesi yok" |
+| `.adm-item` | `min-height:44px` · `13.5px/600` · aktifte `--fit-tint` + `--fit-deep` | Kuyruk sayacı `.cnt` **sıfırsa basılmaz** — "0 bekleyen" bilgi değil gürültüdür |
+| `.adm-top` | `64px` · `position:sticky` · `--paper` | Sayfa başlığı ve breadcrumb burada |
+| `.adm-table` | başlık `11px/800` `.07em` uppercase · hücre `13.5px/500` `13px 16px` | Yatay kaydırma **kabın** işi (`.adm-tw`), hücre kırpılmaz. Sayısal kolon `tabular-nums` |
+| `.adm-ico-btn` | `44×44` (WCAG 2.5.8), görsel 32px | Satır eylemi |
+| `.adm-pg` | `min-width:44px · height:44px` | Sayfalama |
+| `.adm-bulk` | `--fit-tint` zemin, `--fit-line` kenarlık | **Seçim yokken `hidden`** — boş bir toplu eylem çubuğu tıklanacak bir şey vaat edip vermez |
+| `.adm-kpi .k` | dolgu `20px` · ikon `44×44` `--radius-md` · sayı `26px/800` · etiket `12.5px` | Devir belgesi §1'den: dört markada da 4 kutu, aynı yerde |
+
+### `.adm-src` — kaynak şeridi
+
+🔴 **Her admin ekranı gösterdiği verinin nereden geldiğini yazar.** Bu, deponun
+"maket olanı gerçekmiş gibi gösterme" kuralının tek bir bileşene indirilmiş
+hâlidir; her ekranda ayrı ayrı cümle kurulmaz.
+
+| Sınıf | Ne demek | Renk |
+|---|---|---|
+| `.is-canli` | Tarayıcıda gerçekten çalışan bir sözleşme modülünden okunuyor (`fit-challenge` · `fit-rozet` · `fit-paket` · `fit-su` · `fit-fatura`) | `--fit-tint` / `--fit-line` / `--fit-ink` |
+| `.is-ornek` | Örnek veri; sunucu yok, yazma yüzeyi maket | `--hs-warn-tint` / `--hs-warn-line` / `--hs-warn` |
+
+Bir ekranda ikisi bir aradaysa **ikisi de söylenir** — yarısı gerçek bir ekranın
+"gerçek" demesi, yarısı için yalan olurdu.

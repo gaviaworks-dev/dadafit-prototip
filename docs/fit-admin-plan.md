@@ -210,3 +210,65 @@ public yüzeyde karşılığı yoktur.
 
 **Her ekran bitince ölçüm kapısı:** yatay taşma 0 (1440 · 1024 · 768 · 390) ·
 konsol hatası 0 · ölü bağlantı 0 · dokunma hedefi ≥44px · boş durum dört parça.
+
+---
+
+## 9 · 🔴 GASTRO'YA HİZALAMA — ölçüldükten sonraki revizyon
+
+Plan ilk yazıldığında Gastro'nun sidebar'ı henüz **ölçülmemişti**; bölümleme
+devir belgesinin §10 özetinden türetilmişti. Sonra kaynak okundu
+(`dadagastro-profil/resources/views/admin/layout.blade.php`, salt okuma — kod
+alınmadı, yalnız bölümleme ve sıra) ve **dört sapma** çıktı. Dördü de düzeltildi.
+
+### Gastro'nun ölçülen sidebar'ı
+
+```
+Genel Bakış
+ANA İÇERİK    Tarifler · Dolapta Ne Var? (Malzemeler · Hariç Tutma Nedenleri) ·
+              Püf Noktaları · Mutfak Sırları (Mutfağa Giriş · Mutfak
+              Ansiklopedisi · Sofra Düzeni) · Sözlük · Video Mutfağı (Videolar ·
+              Video Serileri · Kısa Videolar) · Koleksiyonlar · Sezonlar ·
+              NP Modları · Taksonomi · Sayfalar & SEO
+OPERASYON     Üyeler & Yetki · Yorum Moderasyonu · Medya Kuyruğu · Geri Bildirim ·
+              Kazançlar & Ödemeler · Destek Talepleri · Log Yönetimi · Rozetler ·
+              Kademeler · Sezonlar · Planlar · Creator Planları · Abonelikler ·
+              Faturalar · Kuponlar
+YAPILANDIRMA  Menü / Navigasyon · Sponsorlar · Reklam Alanları · Reklam Paketleri ·
+              Kampanyalar · Kreatifler · Sponsorluk · Sponsorluk Raporu ·
+              Ayarlar · Raporlar
+```
+
+### Düzeltilen dört sapma
+
+| # | Taslakta | Gastro'da | Yapıldı |
+|---|---|---|---|
+| 1 | Rozetler ve Kademeler → YAPILANDIRMA | **OPERASYON** | OPERASYON'a taşındı |
+| 2 | Log Yönetimi → YAPILANDIRMA | **OPERASYON** | OPERASYON'a taşındı |
+| 3 | Raporlar → OPERASYON | **YAPILANDIRMA** (bölümün sonu) | YAPILANDIRMA'ya taşındı, sona kondu |
+| 4 | Düz liste | Alt gruplu kalemler var | `alt` alanı eklendi; Fit'te bugün gerek yok, şema hazır |
+
+### Bilerek ayrılan iki nokta
+
+1. **Rozetler ve Kademeler tek kalem** (Gastro'da iki). İkisi de `fit-rozet.js`in
+   aynı motorundan geliyor ve kademe eşiği rozet puanından hesaplanıyor. İki
+   ekrana bölmek tek veri kaynağını iki yüzeye dağıtmak olurdu — bu depoda üç kez
+   temizlenen "aynı soruya iki cevap" kusuru.
+2. **Sponsorluk ve Reklam tek kalem + sekme** (Gastro'da yedi kalem). Fit'te
+   bugün reklam yüzeyi tek sayfa; yedi kalemlik menü arkasında altı boş ekran
+   demek olurdu. Fit'in reklam ürünü büyüyünce Gastro'nun kırılımına açılır.
+
+### Gastro'da olup Fit'e GELMEYENLER
+
+**Planlar · Creator Planları · Abonelikler · Faturalar · Kuponlar** — K6 gereği
+Fit'te abonelik yoktur; üye üreticiden hizmet satın alır. Karşılığı
+**Hizmetler ve Satışlar**tır. **Medya Kuyruğu** ve **Geri Bildirim** bu turda
+kapsam dışı: Fit'te ikisinin de arkasında bir yüzey yok, menüye koymak boş ekran
+vaat etmek olurdu.
+
+### Gastro'dan ALINAN iki yetenek
+
+| Yetenek | Gastro'daki karşılığı | Fit'te |
+|---|---|---|
+| **Yönetimde arama** | *"Kullanıcı, içerik ara…"* | `.t-ara` — **21 ekranın kendisini** arar. Sunucu olmadığı için içerik aranamaz; yer tutucu "Ekran ara…" der ve tam olarak onu yapar. Klavye: ↑↓ gezinir, Enter açar, Esc kapatır |
+| **Menüyü daralt** | *"Menüyü daralt/genişlet"* | `.adm-daralt` — 276px → **74px**, tercih `localStorage`da durur. Daraltılmışken ad `title`/`aria-label` olarak kalır, bilgi kaybolmaz. Çekmece kipinde (≤1100px) devre dışı |
+

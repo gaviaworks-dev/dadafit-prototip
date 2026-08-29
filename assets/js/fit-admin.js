@@ -29,6 +29,32 @@
 (function (kok) {
   'use strict';
 
+  /* ⚠ R16/2 · GASTRO'NUN GERÇEK SIDEBAR'I ÖLÇÜLDÜ ve bu dizi ona çekildi.
+     Kaynak: `dadagastro-profil/resources/views/admin/layout.blade.php`
+     (salt okuma, kod alınmadı — yalnız bölümleme ve sıra).
+     İlk taslağımda DÖRT SAPMA vardı, dördü de düzeltildi:
+       1. Rozetler ve Kademeler YAPILANDIRMA'daydı → Gastro'da OPERASYON.
+       2. Log Yönetimi YAPILANDIRMA'daydı → Gastro'da OPERASYON.
+       3. Raporlar OPERASYON'daydı → Gastro'da YAPILANDIRMA (bölümün sonu).
+       4. Gastro alt gruplu kalemler taşıyor ("Dolapta Ne Var?" · "Mutfak
+          Sırları" · "Video Mutfağı"); taslak düz listeydi. `alt` alanı eklendi.
+
+     BİLEREK AYRILAN İKİ NOKTA (gerekçesiyle):
+     · Gastro'da **Rozetler** ve **Kademeler** AYRI iki kalem. Fit'te tek
+       kalem: ikisi de `fit-rozet.js`in aynı motorundan geliyor ve kademe
+       eşiği rozet puanından hesaplanıyor. İki ekrana bölmek, tek veri
+       kaynağını iki yüzeye dağıtmak olurdu — bu depoda üç kez temizlenen
+       "aynı soruya iki cevap" kusuru.
+     · Gastro'da reklam **yedi** kalem (Sponsorlar · Reklam Alanları · Reklam
+       Paketleri · Kampanyalar · Kreatifler · Sponsorluk · Sponsorluk Raporu).
+       Fit'te bugün reklam yüzeyi tek sayfa (`reklam-ver-v1.html`); yedi
+       kalemlik bir menü, arkasında altı boş ekran demek olurdu. Tek kalem +
+       sekme olarak kuruldu; Fit'in reklam ürünü büyüyünce Gastro'nun
+       kırılımına açılır.
+
+     Gastro'nun abonelik kalemleri (Planlar · Creator Planları · Abonelikler ·
+     Faturalar · Kuponlar) Fit'e GELMEZ — K6: Fit'te abonelik yoktur, üye
+     üreticiden hizmet satın alır. Karşılığı "Hizmetler ve Satışlar"dır. */
   var MENU = [
     { kalem: [
       { id:'genel', ad:'Genel Bakış', ico:'fa-solid fa-gauge-high', href:'admin-v1.html' }
@@ -44,20 +70,20 @@
     { bolum:'Operasyon', kalem: [
       { id:'uyeler',      ad:'Üyeler ve Yetki',        ico:'fa-solid fa-users',          href:'admin-uyeler-v1.html' },
       { id:'antrenorler', ad:'Antrenörler',            ico:'fa-solid fa-user-check',     href:'admin-antrenorler-v1.html' },
+      { id:'moderasyon',  ad:'Moderasyon',             ico:'fa-solid fa-shield-halved',  href:'admin-moderasyon-v1.html' },
+      { id:'destek',      ad:'Destek Talepleri',       ico:'fa-solid fa-life-ring',      href:'admin-destek-v1.html' },
       { id:'hizmetler',   ad:'Hizmetler ve Satışlar',  ico:'fa-solid fa-basket-shopping',href:'admin-hizmetler-v1.html' },
       { id:'odemeler',    ad:'Kazançlar ve Ödemeler',  ico:'fa-solid fa-money-bill-wave',href:'admin-odemeler-v1.html' },
-      { id:'destek',      ad:'Destek Talepleri',       ico:'fa-solid fa-life-ring',      href:'admin-destek-v1.html' },
-      { id:'moderasyon',  ad:'Moderasyon',             ico:'fa-solid fa-shield-halved',  href:'admin-moderasyon-v1.html' },
-      { id:'raporlar',    ad:'Raporlar',               ico:'fa-solid fa-chart-line',     href:'admin-raporlar-v1.html' }
+      { id:'rozetler',    ad:'Rozetler ve Kademeler',  ico:'fa-solid fa-medal',          href:'admin-rozetler-v1.html' },
+      { id:'log',         ad:'Log Yönetimi',           ico:'fa-solid fa-list-check',     href:'admin-log-v1.html' }
     ]},
     { bolum:'Yapılandırma', kalem: [
-      { id:'rozetler',  ad:'Rozetler ve Kademeler',  ico:'fa-solid fa-medal',        href:'admin-rozetler-v1.html' },
-      { id:'paketler',  ad:'Paketler ve Özellikler', ico:'fa-solid fa-layer-group',  href:'admin-paketler-v1.html' },
-      { id:'menu',      ad:'Menü ve Navigasyon',     ico:'fa-solid fa-bars',         href:'admin-menu-v1.html' },
-      { id:'reklam',    ad:'Sponsorluk ve Reklam',   ico:'fa-solid fa-bullhorn',     href:'admin-reklam-v1.html' },
-      { id:'bildirim',  ad:'Bildirim Şablonları',    ico:'fa-solid fa-bell',         href:'admin-bildirim-v1.html' },
-      { id:'ayarlar',   ad:'Ayarlar',                ico:'fa-solid fa-sliders',      href:'admin-ayarlar-v1.html' },
-      { id:'log',       ad:'Log Yönetimi',           ico:'fa-solid fa-list-check',   href:'admin-log-v1.html' }
+      { id:'menu',      ad:'Menü ve Navigasyon',     ico:'fa-solid fa-bars',        href:'admin-menu-v1.html' },
+      { id:'reklam',    ad:'Sponsorluk ve Reklam',   ico:'fa-solid fa-bullhorn',    href:'admin-reklam-v1.html' },
+      { id:'paketler',  ad:'Paketler ve Özellikler', ico:'fa-solid fa-layer-group', href:'admin-paketler-v1.html' },
+      { id:'bildirim',  ad:'Bildirim Şablonları',    ico:'fa-solid fa-bell',        href:'admin-bildirim-v1.html' },
+      { id:'ayarlar',   ad:'Ayarlar',                ico:'fa-solid fa-sliders',     href:'admin-ayarlar-v1.html' },
+      { id:'raporlar',  ad:'Raporlar',               ico:'fa-solid fa-chart-line',  href:'admin-raporlar-v1.html' }
     ]}
   ];
 
@@ -101,13 +127,20 @@
         var on = (k.id === aktif);
         var n = SAYAC[k.id] || 0;
         out += '<a class="adm-item' + (on ? ' is-on' : '') + '" href="' + esc(k.href) + '"' +
-               (on ? ' aria-current="page"' : '') + '>' +
+               ' title="' + esc(k.ad) + '"' + (on ? ' aria-current="page"' : '') + '>' +
                '<i class="' + k.ico + '" aria-hidden="true"></i>' + esc(k.ad) +
                (n ? '<span class="cnt" aria-label="' + n + ' bekleyen">' + n + '</span>' : '') +
                '</a>';
       });
     });
-    return out + '</nav></aside><div class="adm-scrim" id="admScrim" hidden></div>';
+    /* MENÜYÜ DARALT — Gastro'da ölçüldü ("Menüyü daralt/genişlet").
+       Daraltılmış hâlde kalemler yalnız ikon; ad `title` ve `aria-label`
+       olarak kalır, yani bilgi kaybolmaz. Tercih localStorage'da durur. */
+    out += '</nav>' +
+      '<button class="adm-daralt" type="button" id="admDaralt" aria-label="Menüyü daralt">' +
+        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Menüyü daralt</span>' +
+      '</button>';
+    return out + '</aside><div class="adm-scrim" id="admScrim" hidden></div>';
   }
 
   function topHtml(k){
@@ -115,8 +148,19 @@
     return '<header class="adm-top">' +
       '<button class="adm-burger" type="button" id="admBurger" aria-label="Menüyü aç" aria-expanded="false">' +
         '<i class="fa-solid fa-bars" aria-hidden="true"></i></button>' +
-      '<div><div class="t-crumb"><a href="admin-v1.html">Yönetim</a> · ' + esc(ad) + '</div>' +
+      '<div class="t-ttl"><div class="t-crumb"><a href="admin-v1.html">Yönetim</a> · ' + esc(ad) + '</div>' +
       '<h1>' + esc(ad) + '</h1></div>' +
+      /* YÖNETİMDE ARAMA — Gastro'da ölçüldü ("Kullanıcı, içerik ara…").
+         Burada GERÇEKTEN çalışıyor ve dürüst bir şey arıyor: 21 ekranın
+         kendisi. Sunucu olmadığı için içerik araması yapamayız; ekran
+         araması yapabiliriz ve yirmi bir kalemli bir menüde bu asıl işe
+         yarayan şey. Yer tutucu ne vaat ediyorsa onu veriyor. */
+      '<div class="t-ara">' +
+        '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
+        '<input type="search" id="admAra" placeholder="Ekran ara…" autocomplete="off" ' +
+        'role="combobox" aria-expanded="false" aria-controls="admAraPop" aria-label="Yönetimde ara" />' +
+        '<div class="t-ara-pop" id="admAraPop" role="listbox" hidden></div>' +
+      '</div>' +
       '<div class="t-acts">' +
         '<a class="btn btn-ghost" href="dadafit-hub-v1.html" target="_blank" rel="noopener">' +
           '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Siteyi gör</a>' +
@@ -150,6 +194,74 @@
     if (dugme) dugme.addEventListener('click', function(){ ac(!yan.classList.contains('is-open')); });
     if (perde) perde.addEventListener('click', function(){ ac(false); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ac(false); });
+
+    /* ---- menüyü daralt ---- */
+    var DAR = 'dm_fit_admin_dar';
+    var darDugme = document.getElementById('admDaralt');
+    function darUygula(d){
+      document.body.classList.toggle('adm-dar', d);
+      if (darDugme){
+        darDugme.setAttribute('aria-label', d ? 'Menüyü genişlet' : 'Menüyü daralt');
+        darDugme.querySelector('span').textContent = d ? 'Genişlet' : 'Menüyü daralt';
+        darDugme.querySelector('i').className = 'fa-solid fa-chevron-' + (d ? 'right' : 'left');
+      }
+    }
+    var dar = false;
+    try { dar = localStorage.getItem(DAR) === '1'; } catch (e) {}
+    darUygula(dar);
+    if (darDugme) darDugme.addEventListener('click', function(){
+      dar = !dar; darUygula(dar);
+      try { localStorage.setItem(DAR, dar ? '1' : '0'); } catch (e) {}
+    });
+
+    /* ---- yönetimde arama ---- */
+    var ara = document.getElementById('admAra');
+    var pop = document.getElementById('admAraPop');
+    if (ara && pop){
+      var duz = [];
+      MENU.forEach(function (g) {
+        g.kalem.forEach(function (x) { duz.push({ ad:x.ad, href:x.href, ico:x.ico, bolum:g.bolum || '' }); });
+      });
+      var imlec = -1;
+      function kapat(){ pop.hidden = true; ara.setAttribute('aria-expanded','false'); imlec = -1; }
+      function ciz(){
+        var q = ara.value.trim().toLocaleLowerCase('tr');
+        if (!q){ kapat(); return; }
+        var bul = duz.filter(function (x) {
+          return x.ad.toLocaleLowerCase('tr').indexOf(q) >= 0 ||
+                 x.bolum.toLocaleLowerCase('tr').indexOf(q) >= 0;
+        });
+        if (!bul.length){
+          pop.innerHTML = '<div class="t-ara-bos">Bu adla bir ekran yok. ' +
+            'Bu prototipte içerik araması yapılamaz — sunucu yok.</div>';
+        } else {
+          pop.innerHTML = bul.map(function (x, i) {
+            return '<a class="t-ara-sat' + (i === imlec ? ' is-on' : '') + '" role="option" href="' + esc(x.href) + '">' +
+              '<i class="' + x.ico + '" aria-hidden="true"></i><b>' + esc(x.ad) + '</b>' +
+              (x.bolum ? '<small>' + esc(x.bolum) + '</small>' : '') + '</a>';
+          }).join('');
+        }
+        pop.hidden = false; ara.setAttribute('aria-expanded','true');
+      }
+      ara.addEventListener('input', function(){ imlec = -1; ciz(); });
+      ara.addEventListener('keydown', function (e) {
+        var sat = pop.querySelectorAll('.t-ara-sat');
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+          if (!sat.length) return;
+          e.preventDefault();
+          imlec += (e.key === 'ArrowDown' ? 1 : -1);
+          if (imlec < 0) imlec = sat.length - 1;
+          if (imlec >= sat.length) imlec = 0;
+          ciz();
+        } else if (e.key === 'Enter'){
+          var hedef = pop.querySelector('.t-ara-sat.is-on') || pop.querySelector('.t-ara-sat');
+          if (hedef){ e.preventDefault(); location.href = hedef.getAttribute('href'); }
+        } else if (e.key === 'Escape'){ ara.value = ''; kapat(); }
+      });
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest || !e.target.closest('.t-ara')) kapat();
+      });
+    }
   }
 
   /* ==================================================================

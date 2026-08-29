@@ -39,21 +39,20 @@
 .nt-top .nt-tools .see-all:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.38);color:#fff}
 .nt-top .nt-tools .icon-btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff}
 
-/* demo veri ibaresi (belge §22) */
-/* <p> olduğu için fit-type.css onu yaslıyor (ölçüldü: computed "justify");
-   oysa bu akan metin değil, tek satırlık bir etiket pill'i — sarsa kelime
-   araları açılırdı. fit-type.css'in kendi "GİRMEZ: rozet/çip" kuralı. */
-.nt-demo{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.02em;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);border-radius:var(--radius-sm);padding:5px 11px;margin-bottom:16px;text-align:left;text-align-last:auto}
-.nt-demo i{font-size:11px;color:var(--fit-bright)}
+/* R15 · `.nt-demo` kuralları SÖKÜLDÜ — ibare kalktı, ölü sınıf bırakılmadı. */
 
-/* filtre çipleri — kabuk .chip dili, banner üzerinde cam varyant */
-.nt-filter{padding-bottom:4px}
+/* R15 · filtre çipleri — şerit banner'dan gövdeye taşındı (bkz. markup notu).
+   Koyu zemin üzerindeki CAM VARYANT (`.nt-top .nt-filter .chip`) artık
+   uygulanacak bir yüzey bulamadığı için SÖKÜLDÜ; ölü kural bırakılmadı.
+   Açık zeminde kabuğun kendi `.chip` dili geçerli, yeni renk üretilmedi.
+   Şerit ORTALI ve gövdenin okuma kolonuyla (880px, `.nt-col`) aynı
+   genişlikte — "BUGÜN" başlığıyla arası `--sec-pad-sm` (32px). */
+.nt-filter-govde{max-width:880px;margin:0 auto var(--sec-pad-sm)}
+.nt-filter-govde .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .nt-filter .chip{display:inline-flex;align-items:center;gap:7px}
 .nt-filter .chip .cnt{font-size:11px;opacity:.65}
 .nt-filter .chip i{font-size:11px}
-.nt-top .nt-filter .chip{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff}
-.nt-top .nt-filter .chip:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.38);color:#fff}
-.nt-top .nt-filter .chip.active{background:var(--fit);border-color:var(--fit);color:#fff;font-weight:700}
+.nt-filter .chip.active{background:var(--fit);border-color:var(--fit);color:#fff;font-weight:700}
 
 /* ---- gövde: gün grupları + bildirim listesi ---- */
 .nt-body{background:var(--bg-cream);padding:var(--sec-pad-sm) 0 var(--sec-pad)}
@@ -223,7 +222,8 @@
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Bildirimler</span>
     </nav>
-    <p class="nt-demo" id="ntDemo"><i class="fa-solid fa-circle-info"></i> Akıştaki bildirimler prototip için üretilmiştir</p>
+    <!-- R15 · Beyar: "Akıştaki bildirimler prototip için üretilmiştir" satırı KALKTI.
+         `.nt-demo` kuralı ve onu güncelleyen JS de aşağıda söküldü — ölü sınıf bırakılmadı. -->
     <div class="nt-head">
       <div>
         <h1>Bildirimler <span class="nt-unread-badge" id="ntBadge">3 okunmamış</span></h1>
@@ -234,7 +234,18 @@
         <a class="icon-btn" href="hesabim-v1.html?tab=bildirim" aria-label="Bildirim ayarları" title="Bildirim ayarları"><i class="fa-solid fa-gear"></i></a>
       </div>
     </div>
-    <div class="nt-filter">
+  </div>
+</section>
+
+<section class="nt-body">
+  <div class="wrap">
+    <!-- R15 · Beyar: tip şeridi banner'ın İÇİNDEN çıkıp beyaz panelin
+         en üstüne taşındı ve ortalandı. Ölçülen eski hâli: şerit
+         `.lib-top.nt-top` içindeydi (sol 132 → sağ 1308, cam çipler,
+         koyu zemin üzerinde). Artık gövdenin ilk bloğu.
+         Çipler koyu zemin varyantını kaybettiği için `.nt-top .nt-filter`
+         kuralları da söküldü; kabuğun kendi `.chip` dili geçerli. -->
+    <div class="nt-filter nt-filter-govde">
       <div class="chips" id="ntChips" role="group" aria-label="Bildirim tipi filtresi">
         <button class="chip active" type="button" data-f="all" aria-pressed="true">Tümü <span class="cnt">11</span></button>
         <button class="chip" type="button" data-f="antrenman" aria-pressed="false"><i class="fa-solid fa-person-running"></i> Antrenman</button>
@@ -244,11 +255,6 @@
         <button class="chip" type="button" data-f="sistem" aria-pressed="false"><i class="fa-solid fa-circle-info"></i> Sistem</button>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="nt-body">
-  <div class="wrap">
     <!-- R9 · geri alma şeridi — silinen bildirim ve kapatılan tür geri alınır -->
     <div class="nt-undo" id="ntUndo" role="status" hidden>
       <span id="ntUndoMetin"></span>
@@ -268,7 +274,7 @@
           </span>
           <span class="ntr-th" style="background-image:url('https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="programlarim-v1.html#programlarim" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -283,7 +289,7 @@
           </span>
           <span class="ntr-act" data-follow>Kaydet</span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-randevular-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="egzersizlerim-v1.html#antrenorum" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -331,7 +337,7 @@
             <span class="ntr-meta"><span class="tt"><i class="fa-solid fa-user-check"></i> Antrenör</span> · <span>Dün 18:05</span></span>
           </span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-randevular-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="egzersizlerim-v1.html#antrenorum" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -349,7 +355,7 @@
           </span>
           <span class="ntr-th" style="background-image:url('https://images.unsplash.com/photo-1532384748853-8f54a8f476e2?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-programim-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="programlarim-v1.html#takvim" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -364,7 +370,7 @@
           </span>
           <span class="ntr-act following" data-follow>Kaydedildi</span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-randevular-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="egzersizlerim-v1.html#antrenorum" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -426,7 +432,7 @@
           </span>
           <span class="ntr-th" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
           <span class="ntr-ops">
-            <a class="ntr-op" href="fit-planim-programim-v1.html" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="ntr-op" href="programlarim-v1.html#takvim" aria-label="İlgili sayfaya git" title="İlgili sayfaya git"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             <button class="ntr-op" type="button" data-op="read" aria-label="Okundu olarak işaretle" title="Okundu olarak işaretle"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="mute" aria-label="Bu tür bildirimleri kapat" title="Bu tür bildirimleri kapat"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></button>
             <button class="ntr-op" type="button" data-op="del" aria-label="Bildirimi sil" title="Bildirimi sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
@@ -530,8 +536,7 @@
   /* "prototip için üretilmiştir" cümlesi artık akışın TAMAMI için doğru
      değil — kaç tanesinin gerçek olduğu söyleniyor. */
   var demo = document.getElementById('ntDemo');
-  if(demo) demo.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
-    kayit.length + ' bildirim kendi kayıtlarından geliyor; akıştaki diğerleri prototip için üretilmiştir';
+  /* R15 · demo ibaresini güncelleyen blok SÖKÜLDÜ (ibare kalktı). */
 
   /* Okundu ve silindi DEPOYA da yazılır — yenilenince geri gelmesin.
      Aşağıdaki sayfa JS'i DOM tarafını (görünürlük, sayaç, geri al şeridi)

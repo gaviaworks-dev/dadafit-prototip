@@ -200,7 +200,26 @@ html,body{overflow-x:clip}
    bölümün alt kenarına yaslanıyor. Burada plaka koyu olduğu için sıfır değil,
    şeridin plakanın üstünde durduğu okunacak kadar (20 px) bırakıldı.
    Kabuğa dokunmamak için özgüllük yükseltildi (0,2,2 > 0,1,0). */
-body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
+/* R15 · Beyar: "Danışan Deneyimi kartının alt kenarı ile beyaz panelin üst
+   kenarı yapışık". ÖLÇÜM (kart altı → beyaz üstü): 1440 **8px** · 1024 **12px**
+   · 768 **−11px** (beyaz alan kartın İÇİNE giriyordu).
+   Kök sebep: beyaz gövde `.cp-body` banner'ın bitişinden 22px YUKARIDA
+   başlıyor (kabuğun "banner → gövde dikişi" bloğu bilerek bindiriyor), yani
+   kartın nefesi = `.cp-top` alt dolgusu − 22.
+   EMSAL ÖLÇÜLDÜ — dadagastro.com ana sayfası: koyu banner `.hero-v` altı 1122,
+   sonraki panel `.catstrip` üstü 1100 (aynı 22px bindirme), panelin üst
+   dolgusu **48px** → görünen nefes 26px.
+   Fit de aynı değere çekildi: alt dolgu 34 → **48px** (Gastro'nun panel
+   dolgusuyla birebir), görünen nefes 48 − 22 = 26px. */
+body[data-fit-over="1"] section.cp-top{padding-bottom:48px !important}
+/* …ama alt dolguyu büyütmek TEK BAŞINA işe yaramadı, ölçüm gösterdi:
+   `.cp-top` SABİT yükseklikli (560px) ve `overflow:hidden`. İçerik zaten
+   620px'ti, yani kartın alt 60px'i KIRPILIYORDU; dolguyu 34'ten 48'e
+   çıkarmak hiçbir kutuyu oynatmadı (ölçüm: banner altı 560 → 560).
+   Kilit TABANA çevriliyor: bölüm sabitin altına inemez ama içeriği
+   kırpmak yerine büyür. Aynı çözüm ≤380px kırılımında zaten kuruluydu
+   (aşağıdaki blok), burada tüm genişliklere alındı. */
+body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--banner-h-detay) !important}
 .cp-top .wrap{display:flex;flex-direction:column;height:100%}
 .cp-crumb{flex:none}
 
@@ -265,10 +284,18 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
 
 /* ---- STICKY SEKME ÇUBUĞU ---- */
 .cp-body{padding:40px 0 var(--sec-pad);background:var(--bg-white)}
+/* R15 · Beyar: "sekme şeridi ile altındaki panel bitişik, üst üste yapışık".
+   ÖLÇÜLEN İKİ SEBEP, ikisi de düzeltildi:
+   1) Boşluk 30px'ti ve kitte böyle bir değer YOK. `--sec-pad-sm` (32px)
+      bölüm arası ritmin küçük adımıdır; yeni değer üretmek yerine ona çekildi.
+   2) Asıl "yapışık" hissi boşluktan değil ZEMİNDEN geliyordu: çubuk
+      `rgba(255,255,255,.94)` yarı saydamdı ve altından kayan metin
+      içinden okunuyordu; panel de beyaz olduğu için iki yüzey tek yüzey
+      gibi görünüyordu. Zemin OPAK `--paper` yapıldı, blur kaldırıldı
+      (saydamlık olmayınca işlevi de kalmıyor). Alt saç çizgisi duruyor. */
 .cp-tabbar{
-  position:sticky;top:112px;z-index:40;background:rgba(255,255,255,.94);
-  -webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);
-  border-bottom:1px solid var(--line);margin-bottom:30px;
+  position:sticky;top:112px;z-index:40;background:var(--paper);
+  border-bottom:1px solid var(--line);margin-bottom:var(--sec-pad-sm);
 }
 /* SEKME ŞERİDİ ORTAK BİLEŞENE GEÇTİ — .fit-tabs / .fit-tab / .fit-pane
    (assets/css/fit-shell.css + fit-shell.js, görsel kalıp DadaGastro'nun
@@ -538,7 +565,7 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
   .cp-cta-band .cb-act{min-width:0;width:100%;max-width:340px}
 }
 @media (max-width:640px){
-  .cp-top{margin-top:62px;padding:26px 0 34px}
+  .cp-top{margin-top:62px;padding:26px 0 48px}   /* R15 — bkz. yukarıdaki emsal ölçümü */
   /* R9 · referans @390 ölçümü: .pf-banner 160 r16 · .pf-head 334 (12 px
      kenar payı) pad 20/18/22/18 · .pf-ava 104 · .pf-stats 334, 2 satır. */
   .cp-banner{border-radius:var(--radius-lg);min-height:120px}
@@ -1106,7 +1133,7 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
         </div>
       </div>
       <div class="apt-foot">
-        <div class="apt-sum">Seçilen<b id="aptSum">Birebir Seans · ₺450</b></div>
+        <div class="apt-sum">Seçilen<b id="aptSum">Seans türü, gün ve saat seç</b></div>
         <button class="btn btn-fit apt-confirm" id="aptConfirm" type="button"><i class="fa-solid fa-check"></i> Randevuyu Onayla</button>
       </div>
     </div>
@@ -1166,24 +1193,76 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
   }
   document.title = A.ad + ' — DadaFit Onaylı Antrenör | DadaFit';
 
-  /* randevu onayı → Fit Planım > Randevularım (belge §11 adım 5–6) */
+  /* ===== RANDEVU ÖZETİ + ONAY (belge §11 adım 5–6) ================
+     ÖLÇÜLEN KUSUR (Beyar, R15): "Seçilen" başlığının altında
+     "Randevu isteğin alındı — Fit Planım › Randevularım" yazıyordu —
+     yani bir SONUÇ mesajı, henüz onay verilmeden. İki ayrı sebebi vardı:
+       1) markup'taki başlangıç değeri sabit bir ad ("Birebir Seans · ₺450")
+          idi ve gün/saat seçimini hiç yansıtmıyordu;
+       2) onaydan sonra yazılan sonuç mesajı modal kapanıp yeniden
+          açıldığında da DURUYORDU, çünkü kimse geri almıyordu.
+     Çözüm: özet artık SEÇİMDEN türetiliyor ve her değişimde yeniden
+     yazılıyor; sonuç mesajı yalnız onay anında basılıyor, modal her
+     açıldığında özet geri geliyor. */
   var S = window.FIT_SHELL && window.FIT_SHELL.state;
+  var sumEl = document.getElementById('aptSum');
+  var BOS_METIN = 'Seans türü, gün ve saat seç';
+
+  function ozetYaz(){
+    if(!sumEl) return;
+    var svc  = document.querySelector('#aptSvc input:checked');
+    var day  = document.querySelector('.apt-day.sel');
+    var slot = document.querySelector('.apt-slot.sel');
+    /* Üçü de gerekli: eksik seçimle "özet" basmak, olmayan bir randevuyu
+       varmış gibi göstermek olurdu. */
+    if(!svc || !day || !slot){ sumEl.textContent = BOS_METIN; return; }
+    var ad = (svc.closest('label').querySelector('.si b')||{}).textContent || 'Seans';
+    var fi = (svc.closest('label').querySelector('.sp')||{}).textContent || A.fiyat;
+    var gun = ((day.querySelector('b')||{}).textContent||'').trim() + ' ' +
+              ((day.querySelector('span')||{}).textContent||'').trim();
+    sumEl.textContent = [ad, gun.trim(), slot.textContent.trim(), fi]
+                        .filter(Boolean).join(' · ');
+  }
+
+  /* Seçim üç ayrı yerde değişiyor; üçünü de tek dinleyiciyle yakalıyoruz.
+     Sınıf değişimini sayfanın kendi tıklama işleyicisi yapıyor, biz ondan
+     SONRA okumak için kabarma evresinde dinliyoruz. */
+  ['#aptSvc', '.apt-days', '.apt-slots'].forEach(function(sec){
+    var k = document.querySelector(sec);
+    if(k) k.addEventListener('click', function(){ setTimeout(ozetYaz, 0); });
+  });
+  document.addEventListener('change', function(e){
+    if(e.target && e.target.closest && e.target.closest('#aptSvc')) ozetYaz();
+  });
+
   var confirmBtn = document.getElementById('aptConfirm');
   if(S && confirmBtn){
     confirmBtn.addEventListener('click', function(){
       var slot = document.querySelector('.apt-slot.sel');
       var day  = document.querySelector('.apt-day.sel');
-      if(!slot) return;
+      if(!slot || !day) return;                    /* eksik seçimde onay yok */
       var svc = document.querySelector('#aptSvc input:checked');
       var ad  = svc ? svc.closest('label').querySelector('.si b').textContent : 'Seans';
       var fi  = svc ? svc.closest('label').querySelector('.sp').textContent : A.fiyat;
       S.randevuAl({antrenor:A.ad, slug:slug, hizmet:ad, fiyat:fi,
-                   tarih:(day? ((day.querySelector('span')||{}).textContent||'').trim()+' '+((day.querySelector('b')||{}).textContent||'').trim() : 'yakın tarih'),
+                   tarih:((day.querySelector('span')||{}).textContent||'').trim()+' '+((day.querySelector('b')||{}).textContent||'').trim(),
                    saat: slot.textContent.trim()});
-      var sum = document.getElementById('aptSum');
-      if(sum) sum.textContent = 'Randevu isteğin alındı — Fit Planım › Randevularım';
+      if(sumEl) sumEl.textContent = 'Randevu isteğin alındı — Fit Planım › Randevularım';
     }, true);
   }
+
+  /* Modal her açıldığında özet, sonuç mesajından SEÇİME geri döner. */
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest && e.target.closest('[data-modal="aptModal"],[data-fm-open="aptModal"]');
+    if(t) setTimeout(ozetYaz, 0);
+  });
+
+  /* Sayfanın İKİNCİ bir özet yazıcısı daha vardı (`refreshSum`/`svcInfo`,
+     aşağıdaki blokta) ve yalnız "tür · fiyat" basıyordu — gün ve saati hiç
+     görmüyordu. İki yazıcı aynı kutuyu paylaşınca hangisi son yazarsa o
+     kalıyordu. Motor tek yerde toplandı; öteki blok artık buna çağırıyor. */
+  window.__aptOzet = ozetYaz;
+  ozetYaz();
 })();
 </script>
 <script>
@@ -1245,14 +1324,11 @@ body[data-fit-over="1"] section.cp-top{padding-bottom:34px !important}
   /* ---- RANDEVU MODALI (seans slot seçici) ---- */
   var aptModal=document.getElementById('aptModal'),aptOv=document.getElementById('aptOverlay');
   if(aptModal){
-    var aptSum=document.getElementById('aptSum');
-    function svcInfo(){
-      var r=document.querySelector('#aptSvc input:checked');
-      var lbl=r.closest('label').querySelector('.si b').textContent;
-      var price=r.closest('label').querySelector('.sp').textContent;
-      return lbl+' · '+price;
-    }
-    function refreshSum(){aptSum.textContent=svcInfo();}
+    /* R15 · ÖZET TEK YERDEN — yukarıdaki `window.__aptOzet`.
+       Eski `svcInfo()` yalnız tür ve fiyatı okuyordu; şartname gün ve saati
+       de istiyor ve seçim eksikken "seç" demesini istiyor. Fonksiyon
+       silinmedi, YÖNLENDİRİLDİ ki modal açılışındaki çağrı zinciri kırılmasın. */
+    function refreshSum(){ if(window.__aptOzet) window.__aptOzet(); }
 
     /* ---- R8 · MODAL AÇ/KAPA ORTAK İSKELETE DEVREDİLDİ ----------------
        ÖNCE (ölçüldü, localhost:8811 · Playwright):

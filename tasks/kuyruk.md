@@ -24,7 +24,21 @@ destek tek adreste · zebra · 44px dokunma hedefi.
 
 ## SIRADAKİ
 
-### 1 · Hesap ayarları telefon alanı — ülke kodu seçici 🔵 SIRADA
+### 1 · Challenge sistemi gerçek olacak 🔴 SONRAKİ OTURUMUN ANA İŞİ
+Motor (`fit-challenge.js`) çalışıyor — 3 katalog, üç tip (`sureli`·`seri`·
+`aliskanlik`), kanıt kademesi, puan/rozet bağı. **Akış yarım:**
+`challenge-merkezi-v1.html` 3 kart basıyor ama **katıl düğmesi 0** — keşif
+yüzeyinden katılınamıyor; yalnız `challengelarim-v1.html`den katılınıyor (3/3).
+🔴 `challenge-v1.html` hâlâ eski `FIT_SHELL.state.challenge` (tek nesne,
+tarihsiz) kullanıyor — **iki kayıt yeri var**, ilk iş bunu teke indirmek.
+Ayrıntılı yol haritası devir notunun **6. bölümünde**.
+
+### 2 · Destek formu koşullu alanlar 🔵 SIRADA
+Yeni talep formunda seçilen konuya göre açılan/kapanan alan yok; her talep aynı
+formu dolduruyor (ör. "ödeme" → fatura numarası, "antrenör" → antrenör seçici).
+Şartname bu turda gelmedi, ölçüm yapılmadı — **önce ölç**.
+
+### ✅ Hesap ayarları telefon ülke kodu — KAPANDI (bu oturum)
 `hesabim-v1.html` profil sekmesindeki telefon alanı düz metin; ülke kodu
 seçicisi yok.
 `giris-v1.html`dekinin aynısı gelecek: bayrak · ülke adı · alan kodu ·
@@ -32,8 +46,9 @@ aranabilir liste.
 🔴 **`assets/js/fit-ulke.js` zaten var, oradan beslenecek — ikinci kopya
 üretilmeyecek.** (Aynı hata bir kez yapıldı: liste `giris-v1`de satır içiydi,
 ikinci gerçek kaynak olmasın diye modüle taşındı.)
-Kanıt: seçici açılıyor mu · arama çalışıyor mu · seçilen kod alana yazılıyor mu ·
-üç genişlikte taşma · konsol hatası 0.
+**Ölçüldü:** 199 ülke · varsayılan 🇹🇷 · "alman" → 1 sonuç (Almanya +49) ·
+seçim gizli alana `DE` yazıyor · Esc kapatıyor · taşma 0 · konsol 0.
+Ayrıca üç sayfada düğme 96×43 → **96×45** (1px dokunma hedefi eksiğiydi).
 
 ---
 

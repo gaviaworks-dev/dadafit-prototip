@@ -49,7 +49,7 @@
  `yanit-bekleyen` aynı `wait` varyantını paylaşır, ikisini "Açık talep" /
  "Yanıt bekleyen" dizgisi ve ikonu (fa-inbox / fa-reply) ayırır.
 
- SINIF ADLARI VE RENKLER KARDEŞ SAYFADAN (destek-talepleri-v1.html)
+ SINIF ADLARI VE RENKLER KARDEŞ SAYFADAN (destek-v1.html#taleplerim)
  BİREBİR ALINDI — aynı talep listede ve detayda aynı rozetle görünsün diye.
  🔴 Renk kanondan GELMEZ (kanon §1.2 token şerhi); değerler bu deponun kendi
  ölçülmüş çiftleridir, yeni renk icat edilmedi.
@@ -73,15 +73,24 @@
 .tk-main{min-width:0}
 .tk-side{display:flex;flex-direction:column;gap:18px;min-width:0}
 
-/* ---- ortak kart kabuğu (bu sayfadaki üç kart aynı kabuğu paylaşır) ---- */
-.tk-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:26px}
-.tk-card-head{display:flex;align-items:center;gap:11px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
-.tk-card-head h2,.tk-card-head h3{font-size:18px;letter-spacing:-.01em}
-.tk-card-head>i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
-.tk-card-head .cnt{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
-.tk-side .tk-card{padding:22px}
-.tk-side .tk-card-head{margin-bottom:16px;padding-bottom:13px}
-.tk-side .tk-card-head h3{font-size:15px}
+/* ---- KART KİTİ — `.tk-card` KALKTI, KİTE ÇEKİLDİ ---------------------
+ ÖLÇÜLEN SAPMA (docs/fit-kit.md §2): bu sayfa tek ekranda İKİ kart sözlüğü
+ taşıyordu — kabuğun `.pnl-card` kiti (2 kart) ve sayfaya özel `.tk-card`
+ (5 kart). Kabuk değerleri (beyaz zemin · 1px --line · 16px yarıçap ·
+ --sh-sm) zaten aynıydı; sapan şey İÇ DOLGU ve BAŞLIK ölçüsüydü:
+
+   .tk-card         dolgu 26px (yan rayda 22px) · başlık 18px (rayda 15px)
+   .pnl-card (kit)  dolgu 0 — `.pc-head` 18px 22px · `.pc-body` 22px
+                    başlık `.pc-title` 16px/700
+
+ Beş kart `.pnl-card` + `.pc-head` + `.pc-body`ye geçirildi; sayfada artık
+ tek kart sözlüğü var ve dolgu/başlık değerleri kitten okunuyor.
+ Kalan tek sayfa kuralı, kabukta karşılığı olmayan `.pc-head` sayacı: */
+.pnl-card .pc-head .cnt{font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+/* kabuğun `.pc-title i` kuralı --fit veriyor; bu sayfadaki kart ikonları
+   kitin `.pnl-card` başlık ikonu ölçüsünde ve --fit-deep tonunda kalsın
+   (beyazda 5.45:1; --fit 3.54:1 ile AA altında). */
+.pnl-card .pc-title i{color:var(--fit-deep)}
 
 /* ---- YAZIŞMA DİZİSİ ---------------------------------------------------
  Bu bir SOHBET BOTU DEĞİL (belge §21: yapay zekâ sohbet asistanı eklenmez).
@@ -146,7 +155,10 @@
 .tk-other>i{flex:none;font-size:12px;color:var(--fit-deep);margin-top:3px}
 .tk-other .ot{min-width:0}
 .tk-other .ot b{display:block;font-size:13px;color:var(--slate);line-height:1.4}
-.tk-other .ot span{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:4px;letter-spacing:.03em}
+/* ÖLÇÜLDÜ: --muted (#717171) açık olan talebin --fit-tint zemininde 4.4:1,
+   AA normal metin eşiği 4.5:1'in altında. --slate-2 (#56514a) aynı zeminde
+   7.2:1 — kitin ikincil metin rengi, yeni renk üretilmedi. */
+.tk-other .ot span{display:block;font-size:11.5px;color:var(--slate-2);font-weight:600;margin-top:4px;letter-spacing:.03em}
 
 /* ---- YAN RAY: kart altı açıklama satırı ------------------------------
  ⚠ DERS D-3: bu satır iki yerde yaşıyordu — bir kuralda (`.tk-close-card p`)
@@ -155,15 +167,19 @@
  görünmeden ayrışır. Tek sınıfa alındı; DEĞERLER DEĞİŞMEDİ. Eski eş anlamlı
  seçici (`.tk-close-card p`) silindi — kart `.tk-act-card` oldu, o seçici
  hiçbir şeyi eşlemiyordu ve ölü CSS bırakmak ikinci bir sözlük demektir. */
-.tk-card-note{font-size:13px;color:var(--muted);font-weight:500;line-height:1.6;margin:-4px 0 14px}
+.tk-card-note{font-size:13px;color:var(--muted);font-weight:500;line-height:1.6;margin:0 0 14px}
 
 /* ---- YAN RAY: talep işlemleri kartı (kapat / yeniden aç) ---- */
-.tk-act-card .btn{width:100%}
-.tk-act-card .btn+.btn{margin-top:10px}
+#tkActCard .btn{width:100%}
+#tkActCard .btn+.btn{margin-top:10px}
 /* [hidden] AÇIKÇA yazılmalı: UA'nın [hidden]{display:none} kuralı (0,0,1)
    kabuğun .btn{display:inline-flex} kuralı (0,1,0) tarafından eziliyor —
    .tk-modal ve .tk-badge ile aynı tuzak, bu dosyada üçüncü kez. */
-.tk-act-card .btn[hidden]{display:none}
+#tkActCard .btn[hidden]{display:none}
+
+/* ---- dürüstlük şeridi: kabuk `.hr-note` kiti, yalnız payı bildiriliyor ----
+   Kabuğun 34px `margin-top`u gövdenin ilk çocuğunda gereksiz. */
+.mk-serit{margin-top:0;margin-bottom:22px}
 
 /* ---- demo notu (kaynak deseni: iletisim-v1 .demo-note) ---- */
 .demo-note{font-size:12px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:14px;display:flex;gap:8px}
@@ -193,7 +209,7 @@
 .fk-help i{color:var(--fit);font-size:12px;margin-top:2px;flex:none}
 
 /* ---- EK DOSYA (kanon §8.1: MESAJ başına TEK dosya, alan adı `ek`) ----
-   Kardeş sayfa destek-talepleri-v1.html'in kitiyle birebir aynı. */
+   Kardeş sayfa destek-v1.html#taleplerim'in kitiyle birebir aynı. */
 .fk-file{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
 .fk-file-btn{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--slate);
   background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:11px 16px;cursor:pointer;transition:.18s var(--ease)}
@@ -249,8 +265,8 @@
 /* ===== MOBİL (≤640px) ===== */
 @media (max-width:640px){
   .tk-sec{padding:var(--sec-pad-sm) 0 var(--sec-pad)}
-  .tk-card{padding:18px 16px}
-  .tk-side .tk-card{padding:18px 16px}
+  .pnl-card .pc-head{padding:16px}
+  .pnl-card .pc-body{padding:16px}
   .bub{max-width:100%}
   .tk-idline{gap:8px}
   .tk-reply-foot{flex-direction:column;align-items:stretch}
@@ -286,6 +302,17 @@
 
     <!-- ekran okuyucu için canlı bölge: yanıt eklendi / talep kapatıldı -->
     <p class="tk-sr" id="tkLive" role="status" aria-live="polite"></p>
+
+    <!-- ===== DÜRÜSTLÜK ŞERİDİ (kit §11) — ekranın BAŞINDA, TEK KALEM =====
+         Bu ekranın taşıdığı her şey (yazışma, talep numarası, durum, yanıt
+         kutusu) makettir. İfade tek yerde yaşıyor: kartların içine dağılmış
+         "prototipteki talepler örnektir" satırı buraya toplandı, düğme
+         başına rozet serpilmedi. Kit kalemi `.hr-note` (fit-shell.css). -->
+    <div class="hr-note mk-serit">
+      <i class="fa-solid fa-flask" aria-hidden="true"></i>
+      <p><b>Bu ekran maket: yanıt gönderilmez, kimse dönmez.</b>
+      Aşağıdaki yazışma, talep numarası ve durum örnektir. Yazdığın yanıt yalnız bu sekmede görünür; sayfayı yenilersen kaybolur.</p>
+    </div>
 
     <div class="tk-layout">
 
@@ -324,17 +351,15 @@
             <div><dt>Mesaj</dt><dd id="mCount">4</dd></div>
             <div><dt>Kanal</dt><dd id="mKanal">Web · Destek Taleplerim</dd></div>
           </dl>
-            <div class="demo-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bu prototipteki talepler, numaralar ve yazışmalar örnektir, gerçek bir destek kaydı değildir.</span></div>
-        
           </div>
         </div>
 
-        <div class="tk-card">
-          <div class="tk-card-head">
-            <i class="fa-solid fa-comments" aria-hidden="true"></i>
-            <h2>Yazışma</h2>
+        <div class="pnl-card">
+          <div class="pc-head">
+            <div><h2 class="pc-title"><i class="fa-solid fa-comments" aria-hidden="true"></i> Yazışma</h2></div>
             <span class="cnt" id="tkHeadCount">4 mesaj</span>
           </div>
+          <div class="pc-body">
 
           <!-- Her talebin yazışması kendi <div data-tk> bloğunda durur; seçili
                olan görünür, ötekiler hidden. Talep künyesi data-* özniteliklerinde
@@ -627,17 +652,18 @@
             <span class="ico"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
             <h3>Bu numarayla bir yazışma bulunamadı</h3>
             <p>Adresteki talep numarasına ait bir yazışma kaydı yok. Az önce açtığın bir talepse destek ekibi henüz yanıtlamamış olabilir; durumunu taleplerin listesinden takip edebilirsin.</p>
-            <a class="btn btn-primary" href="destek-talepleri-v1.html"><i class="fa-solid fa-list" aria-hidden="true"></i> Taleplerim</a>
+            <a class="btn btn-fit" href="destek-v1.html#taleplerim"><i class="fa-solid fa-list" aria-hidden="true"></i> Taleplerim</a>
+          </div>
           </div>
         </div>
 
         <!-- ---------- YANIT YAZ ---------- -->
         <div class="tk-reply" id="yanit">
-          <form class="tk-card" id="tkReplyForm" novalidate>
-            <div class="tk-card-head">
-              <i class="fa-solid fa-reply" aria-hidden="true"></i>
-              <h2>Yanıt Yaz</h2>
+          <form class="pnl-card" id="tkReplyForm" novalidate>
+            <div class="pc-head">
+              <div><h2 class="pc-title"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt Yaz</h2></div>
             </div>
+            <div class="pc-body">
 
             <!-- form düzeyi hata özeti — role="alert", gönderide doldurulur -->
             <p class="fk-summary" id="tkErrSum" role="alert" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
@@ -668,8 +694,9 @@
             <p class="fk-help" id="tkEkHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Ekran görüntüsü ya da belge: JPG, PNG, WebP veya PDF · en çok 5 MB · mesaj başına tek dosya.</span></p>
 
             <div class="tk-reply-foot">
-              <span class="note">Yanıtlara genellikle <b>1 iş günü</b> içinde dönüyoruz.</span>
-              <button class="btn btn-primary" type="submit" id="tkSend"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Yanıtı Gönder</button>
+              <span class="note">Gerçeğinde yanıtlar <b>1 iş günü</b> içinde dönüyor; bu maket ekranda yanıt gelmez.</span>
+              <button class="btn btn-fit" type="submit" id="tkSend"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Yanıtı Gönder</button>
+            </div>
             </div>
           </form>
 
@@ -684,8 +711,8 @@
               <b>Bu talep kapatıldı</b>
               <p>Kapatılan bir talebe yanıt yazılamaz. Bu bir <b>durum kuralıdır, yetki kuralı değil</b>: talep senin, yazışman kayıtta duruyor ve okunmaya devam ediyor. Aynı konu tekrar ederse talebi yeniden aç — geçmiş yazışma korunur ve sıra tekrar destek ekibine geçer.</p>
               <div class="row">
-                <button class="btn btn-primary" type="button" id="tkReopenInline"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Talebi Yeniden Aç</button>
-                <a class="btn btn-ghost" href="destek-talepleri-v1.html#yeni-talep"><i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni Talep Aç</a>
+                <button class="btn btn-fit" type="button" id="tkReopenInline"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Talebi Yeniden Aç</button>
+                <a class="btn btn-ghost" href="destek-v1.html#yeni"><i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni Talep Aç</a>
               </div>
             </div>
           </div>
@@ -711,11 +738,13 @@
              o iki fiil destek ekibinindir; bu yüzden karşılıkları hiç basılmaz.
              Kart hiçbir durumda boş kalmaz: her hâlde bir açıklama + en az bir
              çıkış yolu taşır. -->
-        <div class="tk-card tk-act-card" id="tkActCard">
-          <div class="tk-card-head"><i class="fa-solid fa-list-check" aria-hidden="true"></i><h3>Talep İşlemleri</h3></div>
-          <p class="tk-card-note" id="tkActNote">Konu çözüldüyse talebi kapatabilirsin. Kapatılan talep listende kalır ve yazışmayı okumaya devam edersin, ama yeni yanıt yazılamaz.</p>
-          <button class="btn btn-primary" type="button" id="tkCloseBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Talebi Kapat</button>
-          <button class="btn btn-ghost" type="button" id="tkReopenBtn" hidden><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Talebi Yeniden Aç</button>
+        <div class="pnl-card tk-act-card" id="tkActCard">
+          <div class="pc-head"><div><h3 class="pc-title"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Talep İşlemleri</h3></div></div>
+          <div class="pc-body">
+            <p class="tk-card-note" id="tkActNote">Konu çözüldüyse talebi kapatabilirsin. Kapatılan talep listende kalır ve yazışmayı okumaya devam edersin, ama yeni yanıt yazılamaz.</p>
+            <button class="btn btn-fit" type="button" id="tkCloseBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Talebi Kapat</button>
+            <button class="btn btn-ghost" type="button" id="tkReopenBtn" hidden><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Talebi Yeniden Aç</button>
+          </div>
         </div>
 
         <!-- ===== "TALEPLERİN" — Y8.5, Beyar bu tur KANONA DAHİL ETTİ =====
@@ -728,8 +757,9 @@
              hareket, yeniden eskiye); kısaltılmadı ki her satır buradan da
              açılabilsin. Her satırın ikonu ve durum sözcüğü kanonun dört
              durum sözlüğünden gelir. -->
-        <div class="tk-card">
-          <div class="tk-card-head"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><h3>Taleplerin</h3><span class="cnt">12 talep</span></div>
+        <div class="pnl-card">
+          <div class="pc-head"><div><h3 class="pc-title"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Taleplerin</h3></div><span class="cnt">11 talep</span></div>
+          <div class="pc-body">
           <div class="tk-others">
             <a class="tk-other" href="destek-talebi-detay-v1.html?talep=DF-2026-K7WQ9M">
               <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
@@ -776,14 +806,15 @@
               <span class="ot"><b>Enerji defterinde su takibi her gün sıfırlanıyor</b><span>DF-2026-U2FZR8 · Çözülen</span></span>
             </a>
           </div>
-          <div class="demo-note"><i class="fa-solid fa-list" aria-hidden="true"></i> <span>Talebin tamamını, durum süzgecini ve yeni talep formunu <a href="destek-talepleri-v1.html">Destek Taleplerim</a> sayfasında bulursun.</span></div>
+          <div class="demo-note"><i class="fa-solid fa-list" aria-hidden="true"></i> <span>Taleplerinin tamamı ve durum süzgeci <a href="destek-v1.html#taleplerim">Destek Taleplerim</a>, yeni talep formu <a href="destek-v1.html#yeni">Yeni Destek Talebi</a> sekmesinde.</span></div>
+          </div>
         </div>
 
         <!-- ===== "BEKLERKEN" — Y8.5, Beyar bu tur KANONA DAHİL ETTİ =====
              Yanıt beklerken üyenin KENDİ çözebileceği adımlar.
              🔴 Kanon §4.12 + §9/Y8.5: bu blok YENİ İÇERİK ÜRETMEZ — var olan
              Çözüm Merkezi konu listesinin talep detayına taşınmış hâlidir.
-             O yüzden altı kalem destek-v1.html'deki altı `.qa` konusunun ta
+             O yüzden beş kalem destek-v1.html'deki beş `.qa` konusunun ta
              kendisi, `#konu-…` çapalarıyla; sıraları da orayla aynı.
              Çapa hedefte kartı AÇIYOR (destek-v1.html'in `capadanAc()`u).
 
@@ -797,9 +828,10 @@
              (3) blok bir DURUM göstergesi değil, statik bir konu dizinidir;
                  duruma göre görünüp kaybolsaydı dört markada dört farklı
                  davranış doğardı. -->
-        <div class="tk-card">
-          <div class="tk-card-head"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><h3>Beklerken</h3></div>
-          <p class="tk-card-note">Aşağıdaki altı kalem Destek Merkezi'ndeki çözüm konularının ta kendisidir; burada yeni bir metin yazılmadı, o liste talebin yanına taşındı. Yanıt beklerken çoğu konu bunlarla kendiliğinden çözülüyor.</p>
+        <div class="pnl-card">
+          <div class="pc-head"><div><h3 class="pc-title"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Beklerken</h3></div></div>
+          <div class="pc-body">
+          <p class="tk-card-note">Aşağıdaki beş kalem Destek Merkezi'ndeki çözüm konularının ta kendisidir; burada yeni bir metin yazılmadı, o liste talebin yanına taşındı. Yanıt beklerken çoğu konu bunlarla kendiliğinden çözülüyor.</p>
           <div class="tk-others">
             <a class="tk-other" href="destek-v1.html#konu-uyelik"><i class="fa-solid fa-crown" aria-hidden="true"></i><span class="ot"><b>Üyelik, DadaFit Pro ve ödeme</b><span>Destek Merkezi</span></span></a>
             <a class="tk-other" href="destek-v1.html#konu-program"><i class="fa-solid fa-list-check" aria-hidden="true"></i><span class="ot"><b>Programlar, planım ve ilerleme</b><span>Destek Merkezi</span></span></a>
@@ -807,7 +839,8 @@
             <a class="tk-other" href="destek-v1.html#konu-hesap"><i class="fa-regular fa-user" aria-hidden="true"></i><span class="ot"><b>Hesap, giriş ve bildirimler</b><span>Destek Merkezi</span></span></a>
             <a class="tk-other" href="destek-v1.html#konu-saglik"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i><span class="ot"><b>Sağlık, veri ve izinler</b><span>Destek Merkezi</span></span></a>
           </div>
-          <div class="demo-note"><i class="fa-solid fa-headset" aria-hidden="true"></i> <span>Altısı da, &quot;Çözüm bulamadın mı?&quot; çıkışıyla birlikte <a href="destek-v1.html">Destek Merkezi</a> sayfasında duruyor.</span></div>
+          <div class="demo-note"><i class="fa-solid fa-headset" aria-hidden="true"></i> <span>Beşi de, <a href="destek-v1.html#yeni">Yeni Destek Talebi</a> sekmesinde formun altında duruyor.</span></div>
+          </div>
         </div>
 
       </aside>
@@ -829,7 +862,7 @@
     <p id="tkModalDesc">Kapattığında bu talebe yeni yanıt yazılamaz. Yazışma listende durmaya devam eder; aynı konu tekrar ederse talebi yeniden açabilirsin.</p>
     <div class="row">
       <button class="btn btn-ghost" type="button" id="tkModalNo">Vazgeç</button>
-      <button class="btn btn-primary" type="button" id="tkModalYes"><i class="fa-solid fa-check" aria-hidden="true"></i> Evet, kapat</button>
+      <button class="btn btn-fit" type="button" id="tkModalYes"><i class="fa-solid fa-check" aria-hidden="true"></i> Evet, kapat</button>
     </div>
   </div>
 </div>
@@ -873,7 +906,7 @@
   'use strict';
 
   /* Numaralandırma, durum anahtarları, durum metinleri ve ikonları KARDEŞ
-     SAYFAYLA (destek-talepleri-v1.html) birebir aynı: liste oradaki her satırı
+     SAYFAYLA (destek-v1.html#taleplerim) birebir aynı: liste oradaki her satırı
      `?talep=DF-2026-XXXXXX` ile buraya yolluyor. Ayrı bir şema kullansaydım
      listedeki on iki bağlantının hepsi "talep bulunamadı"ya düşerdi (ölçüldü). */
   var DEFAULT = 'DF-2026-K7WQ9M';
@@ -992,7 +1025,10 @@
   /* Talep işlemleri kartının duruma göre metni. Her durum bir açıklama ve
      en az bir çıkış yolu taşır — kart hiçbir hâlde boş kalmaz. */
   var ACT_NOTE = {
-    'acik':           'Sıra destek ekibinde: talebini gördüler ve yanıt hazırlıyorlar. Konu kendiliğinden çözüldüyse beklemeden kapatabilirsin.',
+    /* "gördüler ve yanıt hazırlıyorlar" KALKTI: makette kimse görmedi,
+       kimse yanıt hazırlamıyor. Cümle DURUMU söylüyor, olmayan bir
+       faaliyeti değil. */
+    'acik':           'Sıra destek ekibinde. Konu kendiliğinden çözüldüyse beklemeden kapatabilirsin.',
     'yanit-bekleyen': 'Sıra sende: destek ekibi yazdı ve yanıtını bekliyor. Konu çözüldüyse yanıt yazmak yerine talebi kapatabilirsin.',
     'cozulen':        'Destek ekibi bu talebi çözüldü olarak işaretledi. Çözüm işine yaradıysa talebi kapat; yaramadıysa yeniden aç, sıra tekrar destek ekibine geçsin.',
     'kapatilan':      'Bu talep kapatıldı ve yazışması kayıtta duruyor. Aynı konu tekrar ederse talebi yeniden açabilirsin — geçmiş yazışma korunur.'
@@ -1071,7 +1107,7 @@
        çünkü ana beklenti çözümün kabulüdür. `kapatilan`da tek düğme kalır ve
        birincil olur — yoksa kilitli ekranın tek çıkışı sönük görünürdü. */
     if(reopenBtn){
-      reopenBtn.classList.toggle('btn-primary', d.status === 'kapatilan');
+      reopenBtn.classList.toggle('btn-fit', d.status === 'kapatilan');
       reopenBtn.classList.toggle('btn-ghost',   d.status !== 'kapatilan');
     }
   }
@@ -1246,8 +1282,10 @@
     if(ekInput){ ekInput.value = ''; ekYaz(); }
     delete ta.dataset.seen;
     sync();
-    if(live) live.textContent = 'Yanıtın yazışmaya eklendi. Talepte artık ' + msgCount(current) + ' mesaj var.' +
-      (oncekiDurum !== current.dataset.status ? ' Talebin durumu "Açık talep" oldu, sıra destek ekibinde.' : '');
+    /* MAKET DİLİ: yazışmaya eklendi DOĞRU (balon ekranda), "sıra destek
+       ekibine geçti" DEĞİL — kimseye gitmedi. Cümle olanla sınırlandı. */
+    if(live) live.textContent = 'Yanıtın bu sekmedeki yazışmaya eklendi; gönderilmedi. Talepte artık ' + msgCount(current) + ' mesaj var.' +
+      (oncekiDurum !== current.dataset.status ? ' Makette talebin durumu "Açık talep" oldu.' : '');
     li.scrollIntoView({ block:'nearest', behavior:'smooth' });
   });
 

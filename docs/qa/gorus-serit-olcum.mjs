@@ -3,7 +3,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8788';
 const b=await chromium.launch();
 const pg=await (await b.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:2})).newPage();
 const hata=[]; pg.on('pageerror',e=>hata.push(e.message));
-for(const f of ['hareket-rehberi-v1.html','program-liste-v1.html','enerji-defteri-v1.html?auth=1']){
+for(const f of ['hareket-rehberi-v1.html','program-liste-v1.html','egzersizlerim-v1.html?auth=1#defter']){
   await pg.goto(''+BASE+'/'+f,{waitUntil:'load'}); await pg.waitForTimeout(700);
   const r=await pg.evaluate(()=>{
     const t=document.querySelector('.feedback-tab'), rail=document.querySelector('.fb-rail');

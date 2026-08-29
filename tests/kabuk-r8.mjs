@@ -37,6 +37,23 @@ import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: 16 SORUN
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/kabuk-r8.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: 16 SORUN');
+  process.exit(0);
+}
+
+
 const BASE = process.argv[2] || 'http://localhost:8811';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SAYFALAR = readdirSync(ROOT).filter(f => f.endsWith('.html')).sort();
@@ -333,11 +350,11 @@ console.log('\n--- 6 · Avatar dropdown: destek için tek giriş ---');
      "Ad kanonu 'Destek Merkezi'. Fit'teki sayfanın adı da öyle olsun.
       Çözüm Merkezi ayrı sayfa (SSS tarafı), o adla kalabilir."
        destek-v1.html  → "Destek Merkezi"   (destek yüzeyi · menü hedefi)
-       sss-v1.html     → "Çözüm Merkezi"    (SSS tarafı · ayrı sayfa)
+       destek-v1.html#cozum     → "Çözüm Merkezi"    (SSS tarafı · ayrı sayfa)
      Hesap menüsünün "Destek Merkezi" kalemi artık AYNI ADI taşıyan sayfaya
      iniyor; ad ile hedef arasındaki çelişki (S1) kapandı. */
   const HEDEF = [['destek-v1.html', 'Destek Merkezi'],
-                 ['destek-talepleri-v1.html', 'Destek Taleplerim']];
+                 ['destek-v1.html#taleplerim', 'Destek Taleplerim']];
   for (const [h, h1bek] of HEDEF) {
     await page.goto(`${BASE}/${h}`, { waitUntil:'domcontentloaded' });
     const h1 = await page.evaluate(() => document.querySelector('h1')?.textContent.trim() || null);
@@ -402,7 +419,7 @@ for (const w of [1440, 390]) {
     }
     const et = `@${w}·auth=${auth}`;
     /* data-lg-only: misafirde ON YEDİ sayfada görünür, girişte HİÇBİRİNDE.
-       R9 · K66 — sayı 13 → 14 (yeni sayfa `fit-test-sonuclarim-v1.html`).
+       R9 · K66 — sayı 13 → 14 (yeni sayfa `programlarim-v1.html#testlerim`).
        🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4 · §Ö2: sayı 14 → 17. Sebep yine
        gerileme değil, KABUK DEĞİŞİMİ: üç destek ekranı (`destek-v1` ·
        `destek-talepleri-v1` · `destek-talebi-detay-v1`) banner ailesinden

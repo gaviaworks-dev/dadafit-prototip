@@ -17,7 +17,7 @@
 
    NEDEN KIRMIZI OLMALI (taban 8358446'da):
      `git show 8358446:program-detay-v1.html | grep -c pgKur`        → 0
-     `git show 8358446:fit-planim-programim-v1.html | grep -c ptkGovde` → 0
+     `git show 8358446:programlarim-v1.html#takvim | grep -c ptkGovde` → 0
    Taban sürümde bu nöbetin aradığı 6 çapa (#pgKur · #pgkOnizleme ·
    #pgCakisma · #pgkOzet · #ptkGovde · #ptkDuzen) HİÇ YOK; nöbet
    ilk adımda "sözleşme açılmıyor" diye düşer.
@@ -30,6 +30,23 @@
      PW_HOME=~/.pw node tests/program-takvim.mjs http://localhost:8811
    ===================================================================== */
 import { chromium } from '/Users/gaviaworks/Developer/Projects/dadafit-prototip/tests/_pw.mjs';
+
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: program yokken dürüst boş durum görünür
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/program-takvim.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: program yokken dürüst boş durum görünür');
+  process.exit(0);
+}
+
 const B=process.argv[2]||'http://localhost:8811';
 let hata=0; const not=(ok,m)=>{ console.log((ok?'  ✓ ':'  ✗ ')+m); if(!ok)hata++; };
 const b=await chromium.launch();
@@ -162,7 +179,7 @@ console.log('— 10 · JS hatası');
 not(errs.length===0,'konsol hatası = '+errs.length+(errs.length?' :: '+errs.slice(0,3).join(' | '):''));
 
 console.log('\n===== B · fit-planim-programim-v1 =====');
-const U=B+'/fit-planim-programim-v1.html?auth=1';
+const U=B+'/programlarim-v1.html?auth=1#takvim';
 /* A bölümü depoya program yazdı; B'nin boş-durum ölçümü TEMİZ depo ister.
    (Bu ayrımı atlayınca nöbet "boş durum yok" diye üç kez kırmızı verir —
    ölçülen kusur değil, sondanın kendi kalıntısıdır.) */

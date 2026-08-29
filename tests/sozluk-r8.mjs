@@ -35,6 +35,23 @@
    ===================================================================== */
 import { chromium } from './_pw.mjs';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   R15'te sayfa yapısı değişti (dokuz sayfa modül paneline taşındı, üçü destek modülüne indi); iddia eski yapıyı bekliyor
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/sozluk-r8.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — R15\'te sayfa yapısı değişti (dokuz sayfa modül paneline taşındı, üçü d');
+  process.exit(0);
+}
+
+
 const BASE  = (process.argv.slice(2).find(a => /^https?:/.test(a)) || 'http://localhost:8821').replace(/\/$/, '');
 const LISTE = 'sozluk-v1.html';
 const DETAY = 'sozluk-detay-v1.html';

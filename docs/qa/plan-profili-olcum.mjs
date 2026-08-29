@@ -4,7 +4,7 @@ const b=await chromium.launch();
 for(const W of [1440,390]){
   const pg=await (await b.newContext({viewport:{width:W,height:1100}})).newPage();
   const hata=[]; pg.on('pageerror',e=>hata.push(e.message));
-  await pg.goto(''+BASE+'/enerji-defteri-v1.html?auth=1',{waitUntil:'load'});
+  await pg.goto(''+BASE+'/egzersizlerim-v1.html?auth=1#defter',{waitUntil:'load'});
   await pg.waitForTimeout(900);
   const r=await pg.evaluate(()=>{
     const R=e=>e?[Math.round(e.getBoundingClientRect().width),Math.round(e.getBoundingClientRect().height)]:null;

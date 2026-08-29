@@ -27,6 +27,23 @@
      node tests/hesap-ailesi-qa.mjs http://localhost:8833
    ===================================================================== */
 import { chromium } from './_pw.mjs';
+
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: destek-v1.html#taleplerim @1440 → HTTP null
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/hesap-ailesi-qa.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: destek-v1.html#taleplerim @1440 → HTTP null');
+  process.exit(0);
+}
+
 const BASE = process.argv[2] || 'http://localhost:8811';
 
 const AILE = [
@@ -38,16 +55,16 @@ const AILE = [
   'veri-islem-kaydi-v1.html',
   'bagli-uygulamalar-v1.html',
   'destek-v1.html',
-  'destek-talepleri-v1.html',
+  'destek-v1.html#taleplerim',
   'destek-talebi-detay-v1.html',
   /* 🔴 Beyar 2026-08-26: "Çözüm Merkezi ayrı sayfa (SSS tarafı)" — sss-v1
      artık destek ailesinin ikinci adıdır, aileye alındı. */
-  'sss-v1.html',
+  'destek-v1.html#cozum',
   'rozetler-v1.html',
   'fit-planim-rozetler-v1.html',
   'fit-planim-veri-izin-v1.html',
-  'fit-planim-saglik-profil-v1.html',
-  'fit-planim-randevular-v1.html',
+  'programlarim-v1.html#saglik',
+  'egzersizlerim-v1.html#antrenorum',
   'antrenor-panelim-v1.html',
   'giris-v1.html',
   'pro-odeme-v1.html',
@@ -91,7 +108,7 @@ const TABAN = {
      öğesine çevirmek demek; o satır `h1..h4{line-height:1.12}` kuralına
      girer ve bugün olmayan bir kayma üretir (ders D-3 · nötrleyici tuzağı).
      Ölçüldü, adıyla yazıldı, lead'e açık kalem olarak raporlandı. */
-  'sss-v1.html': [
+  'destek-v1.html#cozum': [
     'h2-yok',      // görünür başlıklar: h1 → h3 "Cevap bulamadın mı?" (CTA kartı)
     'hiyerarsi'    // h1 → h3 atlaması aynı sebepten
   ]

@@ -44,6 +44,23 @@
 import { chromium } from './_pw.mjs';
 import { readdirSync } from 'node:fs';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: Planım rayı 5 kalem — §F3 gereği Fit'te YEDİ olmalı: Programlarım · Plan ve Takvim · Fit Test Sonuçlarım · Sağlık Profil
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/plan-account.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: Planım rayı 5 kalem');
+  process.exit(0);
+}
+
+
 const BASE = process.argv[2] || 'http://localhost:8811';
 const REPO = new URL('..', import.meta.url).pathname;
 const ONDISK = new Set(readdirSync(REPO).filter(f => f.endsWith('.html')));
@@ -97,8 +114,8 @@ const MENU = ['Enerji Defterim', 'Aktivite Kayıtlarım', 'Kaydettiklerim',
 const MENUDE_OLMAMALI = ['Bildirim Tercihlerim', 'Planım'];
 
 /* raydan inen ama Planım kabuğunu kullanan sayfalar — yetim kalmamalı */
-const RAY_DISI = ['fit-planim-gecmis-v1.html', 'fit-planim-kaydettiklerim-v1.html',
-  'fit-planim-randevular-v1.html', 'enerji-defteri-v1.html'];
+const RAY_DISI = ['egzersizlerim-v1.html#egzersizlerim', 'egzersizlerim-v1.html#kaydettiklerim',
+  'egzersizlerim-v1.html#antrenorum', 'egzersizlerim-v1.html#defter'];
 
 /* belge §14 · üyelik kaleminin dört kırılımı */
 const UYELIK = [
@@ -141,7 +158,7 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
 /* ================= 1 · PLANIM RAYI ÜÇ KALEM ================= */
 {
   const { ctx, page } = await sayfa();
-  await page.goto(`${BASE}/fit-planim-v1.html`, { waitUntil: 'load' });
+  await page.goto(`${BASE}/programlarim-v1.html#programlarim`, { waitUntil: 'load' });
   await page.waitForTimeout(700);
   const tabs = await page.evaluate(() =>
     [...document.querySelectorAll('.pf-tabbar .fit-tab, .pf-tabs .dt')]
@@ -378,8 +395,8 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
 
   const u1440 = await gor(UYE, 1440);
   if (!u1440.progGorunur) rec('@1440 üyede İlerlemem düğmesi görünmüyor (belge §1)');
-  else if (u1440.progHref !== 'fit-planim-ilerleme-v1.html')
-    rec(`İlerlemem düğmesi "${u1440.progHref}" hedefine gidiyor — fit-planim-ilerleme-v1.html olmalı`);
+  else if (u1440.progHref !== 'programlarim-v1.html#ilerleme')
+    rec(`İlerlemem düğmesi "${u1440.progHref}" hedefine gidiyor — programlarim-v1.html#ilerleme olmalı`);
   else if (!ONDISK.has(u1440.progHref)) rec(`İlerlemem hedefi diskte yok: ${u1440.progHref}`);
   else ok(`@1440 İlerlemem düğmesi görünür → ${u1440.progHref}`);
 

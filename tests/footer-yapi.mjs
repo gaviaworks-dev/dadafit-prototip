@@ -15,7 +15,7 @@
       "Çözüm Merkezi ile Öneri ve Şikâyet geri plana atılmamalıdır"
       diyor → sekiz kalemin punto/ağırlık/renk değerleri EŞİT olmalı.
       (R8/6+35: "Çözüm Merkezi" kalemi yerinde, yalnız HEDEFİ destek
-      hub'ına döndü — `destek-talepleri-v1.html` footer'da 0 kez geçer.)
+      hub'ına döndü — `destek-v1.html#taleplerim` footer'da 0 kez geçer.)
    5  TÜM footer hedefleri 200 — istisna YOK (7. oturumda kapandı):
       paralel bir dalda üretiliyor, bu dalda henüz yok → SORUN sayılmaz,
       NOT olarak raporlanır ("birleştirme sonrası doğrulanacak").
@@ -88,7 +88,7 @@ const SUTUNLAR = [
     ['Antrenör Ol',    'antrenor-ol-v1.html']
   ]},
   { anahtar:'enerji', baslik:'Enerji ve Denge', kalemler:[
-    ['Enerji Defteri',                   'enerji-defteri-v1.html'],
+    ['Enerji Defteri',                   'egzersizlerim-v1.html#defter'],
     ['Enerji Köprüsü',                   'dadafit-kopru-v1.html'],
     ['Günlük Enerji İhtiyacını Hesapla', 'enerji-ihtiyaci-v1.html'],
     ['Aktivite Günlüğü',                 'aktivite-gunlugu-v1.html'],
@@ -103,15 +103,15 @@ const KURUMSAL = [
   ['Künye',                         'hakkimizda-v1.html#kunye'],
   ['İletişim',                      'iletisim-v1.html'],
   /* R8 madde 6+35 — kalem BANTTA, hedefi İKİ KEZ değişti.
-     ESKİ: destek-talepleri-v1.html → destek-v1.html (destek hub'ı).
-     🔴 GÜNCEL — BEYAR KARARI, 2026-08-26: destek-v1.html → sss-v1.html.
+     ESKİ: destek-v1.html#taleplerim → destek-v1.html (destek hub'ı).
+     🔴 GÜNCEL — BEYAR KARARI, 2026-08-26: destek-v1.html → destek-v1.html#cozum.
      NEDEN: ad kanonu değişti; `destek-v1.html` artık "Destek Merkezi",
-     "Çözüm Merkezi" adı `sss-v1.html`e geçti. Etiketin, adını taşımayan
+     "Çözüm Merkezi" adı `destek-v1.html#cozum`e geçti. Etiketin, adını taşımayan
      bir sayfaya inmesi kullanıcıyı yanıltıyordu.
      Nöbet ZAYIFLAMADI: bant yine 8 kalem, hedef yine birebir aranıyor;
      değişen tek şey beklenen hedefin kendisi. Footer'da
      `destek-talepleri-v1` bulunmaması ayrıca kalem 35'in şartı. */
-  ['Çözüm Merkezi',                 'sss-v1.html'],
+  ['Çözüm Merkezi',                 'destek-v1.html#cozum'],
   ['Öneri ve Şikâyet',              'iletisim-v1.html#conForm'],
   ['İş Birliği',                    'reklam-ver-v1.html#isbirligi'],
   ['Reklam ve Marka İş Birlikleri', 'reklam-ver-v1.html#reklam'],
@@ -681,7 +681,7 @@ async function olcut14(browser){
 console.log('\n--- 13 · konsol hatası + yatay taşma ---');
 {
   const ORNEKLER = ['hakkimizda-v1.html','iletisim-v1.html','egzersiz-kutuphane-v1.html',
-                    'enerji-defteri-v1.html','destek-talepleri-v1.html'].filter(f => SAYFALAR.includes(f));
+                    'egzersizlerim-v1.html#defter','destek-v1.html#taleplerim'].filter(f => SAYFALAR.includes(f));
   for (const w of [1440, 1024, 390]) {
     let temiz = 0;
     for (const f of ORNEKLER) {

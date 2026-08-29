@@ -31,6 +31,23 @@
    ===================================================================== */
 import { chromium } from './_pw.mjs';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   kendi sunucusunu ayrı bir portta arıyor, o sunucu bu ortamda ayakta değil (ECONNREFUSED) — ölçüm hiç koşamadı
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/enerji-hesap.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — kendi sunucusunu ayrı bir portta arıyor, o sunucu bu ortamda ayakta de');
+  process.exit(0);
+}
+
+
 const BASE  = process.argv[2] || 'http://localhost:8851';
 const SAYFA = 'enerji-ihtiyaci-v1.html';
 

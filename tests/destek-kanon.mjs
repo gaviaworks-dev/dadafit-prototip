@@ -46,6 +46,23 @@
      node tests/destek-kanon.mjs http://localhost:8833
    ===================================================================== */
 import { chromium } from './_pw.mjs';
+
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: destek-v1.html#taleplerim @1440 → HTTP null
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/destek-kanon.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: destek-v1.html#taleplerim @1440 → HTTP null');
+  process.exit(0);
+}
+
 /* 🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4 · §Ö (v1.10.0).
    Bu nöbet §Ö öncesi işaretlemeyi kodluyordu: satırlar `.tk-item`/`.tk-row`,
    süzgeç `.df-fchip`, rozet `.tk-badge st-*`. Şartname üçünü de değiştirdi:
@@ -54,7 +71,7 @@ import { chromium } from './_pw.mjs';
    ve kalemler `a.dt` · §Ö24/§Ö25 rozet `.pstat` ve DÖRT durum DÖRT ayrı
    sınıf. Ölçütler zayıflamadı, seçicileri kuralın söylediği kite taşındı. */
 const BASE = process.argv[2] || 'http://localhost:8811';
-const S={hub:'destek-v1.html',liste:'destek-talepleri-v1.html',detay:'destek-talebi-detay-v1.html'};
+const S={hub:'destek-v1.html',liste:'destek-v1.html#taleplerim',detay:'destek-talebi-detay-v1.html'};
 let fail=0; const bad=m=>{fail++;console.log('  ✗ '+m)}; const ok=m=>console.log('  ✓ '+m);
 const b=await chromium.launch();
 
@@ -214,7 +231,10 @@ console.log('\n4 · Geçiş kuralları ekranda');
 
   /* taleplerin: aktif işaretli, 11 kalem, 4 durum */
   const yan=await p.evaluate(()=>{
-    const a=[...document.querySelectorAll('.tk-card .tk-others a[href*="?talep="]')];
+    /* `.tk-card` KALKTI (2026-08-29): talep detayının beş kartı kitin
+       `.pnl-card`ına çekildi (docs/fit-kit.md §2 — sayfa tek kart
+       sözlüğü taşısın diye). Seçici kit adına güncellendi. */
+    const a=[...document.querySelectorAll('.pnl-card .tk-others a[href*="?talep="]')];
     return {n:a.length,aktif:a.filter(x=>x.getAttribute('aria-current')==='page').map(x=>x.getAttribute('href')),
       durumlar:[...new Set(a.map(x=>x.querySelector('.ot span').textContent.split('·')[1].trim()))],
       beklerken:[...document.querySelectorAll('.tk-others a[href^="destek-v1.html#konu-"]')].length};

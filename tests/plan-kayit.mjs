@@ -9,7 +9,7 @@
       3. Kaydedilen nesne sözleşmenin şemasına uyuyor (id · ad · kaynak ·
          olusturma · secimler · gunler[].hareketler[] · ilerleme) ve
          plandaki hareket sayısı ekrandaki plana eşit.
-      4. `fit-planim-programim-v1.html` planı TAM basıyor: gün sayısı ·
+      4. `programlarim-v1.html#takvim` planı TAM basıyor: gün sayısı ·
          hareket sayısı · her satırda set ve tekrar/süre.
       5. Bir hareket işaretlenip sayfa yenilendiğinde işaret DURUYOR.
       6. Üç seviye de çalışıyor (tam · yarim · atlandi) ve aynı düğmeye
@@ -40,7 +40,7 @@ import { chromium } from './_pw.mjs';
 
 const BASE   = process.argv[2] || 'http://localhost:8811';
 const OLUSTUR= 'antrenman-olusturucu-v1.html';
-const PLANIM = 'fit-planim-programim-v1.html';
+const PLANIM = 'programlarim-v1.html#takvim';
 const MODUL  = 'assets/js/fit-plan-kayit.js';
 /* deterministik seçim — motor aynı planı her seferinde kurar */
 const KOD    = 'kadin-kas-orta-salon-4-sirt-yok';

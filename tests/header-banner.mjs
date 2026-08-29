@@ -88,8 +88,8 @@ const BANNER = [
 const PLAIN = [
   'profil-v1.html',                 // beyaz profil kapağı (KARARLAR K23)
   /* R11/M17 — plan ailesi artık beyaz profil başlığı taşıyor (yukarıdaki not) */
-  'fit-planim-v1.html',
-  'enerji-defteri-v1.html',
+  'programlarim-v1.html#programlarim',
+  'egzersizlerim-v1.html#defter',
   /* R12/R13 (Beyar) — `hesabim-12` ajanı koyu `.lib-top`'u kaldırıp beyaz
      `.fp-profil` profil başlığına çevirdi (commit 29a9b72). Canlıda
      ölçüldü (@1440): `.lib-top` YOK · `.fp-profil` VAR ·
@@ -99,7 +99,7 @@ const PLAIN = [
   /* §Ö2 · destek merkezinin üç ekranı da modül sayfası kalıbına geçti;
      banner taşımazlar, header katı kalır. */
   'destek-v1.html',
-  'destek-talepleri-v1.html',
+  'destek-v1.html#taleplerim',
   'destek-talebi-detay-v1.html'
 ];
 

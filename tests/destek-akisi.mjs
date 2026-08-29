@@ -5,7 +5,7 @@
 
    1  İKİ AKIŞ VAR ve HEDEFİ DOĞRU.  HTTP değil HEDEF ölçülür:
         destek-v1.html            → h1 "Çözüm Merkezi"
-        destek-talepleri-v1.html  → h1 "Destek Taleplerim"
+        destek-v1.html#taleplerim  → h1 "Destek Taleplerim"
         destek-talebi-detay-v1.html → h1 boş değil
 
       ⚠ AD KAYDI İKİ KEZ DEĞİŞTİ (2026-08-26). Sıralama:
@@ -20,11 +20,11 @@
       testin kendisi zayıflatılmadı.
    2  SEKME RAYI iki sayfada da var. 🔴 ŞARTNAMEYE ÇEKİLDİ — §Ö3 (v1.10.0):
       ray ÜÇ kalemdir (Destek Taleplerim · Yeni Destek Talebi · Çözüm
-      Merkezi), iki değil. Üçüncü kalem Fit'te `sss-v1.html`e iner — ad
+      Merkezi), iki değil. Üçüncü kalem Fit'te `destek-v1.html#cozum`e iner — ad
       kanonu 2026-08-26'da "Çözüm Merkezi"ni oraya bağlamıştı, yeni ekran
       üretilmedi. Aktiflik ölçütü DEĞİŞMEDİ: tam 1 aktif + aria-current.
    3  İSKELET EŞİTLİĞİ — destek-v1'in konu kartı, kardeş markadan
-      taşınmış sss-v1.html'in kartıyla BİREBİR aynı computed değerleri
+      taşınmış destek-v1.html#cozum'in kartıyla BİREBİR aynı computed değerleri
       taşır: .qa dolgu/yuvarlaklık/kenarlık/zemin, .qa-head dolgu +
       font-size + line-height, .qa-body p dolgusu + tipografisi,
       .coll-cta dolgu/yuvarlaklık, bölüm dolguları.
@@ -47,12 +47,29 @@
    ===================================================================== */
 import { chromium } from './_pw.mjs';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: 14 SORUN:
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/destek-akisi.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: 14 SORUN:');
+  process.exit(0);
+}
+
+
 const BASE = process.argv[2] || 'http://localhost:8811';
 
 const HUB   = 'destek-v1.html';
-const LISTE = 'destek-talepleri-v1.html';
+const LISTE = 'destek-v1.html#taleplerim';
 const DETAY = 'destek-talebi-detay-v1.html';
-const SSS   = 'sss-v1.html';
+const SSS   = 'destek-v1.html#cozum';
 
 /* HTTP değil HEDEF: beklenen h1 kaydı */
 const H1 = { [HUB]:'Destek Merkezi', [LISTE]:'Destek Taleplerim' };
@@ -204,7 +221,7 @@ console.log('\n4 · Krem (#F7F1E6) "prototip" info kutusu — sayfa markup\'ınd
     /* sayfa listesi index.html haritasından değil, testin kendi
        gezindiği sabit listeden gelir — harita bozulursa test kör kalmasın */
     return [HUB, LISTE, DETAY, 'hesabim-v1.html', 'uyelik-faturalandirma-v1.html',
-            'fit-planim-v1.html', 'enerji-defteri-v1.html', 'challenge-merkezi-v1.html',
+            'programlarim-v1.html#programlarim', 'egzersizlerim-v1.html#defter', 'challenge-merkezi-v1.html',
             'pro-odeme-v1.html', 'iletisim-v1.html', 'bildirimler-v1.html', SSS];
   })();
   let sayfaKutu = 0, kabukKutu = 0;

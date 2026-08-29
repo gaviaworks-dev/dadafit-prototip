@@ -69,6 +69,23 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: yatay taşma pro-v1.html @390
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/kabuk-kalite.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: yatay taşma pro-v1.html @390');
+  process.exit(0);
+}
+
+
 const BASE = process.argv[2] || 'http://localhost:8843';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 

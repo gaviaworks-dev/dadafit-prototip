@@ -40,6 +40,23 @@
 import { chromium } from './_pw.mjs';
 import vm from 'node:vm';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: 1 sorun
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/sozluk-kapalilik.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: 1 sorun');
+  process.exit(0);
+}
+
+
 const BASE = (process.argv.slice(2).find(a => /^https?:/.test(a)) || 'http://localhost:8831').replace(/\/$/, '');
 const LISTE = 'sozluk-v1.html';
 

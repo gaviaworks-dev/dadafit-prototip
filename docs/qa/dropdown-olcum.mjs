@@ -3,7 +3,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8788';
 const b=await chromium.launch();
 const pg=await (await b.newContext({viewport:{width:1440,height:1000}})).newPage();
 pg.on('pageerror',e=>console.log('!!',e.message));
-await pg.goto(''+BASE+'/fit-planim-v1.html',{waitUntil:'load'});
+await pg.goto(''+BASE+'/programlarim-v1.html#programlarim',{waitUntil:'load'});
 await pg.waitForTimeout(600);
 await pg.evaluate(()=>{ try{localStorage.setItem('dm_fit_login','1')}catch(e){} });
 await pg.reload({waitUntil:'load'}); await pg.waitForTimeout(700);

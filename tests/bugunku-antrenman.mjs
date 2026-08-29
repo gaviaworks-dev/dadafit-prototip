@@ -31,7 +31,7 @@ import { chromium } from './_pw.mjs';
 const BASE   = process.argv[2] || 'http://localhost:8811';
 const KOD    = 'kadin-kas-orta-salon-4-sirt-yok';   /* deterministik plan */
 const OLUSTUR= 'antrenman-olusturucu-v1.html';
-const PLANIM = 'fit-planim-v1.html';
+const PLANIM = 'programlarim-v1.html#programlarim';
 const SU     = 'enerji-defteri-su-v1.html';
 
 let fail = 0; const bad = [];

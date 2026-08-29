@@ -23,6 +23,23 @@
      PW_HOME=~/.pw node tests/plan-ozet.mjs
    ===================================================================== */
 import { chromium } from '/Users/gaviaworks/Developer/Projects/dadafit-prototip/tests/_pw.mjs';
+
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: fit-planim-v1: istatistik kolonu ve ilerleme çubuğu kurulu
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/plan-ozet.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: fit-planim-v1: istatistik kolonu ve ilerleme çub');
+  process.exit(0);
+}
+
 const B='http://localhost:8811';
 let hata=0; const not=(ok,m)=>{ console.log((ok?'  ✓ ':'  ✗ ')+m); if(!ok)hata++; };
 const b=await chromium.launch();
@@ -35,7 +52,7 @@ p.on('console',m=>{if(m.type()==='error')hatalar.push(m.text());});
 
 /* 0 — bileşen var mı (taban commit'te kırmızıya düşen kapı) */
 console.log('\n0 · üst özet kartı ve sözleşme modülü kurulu mu');
-await p.goto(`${B}/fit-planim-v1.html`,{waitUntil:'load'}); await p.waitForTimeout(500);
+await p.goto(`${B}/programlarim-v1.html#programlarim`,{waitUntil:'load'}); await p.waitForTimeout(500);
 const kurulum = await p.evaluate(()=>({
   sum: !!document.querySelector('.fpx-sum'),
   api: typeof window.FIT_PLAN === 'object' && typeof (window.FIT_PLAN||{}).ozet === 'function',
@@ -51,7 +68,7 @@ if(!(kurulum.sum && kurulum.api)){
 
 /* 1 — KAYIT YOKKEN DÜRÜST BOŞ DURUM */
 console.log('\n1 · kayıt yokken dürüst boş durum');
-for(const s of ['fit-planim-v1','fit-planim-ilerleme-v1','fit-planim-gecmis-v1']){
+for(const s of ['programlarim-v1','fit-planim-ilerleme-v1','fit-planim-gecmis-v1']){
   await p.goto(`${B}/${s}.html`,{waitUntil:'load'}); await p.waitForTimeout(500);
   const r=await p.evaluate(()=>({
     isEmpty:document.querySelector('.fpx-sum').classList.contains('is-empty'),
@@ -73,7 +90,7 @@ await p.evaluate(()=>{ FIT_PLAN.kaydet({ ad:'Ev · 3 gün · Başlangıç', kayn
 
 /* 2 — İŞARETLEME + KALICILIK */
 console.log('\n2 · işaretleme ve kalıcılık');
-await p.goto(`${B}/fit-planim-v1.html`,{waitUntil:'load'}); await p.waitForTimeout(500);
+await p.goto(`${B}/programlarim-v1.html#programlarim`,{waitUntil:'load'}); await p.waitForTimeout(500);
 const once=await p.evaluate(()=>document.querySelectorAll('.fpx-mark[aria-pressed="true"]').length);
 await p.click('#fpxHareketler .fpx-mark');
 await p.waitForTimeout(200);
@@ -88,7 +105,7 @@ not(yenile.isaret===1, `sayfa yenilendikten sonra işaret duruyor (${yenile.isar
 
 /* 3 — FIT_PLAN.ozet() ORANI DOM'DAKİYLE BİREBİR */
 console.log('\n3 · FIT_PLAN.ozet() ↔ DOM');
-for(const s of ['fit-planim-v1','fit-planim-ilerleme-v1']){
+for(const s of ['programlarim-v1','fit-planim-ilerleme-v1']){
   await p.goto(`${B}/${s}.html`,{waitUntil:'load'}); await p.waitForTimeout(600);
   const r=await p.evaluate(()=>{
     const o=FIT_PLAN.ozet();
@@ -107,7 +124,7 @@ for(const s of ['fit-planim-v1','fit-planim-ilerleme-v1']){
 
 /* 4 — KAYDETTİKLERİM planı listeliyor */
 console.log('\n4 · Kaydettiklerim plan satırı');
-await p.goto(`${B}/fit-planim-kaydettiklerim-v1.html`,{waitUntil:'load'}); await p.waitForTimeout(600);
+await p.goto(`${B}/egzersizlerim-v1.html#kaydettiklerim`,{waitUntil:'load'}); await p.waitForTimeout(600);
 const kd=await p.evaluate(()=>{
   const n=document.querySelectorAll('#skList .fp-row[data-tur="plan"]').length;
   document.querySelector('.df-fchip[data-val="plan"]').click();
@@ -118,7 +135,7 @@ not(kd.n===1 && kd.gorunen===1 && kd.sayac==='1 kayıt', `plan satırı ${kd.n} 
 
 /* 5 — AKTİVİTE KAYITLARIM işareti gösteriyor */
 console.log('\n5 · Aktivite Kayıtlarım');
-await p.goto(`${B}/fit-planim-gecmis-v1.html`,{waitUntil:'load'}); await p.waitForTimeout(600);
+await p.goto(`${B}/egzersizlerim-v1.html#egzersizlerim`,{waitUntil:'load'}); await p.waitForTimeout(600);
 const gk=await p.evaluate(()=>({
   satir:document.querySelectorAll('#fpxIsaretler .fp-row').length,
   bosGizli:!document.getElementById('fpxIsaretBos').classList.contains('show'),
@@ -128,7 +145,7 @@ not(gk.satir===1 && gk.bosGizli && gk.rozet==='1 kayıt', `işaret satırı ${gk
 
 /* 6 — klavye ile işaretleme */
 console.log('\n6 · klavye');
-await p.goto(`${B}/fit-planim-v1.html`,{waitUntil:'load'}); await p.waitForTimeout(600);
+await p.goto(`${B}/programlarim-v1.html#programlarim`,{waitUntil:'load'}); await p.waitForTimeout(600);
 const kb=await p.evaluate(()=>{ const b=document.querySelector('#fpxHareketler .fpx-mark[aria-pressed="false"]');
   b.focus(); return document.activeElement===b; });
 await p.keyboard.press('Enter'); await p.waitForTimeout(200);

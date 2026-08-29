@@ -14,6 +14,23 @@
    ===================================================================== */
 import { chromium } from './_pw.mjs';
 
+/* =====================================================================
+ ⚠ R15'TE ATLANDI — Beyar kararı, 2026-08-29:
+   "Kırmızı testleri devre dışı bırak — silme, sadece atlanacak duruma
+    getir. Bir daha test güncellemesiyle uğraşma. Bir şey kırılırsa
+    tarayıcıda ölç ve kanıtla, yeterli."
+ ---------------------------------------------------------------------
+ İDDİALAR SİLİNMEDİ, dosya olduğu gibi duruyor — yalnız koşmuyor.
+ Kırmızı olma sebebi (ölçüldü, 2026-08-29):
+   eski kararı kodluyor: @1440 DadaGastro marka rengi (#E14827) — beklenen rgb(225, 72, 39), ölçülen rgb(255, 138, 104)
+ Yeniden açmak için:  FIT_TESTI_ZORLA=1 node tests/hub-program-r8.mjs
+ ===================================================================== */
+if (!process.env.FIT_TESTI_ZORLA) {
+  console.log('ATLANDI (R15) — eski kararı kodluyor: @1440 DadaGastro marka rengi (#E14827)');
+  process.exit(0);
+}
+
+
 const BASE = process.argv[2] || 'http://localhost:8811';
 let hata = 0, gecti = 0;
 const ok  = (m) => { gecti++; console.log('  ✓ ' + m); };

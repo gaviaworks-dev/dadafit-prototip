@@ -41,7 +41,7 @@ const PAGES = [
   'programlar-merkezi-v1.html',
   'egzersiz-kutuphane-v1.html',
   'antrenorler-v1.html',
-  'fit-planim-v1.html'
+  'programlarim-v1.html#programlarim'
 ];
 
 const TOL = 0.5;            // px — subpixel yuvarlama toleransı

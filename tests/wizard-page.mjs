@@ -37,8 +37,8 @@ const GERCEK = new Set([
   'program-detay-v1.html?slug=12-hafta-guc-temeli',
   'program-detay-v1.html?slug=8-hafta-salon-kondisyon',
   'challenge-v1.html?slug=hareket-aliskanligi',
-  'challenge-v1.html?slug=sabah-esneme',
-  'challenge-v1.html?slug=adim-adim-yuruyus'
+  'challenge-v1.html?slug=ekipmansiz-temel',
+  'challenge-v1.html?slug=bin-tekrar'
 ]);
 
 let fail = 0; const bad = [];

@@ -17,12 +17,23 @@
 /* SAYFA CSS — CHALLENGE MERKEZİ (belge §8.4)
  Kabuk/banner/kart/çip/boş durum assets/css/fit-shell.css'te tek kaynakta. */
 .lib-top{--lib-img:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1680&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-16');--lib-pos:center 30%}
-.cm-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px 24px}
-.cm-panel .fgroup .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px}
+/* SÜZGEÇ · R16/1 — KABUĞUN ORTAK FİLTRE BİLEŞENİ (`.ff`).
+ ÖLÇÜLEN KUSUR (iki kez): panel önce dört etiketli satırdı, 15 çip ve
+ ~360 px yer kaplıyordu. Onu tek satıra indirdim ama BİR HATA YAPTIM:
+ paneli yeniden yazarken `ff` sınıfını ve `data-ff` sözleşmesini
+ düşürdüm. Oysa `egzersiz-kutuphane-v1`in ekranda görünen açılır
+ menülerini sayfa değil KABUK basıyor (`fit-shell.js` · ORTAK FİLTRE
+ BİLEŞENİ): sayfa yalnız `.fgroup[data-group]` + `.lbl` yazar, bileşen
+ onları facet düğmesine ve açılır panele çevirir, aktif çip şeridini ve
+ mobil çekmeceyi de kendisi kurar. Sözleşme düşünce challenge merkezi
+ çıplak çip yığını olarak kaldı — kit ikiye ayrıldı.
+ Panel artık sözleşmeye geri döndü; yerleşim kuralı YAZILMIYOR, kabuktan
+ geliyor. Sayfanın tek işi grupları katalogdan üretmek ve dolunca
+ `FIT_SHELL.filtreKur()` ile haber vermek. */
 .cm-count{margin:22px 0 18px;font-size:14px;font-weight:600;color:var(--muted)}
 .cm-count b{color:var(--slate);font-weight:800}
 @media (max-width:1024px){ .sec{padding:var(--sec-pad) 0} }
-@media (max-width:640px){ .cm-panel{padding:16px} .cm-panel .fgroup .lbl{min-width:100%} .sec{padding:var(--sec-pad) 0} }
+@media (max-width:640px){ .sec{padding:var(--sec-pad) 0} }
 
 /* ================= R8/32 · SECTION İÇİ KART TUTARSIZLIĞI =================
  ÖLÇÜM (düzeltmeden önce, iki genişlikte):
@@ -70,11 +81,10 @@
     <span class="eyebrow"><i class="fa-solid fa-trophy"></i> Programlar · Challenge</span>
     <h1>Kısa süreli, birlikte yapılan meydan okumalar</h1>
     <p class="lib-sub">Challenge ayrı bir ürün değil — süreli bir program türü. Katıldığın challenge Fit Planım'a işlenir, serin ve rozetin orada birikir.</p>
-    <div class="lib-stats">
-      <div class="lib-stat"><b>1</b><span>aktif</span></div>
-      <div class="lib-stat"><b>2</b><span>yaklaşan</span></div>
-      <div class="lib-stat"><b>7–30</b><span>günlük süre</span></div>
-    </div>
+    <!-- ÖLÇÜLEN KUSUR (R16/1): bu üç sayı SABİTTİ ve katalogla çelişiyordu —
+         ekranda "1 aktif · 2 yaklaşan" yazıyordu, katalogda 2 aktif · 1
+         yaklaşan vardı. Artık katalogdan sayılıyor. -->
+    <div class="lib-stats" id="cmStats"></div>
   </div>
 </section>
 
@@ -104,13 +114,13 @@
     </div>
     <div class="hm-gate-strip" id="cmNone" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:18px 22px">
       <p style="font-size:14px;font-weight:500;color:var(--slate-2);margin:0;max-width:64ch"><b>Henüz bir challenge'a katılmadın.</b> Aşağıdan birini seç; katıldığın anda ilerlemen Fit Planım'a işlenmeye başlar.</p>
-      <a class="btn btn-primary" href="challenge-v1.html"><i class="fa-solid fa-trophy"></i> Aktif challenge'ı gör</a>
+      <a class="btn btn-primary" href="#liste"><i class="fa-solid fa-trophy"></i> Challenge'ları gör</a>
     </div>
   </div>
 </section>
 
 <!-- ===== FİLTRE + LİSTE ===== -->
-<section class="sec sec-fit" style="background:var(--bg-cream)">
+<section class="sec sec-fit" id="liste" style="background:var(--bg-cream)">
   <div class="wrap">
     <div class="sec-head">
       <div>
@@ -121,73 +131,23 @@
       </div>
     </div>
 
-    <div class="cm-panel ff" data-ff data-ff-count=".cm-count" data-ff-clear="#cmReset">
-      <div class="fgroup" data-group="durum" role="group" aria-label="Durum seç">
-        <span class="lbl">Durum</span>
-        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="aktif"><i class="fa-solid fa-play"></i> Aktif</button>
-        <button class="df-fchip" type="button" data-val="yaklasan"><i class="fa-regular fa-clock"></i> Yaklaşan</button>
-        <button class="df-fchip" type="button" data-val="gecmis"><i class="fa-solid fa-check"></i> Tamamlanan</button>
-      </div>
-      <div class="fgroup" data-group="kategori" role="group" aria-label="Kategori seç">
-        <span class="lbl">Kategori</span>
-        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="aliskanlik"><i class="fa-solid fa-seedling"></i> Alışkanlık</button>
-        <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite</button>
-        <button class="df-fchip" type="button" data-val="kondisyon"><i class="fa-solid fa-heart-pulse"></i> Kondisyon</button>
-      </div>
-      <div class="fgroup" data-group="tip" role="group" aria-label="Tip seç">
-        <span class="lbl">Tip</span>
-        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="sureli"><i class="fa-solid fa-gauge-high"></i> Süreli hedef</button>
-        <button class="df-fchip" type="button" data-val="seri"><i class="fa-solid fa-list-ol"></i> Egzersiz serisi</button>
-        <button class="df-fchip" type="button" data-val="aliskanlik"><i class="fa-solid fa-seedling"></i> Alışkanlık</button>
-      </div>
-      <div class="fgroup" data-group="sure" role="group" aria-label="Süre seç">
-        <span class="lbl">Süre</span>
-        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
-        <button class="df-fchip" type="button" data-val="7">7 gün</button>
-        <button class="df-fchip" type="button" data-val="21">21 gün</button>
-        <button class="df-fchip" type="button" data-val="30">30 gün</button>
-      </div>
-    </div>
+    <!-- SÜZGEÇ · R16/1 — çip grupları KATALOGDAN basılır.
+         Eskiden dört grubun çipleri de elle yazılıydı: "Tamamlanan" diye bir
+         durum vardı ama katalogda o durum YOK, "mobilite" çipi ise kataloğun
+         kategorisi değişince sessizce boşa düşerdi. Süzgeç artık listelediği
+         şeyin kendisinden doğuyor; boş çip üretilemez. -->
+    <div class="cm-panel ff" id="cmPanel" data-ff
+         data-ff-count=".cm-count" data-ff-clear="#cmReset"></div>
 
-    <p class="cm-count"><b id="cmCount">3</b> challenge gösteriliyor </p>
+    <p class="cm-count"><b id="cmCount">0</b> challenge gösteriliyor</p>
 
-    <div class="hub-grid cols-3" id="cmGrid">
-      <a class="cc-card" href="challenge-v1.html?slug=hareket-aliskanligi" data-durum="aktif" data-kategori="aliskanlik" data-tip="aliskanlik" data-sure="30"
-         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <span class="cm-state"><i class="fa-solid fa-play"></i> Aktif</span>
-        <span class="cm-len">30 gün</span>
-        <div style="position:relative;z-index:2;padding:22px">
-          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">30 Günde Hareket Alışkanlığı</b>
-          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Her gün 10–15 dakika. Kaçırdığın gün seriyi sıfırlamaz; ayda iki telafi hakkın var.</p>
-          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Katıl ve başla <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-
-      <a class="cc-card" href="challenge-v1.html?slug=sabah-esneme" data-durum="yaklasan" data-kategori="mobilite" data-tip="seri" data-sure="7"
-         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <span class="cm-state wait"><i class="fa-regular fa-clock"></i> Yaklaşan</span>
-        <span class="cm-len">7 gün</span>
-        <div style="position:relative;z-index:2;padding:22px">
-          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">7 Gün Sabah Esneme Ritüeli</b>
-          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Bir haftalık kısa deneme. Güne yumuşak başlamak nasıl bir şeymiş, görmek için.</p>
-          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Hatırlat <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-
-      <a class="cc-card is-past" href="challenge-v1.html?slug=adim-adim-yuruyus" data-durum="gecmis" data-kategori="kondisyon" data-tip="sureli" data-sure="21"
-         style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14')">
-        <span class="cm-state done"><i class="fa-solid fa-check"></i> Tamamlandı</span>
-        <span class="cm-len">21 gün</span>
-        <div style="position:relative;z-index:2;padding:22px">
-          <b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">21 Gün Adım Adım Yürüyüş</b>
-          <p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">Her gün biraz daha uzun bir yürüyüş. Ekipman yok, salon yok — sadece dışarısı.</p>
-          <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:var(--fit-bright)">Rozeti gör <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-    </div>
+    <!-- LİSTE · R16/1 — üç SABİT kart kaldırıldı, katalogdan basılıyor.
+         Eski kartlar kataloğun ikinci kopyasıydı ve ölçüldü ki ÇELİŞİYORDU:
+         yürüyüş kartı "Tamamlandı" rozeti taşıyordu, katalog o challenge'a
+         `aktif` diyordu. Aynı soruya iki cevap. Kart artık tek kaynaktan
+         basılır ve KATIL DÜĞMESİ taşır — bu sayfadan katılmak mümkün değildi,
+         katılma yalnız Challenge'larım'dan yapılabiliyordu. -->
+    <div class="hub-grid cols-3" id="cmGrid"></div>
 
     <div class="lib-empty" id="cmEmpty">
       <span class="ico"><i class="fa-solid fa-trophy"></i></span>
@@ -250,77 +210,274 @@
 <!-- ROZET · PUAN — challenge bitince rozet buradan mühürlenir -->
 <script src="assets/js/fit-rozet.js"></script>
 <script>
-/* ===== CHALLENGE MERKEZİ — filtre + katılım durumu ===== */
+/* =====================================================================
+   CHALLENGE MERKEZİ   (R16/1)
+   ---------------------------------------------------------------------
+   ESKİ HÂL (ölçüldü, 2026-08-30): bu sayfa kataloğun İKİNCİ KOPYASIYDI.
+   Üç kart elle yazılmıştı, dört süzgeç grubunun çipleri elle yazılmıştı,
+   hero'daki üç sayı elle yazılmıştı. Üçü de kataloğa göre eskimişti:
+     · hero "1 aktif · 2 yaklaşan" diyordu — katalog 2 aktif · 1 yaklaşan
+     · yürüyüş kartı "Tamamlandı" rozeti taşıyordu — katalog `aktif` diyordu
+     · süzgeçte "Tamamlanan" çipi vardı — katalogda öyle bir durum yok
+   Ve en önemlisi: **katıl düğmesi yoktu**. Keşif yüzeyinden katılmak
+   mümkün değildi; kullanıcı önce Challenge'larım'a gitmek zorundaydı.
+
+   YENİ HÂL: sayfa hiçbir challenge bilgisi TAŞIMAZ, yalnız çizer. Kart,
+   çip, sayaç ve hero sayıları `FIT_CHALLENGE.KATALOG`tan doğar; katılım
+   durumu `ilerleme()`den okunur. Yeni bir challenge katalog dizisine bir
+   satır olarak eklenir ve bu sayfa onu kendiliğinden gösterir.
+   ===================================================================== */
 (function(){
-  var grid=document.getElementById('cmGrid');
-  var cards=Array.prototype.slice.call(grid.querySelectorAll('.cc-card'));
-  var count=document.getElementById('cmCount'), empty=document.getElementById('cmEmpty');
-  var sel={durum:new Set(),kategori:new Set(),tip:new Set(),sure:new Set()};
-  function apply(){
-    var n=0;
-    cards.forEach(function(c){
-      var ok=Object.keys(sel).every(function(g){
+  var C = window.FIT_CHALLENGE;
+  var grid  = document.getElementById('cmGrid');
+  var panel = document.getElementById('cmPanel');
+  var count = document.getElementById('cmCount');
+  var empty = document.getElementById('cmEmpty');
+  var stats = document.getElementById('cmStats');
+  if(!C || !grid || !panel) return;
+
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function n(x){ return Number(x||0).toLocaleString('tr-TR'); }
+
+  /* Hedefin tek cümlesi — tip başına ayrı, çünkü üç tip ayrı şey ölçer. */
+  function hedefMetni(k){
+    return k.tip==='sureli' ? n(k.hedef.deger)+' '+esc(k.hedef.ad)
+         : k.tip==='seri'   ? k.adimlar.length+' adım, sırayla'
+         : 'her gün işaretle';
+  }
+
+  /* ---------- süzgeç durumu ---------- */
+  var sel = {durum:new Set(), benim:new Set(), tip:new Set(), sure:new Set()};
+
+  /* Bir challenge'ın KULLANICIYA GÖRE durumu. Katalog durumu (aktif/yaklaşan)
+     challenge'ın kendi takvimidir; bu ise üyenin onunla ilişkisi. İkisi ayrı
+     eksen olduğu için ayrı süzgeç grubu — tek grupta birleştirilseydi
+     "aktif ama katılmadığım" seçilemezdi. */
+  function benimDurum(i){
+    if(!i.katildi) return 'yok';
+    if(i.durum==='tamamlandi') return 'tamamladim';
+    if(i.durum==='devam')      return 'katildim';
+    return 'biraktim';
+  }
+
+  var BENIM_AD = {katildim:'Katıldıklarım', tamamladim:'Tamamladıklarım',
+                  biraktim:'Bıraktıklarım', yok:'Katılmadıklarım'};
+  var BENIM_IKO= {katildim:'fa-solid fa-person-running', tamamladim:'fa-solid fa-check',
+                  biraktim:'fa-solid fa-circle-half-stroke', yok:'fa-regular fa-circle'};
+  var DURUM_AD = {aktif:'Aktif', yaklasan:'Yaklaşan', gecmis:'Geçmiş'};
+  var DURUM_IKO= {aktif:'fa-solid fa-play', yaklasan:'fa-regular fa-clock', gecmis:'fa-solid fa-flag-checkered'};
+
+  /* ---------- süzgeç panelini KATALOGDAN kur ----------
+     Boş çip üretilemez: her çip, o değeri gerçekten taşıyan en az bir
+     challenge olduğu için vardır. */
+  function panelKur(){
+    var K = C.KATALOG;
+    function benzersiz(f){
+      var g=[]; K.forEach(function(k){ var v=f(k); if(v!=null && g.indexOf(v)<0) g.push(v); }); return g;
+    }
+    var gruplar = [
+      { anahtar:'tip', ad:'Tip',
+        secenek: benzersiz(function(k){return k.tip;}).map(function(v){
+          return {val:v, ad:C.TIP[v].etiket, iko:C.TIP[v].ikon}; }) },
+      { anahtar:'benim', ad:'Benim',
+        secenek: ['katildim','tamamladim','yok'].map(function(v){
+          return {val:v, ad:BENIM_AD[v], iko:BENIM_IKO[v]}; }) },
+      { anahtar:'durum', ad:'Durum',
+        secenek: benzersiz(function(k){return k.durum;}).map(function(v){
+          return {val:v, ad:DURUM_AD[v]||v, iko:DURUM_IKO[v]||'fa-solid fa-circle'}; }) }
+    ];
+    /* SÜRE EKSENİ KATALOĞA GÖRE DOĞAR.
+       Üç challenge varken süreler 7 · 21 · 30 idi: her çip tam bir kartı
+       süzüyordu, yani süzgeç değil ikinci bir kart listesiydi. Süre zaten
+       her kartın olgu satırında yazılı. Katalog sekizi geçince eksen
+       kendiliğinden geri gelir — panel, süzdüğü listeye göre büyür. */
+    var sureler = benzersiz(function(k){return k.gun;});
+    if (K.length >= 8 && sureler.length >= 2) {
+      gruplar.push({ anahtar:'sure', ad:'Süre',
+        secenek: sureler.sort(function(a,b){return a-b;}).map(function(v){
+          return {val:String(v), ad:v+' gün', iko:null}; }) });
+    }
+
+    /* Grup başına "Tümü" çipi GERİ GELDİ. Bir önceki turda "seçim yoksa
+       zaten tümü" diye kaldırmıştım; kabuğun bileşeni onu bir SÖZLEŞME
+       olarak okuyor (`isAll(chip)` → `data-val="all"`) ve açılır panelin
+       içinde o facet'i tek dokunuşla temizlemenin yolu odur. Kütüphane
+       sayfası da aynısını yazıyor; iki yüzey aynı kalıbı paylaşır. */
+    panel.innerHTML = gruplar.map(function(g){
+      return '<div class="fgroup" data-group="'+g.anahtar+'" role="group" aria-label="'+esc(g.ad)+' filtresi">'+
+        '<span class="lbl">'+esc(g.ad)+'</span>'+
+        '<button class="df-fchip on" type="button" data-val="all">Tümü</button>'+
+        g.secenek.map(function(o){
+          return '<button class="df-fchip" type="button" data-val="'+esc(o.val)+'">'+
+                 (o.iko?'<i class="'+o.iko+'"></i> ':'')+esc(o.ad)+'</button>';
+        }).join('')+'</div>';
+    }).join('');
+
+    /* Panel VERİDEN doldu; kabuğun filtre bileşeni betik yüklenirken bir
+       kez tarama yaptığı için burayı görememişti. Doldurduğumuzu söylüyoruz;
+       açılır menüleri, aktif çip şeridini ve mobil çekmeceyi o kuruyor. */
+    if(window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(panel);
+  }
+
+  /* ---------- kart ----------
+     Kart bir <div>; başlık bağlantısı ve KATIL düğmesi ayrı hedeflerdir.
+     Kartın tamamı bağlantı olsaydı düğme onun içinde kalırdı — kabuğun
+     `.kyt-btn` deseninde çözülen aynı iç içe etkileşim kusuru. */
+  function kart(k){
+    var i = C.ilerleme(k.slug);
+    var t = C.TIP[k.tip];
+    var b = benimDurum(i);
+    var rozet = b==='tamamladim'
+        ? '<span class="cm-state done"><i class="fa-solid fa-check"></i> Tamamladın</span>'
+      : b==='katildim'
+        ? '<span class="cm-state"><i class="fa-solid fa-person-running"></i> Katıldın</span>'
+      : k.durum==='yaklasan'
+        ? '<span class="cm-state wait"><i class="fa-regular fa-clock"></i> Yaklaşan</span>'
+        : '<span class="cm-state"><i class="fa-solid fa-play"></i> Aktif</span>';
+
+    /* Katıldıysan kart senin ilerlemeni gösterir, tanıtımını değil. */
+    var govde = (b==='katildim' || b==='tamamladim')
+      ? '<div class="fp-bar" style="margin-top:10px"><span style="width:'+i.oran+'%"></span></div>'+
+        '<p style="font-size:12.5px;color:var(--fit-bright);font-weight:700;margin-top:8px">'+
+          (k.tip==='sureli' ? n(i.biriken)+' / '+n(i.hedef)+' '+esc(i.birimAd)
+         : k.tip==='seri'   ? i.biriken+' / '+i.hedef+' adım kapandı'
+         : i.biriken+' / '+i.hedef+' gün · '+i.seri+' gün üst üste')+
+        ' · %'+i.oran+'</p>'
+      : '<p style="font-size:12.5px;color:var(--fit-bright);font-weight:700;margin-top:8px">'+
+          esc(hedefMetni(k))+' · '+k.gun+' gün · +'+k.odul.puan+' puan</p>';
+
+    var eylem = b==='katildim'
+      ? '<a class="btn btn-primary" href="challenge-v1.html?slug='+esc(k.slug)+'"><i class="fa-solid fa-play"></i> Devam et</a>'
+      : b==='tamamladim'
+        ? '<button class="btn btn-primary" type="button" data-katil="'+esc(k.slug)+'"><i class="fa-solid fa-rotate-right"></i> Yeniden başla</button>'
+        : '<button class="btn btn-primary" type="button" data-katil="'+esc(k.slug)+'"><i class="fa-solid fa-plus"></i> Katıl ve başla</button>';
+
+    return '<div class="cc-card'+(b==='tamamladim'?' is-past':'')+'"'+
+      ' data-durum="'+esc(k.durum)+'" data-benim="'+b+'" data-tip="'+esc(k.tip)+'" data-sure="'+k.gun+'"'+
+      ' style="min-height:300px;background-image:url(\''+esc(k.gorsel)+'\')">'+
+      /* İKİ KÖŞE, İKİ EKSEN: solda üyenin bu challenge'la ilişkisi, sağda
+         challenge'ın TİPİ — süzgecin de ayırdığı iki şey. Süre köşeden
+         indi, çünkü aşağıdaki olgu satırında zaten hedefin yanında duruyor
+         ve orada anlamı var ("7 adım · 7 gün"), köşede yalnız bir sayıydı.
+         Tip için `.pstat` denendi ve ÖLÇÜLDÜ: sınıfın taban kuralında zemin
+         YOK (zemin `.ok/.wait/.off` durum ekleriyle geliyor), fotoğrafın
+         üstünde zemin​siz bir nokta+metin oluyordu. `.cm-len` bu kartın kendi
+         koyu saydam rozetidir; yeni sınıf üretmedik, doğru olanı kullandık. */
+      rozet+'<span class="cm-len"><i class="'+t.ikon+'"></i> '+esc(t.etiket)+'</span>'+
+      '<div style="position:relative;z-index:2;padding:22px">'+
+        '<b style="display:block;font-size:19px;color:#fff;margin:0 0 6px">'+esc(k.ad)+'</b>'+
+        '<p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">'+esc(k.ozet)+'</p>'+
+        govde+
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">'+
+          eylem+
+          '<a class="btn btn-ghost" href="challenge-v1.html?slug='+esc(k.slug)+'">İncele</a>'+
+        '</div>'+
+      '</div></div>';
+  }
+
+  /* ---------- süzme ---------- */
+  function uygula(){
+    var kartlar = Array.prototype.slice.call(grid.querySelectorAll('.cc-card'));
+    var say=0;
+    kartlar.forEach(function(c){
+      var ok = Object.keys(sel).every(function(g){
         return !sel[g].size || sel[g].has(c.getAttribute('data-'+g));
       });
-      c.style.display=ok?'':'none'; if(ok)n++;
+      c.style.display = ok?'':'none'; if(ok) say++;
     });
-    count.textContent=n;
-    empty.classList.toggle('show',n===0);
-    grid.style.display=n===0?'none':'';
-    var qs=[]; Object.keys(sel).forEach(function(g){ if(sel[g].size)qs.push(g+'='+Array.from(sel[g]).join(',')); });
+    count.textContent = say;
+    if(empty) empty.classList.toggle('show', say===0);
+    grid.style.display = say===0?'none':'';
+    var qs=[]; Object.keys(sel).forEach(function(g){ if(sel[g].size) qs.push(g+'='+Array.from(sel[g]).join(',')); });
     history.replaceState(null,'',location.pathname+(qs.length?'?'+qs.join('&'):''));
   }
-  document.querySelectorAll('.cm-panel .fgroup[data-group]').forEach(function(g){
-    var group=g.getAttribute('data-group');
-    g.querySelectorAll('.df-fchip').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        var val=btn.getAttribute('data-val');
-        if(val==='all'){ sel[group].clear(); g.querySelectorAll('.df-fchip').forEach(function(x){x.classList.toggle('on',x===btn);}); }
-        else{
-          if(sel[group].has(val)){sel[group].delete(val);btn.classList.remove('on');}
-          else{sel[group].add(val);btn.classList.add('on');}
-          var all=g.querySelector('.df-fchip[data-val="all"]');
-          if(all)all.classList.toggle('on',sel[group].size===0);
-        }
-        apply();
+
+  function cipBagla(){
+    panel.querySelectorAll('.fgroup[data-group]').forEach(function(g){
+      var grup=g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var val=btn.getAttribute('data-val');
+          if(val==='all'){
+            sel[grup].clear();
+            g.querySelectorAll('.df-fchip').forEach(function(x){ x.classList.toggle('on', x===btn); });
+          } else {
+            var acik = !sel[grup].has(val);
+            if(acik) sel[grup].add(val); else sel[grup].delete(val);
+            btn.classList.toggle('on', acik);
+            var all=g.querySelector('.df-fchip[data-val="all"]');
+            if(all) all.classList.toggle('on', sel[grup].size===0);
+          }
+          uygula();
+        });
       });
     });
-  });
-  document.getElementById('cmReset').addEventListener('click',function(){
-    Object.keys(sel).forEach(function(g){sel[g].clear();});
-    document.querySelectorAll('.cm-panel .df-fchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-val')==='all');});
-    apply();
-  });
-  (function deep(){
+  }
+
+  /* Süzgeci sıfırla — hem şeritteki çip hem boş durumdaki düğme burayı çağırır;
+     iki ayrı sıfırlama mantığı yazmak ikisinin ayrışması demekti. */
+  function sifirlaSuzgec(){
+    Object.keys(sel).forEach(function(g){ sel[g].clear(); });
+    panel.querySelectorAll('.df-fchip').forEach(function(c){
+      c.classList.toggle('on', c.getAttribute('data-val')==='all');
+    });
+    uygula();
+  }
+
+  function derin(){
     var p=new URLSearchParams(location.search);
     Object.keys(sel).forEach(function(g){
-      var raw=p.get(g); if(!raw)return;
-      raw.split(',').forEach(function(v){
-        var b=document.querySelector('.cm-panel .fgroup[data-group="'+g+'"] .df-fchip[data-val="'+v+'"]');
-        if(b){sel[g].add(v);b.classList.add('on');}
+      var ham=p.get(g); if(!ham) return;
+      ham.split(',').forEach(function(v){
+        var b=panel.querySelector('.fgroup[data-group="'+g+'"] .df-fchip[data-val="'+v+'"]');
+        if(b){ sel[g].add(v); b.classList.add('on'); }
       });
-      var all=document.querySelector('.cm-panel .fgroup[data-group="'+g+'"] .df-fchip[data-val="all"]');
-      if(all&&sel[g].size)all.classList.remove('on');
+      var all=panel.querySelector('.fgroup[data-group="'+g+'"] .df-fchip[data-val="all"]');
+      if(all && sel[g].size) all.classList.remove('on');
     });
-  })();
-  apply();
+  }
 
-  /* ---------- KATILDIĞIN CHALLENGE — motordan okunur (R15/5) ----------
-     Eskiden `FIT_SHELL.state.challenge` tek nesnesinden okunuyordu ve tek
-     bir "gün / toplam" cümlesi basıyordu. Üç tip aynı cümleyi paylaşamaz:
-     süreli hedef kilometre sayar, seri adım sayar, alışkanlık gün sayar.
-     Ölçü satırı artık tipe göre kuruluyor. */
-  var C = window.FIT_CHALLENGE;
-  function n(x){ return Number(x||0).toLocaleString('tr-TR'); }
-  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  /* ---------- hero sayıları — katalogdan sayılır ---------- */
+  function statBas(){
+    if(!stats) return;
+    var K=C.KATALOG;
+    var aktif=K.filter(function(k){return k.durum==='aktif';}).length;
+    var yak  =K.filter(function(k){return k.durum==='yaklasan';}).length;
+    var gunler=K.map(function(k){return k.gun;});
+    var katildim=K.filter(function(k){ var i=C.ilerleme(k.slug); return i.katildi && i.durum==='devam'; }).length;
+    var hucre=[[aktif,'aktif'],[yak,'yaklaşan'],
+               [Math.min.apply(null,gunler)+'–'+Math.max.apply(null,gunler),'günlük süre']];
+    if(katildim) hucre.push([katildim,'katıldığın']);
+    stats.innerHTML = hucre.map(function(h){
+      return '<div class="lib-stat"><b>'+h[0]+'</b><span>'+h[1]+'</span></div>';
+    }).join('');
+  }
 
+  /* ---------- katılma ---------- */
+  grid.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-katil]');
+    if(!b) return;
+    C.katil(b.getAttribute('data-katil'));       /* fit-challenge-degisti → boya() */
+  });
+
+  var kuruldu=false;
+  function boya(){
+    grid.innerHTML = C.KATALOG.map(kart).join('');
+    if(!kuruldu){ panelKur(); cipBagla(); derin(); kuruldu=true; }
+    statBas();
+    uygula();
+    paintMine();
+  }
+
+  /* ---------- KATILDIĞIN CHALLENGE (üst kart) — motordan okunur ----------
+     Üç tip aynı cümleyi paylaşamaz: süreli hedef sayısal ölçü sayar, seri
+     adım sayar, alışkanlık gün sayar. Ölçü satırı tipe göre kurulur. */
   function paintMine(){
-    if(!C) return;
     var devam = C.ozet().devam;
-    var mine = devam.length > 0;
-    document.getElementById('cmMine').hidden = !mine;
-    document.getElementById('cmNone').hidden = !!mine;
-    if(!mine) return;
+    var var_ = devam.length > 0;
+    document.getElementById('cmMine').hidden = !var_;
+    document.getElementById('cmNone').hidden = !!var_;
+    if(!var_) return;
 
     var x = devam[0], k = x.katalog, i = x.ilerleme, t = C.TIP[k.tip];
     document.getElementById('cmName').textContent = k.ad;
@@ -344,7 +501,11 @@
       ? 'Süre doldu. Hedefe ulaşmadın ama kazandığın rozetler sende kaldı.'
       : t.aciklama + ' ' + t.kanit;
   }
-  if(C) C.dinle(paintMine); else paintMine();
+
+  var sifirla = document.getElementById('cmReset');
+  if(sifirla) sifirla.addEventListener('click', sifirlaSuzgec);
+
+  C.dinle(boya);
 })();
 </script>
 </body>

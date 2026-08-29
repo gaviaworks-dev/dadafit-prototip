@@ -703,9 +703,13 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
   <div class="wrap">
     <div class="sec-head sec-fit">
       <div>
+        <!-- R16/1 · BAŞLIK TİPE GÖRE. Üç tip aynı şeyi ölçmüyor: alışkanlık
+             gün sayar, seri adım sayar, süreli hedef sayı biriktirir. Sabit
+             "her gün bir kutu" başlığı yedi adımlık bir serinin üstünde
+             yanlış şeyi anlatıyordu. -->
         <span class="eyebrow"><i class="fa-solid fa-calendar-days"></i> <span data-ch="takvimBaslik">Takvim</span></span>
-        <h2>Her gün bir kutu — kaldığın yerden devam</h2>
-        <p class="lead">Kayıt düşen günler yeşile döner, bugün vurgulu. Boş bir kutu iddia taşımaz — o gün bir kayıt olmadığı anlamına gelir, başka bir şey değil.</p>
+        <h2 data-ch="izlekBaslik">Her gün bir kutu — kaldığın yerden devam</h2>
+        <p class="lead" data-ch="izlekLead">Kayıt düşen günler yeşile döner, bugün vurgulu. Boş bir kutu iddia taşımaz — o gün bir kayıt olmadığı anlamına gelir, başka bir şey değil.</p>
       </div>
     </div>
 
@@ -720,19 +724,31 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
         <div class="track-bar"><i style="width:0%"></i></div>
       </div>
 
-      <!-- tam-genişlik daygrid -->
-      <div class="track-grid-wrap">
+      <!-- tam-genişlik daygrid — ALIŞKANLIK ve SÜRELİ tiplerde -->
+      <div class="track-grid-wrap" id="trackGridWrap">
         <!-- Otuz kutu SABİT HTML'di ve hiçbir veriye bağlı değildi (yedi
              "done", üç "rest", biri "today"). Artık motor dolduruyor. -->
         <div class="track-grid" id="trackGrid"></div>
       </div>
 
+      <!-- ADIM LİSTESİ — YALNIZ EGZERSİZ SERİSİ tipinde (R16/1).
+           Bu tipte gün kutusu YANLIŞ bileşendi: seri günleri değil ADIMLARI
+           sayar ve adımlar sıralıdır. Yedi adımlık bir seride yedi gün kutusu
+           çizmek iki farklı sayıyı tesadüfen aynı gösteriyordu. Liste kabuğun
+           kendi `.fp-list`/`.fp-row` bileşenidir — yeni sınıf üretilmedi. -->
+      <div id="trackSteps" hidden></div>
+
       <!-- legend + bugünün hareketi CTA -->
-      <div class="track-legend">
+      <div class="track-legend" id="trackLegend">
         <span class="tl-item"><span class="tl-swatch done"></span> Tamamlandı</span>
         <span class="tl-item"><span class="tl-swatch today"></span> Bugün</span>
         <span class="tl-item"><span class="tl-swatch todo"></span> Gelecek gün</span>
-        <span class="track-cta"><a class="btn btn-fit" href="challengelarim-v1.html"><i class="fa-solid fa-trophy"></i> Challenge'larım</a></span>
+        <!-- R16/1 · EYLEM TAKVİMİN YANINA GELDİ.
+             ÖLÇÜLEN KUSUR: sayfanın tek katılma düğmesi hero'daydı, alışkanlık
+             tipinin "bugünü işaretle" düğmesi de öyle. Takvime inen kullanıcı
+             otuz kutuya bakıyor ve yapabileceği hiçbir şey görmüyordu; geri
+             yukarı kaydırması gerektiğini söyleyen bir şey de yoktu. -->
+        <span class="track-cta" id="trackCta"></span>
       </div>
     </div>
   </div>
@@ -1051,7 +1067,20 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
     set('toplam', K.gun + ' gün');
     /* Uydurma katılımcı sayısı yerine tutulabilir bir sayı: challenge'ın ödülü. */
     set('katilimci', '+' + K.odul.puan);
-    set('takvimBaslik', K.gun + ' Günlük Takvim');
+    /* İzleğin adı ve cümlesi TİPE GÖRE — üçü aynı şeyi ölçmüyor. */
+    if(K.tip === 'seri'){
+      set('takvimBaslik', K.adimlar.length + ' Adımlık Seri');
+      set('izlekBaslik', 'Adım adım — biri kapanmadan sonraki açılmaz');
+      set('izlekLead', 'Her adım, o hareketin kendi sayfasında bitirdiğin antrenmanla kapanır. Sıradaki adımın düğmesi seni doğrudan oraya götürür; kilitli adımlar iddia taşımaz, sadece henüz sıraları gelmemiştir.');
+    } else if(K.tip === 'sureli'){
+      set('takvimBaslik', K.gun + ' Günlük Pencere');
+      set('izlekBaslik', 'Biriken hedef — her kayıt üstüne koyar');
+      set('izlekLead', 'Çubuk hedefe ne kadar yaklaştığını, kutular hangi günlerde kayıt düştüğünü gösterir. Boş bir kutu iddia taşımaz — o gün bir kayıt olmadığı anlamına gelir.');
+    } else {
+      set('takvimBaslik', K.gun + ' Günlük Takvim');
+      set('izlekBaslik', 'Her gün bir kutu — kaldığın yerden devam');
+      set('izlekLead', 'Kayıt düşen günler yeşile döner, bugün vurgulu. Boş bir kutu iddia taşımaz — o gün bir kayıt olmadığı anlamına gelir, başka bir şey değil.');
+    }
     set('kanit', esc(T.kanit) + ' Bitirince <b>+' + K.odul.puan + ' puan</b> ve rozet.');
     set('durum', i.katildi
       ? (i.durum==='tamamlandi' ? 'Tamamladın' : i.suresiDoldu ? 'Süre doldu' : 'Katıldın')
@@ -1198,9 +1227,64 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
      Eskiden otuz kutunun hepsi sabit HTML'di (yedi "done", üç "rest", biri
      "today") ve hiçbir veriye bağlı değildi. Artık her kutu challenge
      penceresindeki gerçek kayda bakar. */
+  /* ---- ADIM LİSTESİ (yalnız `seri`) ----
+     Kabuğun `.fp-card > .fp-list > .fp-row` bileşeni; yeni sınıf yok.
+     Üç durum üç ikon: kapandı (check) · sırada (bolt) · kilitli (lock).
+     Bağlantı YALNIZ sıradaki adımda var — kilitli bir adımın sayfasına
+     götüren düğme, kapanmayacak bir işi davet etmek olurdu. */
+  function adimBas(i){
+    var kok = document.getElementById('trackSteps');
+    if(!kok) return;
+    var siradakiIx = -1;
+    i.adimlar.forEach(function(a, ix){ if(siradakiIx < 0 && !a.tamam) siradakiIx = ix; });
+
+    kok.innerHTML = '<div class="fp-card"><div class="fp-list">' +
+      i.adimlar.map(function(a, ix){
+        var kapali  = a.tamam;
+        var sirada  = (ix === siradakiIx) && i.katildi && i.durum === 'devam';
+        var ico = kapali ? 'fa-solid fa-check' : sirada ? 'fa-solid fa-bolt' : 'fa-solid fa-lock';
+        /* HİYERARŞİ: `.fp-row .ico` kabukta HER satıra aynı yeşil yıkamayı
+           veriyor. Yedi satırın beşi kilitliyken beş yeşil kutu, tek
+           eyleme açık satırdan daha çok yer kaplıyor ve göz nereye bakacağını
+           bulamıyordu. Kilitli satır nötre alındı — yeni renk üretilmedi,
+           kitin kendi `--line` / `--muted` tokenleri kullanıldı. */
+        var icoStil = (kapali || sirada) ? '' : ' style="background:var(--line);color:var(--muted)"';
+        var alt = kapali ? ('Kapandı · ' + tarih(a.tarih))
+                : sirada ? 'Sırada — bu hareketin antrenmanını bitir, adım kendiliğinden kapanır'
+                : i.katildi ? ('Önceki ' + (ix - (siradakiIx < 0 ? ix : siradakiIx)) + ' adım kapanınca açılır')
+                : 'Katıldığında ' + (ix + 1) + '. sırada açılır';
+        var uc = kapali
+          ? '<span class="fp-badge ok"><i class="fa-solid fa-check"></i> Kapandı</span>'
+          : sirada
+            ? '<a class="btn btn-primary" href="egzersiz-detay-v1.html?slug=' + esc(a.slug) + '"><i class="fa-solid fa-play"></i> Aç</a>'
+            : '<span class="fp-badge off"><i class="fa-solid fa-lock"></i> Kilitli</span>';
+        return '<div class="fp-row">' +
+          '<span class="ico"' + icoStil + '><i class="' + ico + '"></i></span>' +
+          '<span class="txt"><b>' + (ix + 1) + '. ' + esc(a.ad) + '</b><small>' + esc(alt) + '</small></span>' +
+          '<span class="end">' + uc + '</span></div>';
+      }).join('') + '</div></div>';
+  }
+
   function takvimBas(i){
     var grid = document.getElementById('trackGrid');
     if(!grid) return;
+
+    /* Hangi izlek gösterilecek: seri ADIM listesi, diğer ikisi GÜN takvimi.
+       Aynı anda ikisi birden basılsaydı sayfa aynı ilerlemeyi iki kez
+       çizerdi — bu depoda üç kez temizlenen kusurun tam kendisi. */
+    var seriMi = (K.tip === 'seri');
+    var sarmal = document.getElementById('trackGridWrap');
+    var adimKok = document.getElementById('trackSteps');
+    var efsane = document.getElementById('trackLegend');
+    if(sarmal)  sarmal.hidden  = seriMi;
+    if(adimKok) adimKok.hidden = !seriMi;
+    /* Efsane (Tamamlandı · Bugün · Gelecek gün) YALNIZ okunacak bir takvim
+       varken anlamlı. Seri tipinde takvim yok; katılmadan önce de takvim
+       kimsenin günlerini göstermiyor — o hâlde üç renk açıklaması, olmayan
+       bir duruma anahtar veriyor ve boş kutuları canlıymış gibi gösteriyordu.
+       Eylem düğmesi (`.track-cta`) her hâlde kalır. */
+    if(efsane)  efsane.querySelectorAll('.tl-item').forEach(function(x){ x.hidden = seriMi || !i.katildi; });
+    if(seriMi){ adimBas(i); }
     var isaretli = {};
     (i.gunler || []).forEach(function(g){ isaretli[g] = 1; });
     var bas = i.katildi ? new Date(i.baslangic) : null;
@@ -1221,7 +1305,40 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
     }
     grid.innerHTML = html;
 
+    /* KATILMADAN ÖNCE: sıfır dolu bir gösterge paneli basma.
+       ÖLÇÜLEN KUSUR: katılmamış bir ziyaretçi "0/30 gün · 0 gün seri ·
+       2/2 telafi · 30 gün kalan" ve %0'lık bir çubuk görüyordu. Dördü de
+       teknik olarak doğruydu ama ekran, challenge'ın ORTASINDAymış gibi
+       okunuyordu: sıfırlar bir başarısızlık gibi duruyor, otuz boş kutu
+       tıklanabilir sanılıyor ve sayfanın ne istediği hiçbir yerde
+       yazmıyordu. Katılmadan önce ölçülecek bir ilerleme YOK; o yüzden
+       aynı bileşen ilerlemeyi değil KURALI gösterir — ne sayılır, ne
+       sayılmaz, ne kadar sürer, karşılığında ne var. */
+    var bar = document.getElementById('trackBar');
+    if(bar) bar.hidden = !i.katildi;
+
     var ozet = document.getElementById('trackSummary');
+    if(ozet && !i.katildi){
+      var kural = [
+        ['fa-solid fa-hourglass-half','Süre', K.gun, 'gün', 'Katıldığın gün başlar'],
+        /* ⚠ Alışkanlıkta bu hücre `K.gun` basıyordu ve soldaki SÜRE hücresiyle
+           AYNI sayıyı tekrarlıyordu ("30 gün" · "30 gün"). Alışkanlığın hedefi
+           bir sayı değil bir davranıştır; hücre onu söyler. */
+        [T.ikon,'Hedef',
+          (K.tip==='sureli' ? n(K.hedef.deger) : K.tip==='seri' ? K.adimlar.length : 'Her gün'),
+          (K.tip==='sureli' ? ' '+esc(K.hedef.ad) : K.tip==='seri' ? ' adım' : ' işaretle'), T.etiket],
+        ['fa-solid fa-shield-halved','Ne sayılır', K.tip==='aliskanlik' ? 'Beyan' : 'Ölçülmüş', 'kayıt', T.kanit],
+        ['fa-solid fa-medal','Ödül', '+'+K.odul.puan, 'puan', 've challenge rozeti']
+      ];
+      ozet.innerHTML = kural.map(function(x){
+        return '<div class="ts-cell"><span class="lbl"><i class="'+x[0]+'"></i> '+esc(x[1])+'</span>'+
+               '<b>'+esc(String(x[2]))+'<small>'+esc(x[3])+'</small></b><div class="note">'+esc(x[4])+'</div></div>';
+      }).join('');
+      ctaSeridi(i);
+      return;
+    }
+    ctaSeridi(i);
+
     if(ozet){
       var m = K.tip==='sureli'
         ? [['fa-solid fa-route','Biriken', n(i.biriken), '/'+n(i.hedef)+' '+i.birimAd, 'Yalnız ölçülmüş ve cihaz kaydı'],
@@ -1243,12 +1360,46 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
       }).join('');
     }
 
-    var bar = document.getElementById('trackBar');
     if(bar){
       bar.querySelector('.track-bar-top b').textContent = '%'+i.oran;
       bar.querySelector('.track-bar i').style.width = i.oran+'%';
     }
   }
+
+  /* ---- takvimin yanındaki tek eylem ----
+     Üç hâl, tek düğme: katılmadıysan KATIL, alışkanlıkta günü İŞARETLE,
+     diğer tiplerde sıradaki işi AÇ. İkinci bir düğme koymadık; hero'daki
+     düğmelerle aynı işi yapan bir kopya, "aynı soruya iki cevap"ın
+     etkileşim hâli olurdu. Bu şerit hero'nun kopyası değil, hero'nun
+     ekranda görünmediği yerdeki tek karşılığıdır. */
+  function ctaSeridi(i){
+    var kok = document.getElementById('trackCta'); if(!kok) return;
+    if(!i.katildi || i.durum === 'birakildi'){
+      kok.innerHTML = '<button class="btn btn-fit" type="button" data-ch-katil="1">' +
+        '<i class="fa-solid fa-plus"></i> Challenge\'a Katıl</button>';
+    } else if(i.durum === 'devam' && K.tip === 'aliskanlik'){
+      kok.innerHTML = '<button class="btn btn-fit" type="button" data-ch-isaretle="1"' +
+        (i.bugunIsaretli ? ' disabled' : '') + '><i class="fa-solid fa-check"></i> ' +
+        (i.bugunIsaretli ? 'Bugün işaretlendi' : 'Bugünü işaretle') + '</button>';
+    } else if(i.durum === 'devam' && K.tip === 'seri' && i.siradaki){
+      kok.innerHTML = '<a class="btn btn-fit" href="egzersiz-detay-v1.html?slug=' + esc(i.siradaki.slug) + '">' +
+        '<i class="fa-solid fa-play"></i> Sıradaki: ' + esc(i.siradaki.ad) + '</a>';
+    } else if(i.durum === 'devam' && K.tip === 'sureli'){
+      kok.innerHTML = '<a class="btn btn-fit" href="egzersiz-kutuphane-v1.html">' +
+        '<i class="fa-solid fa-dumbbell"></i> Antrenman yap</a>';
+    } else {
+      kok.innerHTML = '<a class="btn btn-fit" href="rozetlerim-v1.html">' +
+        '<i class="fa-solid fa-medal"></i> Rozetini gör</a>';
+    }
+  }
+
+  /* Takvim şeridindeki düğmeler hero'daki düğmelerle AYNI motor uçlarına
+     bağlanır; ikinci bir katılma/işaretleme yolu açılmadı. */
+  document.addEventListener('click', function(e){
+    if(!e.target.closest) return;
+    if(e.target.closest('[data-ch-katil]'))    { C.katil(slug); return; }
+    if(e.target.closest('[data-ch-isaretle]')) { C.isaretle(slug); return; }
+  });
 
   join.addEventListener('click', function(){ C.katil(slug); });
   day.addEventListener('click', function(){ C.isaretle(slug); });

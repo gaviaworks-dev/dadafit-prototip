@@ -89,6 +89,11 @@
   /* ==================================================================
      KATALOG — prototipte tek veri dizisi, ileride admin panelinden.
      Slug'lar diskteki gerçek sayfalarla eşleşir; uydurma yok.
+     ⚠ R16/1'de bu söz ÖLÇÜLDÜ ve tutmuyordu: seri adımlarının yedi slug'ının
+     hiçbiri egzersiz kataloğunda yoktu (25 gerçek slug'a karşı 0 eşleşme).
+     Adımlar gerçek hareketlere çekildi; söz artık ölçülebilir.
+     Bu diziyi DEĞİŞTİREN, slug'ı taşıyan sayfaları da değiştirir:
+     programini-bul-v1 · programlar-merkezi-v1 · tests/wizard-page.mjs.
      ================================================================== */
   var KATALOG = [
     {
@@ -105,36 +110,46 @@
       gorsel: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12'
     },
     {
-      slug: 'sabah-esneme', tip: 'seri',
-      ad: '7 Gün Sabah Esneme Ritüeli', gun: 7,
-      kategori: 'mobilite', kategoriAd: 'Mobilite', durum: 'yaklasan',
-      baslik: '7 günde <em>sabah esneme ritüeli</em>', gunlukSure: '8–10 dk',
+      slug: 'ekipmansiz-temel', tip: 'seri',
+      ad: '7 Gün Ekipmansız Temel Seri', gun: 7,
+      kategori: 'kuvvet', kategoriAd: 'Temel kuvvet', durum: 'yaklasan',
+      baslik: '7 günde <em>ekipmansız temel seri</em>', gunlukSure: '8–10 dk',
       donem: 'Egzersiz serisi challenge’ı',
-      uzunOzet: 'Yedi esneme, sırayla. Her adım o esnemenin kaydıyla kapanır; birini bitirmeden sonraki açılmaz. Güne yumuşak başlamanın nasıl bir şey olduğunu görmek için iyi bir başlangıç.',
-      ozet: 'Bir haftalık kısa deneme. Yedi esneme sırayla açılır; birini bitirmeden sonraki başlamaz.',
+      uzunOzet: 'Yedi temel hareket, sırayla. Hiçbirinde ekipman yok. Her adım o hareketin kendi sayfasında, gerçek bir antrenman kaydıyla kapanır; birini bitirmeden sonraki açılmaz. Aktivasyonla başlar, kuvvetle devam eder, core ile biter.',
+      ozet: 'Yedi ekipmansız hareket, sırayla. Her adım o hareketin kaydıyla kapanır; birini bitirmeden sonraki başlamaz.',
+      /* Adım slug’ları `egzersiz-detay-v1.html` kataloğundaki GERÇEK
+         kayıtlardır — tıklanır, açılır, yapılır, kapanır.
+         ⚠ Önceki sürümde yedi esneme slug’ı vardı ve ÖLÇÜLDÜ: 25 gerçek
+         egzersiz slug’ına karşı 0 eşleşme. Yani bu tip UI’dan HİÇ ilerleyemiyordu;
+         adımı kapatacak bir sayfa yoktu. Sıra: aktivasyon → bacak → üst → core. */
       adimlar: [
-        { slug: 'boyun-esnetme',      ad: 'Boyun esnetme' },
-        { slug: 'omuz-cevirme',       ad: 'Omuz çevirme' },
-        { slug: 'kedi-deve',          ad: 'Kedi–deve' },
-        { slug: 'kalca-fleksor-esnetme', ad: 'Kalça fleksör esnetme' },
-        { slug: 'hamstring-esnetme',  ad: 'Hamstring esnetme' },
-        { slug: 'gogus-acma',         ad: 'Göğüs açma' },
-        { slug: 'cocuk-pozu',         ad: 'Çocuk pozu' }
+        { slug: 'kopru',      ad: 'Köprü (Glute Bridge)' },
+        { slug: 'superman',   ad: 'Superman (Yüzüstü Uzanma)' },
+        { slug: 'hava-squat', ad: 'Hava Squat' },
+        { slug: 'hamle',      ad: 'Hamle (Lunge)' },
+        { slug: 'sinav',      ad: 'Şınav (Push-up)' },
+        { slug: 'dead-bug',   ad: 'Dead Bug (Ölü Böcek)' },
+        { slug: 'plank',      ad: 'Plank (Şınav Duruşu)' }
       ],
       odul: { rozet: 'challenge-seri', puan: 100 },
-      gorsel: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12'
+      gorsel: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12'
     },
     {
-      slug: 'adim-adim-yuruyus', tip: 'sureli',
-      ad: '21 Gün Adım Adım Yürüyüş', gun: 21,
+      slug: 'bin-tekrar', tip: 'sureli',
+      ad: '21 Günde 1.000 Tekrar', gun: 21,
       kategori: 'kondisyon', kategoriAd: 'Kondisyon', durum: 'aktif',
-      baslik: '21 günde <em>100 kilometre</em>', gunlukSure: '15–30 dk',
+      baslik: '21 günde <em>1.000 tekrar</em>', gunlukSure: '15–30 dk',
       donem: 'Süreli hedef challenge’ı',
-      uzunOzet: 'Yirmi bir günde toplam yüz kilometre — günde ortalama beş. Ekipman yok, salon yok, sadece dışarısı. Sayılan mesafe ölçülmüş mesafedir; beyan bu hedefe girmez.',
-      ozet: 'Yirmi bir günde toplam 100 kilometre. Ekipman yok, salon yok — sadece dışarısı.',
-      hedef: { birim: 'km', deger: 100, ad: 'kilometre' },
+      uzunOzet: 'Yirmi bir günde toplam bin tekrar — günde ortalama kırk sekiz. Hangi hareket olduğu önemli değil; antrenman sayfasında işaretlediğin her set buraya sayılır. Saydığımız tekrar ÖLÇÜLMÜŞ tekrardır: kronometreyi çalıştırıp setini kapattığında kaydedilen sayı. Beyan bu hedefe girmez.',
+      ozet: 'Yirmi bir günde toplam 1.000 tekrar. Antrenman sayfasında kapattığın her set buraya sayılır.',
+      /* ⚠ ÖNCEKİ SÜRÜM “21 günde 100 km” idi ve ÖLÇÜLDÜ: bu depoda mesafe
+         üreten HİÇBİR yüzey yok (GPS yok, `metrik.km` yazan 0 çağıran).
+         Kanıt kuralı elle girilen beyanı elediği için hedef hiçbir yoldan
+         dolamıyordu — tutulamayan bir sözdü. Ölçü, uygulamanın GERÇEKTEN
+         saydığı şeye çevrildi: `egzersiz-detay-v1.html`in set sayacı. */
+      hedef: { birim: 'tekrar', deger: 1000, ad: 'tekrar' },
       odul: { rozet: 'challenge-sureli', puan: 250 },
-      gorsel: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14'
+      gorsel: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14'
     }
   ];
 
@@ -407,8 +422,15 @@
     var kat = adaylar[0];
     var k = bul(kat.slug); if (!k) return;
     var i = ilerleme(kat.slug);
+    /* ⚠ `tip` ALANI R16/1'DE EKLENDİ ve gerekçesi bir kusurdur:
+       `seri` alanı alışkanlıkta "üst üste gün", diğer iki tipte `biriken`di
+       (tekrar sayısı / kapanan adım). `programlarim-v1` bu alanı okuyup
+       **"güncel seri · N gün"** diye basıyordu — süreli hedefe katılmış bir
+       üyeye "132 gün güncel seri" yazıyordu. Aynı alan, tipe göre başka bir
+       şey ölçünce okuyan taraf onu ayırt edemiyor. Alan artık tipini de
+       taşıyor; "gün" diye basan ekran önce tipe bakar. */
     var yeni = {
-      slug: k.slug, ad: k.ad,
+      slug: k.slug, ad: k.ad, tip: k.tip,
       durum: i.tamam ? 'tamamlandi' : 'devam',
       gun: Math.max(1, Math.min(k.gun, i.gecenGun)),
       toplam: k.gun,

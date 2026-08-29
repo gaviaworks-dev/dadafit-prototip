@@ -66,7 +66,20 @@
 /* ---- sayfa üst bölgesi ---- */
 /* Zemin fotoğrafı DadaFit dünyasına çevrildi (mutfak/tezgah → hareket).
  Yeşil radial, kabuk .fp-top / .lib-top bantlarının aynı gradient dili. */
-.au-top{position:relative;padding-top:128px;padding-bottom:74px;background-image:radial-gradient(900px 380px at 88% 0%,rgba(0,157,79,.34),transparent 62%),linear-gradient(90deg,rgba(14,44,28,.94),rgba(33,30,22,.74)),url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80&auto=format&fit=crop&sat=-18');background-size:cover;background-position:center}
+.au-top{position:relative;padding-top:128px;padding-bottom:74px;background-image:radial-gradient(900px 380px at 88% 0%,rgba(0,157,79,.34),transparent 62%),linear-gradient(90deg,rgba(14,44,28,.94),rgba(33,30,22,.74)),url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80&auto=format&fit=crop&sat=-18');background-size:cover;background-position:center;
+  /* R15 · ARKA PLAN GÖRSELİ DE SEKMEYE BAĞLIYDI. Ölçüldü: bölüm yüksekliği
+     giriş 1296 → kayıt 1470 (+174) ve foto katmanı `cover` olduğu için
+     kutuyla birlikte ölçekleniyordu.
+     Foto katmanı `100% auto`ya çevrildi: boyutu artık yalnız GENİŞLİĞE
+     bağlı, kutunun boyuna değil — iki sekmede de aynı. Fotonun bittiği
+     yerde kalan alanı `--fit-dark` taşıyor (yeni renk üretilmedi) ve
+     üstteki iki degrade zaten yarı saydam olduğu için geçiş görünmüyor.
+     `no-repeat` şart: `100% auto` ile varsayılan yineleme dikey ek yeri
+     bırakırdı. */
+  background-color:var(--fit-dark);
+  background-repeat:no-repeat,no-repeat,no-repeat;
+  background-size:cover,cover,100% auto;
+  background-position:50% 50%,50% 50%,50% 0}
 
 /* hero kartı + form butonları header overlay (z:80–97) ÜSTÜNDE (latent z-index guard) */
 .au-top .wrap{position:relative;z-index:5}
@@ -92,7 +105,14 @@
 .au-visual{
   position:relative;display:flex;flex-direction:column;justify-content:flex-end;
   /* min yükseklik floor: stretch ile form kartına eşitlenir; uzun kayıt formunda ikisi birlikte uzar (eşit boy) */
-  min-height:624px;border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--sh-md);
+  /* R15 · YÜKSEKLİK ARTIK KARTA BAĞLI DEĞİL (bkz. .au-layout notu).
+     Ölçüt görüntü alanı: header yüksekliği + nefes çıkarılır, taban 624
+     (eski min-height) ve tavan 1036 (giriş sekmesinin ölçülen boyu)
+     korunur. Değer artık SEKMEYE değil yalnız pencereye bağlı — iki
+     sekmede de aynı. Uzun kayıt formu kaydırılırken görsel yerinde durur. */
+  height:clamp(624px, calc(100vh - var(--fit-header-h) - 120px), 1036px);
+  position:sticky;top:calc(var(--fit-header-h) + 24px);
+  border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--sh-md);
   background-image:linear-gradient(180deg,rgba(14,44,28,.32) 0%,rgba(20,34,25,.58) 55%,rgba(13,22,16,.88) 100%),
     url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&q=80&auto=format&fit=crop&sat=-14');
   background-size:cover;background-position:center;
@@ -357,11 +377,87 @@
 
 /* (giriş hesap-türü artık #giAsSeg segmenti — .au-rseg dilini paylaşır; eski .au-asrow select kaldırıldı) */
 /* telefon önek kutusu — fk-input içinde sabit +90 göstergesi */
+/* =====================================================================
+ R15 · ÜLKE KODU SEÇİCİ — .fk-cc
+ ---------------------------------------------------------------------
+ Öncesi: `.fk-tel-cc` SABİT bir "+90" etiketiydi (`pointer-events:none`),
+ yani tek ülke vardı. Global hitap edildiği için tam liste geldi:
+ 199 ülke, bayrak + ad + alan kodu, aranabilir. Varsayılan Türkiye.
+
+ Bayrak GÖRSEL DEĞİL, ISO2 kodundan üretilen bölgesel gösterge harfleri —
+ 199 bayrak dosyası taşımıyoruz, veri 3 KB'de kalıyor.
+
+ Ölçüler kitten: yükseklik alanın kendi yüksekliği, yarıçap
+ `--radius-md`, kenarlık `--line`, odak halkası formun kendi
+ `rgba(0,157,79,.14)` halkası. Yeni renk üretilmedi.
+ ===================================================================== */
 .fk-tel{position:relative}
+.fk-tel .fk-input{padding-left:104px}
 
-.fk-tel .fk-input{padding-left:60px}
+.fk-cc{
+  position:absolute;left:1px;top:1px;bottom:1px;width:96px;z-index:2;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);
+  background:var(--bg-cream);border:0;border-right:1px solid var(--line);
+  border-radius:var(--radius-md) 0 0 var(--radius-md);cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.fk-cc:hover{background:var(--fit-tint)}
+.fk-cc:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+.fk-cc-flag{font-size:16px;line-height:1}
+.fk-cc i{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
+.fk-cc[aria-expanded="true"] i{transform:rotate(180deg)}
 
-.fk-tel-cc{position:absolute;left:1px;top:1px;bottom:1px;width:50px;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--slate);background:var(--bg-cream);border-right:1px solid var(--line);border-radius:var(--radius-md) 0 0 var(--radius-md);pointer-events:none}
+.fk-cc-pop{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:min(360px,100%);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  box-shadow:var(--sh-lg);overflow:hidden;
+}
+.fk-cc-search{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.fk-cc-search i{color:var(--muted);font-size:12.5px;flex:none}
+.fk-cc-search input{
+  flex:1;min-width:0;border:0;background:transparent;font-family:inherit;
+  font-size:14px;font-weight:500;color:var(--slate);padding:4px 0;
+}
+.fk-cc-search input:focus{outline:none}
+.fk-cc-search input::placeholder{color:#a7a7a7}
+
+.fk-cc-list{list-style:none;margin:0;padding:6px;max-height:264px;overflow-y:auto}
+.fk-cc-list li{
+  display:flex;align-items:center;gap:11px;padding:0 10px;min-height:44px;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--slate);cursor:pointer;
+}
+.fk-cc-list li .bay{font-size:17px;line-height:1;flex:none}
+.fk-cc-list li .ad{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fk-cc-list li .kod{color:var(--muted);font-weight:700;font-size:13px;flex:none}
+.fk-cc-list li:hover,.fk-cc-list li.on{background:var(--fit-tint)}
+.fk-cc-list li[aria-selected="true"]{font-weight:700}
+.fk-cc-list li[aria-selected="true"] .kod{color:var(--fit-deep)}
+.fk-cc-bos{padding:18px 14px;font-size:13.5px;color:var(--muted);font-weight:500;text-align:center}
+
+@media (max-width:520px){ .fk-cc-pop{width:100%} }
+
+/* R15 · onay kutuları sadeleşti (bkz. markup notu) */
+.ol-consents-min .fb-kvkk{font-size:12.5px;font-weight:500;color:var(--slate-2);line-height:1.5}
+.ol-consents-min .fb-kvkk a{font-weight:700;color:var(--fit-deep)}
+.ol-consents-min .fb-kvkk .req{margin-left:3px}
+/* Kutucuk 20 → 16px. DOKUNMA HEDEFİ DÜŞMÜYOR: tıklanan şey <label>'ın
+   kendisidir ve satır `min-height:44px` taşıyor (WCAG 2.5.8). Kutucuğu
+   küçültmek görsel ağırlığı azaltır, hedefi değil. `accent-color` marka
+   yeşiline bağlandı — yeni renk üretilmedi, `--fit` kullanıldı. */
+/* ⚠ ÖZGÜLLÜK: `.au-card .fb-kvkk input[type="checkbox"]{width:20px;height:20px}`
+   bu dosyada DAHA SONRA geliyor ve aynı ağırlıkta (0,3,1) — ilk denemede
+   kural yazıldı ama ölçümde kutucuk 20×20 kaldı. Seçici `.au-card` ile
+   bir kademe yükseltildi (0,4,1); `!important` gerekmedi. */
+.au-card .ol-consents-min .fb-kvkk input[type="checkbox"]{
+  width:16px;height:16px;flex:none;margin-top:2px;accent-color:var(--fit);cursor:pointer;
+}
+.au-card .ol-consents-min .fb-kvkk{min-height:44px;padding:2px 0}
+
+/* R15 · gerçek marka işaretleri — <i> ikonu yerine satır içi SVG.
+   Font Awesome'ın `fa-google`'ı TEK RENKTİR ve markanın dört renkli
+   G'sini veremez; Beyar "marka renkleri korunsun" dedi. */
+.soc-ico{width:18px;height:18px;flex:none;display:block}
 
 
 /* (diyetisyen kayıt köprüsü kaldırıldı — rol seçimi artık kayıt rol segmentinde) */
@@ -559,8 +655,8 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
           </div>
 
           <div class="soc-col">
-            <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" aria-hidden="true"></i> Google<span class="vh"> ile devam et</span></button>
-            <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Facebook<span class="vh"> ile devam et</span></button>
+            <button class="soc-btn" type="button" data-soc="google"><svg class="soc-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.2-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.2-3.9 6.6-9.6 6.6-17z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.4 0 20.1 0 24s1 7.6 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg> Google<span class="vh"> ile devam et</span></button>
+            <button class="soc-btn" type="button" data-soc="facebook"><svg class="soc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.96h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.1 24 12.07z"/></svg> Facebook<span class="vh"> ile devam et</span></button>
           </div>
           <div class="au-div">veya e-posta ile</div>
 
@@ -591,9 +687,20 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
             <!-- telefon alanı (segment ile) -->
             <div class="fk-field" id="giTelField" hidden>
               <label class="fk-label" for="giTel">Telefon <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-              <div class="fk-tel">
-                <span class="fk-tel-cc" aria-hidden="true">+90</span>
+              <div class="fk-tel" data-cc-kok>
+                <button class="fk-cc" type="button" id="giCc" aria-haspopup="listbox" aria-expanded="false" aria-label="Ülke kodu — şu an Türkiye +90">
+                  <span class="fk-cc-flag" aria-hidden="true">🇹🇷</span><span class="fk-cc-dial">+90</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
                 <input class="fk-input" id="giTel" name="giTel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="5__ ___ __ __" data-tel-mask aria-describedby="giTelErr" />
+                <input type="hidden" name="giTelUlke" value="TR" />
+                <div class="fk-cc-pop" role="dialog" aria-label="Ülke seç" hidden>
+                  <div class="fk-cc-search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="text" placeholder="Ülke veya kod ara" aria-label="Ülke veya kod ara" autocomplete="off" />
+                  </div>
+                  <ul class="fk-cc-list" role="listbox" aria-label="Ülkeler" tabindex="-1"></ul>
+                  <p class="fk-cc-bos" hidden>Eşleşen ülke yok.</p>
+                </div>
               </div>
               <span class="fk-error" id="giTelErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Geçerli bir telefon numarası gir (10 hane).</span>
             </div>
@@ -634,8 +741,8 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
 
           <form id="formKayit" novalidate>
             <div class="soc-col">
-              <button class="soc-btn" type="button" data-soc="google"><i class="fa-brands fa-google" aria-hidden="true"></i> Google<span class="vh"> ile kayıt ol</span></button>
-              <button class="soc-btn" type="button" data-soc="facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Facebook<span class="vh"> ile kayıt ol</span></button>
+              <button class="soc-btn" type="button" data-soc="google"><svg class="soc-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.2-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.2-3.9 6.6-9.6 6.6-17z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.4 0 20.1 0 24s1 7.6 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg> Google<span class="vh"> ile kayıt ol</span></button>
+              <button class="soc-btn" type="button" data-soc="facebook"><svg class="soc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.96h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.1 24 12.07z"/></svg> Facebook<span class="vh"> ile kayıt ol</span></button>
             </div>
             <div class="au-div">veya e-posta ile</div>
 
@@ -681,11 +788,22 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
             </div>
             <div class="fk-field">
               <label class="fk-label" for="kaTel">Telefon <span class="req" aria-hidden="true">*</span><span class="vh">(zorunlu)</span></label>
-              <div class="fk-tel">
-                <span class="fk-tel-cc" aria-hidden="true">+90</span>
+              <div class="fk-tel" data-cc-kok>
+                <button class="fk-cc" type="button" id="kaCc" aria-haspopup="listbox" aria-expanded="false" aria-label="Ülke kodu — şu an Türkiye +90">
+                  <span class="fk-cc-flag" aria-hidden="true">🇹🇷</span><span class="fk-cc-dial">+90</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
                 <input class="fk-input" id="kaTel" name="kaTel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="5__ ___ __ __" required data-tel-mask aria-describedby="kaTelHelp kaTelErr" />
+                <input type="hidden" name="kaTelUlke" value="TR" />
+                <div class="fk-cc-pop" role="dialog" aria-label="Ülke seç" hidden>
+                  <div class="fk-cc-search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="text" placeholder="Ülke veya kod ara" aria-label="Ülke veya kod ara" autocomplete="off" />
+                  </div>
+                  <ul class="fk-cc-list" role="listbox" aria-label="Ülkeler" tabindex="-1"></ul>
+                  <p class="fk-cc-bos" hidden>Eşleşen ülke yok.</p>
+                </div>
               </div>
-              <span class="fk-help" id="kaTelHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Antrenman hatırlatmaları ve randevu bildirimleri için kullanılır; profilinde gizli kalır.</span>
+              <span class="fk-help" id="kaTelHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Randevu ve hatırlatmalar için; profilinde gizli kalır.</span>
               <span class="fk-error" id="kaTelErr"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Geçerli bir telefon numarası gir (10 hane).</span>
             </div>
             <div class="fk-field">
@@ -704,7 +822,12 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
  açılamıyordu — ölü işaretleme. Diyetisyen/işletme blokları zaten Faz 2'de
  kaldırılmıştı (belge §1 · §14). -->
 
-            <div class="ol-consents">
+            <!-- R15 · Beyar: üçüncü onay kutusu (bülten) KALKTI, iki zorunlu kutu kaldı.
+                 ⚠ REVİZE: ilk denemede METİNLER de kısaltılmıştı; Beyar "istediğim
+                 metin değil KUTUNUN KENDİSİYDİ" dedi — metinler TAM hâline döndü.
+                 Sadeleşen yalnız BİÇİM: tipografi 12.5px/500, kutucuk 20 → 16px,
+                 dokunma hedefi satırın kendisi (44px) olduğu için düşmüyor. -->
+            <div class="ol-consents ol-consents-min">
               <label class="fb-kvkk" for="cbUyelik">
                 <input type="checkbox" id="cbUyelik" name="cbUyelik" required />
                 <span><a href="yasal-v1.html?metin=uyelik">Üyelik Sözleşmesi</a>'ni okudum, kabul ediyorum. <b class="req" aria-hidden="true">*</b><span class="vh">(zorunlu)</span></span>
@@ -712,10 +835,6 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
               <label class="fb-kvkk" for="cbKvkk">
                 <input type="checkbox" id="cbKvkk" name="cbKvkk" required />
                 <span><a href="yasal-v1.html?metin=aydinlatma">Aydınlatma Metni</a>'ni ve <a href="yasal-v1.html?metin=kvkk">KVKK Metni</a>'ni okudum, onaylıyorum. <b class="req" aria-hidden="true">*</b><span class="vh">(zorunlu)</span></span>
-              </label>
-              <label class="fb-kvkk" for="cbBulten">
-                <input type="checkbox" id="cbBulten" name="cbBulten" />
-                <span>Yeni program, challenge ve hareket önerilerinden e-posta ile haberdar olmak istiyorum. <span style="font-weight:500">(opsiyonel)</span></span>
               </label>
             </div>
             <p class="fk-error au-form-error" id="kayitFormErr" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span></span></p>
@@ -730,7 +849,7 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
             <span class="ok"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
             <h4>Hesabın hazır, hoş geldin!</h4>
             <p>Doğrulama bağlantısını e-postana gönderdik. Şimdi sağlık ve hareket profilini dolduralım — planın buna göre kurulsun.</p>
-            <a class="btn btn-primary" href="fit-planim-saglik-profil-v1.html?auth=1"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Sağlık ve Hareket Profilim</a>
+            <a class="btn btn-primary" href="programlarim-v1.html?auth=1#saglik"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Sağlık ve Hareket Profilim</a>
             <br /><span class="au-success-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Bu adımı sonra Hesabım'dan da yapabilirsin.</span>
           </div>
 
@@ -862,7 +981,7 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
               <p>Adresin onaylandı. Artık bildirimlerin ve fatura belgelerin bu adrese gönderilir.</p>
             </div>
             <div class="dg-acts">
-              <a class="btn btn-primary" href="fit-planim-v1.html"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Planıma Git</a>
+              <a class="btn btn-primary" href="programlarim-v1.html#programlarim"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Planıma Git</a>
               <a class="btn btn-ghost" href="hesabim-v1.html#bildirim"><i class="fa-regular fa-bell" aria-hidden="true"></i> Bildirim Tercihlerim</a>
             </div>
           </div>
@@ -1149,7 +1268,7 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
     b.addEventListener('click',function(){ location.href=withAuth(returnDest()); });
   });
   document.querySelectorAll('.au-pane[data-pane="kayit"] .soc-btn').forEach(function(b){
-    b.addEventListener('click',function(){ location.href='fit-planim-saglik-profil-v1.html?auth=1'; });
+    b.addEventListener('click',function(){ location.href='programlarim-v1.html?auth=1#saglik'; });
   });
 
  // KAYIT — başarı durumu + sağlık/hareket profili köprüsü
@@ -1274,5 +1393,13 @@ html.reduce-motion .au-pane,html.reduce-motion .sbanner{animation:none}
   if(asParam&&ROLE_DEST[asParam])setGiAs(asParam);
 })();
 </script>
+<!-- ÜLKE KODU SEÇİCİSİ — tek kaynak: assets/js/fit-ulke.js
+     R15 · Bileşen önce burada satır içi kurulmuştu; `odemelerim-v1`in fatura
+     bilgileri formunda da gerekince veri (3 KB · 199 ülke) İKİNCİ bir gerçek
+     kaynak olacaktı — bir ülke adı düzeltilince ikisinden biri geride kalırdı.
+     Veri de davranış da modüle taşındı, buradaki kopya SİLİNDİ. Markup ve
+     sınıf adları birebir aynı kaldı (`.fk-cc` ailesi, `[data-cc-kok]` kabı). -->
+<script src="assets/js/fit-ulke.js"></script>
+<script>window.FIT_ULKE && FIT_ULKE.kur();</script>
 </body>
 </html>

@@ -135,12 +135,33 @@
 /* Pro etiketi (sol üst, hedef altına) */
 .pr-pro{position:absolute;top:46px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,12,.78);color:#ffd97a;font-size:11px;font-weight:700;padding:5px 11px;border-radius:var(--radius-sm);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 /* seviye rozeti (sağ üst) — yoğunluk pip'leri (aksan SADECE #009d4f) */
-.pr-level{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
+/* ZORLUK ROZETİ SAĞ ALTA TAŞINDI (R16/1).
+   ÖLÇÜLEN KUSUR: rozet `top:12px;right:12px`teydi ve kaydet düğmesi
+   (`.kyt-btn`, `top:8px;right:8px`, 44×44) R15'te tam oraya eklendi.
+   Üst üste bindiler: kesişim **1162 px²**, üç genişlikte de (1440·1024·390),
+   bu sayfada 12 kartın 12'sinde. Düğme z-index 4'te olduğu için rozetin
+   üstünü kapatıyordu — seviye okunmuyordu.
+   Sağ alt köşe boştu (sol altta `.pr-tags` var), rozet oraya alındı.
+   Kural artık kitte: docs/fit-kit.md §12 · kart üstü öğe yerleşimi. */
+.pr-level{position:absolute;bottom:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
 .pr-pips{display:inline-flex;gap:3px}
 .pr-pips i{width:6px;height:6px;border-radius:50%;background:#d6dad7;display:block}
 .pr-level.lv1 .pr-pips i:nth-child(-n+1),
 .pr-level.lv2 .pr-pips i:nth-child(-n+2),
 .pr-level.lv3 .pr-pips i:nth-child(-n+3){background:var(--fit)}
+/* DAR KOLONDA ROZET ALT SOLA, ETİKETLERİN ÜSTÜNE GEÇER (R16/1).
+   ÖLÇÜM (768 px, kart ızgarası 3 kolon): görsel genişliği 346 px, en geniş
+   `.pr-level` 103 px, en geniş `.pr-tags` 173 px. 103 + 173 + iki kenar
+   boşluğu, 222 px'e SIĞMIYOR — yan yana durmaları geometrik olarak
+   imkânsız, o yüzden burada bir hizalama ayarı değil bir YERLEŞİM
+   değişikliği gerekiyor. Rozet alt sola, etiketlerin bir sıra üstüne
+   çıkar; ikisi de tam okunur, hiçbir bilgi gizlenmez.
+   1440 ve 1024'te yan yana sığıyor (ölçüldü: çakışma 0), orada
+   değişiklik yok. */
+@media (min-width:641px) and (max-width:900px){
+  .pr-level{left:12px;right:auto;bottom:46px}
+}
+
 /* alt etiketler: süre + ekipman */
 .pr-tags{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;gap:6px;flex-wrap:wrap}
 .pr-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}

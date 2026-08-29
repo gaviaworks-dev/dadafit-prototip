@@ -151,12 +151,33 @@
 .ex-cat{position:absolute;top:12px;left:12px;z-index:2;background:var(--fit);color:#fff;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);letter-spacing:.02em}
 /* seviye rozeti (sağ üst) — yoğunluk pip'leri: dolu pip yeşil, boş pip nötr
  (aksan SADECE #009d4f; seviye sarı/kırmızı kodlaması YOK) */
-.ex-level{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
+/* ZORLUK ROZETİ SAĞ ALTA TAŞINDI (R16/1).
+   ÖLÇÜLEN KUSUR: rozet `top:12px;right:12px`teydi ve kaydet düğmesi
+   (`.kyt-btn`, `top:8px;right:8px`, 44×44) R15'te tam oraya eklendi.
+   Üst üste bindiler: kesişim **1162 px²**, üç genişlikte de (1440·1024·390),
+   bu sayfada 12 kartın 12'sinde. Düğme z-index 4'te olduğu için rozetin
+   üstünü kapatıyordu — seviye okunmuyordu.
+   Sağ alt köşe boştu (sol altta `.ex-tags` var), rozet oraya alındı.
+   Kural artık kitte: docs/fit-kit.md §12 · kart üstü öğe yerleşimi. */
+.ex-level{position:absolute;bottom:12px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);color:var(--slate);font-size:11px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm)}
 .ex-pips{display:inline-flex;gap:3px}
 .ex-pips i{width:6px;height:6px;border-radius:50%;background:#d6dad7;display:block}
 .ex-level.lv1 .ex-pips i:nth-child(-n+1),
 .ex-level.lv2 .ex-pips i:nth-child(-n+2),
 .ex-level.lv3 .ex-pips i:nth-child(-n+3){background:var(--fit)}
+/* DAR KOLONDA ROZET ALT SOLA, ETİKETLERİN ÜSTÜNE GEÇER (R16/1).
+   ÖLÇÜM (768 px, kart ızgarası 3 kolon): görsel genişliği 222 px, en geniş
+   `.ex-level` 103 px, en geniş `.ex-tags` 134 px. 103 + 134 + iki kenar
+   boşluğu, 222 px'e SIĞMIYOR — yan yana durmaları geometrik olarak
+   imkânsız, o yüzden burada bir hizalama ayarı değil bir YERLEŞİM
+   değişikliği gerekiyor. Rozet alt sola, etiketlerin bir sıra üstüne
+   çıkar; ikisi de tam okunur, hiçbir bilgi gizlenmez.
+   1440 ve 1024'te yan yana sığıyor (ölçüldü: çakışma 0), orada
+   değişiklik yok. */
+@media (min-width:641px) and (max-width:900px){
+  .ex-level{left:12px;right:auto;bottom:46px}
+}
+
 /* alt etiket: ekipman ikonu */
 .ex-tags{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;gap:6px;flex-wrap:wrap}
 .ex-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}

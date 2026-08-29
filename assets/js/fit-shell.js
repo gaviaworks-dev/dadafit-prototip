@@ -113,12 +113,15 @@ var NAV = [
       {label:'Antrenman Oluşturucu', desc:'Birkaç seçimle gün gün antrenman planı', href:'antrenman-olusturucu-v1.html', icon:'fa-solid fa-wand-magic-sparkles'}
     ] },
 
-  /* 2 · PROGRAMLAR — belge §2'nin beş kalemi. Fit Testleri ve Video Seansları
- Faz 5'te üretildi; menüye ancak sayfalar diskte olduğu için bağlandı. */
+  /* 2 · PROGRAMLAR. 🔴 VİDEO SEANSLARI MODÜLÜ KALDIRILDI — Beyar, 2026-08-29.
+ Kalem menüden, iki sayfası diskten, ve modülün ürün yüzeylerindeki bütün
+ izleri (Pro paket matrisi · reklam envanteri · Kaydettiklerim süzgeci ·
+ destek talebi) temizlendi. Panel dört kalem taşır.
+ Şartname etkilenmedi: §F4'ün Fit modül listesinde bu modül zaten YOKTU
+ (tüm belgede 0 geçiş) — öneri yine de raporlandı. */
   { key:'programlar', label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-clipboard-list',
     match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1',
-           'fit-testleri-v1','fit-testi-detay-v1','fit-testi-sonuc-v1',
-           'video-seanslari-v1','video-seans-detay-v1'],
+           'fit-testleri-v1','fit-testi-detay-v1','fit-testi-sonuc-v1'],
     /* E5 — "Programlar" ile "Tüm Programlar" ayrımı netleşti.
        ÖLÇÜM (değişiklik öncesi, NAV/BOTTOM/FOOTER dizilerinden okundu):
          Programlar (başlık)        → programlar-merkezi-v1.html
@@ -135,8 +138,7 @@ var NAV = [
       {label:'Tüm Programlar', desc:'4 · 8 · 12 haftalık planların filtrelenebilir tam listesi', href:'program-liste-v1.html', icon:'fa-solid fa-clipboard-list'},
       /* R13 — pop-up kalktı: kalem artık kendi tam sayfasına gidiyor */
       {label:'Programını Bul', desc:'Altı soruyla sana uygun üç program', href:'programini-bul-v1.html', icon:'fa-solid fa-wand-magic-sparkles'},
-      {label:'Fit Testleri', desc:'Seviyeni kendi ölçümünle belirle', href:'fit-testleri-v1.html', icon:'fa-solid fa-clipboard-check'},
-      {label:'Video Seansları', desc:'Eğitmen eşliğinde çalış', href:'video-seanslari-v1.html', icon:'fa-solid fa-circle-play'}
+      {label:'Fit Testleri', desc:'Seviyeni kendi ölçümünle belirle', href:'fit-testleri-v1.html', icon:'fa-solid fa-clipboard-check'}
     ] },
 
   /* 3 · ENERJİ DEFTERİ ÜST MENÜDEN ÇIKTI (G1 · KARARLAR.md K18).
@@ -1422,8 +1424,9 @@ if(OVER_MODE) document.body.setAttribute('data-fit-over','1');
  BANNER AİLESİ — liste mi, detay mı? (Beyar: "liste ve detay sayfalarındaki
  bannerların dikeydeki uzunlukları KENDİ İÇLERİNDE tutarlı olsun, belli bir
  uzunluğa fixle")
- Sınıf adı ayırmıyor: `video-seans-detay` ve `fit-testi-detay` de `.lib-top`
- kullanıyor, yani `.lib-top` = liste demek değil. Ayrım DOSYA ADINDAN
+ Sınıf adı ayırmıyor: `fit-testi-detay` de `.lib-top` kullanıyor, yani
+ `.lib-top` = liste demek değil. (Örnekteki `video-seans-detay` 2026-08-29'da
+ modülüyle birlikte kalktı; kural değişmedi.) Ayrım DOSYA ADINDAN
  yapılıyor — repodaki tek istikrarlı işaret bu:
    *-detay-*  ya da bilinen detay sayfaları → detay ailesi
    geri kalan banner'lı sayfalar           → liste ailesi
@@ -2327,7 +2330,7 @@ setTimeout(function(){
      Bugüne kadar aynı "antrenman tamamlandı" dört ayrı yerde dört farklı
      kalitede kayıt üretiyordu ve uygulama dördünü aynı sayıyordu:
        egzersiz-detay      → çalışan kronometreden ÖLÇÜLDÜ
-       video-seans-detay   → videonun nominal süresi
+       video-seans-detay   → videonun nominal süresi  [modül 2026-08-29'da kalktı]
        program-detay       → SABİT dk:25 kcal:280 (uydurma)
        challengeGunTamamla → hiçbir şey
      Artık her kayıt neye dayandığını taşıyor. Rozet/seri buna bakabilir,
@@ -4039,20 +4042,31 @@ window.FIT_PAGI = function(cfg){
    Banner taşımayan sayfada değer YAZILMAZ, CSS'teki `50%` yedeği kalır.
    ===================================================================== */
 (function(){
-  var BAN = '.lib-top, .fp-profil .fp-kapak, .cp-top, .kp-top, .chl-hero,' +
-            '.pd-hero, .fs-top, .ol-top, .ed-top, .df-top, .au-top, .pf-banner';
+  /* 🔴 KARAR ÜZERİNE YAZILDI — Beyar, 2026-08-29 (§W2: eski karar silinmez).
+     Önceki karar: "şerit banner'ın merkezinin hizasında olacak" — bu yüzden
+     burada banner ölçülüp `--fb-top` yazılıyordu. Ölçülen sonuç: konum
+     sayfa tipine göre AYRIŞIYORDU çünkü banner yükseklikleri ayrı —
+     liste/kurumsal 272 · detay 280 · modül/hesap 323 · ana sayfa 511
+     (hero 100dvh olduğu için en aşağıda kalıyordu).
+
+     Yeni karar: HEPSİ AYNI KONUMDA. Taban liste ve detaydaki hâldir;
+     272px alındı — dokuz ölçülen sayfanın dördü (liste ×2, kurumsal ×2)
+     zaten oradaydı.
+
+     Emsal ölçüldü (canlı, 2026-08-29): dadagastro.com ana sayfa · /tarifler ·
+     /hakkimizda — ÜÇÜNDE DE `top:420px`, tek sabit değer, banner'dan
+     türetilmiyor. Yani kardeş marka da tek konum kullanıyor; ayrışan Fit'ti.
+     Sayı Gastro'nunkiyle aynı DEĞİL, çünkü Beyar tabanı Fit'in kendi
+     liste/detay hâli olarak verdi.
+
+     Ölçüm scroll'da yenilenmez (şerit `position:fixed`); yalnız pencere
+     boyu değişince taşma koruyucusu yeniden koşar. */
+  var TABAN = 272;
   function hizala(){
-    var el = document.querySelector(BAN);
-    if(!el || el.getClientRects().length === 0){
-      document.documentElement.style.removeProperty('--fb-top');
-      return;
-    }
-    var r = el.getBoundingClientRect();
-    var merkez = r.top + window.scrollY + r.height / 2;
-    /* pencereden taşarsa kırp — yoksa düğme görünmeyen yükseklikte kalır */
+    /* pencereden taşarsa kırp — yoksa şerit görünmeyen yükseklikte kalır */
     var enCok = Math.max(140, window.innerHeight - 140);
     document.documentElement.style.setProperty('--fb-top',
-      Math.min(Math.max(merkez, 140), enCok).toFixed(0) + 'px');
+      Math.min(Math.max(TABAN, 140), enCok).toFixed(0) + 'px');
   }
   hizala();
   window.addEventListener('resize', hizala);

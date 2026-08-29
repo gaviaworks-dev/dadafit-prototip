@@ -1,0 +1,81 @@
+# =====================================================================
+# DadaFit prototipi — GitHub Pages yayını (Beyar kararı, 2026-08-30)
+# ---------------------------------------------------------------------
+# İKİ SÜRÜM, TEK DEPO, KOPYA YOK.
+#
+#   /                → v1 · R15 turundan ÖNCEKİ son hâl (d4839be)
+#   /v2/             → v2 · main dalının güncel hâli
+#
+# Neden bu yol: depoda ikinci bir dosya kopyası tutmadan iki sürüm de
+# gezilebilir kalıyor. v1 bir COMMIT'e sabitli, yani kendiliğinden
+# değişmiyor; v2 her push'ta tazeleniyor.
+#
+# ⚠ v1 SHA'sı bilerek sabit. Yeni bir "dondurulmuş sürüm" gerektiğinde
+# aşağıdaki V1_SHA değişir — o zamana kadar kimse kök adresi kazara
+# değiştiremez.
+#
+# ⚠ Bu depoda kök-mutlak yol YOKTUR (ölçüldü: gerçek eşleşme 0, iki
+# eşleşmenin ikisi de yorum satırı). Alt yoldan yayın bu yüzden hiçbir
+# değişiklik gerektirmiyor; `/v2/` altındaki sayfalar kendi göreli
+# yollarıyla çalışıyor.
+# =====================================================================
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  V1_SHA: d4839be38f9ca4ca5e04e29454acd21c78251f83
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: v1 — turdan önceki dondurulmuş hâl
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.V1_SHA }}
+          path: surum-v1
+          fetch-depth: 1
+
+      - name: v2 — main dalı
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: surum-v2
+          fetch-depth: 1
+
+      - name: Siteyi kur
+        run: |
+          set -e
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' surum-v1/ _site/
+          mkdir -p _site/v2
+          rsync -a --exclude='.git' --exclude='.github' surum-v2/ _site/v2/
+          echo "kök  : $(find _site -maxdepth 1 -name '*.html' | wc -l) sayfa"
+          echo "v2   : $(find _site/v2 -maxdepth 1 -name '*.html' | wc -l) sayfa"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

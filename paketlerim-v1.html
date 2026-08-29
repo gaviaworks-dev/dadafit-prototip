@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paketlerim — DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<!-- Fit Planım ailesi CSS (tek kaynak) — kabuktan SONRA, fit-type.css'ten ÖNCE -->
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — PAKETLERİM (modül sayfası)
+ ---------------------------------------------------------------------
+ KABUKTAN GELEN ve burada TEKRAR TANIMLANMAYANLAR: modül kimlik kartı
+ (.fp-profil/.fp-kapak/.fp-kimlik) · sekme şeridi (.fit-tabs/.fit-tab/
+ .fit-pane) · .modul-govde · .wrap · .sec-head · .eyebrow · .fp-card ·
+ .btn ailesi · .hr-note (dürüst şerit) · .sr-only · tokenler.
+
+ BURADA TANIMLANANLAR ve nedenleri:
+  · `.pro-card` / `.cmp-table` ailesi — pro-v1.html'in ÖLÇÜLMÜŞ kademe
+    kartı ve karşılaştırma tablosu kiti. Kabukta karşılığı YOK ve kabuğa
+    yazmak bu ajana yasak; bu yüzden pro-v1'den BİREBİR kopyalandı.
+    ⚠ TEK SAPMA: pro-v1 onay ikonlarında `--green-deep` (#2c9963)
+    kullanıyor. Kit dosyası (docs/fit-kit.md) o değeri TAŞIMIYOR ve
+    "--green yalnız sağlık bloğu" şerhi duruyor; markanın yeşili
+    `--fit-deep` (#007a3d). Yeni renk üretmemek için burada kit değeri
+    kullanıldı. Raporda bildirildi.
+  · `.sub-tier-*` / `.hs-facts` / `.hs-pill` / `.hs-warn` / `.hs-gate` /
+    `.hs-check` / `.hs-state` / `.ntf-foot` — hesabim-v1.html'in kendi
+    kiti. Kabukta karşılığı yok, sayfa sayfa tekrarlanan kalıp.
+
+ OKUMA KOLONU: R15/3 · modül sayfalarında 860px, ortalı. Kademe ızgarası
+ ve karşılaştırma tablosu da bu kolonda durur; tablo kendi kabında
+ (`.cmp-wrap`, overflow-x:auto) yatay kayar, SAYFA GÖVDESİ KAYMAZ.
+ ===================================================================== */
+
+:root{
+  --hs-warn:#8a4b00; --hs-warn-tint:#fdf3e4; --hs-warn-line:rgba(138,75,0,.30);
+}
+
+/* ---- modül gövdesi + okuma kolonu ---- */
+.pk-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--paper)}
+/* ⚠ 26px KALKTI (Ajan 4'ün notu): kabuğun zebra kuralı ilk panelde de
+   32/32 eşit dolgu istiyor ve `--sec-pad-sm` zaten 32px. Şerit ile ilk
+   panel arasındaki nefes de o tek değere bağlandı — sayfada iki farklı
+   üst dolgu kalmadı. */
+.pk-serit+.fit-pane .pk-body{padding-top:var(--sec-pad-sm)}
+.pk-kol{max-width:860px;margin-inline:auto}
+.pk-sec+.pk-sec{margin-top:44px}
+
+/* ---- dürüst şerit: sekmelerin DIŞINDA, sayfada BİR KEZ (kabuk .hr-note kiti) ---- */
+.pk-serit{background:var(--paper);padding:var(--sec-pad-sm) 0 0}
+.pk-serit .hr-note{margin:0}
+
+/* ================= KADEME KARTLARI (pro-v1 kiti) ================= */
+/* `align-items:stretch` ÖLÇÜMLE GELDİ: `start` iken üç kart üç farklı
+   boydaydı (Ücretsiz 15, Pro 23, Pro Max 4 kalem) ve düğmeler üç ayrı
+   yükseklikte kalıyordu — fiyat kartlarında karşılaştırmayı bozan kusur.
+   Kartlar eşit boyda, `.pro-feats{flex:1}` boşluğu yutuyor, düğmeler tek
+   çizgide. */
+.pro-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch;margin-top:26px}
+.pro-card{height:100%}
+.pro-daha{display:inline-flex;align-items:center;gap:7px;min-height:44px;font-size:12.5px;font-weight:700;color:var(--fit-deep)}
+.pro-daha i{font-size:10px}
+.pro-daha:hover{text-decoration:underline;text-underline-offset:3px}
+.pro-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 20px;display:flex;flex-direction:column;transition:.25s var(--ease)}
+.pro-card:hover{transform:translateY(-5px);box-shadow:var(--sh-md)}
+.pro-card.featured{border-color:rgba(0,157,79,.45);box-shadow:var(--sh-md)}
+.pro-card.is-aktif{border-color:var(--fit);box-shadow:var(--sh-md)}
+.pro-card.t0{background:#fafafa;border-color:#e4e4e4}
+.pro-card.t0:hover{transform:translateY(-5px);box-shadow:var(--sh-sm)}
+.pro-flag{position:absolute;top:0;right:18px;transform:translateY(-50%);background:var(--fit);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:var(--radius-sm);box-shadow:0 6px 16px rgba(0,157,79,.32);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pro-flag.pf-now{background:var(--fit-deeper)}
+.pro-tier{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.pro-tier i{flex:none;width:44px;height:44px;border-radius:var(--radius-md);display:grid;place-items:center;font-size:18px}
+.pro-card.t0 .pro-tier i{background:#ebebeb;color:#6b6b6b}
+.pro-card.t2 .pro-tier i{background:var(--fit-wash);color:var(--fit-deep)}
+.pro-card.t3 .pro-tier i{background:#FBF3DC;color:#B8860B}   /* pro-v1.html:101 ile birebir — yeni renk üretilmedi */
+.pro-tier b{font-size:21px;color:var(--slate);letter-spacing:-.01em}
+.pro-desc{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.55;margin:4px 0 0;text-align:left;text-align-last:auto}
+.pro-price{padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:16px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.pro-price b{font-size:30px;color:var(--slate);letter-spacing:-.02em}
+.pro-price span{font-size:13px;color:var(--muted);font-weight:500}
+.price-flag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--fit-deep);background:rgba(0,157,79,.09);border:1px solid rgba(0,157,79,.25);border-radius:var(--radius-badge);padding:2px 7px;vertical-align:middle;letter-spacing:.01em}
+.price-flag i{font-size:10px}
+.pro-feats{list-style:none;display:flex;flex-direction:column;gap:10px;padding:18px 0;margin:0;flex:1}
+.pro-feats li{display:flex;gap:9px;font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.45;text-align:left;text-align-last:auto}
+.pro-feats li i{flex:none;margin-top:3px;font-size:11.5px;color:var(--fit-deep)}
+.pro-feats li.nitelik i{color:var(--muted)}
+.pro-feats li.no{color:#8e8e8e}
+.pro-feats li.no i{color:#bdbdbd}
+.pro-feats li b{color:var(--slate);font-weight:700}
+/* kapalı özellikler: kartı şişirmesin diye katlanır — "yakında" DEĞİL,
+   kademede kapalı olanın DÜRÜST dökümü */
+.pro-kapali{border-top:1px solid var(--line);padding-top:4px}
+.pro-kapali summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--muted);padding:10px 0;display:flex;align-items:center;gap:8px;min-height:44px}
+.pro-kapali summary::-webkit-details-marker{display:none}
+.pro-kapali summary::before{content:"\f078";font-family:"Font Awesome 6 Free";font-weight:900;font-size:10px;transition:transform .2s var(--ease)}
+.pro-kapali[open] summary::before{transform:rotate(180deg)}
+.pro-kapali summary:hover{color:var(--fit-deep)}
+.pro-kapali summary:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px;border-radius:var(--radius-sm)}
+.pro-kapali .pro-feats{padding-top:4px}
+.pro-card .btn{width:100%;justify-content:center;margin-top:4px}
+.pro-card .btn[disabled]{opacity:.45;pointer-events:none}
+
+/* ================ KARŞILAŞTIRMA TABLOSU (pro-v1 kiti) ============ */
+.cmp-wrap{margin-top:26px;border-radius:var(--radius-lg);overflow-x:auto;border:1px solid var(--line);box-shadow:var(--sh-sm);background:var(--paper)}
+.cmp-wrap:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.cmp-hint{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;font-weight:600;color:var(--slate-2)}
+.cmp-hint i{font-size:11px;color:var(--fit-deep)}
+.cmp-table{width:100%;border-collapse:collapse;background:var(--paper);min-width:640px}
+.cmp-table th,.cmp-table td{padding:12px 16px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.cmp-table thead th{font-size:12px;font-weight:700;color:var(--slate-2);background:#fafbf9;text-align:center;vertical-align:bottom}
+.cmp-table thead th:first-child{text-align:left}
+.cmp-table thead th.col-pop{color:var(--fit-deep)}
+.cmp-table .ch-name{display:flex;align-items:center;justify-content:center;gap:7px;font-size:14px;font-weight:800;color:var(--slate);letter-spacing:-.01em}
+.cmp-table thead th.col-pop .ch-name{color:var(--fit-deep)}
+.cmp-table thead th:first-child .ch-name{justify-content:flex-start}
+.cmp-table .ch-price{display:block;margin-top:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.cmp-table tbody td{text-align:center;color:var(--slate-2);font-weight:600}
+.cmp-table tbody th[scope="row"]{text-align:left;font-weight:500;color:var(--slate)}
+.cmp-table tbody tr:last-child td{border-bottom:0}
+.cmp-table .yes{color:var(--fit-deep)}
+.cmp-table .nope{color:#bdbdbd}
+.cmp-table td.col-pop{background:rgba(0,157,79,.05)}
+.cmp-group th{background:var(--bg);text-align:left;font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--slate);padding:11px 16px;display:table-cell}
+.cmp-group th i{color:var(--fit-deep);margin-right:8px;font-size:11px}
+
+/* ================= PAKETİM SEKMESİ (hesabim kiti) ================ */
+.sub-tier-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.sub-tier-top{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sub-tier-badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,var(--fit),var(--fit-ink));padding:6px 13px;border-radius:var(--radius-pill)}
+.sub-tier-badge.free{background:var(--bg-cream);color:var(--slate-2);border:1px solid var(--line)}
+.sub-tier-info{flex:1;min-width:0}
+.sub-tier-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:15.5px;color:var(--slate);font-weight:700}
+.sub-renew{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:5px}
+.sub-renew i{color:var(--fit-deep);font-size:11px}
+.sub-tier-price{flex:none;text-align:right}
+.sub-tier-price b{font-size:22px;color:var(--slate);font-weight:800;letter-spacing:-.03em}
+.sub-tier-price span{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.sub-tier-body{padding:18px 20px;border-bottom:1px solid var(--line)}
+.sub-tier-feats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sub-tier-feats span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:7px 12px;border-radius:var(--radius-sm)}
+.sub-tier-feats span i{color:var(--fit-deep);font-size:11px}
+.sub-tier-acts{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-wrap:wrap}
+.sub-tier-acts .btn{padding:12px 20px;font-size:13.5px}
+
+.hs-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin:0}
+.hs-facts div{background:var(--paper);padding:14px 16px;min-width:0}
+.hs-facts dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2)}
+.hs-facts dd{font-size:14.5px;font-weight:700;color:var(--slate);margin:5px 0 0;letter-spacing:-.01em}
+.hs-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;padding:3px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.hs-pill.on{color:var(--fit-deep);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24)}
+.hs-pill.off{color:var(--slate-2);background:var(--bg);border:1px solid var(--line)}
+
+.hs-state{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:600;color:var(--slate-2);line-height:1.5;margin:0}
+.hs-state i{flex:none;margin-top:3px;font-size:11.5px;color:var(--fit-deep)}
+.ntf-foot{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);line-height:1.55;text-align:left;text-align-last:auto}
+.ntf-foot i{color:var(--fit-deep);font-size:12px;margin-top:3px;flex:none}
+.ntf-foot a{color:var(--fit-deep);font-weight:700}
+.ntf-foot a:hover{text-decoration:underline;text-underline-offset:2px}
+
+/* ---- antrenör ücreti ayrımı: abonelikle KARIŞMASIN diye kendi kutusu ---- */
+.pk-ayri{display:flex;align-items:flex-start;gap:14px;background:var(--cream-2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 20px;margin-top:22px}
+.pk-ayri>i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--paper);border:1px solid var(--line);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.pk-ayri b{display:block;font-size:14.5px;color:var(--slate);font-weight:700;margin-bottom:5px}
+.pk-ayri p{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0;text-align:left;text-align-last:auto}
+.pk-ayri p a{color:var(--fit-deep);font-weight:700}
+.pk-ayri p a:hover{text-decoration:underline;text-underline-offset:2px}
+
+/* ---- demo kademe anahtarı: ekranın hangi personayı çizdiği görünsün ---- */
+.pk-demo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;font-size:12.5px;color:var(--slate-2);font-weight:600}
+.pk-demo a{display:inline-flex;align-items:center;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);color:var(--slate-2);font-weight:700;font-size:12.5px}
+.pk-demo a[aria-current="true"]{background:var(--fit-tint);border-color:var(--fit-deep);color:var(--fit-deep)}
+.pk-demo a:hover{border-color:var(--fit);color:var(--fit-deep)}
+
+/* ===================== TABLET / MOBİL ===================== */
+@media (max-width:900px){
+  .pro-grid{grid-template-columns:1fr;gap:26px}
+  .pro-flag{right:auto;left:20px}
+}
+@media (max-width:1024px){
+  .hs-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .hs-facts{grid-template-columns:1fr}
+  .sub-tier-top{flex-wrap:wrap;gap:12px}
+  .sub-tier-price{order:3;margin-left:auto;text-align:left}
+  .sub-tier-acts .btn{width:100%}
+  .pk-ayri{flex-direction:column;gap:10px}
+  /* YASLAMA — fit-type.css `p`yi yaslıyor ve 20rem'lik container-query
+     istisnası bu kutularda açılmıyor (kap 324px, eşiğin üstünde).
+     Özgüllük (0,2,0) fit-type.css'in (0,0,1) kuralını yener; yükleme
+     sırasına DOKUNULMADI. */
+  .pro-desc,.pk-ayri p,.ntf-foot{text-align:left;text-align-last:auto}
+}
+</style>
+<!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="paketlerim-v1">
+
+<!-- KABUK: üst katman (üst bant + header + drawer + alt bar + görüş + çerez) -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- MODÜL KABUĞU: kimlik kartı + panel kipinde sekme şeridi (ortak kabuk JS basar) -->
+<div id="fitModulTop"
+     data-modul="paketlerim"
+     data-modul-title="Paketlerim"
+     data-modul-sub="Hangi kademedesin, üç kademe neyi açıyor, nasıl yükseltirsin. Sekme değişir, kimlik kartın yerinde kalır."
+     data-modul-tabs="paketim:Paketim:fa-solid fa-crown|kademeler:Kademeler:fa-solid fa-layer-group|karsilastir:Karşılaştırma:fa-solid fa-table-list"
+     data-modul-aktif="paketim"></div>
+
+<div class="modul-govde">
+
+<!-- 🔴 TEK DÜRÜST ŞERİT — SEKMELERİN DIŞINDA, sayfada BİR KEZ.
+     Panelin içine koyulsaydı `#kademeler` derin bağlantısıyla gelen
+     kullanıcı ekranın maket olduğunu görmezdi. Düğme başına rozet
+     serpilmez; maketlik burada bir kez söylenir. -->
+<section class="pk-serit">
+  <div class="wrap">
+    <div class="pk-kol">
+      <div class="hr-note" role="note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <p><b>Bu ekran maket:</b> ödeme alınmaz, kart bilgisi istenmez, paket değişmez. Aşağıdaki paket kaydı örnek bir kullanıcıya aittir. Gerçekten çalışan yerler kaydetme, challenge ilerlemesi, plan işaretleme ve rozetlerdir — onlar tarayıcı hafızanda tutulur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SEKME: PAKETİM ===================== -->
+<div class="fit-pane" data-pane="paketim">
+<section class="pk-body">
+  <div class="wrap">
+    <div class="pk-kol">
+
+      <div class="pk-sec" id="pkAktifSec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-crown" aria-hidden="true"></i> Aktif kademe</span>
+          <h2>Bugün hangi paketteysen</h2>
+          <p class="lead">Kademen, dönem tarihlerin ve yenileme durumun. Yükseltme ve iptal buradan başlar.</p>
+        </div></div>
+
+        <!-- kademeye göre JS doldurur: tek kart, üç persona -->
+        <div id="pkAktif"></div>
+
+        <!-- Antrenör ücretleri abonelikten AYRIDIR — Beyar'ın açık şartı.
+             Metin fit-paket.js'ten tek kaynaktan geliyor. -->
+        <div class="pk-ayri">
+          <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+          <div>
+            <b>Antrenör ücretleri bu pakete dâhil değildir</b>
+            <p id="pkAyri1"></p>
+            <p style="margin-top:8px">Antrenör paketlerini ve seans tahsilatlarını <a href="odemelerim-v1.html#antrenor">Ödemelerim &rsaquo; Antrenör ödemeleri</a> bölümünde görürsün.</p>
+          </div>
+        </div>
+
+        <div class="ntf-foot">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span>Tahsilatların, faturaların ve kayıtlı kartların <a href="odemelerim-v1.html">Ödemelerim</a> sayfasında. Üyelik ve iptal koşullarının tamamı <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>'nda; bir sorun için <a href="destek-v1.html#taleplerim">destek talebi</a> açabilirsin.</span>
+        </div>
+
+        <!-- Ekranın hangi personayı çizdiği GÖRÜNÜR olsun: maket veri
+             gizli bir varsayım değil, seçilebilir bir durumdur. Deponun
+             `?paket=ucretsiz` deyimiyle aynı (hesabim-v1). -->
+        <div class="pk-demo">
+          <span>Maket kademe:</span>
+          <a href="?paket=ucretsiz" data-demo="ucretsiz">Ücretsiz</a>
+          <a href="?paket=pro" data-demo="pro">Pro</a>
+          <a href="?paket=promax" data-demo="promax">Pro Max</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME: KADEMELER ===================== -->
+<div class="fit-pane" data-pane="kademeler" hidden>
+<section class="pk-body">
+  <div class="wrap">
+    <div class="pk-kol">
+
+      <div class="pk-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Üç kademe</span>
+          <h2>Ücretsiz, Pro ve Pro Max</h2>
+          <p class="lead">Ücretsiz kalıcıdır, süresi dolmaz. Pro ve Pro Max aylık aboneliktir; istediğin an yükseltir ya da bırakırsın.</p>
+        </div></div>
+
+        <!-- Kartlar fit-paket.js'teki TEK veri dizisinden üretilir.
+             Buraya elle özellik satırı YAZILMAZ — ileride bu liste admin
+             panelden gelecek ve markup değişmeyecek. -->
+        <div class="pro-grid" id="pkKartlar"></div>
+
+        <div class="pk-ayri">
+          <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+          <div>
+            <b>Antrenör ücretleri abonelikten ayrıdır</b>
+            <p id="pkAyri2"></p>
+          </div>
+        </div>
+
+        <div class="ntf-foot">
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          <span><b>Fiyatlar onay bekliyor.</b> Buradaki tutarlar prototip için temsilîdir ve tek bir yerden (paket verisi) okunur; ekrana sabit metin olarak yazılmaz. Pro Max için bir tutar henüz belirlenmedi, o yüzden sayı yerine durumu yazıyor.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME: KARŞILAŞTIRMA ===================== -->
+<div class="fit-pane" data-pane="karsilastir" hidden>
+<section class="pk-body">
+  <div class="wrap">
+    <div class="pk-kol">
+
+      <div class="pk-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-table-list" aria-hidden="true"></i> Satır satır</span>
+          <h2>Hangi modül hangi kademede açık</h2>
+          <p class="lead">Tablo, kademe kartlarıyla aynı veriden üretilir — iki yerde iki farklı liste olmaz.</p>
+        </div></div>
+
+        <div class="cmp-wrap" role="region" aria-label="Paket karşılaştırma tablosu" tabindex="0" id="pkTablo"></div>
+        <p class="cmp-hint"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> Dar ekranda tabloyu yana kaydırarak üç kademeyi karşılaştırabilirsin.</p>
+
+        <div class="ntf-foot">
+          <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+          <span id="pkAyri3"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+</div><!-- /.modul-govde -->
+</main>
+
+<!-- KABUK: alt katman (giriş kapısı + pro kapısı + footer + başa dön) -->
+<div id="fitShellBottom"></div>
+
+<script src="assets/js/fit-shell.js"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script>
+/* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) ===== */
+window.__bottomStrips=window.__bottomStrips||[];
+(function(){
+  var nav=document.querySelector(".bottom-nav");
+  if(!nav)return;
+  var cookie=document.getElementById("cookieBanner");
+  var strips=window.__bottomStrips.map(function(s){return document.querySelector(s);}).filter(Boolean);
+  var lastY=window.scrollY||0;
+  function stripShown(){for(var i=0;i<strips.length;i++){if(strips[i]&&strips[i].classList.contains("show"))return true;}return false;}
+  function update(){
+    var y=window.scrollY||0;
+    if((cookie&&cookie.classList.contains("show"))||stripShown()){nav.classList.add("bn-hidden");lastY=y;return;}
+    if(strips.length===0||y<80){nav.classList.remove("bn-hidden");lastY=y;return;}
+    if(y-lastY>12){nav.classList.add("bn-hidden");lastY=y;}
+    else if(lastY-y>12){nav.classList.remove("bn-hidden");lastY=y;}
+  }
+  window.addEventListener("scroll",update,{passive:true});
+  window.addEventListener("resize",update,{passive:true});
+  document.addEventListener("click",function(){setTimeout(update,60);},true);
+  window.__bnUpdate=update;update();
+})();
+</script>
+<script>
+/* =====================================================================
+ PAKETLERİM — üç sekmenin tamamı TEK veri dizisinden basılır
+ ---------------------------------------------------------------------
+ Ekranda elle yazılmış özellik satırı YOKTUR. Kademe kartları,
+ karşılaştırma tablosu ve aktif paket kartı `FIT_PAKET`ten okur; o dizi
+ ileride admin panelden gelecek ve bu dosya değişmeyecek.
+
+ MAKET SINIRI (Beyar, bağlayıcı): bu sayfa hiçbir şeyi KAYDETMEZ.
+ `?paket=` yalnız hangi personanın çizildiğini seçer — bir satın alma
+ değil, bir görüntüleme anahtarıdır ve URL'de açıkça görünür.
+ ===================================================================== */
+(function(){
+  var P = window.FIT_PAKET;
+  if(!P) return;
+
+  function qp(k){ var m=new RegExp('[?&]'+k+'=([^&]+)').exec(location.search); return m?decodeURIComponent(m[1]):null; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* Maket persona. Tanınmayan değer sessizce Pro'ya düşer — kırık ekran yok. */
+  var AKTIF = P.kademe(qp('paket')) ? qp('paket') : 'pro';
+
+  /* Maket dönem tarihleri. Tek yerde durur ki üç sekmede üç farklı tarih
+     çıkmasın; gerçek değil, örnek kayıt olduğu şeritte yazılı. */
+  var DONEM = { baslangic:'15 Mart 2026', bitis:'14 Eylül 2026', yenileme:'15 Eylül 2026' };
+
+  /* ---- 1 · AYRI ÜCRET METNİ: üç yerde de TEK kaynaktan ---- */
+  ['pkAyri1','pkAyri2','pkAyri3'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.textContent = P.ayriUcret;
+  });
+
+  /* ---- 2 · AKTİF PAKET KARTI ---- */
+  (function(){
+    var el = document.getElementById('pkAktif'); if(!el) return;
+    var t  = P.kademe(AKTIF);
+    var ucretsiz = (AKTIF === 'ucretsiz');
+    var ozet = P.ozellikler(AKTIF);
+    var fiyat = P.fiyatMetni(AKTIF);
+
+    var h = '<div class="sub-tier-card">';
+    h += '<div class="sub-tier-top">';
+    h += '<span class="sub-tier-badge'+(ucretsiz?' free':'')+'"><i class="'+t.ikon+'" aria-hidden="true"></i> '+esc(t.ad)+'</span>';
+    h += '<div class="sub-tier-info"><b>DadaFit '+esc(t.ad)+
+         (ucretsiz ? '' : ' — Aylık')+
+         ' <span class="hs-pill '+(ucretsiz?'off':'on')+'"><i class="fa-solid fa-'+(ucretsiz?'infinity':'circle-check')+'" aria-hidden="true"></i> '+(ucretsiz?'Süresiz':'Aktif')+'</span></b>';
+    h += '<span class="sub-renew"><i class="fa-solid fa-'+(ucretsiz?'infinity':'rotate')+'" aria-hidden="true"></i> '+
+         (ucretsiz
+           ? 'Süresi dolmaz, tahsilat yapılmaz, iptal edilecek bir abonelik yok.'
+           : 'Otomatik yenileme açık — sonraki tahsilat '+DONEM.yenileme)+'</span></div>';
+    h += '<div class="sub-tier-price">'+
+         (t.fiyatMetin === null
+            ? '<b aria-hidden="true">&mdash;</b><span>'+esc(fiyat)+'</span>'
+            : '<b>'+esc(t.fiyatMetin)+'</b><span>'+esc(t.birim)+'</span>')+
+         '</div>';
+    h += '</div>';
+
+    h += '<div class="sub-tier-body">';
+    if(!ucretsiz){
+      h += '<dl class="hs-facts">'+
+           '<div><dt>Aktif paket</dt><dd>DadaFit '+esc(t.ad)+' (Aylık)</dd></div>'+
+           '<div><dt>Başlangıç</dt><dd>'+DONEM.baslangic+'</dd></div>'+
+           '<div><dt>Dönem bitişi</dt><dd>'+DONEM.bitis+'</dd></div>'+
+           '<div><dt>Yenileme tarihi</dt><dd>'+DONEM.yenileme+'</dd></div>'+
+           '</dl>';
+    } else {
+      /* SÖZLEŞME §1.6: ücretsiz paket BİR SATIR DEĞİLDİR — plansızlık
+         t0'dır. Bu yüzden burada abonelik KAYDI basılmaz: dönem tarihi,
+         yenileme ve iptal kapısı yok. */
+      h += '<p class="hs-state"><i class="fa-solid fa-infinity" aria-hidden="true"></i> <span>Ücretsiz kademede abonelik kaydı tutulmaz: dönem tarihi, yenileme ve iptal yoktur. Açık olan '+ozet.length+' özelliği aşağıda görürsün.</span></p>';
+    }
+    h += '<div class="sub-tier-feats">';
+    ozet.slice(0,8).forEach(function(m){
+      h += '<span><i class="fa-solid fa-check" aria-hidden="true"></i> '+esc(P.etiket(m,AKTIF))+'</span>';
+    });
+    h += '</div>';
+    if(ozet.length>8){
+      h += '<p class="hs-state" style="margin-top:12px"><i class="fa-solid fa-list" aria-hidden="true"></i> <span>Bu kademede toplam <b>'+ozet.length+' özellik</b> açık. Tam döküm <a href="#karsilastir" style="color:var(--fit-deep);font-weight:700">Karşılaştırma</a> sekmesinde.</span></p>';
+    }
+    h += '</div>';
+
+    /* Eylemler: bir üst kademe varsa yükseltme, yoksa yönetim. */
+    var i = P.sira(AKTIF);
+    h += '<div class="sub-tier-acts">';
+    if(i < P.kademeler.length-1){
+      var ust = P.kademeler[i+1];
+      h += '<a class="btn btn-primary" href="pro-odeme-v1.html?plan='+ust.key+'"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> '+esc(ust.yonelme)+" Yükselt</a>";
+    }
+    h += '<a class="btn btn-ghost" href="#karsilastir"><i class="fa-solid fa-table-list" aria-hidden="true"></i> Kademeleri Karşılaştır</a>';
+    if(!ucretsiz){
+      h += '<a class="btn btn-ghost" href="odemelerim-v1.html#abonelik"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Aboneliği Yönet</a>';
+    }
+    h += '</div>';
+    h += '</div>';
+    el.innerHTML = h;
+  })();
+
+  /* ---- 3 · KADEME KARTLARI ---- */
+  P.kartlarBas(document.getElementById('pkKartlar'), {
+    aktif: AKTIF,
+    eylem: function(t){
+      var i = P.sira(t.key), a = P.sira(AKTIF);
+      if(i === a)  return { etiket:'Mevcut paketin', sinif:'btn-ghost', kapali:true };
+      if(i < a)    return { etiket:t.yonelme+' Düş', sinif:'btn-ghost', href:'odemelerim-v1.html#abonelik' };
+      if(t.key === 'ucretsiz') return { etiket:'Ücretsiz Üye Ol', sinif:'btn-ghost', href:'giris-v1.html?tab=kayit' };
+      return { etiket:t.yonelme+' Yükselt', sinif:'btn-primary', href:'pro-odeme-v1.html?plan='+t.key };
+    }
+  });
+
+  /* ---- 4 · KARŞILAŞTIRMA TABLOSU ---- */
+  P.tabloBas(document.getElementById('pkTablo'), { vurgu: AKTIF === 'ucretsiz' ? 'pro' : AKTIF });
+
+  /* ---- 5 · demo anahtarı: hangi persona açık, o kalem işaretli ---- */
+  Array.prototype.forEach.call(document.querySelectorAll('.pk-demo a'), function(a){
+    if(a.getAttribute('data-demo') === AKTIF) a.setAttribute('aria-current','true');
+  });
+})();
+</script>
+</body>
+</html>

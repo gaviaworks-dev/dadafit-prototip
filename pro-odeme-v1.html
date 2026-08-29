@@ -73,6 +73,36 @@
 .fk-grid .fk-field{margin-bottom:0}
 .fk-grid.c2{grid-template-columns:1fr 1fr}
 
+/* ---- ÖDEME YÖNTEMİ SEÇİMİ (yeni adım) ----
+   Radyo düğmesi görsel olarak kart satırına dönüşür; erişilebilirlik
+   radyo grubunda kalır (klavye ok tuşları, tek tab durağı). Kayıtlı kart
+   seçilirse kart formu gizlenir — form gereksiz yere odak sırasında
+   durmasın diye `hidden` ile YERLEŞİMDEN de çıkar. */
+.pm-list{display:flex;flex-direction:column;gap:12px}
+.pm-opt{position:relative;display:flex;align-items:center;gap:14px;padding:15px 17px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--paper);cursor:pointer;transition:.18s var(--ease)}
+.pm-opt:hover{border-color:#dcdcdc;box-shadow:var(--sh-sm)}
+.pm-opt input{position:absolute;opacity:0;pointer-events:none}
+.pm-opt .pm-dot{flex:none;width:20px;height:20px;border-radius:var(--radius-circle);border:1.5px solid #d8d8d8;background:var(--paper);display:grid;place-items:center;transition:.18s var(--ease)}
+.pm-opt .pm-dot::after{content:"";width:10px;height:10px;border-radius:var(--radius-circle);background:#fff;transform:scale(0);transition:transform .15s var(--ease)}
+.pm-opt input:checked ~ .pm-dot{background:var(--fit);border-color:var(--fit)}
+.pm-opt input:checked ~ .pm-dot::after{transform:scale(1)}
+.pm-opt input:focus-visible ~ .pm-dot{outline:3px solid var(--fit);outline-offset:2px}
+.pm-opt:has(input:checked){border-color:var(--fit);background:var(--fit-tint)}
+.pm-opt .pm-mark{flex:none;width:48px;height:34px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:24px;color:#1a1f71}
+.pm-opt .pm-mark.mc{color:#c7001b}
+.pm-opt .pm-mark.yeni{font-size:15px;color:var(--fit-deep)}
+.pm-opt .pm-txt{flex:1;min-width:0}
+.pm-opt .pm-txt b{display:block;font-size:14px;color:var(--slate);font-weight:700;letter-spacing:.04em}
+.pm-opt .pm-txt span{display:block;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:2px}
+.pm-opt .pm-vars{flex:none;font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--fit-deep);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24);padding:3px 10px;border-radius:var(--radius-sm)}
+#kartFormu[hidden]{display:none}
+
+/* ---- alan hatası (form doğrulaması GERÇEKTEN çalışır) ---- */
+.fk-input.is-err{border-color:#b3261e;box-shadow:0 0 0 3px rgba(179,38,30,.10)}
+.fk-hata{display:none;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:700;color:#b3261e;margin-top:8px;line-height:1.5}
+.fk-hata.show{display:flex}
+.fk-hata i{font-size:12px;margin-top:2px;flex:none}
+
 /* ---- checkout yerleşimi ---- */
 .ck-wrap{padding:var(--sec-pad) 0 var(--sec-pad);background:var(--bg-white)}
 .wiz-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
@@ -136,14 +166,16 @@
 .ps-body{padding:18px 22px 22px}
 .ps-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
 .ps-feats li{display:flex;gap:9px;font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.4}
-.ps-feats li i{color:var(--green-deep);font-size:11px;margin-top:3px;flex:none}
+.ps-feats li i{color:var(--fit-deep);font-size:11px;margin-top:3px;flex:none}   /* kit değeri: --green-deep kitte yok */
+.ps-feats li.nitelik i{color:var(--muted)}
+.ps-more{font-size:12px;color:var(--muted);font-weight:600;margin:-8px 0 18px}
 .ps-total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:15px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:18px}
 .ps-total .pt-lbl{font-size:13px;color:var(--muted);font-weight:600}
 .ps-total .pt-val b{font-size:26px;color:var(--slate);letter-spacing:-.02em}
 .ps-total .pt-val span{font-size:12px;color:var(--muted);font-weight:500}
 .plan-sum .btn{width:100%}
 .ps-note{display:flex;gap:8px;font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.5;margin-top:13px}
-.ps-note i{color:var(--green);margin-top:2px;flex:none}
+.ps-note i{color:var(--fit-deep);margin-top:2px;flex:none}
 .ps-switch{font-size:12.5px;text-align:center;margin-top:14px;color:var(--muted);font-weight:500}
 .ps-switch a{color:var(--fit);font-weight:700}
 
@@ -162,25 +194,32 @@
 .pm-card .pm-go{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--fit-deep);margin-top:4px}
 .pm-card .pm-go i{font-size:10px}
 
-/* ---- başarı state — body.pay-done ile toggle ---- */
+/* ---- DURUM EKRANI — body.pay-done ile toggle ----
+   🔴 SAHTE BAŞARI SÖKÜLDÜ (Beyar, bağlayıcı). Eski hâli "Üyeliğin
+   başladı" + yeşil onay dairesi + sahte fatura satırı basıyordu; bu
+   prototipte ödeme alınmadığı için o ekran YALANDI. Yerine akışın
+   gerçekten nerede durduğunu yazan NÖTR bir durum ekranı geldi:
+   · yeşil "başarı" tonu yok — nötr kutu, nötr ikon
+   · fatura satırı yok (fatura kesilmedi)
+   · "abonelik başladı" cümlesi yok (başlamadı)
+   Girilen bilgiler ekranda ÖZETLENİR ki kullanıcı akışın sonuna kadar
+   gittiğini görsün; ama hiçbiri gönderilmedi ve ekran bunu yazar. */
 .pay-success{display:none;padding:70px 0 78px;background:var(--bg-white)}
 body.pay-done .ck-wrap,body.pay-done .pay-manage{display:none}
 body.pay-done .pay-success{display:block}
 .suc-mid{max-width:640px;margin:0 auto;text-align:center}
-.suc-ico{width:84px;height:84px;border-radius:var(--radius-circle);background:#e8f6ef;color:var(--green-deep);display:grid;place-items:center;font-size:38px;margin:0 auto 22px}
-.suc-tier{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--fit);background:var(--fit-wash);padding:7px 15px;border-radius:var(--radius-pill);margin-bottom:16px}
+.suc-ico{width:84px;height:84px;border-radius:var(--radius-circle);background:var(--bg);border:1px solid var(--line);color:var(--slate-2);display:grid;place-items:center;font-size:34px;margin:0 auto 22px}
+.suc-tier{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:7px 15px;border-radius:var(--radius-pill);margin-bottom:16px}
 .pay-success h2{font-size:28px;color:var(--slate);margin-bottom:12px}
-.pay-success .suc-lead{font-size:15.5px;color:var(--muted);font-weight:500;margin:0 auto 26px;line-height:1.6}
+.pay-success .suc-lead{font-size:15.5px;color:var(--slate-2);font-weight:500;margin:0 auto 26px;line-height:1.6}
 .suc-panel{max-width:640px;margin:0 auto;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:24px}
+.suc-panel+.suc-panel{margin-top:16px}
 .suc-panel h3{font-size:16px;color:var(--slate);margin-bottom:4px}
-.suc-panel>p{font-size:13px;color:var(--muted);font-weight:500;line-height:1.55;margin-bottom:18px}
-.suc-inv{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg)}
-.suc-inv i:first-child{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-wash);color:var(--fit);display:grid;place-items:center;font-size:15px}
-.suc-inv .si-body{flex:1;min-width:180px}
-.suc-inv .si-body b{display:block;font-size:14px;color:var(--slate)}
-.suc-inv .si-body span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
-.suc-inv .si-go{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--fit-deep)}
-.suc-inv .si-go i{font-size:10px}
+.suc-panel>p{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.55;margin-bottom:18px}
+.suc-liste{list-style:none;display:flex;flex-direction:column;gap:10px;margin:0}
+.suc-liste li{display:flex;gap:10px;font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.5}
+.suc-liste li i{flex:none;margin-top:3px;font-size:11px;color:var(--slate-2)}
+.suc-liste li b{color:var(--slate);font-weight:700}
 .suc-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
 
 @media (max-width:1024px){
@@ -219,16 +258,16 @@ body.pay-done .pay-success{display:block}
     <nav class="lib-crumb" aria-label="Sayfa yolu">
       <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
       <i class="fa-solid fa-chevron-right"></i>
-      <a href="pro-v1.html">Ücretsiz ve Pro</a>
+      <a href="pro-v1.html">Ücretsiz, Pro ve Pro Max</a>
       <i class="fa-solid fa-chevron-right"></i>
       <span class="cur">Ödeme</span>
     </nav>
     <div class="pay-eyebrow">
       <span class="eyebrow"><i class="fa-solid fa-crown"></i> Üyelik</span> </div>
-    <h1>Aboneliğini başlat</h1>
-    <p class="lib-sub">Seçtiğin kademeyi onayla, dönem tarihlerini gör, kart bilgilerini gir. Üyeliğini istediğin an dondurabilir veya iptal edebilirsin.</p>
+    <h1 id="payBaslik">Aboneliğini başlat</h1>
+    <p class="lib-sub">Dört adım: planı onayla, ödeme yöntemini seç, kart bilgilerini gir, koşulları onayla. Üyeliğini istediğin an dondurabilir veya iptal edebilirsin.</p>
     <!-- çıkmaz sokak kırıcı: ödeme ekranından içeriğe sessiz yol -->
-    <a class="pay-already" href="hesabim-v1.html#uyelik"><i class="fa-solid fa-crown"></i> Zaten abone misin? Üyeliğini yönet <i class="fa-solid fa-arrow-right"></i></a>
+    <a class="pay-already" href="odemelerim-v1.html#abonelik"><i class="fa-solid fa-crown"></i> Zaten abone misin? Aboneliğini yönet <i class="fa-solid fa-arrow-right"></i></a>
   </div>
 </section>
 
@@ -240,36 +279,80 @@ body.pay-done .pay-success{display:block}
       <!-- SOL: kart formu + dönem alanları + onay -->
       <div class="wiz-main">
 
+        <!-- 🔴 TEK DÜRÜST ŞERİT — akışın başında BİR KEZ. Aşağıdaki hiçbir
+             düğmenin yanında ayrıca "maket" rozeti YOKTUR. -->
+        <div class="hr-note" role="note" style="margin-top:0;margin-bottom:20px">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <p><b>Bu ekran maket: ödeme alınmaz, kart bilgisi hiçbir yere gönderilmez ve saklanmaz.</b> Form doğrulaması gerçekten çalışır — kart numarası Luhn kontrolünden geçer, tarih geçmiş olamaz. Akışın sonunda ekran neyin yapılmadığını açıkça yazar.</p>
+        </div>
+
+        <!-- ===== ADIM 2 · ÖDEME YÖNTEMİ ===== -->
         <div class="form-card">
           <div class="fc-head">
             <div>
-              <h2><i class="fa-regular fa-credit-card"></i> Kart Bilgileri</h2>
-              <p>Bilgilerin şifrelenir, kartın kaydedilmez — ödeme 3D Secure ile doğrulanır.</p>
+              <h2><i class="fa-solid fa-wallet"></i> Ödeme Yöntemi</h2>
+              <p>Kayıtlı bir kartla devam et ya da yeni kart gir. Kayıtlı kartını seçersen aşağıdaki form kapanır.</p>
             </div>
-            <span class="fc-step"><i class="fa-solid fa-lock"></i> Güvenli</span>
+            <span class="fc-step">Adım 2 / 4</span>
+          </div>
+          <div class="pm-list" role="radiogroup" aria-label="Ödeme yöntemi">
+            <label class="pm-opt" for="pmKayitli1">
+              <input type="radio" name="odemeYontemi" id="pmKayitli1" value="kayitli-4242" checked />
+              <span class="pm-dot" aria-hidden="true"></span>
+              <span class="pm-mark" aria-hidden="true"><i class="fa-brands fa-cc-visa"></i></span>
+              <span class="pm-txt"><b>Visa •••• 4242</b><span>Son kullanma 08 / 2027</span></span>
+              <span class="pm-vars">Varsayılan</span>
+            </label>
+            <label class="pm-opt" for="pmKayitli2">
+              <input type="radio" name="odemeYontemi" id="pmKayitli2" value="kayitli-8821" />
+              <span class="pm-dot" aria-hidden="true"></span>
+              <span class="pm-mark mc" aria-hidden="true"><i class="fa-brands fa-cc-mastercard"></i></span>
+              <span class="pm-txt"><b>Mastercard •••• 8821</b><span>Son kullanma 03 / 2027</span></span>
+            </label>
+            <label class="pm-opt" for="pmYeni">
+              <input type="radio" name="odemeYontemi" id="pmYeni" value="yeni" />
+              <span class="pm-dot" aria-hidden="true"></span>
+              <span class="pm-mark yeni" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+              <span class="pm-txt"><b>Yeni kart</b><span>Kart bilgilerini aşağıdaki formda gir</span></span>
+            </label>
+          </div>
+          <span class="fk-help"><i class="fa-solid fa-sliders"></i> Kayıtlı kartlarını <a href="odemelerim-v1.html#kartlar" style="color:var(--fit-deep);font-weight:700">Ödemelerim &rsaquo; Kartlarım</a> bölümünden yönetirsin.</span>
+        </div>
+
+        <!-- ===== ADIM 3 · KART BİLGİLERİ ===== -->
+        <div class="form-card" id="kartFormu" hidden>
+          <div class="fc-head">
+            <div>
+              <h2><i class="fa-regular fa-credit-card"></i> Kart Bilgileri</h2>
+              <p>Alan doğrulaması bu ekranda gerçekten çalışır; bilgiler hiçbir yere gönderilmez.</p>
+            </div>
+            <span class="fc-step">Adım 3 / 4</span>
           </div>
 
           <div class="pay-grid">
             <div>
               <div class="fk-field">
-                <label class="fk-label" for="ccName">Kart Üzerindeki İsim <span class="req">*</span></label>
-                <input class="fk-input" id="ccName" type="text" autocomplete="cc-name" placeholder="Kart sahibinin adı soyadı" />
+                <label class="fk-label" for="ccName">Kart Üzerindeki İsim <span class="req" aria-hidden="true">*</span></label>
+                <input class="fk-input" id="ccName" type="text" autocomplete="cc-name" placeholder="Kart sahibinin adı soyadı" required aria-describedby="ccNameHata" />
+                <p class="fk-hata" id="ccNameHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Kart üzerindeki ismi yaz.</span></p>
               </div>
               <div class="fk-field">
-                <label class="fk-label" for="ccNum">Kart Numarası <span class="req">*</span></label>
-                <input class="fk-input" id="ccNum" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" />
+                <label class="fk-label" for="ccNum">Kart Numarası <span class="req" aria-hidden="true">*</span></label>
+                <input class="fk-input" id="ccNum" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required aria-describedby="ccNumHata" />
+                <p class="fk-hata" id="ccNumHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>16 haneli geçerli bir kart numarası gir.</span></p>
               </div>
               <div class="fk-grid c2">
                 <div class="fk-field">
-                  <label class="fk-label" for="ccExp">Son Kullanma <span class="req">*</span></label>
-                  <input class="fk-input" id="ccExp" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="AA/YY" />
+                  <label class="fk-label" for="ccExp">Son Kullanma <span class="req" aria-hidden="true">*</span></label>
+                  <input class="fk-input" id="ccExp" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="AA/YY" required aria-describedby="ccExpHata" />
+                  <p class="fk-hata" id="ccExpHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>AA/YY biçiminde, geçmemiş bir tarih gir.</span></p>
                 </div>
                 <div class="fk-field">
-                  <label class="fk-label" for="ccCvv">CVV <span class="req">*</span></label>
-                  <input class="fk-input" id="ccCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="3" placeholder="•••" />
+                  <label class="fk-label" for="ccCvv">CVV <span class="req" aria-hidden="true">*</span></label>
+                  <input class="fk-input" id="ccCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="•••" required aria-describedby="ccCvvHata" />
+                  <p class="fk-hata" id="ccCvvHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>3 veya 4 haneli güvenlik kodunu gir.</span></p>
                 </div>
               </div>
-              <span class="fk-help"><i class="fa-solid fa-lightbulb"></i> Bu ekran bir prototiptir — gerçek ödeme alınmaz, girdiğin kart bilgisi hiçbir yere gönderilmez ve saklanmaz.</span>
             </div>
 
             <!-- canlı kart önizleme (maskeli) -->
@@ -289,8 +372,10 @@ body.pay-done .pay-success{display:block}
           <div class="fc-head">
             <div>
               <h2><i class="fa-regular fa-calendar-check"></i> Abonelik Dönemin</h2>
-              <p>Ödemen alındığında hesabında oluşacak kayıt — tarihleri baştan gör.</p>
-            </div></div>
+              <p>Ödeme alınsaydı hesabında oluşacak kayıt — tarihleri baştan gör.</p>
+            </div>
+            <span class="fc-step">Adım 1 / 4</span>
+          </div>
           <div class="sub-facts">
             <div class="sf-item">
               <label><i class="fa-solid fa-crown"></i> Aktif paket</label>
@@ -320,7 +405,15 @@ body.pay-done .pay-success{display:block}
         </div>
 
         <!-- ===== ONAY ===== -->
+        <!-- ===== ADIM 4 · ONAY ===== -->
         <div class="form-card" id="agreeCard">
+          <div class="fc-head">
+            <div>
+              <h2><i class="fa-solid fa-file-signature"></i> Onay</h2>
+              <p>Koşulları onaylamadan abonelik düğmesi çalışmaz.</p>
+            </div>
+            <span class="fc-step">Adım 4 / 4</span>
+          </div>
           <label class="agree" for="agreePro">
             <input type="checkbox" id="agreePro" aria-describedby="agreeErr" />
             <span class="cbx" aria-hidden="true"></span>
@@ -338,22 +431,18 @@ body.pay-done .pay-success{display:block}
             <span class="ps-tag" id="psTag">Aylık abonelik · istediğin an iptal</span>
           </div>
           <div class="ps-body">
-            <ul class="ps-feats" id="psFeats">
-              <li><i class="fa-solid fa-check"></i> Tüm programlar (çok haftalık)</li>
-              <li><i class="fa-solid fa-check"></i> Fit Testleri</li>
-              <li><i class="fa-solid fa-check"></i> Gelişmiş ilerleme takibi</li>
-              <li><i class="fa-solid fa-check"></i> Aktivite ve cihaz bağlantıları</li>
-              <li><i class="fa-solid fa-check"></i> Sana uygun program önerileri</li>
-              <li><i class="fa-solid fa-check"></i> Gelişmiş Challenge sistemi</li>
-            </ul>
+            <!-- Özellikler ELLE yazılmaz: fit-paket.js'teki tek kaynaktan,
+                 seçilen kademenin bir alt kademeye göre FARKI basılır. -->
+            <ul class="ps-feats" id="psFeats"></ul>
+            <p class="ps-more" id="psMore"></p>
             <div class="ps-total">
               <span class="pt-lbl">Aylık toplam</span>
               <span class="pt-val"><b id="psPrice">₺99</b> <span>/ ay</span></span>
               <span class="price-flag"><i class="fa-solid fa-clock"></i> Fiyat onay bekliyor</span>
             </div>
-            <button class="btn btn-primary" id="startSub" type="button"><i class="fa-solid fa-crown"></i> Aboneliği Başlat</button>
-            <p class="ps-note"><i class="fa-solid fa-shield-halved"></i> 3D Secure doğrulaması bankan tarafından yapılır. Bu prototipte tutarlar temsilîdir.</p>
-            <p class="ps-switch">Farklı kademe mi? <a href="pro-v1.html">Paketleri karşılaştır</a></p>
+            <button class="btn btn-primary" id="startSub" type="button"><i class="fa-solid fa-crown"></i> <span id="startSubTxt">Aboneliği Başlat</span></button>
+            <p class="ps-note"><i class="fa-solid fa-user-tie"></i> <span id="psAyri"></span></p>
+            <p class="ps-switch">Farklı kademe mi? <a href="paketlerim-v1.html#karsilastir">Kademeleri karşılaştır</a></p>
           </div>
         </div>
       </aside>
@@ -362,96 +451,89 @@ body.pay-done .pay-success{display:block}
   </div>
 </section>
 
-<!-- ===== ÜYELİK YÖNETİMİ (belge §15'in kalan alanları) =====
- Ödeme geçmişi · faturalar · paket değiştirme · abonelik iptali hesabım
- sayfasında YAŞIYOR (hesabim-v1 #uyelik/#odeme/#fatura). Bu sayfa ödeme
- AKIŞI; alanları burada ikinci kez kurmak yerine gerçek sahibine
- yönlendiriyor. Faz 5'in uyelik-faturalandirma-v1 sayfası henüz üretilmedi,
- bu yüzden ona BAĞLANMIYOR (kırık link olurdu). -->
+<!-- ===== ÖDEME SONRASI: BU ALANLARIN GERÇEK SAHİPLERİ =====
+ Abonelik · antrenör ödemeleri · faturalar · kartlar · iade artık
+ `odemelerim-v1.html`in beş sekmesidir; kademe karşılaştırması ise
+ `paketlerim-v1.html`. Bu sayfa yalnız ödeme AKIŞIDIR ve o alanları
+ ikinci kez kurmaz — gerçek sahibine yönlendirir. -->
 <section class="pay-manage" aria-labelledby="pmHead">
   <div class="wrap">
     <div class="sec-head"><div>
       <span class="eyebrow"><i class="fa-solid fa-sliders"></i> Ödeme sonrası</span>
-      <h2 id="pmHead">Üyeliğini nereden yönetirsin?</h2>
-      <p class="lead">Aboneliğin başladıktan sonra paket, tarih, tahsilat ve fatura kayıtlarının tamamı hesabında tutulur.</p>
+      <h2 id="pmHead">Bu ekranın devamı nerede?</h2>
+      <p class="lead">Ödeme akışı burada biter; paket, tahsilat, fatura ve iade kayıtlarının tamamı kendi modüllerinde tutulur.</p>
     </div></div>
     <div class="pm-grid">
-      <a class="pm-card" href="hesabim-v1.html#uyelik">
+      <a class="pm-card" href="paketlerim-v1.html">
         <i class="fa-solid fa-crown"></i>
-        <b>Aktif paket ve tarihler</b>
-        <p>Hangi paketteysen, dönem başlangıcı, bitişi ve yenileme tarihi tek ekranda.</p>
-        <span class="pm-go">Üyelik ve Paketim <i class="fa-solid fa-arrow-right"></i></span>
+        <b>Paketlerim</b>
+        <p>Hangi kademedesin, üç kademe neyi açıyor, satır satır karşılaştırma.</p>
+        <span class="pm-go">Kademeleri gör <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="pm-card" href="hesabim-v1.html#odeme">
-        <i class="fa-solid fa-receipt"></i>
-        <b>Ödeme geçmişi</b>
-        <p>Alınan tahsilatlar tarih, tutar ve durum bilgisiyle listelenir.</p>
-        <span class="pm-go">Ödeme Geçmişim <i class="fa-solid fa-arrow-right"></i></span>
+      <a class="pm-card" href="odemelerim-v1.html#abonelik">
+        <i class="fa-solid fa-rotate"></i>
+        <b>Abonelik ve yenileme</b>
+        <p>Dönem tarihleri, otomatik yenileme, kampanya kodu, dondurma ve iptal.</p>
+        <span class="pm-go">Aboneliğimi yönet <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="pm-card" href="hesabim-v1.html#fatura">
+      <a class="pm-card" href="odemelerim-v1.html#faturalar">
         <i class="fa-solid fa-file-invoice"></i>
         <b>Faturalar</b>
-        <p>Fatura bilgilerini düzenler, kesilen belgeleri buradan görürsün.</p>
+        <p>Fatura numarası, tarih, tutar, durum ve belge — üyelik ve antrenör birlikte.</p>
         <span class="pm-go">Faturalarım <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="pm-card" href="pro-v1.html">
-        <i class="fa-solid fa-arrow-right-arrow-left"></i>
-        <b>Paket değiştirme ve iptal</b>
-        <p>Kademeler arasında yükselip düşebilir, aboneliğini iptal edebilirsin.</p>
-        <span class="pm-go">Paketleri karşılaştır <i class="fa-solid fa-arrow-right"></i></span>
+      <a class="pm-card" href="odemelerim-v1.html#kartlar">
+        <i class="fa-regular fa-credit-card"></i>
+        <b>Kayıtlı kartlar</b>
+        <p>Kart ekle, kaldır, varsayılanı değiştir; yenilemede kullanılacak kartı seç.</p>
+        <span class="pm-go">Kartlarım <i class="fa-solid fa-arrow-right"></i></span>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ===== BAŞARI STATE (body.pay-done ile görünür · ?ok=1) ===== -->
-<section class="pay-success" aria-label="Abonelik başarılı">
+<!-- ===== DURUM EKRANI (body.pay-done ile görünür · ?ok=1) =====
+ 🔴 Burada eskiden "Üyeliğin başladı" + yeşil onay + sahte fatura satırı
+ vardı. Bu prototipte ödeme ALINMADIĞI için o ekran yalandı ve söküldü.
+ Yerine akışın nerede durduğunu söyleyen nötr durum ekranı var: girdiğin
+ bilgiler özetlenir (akışı sonuna kadar götürdüğünü görürsün) ama hiçbiri
+ gönderilmedi ve ekran bunu açıkça yazar. -->
+<section class="pay-success" aria-label="Ödeme akışının durumu">
   <div class="wrap">
     <div class="suc-mid">
-      <span class="suc-ico"><i class="fa-solid fa-check"></i></span>
-      <span class="suc-tier"><i class="fa-solid fa-crown"></i> <span id="sucName">Pro</span> aktif</span>
-      <h2>Üyeliğin başladı</h2>
-      <p class="suc-lead">Paketine bağlı programlar, video seansları ve ölçüm ekranları hesabında açıldı. İlk antrenmanını hemen planlayabilirsin.</p>
+      <span class="suc-ico"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></span>
+      <span class="suc-tier"><i class="fa-solid fa-plug-circle-xmark" aria-hidden="true"></i> Ödeme altyapısı bağlanmadı</span>
+      <h2>Akışın sonuna geldin — ödeme alınmadı</h2>
+      <p class="suc-lead">Formu eksiksiz doldurdun ve koşulları onayladın. Bu noktada gerçek bir üründe banka doğrulaması başlardı; bu prototipte ödeme sağlayıcısı bağlı değil, o yüzden <b>tahsilat yapılmadı, abonelik başlamadı, fatura kesilmedi</b>.</p>
     </div>
 
     <div class="suc-panel">
-      <h3>Abonelik kaydın</h3>
-      <p>Bu kayıt hesabındaki Üyelik ve Paketim bölümünde tutulur. </p>
-      <div class="sub-facts">
-        <div class="sf-item">
-          <label><i class="fa-solid fa-crown"></i> Aktif paket</label>
-          <b id="sucPlan">DadaFit Pro</b>
-          <span>Aylık abonelik</span>
-        </div>
-        <div class="sf-item">
-          <label><i class="fa-solid fa-play"></i> Başlangıç tarihi</label>
-          <b>17 Ağustos 2026</b>
-          <span>Bugün</span>
-        </div>
-        <div class="sf-item">
-          <label><i class="fa-solid fa-flag-checkered"></i> Dönem bitişi</label>
-          <b>16 Eylül 2026</b>
-          <span>Mevcut dönemin son günü</span>
-        </div>
-        <div class="sf-item">
-          <label><i class="fa-solid fa-rotate"></i> Yenileme tarihi</label>
-          <b>17 Eylül 2026</b>
-          <span id="sucRenew">Otomatik yenileme · ₺99</span>
-        </div>
-      </div>
-      <div class="suc-inv">
-        <i class="fa-solid fa-file-invoice"></i>
-        <span class="si-body">
-          <b id="sucInv">DadaFit Pro — Ağustos 2026 · ₺99,00</b>
-          <span>17 Ağustos 2026 · tahsilat tamamlandı</span>
-        </span>
-        <a class="si-go" href="hesabim-v1.html#fatura">Faturalarım <i class="fa-solid fa-arrow-right"></i></a>
-      </div>
+      <h3>Ne yapıldı, ne yapılmadı</h3>
+      <p>Ekranın attığı ve atmadığı adımlar, sırayla.</p>
+      <ul class="suc-liste">
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Plan seçildi:</b> <span id="dsPlan">DadaFit Pro</span> · <span id="dsFiyat">₺99 / ay</span></span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Ödeme yöntemi seçildi:</b> <span id="dsYontem">Visa •••• 4242</span></span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Form doğrulaması geçildi:</b> zorunlu alanlar dolu, kart numarası Luhn kontrolünden geçti, son kullanma tarihi geçerli.</span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Koşullar onaylandı:</b> üyelik, mesafeli satış ve ödeme koşulları.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Tahsilat yapılMADI</b> — ödeme sağlayıcısı bağlı değil.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Abonelik başlaMADI</b> — kademen değişmedi, hiçbir modül açılmadı.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Fatura kesilMEDİ</b> ve kart <b>kaydedilMEDİ</b> — girdiğin bilgiler yalnız bu sayfada durdu, sayfadan ayrılınca kayboldu.</span></li>
+      </ul>
+    </div>
+
+    <div class="suc-panel">
+      <h3>Backend geldiğinde ne değişecek</h3>
+      <p>Bu ekranın yerini alacak adımlar, backend deposu doğduğunda:</p>
+      <ul class="suc-liste">
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span>Kart bilgisi ödeme sağlayıcısına gider; DadaFit tam kart numarasını hiç görmez.</span></li>
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span>3D Secure doğrulaması bankan tarafından yapılır.</span></li>
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span>Tahsilat onaylanınca abonelik kaydı açılır, fatura kesilir ve <a href="odemelerim-v1.html#faturalar">Ödemelerim</a>'de listelenir.</span></li>
+      </ul>
     </div>
 
     <div class="suc-acts">
-      <a class="btn btn-primary" href="programlar-merkezi-v1.html"><i class="fa-solid fa-list-check"></i> Programlara Başla</a>
-      <a class="btn btn-ghost" href="hesabim-v1.html#uyelik"><i class="fa-solid fa-gear"></i> Üyeliğimi Yönet</a>
+      <a class="btn btn-ghost" href="paketlerim-v1.html"><i class="fa-solid fa-crown"></i> Paketlerime Dön</a>
+      <a class="btn btn-primary" href="programlar-merkezi-v1.html"><i class="fa-solid fa-list-check"></i> Ücretsiz Programlara Bak</a>
     </div>
   </div>
 </section>
@@ -463,6 +545,8 @@ body.pay-done .pay-success{display:block}
 
 <!-- DadaFit ortak kabuk JS (tek kaynak) -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- Kademe–özellik eşlemesinin tek kaynağı -->
+<script src="assets/js/fit-paket.js"></script>
 <script>
 /* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) =====
  Kural: ekranda en fazla 1 sabit alt şerit. Çerez onayı (geçici, öncelikli)
@@ -490,70 +574,120 @@ window.__bottomStrips=window.__bottomStrips||[];
 })();
 </script>
 <script>
-/* ===== PRO ÖDEME EKRANI — plan özeti + canlı kart + başarı state =====
- GÖÇ NOTU: legacy PLANS objesi DadaMutfak kademelerini taşıyordu
- (t1 ₺49 "Pro" · t2 ₺99 "Pro+" · t3 ₺199 "Pro Max"; özellikler reklamsız
- deneyim / Pro tarifler / creator premium / diyetisyen avantajları).
- DadaFit'te kademe ÜÇ tanedir ve tek kaynağı pro-v1.html'dir:
- Ücretsiz (₺0) · Pro (₺99) · Pro Max AI (fiyat açıklanmadı).
+/* =====================================================================
+ PRO ÖDEME AKIŞI — plan özeti · ödeme yöntemi · kart formu · onay · durum
+ ---------------------------------------------------------------------
+ 🔴 PLAN TEK KAYNAKTAN OKUNUR. Eski sürüm plan adlarını, fiyatlarını ve
+ özellik listelerini bu dosyanın içinde ELLE tutuyordu (PLANS objesi) ve
+ pro-v1'in kartlarıyla senkron kalması ELLE sağlanıyordu. Artık üçü de
+ `assets/js/fit-paket.js`ten geliyor — sapma imkânsız.
 
- 🔴 P3 (2026-08-25) — ÖDEME AKIŞINDA TEK PLAN VAR: `t2`.
-   · Ücretsiz kademe ödeme akışına HİÇ girmez — pro-v1 onun düğmesini
-     giris-v1.html?tab=kayit'e bağlar (plansızlık t0'dır, bir satır değil).
-   · **Pro Max AI SATIŞA KAPALI.** Vitrinde görünür ama satın alma yolu
-     açılmaz; bu yüzden `t3` planı buradan KALDIRILDI. Eski
-     `?plan=t3` bağlantısı (ve emekli `t1`, ve tanınmayan her değer)
-     aşağıdaki `||PLANS.t2` ile sessizce Pro'ya düşer — kırık ekran yok,
-     satın alınamayan bir kademenin ödeme ekranı da yok.
- Özellik listeleri ve fiyatlar pro-v1'in kartlarından BİREBİR alındı —
- tek kaynak sözleşmesi. */
+ 🔴 ÜÇ KADEME DE SATILABİLİR (Beyar, 2026-08-29). Eski P3 kararı Pro Max
+ AI'yı satışa kapatıyordu; o kademe adı da kararı da kalktı.
+   · `?plan=pro` · `?plan=promax` → ilgili kademe
+   · `?plan=ucretsiz` → ödeme akışına GİRMEZ (plansızlık t0'dır, satın
+     alınacak bir şey yok); sessizce Pro'ya düşer
+   · eski bağlantılar `?plan=t2` / `?plan=t3` → pro / promax
+   · tanınmayan her değer → Pro
+
+ 🔴 DÜRÜSTLÜK: son adım "başarılı" DEMEZ. Doğrulama gerçekten çalışır
+ (zorunlu alan · Luhn · SKT · onay kutusu); geçilirse ekran ödeme
+ altyapısının bağlanmadığını ve neyin YAPILMADIĞINI yazar.
+ ===================================================================== */
 (function(){
-  var PLANS={
-    t2:{
-      name:'DadaFit Pro', short:'Pro', ico:'fa-bolt', price:'₺99', amount:'₺99,00',
-      feats:['Tüm programlar (çok haftalık)','Fit Testleri',
-             'Gelişmiş ilerleme takibi','Aktivite ve cihaz bağlantıları',
-             'Sana uygun program önerileri','Gelişmiş Challenge sistemi',
-             'Antrenör görüşmesi avantajları','Kişisel program değerlendirmesi',
-             'Öncelikli destek','Dada Diet entegrasyonu','Dada Gastro tarif önerileri']
-    }
-  };
+  var P = window.FIT_PAKET; if(!P) return;
+
+  function $(id){ return document.getElementById(id); }
+  function set(id,v){ var el=$(id); if(el) el.textContent=v; }
   function qp(k){ var m=new RegExp('[?&]'+k+'=([^&]+)').exec(location.search); return m?decodeURIComponent(m[1]):null; }
-  var plan=PLANS[qp('plan')]||PLANS.t2;
 
-  function set(id,v){ var el=document.getElementById(id); if(el)el.textContent=v; }
+  var ESKI = { t2:'pro', t3:'promax' };                 /* emekli bağlantılar */
+  var istek = qp('plan');
+  var key = ESKI[istek] || istek;
+  if(!P.kademe(key) || key === 'ucretsiz') key = 'pro';
+  var plan = P.kademe(key);
+  var fiyat = P.fiyatMetni(key);
 
-  /* --- plan özeti + dönem alanları --- */
-  var ico=document.getElementById('psIco');
-  if(ico){ ico.className='fa-solid '+plan.ico; }
-  set('psName',plan.short);
-  set('psPrice',plan.price);
-  set('sfPlan',plan.name);
-  set('sfRenew','Otomatik yenileme · '+plan.price+' tahsil edilir');
-  set('sucName',plan.short);
-  set('sucPlan',plan.name);
-  set('sucRenew','Otomatik yenileme · '+plan.price);
-  set('sucInv',plan.name+' — Ağustos 2026 · '+plan.amount);
-  var fl=document.getElementById('psFeats');
-  if(fl){
-    fl.innerHTML='';
-    plan.feats.forEach(function(f){
-      var li=document.createElement('li');
-      li.innerHTML='<i class="fa-solid fa-check"></i> ';
-      li.appendChild(document.createTextNode(f));   /* metin düğüm olarak — & kaçışı gerekmiyor */
-      fl.appendChild(li);
-    });
+  /* ---- 1 · PLAN ÖZETİ (sağ sütun) ---- */
+  var ico = $('psIco'); if(ico) ico.className = plan.ikon;
+  set('psName', plan.ad);
+  set('psPrice', plan.fiyatMetin === null ? fiyat : plan.fiyatMetin);
+  set('sfPlan', 'DadaFit ' + plan.ad);
+  set('sfRenew', 'Otomatik yenileme · ' + fiyat + (plan.fiyatMetin === null ? '' : ' tahsil edilir'));
+  set('startSubTxt', plan.ad + ' Aboneliğini Başlat');
+  set('psAyri', P.ayriUcret);
+  set('payBaslik', 'DadaFit ' + plan.ad + ' aboneliği');
+  set('dsPlan', 'DadaFit ' + plan.ad);
+  /* fiyatı olmayan kademede "Fiyat onay bekliyor / ay" gibi bozuk bir
+     dizge çıkmasın: birim yalnız SAYI varken eklenir. */
+  set('dsFiyat', plan.fiyatMetin === null ? fiyat : plan.fiyatMetin + ' ' + plan.birim);
+
+  /* fiyatı olmayan kademede "₺—" gibi bir sayı basmıyoruz: alan, durumu
+     yazıyor. Fiyat panelden geldiğinde tek satır veri değişikliği. */
+  if(plan.fiyatMetin === null){
+    var pv = document.querySelector('.ps-total .pt-val');
+    if(pv) pv.innerHTML = '<b id="psPrice" style="font-size:15px">' + fiyat + '</b>';
+    var pt = document.querySelector('.ps-total .price-flag');
+    if(pt) pt.remove();
   }
 
-  /* --- canlı kart önizleme (maskeli) --- */
-  var num=document.getElementById('ccNum'), name=document.getElementById('ccName'),
-      exp=document.getElementById('ccExp'), cvNum=document.getElementById('cvNum'),
-      cvName=document.getElementById('cvName'), cvExp=document.getElementById('cvExp');
+  /* Plan özetinde bir ALT kademeye göre FARK gösterilir — kullanıcının
+     bu ödemeyle ne KAZANDIĞI o. Tam döküm Paketlerim'de. */
+  var yeni = P.yenilikler(key), fl = $('psFeats');
+  if(fl){
+    fl.innerHTML = '';
+    var alt = P.kademeler[P.sira(key)-1];
+    if(alt){
+      var li0 = document.createElement('li');
+      li0.innerHTML = '<i class="fa-solid fa-check"></i> <b>' + alt.tamlayan + ' tamamı</b>';
+      fl.appendChild(li0);
+    }
+    yeni.slice(0,7).forEach(function(m){
+      var li = document.createElement('li');
+      if(m.nitelik) li.className = 'nitelik';
+      li.innerHTML = '<i class="' + (m.nitelik ? 'fa-solid fa-circle-dot' : 'fa-solid fa-check') + '"></i> ';
+      li.appendChild(document.createTextNode(P.etiket(m, key)));
+      fl.appendChild(li);
+    });
+    var kalan = yeni.length - 7;
+    set('psMore', kalan > 0 ? 've ' + kalan + ' özellik daha — tam döküm Paketlerim\u2019de.' : '');
+  }
+
+  /* ---- 2 · ÖDEME YÖNTEMİ: kayıtlı kart seçilince form KAPANIR ---- */
+  var kartFormu = $('kartFormu');
+  var radyolar = document.querySelectorAll('input[name="odemeYontemi"]');
+  function yontem(){
+    var s = document.querySelector('input[name="odemeYontemi"]:checked');
+    return s ? s.value : 'kayitli-4242';
+  }
+  function yontemAdi(){
+    var s = document.querySelector('input[name="odemeYontemi"]:checked');
+    if(!s) return '—';
+    if(s.value === 'yeni'){
+      var n = ($('ccNum').value || '').replace(/\D/g,'');
+      return n ? 'Yeni kart •••• ' + n.slice(-4) : 'Yeni kart';
+    }
+    var b = s.parentNode.querySelector('.pm-txt b');
+    return b ? b.textContent : s.value;
+  }
+  function formGorunur(){
+    var yeniKart = yontem() === 'yeni';
+    if(kartFormu) kartFormu.hidden = !yeniKart;
+  }
+  Array.prototype.forEach.call(radyolar, function(r){ r.addEventListener('change', formGorunur); });
+  formGorunur();
+
+  /* ---- 3 · CANLI KART ÖNİZLEME + BİÇİMLEME ---- */
+  var num=$('ccNum'), name=$('ccName'), exp=$('ccExp'), cvv=$('ccCvv'),
+      cvNum=$('cvNum'), cvName=$('cvName'), cvExp=$('cvExp'), cvBrand=$('cvBrand');
   if(num&&cvNum){
     num.addEventListener('input',function(){
       var d=num.value.replace(/\D/g,'').slice(0,16);
       var grp=d.match(/.{1,4}/g); num.value=grp?grp.join(' '):'';
       cvNum.textContent=(d+'••••••••••••••••').slice(0,16).match(/.{1,4}/g).join(' ');
+      /* marka ilk haneden okunur — bilgi kullanıcıya geri veriliyor */
+      if(cvBrand) cvBrand.className = 'cv-brand fa-brands ' +
+        (d[0]==='4' ? 'fa-cc-visa' : (d[0]==='5' ? 'fa-cc-mastercard' : 'fa-cc-visa'));
     });
   }
   if(name&&cvName){ name.addEventListener('input',function(){ cvName.textContent=name.value.trim().toUpperCase()||'AD SOYAD'; }); }
@@ -564,30 +698,62 @@ window.__bottomStrips=window.__bottomStrips||[];
       exp.value=d; cvExp.textContent=d||'••/••';
     });
   }
+  if(cvv){ cvv.addEventListener('input',function(){ cvv.value=cvv.value.replace(/\D/g,'').slice(0,4); }); }
 
-  /* --- başarı state toggle (SS paramı ?ok=1) --- */
-  function showSuccess(){ document.body.classList.add('pay-done'); window.scrollTo(0,0); }
-  if(qp('ok')==='1'){ showSuccess(); }
-
-  var start=document.getElementById('startSub'), card=document.getElementById('agreeCard'),
-      agree=document.getElementById('agreePro');
-  if(agree&&card){
-    /* onay verilince hata durumu kendiliğinden düşsün */
-    agree.addEventListener('change',function(){ if(agree.checked)card.classList.remove('is-err'); });
+  /* ---- 4 · DOĞRULAMA (gerçek yetenek: sunucu gerekmez) ---- */
+  function luhn(s){
+    var d=String(s).replace(/\D/g,''); if(d.length!==16) return false;
+    var t=0, ikile=false;
+    for(var i=d.length-1;i>=0;i--){ var n=+d[i]; if(ikile){ n*=2; if(n>9)n-=9; } t+=n; ikile=!ikile; }
+    return t%10===0;
   }
+  function sktGecerli(v){
+    var m=/^(\d{2})\/(\d{2})$/.exec(v); if(!m) return false;
+    var ay=+m[1], yil=2000+ +m[2];
+    if(ay<1||ay>12) return false;
+    return new Date(yil, ay, 0, 23, 59, 59) >= new Date();
+  }
+  function isaret(el, hataId, gecerli){
+    var h=$(hataId);
+    el.classList.toggle('is-err', !gecerli);
+    el.setAttribute('aria-invalid', gecerli?'false':'true');
+    if(h) h.classList.toggle('show', !gecerli);
+    return gecerli;
+  }
+
+  /* ---- 5 · DURUM EKRANI (SS paramı ?ok=1) ---- */
+  function durumGoster(){
+    set('dsYontem', yontemAdi());
+    document.body.classList.add('pay-done');
+    window.scrollTo(0,0);
+  }
+  if(qp('ok')==='1'){ durumGoster(); }
+
+  var start=$('startSub'), card=$('agreeCard'), agree=$('agreePro');
+  if(agree&&card){ agree.addEventListener('change',function(){ if(agree.checked)card.classList.remove('is-err'); }); }
+
   if(start){
     start.addEventListener('click',function(){
+      /* a) yeni kart seçiliyse kart alanları — b) her hâlde onay kutusu */
+      if(yontem()==='yeni'){
+        var ok=true, ilk=null;
+        if(!isaret(name,'ccNameHata',(name.value||'').trim().length>=3)) { ok=false; ilk=ilk||name; }
+        if(!isaret(num, 'ccNumHata', luhn(num.value)))                   { ok=false; ilk=ilk||num; }
+        if(!isaret(exp, 'ccExpHata', sktGecerli(exp.value)))             { ok=false; ilk=ilk||exp; }
+        if(!isaret(cvv, 'ccCvvHata', /^\d{3,4}$/.test(cvv.value)))       { ok=false; ilk=ilk||cvv; }
+        if(!ok){
+          if(kartFormu) kartFormu.hidden=false;
+          if(ilk){ ilk.focus({preventScroll:true}); ilk.scrollIntoView({behavior:'smooth',block:'center'}); }
+          return;
+        }
+      }
       if(agree&&!agree.checked){
-        /* GÖÇ NOTU: legacy sürüm hatayı el ile box.style.borderColor='var(--fit)'
-           yazarak gösteriyordu — turuncu artık yeşil olduğu için hata rengi
-           "başarı" gibi okunuyordu ve ekran okuyucuya hiçbir şey söylemiyordu.
-           Yerine .is-err sınıfı + role="status" taşıyan görünür mesaj. */
         if(card)card.classList.add('is-err');
         agree.focus({preventScroll:true});
         agree.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
-      showSuccess();
+      durumGoster();
     });
   }
 })();

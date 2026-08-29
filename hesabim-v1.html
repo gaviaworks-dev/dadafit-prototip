@@ -59,8 +59,60 @@
    kapak 132 · kimlik kartı 160 · sekme şeridi 132 · ilk kart 270 — dört ayrı
    sol kenar. Şartname beşini tek kapta ve 28px'te birleştiriyor; 28px sayısı
    kimlik kartının kendi `margin:-78px 28px 0`'ından gelir (§E6 · §E11). */
+/* =====================================================================
+ ÜÇ KAP TEK HİZAYA — profil kartı · sekme şeridi · içerik kartı
+ ---------------------------------------------------------------------
+ ÖLÇÜLEN SAPMA (sol/sağ/genişlik):
+        kart            şerit           içerik
+   1440 160/1280/1120   160/1280/1120   160/1280/1120  ✓ zaten hizalı
+   1024  40/ 984/ 944    40/ 984/ 944    52/ 972/ 920  ✗ içerik 12px içeride
+    768  40/ 728/ 688    40/ 728/ 688    52/ 716/ 664  ✗ içerik 12px içeride
+    390  20/ 370/ 350    20/ 370/ 350    44/ 346/ 302  ✗ içerik 24px içeride
+ Sebep: kart ve şerit `.fp-kimlik`in KIRILIMLI payını (28/16/4px)
+ kullanırken `.hs-col` her genişlikte SABİT 28px taşıyordu.
+
+ TABAN OLARAK KART SEÇİLDİ, içerik kolonu ona çekildi. Neden kart:
+ kabuğun kendi duyarlı niyeti orada yazılı — dar ekranda pay daralıyor
+ (28 → 16 → 4) ki kart telefonda ekranı kullansın. Tersini yapsaydım
+ (üçünü 28'e sabitlemek) 390px'te üç kap da 302px'e düşer, kabuğun
+ mobil kararını bozardım. Şimdi üçü de aynı üç değeri paylaşıyor ve
+ tek kaynak `.fp-kimlik`in kırılımlarıdır (fit-shell.css:4039·4199·4205).
+ ⚠ O kırılımlar değişirse buradaki iki blok da değişmeli.
+ ===================================================================== */
 .hs-col{margin:0 28px}
+@media (max-width:1024px){ .hs-col{margin:0 16px} }
+@media (max-width:640px){  .hs-col{margin:0 4px} }
+/* =====================================================================
+ SEKME ŞERİDİ — KİMLİK KARTIYLA HİZALI + KALEMLER ORTALI
+ ---------------------------------------------------------------------
+ İKİ ŞART BİRDEN (Beyar, 2026-08-29):
+   a) şerit KUTUSU kimlik kartıyla AYNI SOL KENARDA ve AYNI GENİŞLİKTE
+   b) kalemler kutunun içinde ORTALI
+
+ ÖLÇÜLEN ÖNCEKİ HÂL @1440: kart sol 160 / genişlik 1120, şerit sol 362 /
+ genişlik 716 — ne kenar tutuyordu ne genişlik. (Bir önceki turda kutuyu
+ `width:max-content` ile daraltıp ortalamıştım; ortalama düzelmişti ama
+ kutu karttan DAR kalmıştı. Şart (a) bunu geçersiz kıldı.)
+
+ ÇÖZÜM:
+ (a) Kutu genişliği kabına bırakıldı (`width:auto`) ve `.hs-rail`in yatay
+     payı `.fp-kimlik`inkiyle EŞİTLENDİ — 28 / 16 / 4 px, aynı kırılım
+     noktalarında (fit-shell.css:4039 · 4199 · 4205). Kart bir gün
+     kırılımını değiştirirse burası da değişmeli; bağ yorumda yazılı.
+ (b) Kalemler `justify-content:safe center` ile ortalanır.
+     🔴 Neden `safe`: düz `center` ile içerik kaba sığmadığında kaydırma
+     kabının BAŞI erişilemez hâle gelir (taşma iki yana eşit dağılır ve
+     sol taraf negatif kaydırmaya düşer) — dokuz kalemli hâlde ölçülmüş,
+     bilinen bir kusur. `safe` sığmadığında sessizce `flex-start`a döner,
+     yani şerit yatay ray gibi çalışmaya devam eder.
+     ⚠ Kabuğun `.pf-tabs`ına DOKUNULMADI: kural `.hs-rail` altına
+     kapsanmış durumda, fit-shell.css'in §E5 şerhi (ortak bileşene
+     `justify-content` yazma) ihlal edilmiyor.
+ ===================================================================== */
 .hs-rail{margin-left:28px;margin-right:28px}
+.hs-rail .pf-tabs{justify-content:safe center}
+@media (max-width:1024px){ .hs-rail{margin-left:16px;margin-right:16px} }
+@media (max-width:640px){  .hs-rail{margin-left:4px;margin-right:4px} }
 
 /* bölüm — çapa hedefi.
    DİKKAT — sabit header payı BURADA TEKRARLANMAZ: kabuk zaten
@@ -197,6 +249,11 @@
 .fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
 /* R12 ek tur · R22 — fotoğraf durum satırı geçici olarak vurgulanır (bkz. #fotoDurum JS'i) */
 .fk-help.done{color:var(--fit-deep)}
+/* alan hatası — odemelerim-v1 ile aynı kural, aynı token */
+.fk-hata{display:none;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:700;color:var(--hs-danger);margin-top:8px;line-height:1.5}
+.fk-hata.show{display:flex}
+.fk-hata i{font-size:12px;margin-top:2px;flex:none}
+.fk-input.is-err{border-color:var(--hs-danger);box-shadow:0 0 0 3px rgba(179,38,30,.10)}
 .fk-grid{display:grid;gap:16px 18px}
 .fk-grid .fk-field{margin-bottom:0}
 .fk-grid.c2{grid-template-columns:1fr 1fr}
@@ -210,7 +267,8 @@
    `#agModal` kalıbının aynısı: kapalıyken yerleşimden çıkar (odak sırasına
    ve ölçüme girmesin), panel genişliği iki kolonlu `.fk-grid.c2`yi taşıyacak
    kadar. */
-#ftModal:not(.show){display:none}
+/* ÖLÜ KURAL SÖKÜLDÜ — `#ftModal` (fatura bilgileri penceresi) bu sayfadan
+   `odemelerim-v1.html`e taşındı; kuralları da oraya gitti. */
 
 /* ---- KALEM #1 · FOTOĞRAF YÜKLEME (fy-*) ----
    Modal kabuğu `.fb-*`ten geliyor; buradakiler yalnız seçim/önizleme
@@ -229,12 +287,60 @@
 .fy-frame.kapak{aspect-ratio:1176/240;max-width:100%}
 .fy-frame img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:center;transition:transform .12s linear}
 .fy-facts{margin-top:2px}
+/* =====================================================================
+ DURUM SATIRI YÜKLEME ALANINA YAPIŞIKTI (Beyar, 2026-08-29)
+ ---------------------------------------------------------------------
+ ÖLÇÜM: `.fy-drop`un alt kenarı ile `#fyDurum`un üst kenarı arasında
+ **0px** vardı — satır kutuya yapışıyordu. Her iki kipte de aynı
+ (profil fotoğrafı ve kapak fotoğrafı TEK modalı paylaşıyor: `#fotoModal`,
+ `data-photo-edit` ile kip değişiyor).
+ SEÇİLEN ADIM: **22px** — kitin "alan alt boşluğu" değeri (docs/fit-kit.md
+ §7 · bu sayfanın `.fk-field{margin-bottom:22px}` ölçüsü). Gerekçe:
+ yükleme alanı ile durum satırı İKİ AYRI BLOKTUR, bağlı bir çift değil.
+ Elenenler: `10px` kart İÇİ satır aralığıdır, blok ayırmaya yetmez;
+ `9px` etiket→alan adımıdır ve bağlı çifte aittir; `--sec-pad-sm` (32px)
+ bölüm adımıdır, modal gövdesinin içinde fazla açar.
+ Kural `.fy-stage` kipinde de geçerli: seçici ikisini birden kapsıyor.
+ ===================================================================== */
+#fotoModal .fb-body>#fyDurum{margin-top:22px}
 .fy-zoom{display:flex;flex-direction:column;gap:8px}
 .fy-range{width:100%;accent-color:var(--fit)}
-.fy-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;padding-left:0;padding-right:0}
-.fy-foot .note{flex:1 1 100%}
-.fy-foot>.btn{margin-left:0;padding:12px 22px}
-.fy-foot>.btn.btn-primary{margin-left:auto}
+/* =====================================================================
+ FOTOĞRAF MODALININ AYAĞI — hizasızdı (Beyar, 2026-08-29)
+ ---------------------------------------------------------------------
+ ÖLÇÜM @1440 (panel 466→974): not 466→974 (kendi satırı), "Vazgeç"
+ 601→704, "Uygula" 853→974. Yani Vazgeç ne solda ne sağda, HAVADA
+ duruyordu.
+ SEBEP kaynak sırası: `.fy-foot>.btn{margin-left:0}` bu dosyada
+ `.pc-foot>.btn{margin-left:auto}` kuralından ÖNCE yazılmış ve ikisinin
+ özgüllüğü de (0,2,0) — sonra gelen kazanıyor, iki düğme de `auto`
+ margin alıyor ve boşluğu paylaşıyorlardı.
+ DÜZELTME özgüllüğü yükseltir, kaynak sırasına güvenmez:
+ `.fb-body .fy-foot>.btn` (0,3,0) `.pc-foot>.btn`i (0,2,0) yener.
+ YERLEŞİM: not kendi satırında (kap genişliğinde), altında düğmeler
+ SAĞDA tek grup; "Kaldır" yıkıcı olduğu için `margin-right:auto` ile
+ karşı uçta durur — onay düğmesiyle yan yana gelip yanlışlıkla
+ tıklanmasın. ===================================================== */
+.fy-foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-top:18px;padding-left:0;padding-right:0}
+.fy-foot .note{flex:1 1 100%;margin:0}
+.fb-body .fy-foot>.btn{margin-left:0;padding:12px 22px}
+.fb-body .fy-foot>.fy-kaldir{margin-right:auto}
+.fy-kaldir{color:var(--hs-danger)}
+.fy-kaldir:hover{border-color:var(--hs-danger-line);background:var(--hs-danger-tint);color:var(--hs-danger-dark)}
+.fy-kaldir[hidden]{display:none}
+
+/* ---- kaldırılmış görselin varsayılan hâli ----
+   Görsel silinince yerine BOŞLUK değil, ne olduğunu söyleyen bir
+   varsayılan gelir: kit zemini `--fit-tint` + kilitli ikon setinden
+   tek glif. Yeni renk, yeni ölçü, yeni ikon seti yok. */
+.fp-kimlik .fp-ava2.is-bos{background-image:none;background-color:var(--fit-tint)}
+.fp-kimlik .fp-ava2.is-bos::before{
+  content:"\f007";font-family:"Font Awesome 6 Free";font-weight:900;
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:46px;color:var(--fit-deep);opacity:.55;
+}
+.fp-kapak.is-bos{background-image:none;background-color:var(--fit-tint)}
+.fp-kapak.is-bos::after{background:linear-gradient(180deg,rgba(0,87,43,.10),rgba(0,87,43,.26))}
 
 /* ---- KALEM #2 · İKİ ADIMLI DOĞRULAMA KURULUMU (tfa-*) ---- */
 #tfaModal:not(.show){display:none}
@@ -279,8 +385,106 @@
   .tfa-hane{font-size:17px;padding:12px 0}
   .tfa-steps li{font-size:11.5px}
 }
-#ftModal .fb-panel{width:min(620px,100%)}
-#ftModal .fb-body{padding:24px 26px 26px}
+
+/* =====================================================================
+ MODAL KAPATMA DÜĞMESİ — "boş kutu" okunuyordu (Beyar, 2026-08-29)
+ ---------------------------------------------------------------------
+ ÖLÇÜM: kabuğun `.fb-close`u 44×44 ve `<i class="fa-xmark">` taşıyor,
+ yani ikon DOM'da var. Sorun ikonun YOKLUĞU değil, GÖRÜNÜRLÜĞÜ: glif
+ 12×16px çiziliyor, kutu ise saydam zeminli ve `--line` (#ECECEC) ince
+ kenarlıklı — 44px'lik boşlukta 12px'lik ince bir çarpı, kenarlığın
+ içinde "boş kutu" gibi okunuyor.
+ Düzeltme ölçüyü DEĞİŞTİRMEZ (44×44 kalır, WCAG 2.5.5): kutuya kit
+ zemini (`--bg`) verilir ve glif 18px'e çıkar. Yeni renk üretilmedi.
+ ===================================================================== */
+.fb-close{background:var(--bg)}
+.fb-close i{font-size:18px}
+.fb-close:hover{background:var(--fit-wash);border-color:var(--fit);color:var(--fit-deep)}
+.fb-close:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+
+/* =====================================================================
+ DOĞUM TARİHİ TAKVİMİ — .fk-tar   (Beyar, 2026-08-29)
+ ---------------------------------------------------------------------
+ Öncesi: düz metin alanı, "gg.aa.yyyy" ipucu, elle yazım. Şimdi alana
+ tıklayınca takvim açılıyor; ay ve yıl seçilebiliyor, gün ızgarasından
+ tarih seçiliyor.
+
+ KALIP UYDURULMADI: açılır kutu kabuğu `giris-v1.html`in ülke kodu
+ seçicisinden (`.fk-cc-pop` / `.fk-cc-list`) BİREBİR alındı — aynı
+ zemin (`--paper`), aynı kenarlık (`--line`), aynı yarıçap
+ (`--radius-md`), aynı gölge (`--sh-lg`), satır en az 44px
+ (WCAG 2.5.5). Yeni renk, yeni ölçü üretilmedi.
+
+ YIL SEÇİMİ TEK TIKLA: Beyar'ın şartı "ok ok tıklatma" — yıl bir
+ `<select>`, yani tek tıkla 88 yılın listesi açılıyor. Ay da select;
+ aylar arası ince gezinme için iki ok DA duruyor (ikisi bir arada).
+
+ SINIRLAR TARİHTEN TÜRETİLİR, SABİT YAZILMAZ:
+   üst sınır = bugün − 13 yıl   (13 yaş altı seçilemez; gelecek tarih de
+                                 bu sınırın ötesinde kaldığı için
+                                 kendiliğinden kapalı)
+   alt sınır = bugün − 100 yıl
+ Sınır dışı günler `disabled` + `aria-disabled` gelir, tıklanmaz.
+ ===================================================================== */
+.fk-tar{position:relative}
+.fk-tar .fk-input{padding-right:52px}
+/* ⚠ `top/bottom:0` ÖLÇÜMLE GELDİ: `2px` içeriden oturunca düğme 44×41
+   çıkıyordu (alan 45px), yani dokunma hedefi 3px eksikti. Kenardan
+   kenara oturunca 46×45 — hedef sağlanıyor ve alanın 1px kenarlığı
+   bozulmuyor, çünkü düğmenin zemini SAYDAM; hover'da yalnız ikon rengi
+   değişir, dolgu basılmaz. */
+.fk-tar-btn{
+  position:absolute;right:0;top:0;bottom:0;width:46px;z-index:2;
+  display:grid;place-items:center;
+  border:0;background:transparent;color:var(--slate-2);font-size:15px;cursor:pointer;
+  border-radius:0 var(--radius-md) var(--radius-md) 0;transition:.2s var(--ease);
+}
+.fk-tar-btn:hover{color:var(--fit-deep)}
+.fk-tar-btn:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+
+.fk-tar-pop{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:min(320px,100%);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  box-shadow:var(--sh-lg);overflow:hidden;
+}
+.fk-tar-pop[hidden]{display:none}
+.fk-tar-head{display:flex;align-items:center;gap:8px;padding:10px 10px;border-bottom:1px solid var(--line)}
+.fk-tar-nav{
+  flex:none;width:44px;height:44px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--paper);color:var(--slate);
+  font-size:12px;cursor:pointer;display:grid;place-items:center;transition:.18s var(--ease);
+}
+.fk-tar-nav:hover:not(:disabled){border-color:var(--fit);color:var(--fit-deep);background:var(--fit-wash)}
+.fk-tar-nav:disabled{opacity:.4;cursor:not-allowed}
+.fk-tar-nav:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.fk-tar-sel{flex:1;min-width:0;min-height:44px;padding:10px 30px 10px 10px;font-size:13.5px;font-weight:700}
+.fk-tar-sel.yil{flex:0 0 92px}
+
+.fk-tar-gunler{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:10px 10px 0}
+.fk-tar-gunler span{text-align:center;font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--slate-2)}
+.fk-tar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px 10px 10px}
+.fk-tar-grid button{
+  aspect-ratio:1;min-height:38px;border:0;background:transparent;border-radius:var(--radius-sm);
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--slate);cursor:pointer;
+  transition:.15s var(--ease);
+}
+.fk-tar-grid button:hover:not(:disabled){background:var(--fit-tint);color:var(--fit-deep)}
+.fk-tar-grid button:disabled{color:#c4c4c4;cursor:not-allowed}
+.fk-tar-grid button:focus-visible{outline:3px solid var(--fit);outline-offset:-2px}
+.fk-tar-grid button[aria-selected="true"]{background:var(--fit);color:#fff;font-weight:800}
+.fk-tar-grid button.bugun:not([aria-selected="true"]){box-shadow:inset 0 0 0 1px var(--fit-line)}
+.fk-tar-grid span{aspect-ratio:1}
+
+.fk-tar-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 10px 10px}
+.fk-tar-foot p{flex:1;min-width:0;font-size:11.5px;color:var(--slate-2);font-weight:500;line-height:1.45;margin:0;text-align:left;text-align-last:auto}
+.fk-tar-temizle{
+  flex:none;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--paper);font-family:inherit;font-size:12.5px;font-weight:700;color:var(--slate);cursor:pointer;transition:.18s var(--ease);
+}
+.fk-tar-temizle:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-wash)}
+.fk-tar-temizle:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+
+@media (max-width:520px){ .fk-tar-pop{width:100%} }
 
 /* şifre göster/gizle */
 .fk-pass{position:relative}
@@ -307,13 +511,10 @@
    Kutu bildirimleri (padding · border-top) artık KANONDAN geliyor, yukarıdaki
    `.pc-foot` kuralından; eski `.hs-save`in margin-top/padding-top/border-top
    üçlüsü SÖKÜLDÜ.
-   ⚠ `.hs-save` ADI SİLİNMEDİ, tek bir yerde yaşamaya devam ediyor: fatura
-   bilgileri AÇILIR PENCERESİ (`#ftModal`). Sebebi ölçüldü — o pencere kart
-   kitini değil kabuğun `.fb-*` modal kitini kullanıyor ve `.fb-body` kendi
-   dolgusunu (`24px 26px 26px`) taşıyor; `.pc-foot`un kenardan kenara dolgusu
-   ile üst çizgisi orada içeriden başlayan, panele değmeyen bir bant üretirdi.
-   Sözleşme §7 hesap KARTI kompozisyonunu bağlar, modal kitini değil.
-   Yerleşim bildirimleri iki kap için TEK KAYNAKTA tutuldu. */
+   ⚠ `.hs-save`in tek tüketicisi fatura bilgileri penceresiydi; o pencere
+   `odemelerim-v1.html`e taşınınca burada tüketicisi kalmadı. Kural yine de
+   `.pc-foot` ile TEK KAYNAKTA yazıldığı için ayrıca sökülecek bir gövde
+   yok — `.hs-save` yalnız seçici listesinde duruyor. */
 .pc-foot,.hs-save{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hs-save{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
 .pc-foot .note,.hs-save .note{font-size:12.5px;color:var(--muted);font-weight:500}
@@ -459,16 +660,11 @@
 .sub-inv-dl{flex:none;font-family:inherit;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--fit-deep);background:var(--paper);padding:8px 13px;border:1px solid rgba(0,157,79,.30);border-radius:var(--radius-sm);cursor:pointer;transition:.18s var(--ease)}
 .sub-inv-dl:hover{background:var(--fit-wash)}
 
-/* ---- kayıtlı ödeme yöntemi satırı ---- */
-.card-list{display:flex;flex-direction:column;gap:12px}
-.cc-row{display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 18px;transition:.2s var(--ease)}
-.cc-row:hover{border-color:#dcdcdc;box-shadow:var(--sh-sm)}
-.cc-brand{flex:none;width:48px;height:34px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:26px;color:#1a1f71}
-.cc-brand.cc-mc{color:#c7001b}
-.cc-info{flex:1;min-width:0}
-.cc-info b{display:block;font-size:14px;color:var(--slate);font-weight:700;letter-spacing:.04em}
-.cc-exp{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
-.cc-acts{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* ÖLÜ KURAL SÖKÜLDÜ — `.card-list` / `.cc-*` ailesi "Kayıtlı Ödeme
+   Yöntemlerim" bloğuna aitti; blok `odemelerim-v1.html#kartlar`a TAŞINDI
+   (Beyar, 2026-08-29) ve markup'ı bu sayfada kalmadı (grep `cc-row` → 0).
+   Kurallar oraya birebir gitti; burada kopya bırakmak iki kaynak
+   üretirdi. Sürüm geçmişinde duruyor. */
 
 /* ---- antrenör paketi durum satırı ---- */
 .uys-list{display:flex;flex-direction:column;gap:14px}
@@ -542,9 +738,6 @@
   .sub-inv-amt{order:3;width:auto;margin-left:auto;text-align:right}
   .sub-inv-st{order:4;flex:1 1 100%;justify-content:flex-start;width:auto}
   .sub-inv-dl{order:5;margin-left:auto}
-  .cc-row{flex-wrap:wrap;gap:10px}
-  .cc-info{flex:1 1 auto;min-width:0}
-  .cc-acts{flex:1 1 100%;justify-content:flex-end}
   .uys-row{flex-wrap:wrap;gap:12px}
   .uys-info{flex:1 1 100%;order:2}
   .uys-price{order:1;margin-left:auto;text-align:right}
@@ -565,7 +758,7 @@
 <!-- ===== PROFİL BAŞLIĞI (R13 · Beyar: "diette ayarlara girdiğimizde yine
      profil kartı var, burada düz bannerlı yapı çıkıyor" — S6 kararı)
      Kalıp kabuğun ".fp-profil" ailesi (fit-shell.css → "PLAN PROFİL
-     BAŞLIĞI"); canlı örneği enerji-defteri-v1.html / fit-planim-gecmis-v1.html
+     BAŞLIĞI"); canlı örneği egzersizlerim-v1.html#defter / egzersizlerim-v1.html#egzersizlerim
      (kapak 280px/24px radius/parallax · avatar 128px/-70px binme · kimlik
      kartı -78px binme). O sayfalar bu markup'ı #fitPlanTop + fit-shell.js'in
      PLAN_PAGES mekanizmasıyla üretiyor — o mekanizma Fit Planım'a özgü
@@ -608,7 +801,7 @@
       <div class="fp-kimlik-id">
         <h1>Elif Şahin</h1>
         <span class="fp-handle2">@elifsahin</span>
-        <p class="fp-lead2">Profilin, bildirim tercihlerin, DadaFit üyeliğin, ödeme ve fatura kayıtların, güvenlik ve birim tercihlerin tek yerde. Sağlık verilerin ve izinlerin ayrı bölümlerde yönetilir. Prototipte hesap gerçekten güncellenmez, ödeme alınmaz ve fatura üretilmez; isim, tarih ve tutarlar ekran akışını göstermek için konmuş örneklerdir.</p>
+        <p class="fp-lead2">Profilin, bildirim tercihlerin, güvenlik ve birim tercihlerin burada; hesabını dondurma ve silme de. Paketin ve kademeler <a href="paketlerim-v1.html">Paketlerim</a>'de, abonelik · antrenör ödemeleri · faturalar · kartlar · iade talepleri <a href="odemelerim-v1.html">Ödemelerim</a>'de. Prototipte hesap gerçekten güncellenmez; isim ve tarihler ekran akışını göstermek için konmuş örneklerdir.</p>
         <div class="fp-kimlik-meta">
           <span><i class="fa-solid fa-crown"></i> DadaFit Pro · aktif üyelik</span>
           <span><i class="fa-solid fa-calendar-days"></i> Üyelik başlangıcı: Mart 2026</span>
@@ -642,13 +835,10 @@
       <nav class="pf-tabs" id="hsRail" role="tablist" aria-label="Hesap ayarları bölümleri">
         <a class="dt" role="tab" id="tab-profil" href="#profil" aria-controls="profil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-id-card"></i> Profil</a>
         <a class="dt" role="tab" id="tab-bildirim" href="#bildirim" aria-controls="bildirim" aria-selected="false" tabindex="-1"><i class="fa-regular fa-bell"></i> Bildirimler</a>
-        <a class="dt" role="tab" id="tab-uyelik" href="#uyelik" aria-controls="uyelik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-crown"></i> Üyelik ve Paketler</a>
-        <a class="dt" role="tab" id="tab-odeme" href="#odeme" aria-controls="odeme" aria-selected="false" tabindex="-1"><i class="fa-solid fa-receipt"></i> Ödeme</a>
-        <a class="dt" role="tab" id="tab-fatura" href="#fatura" aria-controls="fatura" aria-selected="false" tabindex="-1"><i class="fa-solid fa-file-invoice"></i> Faturalar</a>
         <a class="dt" role="tab" id="tab-guvenlik" href="#guvenlik" aria-controls="guvenlik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-lock"></i> Güvenlik</a>
         <a class="dt" role="tab" id="tab-dil" href="#dil" aria-controls="dil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-globe"></i> Dil ve Bölge</a>
         <a class="dt" role="tab" id="tab-diger" href="#diger" aria-controls="diger" aria-selected="false" tabindex="-1"><i class="fa-solid fa-shield-halved"></i> Diğer Modüller</a>
-        <a class="dt" role="tab" id="tab-veri" href="#veri" aria-controls="veri" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-shield"></i> Veri ve izinler</a>
+        <a class="dt" role="tab" id="tab-veri" href="#veri" aria-controls="veri" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-shield"></i> Veri ve Hesap</a>
       </nav>
     </div>
 
@@ -705,7 +895,34 @@
           <div class="fk-grid c2">
             <div class="fk-field">
               <label class="fk-label" for="hsDogum">Doğum tarihi <span class="opt">(opsiyonel)</span></label>
-              <input class="fk-input" id="hsDogum" name="dogum" type="text" inputmode="numeric" placeholder="gg.aa.yyyy" value="14.03.1992" aria-describedby="hsDogumHelp" />
+              <!-- Açılır kutu kabuğu giris-v1'in ülke kodu seçicisinden;
+                   alan yine ELLE de yazılabilir (gg.aa.yyyy) ve yazılanı
+                   aynı sınırlar denetler. -->
+              <div class="fk-tar" data-tar-kok>
+                <input class="fk-input" id="hsDogum" name="dogum" type="text" inputmode="numeric"
+                       placeholder="gg.aa.yyyy" value="14.03.1992" autocomplete="bday"
+                       aria-describedby="hsDogumHelp hsDogumHata" />
+                <button class="fk-tar-btn" type="button" id="hsDogumAc"
+                        aria-haspopup="dialog" aria-expanded="false" aria-controls="hsDogumPop"
+                        aria-label="Takvimi aç"><i class="fa-regular fa-calendar" aria-hidden="true"></i></button>
+                <div class="fk-tar-pop" id="hsDogumPop" role="dialog" aria-label="Doğum tarihi seç" hidden>
+                  <div class="fk-tar-head">
+                    <button class="fk-tar-nav" type="button" data-ay="-1" aria-label="Önceki ay"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                    <label class="sr-only" for="hsDogumAy">Ay</label>
+                    <select class="fk-select fk-tar-sel" id="hsDogumAy"></select>
+                    <label class="sr-only" for="hsDogumYil">Yıl</label>
+                    <select class="fk-select fk-tar-sel yil" id="hsDogumYil"></select>
+                    <button class="fk-tar-nav" type="button" data-ay="1" aria-label="Sonraki ay"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                  </div>
+                  <div class="fk-tar-gunler" aria-hidden="true"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pa</span></div>
+                  <div class="fk-tar-grid" id="hsDogumGrid" role="grid" aria-label="Gün seç"></div>
+                  <div class="fk-tar-foot">
+                    <p id="hsDogumSinir"></p>
+                    <button class="fk-tar-temizle" type="button" id="hsDogumTemizle">Temizle</button>
+                  </div>
+                </div>
+              </div>
+              <p class="fk-hata" id="hsDogumHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span></span></p>
               <span class="fk-help" id="hsDogumHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Yaşa göre hareket önerisi ve güvenlik uyarıları için kullanılır.</span>
             </div>
             <div class="fk-field">
@@ -756,19 +973,23 @@
             </div>
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-medal"></i></span>
-              <div class="sr-txt"><b>Rozetlerim ve ilerleme özetim profilimde görünsün</b><span>Kapatırsan rozetleri yalnız sen görürsün; <a href="fit-planim-ilerleme-v1.html" style="color:var(--fit-deep);font-weight:700">İlerlemem</a> sayfası etkilenmez.</span></div>
+              <div class="sr-txt"><b>Rozetlerim ve ilerleme özetim profilimde görünsün</b><span>Kapatırsan rozetleri yalnız sen görürsün; <a href="programlarim-v1.html#ilerleme" style="color:var(--fit-deep);font-weight:700">İlerlemem</a> sayfası etkilenmez.</span></div>
               <label class="tgl" for="vsRozet"><input type="checkbox" id="vsRozet" checked /><span class="tk"></span><span class="sr-only">Rozetlerim ve ilerleme özetim profilimde görünsün</span></label>
             </div>
-<!-- R9 · TEK SES — "Challenge sıralamalarında adım görünsün" anahtarı KALDIRILDI.
-     Ölçülen çelişki: fit-planim-rozetler-v1.html "Kimseyle sıralanmazsın,
-     kimse senin rozetini görmez" diyor; bu sayfa ise sıralama varmış gibi bir
-     anahtar sunuyordu. Bugünkü ürün duruşu sıralama YOK; ikisi birden
-     konuşmasın diye anahtar indi.
-     GERİ ALMA: sıralama ürün kararı olarak gelirse bu blok geri konur —
-     id="vsSira", checked, .set-row + .tgl kalıbı, metin "Challenge
-     sıralamalarında adım görünsün / Kapatırsan sıralamada 'anonim katılımcı'
-     olarak yer alırsın." Aynı turda 415 ve 554. satırlardaki sıralama
-     ifadeleri de geri alınmalı. -->
+<!-- 🔴 R9'da KALDIRILAN ANAHTAR GERİ KONDU (Beyar, 2026-08-30).
+     R9'un gerekçesi şuydu: "fit-planim-rozetler-v1.html 'Kimseyle
+     sıralanmazsın' diyor, bu sayfa ise sıralama varmış gibi anahtar
+     sunuyor" — iki ekran birden konuşmasın diye anahtar inmişti.
+     O gerekçe ARTIK GEÇERSİZ: Beyar liderlik tablosunu onayladı ve
+     `rozetlerim-v1.html`de Liderlik sekmesi çalışıyor. Anahtar, R9'un
+     kendi geri-alma yönergesinde yazdığı biçimde geri kondu — yeni dil
+     icat edilmedi: id="vsSira", checked, .set-row + .tgl kalıbı, metin
+     birebir yönergedeki cümle. -->
+            <div class="set-row">
+              <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-ranking-star"></i></span>
+              <div class="sr-txt"><b>Challenge sıralamalarında adım görünsün</b><span>Kapatırsan sıralamada &quot;anonim katılımcı&quot; olarak yer alırsın. Sıralamayı <a href="rozetlerim-v1.html#liderlik" style="color:var(--fit-deep);font-weight:700">Rozetlerim &rsaquo; Liderlik</a> sekmesinde görürsün.</span></div>
+              <label class="tgl" for="vsSira"><input type="checkbox" id="vsSira" checked /><span class="tk"></span><span class="sr-only">Challenge sıralamalarında adım görünsün</span></label>
+            </div>
             <div class="set-row">
               <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
               <div class="sr-txt"><b>Arama motorlarında görün</b><span>Kapalıyken herkese açık profilin arama motorlarına dizinlenmez.</span></div>
@@ -869,7 +1090,7 @@
             </div>
           </div>
 
-          <div class="ntf-foot"><i class="fa-regular fa-bell" aria-hidden="true"></i> <span>Gelen bildirimlerini görmek için <a href="bildirimler-v1.html">bildirim akışına git</a>. Antrenman hatırlatmalarının hangi günlere düştüğü <a href="fit-planim-programim-v1.html">Plan ve Takvim</a> sekmesinden gelir.</span></div>
+          <div class="ntf-foot"><i class="fa-regular fa-bell" aria-hidden="true"></i> <span>Gelen bildirimlerini görmek için <a href="bildirimler-v1.html">bildirim akışına git</a>. Antrenman hatırlatmalarının hangi günlere düştüğü <a href="programlarim-v1.html#takvim">Plan ve Takvim</a> sekmesinden gelir.</span></div>
 
           </div>
           <div class="pc-foot">
@@ -879,419 +1100,35 @@
           </div>
         </form>
       </section>
-
       <!-- ============================================================
-       3 · ÜYELİK VE PAKETLER  (§5 · §15 · kabuk çapası #uyelik)
-       Belge §15'in istediği alanlar: aktif paket · başlangıç · bitiş ·
-       yenileme tarihi · paket değiştirme · abonelik iptali.
-       Ödeme geçmişi ve faturalar kendi bölümlerinde (#odeme / #fatura),
-       çünkü kabuk menüsü onlara ayrı ayrı bağlanıyor.
-
-       🔴 SÖZLEŞME §1.6 · BU ÇAPADA İKİ AYRI KUTU VAR, KARIŞTIRILMAZLAR:
-         KUTU 1 — PLATFORM PAKETİ. DadaFit'e ödenir. Ad alanı dört markada
-           tektir ve istisnasızdır (P8): **Ücretsiz · Pro · Pro Max AI**.
-           ⚠ ÜCRETSİZ PAKET BİR SATIR DEĞİLDİR — plansızlık t0'dır; ücretsiz
-           üyenin bu kutuda bir abonelik kaydı bulunmaz, yükseltme daveti
-           bulunur. ⚠ Pro Max AI vitrinde görünür ama SATIŞA KAPALIDIR (P3);
-           bu yüzden buradaki "Paketi Değiştir" yolu da o kademeye çıkmaz.
-         KUTU 2 — ANTRENÖR HİZMET PAKETİ. Antrenöre ödenir (K4 · P7/2).
-           Platform paketiyle aynı ad alanını PAYLAŞMAZ, bedeli abonelik
-           bedeline DÂHİL DEĞİLDİR (P5), ayrı tahsil edilir ve ayrı iptal
-           edilir.
-       🔴 ÜÇÜNCÜ BİR PARA İLİŞKİSİ YOKTUR. Üyeden üyeye ücretli abonelik
-       (Patreon modeli) yalnız Gastro'nundur; Fit'te kurulmaz (P7). Bu
-       çapada ve profil-v1.html'de o yapıya ait hiçbir kalan bırakılmadı.
-       ⚠ Komisyon · hakediş · alt sınır · fatura eşiği bu ekranda YOKTUR:
-       K13 gereği panelden okunur, Dalga 6'nın konusudur.
+       🔴 ÜÇ BÖLÜM BU SAYFADAN KALKTI (Beyar, 2026-08-29)
+       ------------------------------------------------------------
+       Silinenler ve ölçülen içerik uzunlukları:
+         #uyelik  "DadaFit Üyeliğim" + "Antrenör Hizmet Paketlerim"  5349 krk
+         #odeme   "Ödeme Geçmişim"                                   2269 krk
+         #fatura  "Faturalarım" + fatura bilgileri açılır penceresi   1553 krk
+       Toplam 9171 karakter. HİÇBİRİ KAYBOLMADI — silmeden önce
+       karşılıkları ölçüldü (docs/qa/hesabim-sekme-sadelestirme.mjs):
+         kademe · karşılaştırma · yükseltme  → paketlerim-v1#kademeler / #karsilastir
+         aktif paket · dönem tarihleri       → paketlerim-v1#paketim
+         ücretsiz kademe görünümü            → paketlerim-v1?paket=ucretsiz
+         otomatik yenileme · yenileme kartı  → odemelerim-v1#abonelik
+         dondurma · iptal kapısı · kampanya  → odemelerim-v1#abonelik
+         antrenör hizmet paketleri (4/8 seans · seans başına · sona
+           erenler · dizin düğmesi)          → odemelerim-v1#antrenor
+         tahsilat defteri + tür süzgeci      → odemelerim-v1#faturalar
+         kayıtlı kartlar + kart ekleme       → odemelerim-v1#kartlar
+         fatura bilgileri formu (#ftModal)   → odemelerim-v1#faturalar
+                                               içindeki #ftModal (6427 krk;
+                                               bireysel/kurumsal segmenti,
+                                               TCKN/VKN sağlaması, ülke kodlu
+                                               telefon, il/ilçe ile GENİŞLETİLDİ)
+       Kalan altı sekme: Profil · Bildirimler · Güvenlik · Dil ve Bölge ·
+       Diğer Modüller · Veri ve Hesap. Para yüzeyi bu sayfada durmuyor;
+       hesap ayarları yalnız hesabın kendisini yönetiyor.
+       ⚠ `#uyelik` `#odeme` `#fatura` çapalarına giden bağlantılar bu
+       dosyada temizlendi; başka dosyalarda kalanlar raporda listelendi.
        ============================================================ -->
-      <section class="hs-sec" id="uyelik" role="tabpanel" tabindex="0" aria-labelledby="tab-uyelik">
-        <div class="pnl-card">
-          <div class="pc-head">
-            <div>
-              <h2 id="uyelikH" class="pc-title"><i class="fa-solid fa-crown"></i> DadaFit Üyeliğim</h2>
-              <p><b>Platform paketin</b> — DadaFit'e ödediğin site geneli üyelik. Aktif paketin, dönem tarihleri ve yenileme durumu burada; paketini değiştirebilir ya da aboneliğini iptal edebilirsin. Antrenör paketlerin <b>ayrı bir kutuda</b>, bu bölümün altında.</p>
-            </div>
-          </div>
-          <div class="pc-body">
-
-
-          <!-- =====================================================================
-           KALEM #10 · ÜCRETSİZ KADEME GÖRÜNÜMÜ  (envanter §4/10)
-           ---------------------------------------------------------------------
-           Maket tek persona (Pro) çiziyordu; PLANSIZ üyenin bu çapada ne
-           göreceği hiç çizilmemişti.
-           🔴 SÖZLEŞME §1.6 ORTAK HÜKÜM: "Ücretsiz paket BİR SATIR DEĞİLDİR —
-           plansızlık t0'dır." Bu yüzden aşağıdaki ücretsiz görüm bir abonelik
-           KAYDI basmıyor: dönem tarihi yok, yenileme yok, iptal kapısı yok.
-           Olan tek şey bugün nelerin açık olduğu ve yükseltme daveti.
-           ⚠ TEKRAR ÇİZİLME RİSKİ KAYDA GEÇER: Dalga 6 (Para) paket yüzeyini
-           kurunca bu kartın İÇERİĞİ değişebilir. KURGUSU değişmez — "ücretsiz
-           bir satır değildir" hükmü Dalga 6'ya bağlı değil, bugün bağlayıcı.
-           Demo anahtarı: `?paket=ucretsiz` (deponun `?empty=1` · `?randevu=1`
-           deyimiyle aynı); parametresiz açılışta Pro personası korunur. -->
-          <div class="sub-free" id="uyFree" hidden>
-            <div class="sub-free-top">
-              <span class="sub-tier-badge free"><i class="fa-regular fa-user" aria-hidden="true"></i> Ücretsiz</span>
-              <div class="sub-tier-info">
-                <b>Ücretsiz kademedesin</b>
-                <span class="sub-renew"><i class="fa-solid fa-infinity" aria-hidden="true"></i> Süresi dolmaz, tahsilat yapılmaz, iptal edilecek bir abonelik yok.</span>
-              </div>
-              <div class="sub-tier-price"><b>&#8378;0</b><span>/ ay</span></div>
-            </div>
-            <div class="sub-tier-body">
-              <div class="sub-tier-feats">
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> DadaFit Egzersizleri &mdash; temel erişim</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Başlangıç programı</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Temel Enerji Defteri</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Su takibi</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Temel Challenge</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Hareket Rehberi</span>
-              </div>
-              <p class="hs-state"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Tüm programlar, video seansları, Fit Testleri ve gelişmiş ilerleme takibi <b>Pro</b> kademesinde açılır.</span></p>
-            </div>
-            <div class="sub-tier-acts">
-              <a class="btn btn-primary" href="pro-v1.html"><i class="fa-solid fa-crown"></i> Pro&rsquo;ya Geç</a>
-              <a class="btn btn-ghost" href="pro-v1.html#karsilastir"><i class="fa-solid fa-table-list"></i> Paketleri Karşılaştır</a>
-            </div>
-            <p class="hs-state" style="margin-top:12px"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> <span>Kademeler: <b>Ücretsiz &middot; Pro &middot; Pro Max AI</b>. Pro Max AI henüz satışa açılmadı.</span></p>
-          </div>
-
-          <div class="uy-pro" id="uyPro">
-          <div class="sub-tier-card">
-            <div class="sub-tier-top">
-              <span class="sub-tier-badge"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
-              <div class="sub-tier-info">
-                <b>DadaFit Pro — Aylık <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
-                <span class="sub-renew"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Otomatik yenileme açık — sonraki tahsilat 15 Eylül 2026</span>
-              </div>
-              <div class="sub-tier-price"><b>₺99</b><span>/ ay</span></div>
-            </div>
-
-            <div class="sub-tier-body">
-              <dl class="hs-facts">
-                <div><dt>Aktif paket</dt><dd>DadaFit Pro (Aylık)</dd></div>
-                <div><dt>Başlangıç</dt><dd>15 Mart 2026</dd></div>
-                <div><dt>Dönem bitişi</dt><dd>14 Eylül 2026</dd></div>
-                <div><dt>Yenileme tarihi</dt><dd>15 Eylül 2026</dd></div>
-              </dl>
-              <div class="sub-tier-feats">
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Reklamsız hareket ve program deneyimi</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Tüm video seansları</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Sınırsız program kaydı</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Fit Testleri ayrıntılı raporu</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Antrenöre öncelikli randevu</span>
-                <span><i class="fa-solid fa-check" aria-hidden="true"></i> Haftalık ilerleme raporu</span>
-              </div>
-            </div>
-
-            <div class="sub-tier-acts">
-              <a class="btn btn-primary" href="uyelik-faturalandirma-v1.html#paket-degistir"><i class="fa-solid fa-arrows-up-down"></i> Paketi Değiştir</a>
-              <a class="btn btn-ghost" href="pro-v1.html#karsilastir"><i class="fa-solid fa-table-list"></i> Paketleri Karşılaştır</a>
-            </div>
-            <!-- P8 · Kademe üçlüsü: Ücretsiz · Pro · Pro Max AI. P3 gereği
-                 Pro Max AI vitrinde görünür ama SATIŞA KAPALIDIR; paket
-                 değiştirme ekranında o sütunun düğmesi kapalı gelir. -->
-            <p class="hs-state" style="margin-top:12px"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> <span>Kademeler: <b>Ücretsiz · Pro · Pro Max AI</b>. Pro Max AI henüz satışa açılmadı; kapsamı açıklandığında buradan yükseltebileceksin.</span></p>
-          </div>
-
-          <div class="set-list" style="margin-top:20px;border-top:1px solid var(--line)">
-            <div class="set-row">
-              <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-rotate"></i></span>
-              <div class="sr-txt"><b>Otomatik yenileme</b><span>Kapatırsan üyeliğin 14 Eylül 2026'da sona erer, o güne kadar Pro erişimin sürer.</span></div>
-              <label class="tgl" for="uyYenile"><input type="checkbox" id="uyYenile" checked /><span class="tk"></span><span class="sr-only">Otomatik yenileme</span></label>
-            </div>
-            <div class="set-row">
-              <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-credit-card"></i></span>
-              <div class="sr-txt"><b>Yenilemede kullanılacak ödeme yöntemi</b><span>Visa •••• 4242 — 08/2027. Kartlarını <a href="#odeme" style="color:var(--fit-deep);font-weight:700">Ödeme Geçmişim</a> bölümünden yönetebilirsin.</span></div>
-              <label class="sr-only" for="uyKart">Yenilemede kullanılacak ödeme yöntemi</label>
-              <select class="fk-select" id="uyKart">
-                <option selected>Visa •••• 4242</option>
-                <option>Mastercard •••• 8821</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- ABONELİK İPTALİ (§15) — yıkıcı sayılır, onay adımı zorunlu (§20) -->
-          <div class="hs-warn" style="color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line);margin-top:22px">
-            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <span><b>Uyarı:</b> aboneliği iptal edersen Pro'ya bağlı program kayıtların ve video seansı erişimin dönem sonunda (14 Eylül 2026) kapanır. Kayıtlı verilerin silinmez; tekrar Pro olduğunda geri gelir.</span>
-          </div>
-          <form class="hs-gate" data-confirm>
-            <label class="hs-check" for="iptalOnay">
-              <input type="checkbox" id="iptalOnay" data-confirm-check />
-              <span>Dönem sonunda Pro erişimimin kapanacağını, iptalin kalan dönem için ücret iadesi doğurmadığını okudum ve onaylıyorum.</span>
-            </label>
-            <div class="hs-gate-acts">
-              <button class="btn btn-warn" type="submit" data-confirm-btn disabled aria-describedby="iptalDurum"><i class="fa-solid fa-ban"></i> Aboneliği İptal Et</button>
-              <p class="hs-state blocked" id="iptalDurum" role="status" data-confirm-state><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Düğme kapalı: iptal için önce yukarıdaki onay kutusunu işaretle.</span></p>
-            </div>
-          </form>
-
-          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Üyelik ve iptal koşullarının tamamı <a href="yasal-v1.html?metin=kullanim">kullanım koşullarında</a>. Faturalandırma soruların için <a href="destek-talepleri-v1.html">destek talebi</a> açabilirsin.</span></div>
-          </div><!-- /uyPro -->
-          </div>
-        </div>
-
-        <!-- ==========================================================
-             KUTU 2 · ANTRENÖR HİZMET PAKETLERİM  (K4 · P5 · P7/2)
-             Fit'in ikinci ve TEK diğer para ilişkisi: üye antrenörden
-             HİZMET satın alır. Bu kart, P7'nin sökülen üyeden-üyeye
-             abonelik yapısının yerine geçen yüzeydir ve tek satırlık
-             "tahsilat özeti"nden gerçek bir paket defterine büyütüldü:
-             paket tipi · dönem · SEANS HAKKI · durum · geçmiş paketler.
-             Randevu ve mesajlaşma hâlâ Planım › Antrenörüm'de — burada
-             mükerrer yönetim bloğu yok.
-             ⚠ BOŞ DURUM (makette çizilmedi, kural burada yazılı): hiç
-             paket yoksa liste yerine tek satırlık davet basılır —
-             "Henüz bir antrenör paketin yok" + antrenör dizini bağlantısı.
-             Boş kutu veya "yakında" BASILMAZ.
-             ========================================================== -->
-        <div class="pnl-card">
-          <div class="pc-head">
-            <div>
-              <h2 class="pc-title"><i class="fa-solid fa-user-check"></i> Antrenör Hizmet Paketlerim</h2>
-              <p><b>DadaFit Pro üyeliğinden ayrı bir kutudur.</b> Bedeli antrenöre ödersin, ayrı tahsil edilir ve ayrı iptal edilir. Randevu ve mesajlaşma <a href="fit-planim-randevular-v1.html" style="color:var(--fit-deep);font-weight:700">Planım › Antrenörüm</a> sekmesinde.</p>
-            </div>
-          </div>
-          <div class="pc-body">
-          <div class="uys-list">
-            <div class="uys-row">
-              <span class="uys-ava" role="img" aria-label="Selin Aksoy" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
-              <div class="uys-info">
-                <b>Selin Aksoy <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
-                <span class="uys-plan">Kuvvet Temeli — aylık paket · ayda 4 online seans</span>
-                <span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> Bu dönemde 2 / 4 seans kullanıldı · 2 seans hakkın duruyor</span>
-                <span class="uys-renew"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Sonraki yenileme: 2 Eylül 2026 · otomatik</span>
-              </div>
-              <div class="uys-price"><b>₺1.400</b><span>/ ay</span></div>
-              <!-- F-A2 · "Randevu Al" artık randevu ALIYOR. Önceki hedef
-                   `fit-planim-randevular-v1.html` idi; o sayfa randevu
-                   LİSTESİdir, randevu modalı yoktur (grep `aptModal` → 0).
-                   Yeni hedef antrenörün kendi sayfası + `?randevu=1`
-                   parametresi: modal açılış anında geliyor ve `&paket=` ile
-                   bu satırın hizmeti önceden seçili oluyor. Modal
-                   kopyalanmadı, tek kaynağı `antrenor-detay-v1.html:1051`. -->
-              <div class="uys-acts">
-                <a class="uys-manage" href="antrenor-detay-v1.html?slug=selin-aksoy&amp;randevu=1&amp;paket=Ayl%C4%B1k%20Paket"><i class="fa-solid fa-calendar-check"></i> Randevu Al</a>
-                <a class="uys-manage" href="antrenor-detay-v1.html?slug=selin-aksoy"><i class="fa-solid fa-arrow-right"></i> Antrenör Profili</a>
-              </div>
-            </div>
-            <div class="uys-row">
-              <!-- ⚠ SLUG DÜZELTMESİ (F-A2 turunda ölçüldü): bu satır
-                   `?slug=mert-ekinci` diyordu ama `antrenor-detay-v1.html`in
-                   slug haritasında (`:1120-1133`) öyle bir kayıt YOK — sayfa
-                   sessizce Selin Aksoy'a düşüyordu. Haritadaki gerçek kayıt
-                   `mert-ozkan` / "Mert Özkan"; ad ve slug ona çekildi. -->
-              <span class="uys-ava" role="img" aria-label="Mert Özkan" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
-              <div class="uys-info">
-                <b>Mert Özkan <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Aktif</span></b>
-                <span class="uys-plan">Birebir seans — 5 seanslık paket · süre sınırı yok</span>
-                <span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> 5 seansın 3'ü kullanıldı · 2 seans hakkın duruyor</span>
-                <span class="uys-renew"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Yenilenmez — haklar bitince paket kapanır</span>
-              </div>
-              <div class="uys-price"><b>₺2.250</b><span>tek seferlik</span></div>
-              <div class="uys-acts">
-                <a class="uys-manage" href="antrenor-detay-v1.html?slug=mert-ozkan&amp;randevu=1&amp;paket=Birebir%20Seans"><i class="fa-solid fa-calendar-check"></i> Randevu Al</a>
-                <a class="uys-manage" href="antrenor-detay-v1.html?slug=mert-ozkan"><i class="fa-solid fa-arrow-right"></i> Antrenör Profili</a>
-              </div>
-            </div>
-          </div>
-
-          <h3 style="font-size:15px;margin:24px 0 12px;display:flex;align-items:center;gap:9px"><i class="fa-solid fa-clock-rotate-left" style="color:var(--fit-deep);font-size:14px" aria-hidden="true"></i> Sona Eren Paketler</h3>
-          <div class="uys-list">
-            <div class="uys-row">
-              <!-- ⚠ Aynı slug düzeltmesi: `deniz-arda` haritada yok,
-                   gerçek kayıt `deniz-kaya` / "Deniz Kaya". -->
-              <span class="uys-ava" role="img" aria-label="Deniz Kaya" style="background-image:url('https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')"></span>
-              <div class="uys-info">
-                <b>Deniz Kaya <span class="hs-pill off">Sona erdi</span></b>
-                <span class="uys-plan">Başlangıç Programı — 8 haftalık takip</span>
-                <span class="uys-renew"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> 14 Şubat 2026 – 11 Nisan 2026 · 8 seansın 8'i tamamlandı</span>
-              </div>
-              <div class="uys-price"><b>₺2.400</b><span>tamamlandı</span></div>
-              <div class="uys-acts">
-                <a class="uys-manage" href="antrenor-detay-v1.html?slug=deniz-kaya&amp;randevu=1"><i class="fa-solid fa-rotate-right"></i> Tekrar Çalış</a>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top:16px"><a class="btn btn-ghost" href="antrenorler-v1.html" style="padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-magnifying-glass"></i> Antrenör Dizinine Bak</a></div>
-
-          <!-- P5 · ORTAK HÜKÜM'ün ekrandaki karşılığı: değişken maliyetli
-               hizmet abonelik bedeline dâhil değildir. Abonelik indirim veya
-               öncelik sağlayabilir, bedeli KAPSAMAZ. -->
-          <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Antrenör paketleri <b>DadaFit Pro üyeliğine dâhil değildir</b> ve ayrı tahsil edilir; Pro üyeliğin yalnız öncelikli randevu avantajı sağlar. Paketin iptali antrenörünle anlaştığın koşullara bağlıdır. Tahsilat kayıtları <a href="#odeme" style="color:var(--fit-deep);font-weight:700">Ödeme Geçmişim</a>, belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============================================================
-       4 · ÖDEME GEÇMİŞİM  (§5 · §15 · kabuk çapası #odeme)
-       ============================================================ -->
-      <section class="hs-sec" id="odeme" role="tabpanel" tabindex="0" aria-labelledby="tab-odeme">
-        <div class="pnl-card">
-          <div class="pc-head">
-            <div>
-              <h2 id="odemeH" class="pc-title"><i class="fa-solid fa-receipt"></i> Ödeme Geçmişim</h2>
-              <p>İki kutunun da tahsilatı burada birlikte durur: <b>DadaFit üyeliğin</b> (platform paketi) ve <b>antrenör hizmet paketlerin</b>. Her satırın hangi kutuya ait olduğu işlem adında yazar. Fatura belgeleri <a href="#fatura" style="color:var(--fit-deep);font-weight:700">Faturalarım</a> bölümünde.</p>
-            </div>
-          </div>
-          <div class="pc-body">
-
-          <div class="sub-inv-list">
-            <div class="sub-inv-row head" aria-hidden="true">
-              <span class="sub-inv-date">Tarih</span>
-              <span class="sub-inv-desc">İşlem</span>
-              <span class="sub-inv-amt">Tutar</span>
-              <span class="sub-inv-st">Durum</span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Ağu 2026</span>
-              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">2 Ağu 2026</span>
-              <span class="sub-inv-desc">Antrenör paketi — Selin Aksoy<small>Visa •••• 4242</small></span>
-              <span class="sub-inv-amt">₺1.400,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">20 Tem 2026</span>
-              <span class="sub-inv-desc">Antrenör paketi — Mert Özkan · 5 seans<small>Visa •••• 4242 — tek seferlik</small></span>
-              <span class="sub-inv-amt">₺2.250,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Tem 2026</span>
-              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">2 Tem 2026</span>
-              <span class="sub-inv-desc">Antrenör paketi — Selin Aksoy<small>Mastercard •••• 8821 — ilk deneme başarısız, kart değiştirildi</small></span>
-              <span class="sub-inv-amt">₺1.400,00</span>
-              <span class="sub-inv-st"><span class="hs-pill due"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Tekrar denendi</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Haz 2026</span>
-              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 May 2026</span>
-              <span class="sub-inv-desc">DadaFit Pro — Aylık<small>Visa •••• 4242</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Başarılı</span></span>
-            </div>
-          </div>
-
-          <h3 style="font-size:15px;margin:24px 0 12px;display:flex;align-items:center;gap:9px"><i class="fa-regular fa-credit-card" style="color:var(--fit-deep);font-size:14px" aria-hidden="true"></i> Kayıtlı Ödeme Yöntemlerim</h3>
-          <div class="card-list">
-            <div class="cc-row">
-              <span class="cc-brand" aria-hidden="true"><i class="fa-brands fa-cc-visa"></i></span>
-              <div class="cc-info">
-                <b>Visa •••• 4242</b>
-                <span class="cc-exp">Son kullanma: 08 / 2027</span>
-              </div>
-              <span class="hs-pill on">Varsayılan</span>
-              <div class="cc-acts">
-                <button class="uys-manage" type="button">Kaldır</button>
-              </div>
-            </div>
-            <div class="cc-row">
-              <span class="cc-brand cc-mc" aria-hidden="true"><i class="fa-brands fa-cc-mastercard"></i></span>
-              <div class="cc-info">
-                <b>Mastercard •••• 8821</b>
-                <span class="cc-exp">Son kullanma: 03 / 2027</span>
-              </div>
-              <div class="cc-acts">
-                <button class="uys-manage" type="button">Varsayılan Yap</button>
-                <button class="uys-manage" type="button">Kaldır</button>
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:14px"><button class="btn btn-ghost" type="button" style="padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-plus"></i> Ödeme Yöntemi Ekle</button></div>
-
-          <div class="ntf-foot"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Kart bilgileri ödeme sağlayıcısında saklanır; DadaFit tam kart numarasını görmez. Bu prototipte gerçek bir tahsilat yapılmaz.</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============================================================
-       5 · FATURALARIM  (§5 · §15 · kabuk çapası #fatura)
-       ============================================================ -->
-      <section class="hs-sec" id="fatura" role="tabpanel" tabindex="0" aria-labelledby="tab-fatura">
-        <div class="pnl-card">
-          <div class="pc-head">
-            <div>
-              <h2 id="faturaH" class="pc-title"><i class="fa-solid fa-file-invoice"></i> Faturalarım</h2>
-              <p>Her tahsilat için düzenlenen fatura belgesi. Faturalar aynı zamanda e-posta adresine gönderilir.</p>
-            </div>
-            <!-- R5/K18 · Beyar: "başlığın sağ üstüne bir düğme gelsin … düğme
-                 kalıbı sayfada zaten kullanılan ikincil düğme desenini izlesin".
-                 Kalıp bu sayfanın kendi ikincil düğmesi: `.btn.btn-ghost` +
-                 kompakt ölçü (satır 849, "Ödeme Yöntemi Ekle" ile birebir aynı
-                 padding/font). Yeni bileşen yazılmadı. `.fc-head` zaten
-                 `justify-content:space-between` (satır 73), sağ üst yerleşim
-                 için ek kural gerekmedi. -->
-            <button class="btn btn-ghost" type="button" id="ftEdit"
-                    style="padding:11px 18px;font-size:13.5px;flex:none"
-                    aria-haspopup="dialog" aria-controls="ftModal">
-              <i class="fa-solid fa-building-columns" aria-hidden="true"></i> Fatura Bilgilerim
-            </button>
-          </div>
-          <div class="pc-body">
-
-          <div class="sub-inv-list">
-            <div class="sub-inv-row head" aria-hidden="true">
-              <span class="sub-inv-date">Tarih</span>
-              <span class="sub-inv-desc">Fatura</span>
-              <span class="sub-inv-amt">Tutar</span>
-              <span class="sub-inv-st">Belge</span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Ağu 2026</span>
-              <span class="sub-inv-desc">DFT-2026-004128<small>DadaFit Pro — Aylık · Ağustos dönemi</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><a class="sub-inv-dl" href="fatura-detay-v1.html?fatura=DFT-2026-004128"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</a></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">2 Ağu 2026</span>
-              <span class="sub-inv-desc">DFT-2026-004095<small>Antrenör paketi — Selin Aksoy · Ağustos dönemi</small></span>
-              <span class="sub-inv-amt">₺1.400,00</span>
-              <span class="sub-inv-st"><a class="sub-inv-dl" href="fatura-detay-v1.html?fatura=DFT-2026-004095"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</a></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">20 Tem 2026</span>
-              <span class="sub-inv-desc">DFT-2026-003901<small>Antrenör paketi — Mert Özkan · 5 seans</small></span>
-              <span class="sub-inv-amt">₺2.250,00</span>
-              <span class="sub-inv-st"><a class="sub-inv-dl" href="fatura-detay-v1.html?fatura=DFT-2026-003901"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</a></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Tem 2026</span>
-              <span class="sub-inv-desc">DFT-2026-003844<small>DadaFit Pro — Aylık · Temmuz dönemi</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><a class="sub-inv-dl" href="fatura-detay-v1.html?fatura=DFT-2026-003844"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</a></span>
-            </div>
-            <div class="sub-inv-row">
-              <span class="sub-inv-date">15 Haz 2026</span>
-              <span class="sub-inv-desc">DFT-2026-003512<small>DadaFit Pro — Aylık · Haziran dönemi</small></span>
-              <span class="sub-inv-amt">₺99,00</span>
-              <span class="sub-inv-st"><a class="sub-inv-dl" href="fatura-detay-v1.html?fatura=DFT-2026-003512"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</a></span>
-            </div>
-          </div>
-          <p class="hs-state" id="faturaDurum" role="status" style="margin-top:12px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Detay ekranında belgenin dökümünü, vergi ayrımını ve tahsilat bilgisini görürsün. Bu prototipte indirilebilir bir PDF üretilmez; detaydan yazdırabilirsin.</span></p>
-
-          <!-- R5/K18 · gömülü "Fatura Bilgilerim" formu buradan KALDIRILDI;
-               aynı form artık `#ftModal` popup'ında (sayfa sonunda). Beyar:
-               "sayfadaki gömülü form kaldırılsın, iki yerde birden durmasın." -->
-          </div>
-        </div>
-      </section>
 
       <!-- ============================================================
        6 · GÜVENLİK  (§5 · kabuk çapası #guvenlik)
@@ -1547,7 +1384,7 @@
           </div>
           <div class="pc-body">
           <div class="hs-go">
-            <a href="fit-planim-saglik-profil-v1.html">
+            <a href="programlarim-v1.html#saglik">
               <i class="go-ico fa-solid fa-heart-pulse" aria-hidden="true"></i>
               <span class="go-txt">
                 <b>Sağlık ve Hareket Profilim <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b>
@@ -1575,7 +1412,23 @@
                 <span>Hareket kayıtların, ölçümlerin ve tercihlerinin makine okunur kopyasını al.</span>
               </span>
             </a>
-            <a href="destek-talepleri-v1.html">
+            <!-- Para yüzeyi bu sayfadan kalkınca buradan BULUNABİLİR kalmalı:
+                 kullanıcı hesap ayarlarında "faturam nerede" diye arıyor. -->
+            <a href="paketlerim-v1.html">
+              <i class="fa-solid fa-crown go-ico" aria-hidden="true"></i>
+              <span class="go-txt">
+                <b>Paketlerim <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b>
+                <span>Hangi kademedesin, üç kademe neyi açıyor, nasıl yükseltirsin.</span>
+              </span>
+            </a>
+            <a href="odemelerim-v1.html">
+              <i class="fa-solid fa-receipt go-ico" aria-hidden="true"></i>
+              <span class="go-txt">
+                <b>Ödemelerim <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b>
+                <span>Abonelik, antrenör ödemeleri, faturalar, kayıtlı kartlar ve iade talepleri.</span>
+              </span>
+            </a>
+            <a href="destek-v1.html#taleplerim">
               <i class="go-ico fa-solid fa-headset" aria-hidden="true"></i>
               <span class="go-txt">
                 <b>Destek Taleplerim <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b>
@@ -1643,7 +1496,7 @@
           <ul class="hs-list">
             <li><i class="fa-solid fa-circle" aria-hidden="true"></i> <span>Hareket kayıtların, programların ve rozetlerin korunur; geri döndüğünde yerinde durur.</span></li>
             <li><i class="fa-solid fa-circle" aria-hidden="true"></i> <span>Bildirimler ve hatırlatmalar durur.</span></li>
-            <li><i class="fa-solid fa-circle" aria-hidden="true"></i> <span><b>DadaFit Pro üyeliği otomatik durmaz.</b> Tahsilatın da durmasını istiyorsan önce <a href="#uyelik" style="color:var(--hs-warn);font-weight:800;text-decoration:underline;text-underline-offset:2px">otomatik yenilemeyi kapat</a>.</span></li>
+            <li><i class="fa-solid fa-circle" aria-hidden="true"></i> <span><b>DadaFit Pro üyeliği otomatik durmaz.</b> Tahsilatın da durmasını istiyorsan önce <a href="odemelerim-v1.html#abonelik" style="color:var(--hs-warn);font-weight:800;text-decoration:underline;text-underline-offset:2px">otomatik yenilemeyi kapat</a> (Ödemelerim &rsaquo; Abonelik).</span></li>
             <li><i class="fa-solid fa-circle" aria-hidden="true"></i> <span>Giriş yaptığın anda hesabın kendiliğinden aktifleşir.</span></li>
           </ul>
 
@@ -1731,7 +1584,7 @@
             </div>
           </form>
 
-          <div class="ntf-foot"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span>Kararsızsan silmek yerine <a href="#bildirim">bildirimleri kapatabilir</a>, <a href="#dondur">hesabını dondurabilir</a> ya da <a href="destek-talepleri-v1.html">bize yazabilirsin</a>.</span></div>
+          <div class="ntf-foot"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span>Kararsızsan silmek yerine <a href="#bildirim">bildirimleri kapatabilir</a>, <a href="#dondur">hesabını dondurabilir</a> ya da <a href="destek-v1.html#taleplerim">bize yazabilirsin</a>.</span></div>
           </div>
         </div>
       </section>
@@ -1899,63 +1752,23 @@
       <p class="hs-state" id="fyDurum" role="status"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Henüz dosya seçmedin.</span></p>
 
       <div class="pc-foot fy-foot">
-        <span class="note">Bu prototipte dosya sunucuya gönderilmez; değişiklik yalnız bu ekranda görünür.</span>
+        <span class="note">Bu prototipte dosya sunucuya gönderilmez; değişiklik yalnız bu ekranda görünür ve sayfayı yenileyince geri döner.</span>
+        <!-- KALDIR — yıkıcı olduğu için karşı uçta durur (bkz. .fy-kaldir).
+             Mevcut görsel yoksa DÜĞME BASILMAZ (hidden): kaldırılacak bir
+             şey yokken kaldırma düğmesi göstermek yalan olur. -->
+        <button class="btn btn-ghost fy-kaldir" type="button" id="fyKaldir"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> <span id="fyKaldirEtiket">Fotoğrafı Kaldır</span></button>
         <button class="btn btn-ghost" type="button" id="fyVazgec">Vazgeç</button>
-        <button class="btn btn-primary" type="button" id="fyUygula" disabled><i class="fa-solid fa-check"></i> Uygula</button>
+        <button class="btn btn-primary" type="button" id="fyUygula" disabled><i class="fa-solid fa-check" aria-hidden="true"></i> Uygula</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="fb-overlay" id="ftOverlay"></div>
-<div class="fb-modal" id="ftModal" role="dialog" aria-modal="true" aria-labelledby="ftModalTitle">
-  <div class="fb-panel">
-    <div class="fb-head">
-      <div>
-        <h3 id="ftModalTitle">Fatura Bilgilerim</h3>
-        <p id="ftModalSub">Faturalarının kime ve hangi adrese düzenleneceğini belirler.</p>
-      </div>
-      <button class="fb-close" id="ftClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="fb-body">
-      <form id="ftForm" data-savecard>
-        <div class="fk-grid c2">
-          <div class="fk-field">
-            <label class="fk-label" for="ftTip">Fatura tipi</label>
-            <select class="fk-select" id="ftTip">
-              <option value="bireysel" selected>Bireysel</option>
-              <option value="kurumsal">Kurumsal</option>
-            </select>
-          </div>
-          <div class="fk-field">
-            <label class="fk-label" for="ftUnvan"><span id="ftUnvanLbl">Ad soyad</span> <span class="req">*</span></label>
-            <input class="fk-input" id="ftUnvan" type="text" value="Elif Şahin" required />
-          </div>
-        </div>
-        <div class="fk-grid c2">
-          <div class="fk-field">
-            <label class="fk-label" for="ftKimlik"><span id="ftKimlikLbl">TCKN</span> <span class="req">*</span></label>
-            <input class="fk-input" id="ftKimlik" type="text" inputmode="numeric" value="••••••••••1" required aria-describedby="ftKimlikHelp" />
-            <span class="fk-help" id="ftKimlikHelp"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Güvenlik için yalnız son hane gösterilir.</span>
-          </div>
-          <div class="fk-field">
-            <label class="fk-label" for="ftDaire">Vergi dairesi <span class="opt" id="ftDaireOpt">(kurumsalda zorunlu)</span></label>
-            <input class="fk-input" id="ftDaire" type="text" placeholder="Örn. Kadıköy" />
-          </div>
-        </div>
-        <div class="fk-field">
-          <label class="fk-label" for="ftAdres">Fatura adresi <span class="req">*</span></label>
-          <textarea class="fk-textarea" id="ftAdres" rows="3" required>Bağdat Cad. No:14 D:3, Kadıköy / İstanbul</textarea>
-        </div>
-        <div class="hs-save">
-          <span class="note">Değişiklik bir sonraki faturadan itibaren geçerli olur.</span>
-          <span class="hs-saved" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Kaydedildi</span>
-          <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Fatura Bilgilerini Kaydet</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+<!-- 🔴 FATURA BİLGİLERİ AÇILIR PENCERESİ (#ftModal) BU SAYFADAN KALKTI.
+     Fatura defteriyle birlikte `odemelerim-v1.html`e taşındı ve orada
+     genişletildi: Bireysel/Kurumsal segmenti, TCKN sağlama algoritması,
+     VKN (10 hane), ülke kodlu telefon (fit-ulke.js), il/ilçe, posta kodu,
+     e-Fatura mükellefiyeti ve tarayıcı hafızasına kayıt. -->
 
 <!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
 <div id="fitShellBottom"></div>
@@ -2160,76 +1973,14 @@
     });
   });
 
-  /* ---------- R5/K18 · FATURA BİLGİLERİ MODALI ----------
-     Açma/kapama, odak yönetimi ve kaydırma kilidi kabuğun sözleşmesiyle
-     (`FIT_SHELL.trapFocus` / `lockScroll` / `unlockScroll`); kalıp
-     `aktivite-gunlugu-v1.html` `#agModal`'dan birebir alındı — display
-     grid/none dansı dahil (`.fb-modal` kapalıyken `display:none`, önce
-     yerleşime al, SONRAKİ karede `.show`, yoksa opacity geçişi başlangıç
-     değerini bulamıyor).
-     Fatura tipi mantığı: "Kurumsal"da vergi dairesi ZORUNLU olur ve
-     zorunluluk görsel olarak belirir (`.opt` ipucu → `.req` yıldızı,
-     sayfanın kendi form kiti); "Bireysel"de gerekmez. Etiketler de tipe
-     göre değişir (Ad soyad ↔ Şirket unvanı · TCKN ↔ Vergi kimlik no). */
-  (function(){
-    var modal   = document.getElementById('ftModal');
-    var overlay = document.getElementById('ftOverlay');
-    var openBtn = document.getElementById('ftEdit');
-    if(!modal || !overlay || !openBtn) return;
-    var tip = document.getElementById('ftTip');
-    var daire = document.getElementById('ftDaire');
-    var daireOpt = document.getElementById('ftDaireOpt');
-    var unvanLbl = document.getElementById('ftUnvanLbl');
-    var kimlikLbl = document.getElementById('ftKimlikLbl');
-    var release = null;
+  /* ÖLÜ YORUM SÖKÜLDÜ — fatura bilgileri formunun tip davranışını
+     anlatıyordu; form `odemelerim-v1.html`e taşındı ve orada segment
+     denetimiyle yeniden kuruldu. */
 
-    function syncTip(){
-      var kurumsal = tip.value === 'kurumsal';
-      unvanLbl.textContent  = kurumsal ? 'Şirket unvanı' : 'Ad soyad';
-      kimlikLbl.textContent = kurumsal ? 'Vergi kimlik no' : 'TCKN';
-      daire.required = kurumsal;
-      daire.setAttribute('aria-required', kurumsal ? 'true' : 'false');
-      daire.placeholder = kurumsal ? 'Örn. Kadıköy' : 'Örn. Kadıköy (isteğe bağlı)';
-      daireOpt.textContent = kurumsal ? '*' : '(kurumsalda zorunlu)';
-      daireOpt.className   = kurumsal ? 'req' : 'opt';
-    }
-    tip.addEventListener('change', syncTip);
-    syncTip();
 
-    function open(){
-      if(modal.classList.contains('show')) return;
-      modal.style.display = 'grid';
-      void modal.offsetHeight;
-      modal.classList.add('show');
-      overlay.classList.add('show');
-      if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
-      if(window.FIT_SHELL && FIT_SHELL.trapFocus) release = FIT_SHELL.trapFocus(modal);
-      /* `.fb-modal` görünürlüğü geçişle açılıyor; ilk karede odak no-op
-         olabiliyor — geçiş bitince ilk alanı kesin odakla. */
-      setTimeout(function(){ if(modal.classList.contains('show')) tip.focus(); }, 300);
-    }
-    function close(){
-      if(!modal.classList.contains('show')) return;
-      modal.classList.remove('show');
-      overlay.classList.remove('show');
-      setTimeout(function(){ if(!modal.classList.contains('show')) modal.style.display = ''; }, 300);
-      if(window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
-      if(release){ release(); release = null; }
-      else if(openBtn.focus) openBtn.focus();
-    }
-    openBtn.addEventListener('click', open);
-    document.getElementById('ftClose').addEventListener('click', close);
-    overlay.addEventListener('click', close);
-    modal.addEventListener('click', function(e){ if(e.target === modal) close(); });
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape' && modal.classList.contains('show')) close();
-    });
-  })();
-
-  /* KALEM #5 · fatura satırları artık DETAY SAYFASINA gidiyor
-     (`fatura-detay-v1.html?fatura=<no>`), sahte indirme düğmesi değiller.
-     Eski `[data-demo-dl]` işleyicisi bu yüzden SÖKÜLDÜ — tükettiği düğme
-     kalmadı. Yazdırma/PDF sorusu detay ekranında dürüstçe karşılanıyor. */
+  /* KALEM #5 · fatura yüzeyi bu sayfadan tamamen kalktı: defter ve belge
+     penceresi `odemelerim-v1.html#faturalar`ta. Eski `[data-demo-dl]`
+     işleyicisi çoktan sökülmüştü; artık tükettiği markup da yok. */
 
   /* R12 EK TUR · R22 — kapak/avatar düğmeleri (profil kartı) gerçek dosya
      yüklemez; sahte bir yükleme akışı taklit ETMEZ (Beyar'ın kararı) —
@@ -2262,7 +2013,7 @@
   var $ = function(id){ return document.getElementById(id); };
   var drop=$('fyDrop'), file=$('fyFile'), stage=$('fyStage'), frame=$('fyFrame'),
       img=$('fyImg'), durum=$('fyDurum'), uygula=$('fyUygula'), vazgec=$('fyVazgec'),
-      olcek=$('fyOlcek');
+      olcek=$('fyOlcek'), kaldir=$('fyKaldir'), kaldirEtiket=$('fyKaldirEtiket');
   var hedef='avatar', nesneUrl=null, secili=null;
 
   function yaz(metin, hataMi){
@@ -2332,27 +2083,68 @@
   });
   if(vazgec && fm) vazgec.addEventListener('click', function(){ fm.kapat(); });
 
+  /* Sayfa üstündeki durum satırı — uygula ve kaldır aynı yardımcıyı
+     kullanır ki iki eylem iki farklı dille konuşmasın. */
+  function sayfaDurumu(metin){
+    if(!fotoDurum) return;
+    fotoDurum.classList.add('done');
+    fotoDurum.querySelector('span').textContent = metin;
+    clearTimeout(fotoDurum._t);
+    fotoDurum._t = setTimeout(function(){
+      fotoDurum.classList.remove('done');
+      fotoDurum.querySelector('span').textContent = fotoVarsayilan;
+    }, 8000);
+  }
+  function hedefElemani(){
+    return hedef==='kapak' ? document.querySelector('.fp-kapak')
+                           : document.querySelector('.fp-ava2');
+  }
+  /* Görsel şu an duruyor mu? "Kaldır" düğmesinin görünürlüğü buna bağlı. */
+  function gorselVar(el){
+    if(!el) return false;
+    if(el.classList.contains('is-bos')) return false;
+    return hedef==='kapak'
+      ? (el.style.getPropertyValue('--px-img') || getComputedStyle(el).getPropertyValue('--px-img') || '').trim() !== ''
+      : (el.style.backgroundImage || '') !== '' && el.style.backgroundImage !== 'none';
+  }
+
+  /* =====================================================================
+   KALDIR — GERÇEKTEN kaldırır, ama HESABA KAYDETMEZ ve bunu söyler
+   ---------------------------------------------------------------------
+   🔴 DÜRÜSTLÜK KARARI (gerekçe raporda): kalıcı kaldırma bu depoda
+   MÜMKÜN DEĞİL. Avatar ve kapak bu sayfada işaretlemede duruyor ama
+   kabuğun üst çubuğu ile hesap menüsü kendi `AVA` sabitinden okuyor
+   (fit-shell.js) ve o dosyaya yazmak bu ajana yasak. localStorage'a
+   yazsaydım bu sayfada kalkan fotoğraf öteki 66 sayfada duruyor olurdu —
+   yani kalıcılık YALANI, üstelik kullanıcının hata sanacağı bir çelişki.
+   Bu yüzden: kaldırma EKRANDA gerçekten olur (görsel gider, yerine
+   varsayılan gelir, düğme kaybolur), durum satırı da hesaba
+   kaydedilMEDİĞİNİ ve yenileyince geri geleceğini açıkça yazar.
+   "Yakında" YAZILMAZ; sahte bir başarı da basılmaz.
+   ===================================================================== */
+  if(kaldir) kaldir.addEventListener('click', function(){
+    var el = hedefElemani();
+    if(!el) return;
+    if(hedef==='kapak'){ el.style.setProperty('--px-img','none'); }
+    else { el.style.backgroundImage='none'; }
+    el.classList.add('is-bos');
+    kaldir.hidden = true;
+    sayfaDurumu(KURAL[hedef].ad + ' bu ekranda kaldırıldı ve yerine varsayılan geldi. ' +
+      'Hesabına KAYDEDİLMEDİ — prototipte sunucu yok; sayfayı yenilediğinde eski görsel geri gelir.');
+    if(fm) fm.kapat();
+  });
+
   if(uygula) uygula.addEventListener('click', function(){
     if(!secili || !nesneUrl) return;
-    var hedefEl = hedef==='kapak'
-      ? document.querySelector('.fp-kapak')
-      : document.querySelector('.fp-ava2');
+    var hedefEl = hedefElemani();
     if(hedefEl){
+      hedefEl.classList.remove('is-bos');
       if(hedef==='kapak') hedefEl.style.setProperty('--px-img', "url('"+nesneUrl+"')");
       else hedefEl.style.backgroundImage = "url('"+nesneUrl+"')";
     }
     nesneUrl = null;   /* görsel artık sayfada kullanılıyor, serbest bırakılmaz */
-    if(fotoDurum){
-      fotoDurum.classList.add('done');
-      fotoDurum.querySelector('span').textContent =
-        KURAL[hedef].ad + ' bu ekranda güncellendi. Prototipte dosya sunucuya gönderilmez, ' +
-        'sayfayı yenilediğinde eski görsel geri gelir.';
-      clearTimeout(fotoDurum._t);
-      fotoDurum._t = setTimeout(function(){
-        fotoDurum.classList.remove('done');
-        fotoDurum.querySelector('span').textContent = fotoVarsayilan;
-      }, 6000);
-    }
+    sayfaDurumu(KURAL[hedef].ad + ' bu ekranda güncellendi. Prototipte dosya sunucuya ' +
+      'gönderilmez ve hesabına kaydedilmez; sayfayı yenilediğinde eski görsel geri gelir.');
     if(fm) fm.kapat();
   });
 
@@ -2363,9 +2155,170 @@
       $('fotoModalTitle').textContent = k.ad;
       $('fotoModalSub').textContent = k.alt;
       if(frame) frame.classList.toggle('kapak', hedef==='kapak');
+      /* Kaldır düğmesi yalnız kaldırılacak bir görsel VARKEN basılır ve
+         etiketi hedefe göre konuşur ("Fotoğrafı" / "Kapağı"). */
+      if(kaldir){
+        kaldir.hidden = !gorselVar(hedefElemani());
+        if(kaldirEtiket) kaldirEtiket.textContent =
+          hedef==='kapak' ? 'Kapağı Kaldır' : 'Fotoğrafı Kaldır';
+      }
       temizle();
       if(fm) fm.ac(b);
     });
+  });
+})();
+
+/* =====================================================================
+ DOĞUM TARİHİ TAKVİMİ — .fk-tar sürücüsü
+ ---------------------------------------------------------------------
+ Alan yine yazılabilir; takvim onun YERİNE değil, YANINA geliyor.
+ Klavye: alan odaktayken ok-aşağı / Enter / boşluk takvimi açar,
+ Escape kapatır ve odak alana döner (giris-v1'in ülke seçicisiyle aynı
+ sözleşme). Dışarı tıklayınca kapanır.
+
+ SINIRLAR TARİHTEN TÜRETİLİR — sabit yıl yazılmaz, bu yüzden bir yıl
+ sonra da doğru çalışır:
+   ustSinir = bugün − 13 yıl   → 13 yaş altı seçilemez. Gelecek tarihler
+                                 zaten bu sınırın ötesinde kaldığı için
+                                 ayrıca engellemeye gerek yok.
+   altSinir = bugün − 100 yıl
+ Sınır dışı gün `disabled` + `aria-disabled="true"` gelir; ay/yıl
+ seçicileri de sınır dışına çıkamaz (oklar uçlarda kapanır).
+ --------------------------------------------------------------------- */
+(function(){
+  var kok = document.querySelector('[data-tar-kok]');
+  if(!kok) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var alan=$('hsDogum'), btn=$('hsDogumAc'), pop=$('hsDogumPop'),
+      selAy=$('hsDogumAy'), selYil=$('hsDogumYil'), grid=$('hsDogumGrid'),
+      sinirNot=$('hsDogumSinir'), temizle=$('hsDogumTemizle'), hata=$('hsDogumHata');
+  if(!alan||!btn||!pop||!grid) return;
+
+  var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+               'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function gunBasi(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  var BUGUN    = gunBasi(new Date());
+  var UST      = new Date(BUGUN.getFullYear()-13,  BUGUN.getMonth(), BUGUN.getDate());
+  var ALT      = new Date(BUGUN.getFullYear()-100, BUGUN.getMonth(), BUGUN.getDate());
+
+  function iki(n){ return (n<10?'0':'')+n; }
+  function bicimle(d){ return iki(d.getDate())+'.'+iki(d.getMonth()+1)+'.'+d.getFullYear(); }
+  function coz(metin){
+    var m = /^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/.exec((metin||'').trim());
+    if(!m) return null;
+    var g=+m[1], a=+m[2], y=+m[3];
+    var d = new Date(y, a-1, g);
+    /* 31.02.1990 gibi taşan tarihi Date sessizce kaydırır — geri
+       çevirerek yakalarız. */
+    if(d.getFullYear()!==y || d.getMonth()!==a-1 || d.getDate()!==g) return null;
+    return d;
+  }
+  function sinirDisi(d){ return d > UST || d < ALT; }
+
+  var secili = coz(alan.value);
+  var gorunen = new Date((secili || UST).getFullYear(), (secili || UST).getMonth(), 1);
+
+  /* ---- ay ve yıl seçicileri ---- */
+  selAy.innerHTML = AYLAR.map(function(a,i){ return '<option value="'+i+'">'+a+'</option>'; }).join('');
+  var yilHtml = '';
+  for(var y = UST.getFullYear(); y >= ALT.getFullYear(); y--) yilHtml += '<option value="'+y+'">'+y+'</option>';
+  selYil.innerHTML = yilHtml;
+
+  if(sinirNot){
+    sinirNot.textContent = '13 yaşından küçük ya da ' + ALT.getFullYear() +
+      ' öncesi bir tarih seçilemez. Seçilebilen en yeni tarih: ' + bicimle(UST) + '.';
+  }
+
+  function hataYaz(metin){
+    alan.classList.toggle('is-err', !!metin);
+    alan.setAttribute('aria-invalid', metin ? 'true' : 'false');
+    if(hata){
+      hata.classList.toggle('show', !!metin);
+      hata.querySelector('span').textContent = metin || '';
+    }
+  }
+
+  function ciz(){
+    var yil = gorunen.getFullYear(), ay = gorunen.getMonth();
+    selAy.value = ay; selYil.value = yil;
+
+    /* Pazartesi başlangıçlı ızgara: JS'in 0=Pazar dizinini kaydırıyoruz. */
+    var ilk = new Date(yil, ay, 1);
+    var bosluk = (ilk.getDay() + 6) % 7;
+    var gunSayisi = new Date(yil, ay+1, 0).getDate();
+
+    var h = '';
+    for(var i=0;i<bosluk;i++) h += '<span aria-hidden="true"></span>';
+    for(var g=1; g<=gunSayisi; g++){
+      var d = new Date(yil, ay, g);
+      var kapali = sinirDisi(d);
+      var secim = secili && d.getTime() === gunBasi(secili).getTime();
+      h += '<button type="button" data-gun="'+g+'"'+
+           (kapali ? ' disabled aria-disabled="true"' : '')+
+           ' aria-selected="'+(secim?'true':'false')+'"'+
+           (d.getTime()===BUGUN.getTime() ? ' class="bugun"' : '')+
+           ' aria-label="'+g+' '+AYLAR[ay]+' '+yil+'">'+g+'</button>';
+    }
+    grid.innerHTML = h;
+
+    /* uçlardaki oklar kapanır — sınır dışına gezinme yolu bırakılmaz */
+    var geri = pop.querySelector('[data-ay="-1"]'), ileri = pop.querySelector('[data-ay="1"]');
+    geri.disabled  = new Date(yil, ay, 1)   <= new Date(ALT.getFullYear(), ALT.getMonth(), 1);
+    ileri.disabled = new Date(yil, ay+1, 1) >  new Date(UST.getFullYear(), UST.getMonth(), 1);
+  }
+
+  function ac(){
+    pop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+    secili = coz(alan.value);
+    gorunen = new Date((secili || UST).getFullYear(), (secili || UST).getMonth(), 1);
+    ciz();
+    selAy.focus();
+  }
+  function kapat(odakDon){
+    pop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+    if(odakDon) alan.focus();
+  }
+
+  btn.addEventListener('click', function(){ pop.hidden ? ac() : kapat(true); });
+  alan.addEventListener('keydown', function(e){
+    if(e.key==='ArrowDown' && !e.altKey){ e.preventDefault(); ac(); }
+  });
+
+  selAy.addEventListener('change', function(){ gorunen.setMonth(+selAy.value); ciz(); });
+  selYil.addEventListener('change', function(){ gorunen.setFullYear(+selYil.value); ciz(); });
+  pop.addEventListener('click', function(e){
+    var nav = e.target.closest('[data-ay]');
+    if(nav && !nav.disabled){ gorunen.setMonth(gorunen.getMonth() + (+nav.getAttribute('data-ay'))); ciz(); return; }
+    var g = e.target.closest('[data-gun]');
+    if(g && !g.disabled){
+      secili = new Date(gorunen.getFullYear(), gorunen.getMonth(), +g.getAttribute('data-gun'));
+      alan.value = bicimle(secili);
+      hataYaz('');
+      kapat(true);
+    }
+  });
+  pop.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ e.preventDefault(); kapat(true); }
+  });
+  if(temizle) temizle.addEventListener('click', function(){
+    secili = null; alan.value = ''; hataYaz(''); ciz(); kapat(true);
+  });
+  document.addEventListener('click', function(e){
+    if(!pop.hidden && !kok.contains(e.target)) kapat(false);
+  });
+
+  /* Elle yazılan değer de aynı sınırlardan geçer. */
+  alan.addEventListener('blur', function(){
+    var v = alan.value.trim();
+    if(!v){ hataYaz(''); return; }                       /* alan opsiyonel */
+    var d = coz(v);
+    if(!d){ hataYaz('Tarihi gg.aa.yyyy biçiminde yaz — örneğin 14.03.1992.'); return; }
+    if(d > UST){ hataYaz('DadaFit 13 yaş ve üzeri içindir. En yeni seçilebilen tarih: '+bicimle(UST)+'.'); return; }
+    if(d < ALT){ hataYaz(ALT.getFullYear()+' öncesi bir tarih seçilemez.'); return; }
+    secili = d; alan.value = bicimle(d); hataYaz('');
   });
 })();
 

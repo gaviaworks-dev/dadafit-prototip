@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ödemelerim — DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<!-- Fit Planım ailesi CSS (tek kaynak) — kabuktan SONRA, fit-type.css'ten ÖNCE -->
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<style>
+/* =====================================================================
+ SAYFA CSS — ÖDEMELERİM (modül sayfası · 5 sekme)
+ ---------------------------------------------------------------------
+ KABUKTAN GELEN: modül kimlik kartı · sekme şeridi (.fit-tabs/.fit-tab/
+ .fit-pane) · .modul-govde · .wrap · .sec-head · .eyebrow · .fp-card ·
+ .btn ailesi · .df-fchip/.fgroup (süzgeç çipleri) · .hr-note (dürüst
+ şerit) · .fpx-bos (boş durum) · .sr-only · tokenler.
+
+ BURADA TANIMLANANLAR: hesabim-v1.html'in ödeme kiti — `.sub-tier-*` ·
+ `.sub-inv-*` · `.cc-*` · `.uys-*` · `.hs-*` · `.fk-*` · `.ntf-foot`.
+ Kabukta karşılığı YOK ve kabuğa yazmak bu ajana yasak; sayfa sayfa
+ tekrarlanan kalıp olduğu için buraya kopyalandı (raporda "kabuğa
+ taşınmalı" diye bildirildi). Yeni renk / yeni ölçü ÜRETİLMEDİ:
+ her değer docs/fit-kit.md'de ya da hesabim-v1'in ölçülmüş kitinde var.
+
+ OKUMA KOLONU: R15/3 · 860px, ortalı. Fatura tablosu kendi kabında
+ yatay kayar; sayfa gövdesi hiçbir genişlikte yatay kaymaz.
+ ===================================================================== */
+
+:root{
+  --hs-warn:#8a4b00; --hs-warn-tint:#fdf3e4; --hs-warn-line:rgba(138,75,0,.30);
+}
+
+.od-body{padding:var(--sec-pad-sm) 0 var(--sec-pad);background:var(--paper)}
+/* ⚠ 26px KALKTI (Ajan 4'ün notu): kabuğun zebra kuralı ilk panelde de
+   32/32 eşit dolgu istiyor ve `--sec-pad-sm` zaten 32px. Şerit ile ilk
+   panel arasındaki nefes de o tek değere bağlandı — sayfada iki farklı
+   üst dolgu kalmadı. */
+.od-serit+.fit-pane .od-body{padding-top:var(--sec-pad-sm)}
+.od-kol{max-width:860px;margin-inline:auto}
+.od-sec+.od-sec{margin-top:44px}
+/* Dürüst şerit sekmelerin DIŞINDA durur; kendi bandı sayfa zeminini
+   taşır ve altındaki panelle çakışmasın diye alt dolgusu yok. */
+.od-serit{background:var(--paper);padding:var(--sec-pad-sm) 0 0}
+.od-serit .hr-note{margin:0}
+
+/* ---- kart kabı: kabuğun .fp-card'ı 38px 24px dolgu taşıyor; ödeme
+        listeleri kenardan kenara aksın diye kendi kabı ---- */
+.od-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.od-card+.od-card{margin-top:18px}
+.od-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 22px;border-bottom:1px solid var(--line)}
+.od-head h3{font-size:16px;font-weight:700;color:var(--slate);display:flex;align-items:center;gap:10px;line-height:1.55;letter-spacing:normal}
+.od-head h3 i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:14px}
+.od-head p{font-size:13px;color:var(--slate-2);font-weight:500;margin:6px 0 0;max-width:58ch;line-height:1.55;text-align:left;text-align-last:auto}
+.od-head .btn{padding:11px 18px;font-size:13.5px;flex:none}
+.od-in{padding:20px 22px}
+.od-in.flush{padding:0}
+
+/* ---- fatura / tahsilat tablosu: 5 kolon (no · tarih · tutar · durum · belge) ---- */
+.od-tab{width:100%;border-collapse:collapse;min-width:640px}
+.od-tab caption{text-align:left;font-size:12.5px;color:var(--slate-2);font-weight:600;padding:0 0 12px}
+.od-tab th,.od-tab td{padding:13px 16px;border-bottom:1px solid var(--line);font-size:13.5px;text-align:left;vertical-align:middle}
+.od-tab thead th{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2);background:var(--bg);border-bottom:1px solid var(--line)}
+.od-tab tbody tr:last-child td{border-bottom:0}
+.od-tab tbody tr:hover{background:var(--bg)}
+.od-no{font-variant-numeric:tabular-nums;letter-spacing:.02em;font-weight:700;color:var(--slate)}
+.od-no small{display:block;font-size:11.5px;color:var(--slate-2);font-weight:500;margin-top:3px;letter-spacing:normal}
+.od-tarih{color:var(--slate-2);font-weight:600;font-size:12.5px;white-space:nowrap}
+.od-tutar{font-weight:800;color:var(--slate);white-space:nowrap;font-variant-numeric:tabular-nums}
+.od-scroll{overflow-x:auto;border-radius:var(--radius-lg)}
+.od-scroll:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+
+/* ---- durum rozeti: DÖRT durum, üç renk çifti. Ayrım ETİKETTE ve
+        İKONDA taşınır, renk tek sinyal değildir (destek kanonu §1.2).
+        Kontrast ölçüleri destek-v1'de alınan çiftlerin aynısı:
+          ok   #007a3d / #eaf6ef  4.93:1
+          wait #8a4b00 / #fdf3e4  6.6:1
+          off  #56514a / #f1f1f1  6.96:1 ---- */
+.od-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;letter-spacing:.02em;padding:5px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.od-pill i{font-size:10.5px}
+.od-pill.ok{color:var(--fit-deep);background:var(--fit-tint);border:1px solid var(--fit-line)}
+.od-pill.wait{color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+.od-pill.off{color:var(--slate-2);background:#f1f1f1;border:1px solid #e2e2e2}
+
+/* `<a>` iken `<button>` oldu (belge artık pencerede açılıyor) — kural
+   ikisini de kapsasın diye `font-family` ve `cursor` eklendi. */
+.od-git{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--fit-deep);background:var(--paper);padding:10px 14px;min-height:44px;border:1px solid rgba(0,157,79,.30);border-radius:var(--radius-sm);white-space:nowrap;cursor:pointer}
+.od-git:hover{background:var(--fit-wash)}
+.od-git:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+
+/* ---- sayaç + süzgeç ---- */
+.od-filter{padding:16px 22px 6px}
+.od-filter .fgroup{gap:8px}
+.od-count{font-size:12.5px;font-weight:600;color:var(--slate-2);padding:12px 22px 4px;margin:0}
+.od-count b{color:var(--slate)}
+
+/* ---- abonelik kartı (hesabim kiti) ---- */
+.sub-tier-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.sub-tier-top{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sub-tier-badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,var(--fit),var(--fit-ink));padding:6px 13px;border-radius:var(--radius-pill)}
+.sub-tier-badge.free{background:var(--bg-cream);color:var(--slate-2);border:1px solid var(--line)}
+.sub-tier-info{flex:1;min-width:0}
+.sub-tier-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:15.5px;color:var(--slate);font-weight:700}
+.sub-renew{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:5px}
+.sub-renew i{color:var(--fit-deep);font-size:11px}
+.sub-tier-price{flex:none;text-align:right}
+.sub-tier-price b{font-size:22px;color:var(--slate);font-weight:800;letter-spacing:-.03em}
+.sub-tier-price span{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.sub-tier-body{padding:18px 20px;border-bottom:1px solid var(--line)}
+.sub-tier-acts{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-wrap:wrap}
+.sub-tier-acts .btn{padding:12px 20px;font-size:13.5px}
+
+.hs-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin:0}
+.hs-facts div{background:var(--paper);padding:14px 16px;min-width:0}
+.hs-facts dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2)}
+.hs-facts dd{font-size:14.5px;font-weight:700;color:var(--slate);margin:5px 0 0;letter-spacing:-.01em}
+.hs-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;padding:3px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.hs-pill.on{color:var(--fit-deep);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24)}
+.hs-pill.off{color:var(--slate-2);background:var(--bg);border:1px solid var(--line)}
+
+/* ---- tercih satırı + anahtar (hesabim kiti) ---- */
+.set-list{display:flex;flex-direction:column}
+.set-row{display:flex;align-items:center;gap:16px;padding:17px 2px}
+.set-row+.set-row{border-top:1px solid var(--line)}
+.set-row .sr-ico{flex:none;width:40px;height:40px;border-radius:var(--radius-md);background:var(--bg);color:var(--slate-2);display:grid;place-items:center;font-size:15px}
+.set-row .sr-txt{flex:1;min-width:0}
+.set-row .sr-txt b{display:block;font-size:14px;color:var(--slate)}
+.set-row .sr-txt span{display:block;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:2px;line-height:1.45}
+.set-row .fk-select{width:220px;flex:none;min-height:44px;padding:10px 36px 10px 13px;font-size:13px}
+/* Görsel ray 46×26 (hesabim kiti). Dokunma hedefi 44px'e ETİKETTEN
+   çıkarılır — rayın kendisi büyütülmez, kit ölçüsü korunur. */
+.tgl{position:relative;display:inline-flex;align-items:center;min-height:44px;flex:none;cursor:pointer}
+.tgl input{position:absolute;opacity:0;pointer-events:none}
+.tgl .tk{width:46px;height:26px;border-radius:var(--radius-md);background:#8f8a82;transition:background .2s var(--ease);position:relative}
+.tgl .tk::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:var(--radius-circle);background:#fff;box-shadow:0 1px 4px rgba(33,30,22,.25);transition:transform .2s var(--ease)}
+.tgl input:checked+.tk{background:var(--fit)}
+.tgl input:checked+.tk::after{transform:translateX(20px)}
+.tgl input:focus-visible+.tk{box-shadow:0 0 0 3px rgba(0,157,79,.22)}
+
+/* ---- kayıtlı kart satırı (hesabim kiti) ---- */
+.card-list{display:flex;flex-direction:column;gap:12px}
+.cc-row{display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 18px;transition:.2s var(--ease)}
+.cc-row:hover{border-color:#dcdcdc;box-shadow:var(--sh-sm)}
+.cc-brand{flex:none;width:48px;height:34px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:26px;color:#1a1f71}
+.cc-brand.cc-mc{color:#c7001b}
+.cc-info{flex:1;min-width:0}
+.cc-info b{display:block;font-size:14px;color:var(--slate);font-weight:700;letter-spacing:.04em}
+.cc-exp{display:block;font-size:12px;color:var(--slate-2);font-weight:500;margin-top:2px}
+.cc-acts{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ---- antrenör paketi satırı (hesabim kiti) ---- */
+.uys-list{display:flex;flex-direction:column;gap:14px}
+.uys-row{display:flex;align-items:center;gap:16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 18px;transition:.2s var(--ease)}
+.uys-row:hover{border-color:#dcdcdc;box-shadow:var(--sh-sm)}
+.uys-ava{flex:none;width:52px;height:52px;border-radius:var(--radius-circle);background-size:cover;background-position:center}
+.uys-info{flex:1;min-width:0}
+.uys-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14.5px;color:var(--slate);font-weight:700}
+.uys-info .uys-plan{display:block;font-size:13px;color:var(--slate-2);font-weight:500;margin-top:3px}
+.uys-info .uys-renew{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-2);font-weight:500;margin-top:6px}
+.uys-info .uys-renew i{color:var(--fit-deep);font-size:11px}
+.uys-price{flex:none;text-align:right}
+.uys-price b{font-size:17px;color:var(--slate);font-weight:800;letter-spacing:-.02em}
+.uys-price span{display:block;font-size:11.5px;color:var(--slate-2);font-weight:500}
+.uys-acts{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.uys-manage{font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 16px;min-height:44px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.uys-manage:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-wash)}
+.uys-manage:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+
+/* ---- seans hakkı ölçeri: paketin ne kadarı kullanıldı ---- */
+.od-bar{height:8px;border-radius:var(--radius-sm);background:var(--line);overflow:hidden;margin-top:9px}
+.od-bar span{display:block;height:100%;background:var(--fit);border-radius:var(--radius-sm)}
+
+/* ---- FK alan kiti (hesabim kiti) ---- */
+.fk-field{margin-bottom:22px}
+.fk-field:last-child{margin-bottom:0}
+.fk-label{display:flex;align-items:baseline;gap:7px;font-size:14px;font-weight:700;color:var(--slate);margin-bottom:9px}
+.fk-label .req{color:var(--fit-ink);font-weight:700}
+.fk-label .opt{font-size:11.5px;color:var(--slate-2);font-weight:500}
+/* `min-height:44px` ÖLÇÜMLE GELDİ: dolgudan doğan yükseklik `select`te
+   42px, `.set-row` içindeki dar seçicide 35px çıkıyordu — ikisi de 44'ün
+   altında (WCAG 2.5.5). Kit dosyası zaten "input yüksekliği 44px" diyor
+   (docs/fit-kit.md §7); yeni ölçü üretilmedi, kitin ölçüsü zorlandı. */
+.fk-input,.fk-select,.fk-textarea{
+  width:100%;min-height:44px;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:13px 15px;outline:none;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.fk-input::placeholder,.fk-textarea::placeholder{color:#6f6f6f}
+.fk-input:focus,.fk-select:focus,.fk-textarea:focus{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
+.fk-input.is-err,.fk-select.is-err{border-color:var(--hs-warn);box-shadow:0 0 0 3px rgba(138,75,0,.12)}
+.fk-textarea{min-height:120px;resize:vertical;line-height:1.6}
+.fk-select{appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;padding-right:40px}
+.fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:8px;line-height:1.5}
+.fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
+.fk-hata{display:none;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:700;color:var(--hs-warn);margin-top:8px;line-height:1.5}
+.fk-hata.show{display:flex}
+.fk-grid{display:grid;gap:16px 18px}
+.fk-grid.c2{grid-template-columns:1fr 1fr}
+.fk-grid .fk-field{margin-bottom:0}
+.fk-grid+.fk-field,.fk-field+.fk-grid{margin-top:22px}
+
+/* ---- onay kapısı + durum satırı (hesabim kiti) ---- */
+.hs-warn{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;font-weight:500;line-height:1.55;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:18px;
+  color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line);text-align:left;text-align-last:auto}
+.hs-warn i{flex:none;font-size:15px;margin-top:2px}
+.hs-warn b{font-weight:800}
+.hs-check{display:flex;align-items:flex-start;gap:11px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--slate);line-height:1.5;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px;text-align:left;text-align-last:auto}
+.hs-check input{flex:none;width:19px;height:19px;margin-top:1px;accent-color:var(--hs-warn);cursor:pointer}
+.hs-check:hover{border-color:#d6d0c6}
+.hs-gate{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.hs-gate-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hs-state{flex:1;min-width:200px;display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:600;color:var(--slate-2);line-height:1.5;margin:0}
+.hs-state i{flex:none;margin-top:3px;font-size:11.5px;color:var(--fit-deep)}
+.hs-state.blocked{color:var(--hs-warn)}
+.hs-state.blocked i{color:var(--hs-warn)}
+.btn-warn{background:var(--paper);color:var(--hs-warn);border:1px solid var(--hs-warn-line)}
+.btn-warn:hover{border-color:var(--hs-warn);background:var(--hs-warn-tint);transform:translateY(-2px)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none !important}
+
+.ntf-foot{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);line-height:1.55;text-align:left;text-align-last:auto}
+.ntf-foot i{color:var(--fit-deep);font-size:12px;margin-top:3px;flex:none}
+.ntf-foot a{color:var(--fit-deep);font-weight:700}
+.ntf-foot a:hover{text-decoration:underline;text-underline-offset:2px}
+
+/* ---- MAKET SONUCU ŞERİDİ ------------------------------------------
+   🔴 Sahte başarı YOK. Maket bir eylem tamamlandığında ekran ne olduğunu
+   ve NE OLMADIĞINI yazar. Yeşil "başarılı" tonu KULLANILMAZ; nötr kutu. */
+.od-sonuc{display:none;align-items:flex-start;gap:11px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:15px 17px;margin-top:16px;font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.6}
+.od-sonuc.show{display:flex;animation:fadeUp .3s var(--ease)}
+.od-sonuc>i{flex:none;width:32px;height:32px;border-radius:var(--radius-sm);background:var(--paper);border:1px solid var(--line);color:var(--slate-2);display:grid;place-items:center;font-size:13px}
+.od-sonuc b{display:block;color:var(--slate);font-weight:800;font-size:13.5px;margin-bottom:4px}
+.od-sonuc .od-sonuc-txt{flex:1;min-width:0;text-align:left;text-align-last:auto}
+
+/* =====================================================================
+ FATURA BİLGİLERİ FORMU — #ftModal
+ ---------------------------------------------------------------------
+ Modal kabuğu kabuğun `.fb-*` kiti; alanlar `.fk-*` kiti. Buraya yalnız
+ ÜÇ yeni parça geldi ve üçü de kit değerleriyle kuruldu:
+  · `.ft-seg` — Bireysel/Kurumsal segment denetimi. Açılır liste DEĞİL:
+    iki seçenekte segment tek tıkla geçer ve seçili durum ekranda durur.
+    Görsel dili sayfanın kendi `.df-fchip` çipiyle aynı (kit §5).
+  · `.fk-tel` / `.fk-cc*` — ülke kodu seçicisi. Kural giris-v1'den
+    BİREBİR; veri ve davranış `assets/js/fit-ulke.js`te (tek kaynak).
+  · `.ft-blok` — tipe göre açılıp kapanan kimlik bloğu.
+ 🔴 Tip değişince ORTAK ALANLAR SIFIRLANMAZ (en sık yapılan hata):
+    iletişim ve adres yerinde kalır, yalnız kimlik bloğu değişir.
+ ===================================================================== */
+#ftModal:not(.show){display:none}
+#ftModal .fb-panel{width:min(640px,100%)}
+#ftModal .fb-body{padding:22px 24px 24px}
+
+.ft-seg{display:inline-flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px}
+.ft-seg button{
+  font-family:inherit;font-size:13.5px;font-weight:700;color:var(--slate-2);
+  background:transparent;border:0;border-radius:var(--radius-sm);
+  padding:10px 18px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:.18s var(--ease);
+}
+.ft-seg button i{font-size:12px}
+.ft-seg button:hover{color:var(--fit-deep)}
+.ft-seg button[aria-pressed="true"]{background:var(--fit-deep);color:#fff}
+.ft-seg button:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.ft-blok[hidden]{display:none}
+
+/* ---- ülke kodlu telefon (giris-v1 kuralları, birebir) ---- */
+.fk-tel{position:relative}
+.fk-tel .fk-input{padding-left:104px}
+.fk-cc{
+  position:absolute;left:1px;top:1px;bottom:1px;width:96px;z-index:2;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);
+  background:var(--bg-cream);border:0;border-right:1px solid var(--line);
+  border-radius:var(--radius-md) 0 0 var(--radius-md);cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.fk-cc:hover{background:var(--fit-tint)}
+.fk-cc:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+.fk-cc-flag{font-size:16px;line-height:1}
+.fk-cc i{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
+.fk-cc[aria-expanded="true"] i{transform:rotate(180deg)}
+.fk-cc-pop{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:min(360px,100%);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  box-shadow:var(--sh-lg);overflow:hidden;
+}
+.fk-cc-pop[hidden]{display:none}
+.fk-cc-search{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.fk-cc-search i{color:var(--muted);font-size:12.5px;flex:none}
+.fk-cc-search input{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);padding:4px 0}
+.fk-cc-search input:focus{outline:none}
+.fk-cc-search input::placeholder{color:#6f6f6f}
+.fk-cc-list{list-style:none;margin:0;padding:6px;max-height:264px;overflow-y:auto}
+.fk-cc-list li{display:flex;align-items:center;gap:11px;padding:0 10px;min-height:44px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--slate);cursor:pointer}
+.fk-cc-list li .bay{font-size:17px;line-height:1;flex:none}
+.fk-cc-list li .ad{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fk-cc-list li .kod{color:var(--slate-2);font-weight:700;font-size:13px;flex:none}
+.fk-cc-list li:hover,.fk-cc-list li.on{background:var(--fit-tint)}
+.fk-cc-list li[aria-selected="true"]{font-weight:700}
+.fk-cc-list li[aria-selected="true"] .kod{color:var(--fit-deep)}
+.fk-cc-bos{padding:18px 14px;font-size:13.5px;color:var(--slate-2);font-weight:500;text-align:center}
+@media (max-width:520px){ .fk-cc-pop{width:100%} }
+
+/* =====================================================================
+ FATURA BELGESİ PENCERESİ — #fdModal
+ ---------------------------------------------------------------------
+ Türkiye'de e-Arşiv/e-Fatura belgesinin okunur karşılığı: künye ·
+ satıcı/alıcı · kalem dökümü · vergi ayrımı · tahsilat. Ayrı SAYFA
+ değil, defterin yanında pencere — kullanıcı listeden çıkmadan belgeye
+ bakıp geri dönüyor.
+ Kutu dili sayfanın kendi kitinden: `.hs-facts` künye ızgarası,
+ `.od-tab` kalem tablosu, `.od-pill` durum rozeti. Yeni renk/ölçü yok.
+ ===================================================================== */
+#fdModal:not(.show){display:none}
+#fdModal .fb-panel{width:min(760px,100%)}
+#fdModal .fb-body{padding:22px 24px 24px}
+
+.fd-kunye{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px}
+.fd-kunye div{background:var(--paper);padding:13px 15px;min-width:0}
+.fd-kunye dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2)}
+.fd-kunye dd{font-size:14px;font-weight:700;color:var(--slate);margin:5px 0 0;word-break:break-word}
+.fd-kunye dd small{display:block;font-size:11.5px;font-weight:500;color:var(--slate-2);margin-top:3px;letter-spacing:.02em}
+
+.fd-taraf{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.fd-taraf section{border:1px solid var(--line);border-radius:var(--radius-md);padding:15px 16px;background:var(--bg)}
+.fd-taraf h4{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2);margin:0 0 8px}
+.fd-taraf b{display:block;font-size:14.5px;color:var(--slate);font-weight:700;margin-bottom:5px}
+.fd-taraf p{font-size:12.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0;text-align:left;text-align-last:auto}
+.fd-taraf p span{display:block}
+
+#fdModal .od-tab{min-width:520px}
+#fdModal .od-tab td,#fdModal .od-tab th{font-size:13px;padding:11px 12px}
+#fdModal .od-tab .sag{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#fdModal .od-tab thead th.sag{text-align:right}
+#fdModal .od-tab td b{display:block;font-size:13.5px;color:var(--slate)}
+#fdModal .od-tab td small{display:block;font-size:11.5px;color:var(--slate-2);font-weight:500;margin-top:3px}
+
+.fd-toplam{list-style:none;margin:18px 0 0;padding:16px 18px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg);display:flex;flex-direction:column;gap:9px}
+.fd-toplam li{display:flex;align-items:baseline;justify-content:space-between;gap:16px;font-size:13.5px;color:var(--slate-2);font-weight:600}
+.fd-toplam li span:last-child{font-variant-numeric:tabular-nums;color:var(--slate);font-weight:700}
+.fd-toplam li.genel{border-top:1px solid var(--line);padding-top:11px;margin-top:2px;font-size:15px;color:var(--slate);font-weight:800}
+.fd-toplam li.genel span:last-child{font-size:19px;font-weight:800;letter-spacing:-.02em}
+
+.fd-ode{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper)}
+.fd-ode .fd-marka{flex:none;width:48px;height:34px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:26px;color:#1a1f71}
+.fd-ode .fd-ode-txt{flex:1;min-width:160px}
+.fd-ode b{display:block;font-size:14px;color:var(--slate);font-weight:700;letter-spacing:.04em}
+.fd-ode span{display:block;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:2px}
+
+@media (max-width:640px){
+  .fd-kunye{grid-template-columns:1fr}
+  .fd-taraf{grid-template-columns:1fr}
+}
+
+/* ---- modal ayağı: hesabim'ın `.pc-foot` kalıbı, kenardan kenara ----
+   ⚠ `position:sticky` ÖLÇÜMLE GELDİ: form uzun (panel içeriği 1124px),
+   panel 100vh−40 ile 960px'te kapanıp içeriden kayıyor ve "Bilgileri
+   Kaydet" 1000px'lik ekranda görünmeyen bölgede (y≈1185) kalıyordu —
+   kullanıcı kaydetmek için panelin dibine inmek zorundaydı. Ayak panelin
+   altına yapıştırıldı: form kaydırılırken bile birincil eylem ekranda
+   durur. Zemin opak (`--paper`), yoksa altından geçen alanlar okunur. */
+.ft-foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;
+  position:sticky;bottom:-24px;z-index:2;background:var(--paper);
+  margin-top:24px;padding:20px 0 24px;border-top:1px solid var(--line)}
+.ft-foot .note{flex:1 1 100%;font-size:12.5px;color:var(--slate-2);font-weight:500;margin:0;text-align:left;text-align-last:auto}
+.ft-foot>.btn{padding:12px 22px}
+/* sonuç şeridi ayağın ALTINDA kalır, yapışkan ayak onu örtmesin */
+#ftSonuc{position:relative;z-index:1}
+
+/* ---- boş durum: kit dosyasının §9 kalıbı `.fpx-bos` (fit-planim.css).
+        Dört parçası da yazılır: ikon · ne yok · neden yok · tek eylem.
+        Kabuğun `.lib-empty`si KULLANILMADI: o kit `display:none` + `.show`
+        anahtarıyla çalışıyor ve `.ico`/`h3` bekliyor (fit-shell.css:1894),
+        buradaki listeler ise `hidden` ile sürülüyor. ---- */
+.od-card .fpx-bos{padding:44px 20px 38px}
+.od-card .fpx-bos[hidden]{display:none}
+
+/* ===================== TABLET / MOBİL ===================== */
+@media (max-width:1024px){
+  .hs-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .od-head{padding:16px}
+  .od-in{padding:16px}
+  .od-filter{padding:14px 16px 4px}
+  .od-count{padding:10px 16px 2px}
+  .hs-facts{grid-template-columns:1fr}
+  .fk-grid.c2{grid-template-columns:1fr}
+  .sub-tier-top{flex-wrap:wrap;gap:12px}
+  .sub-tier-price{order:3;margin-left:auto;text-align:left}
+  .sub-tier-acts .btn{width:100%}
+  .set-row{flex-wrap:wrap;gap:10px 14px}
+  .set-row .fk-select{width:100%}
+  .set-row .tgl{margin-left:auto}
+  .uys-row{flex-wrap:wrap}
+  .uys-info{flex:1 1 100%;order:2}
+  .uys-price{order:3;margin-left:auto;text-align:left}
+  .uys-acts{order:4;flex:1 1 100%}
+  .uys-acts .uys-manage{flex:1;justify-content:center}
+  .cc-row{flex-wrap:wrap}
+  .cc-info{flex:1 1 60%}
+  .cc-acts{flex:1 1 100%}
+  .cc-acts .uys-manage{flex:1;justify-content:center}
+  .hs-gate-acts .btn{width:100%}
+  /* YASLAMA — gerekçe paketlerim-v1 ile aynı: fit-type.css'in 20rem
+     container-query istisnası bu kutularda açılmıyor (kap 324px). */
+  .od-head p,.hs-warn,.hs-warn>span,.ntf-foot,.od-sonuc .od-sonuc-txt{text-align:left;text-align-last:auto}
+}
+</style>
+<!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="odemelerim-v1">
+
+<!-- KABUK: üst katman -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<div id="fitModulTop"
+     data-modul="odemelerim"
+     data-modul-title="Ödemelerim"
+     data-modul-sub="Abonelik, antrenör ödemeleri, faturalar, kayıtlı kartlar ve iade talepleri tek adreste. Sekme değişir, kimlik kartın yerinde kalır."
+     data-modul-tabs="abonelik:Abonelik:fa-solid fa-crown|antrenor:Antrenör ödemeleri:fa-solid fa-user-tie|faturalar:Faturalar:fa-solid fa-file-invoice|kartlar:Kartlarım:fa-regular fa-credit-card|iade:İade talepleri:fa-solid fa-rotate-left"
+     data-modul-aktif="abonelik"></div>
+
+<div class="modul-govde">
+
+<!-- 🔴 TEK DÜRÜST ŞERİT — SEKMELERİN DIŞINDA, sayfada BİR KEZ.
+     Panelin İÇİNE koyulsaydı yalnız ilk sekmede görünürdü ve
+     `#kartlar` ya da `#iade` derin bağlantısıyla gelen kullanıcı
+     ekranın maket olduğunu HİÇ görmezdi (ölçüldü). Beş sekmenin
+     tamamı için tek şerit, sekme şeridinin hemen altında. -->
+<section class="od-serit">
+  <div class="wrap">
+    <div class="od-kol">
+      <div class="hr-note" role="note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <p><b>Bu ekran maket: ödeme alınmaz, kart bilgisi istenmez, fatura üretilmez.</b> Formlar doldurulabilir ve doğrulaması gerçekten çalışır; gönderdiğinde ekran ne olmadığını açıkça yazar. Aşağıdaki kayıtlar örnek bir kullanıcıya aittir.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SEKME 1 · ABONELİK ===================== -->
+<div class="fit-pane" data-pane="abonelik">
+<section class="od-body">
+  <div class="wrap">
+    <div class="od-kol">
+
+      <div class="od-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-crown" aria-hidden="true"></i> Paket aboneliği</span>
+          <h2>Aktif aboneliğin</h2>
+          <p class="lead">Kademen, dönem tarihlerin, yenileme durumu ve iptal. Kademelerin içeriği Paketlerim'de.</p>
+        </div></div>
+
+        <div id="odAbone"></div>
+
+        <div class="od-card" style="margin-top:18px">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-rotate" aria-hidden="true"></i> Yenileme ayarları</h3>
+            <p>Yenilemeyi kapatırsan üyeliğin dönem sonunda biter; o güne kadar erişimin sürer.</p>
+          </div></div>
+          <div class="od-in">
+            <div class="set-list">
+              <div class="set-row">
+                <span class="sr-ico" aria-hidden="true"><i class="fa-solid fa-rotate"></i></span>
+                <div class="sr-txt"><b>Otomatik yenileme</b><span id="odYenileNot">Kapatırsan üyeliğin 14 Eylül 2026'da sona erer.</span></div>
+                <label class="tgl" for="odYenile"><input type="checkbox" id="odYenile" checked /><span class="tk"></span><span class="sr-only">Otomatik yenileme</span></label>
+              </div>
+              <div class="set-row">
+                <span class="sr-ico" aria-hidden="true"><i class="fa-regular fa-credit-card"></i></span>
+                <div class="sr-txt"><b>Yenilemede kullanılacak kart</b><span>Kartlarını <a href="#kartlar" style="color:var(--fit-deep);font-weight:700">Kartlarım</a> sekmesinden yönetirsin.</span></div>
+                <label class="sr-only" for="odKart">Yenilemede kullanılacak kart</label>
+                <select class="fk-select" id="odKart">
+                  <option selected>Visa •••• 4242</option>
+                  <option>Mastercard •••• 8821</option>
+                </select>
+              </div>
+            </div>
+            <p class="od-sonuc" id="odYenileSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- ---- KAMPANYA KODU (uyelik-faturalandirma-v1'den taşındı) ----
+             Doğrulama GERÇEKTEN çalışır (kod tanınır ya da tanınmaz);
+             indirim TAHSİLATA GİTMEZ ve ekran bunu yazar. -->
+        <div class="od-card">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-ticket" aria-hidden="true"></i> Kampanya kodu</h3>
+            <p>Kod bir sonraki tahsilata uygulanır; mevcut dönem için geriye dönük indirim yapılmaz.</p>
+          </div></div>
+          <div class="od-in">
+            <form id="odPromoForm" autocomplete="off" novalidate>
+              <div class="fk-field">
+                <label class="fk-label" for="odPromoKod">Kampanya kodu <span class="opt">(varsa)</span></label>
+                <input class="fk-input" type="text" id="odPromoKod" name="promokod" placeholder="Örneğin: HAREKET25" spellcheck="false" aria-describedby="odPromoHata" />
+                <p class="fk-hata" id="odPromoHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span></span></p>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Kodu Doğrula</button>
+            </form>
+            <p class="od-sonuc" id="odPromoSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+            <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bir tahsilatta yalnız bir kod geçerlidir, kodlar birleştirilemez. Prototipte üç örnek kod tanınıyor: <b>HAREKET25</b> · <b>YENIBASLA</b> · <b>YIL2026</b>. Doğrulama çalışır, indirim hiçbir tahsilata gitmez.</span></div>
+          </div>
+        </div>
+
+        <!-- ---- İPTAL VE DONDURMA ---- -->
+        <div class="od-card" id="odIptalCard">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-ban" aria-hidden="true"></i> Aboneliği dondur veya iptal et</h3>
+            <p>Tamamen bırakmak istemiyorsan bir süre dondurabilirsin: tahsilat durur, kayıtların olduğu gibi kalır.</p>
+          </div></div>
+          <div class="od-in">
+            <div class="hs-warn">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <span><b>Uyarı:</b> iptal edersen paketine bağlı programlar ve ölçüm ekranların <b id="odIptalTarih">14 Eylül 2026</b> tarihinde kapanır ve hesabın Ücretsiz kademeye döner. Kayıtların, ilerleme geçmişin ve rozetlerin <b>silinmez</b>.</span>
+            </div>
+
+            <div class="fk-grid c2">
+              <div class="fk-field">
+                <label class="fk-label" for="odDondurSure">Dondurma süresi</label>
+                <select class="fk-select" id="odDondurSure">
+                  <option value="1">1 ay</option>
+                  <option value="2">2 ay</option>
+                  <option value="3" selected>3 ay</option>
+                  <option value="6">6 ay</option>
+                </select>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="odIptalNeden">İptal nedenin <span class="opt">(isteğe bağlı)</span></label>
+                <select class="fk-select" id="odIptalNeden">
+                  <option value="">Belirtmek istemiyorum</option>
+                  <option value="kullanmiyorum">Uygulamayı kullanmıyorum</option>
+                  <option value="pahali">Ücret bana uygun değil</option>
+                  <option value="icerik">Aradığım içeriği bulamadım</option>
+                  <option value="baska">Başka bir uygulamaya geçtim</option>
+                  <option value="ara">Bir süre ara vermek istiyorum</option>
+                  <option value="teknik">Teknik sorunlar yaşadım</option>
+                </select>
+              </div>
+            </div>
+
+            <form class="hs-gate" id="odIptalForm" novalidate>
+              <label class="hs-check" for="odIptalOnay">
+                <input type="checkbox" id="odIptalOnay" />
+                <span>Dönem sonunda paket erişimimin kapanacağını ve iptalin kalan dönem için kendiliğinden ücret iadesi doğurmadığını okudum, onaylıyorum.</span>
+              </label>
+              <div class="hs-gate-acts">
+                <button class="btn btn-ghost" type="button" id="odDondurBtn"><i class="fa-solid fa-snowflake" aria-hidden="true"></i> Aboneliği Dondur</button>
+                <button class="btn btn-warn" type="submit" id="odIptalBtn" disabled aria-describedby="odIptalDurum"><i class="fa-solid fa-ban" aria-hidden="true"></i> Aboneliği İptal Et</button>
+                <p class="hs-state blocked" id="odIptalDurum" role="status"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Düğme kapalı: iptal için önce onay kutusunu işaretle.</span></p>
+              </div>
+            </form>
+
+            <p class="od-sonuc" id="odIptalSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+
+            <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>İptal kuralları ve dönem sonu erişimi <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a>'nda; kullanılmamış dönem bedeline ilişkin haklar <a href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>'nda. İptal yerine <b>paketi düşürmeyi</b> de seçebilirsin — <a href="paketlerim-v1.html#karsilastir">kademeleri karşılaştır</a>.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME 2 · ANTRENÖR ÖDEMELERİ ===================== -->
+<div class="fit-pane" data-pane="antrenor" hidden>
+<section class="od-body">
+  <div class="wrap">
+    <div class="od-kol">
+
+      <div class="od-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Antrenör</span>
+          <h2>Antrenöre ödediklerin</h2>
+          <p class="lead">Abonelikten ayrı bir hesaptır. İki satın alma biçimi vardır ve ayrı ayrı listelenir: tek seans ve seans paketi.</p>
+        </div></div>
+
+        <div class="hs-warn" style="margin-bottom:22px">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span><b>Bu tutarlar DadaFit aboneliğine dâhil değildir.</b> Seans bedelini antrenöre ödersin, ayrı tahsil edilir ve ayrı iptal edilir. Aboneliğin yalnız randevu ve mesajlaşma yolunu açar. Paket kademelerini <a href="paketlerim-v1.html" style="color:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px">Paketlerim</a>'de görürsün.</span>
+        </div>
+
+        <!-- ---- 2A · SEANS BAŞINA ---- -->
+        <div class="od-card">
+          <div class="od-head">
+            <div>
+              <h3><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Seans başına ödemeler</h3>
+              <p>Tek tek satın aldığın birebir seanslar. Her satır bir randevuya karşılık gelir; paket hakkından düşmez.</p>
+            </div>
+            <span class="od-pill off" id="odSeansSay">0 seans</span>
+          </div>
+          <div class="od-in flush">
+            <div class="od-scroll" tabindex="0" role="region" aria-label="Seans başına ödemeler">
+              <table class="od-tab">
+                <thead>
+                  <tr><th scope="col">Antrenör ve seans</th><th scope="col">Tarih</th><th scope="col">Tutar</th><th scope="col">Durum</th><th scope="col">Belge</th></tr>
+                </thead>
+                <tbody id="odSeansBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="od-in" style="padding-top:0">
+            <div class="ntf-foot" style="border-top:none;padding-top:0;margin-top:14px"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> <span>Yeni seans almak için antrenörün profilinden randevu açarsın: <a href="antrenorler-v1.html">Antrenör Dizini</a>. Randevu ve mesajların <a href="egzersizlerim-v1.html#antrenorum">Egzersizlerim &rsaquo; Antrenörüm</a> sekmesinde.</span></div>
+          </div>
+        </div>
+
+        <!-- ---- 2B · SEANS PAKETLERİ ---- -->
+        <div class="od-card">
+          <div class="od-head">
+            <div>
+              <h3><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Seans paketleri</h3>
+              <p>Toplu alınan seans hakları — 4 seanslık ve 8 seanslık paketler. Kalan hakkın çubukta görünür.</p>
+            </div>
+            <span class="od-pill off" id="odPaketSay">0 paket</span>
+          </div>
+          <div class="od-in">
+            <div class="uys-list" id="odPaketList"></div>
+          </div>
+        </div>
+
+        <!-- ---- 2C · SONA ERENLER ---- -->
+        <div class="od-card">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sona eren paketler</h3>
+            <p>Hakları tükenen veya süresi dolan paketler. Kayıtları duruyor; aynı antrenörle yeniden çalışabilirsin.</p>
+          </div></div>
+          <div class="od-in">
+            <div class="uys-list" id="odGecmisList"></div>
+            <!-- hesabim-v1'in #uyelik kutusundan taşınan tek DÜĞME: dizin
+                 bağlantısı dipnot içinde kalmasın, eylem olarak dursun. -->
+            <div style="margin-top:18px"><a class="btn btn-ghost" href="antrenorler-v1.html" style="padding:11px 18px;font-size:13.5px"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Antrenör Dizinine Bak</a></div>
+            <div class="ntf-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Antrenör paketleri <b>DadaFit aboneliğine dâhil değildir</b> ve ayrı tahsil edilir; aboneliğin yalnız randevu ve mesajlaşma yolunu açar. Paketin iptali antrenörünle anlaştığın koşullara bağlıdır. Belgeleri <a href="#faturalar">Faturalar</a>, iade taleplerini <a href="#iade">İade talepleri</a> sekmesinde bulursun.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME 3 · FATURALAR ===================== -->
+<div class="fit-pane" data-pane="faturalar" hidden>
+<section class="od-body">
+  <div class="wrap">
+    <div class="od-kol">
+
+      <div class="od-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Belgeler</span>
+          <h2>Faturaların</h2>
+          <p class="lead">Abonelik ve antrenör tahsilatlarının tamamı tek defterde. Süzgeç listeyi yerinde daraltır, sayfa yenilenmez.</p>
+        </div></div>
+
+        <div class="od-card">
+          <div class="od-head">
+            <div>
+              <h3><i class="fa-solid fa-receipt" aria-hidden="true"></i> Fatura defteri</h3>
+              <p>Fatura numarası, tarih, tutar, durum ve belge. Her satırın hangi kutuya ait olduğu numaranın altında yazar.</p>
+            </div>
+            <button class="btn btn-ghost" type="button" id="odFtBilgi"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Fatura Bilgilerim</button>
+          </div>
+
+          <div class="od-filter">
+            <div class="fgroup" role="group" aria-label="Fatura türü süzgeci" id="odFtChips">
+              <span class="fgroup-lbl">Tür</span>
+              <button class="df-fchip on" type="button" data-tur="tumu" aria-pressed="true"><i class="fa-solid fa-list" aria-hidden="true"></i> Tümü</button>
+              <button class="df-fchip" type="button" data-tur="uyelik" aria-pressed="false"><i class="fa-solid fa-crown" aria-hidden="true"></i> Üyelik</button>
+              <button class="df-fchip" type="button" data-tur="antrenor" aria-pressed="false"><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Antrenör</button>
+              <button class="df-fchip" type="button" data-tur="iade" aria-pressed="false"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> İade</button>
+            </div>
+          </div>
+          <p class="od-count" id="odFtCount" role="status"></p>
+
+          <div class="od-in flush">
+            <div class="od-scroll" tabindex="0" role="region" aria-label="Fatura listesi">
+              <table class="od-tab">
+                <thead>
+                  <tr><th scope="col">Fatura no</th><th scope="col">Tarih</th><th scope="col">Tutar</th><th scope="col">Durum</th><th scope="col">Belge</th></tr>
+                </thead>
+                <tbody id="odFtBody"></tbody>
+              </table>
+            </div>
+            <div class="fpx-bos" id="odFtBos" hidden>
+              <span class="pe-ico"><i class="fa-solid fa-file-circle-question" aria-hidden="true"></i></span>
+              <h4>Bu türde fatura yok</h4>
+              <p>Seçtiğin türde henüz bir belge kesilmemiş. Süzgeci "Tümü"ne alırsan defterin tamamını görürsün.</p>
+              <button class="btn btn-primary" type="button" id="odFtSifirla">Süzgeci temizle</button>
+            </div>
+          </div>
+
+          <div class="od-in" style="padding-top:0">
+            <div class="ntf-foot" style="border-top:none;padding-top:0;margin-top:14px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span><b>İndirilebilir PDF üretilmez.</b> Prototipte belge sunucusu yok; "Detay" bağlantısı faturanın dökümünü, vergi ayrımını ve tahsilat bilgisini gösteren ekrana götürür ve oradan yazdırabilirsin. Faturalar aynı zamanda e-posta adresine gönderilir.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME 4 · KARTLARIM ===================== -->
+<div class="fit-pane" data-pane="kartlar" hidden>
+<section class="od-body">
+  <div class="wrap">
+    <div class="od-kol">
+
+      <div class="od-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-regular fa-credit-card" aria-hidden="true"></i> Ödeme yöntemleri</span>
+          <h2>Kayıtlı kartların</h2>
+          <p class="lead">Yenilemede kullanılacak kartı buradan seçer, yeni kart ekler veya kaldırırsın. Bu bölüm Hesap Ayarları'ndan buraya taşındı.</p>
+        </div></div>
+
+        <div class="od-card">
+          <div class="od-head">
+            <div>
+              <h3><i class="fa-regular fa-credit-card" aria-hidden="true"></i> Kartların</h3>
+              <p>Varsayılan kart yenilemede ve yeni satın almalarda ilk sırada denenir. Reddedilirse diğer kart denenir; ikisi de reddedilirse tahsilat başarısız olur ve sana bildirilir.</p>
+            </div>
+            <span class="od-pill off" id="odKartSay">0 kart</span>
+          </div>
+          <div class="od-in">
+            <div class="card-list">
+              <div class="cc-row">
+                <span class="cc-brand" aria-hidden="true"><i class="fa-brands fa-cc-visa"></i></span>
+                <div class="cc-info">
+                  <b>Visa •••• 4242</b>
+                  <span class="cc-exp">Son kullanma: 08 / 2027</span>
+                </div>
+                <span class="hs-pill on"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Varsayılan</span>
+                <div class="cc-acts">
+                  <button class="uys-manage" type="button" data-kart-sil="Visa •••• 4242"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kaldır</button>
+                </div>
+              </div>
+              <div class="cc-row">
+                <span class="cc-brand cc-mc" aria-hidden="true"><i class="fa-brands fa-cc-mastercard"></i></span>
+                <div class="cc-info">
+                  <b>Mastercard •••• 8821</b>
+                  <span class="cc-exp">Son kullanma: 03 / 2027</span>
+                </div>
+                <div class="cc-acts">
+                  <button class="uys-manage" type="button" data-kart-var="Mastercard •••• 8821"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Varsayılan Yap</button>
+                  <button class="uys-manage" type="button" data-kart-sil="Mastercard •••• 8821"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kaldır</button>
+                </div>
+              </div>
+            </div>
+            <p class="od-sonuc" id="odKartSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+            <div class="ntf-foot"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span><b>Tam kart numarası DadaFit'te tutulmaz.</b> Kart kayıtları ödeme sağlayıcısında saklanır; burada yalnız marka, son dört hane ve son kullanma tarihi görünür. Yenilemede hangi kartın kullanılacağını <a href="#abonelik">Abonelik &rsaquo; Yenileme ayarları</a> bölümünden seçersin; seans ve paket ödemelerinde varsayılan kart kullanılır.</span></div>
+          </div>
+        </div>
+
+        <!-- ---- KART EKLEME: form GERÇEKTEN doğrular, kart KAYDEDİLMEZ ---- -->
+        <div class="od-card">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-plus" aria-hidden="true"></i> Kart ekle</h3>
+            <p>Alan doğrulaması çalışır: kart numarası Luhn kontrolünden geçer, son kullanma tarihi geçmiş olamaz.</p>
+          </div></div>
+          <div class="od-in">
+            <form id="odKartForm" autocomplete="off" novalidate>
+              <div class="fk-field">
+                <label class="fk-label" for="odKkAd">Kart üzerindeki isim <span class="req" aria-hidden="true">*</span></label>
+                <input class="fk-input" id="odKkAd" type="text" autocomplete="cc-name" placeholder="Kart sahibinin adı soyadı" required aria-describedby="odKkAdHata" />
+                <p class="fk-hata" id="odKkAdHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Kart üzerindeki ismi yaz.</span></p>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="odKkNo">Kart numarası <span class="req" aria-hidden="true">*</span></label>
+                <input class="fk-input" id="odKkNo" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required aria-describedby="odKkNoHata" />
+                <p class="fk-hata" id="odKkNoHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>16 haneli geçerli bir kart numarası gir.</span></p>
+              </div>
+              <div class="fk-grid c2">
+                <div class="fk-field">
+                  <label class="fk-label" for="odKkSkt">Son kullanma <span class="req" aria-hidden="true">*</span></label>
+                  <input class="fk-input" id="odKkSkt" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="AA/YY" required aria-describedby="odKkSktHata" />
+                  <p class="fk-hata" id="odKkSktHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>AA/YY biçiminde, geçmemiş bir tarih gir.</span></p>
+                </div>
+                <div class="fk-field">
+                  <label class="fk-label" for="odKkCvv">CVV <span class="req" aria-hidden="true">*</span></label>
+                  <input class="fk-input" id="odKkCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="•••" required aria-describedby="odKkCvvHata" />
+                  <p class="fk-hata" id="odKkCvvHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>3 veya 4 haneli güvenlik kodunu gir.</span></p>
+                </div>
+              </div>
+              <div class="hs-gate-acts" style="margin-top:22px">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus" aria-hidden="true"></i> Kartı Ekle</button>
+                <p class="hs-state" role="status"><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>Girdiğin bilgi hiçbir yere gönderilmez ve saklanmaz — sayfadan ayrılınca kaybolur.</span></p>
+              </div>
+            </form>
+            <p class="od-sonuc" id="odKartEkleSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== SEKME 5 · İADE TALEPLERİ ===================== -->
+<div class="fit-pane" data-pane="iade" hidden>
+<section class="od-body">
+  <div class="wrap">
+    <div class="od-kol">
+
+      <div class="od-sec">
+        <div class="sec-head"><div>
+          <span class="eyebrow"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> İade</span>
+          <h2>İade talepleri</h2>
+          <p class="lead">Yanlış tahsilat, kullanılmayan seans hakkı veya cayma hakkı için talep açarsın. Açtığın talepler burada durumuyla listelenir.</p>
+        </div></div>
+
+        <div class="od-card">
+          <div class="od-head">
+            <div>
+              <h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Taleplerin</h3>
+              <p>Her talep bir tahsilata bağlıdır. Durum değiştiğinde e-posta ve bildirim alırsın.</p>
+            </div>
+            <span class="od-pill off" id="odIadeSay">0 talep</span>
+          </div>
+          <div class="od-in flush">
+            <div class="od-scroll" tabindex="0" role="region" aria-label="İade talepleri">
+              <table class="od-tab">
+                <thead>
+                  <tr><th scope="col">Talep ve tahsilat</th><th scope="col">Tarih</th><th scope="col">Tutar</th><th scope="col">Durum</th><th scope="col">Belge</th></tr>
+                </thead>
+                <tbody id="odIadeBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---- YENİ İADE TALEBİ ---- -->
+        <div class="od-card">
+          <div class="od-head"><div>
+            <h3><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i> Yeni iade talebi</h3>
+            <p>Hangi tahsilat için, neden. Tutar seçtiğin tahsilattan gelir; elle girilmez.</p>
+          </div></div>
+          <div class="od-in">
+            <form id="odIadeForm" autocomplete="off" novalidate>
+              <div class="fk-field">
+                <label class="fk-label" for="odIadeTahsilat">İade istediğin tahsilat <span class="req" aria-hidden="true">*</span></label>
+                <select class="fk-select" id="odIadeTahsilat" required aria-describedby="odIadeTahsilatHata">
+                  <option value="">Bir tahsilat seç</option>
+                </select>
+                <p class="fk-hata" id="odIadeTahsilatHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>İade istediğin tahsilatı seç.</span></p>
+                <p class="fk-help" id="odIadeTutar"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> İade tutarı seçtiğin tahsilattan okunur.</p>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="odIadeNeden">İade nedeni <span class="req" aria-hidden="true">*</span></label>
+                <select class="fk-select" id="odIadeNeden" required aria-describedby="odIadeNedenHata">
+                  <option value="">Bir neden seç</option>
+                  <option value="yanlis">Yanlış veya mükerrer tahsilat</option>
+                  <option value="kullanilmadi">Kullanılmayan seans hakkı</option>
+                  <option value="cayma">Cayma hakkı (14 gün)</option>
+                  <option value="hizmet">Hizmet alınamadı</option>
+                  <option value="baska">Başka bir neden</option>
+                </select>
+                <p class="fk-hata" id="odIadeNedenHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Bir neden seç.</span></p>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="odIadeAciklama">Açıklama <span class="req" aria-hidden="true">*</span><span class="fk-count" id="odIadeSayac" style="margin-left:auto;font-size:11.5px;color:var(--slate-2);font-weight:500">0 / 600</span></label>
+                <textarea class="fk-textarea" id="odIadeAciklama" maxlength="600" placeholder="Ne oldu? Tarih, tutar ve varsa işlem numarasını yazarsan talep daha hızlı sonuçlanır." required aria-describedby="odIadeAciklamaHata"></textarea>
+                <p class="fk-hata" id="odIadeAciklamaHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>En az 20 karakter yaz — ne olduğunu anlatmadan talep değerlendirilemez.</span></p>
+              </div>
+              <div class="hs-gate-acts">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Talebi Gönder</button>
+                <p class="hs-state" role="status"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> <span>Cayma ve iade koşulları <a href="yasal-v1.html?metin=iade" style="color:var(--fit-deep);font-weight:700">yasal metinde</a> yazılı.</span></p>
+              </div>
+            </form>
+            <p class="od-sonuc" id="odIadeSonuc" role="status">
+              <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              <span class="od-sonuc-txt"></span>
+            </p>
+            <div class="ntf-foot"><i class="fa-solid fa-headset" aria-hidden="true"></i> <span>Antrenör seansı iadeleri antrenörle anlaştığın koşullara bağlıdır; anlaşmazlık olursa <a href="destek-v1.html#taleplerim">destek talebi</a> açarsın. Abonelik iadesi komisyon ve dönem kurallarına tabidir.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</div>
+
+</div><!-- /.modul-govde -->
+</main>
+
+<!-- =====================================================================
+ FATURA BELGESİ — #fdModal
+ ---------------------------------------------------------------------
+ "Detay" düğmesi eskiden `fatura-detay-v1.html`e GİDİYORDU; o sayfa
+ emekli oldu (bkz. rapor) ve belge artık defterin yanında pencerede
+ açılıyor — kullanıcı listeden çıkmıyor.
+ 🔴 DÜRÜSTLÜK: fatura kesilmiyor, indirilmiyor. Şerit bir kez söylüyor;
+ "İndir" düğmesi sahte dosya vermiyor, ne yapılmadığını yazıyor.
+ ===================================================================== -->
+<div class="fb-overlay" id="fdOverlay"></div>
+<div class="fb-modal" id="fdModal" role="dialog" aria-modal="true" aria-labelledby="fdModalTitle">
+  <div class="fb-panel">
+    <div class="fb-head">
+      <div>
+        <h3 id="fdModalTitle">Fatura belgesi</h3>
+        <p id="fdModalSub">Belgenin dökümü, vergi ayrımı ve tahsilat bilgisi.</p>
+      </div>
+      <button class="fb-close" id="fdClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </div>
+    <div class="fb-body">
+      <div class="hr-note" role="note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <p><b>Bu ekran maket: gerçek bir fatura kesilmez ve indirilemez.</b> Aşağıdaki belge, tahsilat gerçekleştiğinde faturanın nasıl görüneceğini gösterir. Alıcı bilgileri <a href="#faturalar" id="fdAliciBag">Fatura Bilgilerim</a> formunda kaydettiklerinden okunur.</p>
+      </div>
+
+      <dl class="fd-kunye" id="fdKunye"></dl>
+
+      <div class="fd-taraf">
+        <section>
+          <h4>Satıcı</h4>
+          <div id="fdSatici"></div>
+        </section>
+        <section>
+          <h4>Alıcı</h4>
+          <div id="fdAlici"></div>
+        </section>
+      </div>
+
+      <div class="od-scroll" tabindex="0" role="region" aria-label="Fatura kalemleri">
+        <table class="od-tab">
+          <thead>
+            <tr>
+              <th scope="col">Açıklama</th>
+              <th scope="col" class="sag">Miktar</th>
+              <th scope="col" class="sag">Birim fiyat</th>
+              <th scope="col" class="sag">KDV</th>
+              <th scope="col" class="sag">Tutar</th>
+            </tr>
+          </thead>
+          <tbody id="fdKalemler"></tbody>
+        </table>
+      </div>
+
+      <ul class="fd-toplam" id="fdToplam"></ul>
+
+      <div class="fd-ode" id="fdOde"></div>
+
+      <div class="ft-foot">
+        <p class="note">Fatura, tahsilat onaylandığında e-posta adresine de gönderilir. Kesilmiş belgeler geriye dönük düzenlenmez.</p>
+        <button class="btn btn-ghost" type="button" id="fdYazdir"><i class="fa-solid fa-print" aria-hidden="true"></i> Yazdır</button>
+        <button class="btn btn-primary" type="button" id="fdIndir"><i class="fa-solid fa-download" aria-hidden="true"></i> PDF İndir</button>
+      </div>
+
+      <p class="od-sonuc" id="fdSonuc" role="status">
+        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+        <span class="od-sonuc-txt"></span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+ FATURA BİLGİLERİ — #ftModal
+ ---------------------------------------------------------------------
+ Bu form eskiden `hesabim-v1.html`de yaşıyordu ve Ödemelerim'deki düğme
+ oraya GİDİYORDU. Artık aynı sayfada açılıyor: fatura defteriyle fatura
+ kimliği tek adreste.
+ 🔴 DÜRÜSTLÜK: bilgiler TARAYICI HAFIZASINDA (`dm_fit_fatura_v1`) gerçekten
+ saklanır ve sayfayı yenileyince geri gelir — bu ekranın GERÇEK yeteneği.
+ Fatura KESİLMEZ; şerit bunu bir kez söyler, düğme başına rozet konmaz.
+ ===================================================================== -->
+<div class="fb-overlay" id="ftOverlay"></div>
+<div class="fb-modal" id="ftModal" role="dialog" aria-modal="true" aria-labelledby="ftModalTitle">
+  <div class="fb-panel">
+    <div class="fb-head">
+      <div>
+        <h3 id="ftModalTitle">Fatura Bilgilerim</h3>
+        <p id="ftModalSub">Faturaların kime, hangi kimlikle ve hangi adrese düzenleneceğini belirler.</p>
+      </div>
+      <button class="fb-close" id="ftClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </div>
+    <div class="fb-body">
+      <div class="hr-note" role="note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <p><b>Bu ekran maket: bilgiler tarayıcında saklanır, fatura kesilmez.</b> Girdiğin bilgiler bu tarayıcıda kalır ve sayfayı yenileyince geri gelir; hiçbir sunucuya gönderilmez.</p>
+      </div>
+
+      <form id="ftForm" autocomplete="on" novalidate>
+
+        <!-- ---- TİP: segment denetimi ---- -->
+        <div class="fk-field">
+          <span class="fk-label" id="ftTipLbl">Fatura tipi</span>
+          <div class="ft-seg" role="group" aria-labelledby="ftTipLbl">
+            <button type="button" data-tip="bireysel" aria-pressed="true"><i class="fa-solid fa-user" aria-hidden="true"></i> Bireysel</button>
+            <button type="button" data-tip="kurumsal" aria-pressed="false"><i class="fa-solid fa-building" aria-hidden="true"></i> Kurumsal</button>
+          </div>
+        </div>
+
+        <!-- ---- KİMLİK: BİREYSEL ---- -->
+        <div class="ft-blok" data-blok="bireysel">
+          <div class="fk-field">
+            <label class="fk-label" for="ftAd">Ad soyad <span class="req" aria-hidden="true">*</span></label>
+            <input class="fk-input" id="ftAd" name="ad" type="text" autocomplete="name" placeholder="Adın ve soyadın" aria-describedby="ftAdHata" />
+            <p class="fk-hata" id="ftAdHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Ad ve soyadını birlikte yaz.</span></p>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="ftTckn">T.C. Kimlik No <span class="opt">(isteğe bağlı)</span></label>
+            <input class="fk-input" id="ftTckn" name="tckn" type="text" inputmode="numeric" maxlength="11" placeholder="11 hane" aria-describedby="ftTcknHata ftTcknHelp" />
+            <p class="fk-hata" id="ftTcknHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Geçerli bir T.C. kimlik numarası gir.</span></p>
+            <span class="fk-help" id="ftTcknHelp"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Yalnız fatura üzerinde görünür. Boş bırakabilirsin; e-Arşiv fatura için kurumlar isteyebilir.</span>
+          </div>
+        </div>
+
+        <!-- ---- KİMLİK: KURUMSAL ---- -->
+        <div class="ft-blok" data-blok="kurumsal" hidden>
+          <div class="fk-field">
+            <label class="fk-label" for="ftUnvan">Firma unvanı <span class="req" aria-hidden="true">*</span></label>
+            <input class="fk-input" id="ftUnvan" name="unvan" type="text" autocomplete="organization" placeholder="Ticaret sicilindeki tam unvan" aria-describedby="ftUnvanHata" />
+            <p class="fk-hata" id="ftUnvanHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Firma unvanını yaz.</span></p>
+          </div>
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="ftDaire">Vergi dairesi <span class="req" aria-hidden="true">*</span></label>
+              <input class="fk-input" id="ftDaire" name="vergidaire" type="text" placeholder="Örneğin Kadıköy" aria-describedby="ftDaireHata" />
+              <p class="fk-hata" id="ftDaireHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Vergi dairesini yaz.</span></p>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="ftVkn">Vergi no (VKN) <span class="req" aria-hidden="true">*</span></label>
+              <input class="fk-input" id="ftVkn" name="vkn" type="text" inputmode="numeric" maxlength="10" placeholder="10 hane" aria-describedby="ftVknHata" />
+              <p class="fk-hata" id="ftVknHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Vergi numarası 10 haneli olmalı.</span></p>
+            </div>
+          </div>
+          <div class="fk-field">
+            <label class="hs-check" for="ftEfatura">
+              <input type="checkbox" id="ftEfatura" name="efatura" />
+              <span>e-Fatura mükellefiyim</span>
+            </label>
+            <span class="fk-help" id="ftEfaturaNot" hidden><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Faturan e-Fatura olarak iletilir; e-posta yerine entegratörün üzerinden düşer.</span>
+          </div>
+        </div>
+
+        <!-- ---- ORTAK: İLETİŞİM (tip değişince SIFIRLANMAZ) ---- -->
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="ftTel">Telefon <span class="req" aria-hidden="true">*</span></label>
+            <div class="fk-tel" data-cc-kok>
+              <button class="fk-cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Ülke kodu">
+                <span class="fk-cc-flag" aria-hidden="true">&#127481;&#127479;</span><span class="fk-cc-dial">+90</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+              <input class="fk-input" id="ftTel" name="telefon" type="tel" autocomplete="tel-national" placeholder="555 555 55 55" aria-describedby="ftTelHata" />
+              <input type="hidden" name="ulke" id="ftUlke" value="TR" />
+              <div class="fk-cc-pop" role="dialog" aria-label="Ülke seç" hidden>
+                <div class="fk-cc-search">
+                  <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                  <label class="sr-only" for="ftCcAra">Ülke ara</label>
+                  <input id="ftCcAra" type="text" placeholder="Ülke veya kod ara" autocomplete="off" />
+                </div>
+                <ul class="fk-cc-list" role="listbox" aria-label="Ülkeler" tabindex="-1"></ul>
+                <p class="fk-cc-bos" hidden>Eşleşen ülke yok.</p>
+              </div>
+            </div>
+            <p class="fk-hata" id="ftTelHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Telefon numarasını yaz (en az 7 hane).</span></p>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="ftEposta">E-posta <span class="req" aria-hidden="true">*</span></label>
+            <input class="fk-input" id="ftEposta" name="eposta" type="email" autocomplete="email" placeholder="ornek@eposta.com" aria-describedby="ftEpostaHata ftEpostaHelp" />
+            <p class="fk-hata" id="ftEpostaHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Geçerli bir e-posta adresi yaz.</span></p>
+            <span class="fk-help" id="ftEpostaHelp"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Fatura bu adrese gönderilir.</span>
+          </div>
+        </div>
+
+        <!-- ---- ORTAK: ADRES ---- -->
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="ftIl">İl <span class="req" aria-hidden="true">*</span></label>
+            <select class="fk-select" id="ftIl" name="il" aria-describedby="ftIlHata">
+              <option value="">İl seç</option>
+              <option>Adana</option><option>Adıyaman</option><option>Afyonkarahisar</option><option>Ağrı</option><option>Aksaray</option><option>Amasya</option><option>Ankara</option><option>Antalya</option><option>Ardahan</option><option>Artvin</option><option>Aydın</option><option>Balıkesir</option><option>Bartın</option><option>Batman</option><option>Bayburt</option><option>Bilecik</option><option>Bingöl</option><option>Bitlis</option><option>Bolu</option><option>Burdur</option><option>Bursa</option><option>Çanakkale</option><option>Çankırı</option><option>Çorum</option><option>Denizli</option><option>Diyarbakır</option><option>Düzce</option><option>Edirne</option><option>Elazığ</option><option>Erzincan</option><option>Erzurum</option><option>Eskişehir</option><option>Gaziantep</option><option>Giresun</option><option>Gümüşhane</option><option>Hakkâri</option><option>Hatay</option><option>Iğdır</option><option>Isparta</option><option>İstanbul</option><option>İzmir</option><option>Kahramanmaraş</option><option>Karabük</option><option>Karaman</option><option>Kars</option><option>Kastamonu</option><option>Kayseri</option><option>Kilis</option><option>Kırıkkale</option><option>Kırklareli</option><option>Kırşehir</option><option>Kocaeli</option><option>Konya</option><option>Kütahya</option><option>Malatya</option><option>Manisa</option><option>Mardin</option><option>Mersin</option><option>Muğla</option><option>Muş</option><option>Nevşehir</option><option>Niğde</option><option>Ordu</option><option>Osmaniye</option><option>Rize</option><option>Sakarya</option><option>Samsun</option><option>Şanlıurfa</option><option>Siirt</option><option>Sinop</option><option>Sivas</option><option>Şırnak</option><option>Tekirdağ</option><option>Tokat</option><option>Trabzon</option><option>Tunceli</option><option>Uşak</option><option>Van</option><option>Yalova</option><option>Yozgat</option><option>Zonguldak</option>
+            </select>
+            <p class="fk-hata" id="ftIlHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>İl seç.</span></p>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="ftIlce">İlçe <span class="req" aria-hidden="true">*</span></label>
+            <input class="fk-input" id="ftIlce" name="ilce" type="text" placeholder="Önce il seç" disabled aria-describedby="ftIlceHata ftIlceHelp" />
+            <p class="fk-hata" id="ftIlceHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>İlçeyi yaz.</span></p>
+            <span class="fk-help" id="ftIlceHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> İl seçilince açılır.</span>
+          </div>
+        </div>
+        <div class="fk-field">
+          <label class="fk-label" for="ftAdres">Adres <span class="req" aria-hidden="true">*</span><span class="fk-count" id="ftAdresSayac">0 / 240</span></label>
+          <textarea class="fk-textarea" id="ftAdres" name="adres" maxlength="240" placeholder="Mahalle, cadde, sokak, kapı ve daire numarası" aria-describedby="ftAdresHata"></textarea>
+          <p class="fk-hata" id="ftAdresHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Adresi en az 10 karakterle yaz.</span></p>
+        </div>
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="ftPosta">Posta kodu <span class="opt">(isteğe bağlı)</span></label>
+            <input class="fk-input" id="ftPosta" name="postakodu" type="text" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="5 hane" aria-describedby="ftPostaHata" />
+            <p class="fk-hata" id="ftPostaHata" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>Posta kodu 5 haneli olmalı.</span></p>
+          </div>
+          <div class="fk-field" style="display:flex;align-items:flex-end">
+            <label class="hs-check" for="ftVarsayilan" style="width:100%">
+              <input type="checkbox" id="ftVarsayilan" name="varsayilan" checked />
+              <span>Bu bilgileri varsayılan fatura adresim yap</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="ft-foot">
+          <p class="note">Değişiklik bir sonraki faturadan itibaren geçerli olur. Kesilmiş faturalar geriye dönük düzenlenmez.</p>
+          <button class="btn btn-ghost" type="button" id="ftVazgec">Vazgeç</button>
+          <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Bilgileri Kaydet</button>
+        </div>
+      </form>
+
+      <p class="od-sonuc" id="ftSonuc" role="status">
+        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+        <span class="od-sonuc-txt"></span>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<div id="fitShellBottom"></div>
+
+<script src="assets/js/fit-shell.js"></script>
+<script src="assets/js/fit-paket.js"></script>
+<!-- Modal kabuğu (odak tuzağı · ESC · odak dönüşü) — tek kaynak -->
+<script src="assets/js/fit-modal.js"></script>
+<!-- Ülke kodu seçicisinin verisi ve davranışı — tek kaynak -->
+<script src="assets/js/fit-ulke.js"></script>
+<!-- Fatura defterinin tek kaynağı (numara · kalem · vergi · tahsilat) -->
+<script src="assets/js/fit-fatura.js"></script>
+<script>
+/* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) ===== */
+window.__bottomStrips=window.__bottomStrips||[];
+(function(){
+  var nav=document.querySelector(".bottom-nav");
+  if(!nav)return;
+  var cookie=document.getElementById("cookieBanner");
+  var strips=window.__bottomStrips.map(function(s){return document.querySelector(s);}).filter(Boolean);
+  var lastY=window.scrollY||0;
+  function stripShown(){for(var i=0;i<strips.length;i++){if(strips[i]&&strips[i].classList.contains("show"))return true;}return false;}
+  function update(){
+    var y=window.scrollY||0;
+    if((cookie&&cookie.classList.contains("show"))||stripShown()){nav.classList.add("bn-hidden");lastY=y;return;}
+    if(strips.length===0||y<80){nav.classList.remove("bn-hidden");lastY=y;return;}
+    if(y-lastY>12){nav.classList.add("bn-hidden");lastY=y;}
+    else if(lastY-y>12){nav.classList.remove("bn-hidden");lastY=y;}
+  }
+  window.addEventListener("scroll",update,{passive:true});
+  window.addEventListener("resize",update,{passive:true});
+  document.addEventListener("click",function(){setTimeout(update,60);},true);
+  window.__bnUpdate=update;update();
+})();
+</script>
+<script>
+/* =====================================================================
+ ÖDEMELERİM — beş sekmenin sürücüsü
+ ---------------------------------------------------------------------
+ 🔴 DÜRÜSTLÜK SÖZLEŞMESİ (Beyar, bağlayıcı)
+ Bu sayfada GERÇEKTEN çalışan üç şey var ve hepsi tarayıcıda kalır:
+   1. fatura süzgeci (liste yerinde daralır, sayfa yenilenmez)
+   2. form doğrulaması (Luhn · SKT · zorunlu alan · karakter sayacı)
+   3. onay kapısı (kutu işaretlenmeden iptal düğmesi açılmaz)
+ MAKET olan her şey — ödeme, kart kaydı, kart silme, iade gönderimi,
+ abonelik iptali — tamamlandığında `.od-sonuc` şeridine DÜRÜST bir
+ cümle basar: ne YAPILMADIĞINI ve neden yapılmadığını yazar.
+ ⚠ "Başarılı" / "kaydedildi" / "işleminiz alındı" YAZILMAZ. Yeşil
+ başarı tonu da kullanılmaz — şerit nötr kutudur.
+ ===================================================================== */
+(function(){
+  'use strict';
+  var P = window.FIT_PAKET;
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function qp(k){ var m=new RegExp('[?&]'+k+'=([^&]+)').exec(location.search); return m?decodeURIComponent(m[1]):null; }
+
+  /* Maket sonuç şeridi — tek yardımcı, tek dil. */
+  function sonuc(id, baslik, metin){
+    var el = $(id); if(!el) return;
+    var t = el.querySelector('.od-sonuc-txt');
+    if(t) t.innerHTML = '<b>'+esc(baslik)+'</b>'+esc(metin);
+    el.classList.add('show');
+  }
+
+  var AKTIF = (P && P.kademe(qp('paket'))) ? qp('paket') : 'pro';
+  var DONEM = { baslangic:'15 Mart 2026', bitis:'14 Eylül 2026', yenileme:'15 Eylül 2026' };
+
+  /* ================= 1 · ABONELİK KARTI ========================== */
+  (function(){
+    var el = $('odAbone'); if(!el || !P) return;
+    var t = P.kademe(AKTIF), ucretsiz = (AKTIF === 'ucretsiz');
+    var h = '<div class="sub-tier-card"><div class="sub-tier-top">';
+    h += '<span class="sub-tier-badge'+(ucretsiz?' free':'')+'"><i class="'+t.ikon+'" aria-hidden="true"></i> '+esc(t.ad)+'</span>';
+    h += '<div class="sub-tier-info"><b>DadaFit '+esc(t.ad)+(ucretsiz?'':' — Aylık')+
+         ' <span class="hs-pill '+(ucretsiz?'off':'on')+'"><i class="fa-solid fa-'+(ucretsiz?'infinity':'circle-check')+'" aria-hidden="true"></i> '+(ucretsiz?'Süresiz':'Aktif')+'</span></b>'+
+         '<span class="sub-renew"><i class="fa-solid fa-'+(ucretsiz?'infinity':'rotate')+'" aria-hidden="true"></i> '+
+         (ucretsiz ? 'Tahsilat yapılmaz, iptal edilecek bir abonelik yok.'
+                   : 'Otomatik yenileme açık — sonraki tahsilat '+DONEM.yenileme)+'</span></div>';
+    h += '<div class="sub-tier-price">'+
+         (t.fiyatMetin===null ? '<b aria-hidden="true">&mdash;</b><span>'+esc(P.fiyatMetni(AKTIF))+'</span>'
+                              : '<b>'+esc(t.fiyatMetin)+'</b><span>'+esc(t.birim)+'</span>')+'</div>';
+    h += '</div><div class="sub-tier-body">';
+    if(ucretsiz){
+      h += '<p class="hs-state"><i class="fa-solid fa-infinity" aria-hidden="true"></i> <span>Ücretsiz kademede abonelik kaydı tutulmaz: dönem tarihi, yenileme ve iptal yoktur. Bu sekmedeki yenileme ve iptal kutuları yalnız ücretli kademelerde anlam taşır.</span></p>';
+    } else {
+      h += '<dl class="hs-facts">'+
+           '<div><dt>Aktif paket</dt><dd>DadaFit '+esc(t.ad)+' (Aylık)</dd></div>'+
+           '<div><dt>Başlangıç</dt><dd>'+DONEM.baslangic+'</dd></div>'+
+           '<div><dt>Dönem bitişi</dt><dd>'+DONEM.bitis+'</dd></div>'+
+           '<div><dt>Yenileme tarihi</dt><dd>'+DONEM.yenileme+'</dd></div>'+
+           '</dl>';
+    }
+    h += '</div><div class="sub-tier-acts">';
+    var i = P.sira(AKTIF);
+    if(i < P.kademeler.length-1){
+      var ust = P.kademeler[i+1];
+      h += '<a class="btn btn-primary" href="pro-odeme-v1.html?plan='+ust.key+'"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> '+esc(ust.yonelme)+" Yükselt</a>";
+    }
+    h += '<a class="btn btn-ghost" href="paketlerim-v1.html#karsilastir"><i class="fa-solid fa-table-list" aria-hidden="true"></i> Kademeleri Karşılaştır</a>';
+    h += '</div></div>';
+    el.innerHTML = h;
+  })();
+
+  /* ---- yenileme anahtarı: gerçekten kapanır, ama KAYDEDİLMEZ ---- */
+  (function(){
+    var t = $('odYenile'); if(!t) return;
+    t.addEventListener('change', function(){
+      sonuc('odYenileSonuc',
+        t.checked ? 'Yenileme açık görünüyor — ama kaydedilmedi. '
+                  : 'Yenileme kapalı görünüyor — ama kaydedilmedi. ',
+        'Abonelik altyapısı bağlanmadı; bu anahtar yalnız ekranda durur ve sayfayı yenileyince eski hâline döner.');
+    });
+  })();
+
+  /* ---- kampanya kodu: doğrulama GERÇEK, indirim maket ---- */
+  (function(){
+    var f = $('odPromoForm'); if(!f) return;
+    var KODLAR = { HAREKET25:'%25 indirim · 3 ay', YENIBASLA:'İlk ay ücretsiz', YIL2026:'Yıllık geçişte 2 ay bedava' };
+    var inp = $('odPromoKod'), hata = $('odPromoHata');
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var kod = (inp.value||'').trim().toUpperCase();
+      hata.classList.remove('show'); inp.classList.remove('is-err');
+      if(!kod){
+        hata.querySelector('span').textContent = 'Önce bir kampanya kodu yaz.';
+        hata.classList.add('show'); inp.classList.add('is-err'); inp.focus();
+        return;
+      }
+      if(!KODLAR[kod]){
+        hata.querySelector('span').textContent = 'Bu kod tanınmadı. Prototipte tanınan üç kod var: HAREKET25 · YENIBASLA · YIL2026.';
+        hata.classList.add('show'); inp.classList.add('is-err'); inp.focus();
+        return;
+      }
+      sonuc('odPromoSonuc', 'Kod tanındı: '+kod+' — '+KODLAR[kod]+'. ',
+        'Ama hiçbir tahsilata uygulanmadı: ödeme altyapısı bağlanmadı, bu ekranda kampanya yürütülmüyor. Kod hesabına kaydedilmedi.');
+    });
+  })();
+
+  /* ---- iptal kapısı: onay kutusu düğmeyi GERÇEKTEN açar ---- */
+  (function(){
+    var f = $('odIptalForm'), onay = $('odIptalOnay'), btn = $('odIptalBtn'), durum = $('odIptalDurum');
+    if(!f || !onay || !btn) return;
+    onay.addEventListener('change', function(){
+      btn.disabled = !onay.checked;
+      durum.classList.toggle('blocked', !onay.checked);
+      durum.querySelector('i').className = onay.checked ? 'fa-solid fa-unlock' : 'fa-solid fa-lock';
+      durum.querySelector('span').textContent = onay.checked
+        ? 'Onay verildi: iptal düğmesi açık.'
+        : 'Düğme kapalı: iptal için önce onay kutusunu işaretle.';
+    });
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var neden = $('odIptalNeden');
+      var ek = (neden && neden.value) ? ' Seçtiğin neden ("'+neden.options[neden.selectedIndex].text+'") de hiçbir yere gitmedi.' : '';
+      sonuc('odIptalSonuc', 'Abonelik iptal EDİLMEDİ. ',
+        'Abonelik altyapısı bağlanmadı; bu ekran iptali yalnız gösterir, gerçek bir kayıt değiştirmez.'+ek);
+    });
+    var dondur = $('odDondurBtn');
+    if(dondur) dondur.addEventListener('click', function(){
+      var s = $('odDondurSure');
+      sonuc('odIptalSonuc', 'Abonelik dondurulMADI. ',
+        'Seçtiğin süre ('+(s?s.options[s.selectedIndex].text:'—')+') kaydedilmedi; dondurma altyapısı bağlanmadı.');
+    });
+  })();
+
+  /* ================= 2 · ANTRENÖR ÖDEMELERİ ===================== */
+  /* 🔴 ÜÇ EKRAN TEK RAKAM: bu defter, hesabim-v1'in kısa görünümü ve
+     fatura-detay-v1'in belge haritası aynı numaraları, aynı tarihleri ve
+     aynı tutarları taşır. Beyar'ın istediği iki paket biçimi burada AYRI
+     AYRI duruyor: 4 SEANS (₺1.400 / ay · Selin Aksoy) ve 8 SEANS
+     (₺2.400 tek seferlik · Mert Özkan). Seans başına ödeme ₺450 ve
+     kendi kartında listeleniyor. */
+  var SEANSLAR = [
+    { antrenor:'Selin Aksoy', konu:'Birebir online seans · 50 dk', tarih:'22 Ağu 2026', tutar:'₺450,00', durum:'ok',   durumAd:'Ödendi',    fatura:'DFT-2026-004150' },
+    { antrenor:'Mert Özkan',  konu:'Form kontrolü seansı · 30 dk', tarih:'11 Ağu 2026', tutar:'₺450,00', durum:'ok',   durumAd:'Ödendi',    fatura:'DFT-2026-004131' },
+    { antrenor:'Selin Aksoy', konu:'Birebir online seans · 50 dk', tarih:'29 Tem 2026', tutar:'₺450,00', durum:'wait', durumAd:'İade sürecinde', fatura:'DFT-2026-003988' }
+  ];
+  var PAKETLER = [
+    { antrenor:'Selin Aksoy', slug:'selin-aksoy', foto:'photo-1518310383802-640c2de311b2',
+      paket:'Kuvvet Temeli — 4 seanslık paket', hak:4, kalan:2, tutar:'₺1.400,00', birim:'4 seans',
+      not:'Sonraki yenileme: 2 Eylül 2026 · otomatik', durum:'ok', durumAd:'Aktif' },
+    { antrenor:'Mert Özkan', slug:'mert-ozkan', foto:'photo-1507003211169-0a1dd7228f2d',
+      paket:'Birebir Takip — 8 seanslık paket', hak:8, kalan:5, tutar:'₺2.400,00', birim:'8 seans',
+      not:'Yenilenmez — haklar bitince paket kapanır', durum:'ok', durumAd:'Aktif' }
+  ];
+  var GECMIS = [
+    { antrenor:'Deniz Kaya', slug:'deniz-kaya', foto:'photo-1594737625785-a6cbdabd333c',
+      paket:'Başlangıç Programı — 8 seanslık paket', hak:8, kalan:0, tutar:'₺2.400,00', birim:'8 seans',
+      not:'14 Şubat 2026 – 11 Nisan 2026 · fatura DFT-2026-002980', durum:'off', durumAd:'Tamamlandı' }
+  ];
+
+  function ava(id){ return "https://images.unsplash.com/"+id+"?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12"; }
+
+  (function(){
+    var body = $('odSeansBody'); if(!body) return;
+    body.innerHTML = SEANSLAR.map(function(s){
+      return '<tr>'+
+        '<td><span class="od-no">'+esc(s.antrenor)+'<small>'+esc(s.konu)+'</small></span></td>'+
+        '<td class="od-tarih">'+esc(s.tarih)+'</td>'+
+        '<td class="od-tutar">'+esc(s.tutar)+'</td>'+
+        '<td><span class="od-pill '+s.durum+'"><i class="fa-solid fa-'+(s.durum==='ok'?'circle-check':'hourglass-half')+'" aria-hidden="true"></i> '+esc(s.durumAd)+'</span></td>'+
+        '<td><button class="od-git" type="button" data-fatura="'+esc(s.fatura)+'" aria-haspopup="dialog"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</button></td>'+
+      '</tr>';
+    }).join('');
+    var say = $('odSeansSay'); if(say) say.textContent = SEANSLAR.length + ' seans';
+  })();
+
+  function paketKart(p, gecmis){
+    var kullanilan = p.hak - p.kalan;
+    var yuzde = Math.round(kullanilan / p.hak * 100);
+    return '<div class="uys-row">'+
+      '<span class="uys-ava" role="img" aria-label="'+esc(p.antrenor)+'" style="background-image:url(\''+ava(p.foto)+'\')"></span>'+
+      '<div class="uys-info">'+
+        '<b>'+esc(p.antrenor)+' <span class="hs-pill '+(p.durum==='ok'?'on':'off')+'">'+
+          (p.durum==='ok'?'<i class="fa-solid fa-circle-check" aria-hidden="true"></i> ':'')+esc(p.durumAd)+'</span></b>'+
+        '<span class="uys-plan">'+esc(p.paket)+'</span>'+
+        '<span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> '+p.hak+' seansın '+kullanilan+"'i kullanıldı"+
+          (p.kalan>0 ? ' · '+p.kalan+' seans hakkın duruyor' : ' · hak kalmadı')+'</span>'+
+        '<div class="od-bar" role="img" aria-label="'+p.hak+' seansın '+kullanilan+"'i kullanıldı"+'"><span style="width:'+yuzde+'%"></span></div>'+
+        '<span class="uys-renew"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> '+esc(p.not)+'</span>'+
+      '</div>'+
+      '<div class="uys-price"><b>'+esc(p.tutar)+'</b><span>'+esc(p.birim)+'</span></div>'+
+      '<div class="uys-acts">'+
+        (gecmis
+          ? '<a class="uys-manage" href="antrenor-detay-v1.html?slug='+esc(p.slug)+'&amp;randevu=1"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Tekrar Çalış</a>'
+          : '<a class="uys-manage" href="antrenor-detay-v1.html?slug='+esc(p.slug)+'&amp;randevu=1"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu Al</a>'+
+            '<a class="uys-manage" href="antrenor-detay-v1.html?slug='+esc(p.slug)+'"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Profil</a>')+
+      '</div>'+
+    '</div>';
+  }
+
+  (function(){
+    var list = $('odPaketList'); if(!list) return;
+    if(!PAKETLER.length){
+      list.innerHTML = '<div class="fpx-bos">'+
+        '<span class="pe-ico"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>'+
+        '<h4>Henüz bir seans paketin yok</h4>'+
+        '<p>Antrenörler 4 ve 8 seanslık paketler sunar; paket alırsan seans başına ödemeye göre daha uygun olur ve hakların burada takip edilir.</p>'+
+        '<a class="btn btn-primary" href="antrenorler-v1.html">Antrenör Dizinine Bak</a></div>';
+    } else {
+      list.innerHTML = PAKETLER.map(function(p){ return paketKart(p,false); }).join('');
+    }
+    var say = $('odPaketSay'); if(say) say.textContent = PAKETLER.length + ' paket';
+  })();
+
+  (function(){
+    var list = $('odGecmisList'); if(!list) return;
+    if(!GECMIS.length){
+      list.innerHTML = '<div class="fpx-bos">'+
+        '<span class="pe-ico"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>'+
+        '<h4>Sona eren paket yok</h4>'+
+        '<p>Bir paketin hakları tükendiğinde ya da süresi dolduğunda kaydı buraya taşınır ve silinmez.</p></div>';
+    } else {
+      list.innerHTML = GECMIS.map(function(p){ return paketKart(p,true); }).join('');
+    }
+  })();
+
+  /* ================= 3 · FATURA DEFTERİ ========================= */
+  /* 🔴 DEFTER ARTIK BU DOSYADA DEĞİL: `assets/js/fit-fatura.js`.
+     Sebep: aynı kayıtları hem tablo hem belge penceresi okuyor; iki
+     kopya olsaydı biri güncellenince öteki geride kalırdı (fit-paket.js
+     ile aynı ilke). Buradaki görünüm alanları (tür süzgeci, kısa tarih,
+     durum rozeti) defterden TÜRETİLİYOR, ikinci kez yazılmıyor. */
+  var FATURALAR = (window.FIT_FATURA ? FIT_FATURA.defter : []).map(function(f){
+    var t = FIT_FATURA.toplamlar(f);
+    return { no:f.no, konu:f.konu, tur:f.tur, tarih:f.tarihKisa,
+             tutar:FIT_FATURA.tl(t.genel), durum:f.durum, durumAd:f.durumAd };
+  });
+
+
+
+  (function(){
+    var body = $('odFtBody'), count = $('odFtCount'), bos = $('odFtBos'), chips = $('odFtChips');
+    if(!body) return;
+    var tur = 'tumu';
+
+    function ikon(d){ return d==='ok' ? 'circle-check' : (d==='wait' ? 'hourglass-half' : 'rotate-left'); }
+
+    function ciz(){
+      var liste = FATURALAR.filter(function(f){ return tur==='tumu' || f.tur===tur; });
+      body.innerHTML = liste.map(function(f){
+        return '<tr>'+
+          '<td><span class="od-no">'+esc(f.no)+'<small>'+esc(f.konu)+'</small></span></td>'+
+          '<td class="od-tarih">'+esc(f.tarih)+'</td>'+
+          '<td class="od-tutar">'+esc(f.tutar)+'</td>'+
+          '<td><span class="od-pill '+f.durum+'"><i class="fa-solid fa-'+ikon(f.durum)+'" aria-hidden="true"></i> '+esc(f.durumAd)+'</span></td>'+
+          '<td><button class="od-git" type="button" data-fatura="'+esc(f.no)+'" aria-haspopup="dialog"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Detay</button></td>'+
+        '</tr>';
+      }).join('');
+      if(count) count.innerHTML = FATURALAR.length+' faturadan <b>'+liste.length+'</b> tanesi gösteriliyor.';
+      var yok = liste.length === 0;
+      if(bos) bos.hidden = !yok;
+      body.closest('.od-scroll').hidden = yok;
+    }
+
+    if(chips){
+      chips.addEventListener('click', function(e){
+        var b = e.target.closest('button[data-tur]'); if(!b) return;
+        tur = b.getAttribute('data-tur');
+        Array.prototype.forEach.call(chips.querySelectorAll('button[data-tur]'), function(x){
+          var on = x === b;
+          x.classList.toggle('on', on);
+          x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        ciz();
+      });
+    }
+    var sifirla = $('odFtSifirla');
+    if(sifirla) sifirla.addEventListener('click', function(){
+      var ilk = chips && chips.querySelector('button[data-tur="tumu"]');
+      if(ilk) ilk.click();
+    });
+    ciz();
+
+    /* "Fatura Bilgilerim" artık BAŞKA SAYFAYA GİTMİYOR — aynı sayfada
+       popup açıyor (aşağıdaki #ftModal sürücüsü bağlıyor). */
+  })();
+
+  /* ================= 4 · KARTLAR ================================ */
+  /* Sayaç listeden okunur — markup'a elle yazılan bir sayı listeyle ayrı
+     düşemez (aynı ilke: seans · paket · iade sayaçları). */
+  (function(){
+    var say = $('odKartSay');
+    if(say) say.textContent = document.querySelectorAll('.card-list .cc-row').length + ' kart';
+  })();
+
+  (function(){
+    document.addEventListener('click', function(e){
+      var sil = e.target.closest('[data-kart-sil]');
+      if(sil){
+        sonuc('odKartSonuc', esc(sil.getAttribute('data-kart-sil'))+' kaldırılMADI. ',
+          'Kart kayıtları ödeme sağlayıcısında tutulur ve prototipte o bağlantı kurulmadı; listedeki kart yerinde duruyor.');
+        return;
+      }
+      var vars_ = e.target.closest('[data-kart-var]');
+      if(vars_){
+        sonuc('odKartSonuc', 'Varsayılan kart değişMEDİ. ',
+          esc(vars_.getAttribute('data-kart-var'))+' varsayılan yapılamadı: ödeme altyapısı bağlanmadı.');
+      }
+    });
+  })();
+
+  /* ---- kart ekleme: doğrulama GERÇEK (Luhn + SKT), kayıt maket ---- */
+  (function(){
+    var f = $('odKartForm'); if(!f) return;
+    var ad = $('odKkAd'), no = $('odKkNo'), skt = $('odKkSkt'), cvv = $('odKkCvv');
+
+    no.addEventListener('input', function(){
+      var d = no.value.replace(/\D/g,'').slice(0,16);
+      var g = d.match(/.{1,4}/g);
+      no.value = g ? g.join(' ') : '';
+    });
+    skt.addEventListener('input', function(){
+      var d = skt.value.replace(/\D/g,'').slice(0,4);
+      if(d.length >= 3) d = d.slice(0,2)+'/'+d.slice(2);
+      skt.value = d;
+    });
+    cvv.addEventListener('input', function(){ cvv.value = cvv.value.replace(/\D/g,'').slice(0,4); });
+
+    /* Luhn — kart numarasının kendi kontrol basamağı. Gerçek bir
+       doğrulama: sunucu gerektirmez, o yüzden burada GERÇEKTEN çalışır. */
+    function luhn(s){
+      var d = s.replace(/\D/g,''); if(d.length !== 16) return false;
+      var t = 0, ikile = false;
+      for(var i = d.length-1; i >= 0; i--){
+        var n = +d[i];
+        if(ikile){ n *= 2; if(n > 9) n -= 9; }
+        t += n; ikile = !ikile;
+      }
+      return t % 10 === 0;
+    }
+    function sktGecerli(s){
+      var m = /^(\d{2})\/(\d{2})$/.exec(s); if(!m) return false;
+      var ay = +m[1], yil = 2000 + +m[2];
+      if(ay < 1 || ay > 12) return false;
+      var bugun = new Date();
+      var son = new Date(yil, ay, 0, 23, 59, 59);
+      return son >= bugun;
+    }
+    function isaret(el, hataId, gecerli){
+      var h = $(hataId);
+      el.classList.toggle('is-err', !gecerli);
+      el.setAttribute('aria-invalid', gecerli ? 'false' : 'true');
+      if(h) h.classList.toggle('show', !gecerli);
+      return gecerli;
+    }
+
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var ok = true, ilkHata = null;
+      if(!isaret(ad,  'odKkAdHata',  (ad.value||'').trim().length >= 3)) { ok = false; ilkHata = ilkHata || ad; }
+      if(!isaret(no,  'odKkNoHata',  luhn(no.value)))                    { ok = false; ilkHata = ilkHata || no; }
+      if(!isaret(skt, 'odKkSktHata', sktGecerli(skt.value)))             { ok = false; ilkHata = ilkHata || skt; }
+      if(!isaret(cvv, 'odKkCvvHata', /^\d{3,4}$/.test(cvv.value)))       { ok = false; ilkHata = ilkHata || cvv; }
+      if(!ok){ if(ilkHata) ilkHata.focus(); return; }
+
+      var son4 = no.value.replace(/\D/g,'').slice(-4);
+      sonuc('odKartEkleSonuc', 'Kart •••• '+son4+' EKLENMEDİ. ',
+        'Bilgiler doğrulamayı geçti ama hiçbir yere gönderilmedi: ödeme altyapısı bağlanmadı ve bu prototip kart saklamaz. Formu temizledik.');
+      f.reset();
+      [ad,no,skt,cvv].forEach(function(el){ el.classList.remove('is-err'); el.removeAttribute('aria-invalid'); });
+    });
+  })();
+
+  /* =====================================================================
+   FATURA BELGESİ PENCERESİ — #fdModal
+   ---------------------------------------------------------------------
+   Defter `fit-fatura.js`ten okunur; bu sürücü yalnız ÇİZER. Alıcı
+   künyesi kullanıcının kaydettiği fatura bilgilerinden gelir — iki
+   özellik birbirine bağlı: formda yazdığın unvan belgede görünür.
+   🔴 "PDF İndir" SAHTE DOSYA VERMEZ: prototipte belge sunucusu yok,
+   düğme ne yapılMADIĞINI yazar ve yazdırma yolunu gösterir. "Yazdır"
+   ise GERÇEKTEN çalışır (tarayıcının kendi yeteneği, sunucu gerekmez).
+   ===================================================================== */
+  (function(){
+    var kap = $('fdModal'); if(!kap || !window.FIT_FATURA) return;
+    var F = window.FIT_FATURA;
+
+    var fm = (window.FIT_MODAL && FIT_MODAL.kur({
+      kap:'#fdModal', panel:'.fb-panel', ortu:'#fdOverlay', kapat:'#fdClose'
+    })) || null;
+
+    function satir(dt, dd, alt){
+      return '<div><dt>'+esc(dt)+'</dt><dd>'+esc(dd)+(alt?'<small>'+esc(alt)+'</small>':'')+'</dd></div>';
+    }
+    function ikon(d){ return d==='ok' ? 'circle-check' : (d==='wait' ? 'hourglass-half' : 'rotate-left'); }
+
+    function ciz(no){
+      var f = F.bul(no); if(!f) return false;
+      var t = F.toplamlar(f), a = F.alici();
+
+      $('fdModalTitle').textContent = f.no;
+      $('fdModalSub').textContent = f.konu;
+
+      $('fdKunye').innerHTML =
+        satir('Fatura no', f.no) +
+        satir('Düzenleme tarihi', f.tarih, f.donem) +
+        '<div><dt>Durum</dt><dd><span class="od-pill '+f.durum+'">'+
+          '<i class="fa-solid fa-'+ikon(f.durum)+'" aria-hidden="true"></i> '+esc(f.durumAd)+
+        '</span><small>ETTN '+esc(f.ettn)+'</small></dd></div>';
+
+      /* Satıcı künyesi yer tutucu — uydurma vergi no YAZILMAZ. */
+      $('fdSatici').innerHTML =
+        '<b>'+esc(F.satici.unvan)+'</b><p>'+esc(F.satici.kunyeYok)+'</p>';
+
+      $('fdAlici').innerHTML =
+        '<b>'+esc(a.ad)+'</b><p>'+
+          '<span>'+esc(a.kimlikEtiket)+': '+esc(a.kimlik)+'</span>'+
+          (a.vergiDairesi ? '<span>Vergi dairesi: '+esc(a.vergiDairesi)+'</span>' : '')+
+          '<span>'+esc(a.adres)+'</span>'+
+          '<span>'+esc(a.eposta)+'</span>'+
+        '</p>';
+
+      $('fdKalemler').innerHTML = f.kalem.map(function(k){
+        var tutar = k[2]*k[3];
+        var kdvPay = tutar - Math.round(tutar/(1+F.kdvOran/100));
+        return '<tr>'+
+          '<td><b>'+esc(k[0])+'</b><small>'+esc(k[1])+'</small></td>'+
+          '<td class="sag">'+k[2]+'</td>'+
+          '<td class="sag">'+F.tl(k[3])+'</td>'+
+          '<td class="sag">%'+F.kdvOran+'<small>'+F.tl(kdvPay)+'</small></td>'+
+          '<td class="sag"><b>'+F.tl(tutar)+'</b></td>'+
+        '</tr>';
+      }).join('');
+
+      $('fdToplam').innerHTML =
+        '<li><span>Ara toplam</span><span>'+F.tl(t.ara)+'</span></li>'+
+        '<li><span>KDV (%'+F.kdvOran+' · dijital hizmet)</span><span>'+F.tl(t.kdv)+'</span></li>'+
+        '<li class="genel"><span>Genel toplam</span><span>'+F.tl(t.genel)+'</span></li>';
+
+      $('fdOde').innerHTML =
+        '<span class="fd-marka" aria-hidden="true"><i class="fa-brands '+f.marka+'"></i></span>'+
+        '<span class="fd-ode-txt"><b>'+esc(f.kart)+'</b>'+
+          '<span>'+esc(f.odemeAni)+' · '+esc(f.durumAd)+'</span></span>';
+
+      var st = $('fdSonuc'); if(st) st.classList.remove('show');
+      return true;
+    }
+
+    /* Defterdeki her "Detay"/"Tahsilat" düğmesi — üç tabloda da aynı yol */
+    document.addEventListener('click', function(e){
+      var b = e.target.closest('[data-fatura]'); if(!b) return;
+      if(ciz(b.getAttribute('data-fatura')) && fm) fm.ac(b);
+    });
+
+    var yaz = $('fdYazdir');
+    if(yaz) yaz.addEventListener('click', function(){ window.print(); });
+
+    var indir = $('fdIndir');
+    if(indir) indir.addEventListener('click', function(){
+      sonuc('fdSonuc', 'PDF üretilMEDİ. ',
+        'Prototipte belge sunucusu yok; indirilecek bir dosya oluşmuyor. "Yazdır" düğmesi tarayıcının kendi yazdırma penceresini açar ve oradan PDF olarak kaydedebilirsin — o yol gerçekten çalışıyor.');
+    });
+
+    var bag = $('fdAliciBag');
+    if(bag) bag.addEventListener('click', function(e){
+      e.preventDefault();
+      if(fm) fm.kapat();
+      var ft = $('odFtBilgi'); if(ft) setTimeout(function(){ ft.click(); }, 320);
+    });
+  })();
+
+  /* =====================================================================
+   FATURA BİLGİLERİ FORMU — #ftModal
+   ---------------------------------------------------------------------
+   🔴 BU EKRANIN GERÇEK YETENEĞİ: alan doğrulaması ve TARAYICI HAFIZASI.
+   Kaydedilen bilgi `dm_fit_fatura_v1` anahtarında durur, sayfayı
+   yenileyince geri gelir — sunucu gerekmediği için burada yalan yok.
+   MAKET olan tek şey faturanın KESİLMESİ; şerit bunu popup'ın başında
+   bir kez söylüyor.
+
+   DOĞRULAMA BLUR'DA çalışır, her tuş vuruşunda değil: kullanıcı alanı
+   doldururken kırmızıya boyamak sinir bozucudur ve hatayı erken gösterip
+   sonra kaldırmak "titreyen form" hissi verir. Gönderimde hepsi birden
+   denetlenir ve ilk hatalı alana odak gider.
+
+   TİP GEÇİŞİNDE ORTAK ALANLAR SIFIRLANMAZ: telefon · e-posta · il ·
+   ilçe · adres · posta kodu yerinde kalır. Yalnız kimlik bloğu değişir
+   ve KAPANAN bloğun alanları doğrulamaya girmez.
+   ===================================================================== */
+  (function(){
+    var kap = $('ftModal'); if(!kap) return;
+    var ANAHTAR = 'dm_fit_fatura_v1';
+
+    var fm = (window.FIT_MODAL && FIT_MODAL.kur({
+      kap:'#ftModal', panel:'.fb-panel', ortu:'#ftOverlay', kapat:'#ftClose'
+    })) || null;
+    if(window.FIT_ULKE) FIT_ULKE.kur(kap);
+
+    var form=$('ftForm'), seg=kap.querySelector('.ft-seg'),
+        il=$('ftIl'), ilce=$('ftIlce'), ilceHelp=$('ftIlceHelp'),
+        adres=$('ftAdres'), adresSayac=$('ftAdresSayac'),
+        efatura=$('ftEfatura'), efaturaNot=$('ftEfaturaNot'),
+        vazgec=$('ftVazgec'), tel=$('ftTel'), ulke=$('ftUlke');
+    var tip = 'bireysel';
+
+    /* ---- tip geçişi ---- */
+    function tipUygula(yeni){
+      tip = yeni;
+      Array.prototype.forEach.call(seg.querySelectorAll('button[data-tip]'), function(b){
+        b.setAttribute('aria-pressed', b.getAttribute('data-tip')===yeni ? 'true':'false');
+      });
+      Array.prototype.forEach.call(kap.querySelectorAll('.ft-blok'), function(b){
+        b.hidden = b.getAttribute('data-blok') !== yeni;
+      });
+      /* kapanan bloğun hatası ekranda kalmasın */
+      Array.prototype.forEach.call(kap.querySelectorAll('.ft-blok[hidden] .fk-hata'), function(h){ h.classList.remove('show'); });
+      Array.prototype.forEach.call(kap.querySelectorAll('.ft-blok[hidden] .fk-input'), function(i){ i.classList.remove('is-err'); i.removeAttribute('aria-invalid'); });
+    }
+    seg.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-tip]'); if(!b) return;
+      tipUygula(b.getAttribute('data-tip'));
+    });
+
+    /* ---- il → ilçe kapısı ---- */
+    function ilceKapisi(){
+      var acik = !!il.value;
+      ilce.disabled = !acik;
+      ilce.placeholder = acik ? 'İlçe adı' : 'Önce il seç';
+      if(!acik){ ilce.value=''; ilce.classList.remove('is-err'); $('ftIlceHata').classList.remove('show'); }
+      if(ilceHelp) ilceHelp.innerHTML = acik
+        ? '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' + il.value + ' ilçesini yaz. İlçe listesi backend geldiğinde açılır kutuya döner.'
+        : '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> İl seçilince açılır.';
+    }
+    il.addEventListener('change', ilceKapisi);
+
+    if(adres) adres.addEventListener('input', function(){ adresSayac.textContent = adres.value.length + ' / 240'; });
+    if(efatura) efatura.addEventListener('change', function(){ if(efaturaNot) efaturaNot.hidden = !efatura.checked; });
+
+    /* rakam alanları yalnız rakam alsın */
+    [['ftTckn',11],['ftVkn',10],['ftPosta',5]].forEach(function(x){
+      var el=$(x[0]); if(!el) return;
+      el.addEventListener('input', function(){ el.value = el.value.replace(/\D/g,'').slice(0,x[1]); });
+    });
+
+    /* ---- doğrulayıcılar ---- */
+    /* TCKN sağlaması resmî algoritmadır: 11 hane · ilk hane 0 değil ·
+       (tek hanelerin toplamı×7 − çift hanelerin toplamı) %10 = 10. hane ·
+       ilk 10 hanenin toplamı %10 = 11. hane. Sunucu gerektirmez, bu yüzden
+       burada GERÇEKTEN çalışır. */
+    function tcknGecerli(v){
+      if(!/^[1-9][0-9]{9}[0-9]$/.test(v)) return false;
+      var d = v.split('').map(Number);
+      var tek = d[0]+d[2]+d[4]+d[6]+d[8];
+      var cift = d[1]+d[3]+d[5]+d[7];
+      if(((tek*7 - cift) % 10 + 10) % 10 !== d[9]) return false;
+      var ilk10 = d.slice(0,10).reduce(function(a,b){ return a+b; }, 0);
+      return ilk10 % 10 === d[10];
+    }
+    function epostaGecerli(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }
+
+    function isaret(el, hataId, gecerli){
+      var h=$(hataId);
+      el.classList.toggle('is-err', !gecerli);
+      el.setAttribute('aria-invalid', gecerli?'false':'true');
+      if(h) h.classList.toggle('show', !gecerli);
+      return gecerli;
+    }
+
+    /* Her alanın kuralı TEK YERDE: hem blur hem gönderim buradan okur. */
+    var KURAL = {
+      ftAd:      { tip:'bireysel', zorunlu:true,  test:function(v){ return v.trim().split(/\s+/).filter(Boolean).length >= 2; } },
+      ftTckn:    { tip:'bireysel', zorunlu:false, test:tcknGecerli },
+      ftUnvan:   { tip:'kurumsal', zorunlu:true,  test:function(v){ return v.trim().length >= 2; } },
+      ftDaire:   { tip:'kurumsal', zorunlu:true,  test:function(v){ return v.trim().length >= 2; } },
+      ftVkn:     { tip:'kurumsal', zorunlu:true,  test:function(v){ return /^[0-9]{10}$/.test(v); } },
+      ftTel:     { zorunlu:true,  test:function(v){ return v.replace(/\D/g,'').length >= 7; } },
+      ftEposta:  { zorunlu:true,  test:epostaGecerli },
+      ftIl:      { zorunlu:true,  test:function(v){ return !!v; } },
+      ftIlce:    { zorunlu:true,  test:function(v){ return v.trim().length >= 2; } },
+      ftAdres:   { zorunlu:true,  test:function(v){ return v.trim().length >= 10; } },
+      ftPosta:   { zorunlu:false, test:function(v){ return /^[0-9]{5}$/.test(v); } }
+    };
+    function denetle(id){
+      var k = KURAL[id], el = $(id); if(!k || !el) return true;
+      if(k.tip && k.tip !== tip) return true;              /* kapalı blok */
+      var v = el.value || '';
+      if(!v.trim()) return isaret(el, id+'Hata', !k.zorunlu);
+      return isaret(el, id+'Hata', k.test(v));
+    }
+    Object.keys(KURAL).forEach(function(id){
+      var el = $(id); if(!el) return;
+      el.addEventListener('blur', function(){ denetle(id); });   /* BLUR'DA */
+    });
+
+    /* ---- tarayıcı hafızası ---- */
+    var ALANLAR = ['ftAd','ftTckn','ftUnvan','ftDaire','ftVkn','ftTel','ftEposta','ftIl','ftIlce','ftAdres','ftPosta'];
+    function oku(){
+      var ham; try { ham = localStorage.getItem(ANAHTAR); } catch(e){ return null; }
+      if(!ham) return null;
+      try { return JSON.parse(ham); } catch(e){ return null; }
+    }
+    function yukle(){
+      var d = oku(); if(!d) return;
+      tipUygula(d.tip === 'kurumsal' ? 'kurumsal' : 'bireysel');
+      ALANLAR.forEach(function(id){ if(d[id] != null && $(id)) $(id).value = d[id]; });
+      if(ulke && d.ulke) ulke.value = d.ulke;
+      if(efatura){ efatura.checked = !!d.efatura; if(efaturaNot) efaturaNot.hidden = !efatura.checked; }
+      var vs = $('ftVarsayilan'); if(vs) vs.checked = d.varsayilan !== false;
+      ilceKapisi();
+      if(adres) adresSayac.textContent = adres.value.length + ' / 240';
+    }
+    function kaydet(){
+      var d = { tip:tip, ulke: ulke ? ulke.value : 'TR',
+                efatura: !!(efatura && efatura.checked),
+                varsayilan: !!($('ftVarsayilan') && $('ftVarsayilan').checked) };
+      ALANLAR.forEach(function(id){ if($(id)) d[id] = $(id).value; });
+      try { localStorage.setItem(ANAHTAR, JSON.stringify(d)); return true; }
+      catch(e){ return false; }
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var ilk = null;
+      Object.keys(KURAL).forEach(function(id){
+        if(!denetle(id) && !ilk) ilk = $(id);
+      });
+      if(ilk){ ilk.focus(); ilk.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+
+      var ok = kaydet();
+      sonuc('ftSonuc',
+        ok ? 'Fatura bilgilerin bu tarayıcıya kaydedildi. ' : 'Bilgiler kaydedilemedi. ',
+        ok ? 'Sayfayı yenilediğinde geri gelir. Hiçbir sunucuya gönderilmedi ve bu ekranda fatura kesilmez — kayıtlı bilgi yalnız faturanın nasıl görüneceğini gösterir.'
+           : 'Tarayıcının depolama izni kapalı görünüyor; gizli sekmede ya da site verileri engelliyken bu ekran bilgi saklayamaz.');
+    });
+
+    if(vazgec && fm) vazgec.addEventListener('click', function(){ fm.kapat(); });
+
+    var ac = $('odFtBilgi');
+    if(ac && fm){
+      ac.setAttribute('aria-haspopup','dialog');
+      ac.setAttribute('aria-controls','ftModal');
+      ac.addEventListener('click', function(){
+        var s = $('ftSonuc'); if(s) s.classList.remove('show');
+        fm.ac(ac);
+      });
+    }
+    yukle();
+    ilceKapisi();
+  })();
+
+  /* ================= 5 · İADE TALEPLERİ ========================= */
+  var IADELER = [
+    { no:'IAD-2026-0042', konu:'Antrenör seansı — Selin Aksoy · kullanılmayan hak', bagli:'DFT-2026-003988',
+      tarih:'30 Tem 2026', tutar:'₺450,00', durum:'wait', durumAd:'İnceleniyor' },
+    { no:'IAD-2026-0018', konu:'DadaFit Pro — Şubat dönemi · cayma hakkı', bagli:'DFT-2026-002995',
+      tarih:'18 Şub 2026', tutar:'₺99,00', durum:'ok', durumAd:'İade edildi' },
+    { no:'IAD-2026-0009', konu:'Antrenör paketi — mükerrer tahsilat iddiası', bagli:'DFT-2026-002980',
+      tarih:'16 Şub 2026', tutar:'₺2.400,00', durum:'off', durumAd:'Reddedildi' }
+  ];
+
+  (function(){
+    var body = $('odIadeBody'); if(!body) return;
+    body.innerHTML = IADELER.map(function(t){
+      var ik = t.durum==='ok' ? 'circle-check' : (t.durum==='wait' ? 'hourglass-half' : 'circle-xmark');
+      return '<tr>'+
+        '<td><span class="od-no">'+esc(t.no)+'<small>'+esc(t.konu)+'</small></span></td>'+
+        '<td class="od-tarih">'+esc(t.tarih)+'</td>'+
+        '<td class="od-tutar">'+esc(t.tutar)+'</td>'+
+        '<td><span class="od-pill '+t.durum+'"><i class="fa-solid fa-'+ik+'" aria-hidden="true"></i> '+esc(t.durumAd)+'</span></td>'+
+        '<td><button class="od-git" type="button" data-fatura="'+esc(t.bagli)+'" aria-haspopup="dialog"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Tahsilat</button></td>'+
+      '</tr>';
+    }).join('');
+    var say = $('odIadeSay'); if(say) say.textContent = IADELER.length + ' talep';
+  })();
+
+  /* ---- iade formu: tahsilat listesi fatura defterinden okunur ---- */
+  (function(){
+    var f = $('odIadeForm'); if(!f) return;
+    var sel = $('odIadeTahsilat'), neden = $('odIadeNeden'),
+        acik = $('odIadeAciklama'), sayac = $('odIadeSayac'), tutarNot = $('odIadeTutar');
+
+    /* Seçenekler ELLE yazılmaz: defterin ödenmiş satırlarından üretilir,
+       böylece iki liste birbirinden ayrı düşemez. */
+    FATURALAR.filter(function(x){ return x.durum === 'ok'; }).forEach(function(x){
+      var o = document.createElement('option');
+      o.value = x.no;
+      o.textContent = x.no + ' — ' + x.konu + ' · ' + x.tutar;
+      o.setAttribute('data-tutar', x.tutar);
+      sel.appendChild(o);
+    });
+
+    sel.addEventListener('change', function(){
+      var o = sel.options[sel.selectedIndex];
+      var t = o ? o.getAttribute('data-tutar') : null;
+      tutarNot.innerHTML = t
+        ? '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> Talep edilecek tutar: <b>'+esc(t)+'</b> — seçtiğin tahsilattan okundu.'
+        : '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> İade tutarı seçtiğin tahsilattan okunur.';
+    });
+
+    acik.addEventListener('input', function(){
+      sayac.textContent = acik.value.length + ' / 600';
+    });
+
+    function isaret(el, hataId, gecerli){
+      var h = $(hataId);
+      el.classList.toggle('is-err', !gecerli);
+      el.setAttribute('aria-invalid', gecerli ? 'false' : 'true');
+      if(h) h.classList.toggle('show', !gecerli);
+      return gecerli;
+    }
+
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var ok = true, ilk = null;
+      if(!isaret(sel,   'odIadeTahsilatHata',  !!sel.value))                   { ok = false; ilk = ilk || sel; }
+      if(!isaret(neden, 'odIadeNedenHata',     !!neden.value))                 { ok = false; ilk = ilk || neden; }
+      if(!isaret(acik,  'odIadeAciklamaHata',  acik.value.trim().length >= 20)){ ok = false; ilk = ilk || acik; }
+      if(!ok){ if(ilk) ilk.focus(); return; }
+
+      sonuc('odIadeSonuc', 'İade talebi GÖNDERİLMEDİ. ',
+        'Form doğrulamayı geçti ama talep hiçbir yere iletilmedi: iade altyapısı bağlanmadı ve prototipte kayıt açılmaz. Yukarıdaki liste değişmedi.');
+    });
+  })();
+})();
+</script>
+</body>
+</html>

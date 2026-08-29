@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DadaFit Pro — Ücretsiz, Pro ve Pro Max AI paketleri</title>
-<meta name="description" content="DadaFit üyelik kademeleri: Ücretsiz, Pro ve Pro Max AI. Programlar, video seansları, Fit Testleri, Enerji Defteri, cihaz bağlantıları ve antrenör avantajları paket paket karşılaştırılıyor." />
+<title>DadaFit Pro — Ücretsiz, Pro ve Pro Max paketleri</title>
+<meta name="description" content="DadaFit üyelik kademeleri: Ücretsiz, Pro ve Pro Max. Programlar, video serileri, Antrenman Oluşturucu, Enerji Defteri, ilerleme takibi ve antrenör avantajları paket paket karşılaştırılıyor." />
 <link rel="shortcut icon" type="image/x-icon"
       href="assets/img/favicon.ico" />
 <!-- DadaFit ortak kabuk (tek kaynak) -->
@@ -75,14 +75,21 @@
 .pro-perk b{display:block;font-size:15px;color:var(--slate);margin-bottom:5px}
 .pro-perk p{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.6;margin:0}
 
-/* ---- kademe ızgarası (.pro-card t0 = Ücretsiz · t2 = Pro · t3 = Pro Max AI) ----
-   P8 (2026-08-25): paket adları dört markada TEK üçlüdür — Ücretsiz · Pro ·
-   Pro Max AI. Eski "Pro Max" adı bu üçlünün dışındaydı; içeriği de AI değil
-   antrenör/ekosistem paketiydi. Yeniden oturtuldu. */
+/* ---- kademe ızgarası (.pro-card t0 = Ücretsiz · t2 = Pro · t3 = Pro Max) ----
+   🔴 P8'in "Pro Max AI" adlandırması KALKTI (Beyar, 2026-08-29): üçlü artık
+   Ücretsiz · Pro · Pro Max ve üçü de satın alınabilir. Kart sınıfları
+   (t0/t2/t3) DEĞİŞMEDİ — fit-paket.js kademe verisinde `kart` alanı olarak
+   taşıyor, yani sınıf adı da tek kaynaktan geliyor. */
 /* §B11 · bölüm zeminleri beyaz ile gri arasında DÖNÜŞÜMLÜDÜR (zebra).
    Ölçülen kusur (2026-08-29): bu bölüm bir öncekiyle aynı zemini taşıyordu. */
 .pro-tiers{padding:var(--sec-pad) 0 var(--sec-pad);background:var(--bg-cream)}
-.pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start;margin-top:30px}
+/* `stretch` ÖLÇÜMLE GELDİ — gerekçe paketlerim-v1 ile aynı: üç kart üç
+   farklı boydayken düğmeler tek çizgide durmuyordu. */
+.pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch;margin-top:30px}
+.pro-card{height:100%}
+.pro-daha{display:inline-flex;align-items:center;gap:7px;min-height:44px;font-size:12.5px;font-weight:700;color:var(--fit-deep)}
+.pro-daha i{font-size:10px}
+.pro-daha:hover{text-decoration:underline;text-underline-offset:3px}
 .pro-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px;display:flex;flex-direction:column;transition:.25s var(--ease)}
 .pro-card:hover{transform:translateY(-5px);box-shadow:var(--sh-md)}
 .pro-card.featured{border-color:rgba(0,157,79,.45);box-shadow:var(--sh-md)}
@@ -110,7 +117,9 @@
 
 .pro-feats{list-style:none;display:flex;flex-direction:column;gap:11px;padding:18px 0;flex:1}
 .pro-feats li{display:flex;gap:10px;font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.45}
-.pro-feats li i{flex:none;margin-top:3px;font-size:12px;color:var(--green-deep)}
+/* docs/fit-kit.md'de `--green-deep` YOK ve `--green` şerhi "yalnız sağlık
+   bloğu" diyor; markanın yeşili `--fit-deep`. Kit değerine çekildi. */
+.pro-feats li i{flex:none;margin-top:3px;font-size:12px;color:var(--fit-deep)}
 .pro-feats li.no{color:#b9b9b9}
 .pro-feats li.no i{color:#d5d5d5}
 .pro-feats li b{color:var(--slate);font-weight:700}
@@ -124,12 +133,26 @@
 .pro-card .btn[disabled]{opacity:.4;pointer-events:none}
 
 /* expand mekanizması — gizli ek özellikler; JS toggle ile açılır */
-.pro-feats-extra{display:none;flex-direction:column;gap:11px}
-.pro-card.expanded .pro-feats-extra{display:flex}
-.pro-expand-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 0;margin-top:4px;transition:color .2s var(--ease);font-family:inherit}
-.pro-expand-btn i{font-size:11px;transition:transform .25s var(--ease)}
-.pro-card.expanded .pro-expand-btn i{transform:rotate(180deg)}
-.pro-expand-btn:hover{color:var(--fit)}
+/* ÖLÜ KURALLAR SÖKÜLDÜ — `.pro-feats-extra` + `.pro-expand-btn` üçlüsü
+   elle yazılmış kartların "Tüm özellikler" düğmesine aitti. Kartlar artık
+   fit-paket.js'ten basılıyor ve kapalı özellikleri KATLANIR bir
+   `<details>` içinde gösteriyor: JS'siz de açılır, klavyeyle de. */
+.pro-kapali{border-top:1px solid var(--line);padding-top:4px}
+.pro-kapali summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--muted);padding:10px 0;display:flex;align-items:center;gap:8px;min-height:44px}
+.pro-kapali summary::-webkit-details-marker{display:none}
+.pro-kapali summary::before{content:"\f078";font-family:"Font Awesome 6 Free";font-weight:900;font-size:10px;transition:transform .2s var(--ease)}
+.pro-kapali[open] summary::before{transform:rotate(180deg)}
+.pro-kapali summary:hover{color:var(--fit-deep)}
+.pro-kapali summary:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px;border-radius:var(--radius-sm)}
+.pro-kapali .pro-feats{padding-top:4px}
+.pro-flag.pf-now{background:var(--fit-deeper)}
+.pro-feats li.nitelik i{color:var(--muted)}
+/* Tablo başlığındaki kademe adı + fiyatı (fit-paket.js basar) */
+.cmp-table .ch-name{display:flex;align-items:center;justify-content:center;gap:7px;font-size:14px;font-weight:800;color:var(--slate);letter-spacing:-.01em}
+.cmp-table thead th.col-pop .ch-name{color:var(--fit-deep)}
+.cmp-table .ch-price{display:block;margin-top:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.cmp-table tbody th[scope="row"]{text-align:left;font-weight:500;color:var(--slate)}
+.cmp-group th i{color:var(--fit-deep);margin-right:8px;font-size:11px}
 .pro-card .btn{width:100%}
 
 /* ---- karşılaştırma tablosu ---- */
@@ -140,7 +163,15 @@
 /* Ray bilinçli: 4 kolon + uzun özellik adları 390px'e sığmaz. Kutu kendi
  içinde kayar (sayfa gövdesi taşımaz), klavyeyle de gezilebilir olsun diye
  tabindex+role region taşır ve dar ekranda görünür bir ipucu basılır. */
-.cmp-wrap{margin-top:26px;border-radius:var(--radius-lg);overflow-x:auto;border:1px solid var(--line);box-shadow:var(--sh-sm);background:var(--paper)}
+/* ⚠ `position:relative` ÖLÇÜMLE GELDİ, süs değil. Tablo `fit-paket.js`ten
+   basılınca 390px'te belge scrollWidth'i 390 → 524 çıktı (134px yatay
+   taşma). Kaynak: `.cmp-table thead th` yapışkan (`position:sticky`) ve
+   kaydırma kabı KONUMLANDIRILMAMIŞTI — yapışkan başlık kabın dışına,
+   belgenin genişliğine yansıyordu. Kap `relative` olunca yapışkanın
+   kapsayıcı bloğu kabın kendisi oldu ve ölçüm 390 → 390'a döndü.
+   (html/body `overflow-x:clip` taşıdığı için kullanıcı yatay
+   kaydıramıyordu, yani görünür kusur değildi; sayı yine de yalandı.) */
+.cmp-wrap{position:relative;margin-top:26px;border-radius:var(--radius-lg);overflow-x:auto;border:1px solid var(--line);box-shadow:var(--sh-sm);background:var(--paper)}
 .cmp-wrap:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
 .cmp-hint{display:none;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .cmp-hint i{font-size:11px}
@@ -152,7 +183,7 @@
 .cmp-table tbody td{text-align:center;color:var(--slate-2);font-weight:600}
 .cmp-table tbody td:first-child{text-align:left;font-weight:500;color:var(--slate)}
 .cmp-table tbody tr:last-child td{border-bottom:0}
-.cmp-table .yes{color:var(--green-deep)}
+.cmp-table .yes{color:var(--fit-deep)}
 .cmp-table .nope{color:#cdcdcd}
 .cmp-table td.col-pop{background:rgba(0,157,79,.05)}
 /* grup başlığı satırı — paket içeriği bölüm bölüm okunsun */
@@ -248,23 +279,23 @@
     </nav>
     <div class="pro-eyebrow">
       <span class="eyebrow"><i class="fa-solid fa-crown"></i> Üyelik</span> </div>
-    <h1>Ücretsiz, Pro ve Pro Max AI</h1>
-    <p class="lib-sub">Hareket etmeye ücretsiz başla. Programlar, video seansları, ölçüm derinliği ve antrenör avantajları Pro'da. Pro Max AI hazırlanıyor.</p>
+    <h1>Ücretsiz, Pro ve Pro Max</h1>
+    <p class="lib-sub">Hareket etmeye ücretsiz başla. Programlar, video serileri, ölçüm derinliği ve antrenör iletişimi Pro&rsquo;da. Pro Max, Pro&rsquo;nun üstüne yapay zekâ destekli program üretimi koyar.</p>
     <!-- çıkmaz sokak kırıcı: satış sayfasından içeriğe sessiz yol -->
-    <a class="pro-already" href="fit-planim-programim-v1.html"><i class="fa-solid fa-calendar-check"></i> Zaten Pro üyesi misin? Plan ve takvimine git <i class="fa-solid fa-arrow-right"></i></a>
+    <a class="pro-already" href="programlarim-v1.html#takvim"><i class="fa-solid fa-calendar-check"></i> Zaten Pro üyesi misin? Plan ve takvimine git <i class="fa-solid fa-arrow-right"></i></a>
   </div>
 </section>
 
 <section class="pro-intro">
   <div class="wrap">
     <div class="lead-wrap">
-      <p>DadaFit Pro, DadaFit Egzersizleri'nin ve program katmanının tamamını açan <b>tek site-geneli üyeliktir</b>. Kademe seçersin, ilgili modüller anında açılır — programlar, video seansları, Fit Testleri, gelişmiş ilerleme takibi, antrenör avantajları ve ekosistem bağlantıları tek üyelikte gelir.</p>
+      <p>DadaFit Pro, DadaFit Egzersizleri'nin ve program katmanının tamamını açan <b>tek site-geneli üyeliktir</b>. Kademe seçersin, ilgili modüller anında açılır — programlar, video serileri, Antrenman Oluşturucu, gelişmiş ilerleme takibi, antrenör randevusu ve ekosistem bağlantıları tek üyelikte gelir.</p>
       <p>Üyeliğini istediğin an dondurabilir veya iptal edebilirsin. Ücretsiz kademe kalıcıdır; süresi dolmaz.</p>
     </div>
     <div class="pro-perks">
-      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-list-check"></i></span><b>Program katmanı açılır</b><p>Tek başlangıç programı yerine tüm çok haftalık programlar, video seansları ve sana uygun program önerileri.</p></div>
-      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-chart-line"></i></span><b>Ölçüm derinleşir</b><p>Fit Testleri, gelişmiş ilerleme takibi, aktivite ve cihaz bağlantıları — ilerlemeni tek bir sayıya indirgemeden izle.</p></div>
-      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-user-tie"></i></span><b>Antrenör ve ekosistem</b><p>Pro'da antrenör görüşmesi avantajları, kişisel program değerlendirmesi ve Dada Diet · Dada Gastro bağlantıları.</p></div>
+      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-list-check"></i></span><b>Program katmanı açılır</b><p>Tek başlangıç programı yerine tüm çok haftalık programlar, video serileri ve kural tabanlı Antrenman Oluşturucu.</p></div>
+      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-chart-line"></i></span><b>Ölçüm derinleşir</b><p>Kilo, ölçü, tekrar ve performans takibi; haftalık ve aylık grafikler — ilerlemeni tek bir sayıya indirgemeden izle.</p></div>
+      <div class="pro-perk"><span class="pp-ico"><i class="fa-solid fa-user-tie"></i></span><b>Antrenör ve ekosistem</b><p>Pro'da antrenör randevusu, mesajlaşma, gelişim raporu ve Dada Diet · Dada Gastro senkronizasyonu.</p></div>
       <!-- P5 · ANTRENÖR SEANSININ KENDİSİ BU PAKETE DÂHİL DEĞİLDİR.
            Pakete dâhil olan şey avantajdır (öncelikli randevu, indirim);
            seans bedeli antrenöre ayrı ödenir. Antrenör paketleri hesabın
@@ -280,83 +311,13 @@
     <div class="sec-head"><div>
       <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Kademeler</span>
       <h2>Sana uygun kademeyi seç</h2>
-      <p class="lead">Üç kademe, tek üyelik. İstediğin zaman yükselt veya düşür. Pro Max AI henüz satışa açılmadı; kartı kapsamı görünsün diye burada duruyor.</p>
+      <p class="lead">Üç kademe, tek üyelik. İstediğin zaman yükselt veya düşür. Ücretsiz kademe kalıcıdır; süresi dolmaz.</p>
     </div></div>
-    <div class="pro-grid">
-
-      <div class="pro-card t0">
-        <div class="pro-tier"><i class="fa-solid fa-user"></i><b>Ücretsiz</b></div>
-        <p class="pro-desc">Hareket etmeye bugün başlamak için yeterli — ücretsiz üyelikle kaydet, takip et, ilerle.</p>
-        <div class="pro-price"><b>₺0</b><span>/ ay</span><span class="price-flag"><i class="fa-solid fa-clock"></i> Fiyat onay bekliyor</span></div>
-        <ul class="pro-feats">
-          <li><i class="fa-solid fa-check"></i> DadaFit Egzersizleri — temel erişim</li>
-          <li><i class="fa-solid fa-check"></i> Başlangıç programı</li>
-          <li><i class="fa-solid fa-check"></i> Temel Enerji Defteri</li>
-          <li><i class="fa-solid fa-check"></i> Su takibi</li>
-          <li><i class="fa-solid fa-check"></i> Temel Challenge</li>
-          <li><i class="fa-solid fa-check"></i> Hareket Rehberi</li>
-        </ul>
-        <ul class="pro-feats pro-feats-extra">
-          <li class="no"><i class="fa-solid fa-xmark"></i> Tüm programlar</li>
-          <!-- Video Seansları modülü kaldırıldı (Beyar, 2026-08-29) — satır düştü. -->
-          <li class="no"><i class="fa-solid fa-xmark"></i> Fit Testleri</li>
-        </ul>
-        <button class="pro-expand-btn" type="button"><i class="fa-solid fa-chevron-down"></i> Tüm özellikler</button>
-        <a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz Üye Ol</a>
-      </div>
-
-      <div class="pro-card t2 featured">
-        <span class="pro-flag">En popüler</span>
-        <div class="pro-tier"><i class="fa-solid fa-bolt"></i><b>Pro</b></div>
-        <p class="pro-desc">Program, video ve ölçüm katmanının tamamı — düzenli çalışan biri için dengeli paket.</p>
-        <div class="pro-price"><b>₺99</b><span>/ ay</span><span class="price-flag"><i class="fa-solid fa-clock"></i> Fiyat onay bekliyor</span></div>
-        <ul class="pro-feats">
-          <li><i class="fa-solid fa-check"></i> <b>Ücretsiz'in tamamı</b></li>
-          <li><i class="fa-solid fa-check"></i> Tüm programlar (çok haftalık)</li>
-          <li><i class="fa-solid fa-check"></i> Fit Testleri <span class="soon">yakında</span></li>
-          <li><i class="fa-solid fa-check"></i> Gelişmiş ilerleme takibi</li>
-          <li><i class="fa-solid fa-check"></i> Gelişmiş Challenge</li>
-        </ul>
-        <!-- P8 · DEVİR NOTU: aşağıdaki beş kalem eskiden "Pro Max" kartındaydı.
-             Pro Max adı P8 ile Pro Max AI'ya oturunca, bu kalemlerin hiçbiri AI
-             olmadığı için Pro'ya taşındı — silinmediler, yer değiştirdiler.
-             (Antrenör görüşmesi "avantajı"dır; seans bedelini KAPSAMAZ — P5.) -->
-        <ul class="pro-feats pro-feats-extra">
-          <li><i class="fa-solid fa-check"></i> Aktivite ve cihaz bağlantıları <span class="soon">yakında</span></li>
-          <li><i class="fa-solid fa-check"></i> Sana uygun program önerileri</li>
-          <li><i class="fa-solid fa-check"></i> Antrenör görüşmesi avantajları</li>
-          <li><i class="fa-solid fa-check"></i> Kişisel program değerlendirmesi</li>
-          <li><i class="fa-solid fa-check"></i> Öncelikli destek</li>
-          <li><i class="fa-solid fa-check"></i> Dada Diet entegrasyonu</li>
-          <li><i class="fa-solid fa-check"></i> Dada Gastro tarif önerileri</li>
-        </ul>
-        <button class="pro-expand-btn" type="button"><i class="fa-solid fa-chevron-down"></i> Tüm özellikler</button>
-        <a class="btn btn-primary" href="pro-odeme-v1.html?plan=t2">Pro'yu Seç</a>
-      </div>
-
-      <!-- P3 · PRO MAX AI — VİTRİNDE GÖRÜNÜR, SATILMAZ.
-           "Kurulan": paket adı, basamağı ve vitrin sütunu.
-           "Kurulmayan": satın alma akışı (pro-odeme-v1.html'de t3 planı
-           TANIMLI DEĞİL) ve AI özelliklerinin kendisi.
-           🔴 Bu kart, deponun "boş ekran ve 'yakında' yasak" kuralının
-           BİLİNÇLİ ve TEK istisnasıdır (P3). İstisna yalnız burası için
-           geçerlidir; başka hiçbir ekranda "yakında" bu gerekçeyle
-           kullanılamaz.
-           ⚠ AI YASAĞI YERİNDE: "Pro Max AI" bir PAKET ADIDIR. Bu turda
-           hiçbir AI özelliği, asistanı veya ekranı yazılmadı; KARARLAR.md:81
-           ve fit-shell.js'teki yapay zekâ sohbet asistanı yasağı sürüyor. -->
-      <div class="pro-card t3">
-        <div class="pro-tier"><i class="fa-solid fa-gem"></i><b>Pro Max AI</b></div>
-        <p class="pro-desc">Pro'nun tamamı ve üzerine yapay zekâ katmanı. Kapsamı ve fiyatı henüz açıklanmadı; kademe satışa kapalı.</p>
-        <div class="pro-price"><b>&mdash;</b><span>fiyat açıklanmadı</span><span class="price-flag"><i class="fa-solid fa-clock"></i> Yakında</span></div>
-        <ul class="pro-feats">
-          <li><i class="fa-solid fa-check"></i> <b>Pro'nun tamamı</b></li>
-          <li><i class="fa-solid fa-check"></i> Yapay zekâ katmanı <span class="soon">yakında</span></li>
-        </ul>
-        <button class="btn btn-ghost" type="button" disabled aria-describedby="t3Not">Yakında</button>
-        <p class="pro-desc" id="t3Not" style="margin-top:12px">Bu kademeye şimdilik geçilemez. Açıldığında hesabının Üyelik sekmesinden yükseltebileceksin.</p>
-      </div>
-
+    <!-- 🔴 Kartlar ELLE YAZILMAZ. Kademe–özellik eşlemesinin tek kaynağı
+         `assets/js/fit-paket.js`; bu ızgara oradan basılır. Paketlerim
+         sayfası da AYNI diziyi okur, iki ekran ayrı düşemez. Eşleme
+         ileride admin panelden gelecek ve bu markup değişmeyecek. -->
+    <div class="pro-grid" id="proKartlar"></div>
     </div>
   </div>
 </section>
@@ -371,43 +332,15 @@
       <h2>Paket içerikleri yan yana</h2>
       <p class="lead">Hangi modülün hangi kademede açıldığını satır satır gör.</p>
     </div></div>
-    <div class="cmp-wrap" role="region" aria-label="Paket karşılaştırma tablosu" tabindex="0">
-      <table class="cmp-table">
-        <thead>
-          <tr><th scope="col">Özellik</th><th scope="col">Ücretsiz</th><th scope="col" class="col-pop">Pro</th><th scope="col">Pro Max AI <span class="soon">yakında</span></th></tr>
-        </thead>
-        <tbody>
-          <tr class="cmp-group"><th colspan="4" scope="colgroup">Hareket ve program</th></tr>
-          <tr><td>DadaFit Egzersizleri</td><td>Temel</td><td class="col-pop">Tümü</td><td>Tümü</td></tr>
-          <tr><td>Hareket Rehberi</td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Başlangıç programı</td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Tüm programlar (çok haftalık)</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Sana uygun program önerileri</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Challenge</td><td>Temel</td><td class="col-pop">Gelişmiş</td><td>Gelişmiş</td></tr>
-
-          <tr class="cmp-group"><th colspan="4" scope="colgroup">Ölçüm ve Enerji Defteri</th></tr>
-          <tr><td>Enerji Defteri</td><td>Temel</td><td class="col-pop">Gelişmiş</td><td>Gelişmiş</td></tr>
-          <tr><td>Su takibi</td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>İlerleme takibi</td><td>Temel</td><td class="col-pop">Gelişmiş</td><td>Gelişmiş</td></tr>
-          <tr><td>Fit Testleri</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Aktivite ve cihaz bağlantıları</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-
-          <tr class="cmp-group"><th colspan="4" scope="colgroup">Antrenör, ekosistem ve destek</th></tr>
-          <tr><td>Antrenör dizini ve profilleri</td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Antrenör görüşmesi avantajları</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Kişisel program değerlendirmesi</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Dada Diet entegrasyonu</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Dada Gastro tarif önerileri</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-          <tr><td>Öncelikli destek</td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-check yes" aria-label="var"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-
-          <tr class="cmp-group"><th colspan="4" scope="colgroup">Yapay zekâ</th></tr>
-          <tr><td>Yapay zekâ katmanı <span class="soon">yakında</span></td><td><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td class="col-pop"><i class="fa-solid fa-xmark nope" aria-label="yok"></i></td><td><i class="fa-solid fa-check yes" aria-label="var"></i></td></tr>
-
-          <tr class="cmp-pricerow"><td>Aylık ücret (temsilî)<br><span class="price-flag"><i class="fa-solid fa-clock"></i> Fiyat onay bekliyor</span></td><td>₺0</td><td class="col-pop">₺99</td><td>Açıklanmadı</td></tr>
-        </tbody>
-      </table>
+    <!-- Tablo da AYNI diziden üretilir: kartlarla tablo arasında sapma
+         imkânsız hâle geldi (eski hâlinde 40 satır iki yerde elle
+         yazılıydı ve "Pro Max AI" adı 8 kez geçiyordu — ölçüldü). -->
+    <div class="cmp-wrap" role="region" aria-label="Paket karşılaştırma tablosu" tabindex="0" id="proTablo"></div>
+    <p class="cmp-hint"><i class="fa-solid fa-arrows-left-right"></i> Tabloyu yana kaydırarak üç kademeyi karşılaştırabilirsin.</p>
+    <div class="pro-note" style="margin-top:22px">
+      <i class="fa-solid fa-user-tie"></i>
+      <p id="proAyri"></p>
     </div>
-    <p class="cmp-hint"><i class="fa-solid fa-arrows-left-right"></i> Tabloyu yana kaydırarak üç kademeyi karşılaştırabilirsin. Pro Max AI sütunu bilgi amaçlıdır; kademe henüz satışa açılmadı.</p>
   </div>
 </section>
 
@@ -463,12 +396,13 @@
       <h2>Sık sorulanlar</h2>
     </div></div>
     <div class="faq-list">
-      <div class="faq-item"><button class="faq-q" type="button">Ücretsiz kademede neler açık? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>DadaFit Egzersizleri'nin temel bölümü, <a href="hareket-rehberi-v1.html">Hareket Rehberi</a>, bir başlangıç programı, temel <a href="enerji-defteri-v1.html">Enerji Defteri</a> ile su takibi ve temel <a href="challenge-merkezi-v1.html">Challenge</a> ücretsizdir. Ücretsiz kademe kalıcıdır, süresi dolmaz.</p></div></div>
-      <div class="faq-item"><button class="faq-q" type="button">Pro ile Pro Max AI arasındaki fark ne? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Pro, bugün satın alınabilen tam kademedir: tüm programlar, video seansları, Fit Testleri, gelişmiş ilerleme takibi, aktivite ve cihaz bağlantıları, antrenör görüşmesi avantajları, kişisel program değerlendirmesi, öncelikli destek ve Dada Diet · Dada Gastro bağlantıları. Pro Max AI, Pro'nun tamamını kapsayacak ve üzerine yapay zekâ katmanı ekleyecek üçüncü kademedir; <b>henüz satışa açılmadı</b>, kapsamı açıklandığında bu sayfada yayımlanacak.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Ücretsiz kademede neler açık? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>25 temel egzersiz (görsel ve adım adım anlatımla), <a href="hareket-rehberi-v1.html">Hareket Rehberi</a>, Yeni Başlayanlar 4 Haftalık Program, aylık 30 Günlük <a href="challenge-merkezi-v1.html">Challenge</a>, temel <a href="egzersizlerim-v1.html#defter">Enerji Defteri</a> ile TDEE hesaplama, bir aktif hedef ve son 7 günün geçmişi ücretsizdir. Ücretsiz kademe kalıcıdır, süresi dolmaz; reklam gösterilir.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Pro ile Pro Max arasındaki fark ne? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Pro reklamsızdır ve program, ölçüm, antrenör katmanının tamamını açar: tüm çok haftalık programlar, video serileri, kural tabanlı Antrenman Oluşturucu, sınırsız geçmiş, kilo–ölçü–performans takibi, antrenör randevusu ve mesajlaşma. <b>Pro Max</b> Pro'nun tamamını kapsar; üstüne dört şey ekler: yapay zekâ destekli program üretimi, kişiye özel haftalık uyarlama, sınırsız antrenör mesajlaşması ve öncelikli randevu. Satır satır farkı yukarıdaki karşılaştırma tablosunda görürsün.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Tek üyelikle her modül açılıyor mu? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Evet. DadaFit Pro site geneli tek üyeliktir; modül modül ayrı ödeme yapmazsın. Hangi modülün hangi kademede açıldığını yukarıdaki karşılaştırma tablosunda satır satır görebilirsin.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">İstediğim zaman iptal edebilir miyim? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Evet. Üyeliğini dondurabilir veya iptal edebilirsin; dönem sonuna kadar mevcut avantajların devam eder. İptalden sonra hesabın ücretsiz kademeye döner — kayıtlarını ve ilerleme geçmişini kaybetmezsin.</p></div></div>
-      <div class="faq-item"><button class="faq-q" type="button">Kademeler arasında geçiş nasıl olur? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Ücretsiz ile Pro arasında dilediğin zaman yükselip düşebilirsin. Yükseltmede yeni modüller anında açılır; düşürmede mevcut dönem sonuna kadar eski kapsam korunur. Pro Max AI satışa açılmadığı için bu kademeye geçiş şimdilik yapılamaz.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Kademeler arasında geçiş nasıl olur? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Üç kademe arasında dilediğin zaman yükselip düşebilirsin. Yükseltmede yeni modüller anında açılır; düşürmede mevcut dönem sonuna kadar eski kapsam korunur. Aboneliğini <a href="odemelerim-v1.html#abonelik">Ödemelerim</a>'den yönetir, kademeni <a href="paketlerim-v1.html">Paketlerim</a>'den görürsün.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Dada Diet ve Dada Gastro entegrasyonu ne demek? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Pro'da, senin onayınla, hareket ve denge özetin kardeş ürünlere aktarılabilir: Dada Diet tarafında beslenme planına, Dada Gastro tarafında tarif önerilerine yansır. Hangi verinin hangi sisteme gittiği <a href="fit-planim-veri-izin-v1.html">Veri ve İzinler</a> ekranında açıkça yazar ve izni tek dokunuşla geri alabilirsin.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Antrenör seansları pakete dâhil mi? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p><b>Hayır.</b> Antrenör görüşmeleri ve birebir seans ücretleri abonelikten ayrıdır; bedeli antrenöre ayrı ödersin. Abonelik yalnız randevu ve mesajlaşma yolunu açar (Pro Max'te öncelikli randevu ve sınırsız mesajlaşma), seans bedelini kapsamaz. Seans ve paket tahsilatlarını <a href="odemelerim-v1.html#antrenor">Ödemelerim &rsaquo; Antrenör ödemeleri</a> bölümünde görürsün.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Fiyatlar kesin mi? <i class="fa-solid fa-chevron-down"></i></button><div class="faq-a jt-flow"><p>Hayır. Bu ekrandaki tutarlar prototip için temsilîdir ve "Fiyat onay bekliyor" ibaresiyle işaretlenmiştir. Kesinleşen fiyat ve üyelik koşulları <a href="yasal-v1.html?metin=kullanim">Kullanım Koşulları</a> ile birlikte yayımlanacak.</p></div></div>
     </div>
   </div>
@@ -477,9 +411,9 @@
 <section class="pro-cta">
   <div class="wrap">
     <h2>Hangi kademeyle başlamak istersin?</h2>
-    <p>Ücretsiz başlayıp istediğin an yükseltebilirsin. Programların tamamı, video seansları ve ölçüm derinliği Pro'da seni bekliyor.</p>
+    <p>Ücretsiz başlayıp istediğin an yükseltebilirsin. Programların tamamı, video serileri ve ölçüm derinliği Pro'da; yapay zekâ destekli program üretimi Pro Max'te.</p>
     <div class="pro-cta-acts">
-      <a class="btn btn-primary" href="pro-odeme-v1.html?plan=t2"><i class="fa-solid fa-crown"></i> Pro'ya Geç</a>
+      <a class="btn btn-primary" href="pro-odeme-v1.html?plan=pro"><i class="fa-solid fa-crown"></i> Pro'ya Geç</a>
       <a class="btn btn-ghost" href="programlar-merkezi-v1.html"><i class="fa-solid fa-list-check"></i> Önce Programlara Bak</a>
     </div>
   </div>
@@ -492,6 +426,8 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak) -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- Kademe–özellik eşlemesinin tek kaynağı -->
+<script src="assets/js/fit-paket.js"></script>
 <script>
 /* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) =====
  Kural: ekranda en fazla 1 sabit alt şerit. Çerez onayı (geçici, öncelikli)
@@ -592,26 +528,22 @@ window.__bottomStrips=window.__bottomStrips||[];
   });
 })();
 
-/* ===== KADEME KARTI EXPAND — senkron toggle =====
- Herhangi bir buton TÜM kartları birlikte açar/kapatır. Kartlar
- align-items:start ile üstten hizalı; hepsi aynı anda büyüdüğü için
- satır içinde zıplama olmuyor. */
+/* ===== KADEME KARTLARI + KARŞILAŞTIRMA TABLOSU — TEK KAYNAK =====
+ Eski "expand toggle" bloğu SÖKÜLDÜ: kartlar elle yazılmıyor artık,
+ fit-paket.js basıyor ve kapalı özellikler `<details>` ile katlanıyor
+ (JS olmadan da açılır). Bu sayfa satış vitrinidir; ziyaretçi hangi
+ kademede olduğunu bilmediğimiz için "mevcut paketin" işareti YOK —
+ o işaret oturum açmış kullanıcının sayfasında (paketlerim-v1). */
 (function(){
-  var allCards=document.querySelectorAll('.pro-card');
-  var allBtns=document.querySelectorAll('.pro-expand-btn');
-  var globalExpanded=false;
-  function setExpanded(open){
-    globalExpanded=open;
-    allCards.forEach(function(c){ c.classList.toggle('expanded',open); });
-    allBtns.forEach(function(b){
-      b.innerHTML=open
-        ? '<i class="fa-solid fa-chevron-up"></i> Daha az göster'
-        : '<i class="fa-solid fa-chevron-down"></i> Tüm özellikler';
-    });
-  }
-  allBtns.forEach(function(btn){
-    btn.addEventListener('click',function(){ setExpanded(!globalExpanded); });
+  var P=window.FIT_PAKET; if(!P) return;
+  P.kartlarBas(document.getElementById('proKartlar'),{
+    eylem:function(t){
+      if(t.key==='ucretsiz') return {etiket:'Ücretsiz Üye Ol', sinif:'btn-ghost', href:'giris-v1.html?tab=kayit'};
+      return {etiket:t.belirtme+' Seç', sinif:t.one?'btn-primary':'btn-ghost', href:'pro-odeme-v1.html?plan='+t.key};
+    }
   });
+  P.tabloBas(document.getElementById('proTablo'),{vurgu:'pro'});
+  var ay=document.getElementById('proAyri'); if(ay) ay.textContent=P.ayriUcret;
 })();
 </script>
 </body>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paketler ve Özellikler — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.pk-fiyat{max-width:132px}
+.pk-sec{min-width:190px;width:100%}
+/* Grup başlığı satırı: tablo içinde bir AYRAÇ değil, bir KAPSAM etiketi.
+   Zemin kabuğun --bg'si, yazı ölçüsü .adm-table th ile aynı. */
+.pk-grup td{
+  background:var(--bg);font-size:11px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);
+}
+.pk-grup td i{color:var(--fit-deep);margin-right:8px;font-size:12px}
+.pk-mod b{display:block}
+.pk-mod .nit{margin-top:6px}
+.pk-kol{min-width:210px}
+</style>
+</head>
+<body class="adm-body" data-adm="paketler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Paketler ve Özellikler</h2>
+        <p>Hangi özelliğin hangi kademede açık olduğu buradan seçilir. Satır bir
+           modül, kolon bir kademe, hücre o kesişimin değeri. Kademe kartları,
+           karşılaştırma tablosu ve ödeme özeti aynı eşlemeden basılır — üç ekran,
+           tek veri.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="pro-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="pkKaynak"></div>
+
+    <div class="adm-kpi" id="pkKpi"></div>
+
+    <!-- ============ KADEME VE FİYAT ALANLARI ============ -->
+    <div class="adm-card" id="pkKademe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-tag"></i> Kademeler ve fiyat</h3>
+        <div class="c-acts"><span class="fp-badge" id="pkKademeSay">—</span></div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0;max-width:88ch">
+          Tutar bir <b>alan</b>dır, ekrana yazılmış bir cümle değil: üye yüzündeki
+          fiyat bu alandan okunur. Değeri verilmemiş bir kademede alan
+          <b>boş kalır</b> ve etiketi “Fiyat onay bekliyor” olur — uydurma rakam
+          basılmaz, “yakında” yazılmaz.
+        </p>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="pkKademeTablo">
+            <thead>
+              <tr>
+                <th>Kademe</th><th class="num">Aylık tutar</th><th>Birim</th>
+                <th>Üye yüzünde görünen</th><th class="num">Açık</th>
+                <th class="num">Kapalı</th><th>Durum</th>
+              </tr>
+            </thead>
+            <tbody id="pkKademeGovde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="pkFiyatKaydet"><i class="fa-solid fa-check"></i> Tutarları kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ KADEME ⇄ ÖZELLİK MATRİSİ (K5) ============ -->
+    <div class="adm-card" id="pkMatris">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-table-cells-large"></i> Kademe ⇄ özellik matrisi</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="pkAra">Modül ara</label>
+          <input class="fk-input" type="search" id="pkAra" placeholder="Modül ya da grup ara" style="min-width:240px" />
+        </div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0;max-width:88ch">
+          Her hücrede üç tür değer olabilir: <b>Kapalı</b> (kademe bu modülü
+          görmez), <b>Açık</b> (tam olarak açık) ya da bir <b>kapsam metni</b>
+          (“Son 7 gün”, “Sınırsız”, “Öncelikli” gibi). Kapsam seçenekleri o satırın
+          bugün kullandığı değerlerden gelir; listede olmayan bir kapsam gerekiyorsa
+          önce eşlemeye eklenmeli.
+        </p>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="pkMxTablo">
+            <thead><tr id="pkMxBaslik"></tr></thead>
+            <tbody id="pkMxGovde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager">
+        <div class="p-info"><b id="pkSay">0</b> modül · <span id="pkHucre">0</span> hücre · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="pkMxKaydet"><i class="fa-solid fa-check"></i> Matrisi kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ABONELİK DIŞI ÜCRET METNİ ============ -->
+    <div class="adm-card" id="pkAyri">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-hand-holding-dollar"></i> Abonelik dışı ücret metni</h3>
+      </div>
+      <div class="c-body">
+        <form id="pkAyriF">
+          <div class="fk-field">
+            <label class="fk-label" for="pkAyriMetin">Antrenör seans bedeli açıklaması <span class="req">*</span></label>
+            <textarea class="fk-textarea" id="pkAyriMetin" rows="4" required maxlength="400"></textarea>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Bu cümle paket kartlarında, karşılaştırma tablosunda ve antrenör
+              randevu akışında aynen çıkar. Üç sayfada üç farklı cümle olmasın
+              diye tek yerde durur; buradan değiştirilir.</span>
+          </div>
+        </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="pkAyriKaydet"><i class="fa-solid fa-check"></i> Metni kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · PAKETLER VE ÖZELLİKLER   (R16/4)   — K5 matris referansı
+   ---------------------------------------------------------------------
+   VERİ GERÇEK. Kademeler, gruplar, modüller ve hücre değerleri
+   `fit-paket.js`in `KADEMELER` ve `GRUPLAR` dizilerinden okunuyor. O
+   dosyanın kendi notu bu ekranı zaten tarif ediyor:
+
+     "ileride admin panelden yönetilecek — modüller listelenecek, her
+      modülün yanında kademe seçimi olacak."
+
+   Ekran tam olarak bu: satır = modül, kolon = kademe, hücre = seçim.
+   İkinci bir liste TUTULMUYOR; paket kartları (`kartlarBas`) ve
+   karşılaştırma tablosu (`tabloBas`) da aynı diziden basılıyor, o yüzden
+   burada bir hücrenin değişmesi üç ekranda birden değişir.
+
+   🔴 PRO MAX FİYATI `null`. Beyar tutarı vermedi; motorun notu "bu yüzden
+   UYDURULMADI, null bırakıldı" diyor. Ekran o boşluğu boş alan + "Onay
+   bekliyor" rozetiyle gösterir. Yerine bir rakam yazmak, onaylanmamış bir
+   fiyatı onaylanmış göstermek olurdu.
+
+   🔴 K13. Tutar burada SABİT METİN DEĞİL, ALAN. Ekranda "₺99" diye basılı
+   bir cümle yok; alanın değeri var ve değer motordan okunuyor.
+
+   HÜCRE SEÇENEKLERİ NEREDEN GELİYOR: bir satırın kapsam seçenekleri o
+   satırın üç kademesinde bugün kullanılan metinlerdir. Seçenek listesini
+   elle yazmak, eşlemeyi dördüncü kez tekrarlamak olurdu.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  document.getElementById('pkKaynak').innerHTML = A.kaynak('canli',
+    '<b>Matris gerçek.</b> Kademeler, gruplar ve hücre değerleri ' +
+    '<code>fit-paket.js</code>ten okunuyor — paket kartları ve karşılaştırma ' +
+    'tablosu da aynı diziden basılıyor, burada ikinci bir kopya yok. ' +
+    '<b>Pro Max tutarı boş:</b> değeri verilmedi, uydurulmadı. ' +
+    '<b>Yazma yüzeyi maket:</b> seçimler doğrulanır ama kayıt gitmez, sunucu yok.');
+
+  if (!P) {
+    document.getElementById('pkMxGovde').innerHTML = '<tr><td>' +
+      A.bos('fa-layer-group', 'Paket motoru yüklenmedi',
+            'Kademe ve özellik eşlemesi fit-paket.js dosyasından okunur; bu sayfada yüklenemedi.') +
+      '</td></tr>';
+    return;
+  }
+
+  var KADEMELER = P.kademeler, GRUPLAR = P.gruplar;
+
+  /* ---------- türetilmiş sayılar ---------- */
+  var moduller = [];
+  GRUPLAR.forEach(function (g) { g.moduller.forEach(function (m) { moduller.push({ g:g, m:m }); }); });
+  var hucreSayisi = moduller.length * KADEMELER.length;
+  var kapsamHucre = 0, acikHucre = 0, kapaliHucre = 0;
+  moduller.forEach(function (x) {
+    KADEMELER.forEach(function (k) {
+      var v = x.m.k[k.key];
+      if (v === true) acikHucre++;
+      else if (v === false || v === null || v === undefined || v === '') kapaliHucre++;
+      else kapsamHucre++;
+    });
+  });
+  var nitelikSayisi = moduller.filter(function (x) { return x.m.nitelik; }).length;
+
+  /* ---------- sayaç kartları ---------- */
+  document.getElementById('pkKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><div>' +
+      '<b>' + n(KADEMELER.length) + '</b><span>Kademe</span>' +
+      '<span class="note">' + KADEMELER.map(function (k) { return esc(k.ad); }).join(' · ') + '</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-folder-tree"></i></span><div>' +
+      '<b>' + n(GRUPLAR.length) + '</b><span>Özellik grubu</span>' +
+      '<span class="note">Gruplar matriste kapsam etiketi; kendi başlarına bir kademe taşımazlar.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-list-check"></i></span><div>' +
+      '<b>' + n(moduller.length) + '</b><span>Modül satırı</span>' +
+      '<span class="note">' + n(nitelikSayisi) + ' tanesi avantaj değil nitelik (ör. reklam) — kartlarda onay işareti almaz.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-table-cells-large"></i></span><div>' +
+      '<b>' + n(hucreSayisi) + '</b><span>Hücre</span>' +
+      '<span class="note">' + n(acikHucre) + ' açık · ' + n(kapsamHucre) + ' kapsam metni · ' + n(kapaliHucre) + ' kapalı.</span>' +
+    '</div></div>';
+
+  /* ---------- kademe ve fiyat ---------- */
+  function kademeBas(){
+    document.getElementById('pkKademeGovde').innerHTML = KADEMELER.map(function (k, i) {
+      var acik = P.ozellikler(k.key).length;
+      var kapali = P.kapalilar(k.key).length;
+      var bekliyor = (k.fiyat === null || k.fiyatMetin === null);
+
+      var durum = bekliyor
+        ? A.rozet('wait', 'Tutar onay bekliyor', 'fa-clock')
+        : (k.fiyat === 0 ? A.rozet('off', 'Ücretsiz', 'fa-circle-dot')
+                         : A.rozet('ok', 'Yayında', 'fa-circle-check'));
+
+      return '<tr data-kademe="' + esc(k.key) + '">' +
+        '<td><b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
+          '<small>' + esc(k.key) + (k.one ? ' · öne çıkan' : '') + '</small></td>' +
+        '<td class="num"><label class="sr-only" for="pkF' + i + '">' + esc(k.ad) + ' aylık tutarı</label>' +
+          '<input class="fk-input pk-fiyat" id="pkF' + i + '" type="number" min="0" step="1" inputmode="numeric"' +
+          (bekliyor ? ' placeholder="Onay bekliyor"' : ' value="' + k.fiyat + '"') + ' /></td>' +
+        '<td>' + esc(k.birim) + '</td>' +
+        '<td><b>' + esc(P.fiyatMetni(k.key)) + '</b><small>' + esc(k.ozet) + '</small></td>' +
+        '<td class="num">' + n(acik) + '</td>' +
+        '<td class="num">' + (kapali ? n(kapali) : '—') + '</td>' +
+        '<td>' + durum + '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('pkKademeSay').textContent =
+      KADEMELER.length + ' kademe · ' + KADEMELER.filter(function (k) { return k.fiyatMetin === null; }).length + ' tutar bekliyor';
+  }
+
+  /* ---------- matris ---------- */
+  /* Bir satırın kapsam seçenekleri: o satırda bugün kullanılan metinler.
+     Elle yazılan bir seçenek listesi, eşlemenin dördüncü kopyası olurdu. */
+  function kapsamlar(m){
+    var out = [];
+    KADEMELER.forEach(function (k) {
+      var v = m.k[k.key];
+      if (typeof v === 'string' && v && out.indexOf(v) < 0) out.push(v);
+    });
+    return out;
+  }
+
+  function hucreSec(m, k, id){
+    var v = m.k[k.key];
+    var secKapali = (v === false || v === null || v === undefined || v === '');
+    var secAcik = (v === true);
+    var h = '<label class="sr-only" for="' + id + '">' + esc(m.ad) + ' — ' + esc(k.ad) + '</label>' +
+      '<select class="fk-select pk-sec" id="' + id + '">' +
+      '<option value="__kapali"' + (secKapali ? ' selected' : '') + '>Kapalı</option>' +
+      '<option value="__acik"' + (secAcik ? ' selected' : '') + '>Açık</option>';
+    kapsamlar(m).forEach(function (s) {
+      h += '<option value="' + esc(s) + '"' + (v === s ? ' selected' : '') + '>' + esc(s) + '</option>';
+    });
+    return h + '</select>';
+  }
+
+  function matrisBas(){
+    document.getElementById('pkMxBaslik').innerHTML =
+      '<th>Modül</th>' +
+      KADEMELER.map(function (k) {
+        return '<th class="pk-kol"><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) +
+               ' · ' + esc(P.fiyatMetni(k.key)) + '</th>';
+      }).join('');
+
+    var i = 0;
+    document.getElementById('pkMxGovde').innerHTML = GRUPLAR.map(function (g) {
+      var basSatir = '<tr class="pk-grup" data-grup="' + esc(g.ad) + '">' +
+        '<td colspan="' + (KADEMELER.length + 1) + '"><i class="' + g.ikon + '" aria-hidden="true"></i>' +
+        esc(g.ad) + ' · ' + g.moduller.length + ' modül</td></tr>';
+      var satirlar = g.moduller.map(function (m) {
+        i++;
+        var nit = m.nitelik
+          ? '<span class="nit">' + A.rozet('off', 'Nitelik', 'fa-circle-dot') + '</span>'
+          : '';
+        return '<tr data-modul="1">' +
+          '<td class="pk-mod"><b>' + esc(m.ad) + '</b>' +
+          (m.nitelik ? '<small>Avantaj değil nitelik — kartta onay işareti yerine nötr nokta basılır.</small>' + nit : '') +
+          '</td>' +
+          KADEMELER.map(function (k, j) {
+            return '<td>' + hucreSec(m, k, 'pkH' + i + '_' + j) + '</td>';
+          }).join('') +
+        '</tr>';
+      }).join('');
+      return basSatir + satirlar;
+    }).join('');
+
+    document.getElementById('pkSay').textContent = moduller.length;
+    document.getElementById('pkHucre').textContent = hucreSayisi;
+  }
+
+  /* Arama: grup başlığı satırı, altında görünen modül kalmadıysa gizlenir —
+     boş bir kapsam etiketi bırakmak, olmayan bir bölüm vaat etmektir.
+     Sonuç 0 ise boş durum basılır (kit §9). */
+  var bosSatir = null;
+  function aramaKur(){
+    var girdi = document.getElementById('pkAra');
+    var govde = document.getElementById('pkMxGovde');
+    var sayac = document.getElementById('pkSay');
+    function uygula(){
+      var q = girdi.value.trim().toLocaleLowerCase('tr');
+      var say = 0, grupSatiri = null, grupGorunen = 0;
+      Array.prototype.slice.call(govde.children).forEach(function (tr) {
+        if (tr === bosSatir) return;
+        if (tr.classList.contains('pk-grup')) {
+          if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
+          grupSatiri = tr; grupGorunen = 0;
+          return;
+        }
+        var ok = !q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0 ||
+                 (grupSatiri && grupSatiri.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+        tr.hidden = !ok;
+        if (ok) { say++; grupGorunen++; }
+      });
+      if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
+      sayac.textContent = say;
+      if (say === 0) {
+        if (!bosSatir) {
+          bosSatir = document.createElement('tr');
+          bosSatir.innerHTML = '<td colspan="' + (KADEMELER.length + 1) + '">' +
+            A.bos('fa-magnifying-glass', 'Bu aramayla modül bulunamadı',
+                  'Eşlemede bu sözcüğü taşıyan bir modül ya da grup yok. Arama kutusunu boşalt ya da başka bir sözcük dene.') +
+            '</td>';
+          govde.appendChild(bosSatir);
+        }
+        bosSatir.hidden = false;
+      } else if (bosSatir) bosSatir.hidden = true;
+    }
+    girdi.addEventListener('input', uygula);
+    uygula();
+  }
+
+  /* ---------- abonelik dışı ücret metni ---------- */
+  document.getElementById('pkAyriMetin').value = P.ayriUcret;
+
+  A.maketKaydet(document.getElementById('pkFiyatKaydet'), 'kademe tutarları');
+  A.maketKaydet(document.getElementById('pkMxKaydet'), 'kademe ⇄ özellik matrisi');
+  A.maketKaydet(document.getElementById('pkAyriKaydet'), 'ücret metni');
+
+  kademeBas();
+  matrisBas();
+  aramaKur();
+})();
+</script>
+</body>
+</html>

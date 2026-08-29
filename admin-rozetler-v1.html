@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rozetler ve Kademeler — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Kalıbın hiçbir parçası burada
+   tanımlanmaz; tablo · sayfalama · kaynak şeridi fit-admin.css'te.
+   Yeni renk / yeni token ÜRETİLMEDİ: hepsi kabuğun değişkenleri. */
+.rz-esik{max-width:112px}
+.rz-puan{max-width:92px}
+.rz-kademe{min-width:154px}
+/* Matriste sıfır hücre: rakam basmak yerine "—". Sıfır bir dağılım
+   değeri değil, o kesişimde rozet OLMADIĞI bilgisidir. */
+.rz-mx .z{color:var(--muted)}
+.rz-mx tfoot td{font-weight:800;color:var(--slate);background:var(--bg);border-top:1px solid var(--line)}
+.rz-ax{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+</style>
+</head>
+<body class="adm-body" data-adm="rozetler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Rozetler ve Kademeler</h2>
+        <p>Rozet kataloğu, puan değerleri ve sekiz kademenin eşikleri. Kademe
+           <b>iki eşiklidir</b>: puan da aktif gün de geçilmeden atlanmaz —
+           puan hızlı toplanır, gün toplanmaz.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="rozetlerim-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="rzKaynak"></div>
+
+    <div class="adm-kpi" id="rzKpi"></div>
+
+    <!-- ============ KADEME MERDİVENİ (K5 · iki eşikli) ============ -->
+    <div class="adm-card" id="rzKademe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-stairs"></i> Kademe merdiveni</h3>
+        <div class="c-acts"><span class="fp-badge" id="rzKademeSay">—</span></div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0 0 4px;max-width:88ch">
+          Üye, <b>puan eşiğini VE aktif gün barajını birlikte</b> geçtiği en yüksek
+          kademeye yerleşir. Tek ölçüt yeterli olsaydı kademe “çok rozet açtım”
+          ile atlanırdı; ikinci baraj onu sürdürmeye bağlar. Sağdaki iki kolon
+          eşik değil <b>sonuç</b>tur: rozetlerin <code>basamak</code> etiketine göre
+          dağılımı. Rozet puanı kademeden bağımsız toplanır, kolon yalnız
+          merdivenin nerede kalabalıklaştığını gösterir.
+        </p>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="rzKademeTablo">
+            <thead>
+              <tr>
+                <th class="num">Sıra</th>
+                <th>Kademe</th>
+                <th class="num">Puan eşiği</th>
+                <th class="num">Aktif gün eşiği</th>
+                <th class="num">Etiketli rozet</th>
+                <th class="num">Etiketli puan</th>
+              </tr>
+            </thead>
+            <tbody id="rzKademeGovde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="rzKademeKaydet"><i class="fa-solid fa-check"></i> Eşikleri kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AİLE ⇄ KADEME MATRİSİ (K5) ============ -->
+    <div class="adm-card" id="rzMatris">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-table-cells"></i> Aile ⇄ kademe dağılımı</h3>
+        <div class="c-acts"><span class="fp-badge" id="rzMxSay">—</span></div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0;max-width:88ch">
+          Satır = rozet ailesi, kolon = kademe, hücre = o kesişimdeki rozet sayısı.
+          Boş hücre bir kusur değildir; üst kademelerin seyrek olması merdivenin
+          sonunu az sayıda büyük rozete bağlar. Katalogda bir rozetin kademesini
+          değiştirdiğinde bu tablo da değişir — iki yerde iki sayı tutulmuyor.
+        </p>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table rz-mx" id="rzMxTablo">
+            <thead><tr id="rzMxBaslik"></tr></thead>
+            <tbody id="rzMxGovde"></tbody>
+            <tfoot id="rzMxAyak"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ KATALOG (K1 liste) ============ -->
+    <div class="adm-card" id="rzListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-medal"></i> Rozet kataloğu</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="rzAra">Rozet ara</label>
+          <input class="fk-input" type="search" id="rzAra" placeholder="Ad, slug ya da ölçüt ara" style="min-width:240px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="rzSuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="rzBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="kademe"><i class="fa-solid fa-stairs"></i> Kademe ata</button>
+          <button class="btn btn-ghost" type="button" data-toplu="puan"><i class="fa-solid fa-star"></i> Puan değiştir</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="rzTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Rozet</th><th>Aile</th><th>Kademe</th>
+                <th>Ölçüt ve hedef</th><th class="num">Puan</th><th>Durum</th>
+              </tr>
+            </thead>
+            <tbody id="rzGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="rzSay">0</b> rozet · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="rzKaydet"><i class="fa-solid fa-check"></i> Katalogu kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ROZETLER VE KADEMELER   (R16/4)   — K1 liste + K5 matris
+   ---------------------------------------------------------------------
+   VERİ GERÇEK. Üç dizi de `fit-rozet.js`ten okunuyor:
+     FIT_ROZET.KATALOG    → rozet kataloğu (slug·ad·aile·basamak·puan·olcut·hedef)
+     FIT_ROZET.KADEMELER  → sekiz kademe, her biri iki eşikli (minPuan + minGun)
+     FIT_ROZET.AILELER    → dokuz aile, her birinin ölçü cümlesi
+   İkinci bir kopya TUTULMUYOR. Sayaçlar, matris ve liste aynı üç diziden
+   türetiliyor; ekranda görünen 50 · 8 · 9 sayıları dizilerin `length`i.
+
+   ⚠ `FIT_ROZET.liste()` ÇAĞRILMIYOR — bilerek. O yüzey rozetin ÜYEDEKİ
+   durumunu (kazanıldı/yolda) verir ve tarayıcıdaki `dm_fit_*` kaydına
+   bakar. Burası bir ÜYE ekranı değil, KATALOG ekranı: yöneticinin gördüğü
+   satır, bu tarayıcıda kimin ne kazandığına göre değişmemeli.
+
+   DURUM BURADA "ÖLÇÜLÜ / ÖLÇÜ BEKLİYOR"dur. Katalogda `olcut:null` taşıyan
+   dört rozet var; motorun kendi notu "yolda demek ilerlediğini ima ederdi;
+   ilerlemiyor, çünkü kimse ölçmüyor" diyor. Ekran o dördünü ayrı bir
+   durumla gösterir ve hangi ekranın kaydetmesi gerektiğini yazar.
+
+   YAZMA YÜZEYİ MAKET. Eşik alanları ve kademe seçimleri doğrulanır,
+   kaydedilmez — bu prototipte sunucu yok.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, R = window.FIT_ROZET;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  document.getElementById('rzKaynak').innerHTML = A.kaynak('canli',
+    '<b>Katalog, kademeler ve aileler gerçek.</b> Üçü de <code>fit-rozet.js</code>ten ' +
+    'okunuyor — <code>rozetlerim-v1.html</code> ve kabuğun profil kartı da aynı ' +
+    'dizilerden besleniyor, burada ikinci bir kopya yok. <b>Yazma yüzeyi maket:</b> ' +
+    'eşikler ve kademe seçimleri doğrulanır ama kayıt gitmez, bu prototipte sunucu yok.');
+
+  if (!R) {
+    document.getElementById('rzGovde').innerHTML = '<tr><td colspan="7">' +
+      A.bos('fa-medal', 'Rozet motoru yüklenmedi',
+            'Katalog, kademeler ve aileler fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi.') +
+      '</td></tr>';
+    return;
+  }
+
+  var KATALOG = R.KATALOG, KADEMELER = R.KADEMELER, AILELER = R.AILELER;
+
+  function aileBul(key){
+    for (var i = 0; i < AILELER.length; i++) if (AILELER[i].key === key) return AILELER[i];
+    return null;
+  }
+  function kademeBul(key){
+    for (var i = 0; i < KADEMELER.length; i++) if (KADEMELER[i].key === key) return KADEMELER[i];
+    return null;
+  }
+
+  /* ---------- türetilmiş sayılar — hepsi katalogdan ---------- */
+  var toplamPuan = 0, olculebilirPuan = 0, olcusuz = 0;
+  var olcutSet = {};
+  KATALOG.forEach(function (r) {
+    toplamPuan += r.puan;
+    if (r.olcut) { olculebilirPuan += r.puan; olcutSet[r.olcut] = 1; }
+    else olcusuz++;
+  });
+  var olcutSayisi = Object.keys(olcutSet).length;
+
+  /* ---------- sayaç kartları ---------- */
+  document.getElementById('rzKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-medal"></i></span><div>' +
+      '<b>' + n(KATALOG.length) + '</b><span>Rozet</span>' +
+      '<span class="note">' + n(olcusuz) + ' tanesinin ölçüsü henüz yok; katalogda duruyor, ekranda ayrı işaretleniyor.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-stairs"></i></span><div>' +
+      '<b>' + n(KADEMELER.length) + '</b><span>Kademe</span>' +
+      '<span class="note">Her biri iki eşikli: puan ve aktif gün. İkisi birden geçilmeden atlanmaz.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><div>' +
+      '<b>' + n(AILELER.length) + '</b><span>Aile</span>' +
+      '<span class="note">' + n(olcutSayisi) + ' ayrı ölçüt üzerinden değerlendiriliyor.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-star"></i></span><div>' +
+      '<b>' + n(toplamPuan) + '</b><span>Katalog puan tavanı</span>' +
+      '<span class="note">Bugün ölçülebilen kısmı ' + n(olculebilirPuan) + ' puan. Son kademenin eşiği ' +
+      n(KADEMELER[KADEMELER.length - 1].minPuan) + ' — merdiven erişilebilir.</span>' +
+    '</div></div>';
+
+  /* ---------- kademe merdiveni ---------- */
+  function kademeBas(){
+    var sayim = {}, puanlar = {};
+    KATALOG.forEach(function (r) {
+      sayim[r.basamak] = (sayim[r.basamak] || 0) + 1;
+      puanlar[r.basamak] = (puanlar[r.basamak] || 0) + r.puan;
+    });
+    document.getElementById('rzKademeGovde').innerHTML = KADEMELER.map(function (k, i) {
+      var s = sayim[k.key] || 0, p = puanlar[k.key] || 0;
+      return '<tr data-kademe="' + esc(k.key) + '">' +
+        '<td class="num"><b>' + (i + 1) + '</b></td>' +
+        '<td><b><i class="' + k.ico + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b><small>' + esc(k.key) + '</small></td>' +
+        '<td class="num"><label class="sr-only" for="rzP' + i + '">' + esc(k.ad) + ' puan eşiği</label>' +
+          '<input class="fk-input rz-esik" id="rzP' + i + '" type="number" min="0" step="10" value="' + k.minPuan + '" /></td>' +
+        '<td class="num"><label class="sr-only" for="rzG' + i + '">' + esc(k.ad) + ' aktif gün eşiği</label>' +
+          '<input class="fk-input rz-esik" id="rzG' + i + '" type="number" min="1" step="1" value="' + k.minGun + '" /></td>' +
+        '<td class="num">' + (s ? n(s) : '<span class="z">—</span>') + '</td>' +
+        '<td class="num">' + (p ? n(p) : '<span class="z">—</span>') + '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('rzKademeSay').textContent = KADEMELER.length + ' kademe · iki eşikli';
+  }
+
+  /* ---------- aile ⇄ kademe matrisi ---------- */
+  function matrisBas(){
+    document.getElementById('rzMxBaslik').innerHTML =
+      '<th>Aile</th>' +
+      KADEMELER.map(function (k) {
+        return '<th class="num"><span class="rz-ax">' + esc(k.ad) + '</span></th>';
+      }).join('') +
+      '<th class="num">Toplam</th>';
+
+    var kolonToplam = {}, genelToplam = 0;
+    var satirlar = AILELER.map(function (a) {
+      var satirToplam = 0;
+      var hucreler = KADEMELER.map(function (k) {
+        var c = KATALOG.filter(function (r) {
+          return r.aile === a.key && r.basamak === k.key;
+        }).length;
+        satirToplam += c;
+        kolonToplam[k.key] = (kolonToplam[k.key] || 0) + c;
+        return '<td class="num">' + (c ? '<b>' + c + '</b>' : '<span class="z">—</span>') + '</td>';
+      }).join('');
+      genelToplam += satirToplam;
+      return '<tr><td><b><i class="' + a.ico + '" aria-hidden="true"></i> ' + esc(a.ad) + '</b>' +
+             '<small>' + esc(a.olcu) + '</small></td>' + hucreler +
+             '<td class="num"><b>' + satirToplam + '</b></td></tr>';
+    }).join('');
+    document.getElementById('rzMxGovde').innerHTML = satirlar;
+
+    document.getElementById('rzMxAyak').innerHTML =
+      '<tr><td>Kademe toplamı</td>' +
+      KADEMELER.map(function (k) {
+        var c = kolonToplam[k.key] || 0;
+        return '<td class="num">' + (c ? c : '<span class="z">—</span>') + '</td>';
+      }).join('') +
+      '<td class="num">' + genelToplam + '</td></tr>';
+
+    document.getElementById('rzMxSay').textContent =
+      AILELER.length + ' × ' + KADEMELER.length + ' = ' + (AILELER.length * KADEMELER.length) + ' hücre';
+  }
+
+  /* ---------- katalog listesi ---------- */
+  function listeBas(){
+    document.getElementById('rzGovde').innerHTML = KATALOG.map(function (r, i) {
+      var a = aileBul(r.aile);
+      var olculu = !!r.olcut;
+
+      var kademeSec = '<label class="sr-only" for="rzK' + i + '">' + esc(r.ad) + ' kademesi</label>' +
+        '<select class="fk-select rz-kademe" id="rzK' + i + '">' +
+        KADEMELER.map(function (k) {
+          return '<option value="' + esc(k.key) + '"' + (k.key === r.basamak ? ' selected' : '') + '>' + esc(k.ad) + '</option>';
+        }).join('') + '</select>';
+
+      var olcutHucre = olculu
+        ? '<b>' + esc(r.olcut) + '</b><small>hedef: ' + n(r.hedef) + '</small>'
+        : '<span class="z">—</span><small>hedef: ' + n(r.hedef) + ' · ölçen kayıt yok</small>';
+
+      var durum = olculu
+        ? A.rozet('ok', 'Ölçülü', 'fa-circle-check')
+        : A.rozet('wait', 'Ölçü bekliyor', 'fa-clock') +
+          '<small>' + esc(r.kaynakEkranAd || '—') + ' kaydetmeye başlayınca çalışır.</small>';
+
+      return '<tr data-slug="' + esc(r.slug) + '" data-aile="' + esc(r.aile) + '"' +
+             ' data-durum="' + (olculu ? 'olculu' : 'olcusuz') + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(r.ad) + ' seç" /></td>' +
+        '<td><b><i class="' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</b><small>' + esc(r.slug) + '</small></td>' +
+        '<td>' + esc(a ? a.ad : r.aile) + '</td>' +
+        '<td>' + kademeSec + '</td>' +
+        '<td>' + olcutHucre + '</td>' +
+        '<td class="num"><label class="sr-only" for="rzPu' + i + '">' + esc(r.ad) + ' puanı</label>' +
+          '<input class="fk-input rz-puan" id="rzPu' + i + '" type="number" min="0" step="5" value="' + r.puan + '" /></td>' +
+        '<td>' + durum + '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('rzSay').textContent = KATALOG.length;
+    A.secimKur(document.getElementById('rzListe'));
+    A.aramaKur(document.getElementById('rzAra'), document.getElementById('rzTablo'), document.getElementById('rzSay'));
+  }
+
+  /* ---------- süzgeç: aile ve durum, ikisi de katalogdan doğar ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('rzSuzgec');
+    var kullanilan = {};
+    KATALOG.forEach(function (r) { kullanilan[r.aile] = 1; });
+
+    kok.innerHTML =
+      '<div class="fgroup" data-group="aile" role="group" aria-label="Aile filtresi">' +
+        '<span class="lbl">Aile</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        AILELER.filter(function (a) { return kullanilan[a.key]; }).map(function (a) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(a.key) + '">' +
+                 '<i class="' + a.ico + '"></i> ' + esc(a.ad) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Ölçü durumu filtresi">' +
+        '<span class="lbl">Ölçü</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="olculu"><i class="fa-solid fa-circle-check"></i> Ölçülü</button>' +
+        '<button class="df-fchip" type="button" data-val="olcusuz"><i class="fa-regular fa-clock"></i> Ölçü bekliyor</button>' +
+      '</div>';
+
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { aile:new Set(), durum:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+
+  /* Süzgeç sonucu 0 ise boş durum basılır — "veri yok" yazıp bırakmak kusurdur. */
+  var bosSatir = null;
+  function suz(sec){
+    var govde = document.getElementById('rzGovde');
+    var say = 0;
+    govde.querySelectorAll('tr[data-slug]').forEach(function (tr) {
+      var ok = (!sec.aile.size  || sec.aile.has(tr.getAttribute('data-aile'))) &&
+               (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('rzSay').textContent = say;
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="7">' +
+          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle rozet kalmadı',
+                'Seçili aile ve ölçü durumunun kesişiminde katalogda rozet yok. Bir çipi kaldır ya da “Tümü”ne dön.') +
+          '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+  }
+
+  /* ---------- toplu eylem: maket, dürüstçe söyler ---------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (!t) return;
+    var s = document.querySelectorAll('#rzGovde input[type=checkbox]:checked').length;
+    var kap = document.getElementById('rzBulk').querySelector('.b-acts');
+    var v = kap.querySelector('.adm-maket-not');
+    if (!v) {
+      v = document.createElement('span'); v.className = 'adm-maket-not';
+      v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+      kap.appendChild(v);
+    }
+    v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+      ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+  });
+
+  A.maketKaydet(document.getElementById('rzKademeKaydet'), 'kademe eşikleri');
+  A.maketKaydet(document.getElementById('rzKaydet'), 'rozet kataloğu');
+
+  kademeBas();
+  matrisBas();
+  listeBas();
+  suzgecKur();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bildirim Şablonları — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.bd-degisken{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+/* Değişken çipi bir DÜĞMEDİR: tıklayınca imlecin olduğu alana yazılır.
+   Kopyalanacak bir metni yalnız gösterip bırakmak, işi kullanıcıya
+   el yazısıyla devretmektir. Dokunma hedefi kitin 44px eşiği. */
+.bd-dg{
+  min-height:44px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;font-weight:600;
+  color:var(--slate);cursor:pointer;transition:.18s var(--ease);
+}
+.bd-dg:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.bd-dg:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.bd-dg i{color:var(--muted);font-size:11px}
+.bd-dg:hover i{color:var(--fit-deep)}
+.bd-onizle{
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:16px 18px;font-size:13.5px;line-height:1.7;color:var(--slate-2);font-weight:500;
+}
+.bd-onizle b{color:var(--slate)}
+</style>
+</head>
+<body class="adm-body" data-adm="bildirim">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Bildirim Şablonları</h2>
+        <p>Uygulamanın üyeye yazdığı her metin burada durur. Bir şablonun iki
+           yüzü vardır — e-posta ve uygulama içi — ve ikisi aynı olayı anlatır,
+           aynı değişkenleri kullanır.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="bildirimler-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="bdKaynak"></div>
+
+    <div class="adm-kpi" id="bdKpi"></div>
+
+    <!-- ============ ŞABLON LİSTESİ ============ -->
+    <div class="adm-card" id="bdListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-bell"></i> Şablonlar</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="bdAra">Şablon ara</label>
+          <input class="fk-input" type="search" id="bdAra" placeholder="Şablon ya da tetikleyici ara" style="min-width:240px" />
+        </div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="bdTablo">
+            <thead>
+              <tr><th>Şablon</th><th>Tetikleyici</th><th>Kanal</th>
+                  <th class="num">Değişken</th><th>Durum</th><th class="act">İşlem</th></tr>
+            </thead>
+            <tbody id="bdGovde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager">
+        <div class="p-info"><b id="bdSay">0</b> şablon · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ŞABLON FORMU (K4) ============ -->
+    <div class="adm-card" id="bdForm">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="bdFormBaslik">Şablon</span></h3>
+        <div class="c-acts">
+          <label class="sr-only" for="bdSecim">Düzenlenecek şablon</label>
+          <select class="fk-select" id="bdSecim" style="min-width:280px"></select>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="bdF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="bfAd">Şablon adı <span class="req">*</span></label>
+              <input class="fk-input" id="bfAd" name="ad" required maxlength="80" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız panelde görünür; üye bu adı görmez.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="bfKanal">Kanal <span class="req">*</span></label>
+              <select class="fk-select" id="bfKanal" name="kanal" required>
+                <option value="ikisi">E-posta ve uygulama içi</option>
+                <option value="eposta">Yalnız e-posta</option>
+                <option value="uygulama">Yalnız uygulama içi</option>
+              </select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Kapalı kanalın metni silinmez, gönderilmez — kanal geri açıldığında metin yerinde durur.</span>
+            </div>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="bfTetik">Tetikleyici <span class="req">*</span></label>
+              <input class="fk-input" id="bfTetik" name="tetik" required readonly />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Olayın kod adı. Şablon bu olaya bağlıdır ve panelden değiştirilmez; yeni bir olay yeni bir şablon açar.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="bfDurum">Durum <span class="req">*</span></label>
+              <select class="fk-select" id="bfDurum" name="durum" required>
+                <option value="aktif">Aktif — olay olunca gönderilir</option>
+                <option value="kapali">Kapalı — olay olur, bildirim gitmez</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <span class="fk-label">Kullanılabilir değişkenler</span>
+            <p style="font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.55;margin:0">
+              Tıkladığın değişken, en son yazdığın alana imlecin olduğu yere eklenir.
+              Listede olmayan bir değişken yazarsan gönderimde ham metin olarak çıkar.
+            </p>
+            <div class="bd-degisken" id="bdDegiskenler"></div>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="bfKonu">E-posta konusu <span class="req">*</span>
+              <span class="fk-count" id="bfKonuSay">0/90</span></label>
+            <input class="fk-input" id="bfKonu" name="konu" required maxlength="90" data-degisken />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Gelen kutusunda görünen tek satır. 90 karakterden uzun konu çoğu istemcide kesilir.</span>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="bfGovde">E-posta gövdesi <span class="req">*</span></label>
+            <textarea class="fk-textarea" id="bfGovde" name="govde" rows="7" required maxlength="1200" data-degisken></textarea>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="bfBaslik">Uygulama içi başlık <span class="req">*</span>
+                <span class="fk-count" id="bfBaslikSay">0/60</span></label>
+              <input class="fk-input" id="bfBaslik" name="baslik" required maxlength="60" data-degisken />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="bfHedef">Bildirimin götürdüğü sayfa <span class="req">*</span></label>
+              <input class="fk-input" id="bfHedef" name="hedef" required />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Üye bildirime dokununca açılan adres.</span>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="bfMetin">Uygulama içi metin <span class="req">*</span>
+              <span class="fk-count" id="bfMetinSay">0/160</span></label>
+            <textarea class="fk-textarea" id="bfMetin" name="metin" rows="3" required maxlength="160" data-degisken></textarea>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Bildirim listesinde iki satır görünür; gerisi kesilir.</span>
+          </div>
+
+          <div class="fk-field">
+            <span class="fk-label">Önizleme</span>
+            <div class="bd-onizle" id="bdOnizle">—</div>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Değişkenler örnek değerlerle dolduruldu; gerçek gönderimde üyenin
+              kendi verisi girer.</span>
+          </div>
+        </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="bdKaydet"><i class="fa-solid fa-check"></i> Şablonu kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ GÖNDERİM KAYDI — gerçekten boş ============ -->
+    <div class="adm-card" id="bdGonderim">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-paper-plane"></i> Gönderim kaydı</h3>
+      </div>
+      <div class="c-body" id="bdGonderimGovde"></div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · BİLDİRİM ŞABLONLARI   (R16/4)   — K4 form
+   ---------------------------------------------------------------------
+   🔴 VERİ ÖRNEK. Bu depoda bildirim METNİ tutan hiçbir modül yok
+   (ölçüldü: `bildirimler-v1.html` listeyi kendi markup'ında taşıyor,
+   `fit-shell.js`te bir şablon dizisi yok). Aşağıdaki on şablon örnektir.
+
+   ÖRNEK OLSA DA TETİKLEYİCİLER GERÇEK: her şablon bu depoda gerçekten
+   çalışan bir olaya bağlı — rozet kazanma ve kademe atlama `fit-rozet.js`,
+   challenge günü `fit-challenge.js`, su hedefi `fit-su.js`, destek yanıtı
+   K8 kanonundaki dört durumdan biri. Şablon motoru doğduğunda değişecek
+   olan metinler değil, metinlerin nereden okunduğudur.
+
+   GÖNDERİM KAYDI GERÇEKTEN BOŞ ve öyle gösteriliyor: bu prototipte sunucu
+   yok, hiçbir bildirim gönderilmedi. Uydurma gönderim satırı basmak,
+   olmayan bir postayı gönderilmiş göstermek olurdu.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  document.getElementById('bdKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Şablon metinleri örnek.</b> Bu depoda bildirim metni tutan bir modül yok — ' +
+    'aşağıdaki on şablon buraya örnek olarak yazıldı. <b>Tetikleyiciler gerçek:</b> ' +
+    'her biri <code>fit-rozet.js</code> · <code>fit-challenge.js</code> · ' +
+    '<code>fit-su.js</code> gibi çalışan bir motorun olayına karşılık geliyor. ' +
+    '<b>Yazma yüzeyi maket:</b> metin doğrulanır ama kayıt gitmez, sunucu yok.');
+
+  /* Değişkenler bir sözlüktür, süs değil: ad → örnek değer. Önizleme
+     bu sözlükten dolduruluyor, ikinci bir örnek kümesi tutulmuyor. */
+  var DEGISKEN = {
+    '{{ad}}':            'Yasin',
+    '{{uye_adi}}':       'yasinyavuz',
+    '{{rozet_adi}}':     '7 Aktif Gün',
+    '{{rozet_puani}}':   '25',
+    '{{kademe_adi}}':    'Düzenli',
+    '{{kademe_sira}}':   '3',
+    '{{challenge_adi}}': '30 Günde Hareket Alışkanlığı',
+    '{{gun}}':           '12',
+    '{{program_adi}}':   'Yeni Başlayanlar 4 Haftalık Program',
+    '{{antrenor_adi}}':  'Elif Demir',
+    '{{randevu_tarihi}}':'3 Eylül 2026, 18:30',
+    '{{talep_no}}':      'DT-2418',
+    '{{tutar}}':         '99,00 ₺',
+    '{{su_hedefi}}':     '2,6 L',
+    '{{site_adi}}':      'DadaFit'
+  };
+
+  var SABLONLAR = [
+    { key:'hosgeldin', ad:'Hoş geldin', tetik:'uye.kayit_tamamlandi', kanal:'ikisi', durum:'aktif',
+      dg:['{{ad}}','{{site_adi}}'],
+      konu:'{{ad}}, DadaFit\'e hoş geldin',
+      govde:'Merhaba {{ad}},\n\nDadaFit hesabın hazır. İlk hareketini kaydettiğin gün ilk rozetin de açılıyor — nereden başlayacağını bilmiyorsan Yeni Başlayanlar programı seni adım adım götürür.\n\nİyi çalışmalar.',
+      baslik:'Hoş geldin, {{ad}}', metin:'Hesabın hazır. İlk hareketini kaydet, ilk rozetin açılsın.',
+      hedef:'programlarim-v1.html' },
+
+    { key:'sifre', ad:'Şifre sıfırlama', tetik:'uye.sifre_sifirlama_istendi', kanal:'eposta', durum:'aktif',
+      dg:['{{ad}}','{{site_adi}}'],
+      konu:'Şifre sıfırlama isteğin',
+      govde:'Merhaba {{ad}},\n\nŞifreni sıfırlamak için aşağıdaki bağlantıya tıkla. Bağlantı 30 dakika geçerli.\n\nBu isteği sen yapmadıysan bir şey yapmana gerek yok, şifren değişmez.',
+      baslik:'Şifre sıfırlama', metin:'Bağlantı 30 dakika geçerli.',
+      hedef:'giris-v1.html' },
+
+    { key:'rozet', ad:'Rozet kazanıldı', tetik:'rozet.kazanildi', kanal:'ikisi', durum:'aktif',
+      dg:['{{ad}}','{{rozet_adi}}','{{rozet_puani}}'],
+      konu:'Yeni rozet: {{rozet_adi}}',
+      govde:'{{ad}}, {{rozet_adi}} rozetini kazandın ve +{{rozet_puani}} puan aldın.\n\nRozet defterin geri alınmaz: bir kez kazanılan rozet, ölçün düşse bile durur.',
+      baslik:'{{rozet_adi}} kazanıldı', metin:'+{{rozet_puani}} puan. Rozet defterine eklendi.',
+      hedef:'rozetlerim-v1.html' },
+
+    { key:'kademe', ad:'Kademe atlandı', tetik:'rozet.kademe_yukseldi', kanal:'ikisi', durum:'aktif',
+      dg:['{{ad}}','{{kademe_adi}}','{{kademe_sira}}'],
+      konu:'{{kademe_adi}} kademesine geçtin',
+      govde:'{{ad}}, artık {{kademe_adi}} kademesindesin ({{kademe_sira}}. basamak).\n\nKademe iki eşikle atlanır: puan ve aktif gün. İkisini birlikte geçtiğin için buradasın — puan hızlı toplanır, gün toplanmaz.',
+      baslik:'{{kademe_adi}} kademesindesin', metin:'{{kademe_sira}}. basamak. Puan ve aktif gün eşiğini birlikte geçtin.',
+      hedef:'rozetlerim-v1.html' },
+
+    { key:'challenge-basladi', ad:'Challenge başladı', tetik:'challenge.katilim_basladi', kanal:'uygulama', durum:'aktif',
+      dg:['{{ad}}','{{challenge_adi}}','{{gun}}'],
+      konu:'{{challenge_adi}} başladı',
+      govde:'{{ad}}, {{challenge_adi}} bugün başladı ve {{gun}} gün sürecek.\n\nHer gün işaretlemeyi unutma; telafi hakkın sınırlı.',
+      baslik:'{{challenge_adi}} başladı', metin:'{{gun}} gün sürecek. Bugünü işaretlemeyi unutma.',
+      hedef:'challengelarim-v1.html' },
+
+    { key:'challenge-hatirlatma', ad:'Challenge günü hatırlatması', tetik:'challenge.gun_isaretlenmedi', kanal:'uygulama', durum:'aktif',
+      dg:['{{ad}}','{{challenge_adi}}','{{gun}}'],
+      konu:'Bugünü henüz işaretlemedin',
+      govde:'{{ad}}, {{challenge_adi}} için bugünü henüz işaretlemedin. {{gun}}. gündesin.',
+      baslik:'Bugünü işaretlemedin', metin:'{{challenge_adi}} · {{gun}}. gün. Serini bozma.',
+      hedef:'challengelarim-v1.html' },
+
+    { key:'antrenman', ad:'Antrenman hatırlatması', tetik:'plan.gun_yaklasti', kanal:'uygulama', durum:'aktif',
+      dg:['{{ad}}','{{program_adi}}'],
+      konu:'Bugün antrenman günün',
+      govde:'{{ad}}, {{program_adi}} için bugün bir antrenman günü.',
+      baslik:'Bugün antrenman günün', metin:'{{program_adi}} · planındaki günü aç.',
+      hedef:'programlarim-v1.html' },
+
+    { key:'su', ad:'Su hedefi hatırlatması', tetik:'su.hedef_gerisinde', kanal:'uygulama', durum:'kapali',
+      dg:['{{ad}}','{{su_hedefi}}'],
+      konu:'Su hedefinin gerisindesin',
+      govde:'{{ad}}, bugünkü su hedefin {{su_hedefi}} ve henüz yarısına gelmedin.',
+      baslik:'Su hedefin {{su_hedefi}}', metin:'Günün yarısı geçti, hedefin gerisindesin.',
+      hedef:'enerji-defteri-su-v1.html' },
+
+    { key:'randevu', ad:'Antrenör randevusu onaylandı', tetik:'randevu.onaylandi', kanal:'ikisi', durum:'aktif',
+      dg:['{{ad}}','{{antrenor_adi}}','{{randevu_tarihi}}'],
+      konu:'Randevun onaylandı: {{randevu_tarihi}}',
+      govde:'{{ad}}, {{antrenor_adi}} ile randevun {{randevu_tarihi}} için onaylandı.\n\nSeans bedeli aboneliğe dâhil değildir; antrenörle ayrıca görüşülür.',
+      baslik:'Randevun onaylandı', metin:'{{antrenor_adi}} · {{randevu_tarihi}}',
+      hedef:'mesajlarim-v1.html' },
+
+    { key:'destek', ad:'Destek talebi yanıtlandı', tetik:'destek.yanit_yazildi', kanal:'ikisi', durum:'aktif',
+      dg:['{{ad}}','{{talep_no}}'],
+      konu:'{{talep_no}} numaralı talebine yanıt geldi',
+      govde:'{{ad}}, {{talep_no}} numaralı destek talebine yanıt yazıldı.\n\nTalep şu an “yanıt bekleyen” durumunda; sen yazınca “açık”a döner.',
+      baslik:'Talebine yanıt geldi', metin:'{{talep_no}} · yanıt bekleyen durumunda.',
+      hedef:'destek-talebi-detay-v1.html' },
+
+    { key:'odeme', ad:'Ödeme alındı', tetik:'odeme.tahsil_edildi', kanal:'eposta', durum:'aktif',
+      dg:['{{ad}}','{{tutar}}'],
+      konu:'Ödemen alındı',
+      govde:'{{ad}}, {{tutar}} tutarındaki ödemen alındı. Faturan hesabındaki Ödemelerim bölümünde.',
+      baslik:'Ödemen alındı', metin:'{{tutar}} · faturan Ödemelerim\'de.',
+      hedef:'odemelerim-v1.html' }
+  ];
+
+  var KANAL_AD = { ikisi:'E-posta + uygulama', eposta:'Yalnız e-posta', uygulama:'Yalnız uygulama içi' };
+  var KANAL_IKO = { ikisi:'fa-solid fa-tower-broadcast', eposta:'fa-solid fa-envelope', uygulama:'fa-solid fa-mobile-screen' };
+
+  /* ---------- sayaçlar ---------- */
+  var aktif = SABLONLAR.filter(function (s) { return s.durum === 'aktif'; }).length;
+  var epostali = SABLONLAR.filter(function (s) { return s.kanal !== 'uygulama'; }).length;
+  var uygulamali = SABLONLAR.filter(function (s) { return s.kanal !== 'eposta'; }).length;
+
+  document.getElementById('bdKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-bell"></i></span><div>' +
+      '<b>' + n(SABLONLAR.length) + '</b><span>Şablon</span>' +
+      '<span class="note">' + n(aktif) + ' tanesi aktif; kapalı şablonun metni silinmez, yalnız gönderilmez.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-envelope"></i></span><div>' +
+      '<b>' + n(epostali) + '</b><span>E-posta metni</span>' +
+      '<span class="note">Konu ve gövde ayrı alanlardır; konu 90 karakterde kesilir.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-mobile-screen"></i></span><div>' +
+      '<b>' + n(uygulamali) + '</b><span>Uygulama içi metin</span>' +
+      '<span class="note">Listede iki satır görünür; her biri bir sayfaya götürür.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-code"></i></span><div>' +
+      '<b>' + n(Object.keys(DEGISKEN).length) + '</b><span>Değişken</span>' +
+      '<span class="note">Listede olmayan bir değişken gönderimde ham metin olarak çıkar.</span></div></div>';
+
+  /* ---------- liste ---------- */
+  document.getElementById('bdGovde').innerHTML = SABLONLAR.map(function (s) {
+    var d = s.durum === 'aktif' ? A.rozet('ok', 'Aktif', 'fa-circle-check')
+                                : A.rozet('off', 'Kapalı', 'fa-circle-minus');
+    return '<tr data-key="' + esc(s.key) + '">' +
+      '<td><b>' + esc(s.ad) + '</b><small>' + esc(s.konu) + '</small></td>' +
+      '<td><code style="font-size:12px">' + esc(s.tetik) + '</code></td>' +
+      '<td><i class="' + KANAL_IKO[s.kanal] + '" aria-hidden="true"></i> ' + esc(KANAL_AD[s.kanal]) + '</td>' +
+      '<td class="num">' + s.dg.length + '</td>' +
+      '<td>' + d + '</td>' +
+      '<td class="act"><button class="adm-ico-btn" type="button" data-duzenle="' + esc(s.key) + '" ' +
+        'aria-label="' + esc(s.ad) + ' şablonunu düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('bdSay').textContent = SABLONLAR.length;
+  A.aramaKur(document.getElementById('bdAra'), document.getElementById('bdTablo'), document.getElementById('bdSay'));
+
+  /* ---------- form ---------- */
+  var secim = document.getElementById('bdSecim');
+  secim.innerHTML = SABLONLAR.map(function (s) {
+    return '<option value="' + esc(s.key) + '">' + esc(s.ad) + '</option>';
+  }).join('');
+
+  function bul(key){
+    for (var i = 0; i < SABLONLAR.length; i++) if (SABLONLAR[i].key === key) return SABLONLAR[i];
+    return SABLONLAR[0];
+  }
+
+  var sonAlan = document.getElementById('bfGovde');
+  document.querySelectorAll('[data-degisken]').forEach(function (el) {
+    el.addEventListener('focus', function () { sonAlan = el; });
+    el.addEventListener('input', onizle);
+  });
+
+  function degiskenBas(s){
+    document.getElementById('bdDegiskenler').innerHTML = s.dg.map(function (d) {
+      return '<button class="bd-dg" type="button" data-dg="' + esc(d) + '">' +
+             '<i class="fa-solid fa-plus" aria-hidden="true"></i>' + esc(d) + '</button>';
+    }).join('');
+  }
+
+  document.getElementById('bdDegiskenler').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-dg]');
+    if (!b || !sonAlan) return;
+    var d = b.getAttribute('data-dg');
+    var a = sonAlan.selectionStart == null ? sonAlan.value.length : sonAlan.selectionStart;
+    var z = sonAlan.selectionEnd == null ? a : sonAlan.selectionEnd;
+    sonAlan.value = sonAlan.value.slice(0, a) + d + sonAlan.value.slice(z);
+    sonAlan.focus();
+    sonAlan.setSelectionRange(a + d.length, a + d.length);
+    onizle();
+  });
+
+  function doldur(metin){
+    return String(metin).replace(/\{\{[a-z_]+\}\}/g, function (m) {
+      return DEGISKEN[m] !== undefined ? DEGISKEN[m] : m;
+    });
+  }
+
+  function sayacTazele(){
+    document.getElementById('bfKonuSay').textContent   = document.getElementById('bfKonu').value.length + '/90';
+    document.getElementById('bfBaslikSay').textContent = document.getElementById('bfBaslik').value.length + '/60';
+    document.getElementById('bfMetinSay').textContent  = document.getElementById('bfMetin').value.length + '/160';
+  }
+
+  function onizle(){
+    sayacTazele();
+    var kanal = document.getElementById('bfKanal').value;
+    var h = '';
+    if (kanal !== 'uygulama') {
+      h += '<b><i class="fa-solid fa-envelope" aria-hidden="true"></i> ' +
+           esc(doldur(document.getElementById('bfKonu').value)) + '</b><br />' +
+           esc(doldur(document.getElementById('bfGovde').value)).replace(/\n/g, '<br />');
+    }
+    if (kanal !== 'eposta') {
+      if (h) h += '<br /><br />';
+      h += '<b><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' +
+           esc(doldur(document.getElementById('bfBaslik').value)) + '</b><br />' +
+           esc(doldur(document.getElementById('bfMetin').value));
+    }
+    document.getElementById('bdOnizle').innerHTML = h || '—';
+  }
+
+  function formAc(key){
+    var s = bul(key);
+    secim.value = s.key;
+    document.getElementById('bdFormBaslik').textContent = s.ad;
+    document.getElementById('bfAd').value     = s.ad;
+    document.getElementById('bfKanal').value  = s.kanal;
+    document.getElementById('bfTetik').value  = s.tetik;
+    document.getElementById('bfDurum').value  = s.durum;
+    document.getElementById('bfKonu').value   = s.konu;
+    document.getElementById('bfGovde').value  = s.govde;
+    document.getElementById('bfBaslik').value = s.baslik;
+    document.getElementById('bfMetin').value  = s.metin;
+    document.getElementById('bfHedef').value  = s.hedef;
+    degiskenBas(s);
+    onizle();
+  }
+
+  secim.addEventListener('change', function () { formAc(secim.value); });
+  document.getElementById('bfKanal').addEventListener('change', onizle);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (!b) return;
+    formAc(b.getAttribute('data-duzenle'));
+    document.getElementById('bdForm').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  /* ---------- gönderim kaydı: gerçekten boş ---------- */
+  document.getElementById('bdGonderimGovde').innerHTML = A.bos(
+    'fa-paper-plane',
+    'Henüz bildirim gönderilmedi',
+    'Bu prototipte sunucu yok, bu yüzden hiçbir şablon tetiklenmedi. Gönderim ' +
+    'motoru bağlandığında kim, ne zaman ve hangi şablonla bildirim aldı burada listelenir.',
+    '<a class="btn btn-ghost" href="bildirimler-v1.html" target="_blank" rel="noopener">' +
+    '<i class="fa-solid fa-arrow-up-right-from-square"></i> Üyenin bildirim listesini gör</a>');
+
+  A.maketKaydet(document.getElementById('bdKaydet'), 'bildirim şablonu');
+
+  formAc(SABLONLAR[0].key);
+})();
+</script>
+</body>
+</html>

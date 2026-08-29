@@ -497,3 +497,38 @@ dışına düşüyordu — motor onları haklı olarak saymıyordu.
 farkı kadar bir sonraki/önceki güne taşır. Bu, deponun "ölçüm sondası 0/boş
 dönerse önce sondadan şüphelen" kuralının bir örneğidir — bu turda da sonda
 kördü, ölçülen kusurlu değildi.
+
+---
+
+## 26 · Ölçüm sondası fontu beklemezse "gerileme" uydurur
+
+**Ne oldu (R16, form kiti taşıması).** Ajan, taşımadan önce/sonra ekranı
+`getComputedStyle` ile karşılaştırdı ve **24 sahte fark** buldu: `.fk-cc i`
+7.78px, `.hs-warn i` 11.67px, `.fk-help i` 9.34px. Kimse o değerleri yazmamıştı.
+Sebep: sonda `document.fonts.ready` beklemiyordu; ikon genişlikleri Font Awesome
+yüklenmeden, **yedek fontla** okunmuştu. Font yüklü hâlde üç kez ölçünce
+değerlerin her birinin kendi `font-size`'ı olduğu çıktı (10/15/12).
+
+**Kural.** Yazı tipine bağlı bir ölçü (genişlik, satır yüksekliği, ikon kutusu)
+`document.fonts.ready` beklenmeden okunmaz. Ayrıca **taban doğru kurulmalıdır**:
+bu turda ajan tabanı `git show HEAD:` ile eski sayfaları ve kabuğun taşıma
+öncesi hâlini ayrı bir portta servis ederek kurdu — "önceki hâli hatırlıyorum"
+diye ölçmek gerileme ölçümü değildir.
+
+---
+
+## 27 · Aynı adlı kural iki ayrı yüzeyin kuralı olabilir
+
+**Ne oldu (R16, admin paneli).** Devir belgesi *"Kaydet düğmesi dörtte aynı:
+**SOLDA**"* diyordu ve panelin form kalıbı buna göre kuruldu — 8 dosyada 11 yer.
+Sonra Gastro'nun **admin** form CSS'i ölçüldü: `.form-actions{justify-content:
+flex-end}`, dokuz ayrı sayfada birebir. **Kaydet sağda.**
+
+Çelişki değildi: belgedeki kural dört markanın **hesap ekranlarının** kuralıydı
+(Diet tabanlı, `.pc-foot`), admin formunun değil. İki ayrı yüzey, iki ayrı kural;
+ben ikisini tek kural sandım.
+
+**Kural.** Bir belgeden kural alırken **hangi yüzeyin** kuralı olduğu da alınır.
+"Dörtte aynı" ifadesi neyin dördünde aynı olduğunu söylemiyorsa, uygulamadan
+önce hedef yüzeyde ölçülür. Ölçmeden taşınan bir kural, doğru olduğu yerden
+alınıp yanlış olduğu yere konur.

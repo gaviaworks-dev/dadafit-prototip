@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Destek Talepleri — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi.
+   Kuyruk satırı kabuğun `.set-row` kitidir (fit-shell.css:1431), sekme
+   şeridi `.fit-tabs`, boş durum `.fpx-bos`. Burada üç şey var, üçü de
+   yalnız YERLEŞİM — yeni renk, yeni ölçü, yeni token yok. */
+
+/* Sekme şeridi kart başlığında; dar ekranda tam genişliğe iner. */
+.dk-tabwrap{padding:14px 20px;border-bottom:1px solid var(--line)}
+@media (max-width:640px){ .dk-tabwrap{padding:14px} }
+
+/* Satır içi atama: kabuğun dar `.set-row .fk-select` kuralını kullanır,
+   yalnız etiketiyle birlikte dikey hizalanır. */
+.dk-ata{display:flex;align-items:center;gap:9px}
+.dk-ata .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+@media (max-width:640px){ .dk-ata{width:100%} .dk-ata .fk-select{width:100%} }
+
+/* Satır altındaki dürüstlük notu — uygulanmayan bir eylemden sonra belirir. */
+.dk-not{display:none;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--hs-warn);margin-top:7px}
+.dk-not.is-on{display:flex}
+</style>
+</head>
+<body class="adm-body" data-adm="destek">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Destek Talepleri</h2>
+        <p>Dört durum, tek kuyruk. <b>Açık</b> talep ekipten yanıt bekler;
+           <b>yanıt bekleyen</b> talepte top üyededir. <b>Çözülen</b> talep
+           kapanışa hazırdır, <b>kapatılan</b> talebe yeni yanıt yazılmaz.</p>
+      </div>
+      <div class="h-acts">
+        <label class="sr-only" for="dkAra">Talep ara</label>
+        <input class="fk-input" type="search" id="dkAra" placeholder="Numara, üye ya da konu ara" style="min-width:250px" />
+      </div>
+    </div>
+
+    <div id="dkKaynak"></div>
+
+    <!-- ============ KUYRUK (K2) ============ -->
+    <div class="adm-card" id="dkKuyruk">
+      <div class="dk-tabwrap">
+        <nav class="fit-tabs" data-fit-tabs="dk" aria-label="Talep durumu"></nav>
+      </div>
+      <div class="c-body" id="dkPanel"></div>
+    </div>
+
+    <!-- ============ TALEP DETAYI + YANIT (K3 ucu) ============ -->
+    <div class="adm-card" id="dkDetay" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-comments"></i> <span id="dkDetayBaslik">Talep</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="dkKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <form id="dkF">
+      <div class="c-body">
+        <div class="fp-list" id="dkKunye"></div>
+        <div style="margin-top:20px">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="dfAtanan">Atanan temsilci <span class="req">*</span></label>
+              <select class="fk-select" id="dfAtanan" name="atanan" required></select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Atanmamış talep kuyrukta kalır; ilk yanıtı yazan temsilci sorumluluğu devralır.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="dfDurum">Durum <span class="req">*</span></label>
+              <select class="fk-select" id="dfDurum" name="durum" required></select>
+              <span class="fk-help" id="dfDurumNot"><i class="fa-solid fa-circle-info"></i> —</span>
+            </div>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="dfYanit">Yanıt <span class="req">*</span>
+              <span class="fk-count" id="dfSay">0 / 2000</span></label>
+            <textarea class="fk-textarea" id="dfYanit" name="yanit" rows="6" required maxlength="2000"
+                      placeholder="Üyeye gidecek yanıt. Ne olduğunu ve ne yapılacağını yaz."></textarea>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Destek ekibi tıbbi teşhis ve tedavi önerisi vermez; sağlık sorusu gelen talepte üye bir sağlık uzmanına yönlendirilir.</span>
+          </div>
+        </div>
+      </div>
+      <!-- Kaydet düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
+           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
+           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
+           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
+           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu. -->
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="dkGonder"><i class="fa-solid fa-paper-plane"></i> Yanıtı gönder</button>
+        </div>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · DESTEK TALEPLERİ   (R16/2)   — K2 kuyruk kalıbı
+   ---------------------------------------------------------------------
+   DÖRT DURUM KANONDUR (CLAUDE.md K8): açık · yanıt bekleyen · çözülen ·
+   kapatılan. Beşinci bir durum icat edilmez, "Tümü" bir durum değildir ve
+   bu yüzden sekme olarak da yoktur — arama dört sekmenin hepsinde birden
+   süzer, "tümü"nün işini o görür.
+
+   DURUMUN YÖNÜ VAR ve kardeş sayfadan birebir alındı
+   (`destek-talebi-detay-v1.html` §1.2): `açık` ekipten yanıt bekler,
+   `yanıt bekleyen` üyeden. Bu ayrım kuyruk için hayatidir — ikisini tek
+   "bekleyen" kovasında toplamak, ekibin sırasını üyenin sırasıyla
+   karıştırmak olurdu. Sidebar sayacı (5) bu ikisinin toplamıdır: akışta
+   kalan talep.
+
+   VERİ ÖRNEK. On bir talebin numarası, başlığı, konusu, durumu ve son
+   hareket tarihi `destek-v1.html`in maket listesinden BİREBİR alındı —
+   aynı talep iki yüzeyde farklı görünmesin diye. Üye adı, atanan temsilci
+   ve mesaj sayısı bu ekranın kendi örnek alanlarıdır; sunucu yok.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc;
+
+  /* ---- K8 kanonu: dört durum, sırası ve yönü sabit ---------------- */
+  var DURUM = [
+    { id:'acik',           ad:'Açık talep',     ico:'fa-inbox',        rozet:'wait',
+      yon:'Ekipten yanıt bekliyor. Bu kuyruk sıfırlanmadan gün kapanmaz.' },
+    { id:'yanit-bekleyen', ad:'Yanıt bekleyen', ico:'fa-reply',        rozet:'wait',
+      yon:'Ekip yazdı, top üyede. Yanıt gelmezse hatırlatma gider.' },
+    { id:'cozulen',        ad:'Çözülen',        ico:'fa-circle-check', rozet:'ok',
+      yon:'Sorun giderildi, talep kapanışa hazır. Üye yeniden yazarsa açığa döner.' },
+    { id:'kapatilan',      ad:'Kapatılan',      ico:'fa-lock',         rozet:'off',
+      yon:'Kapatılan talebe yeni yanıt yazılmaz; yazışma kayıtta okunur kalır.' }
+  ];
+  function durumBul(id){ for (var i=0;i<DURUM.length;i++) if (DURUM[i].id===id) return DURUM[i]; return DURUM[0]; }
+
+  var TEMSILCI = ['Atanmadı', 'Ece Demir', 'Barış Yıldırım', 'Nur Aslan'];
+
+  /* ---- talepler: numara/başlık/konu/durum/tarih destek-v1'den ------ */
+  var TALEP = [
+    { no:'DF-2026-B4TXN2', durum:'acik',           uye:'Elif Şahin',    konu:'Aktivite ve cihaz bağlantıları',
+      baslik:'Apple Health adım verisi iki gündür aktarılmıyor', son:'2026-08-11', mesaj:3, atanan:'Ece Demir' },
+    { no:'DF-2026-T6NGX4', durum:'acik',           uye:'Kaan Erdem',    konu:'Uygulama hatası',
+      baslik:'Challenge rozetim tamamlandığı hâlde düşmedi', son:'2026-07-23', mesaj:3, atanan:'Atanmadı' },
+    { no:'DF-2026-QW3JZ8', durum:'yanit-bekleyen', uye:'Zeynep Aydın',  konu:'Programlar ve planım',
+      baslik:'Programını Bul sonucundaki program planıma eklenmedi', son:'2026-07-29', mesaj:3, atanan:'Barış Yıldırım' },
+    { no:'DF-2026-M2VYP7', durum:'yanit-bekleyen', uye:'Burak Toprak',  konu:'Aktivite ve cihaz bağlantıları',
+      baslik:'Antrenman geçmişimde iki günlük boşluk görünüyor', son:'2026-07-27', mesaj:3, atanan:'Ece Demir' },
+    { no:'DF-2026-A8RUC3', durum:'yanit-bekleyen', uye:'Merve Çelik',   konu:'Antrenör ve randevu',
+      baslik:'Antrenör randevumu ertelemek istiyorum', son:'2026-07-21', mesaj:3, atanan:'Nur Aslan' },
+    { no:'DF-2026-K7WQ9M', durum:'cozulen',        uye:'Onur Kılıç',    konu:'DadaFit Pro ve ödeme',
+      baslik:'Pro üyeliğim yenilendi ama paket ücretsize düştü', son:'2026-08-14', mesaj:3, atanan:'Barış Yıldırım' },
+    { no:'DF-2026-U2FZR8', durum:'cozulen',        uye:'İpek Yalçın',   konu:'Uygulama hatası',
+      baslik:'Enerji defterinde su takibi her gün sıfırlanıyor', son:'2026-06-26', mesaj:3, atanan:'Ece Demir' },
+    { no:'DF-2026-Z4KMD9', durum:'kapatilan',      uye:'Tolga Demirci', konu:'Üyelik ve fatura',
+      baslik:'Fatura adresimi güncellemek istiyorum', son:'2026-07-22', mesaj:3, atanan:'Nur Aslan' },
+    { no:'DF-2026-P7XBW2', durum:'kapatilan',      uye:'Ayşe Korkmaz',  konu:'Antrenör ve randevu',
+      baslik:'Antrenör randevum takvimde iki kez göründü', son:'2026-07-17', mesaj:3, atanan:'Nur Aslan' },
+    { no:'DF-2026-E3QHT6', durum:'kapatilan',      uye:'Cem Uysal',     konu:'Hesap ve giriş',
+      baslik:'Bildirim tercihlerim her girişte sıfırlanıyor', son:'2026-07-10', mesaj:3, atanan:'Barış Yıldırım' },
+    { no:'DF-2026-N9GVJ4', durum:'kapatilan',      uye:'Deniz Arda',    konu:'Uygulama hatası',
+      baslik:'Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor', son:'2026-07-03', mesaj:3, atanan:'Ece Demir' }
+  ];
+
+  var BUGUN = new Date('2026-08-30T00:00:00');
+  function gunFarki(iso){
+    return Math.max(0, Math.round((BUGUN - new Date(iso + 'T00:00:00')) / 86400000));
+  }
+
+  document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Talep verisi örnektir.</b> On bir talebin numarası, başlığı, konusu, durumu ve ' +
+    'son hareket tarihi <code>destek-v1.html</code>in maket listesinden birebir alındı — ' +
+    'aynı talep iki yüzeyde farklı görünmesin diye. Üye adı, atanan temsilci ve mesaj ' +
+    'sayısı bu ekranın kendi örnek alanlarıdır. <b>Yazma yüzeyi maket:</b> atama ' +
+    'değişmez, yanıt gönderilmez, durum geçmez — bu prototipte sunucu yok.');
+
+  function bul(no){ for (var i=0;i<TALEP.length;i++) if (TALEP[i].no===no) return TALEP[i]; return null; }
+  function sayi(id){ return TALEP.filter(function(t){ return t.durum===id; }).length; }
+
+  /* ---- sekme şeridi: dört durum, sayaçlarıyla --------------------- */
+  document.querySelector('[data-fit-tabs="dk"]').innerHTML = DURUM.map(function (d, i) {
+    return '<button class="fit-tab' + (i===0 ? ' active' : '') + '" type="button" data-tab="' + d.id + '">' +
+      '<i class="fa-solid ' + d.ico + '" aria-hidden="true"></i> ' + esc(d.ad) +
+      '<span class="cnt">' + sayi(d.id) + '</span></button>';
+  }).join('');
+
+  /* ---- dört panel, her biri KENDİ boş durumunu taşır --------------
+     Boş durum sekme başına AYRIDIR: "açık talep yok" ile "kapatılan
+     talep yok" aynı cümle değildir; birincisi kuyruğun temiz olması,
+     ikincisi hiç kapatılmamış olmasıdır. */
+  var BOS = {
+    'acik':           ['fa-inbox',        'Açık talep yok',
+                       'Ekipten yanıt bekleyen talep kalmadı. Yeni talep geldiğinde bu sekmenin sayacı artar.'],
+    'yanit-bekleyen': ['fa-reply',        'Üyeden yanıt beklenen talep yok',
+                       'Ekibin yazdığı ve üyenin dönmesini beklediği talep bulunmuyor.'],
+    'cozulen':        ['fa-circle-check', 'Çözülen talep yok',
+                       'Bu dönemde çözüme bağlanmış talep bulunmuyor. Çözülen talepler kapatılana kadar burada durur.'],
+    'kapatilan':      ['fa-lock',         'Kapatılan talep yok',
+                       'Kapatılmış talep bulunmuyor. Kapatılan talep listede kalır, yazışması okunur ama yeni yanıt yazılamaz.']
+  };
+
+  function satir(t){
+    var d = durumBul(t.durum);
+    var yas = gunFarki(t.son);
+    return '<div class="set-row" data-no="' + esc(t.no) + '" data-ara="' +
+        esc((t.no + ' ' + t.uye + ' ' + t.konu + ' ' + t.baslik).toLocaleLowerCase('tr')) + '">' +
+      '<span class="sr-ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
+      '<span class="sr-txt">' +
+        '<b>' + esc(t.baslik) + '</b>' +
+        '<span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(t.no) +
+        ' · ' + esc(t.uye) + ' · ' + esc(t.konu) +
+        ' · son hareket <time datetime="' + esc(t.son) + '">' + esc(A.tarih(t.son)) + '</time>' +
+        ' (' + yas + ' gün önce) · ' + t.mesaj + ' mesaj</span>' +
+        '<span class="dk-not" data-not><i class="fa-solid fa-circle-info" aria-hidden="true"></i>' +
+          '<span></span></span>' +
+      '</span>' +
+      '<span class="sr-act">' +
+        '<span class="dk-ata"><span class="lbl">Atama</span>' +
+          '<label class="sr-only" for="ata-' + esc(t.no) + '">' + esc(t.no) + ' talebinin atanan temsilcisi</label>' +
+          '<select class="fk-select" id="ata-' + esc(t.no) + '" data-ata="' + esc(t.no) + '">' +
+            TEMSILCI.map(function (k) {
+              return '<option' + (k === t.atanan ? ' selected' : '') + '>' + esc(k) + '</option>';
+            }).join('') +
+          '</select></span>' +
+        '<button class="btn btn-ghost" type="button" data-ac="' + esc(t.no) + '">' +
+          '<i class="fa-solid fa-comments" aria-hidden="true"></i> Aç</button>' +
+      '</span></div>';
+  }
+
+  document.getElementById('dkPanel').innerHTML = DURUM.map(function (d, i) {
+    var liste = TALEP.filter(function (t) { return t.durum === d.id; });
+    var enEski = liste.reduce(function (m, t) { return Math.max(m, gunFarki(t.son)); }, 0);
+    return '<div class="fit-pane" data-pane="' + d.id + '"' + (i===0 ? '' : ' hidden') + '>' +
+      '<div class="fp-row" style="border-bottom:1px solid var(--line);padding-top:0">' +
+        '<span class="ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + esc(d.ad) + '</b><small>' + esc(d.yon) + '</small></span>' +
+        '<span class="end">' + A.rozet(d.rozet, liste.length + ' talep', d.ico) +
+          (enEski ? ' <span class="fp-badge off">en eski ' + enEski + ' gün</span>' : '') + '</span></div>' +
+      '<div class="set-list" data-liste="' + d.id + '">' + liste.map(satir).join('') + '</div>' +
+      '<div data-bos="' + d.id + '" hidden>' + A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]) + '</div>' +
+      '</div>';
+  }).join('');
+
+  /* ---- arama: dört sekmede birden süzer, boş kalan panel kendi
+         boş durumunu basar ------------------------------------------ */
+  var ara = document.getElementById('dkAra');
+  function suz(){
+    var q = ara.value.trim().toLocaleLowerCase('tr');
+    DURUM.forEach(function (d) {
+      var n = 0;
+      document.querySelectorAll('[data-liste="' + d.id + '"] .set-row').forEach(function (r) {
+        var ok = !q || r.getAttribute('data-ara').indexOf(q) >= 0;
+        r.hidden = !ok; if (ok) n++;
+      });
+      var bos = document.querySelector('[data-bos="' + d.id + '"]');
+      if (bos) {
+        bos.hidden = (n > 0);
+        if (n === 0 && q) {
+          bos.innerHTML = A.bos('fa-magnifying-glass', 'Bu aramayla talep bulunamadı',
+            '"' + ara.value.trim() + '" için bu durumda talep yok. Arama kutusunu boşalt ya da başka bir sekmeye bak.');
+        } else if (n === 0) {
+          bos.innerHTML = A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
+        }
+      }
+      var tab = document.querySelector('.fit-tab[data-tab="' + d.id + '"] .cnt');
+      if (tab) tab.textContent = n;
+    });
+  }
+  ara.addEventListener('input', suz);
+
+  /* ---- satır içi atama: SESSİZCE UYGULANMIŞ GİBİ YAPMAZ ----------- */
+  document.getElementById('dkPanel').addEventListener('change', function (e) {
+    var s = e.target.closest && e.target.closest('[data-ata]');
+    if (!s) return;
+    var t = bul(s.getAttribute('data-ata'));
+    var not = s.closest('.set-row').querySelector('[data-not]');
+    not.classList.add('is-on');
+    not.querySelector('span').textContent =
+      'Atama "' + s.value + '" seçildi ama UYGULANMADI — bu prototipte sunucu yok. ' +
+      'Kayıttaki atama hâlâ: ' + t.atanan + '.';
+  });
+
+  /* ---- detay + yanıt ---------------------------------------------- */
+  var detay = document.getElementById('dkDetay');
+  var durumSec = document.getElementById('dfDurum');
+  document.getElementById('dfAtanan').innerHTML =
+    TEMSILCI.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('');
+  durumSec.innerHTML = DURUM.map(function (d) {
+    return '<option value="' + d.id + '">' + esc(d.ad) + '</option>';
+  }).join('');
+  function durumNotu(){
+    document.getElementById('dfDurumNot').innerHTML =
+      '<i class="fa-solid fa-circle-info"></i> ' + esc(durumBul(durumSec.value).yon);
+  }
+  durumSec.addEventListener('change', durumNotu);
+
+  var yanit = document.getElementById('dfYanit');
+  yanit.addEventListener('input', function () {
+    document.getElementById('dfSay').textContent = yanit.value.length + ' / 2000';
+  });
+
+  function ac(no){
+    var t = bul(no); if (!t) return;
+    var d = durumBul(t.durum);
+    document.getElementById('dkDetayBaslik').textContent = t.no + ' · ' + t.baslik;
+    document.getElementById('dkKunye').innerHTML = [
+      ['fa-user',          'Üye',            t.uye],
+      ['fa-tag',           'Konu',           t.konu],
+      ['fa-circle-half-stroke','Durum',      d.ad + ' — ' + d.yon],
+      ['fa-clock',         'Son hareket',    A.tarih(t.son) + ' · ' + gunFarki(t.son) + ' gün önce'],
+      ['fa-comment-dots',  'Yazışma',        t.mesaj + ' mesaj · yazışma gövdesi bu makette yok, üye yüzeyinde okunur']
+    ].map(function (x) {
+      return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span></div>';
+    }).join('');
+    document.getElementById('dfAtanan').value = t.atanan;
+    durumSec.value = t.durum;
+    durumNotu();
+    yanit.value = '';
+    document.getElementById('dfSay').textContent = '0 / 2000';
+    detay.hidden = false;
+    detay.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  document.getElementById('dkPanel').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ac]');
+    if (b) ac(b.getAttribute('data-ac'));
+  });
+  document.getElementById('dkKapat').addEventListener('click', function () { detay.hidden = true; });
+
+  A.maketKaydet(document.getElementById('dkGonder'), 'yanıt ve durum değişikliği');
+  suz();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sponsorluk ve Reklam — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.rk-tabbar{padding:16px 20px 0}
+.rk-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+</style>
+</head>
+<body class="adm-body" data-adm="reklam">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Sponsorluk ve Reklam</h2>
+        <p>Üç basamak, üç sekme: alan nerede durur, kampanya onu kim kaç güne
+           kiralar, kreatif o alana ne basar. Bir kreatif önce alanının ölçüsünü
+           tutturur, sonra yayına çıkar.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="reklam-ver-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Reklam ver sayfası</a>
+      </div>
+    </div>
+
+    <div id="rkKaynak"></div>
+
+    <div class="adm-kpi" id="rkKpi"></div>
+
+    <div class="adm-card" data-fit-tabs-scope>
+      <div class="rk-tabbar">
+        <nav class="fit-tabs" data-fit-tabs="rkSek" aria-label="Reklam bölümleri">
+          <button class="fit-tab" type="button" data-tab="alan"><i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Reklam alanları</button>
+          <button class="fit-tab" type="button" data-tab="kampanya"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Kampanyalar</button>
+          <button class="fit-tab" type="button" data-tab="kreatif"><i class="fa-solid fa-image" aria-hidden="true"></i> Kreatifler</button>
+        </nav>
+      </div>
+
+      <!-- ---------- ALANLAR ---------- -->
+      <div class="fit-pane" data-pane="alan">
+        <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
+          <h3><i class="fa-solid fa-crop-simple"></i> Reklam alanları</h3>
+          <div class="c-acts">
+            <label class="sr-only" for="rkAlanAra">Alan ara</label>
+            <input class="fk-input" type="search" id="rkAlanAra" placeholder="Alan adı ya da sayfa ara" style="min-width:230px" />
+            <button class="btn btn-primary" type="button" id="rkAlanYeni"><i class="fa-solid fa-plus"></i> Yeni alan</button>
+          </div>
+        </div>
+        <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+          <div class="ff" id="rkAlanSuzgec" data-ff></div>
+        </div>
+        <div class="adm-bulk" id="rkAlanBulk" hidden>
+          <b>0 satır seçildi</b>
+          <div class="b-acts">
+            <button class="btn btn-ghost" type="button" data-toplu="ac"><i class="fa-solid fa-play"></i> Yayına al</button>
+            <button class="btn btn-ghost" type="button" data-toplu="dur"><i class="fa-solid fa-pause"></i> Durdur</button>
+          </div>
+        </div>
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="rkAlanTablo">
+              <thead>
+                <tr>
+                  <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                  <th>Alan</th><th>Sayfa ve konum</th><th>Ölçü</th>
+                  <th class="num">Kampanya</th><th class="num">Doluluk</th><th>Durum</th>
+                </tr>
+              </thead>
+              <tbody id="rkAlanGovde"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="adm-pager">
+          <div class="p-info"><b id="rkAlanSay">0</b> alan · tümü tek sayfada</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- KAMPANYALAR ---------- -->
+      <div class="fit-pane" data-pane="kampanya" hidden>
+        <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
+          <h3><i class="fa-solid fa-bullhorn"></i> Kampanyalar</h3>
+          <div class="c-acts">
+            <label class="sr-only" for="rkKamAra">Kampanya ara</label>
+            <input class="fk-input" type="search" id="rkKamAra" placeholder="Kampanya ya da marka ara" style="min-width:230px" />
+            <button class="btn btn-primary" type="button" id="rkKamYeni"><i class="fa-solid fa-plus"></i> Yeni kampanya</button>
+          </div>
+        </div>
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="rkKamTablo">
+              <thead>
+                <tr><th>Kampanya</th><th>Marka</th><th>Alan</th><th>Tarih aralığı</th>
+                    <th class="num">Kreatif</th><th>Durum</th><th class="act">İşlem</th></tr>
+              </thead>
+              <tbody id="rkKamGovde"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="adm-pager">
+          <div class="p-info"><b id="rkKamSay">0</b> kampanya · tümü tek sayfada</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- KREATİFLER ---------- -->
+      <div class="fit-pane" data-pane="kreatif" hidden>
+        <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
+          <h3><i class="fa-solid fa-image"></i> Kreatifler</h3>
+          <div class="c-acts">
+            <label class="sr-only" for="rkKreAra">Kreatif ara</label>
+            <input class="fk-input" type="search" id="rkKreAra" placeholder="Kreatif ya da kampanya ara" style="min-width:230px" />
+          </div>
+        </div>
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="rkKreTablo">
+              <thead>
+                <tr><th>Kreatif</th><th>Kampanya</th><th>Tip</th><th>Ölçü</th>
+                    <th>Alt metin</th><th>Onay</th></tr>
+              </thead>
+              <tbody id="rkKreGovde"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="adm-pager">
+          <div class="p-info"><b id="rkKreSay">0</b> kreatif · tümü tek sayfada</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="rkKaydet"><i class="fa-solid fa-check"></i> Değişiklikleri kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · SPONSORLUK VE REKLAM   (R16/4)   — K1 liste × üç sekme
+   ---------------------------------------------------------------------
+   🔴 VERİ ÖRNEK. Fit'te bugün reklam yüzeyi tek sayfa: `reklam-ver-v1.html`
+   bir SATIŞ sayfasıdır, envanteri yoktur — bir reklam alanı tablosu, bir
+   kampanya kaydı ya da kreatif deposu bu depoda YOK (ölçüldü). Aşağıdaki
+   satırlar bu yüzden örnektir ve şerit bunu söylüyor.
+
+   ÖRNEK SATIRLAR YİNE DE UYDURMA DEĞİL: alanların sayfa hedefleri bu
+   depoda gerçekten duran sayfalar, ölçüler de bugünkü kabuk genişlikleri.
+   Envanter doğduğunda değişecek olan veri, yerleşim değil.
+
+   ÜÇ SEKME NEDEN: Gastro'da reklam yedi menü kalemi (ölçüldü). Fit'te
+   yedi kalem, arkasında altı boş ekran demek olurdu; kalemler tek ekranın
+   sekmelerine indi. Sekme bileşeni kabuğun ORTAK bileşenidir
+   (`[data-fit-tabs]` panel kipi) — rol, aria ve klavye orada kurulur,
+   burada tekrarlanmaz.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc, n = A.n, tl = A.tl;
+
+  document.getElementById('rkKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Satırlar örnek.</b> Fit\'in bugünkü reklam yüzeyi tek sayfa ' +
+    '(<code>reklam-ver-v1.html</code>) ve bir satış sayfasıdır — arkasında alan, ' +
+    'kampanya ya da kreatif kaydı yok. <b>Hedefler gerçek:</b> alanların bağlı ' +
+    'olduğu sayfalar bu depoda var. <b>Yazma yüzeyi maket:</b> kayıt gitmez, sunucu yok.');
+
+  /* ---------- alanlar ---------- */
+  var ALANLAR = [
+    { kod:'hub-ust',      ad:'Ana sayfa üst şerit',      sayfa:'dadafit-hub-v1.html',       konum:'Hero altı',        olcu:'1240×160', kampanya:2, doluluk:88, durum:'aktif',  tip:'gorsel' },
+    { kod:'hub-orta',     ad:'Ana sayfa orta kutu',      sayfa:'dadafit-hub-v1.html',       konum:'Programlar bölümü altı', olcu:'620×320', kampanya:1, doluluk:64, durum:'aktif',  tip:'gorsel' },
+    { kod:'kutuphane-yan',ad:'Kütüphane yan kolon',      sayfa:'egzersiz-kutuphane-v1.html',konum:'Süzgeç altı',      olcu:'300×600', kampanya:1, doluluk:41, durum:'aktif',  tip:'gorsel' },
+    { kod:'program-liste',ad:'Program listesi arası',    sayfa:'program-liste-v1.html',     konum:'6. karttan sonra', olcu:'1240×120', kampanya:1, doluluk:33, durum:'aktif',  tip:'gorsel' },
+    { kod:'egzersiz-alt', ad:'Hareket detayı alt şerit', sayfa:'egzersiz-detay-v1.html',    konum:'Alternatifler altı', olcu:'860×140', kampanya:0, doluluk:0,  durum:'bos',   tip:'gorsel' },
+    { kod:'challenge-ust',ad:'Challenge merkezi üstü',   sayfa:'challenge-merkezi-v1.html', konum:'Banner altı',      olcu:'1240×160', kampanya:1, doluluk:57, durum:'aktif',  tip:'gorsel' },
+    { kod:'antrenor-yan', ad:'Antrenör dizini yan kutu', sayfa:'antrenorler-v1.html',       konum:'Kart ızgarası yanı', olcu:'300×250', kampanya:0, doluluk:0,  durum:'durdu', tip:'gorsel' },
+    { kod:'sozluk-alt',   ad:'Sözlük alt şerit',         sayfa:'sozluk-v1.html',            konum:'Sayfa sonu',       olcu:'860×120', kampanya:1, doluluk:22, durum:'aktif',  tip:'gorsel' },
+    { kod:'defter-video', ad:'Enerji defteri video',     sayfa:'egzersizlerim-v1.html',     konum:'Haftalık özet üstü', olcu:'620×350', kampanya:1, doluluk:70, durum:'aktif',  tip:'video' },
+    { kod:'hub-sponsor',  ad:'Ana sayfa sponsor şeridi', sayfa:'dadafit-hub-v1.html',       konum:'Footer üstü',      olcu:'1240×90',  kampanya:3, doluluk:96, durum:'aktif',  tip:'logo' }
+  ];
+
+  var TIP_AD = { gorsel:'Görsel', video:'Video', logo:'Logo şeridi' };
+  var TIP_IKO = { gorsel:'fa-solid fa-image', video:'fa-solid fa-film', logo:'fa-solid fa-ranking-star' };
+
+  /* ---------- kampanyalar ---------- */
+  var KAMPANYALAR = [
+    { ad:'Kış Formu 2026',        marka:'NordSport',     alan:'hub-ust',       bas:'2026-08-01', bit:'2026-09-30', kreatif:3, durum:'aktif',    butce:4500000 },
+    { ad:'Protein Serisi',        marka:'Vitalis',       alan:'hub-orta',      bas:'2026-08-15', bit:'2026-10-15', kreatif:2, durum:'aktif',    butce:3200000 },
+    { ad:'Ev Ekipmanı Kampanyası',marka:'HomeGym',       alan:'kutuphane-yan', bas:'2026-08-20', bit:'2026-09-20', kreatif:2, durum:'aktif',    butce:1800000 },
+    { ad:'Koşu Ayakkabısı Lansmanı', marka:'Adım Atölye',alan:'program-liste', bas:'2026-09-05', bit:'2026-10-05', kreatif:1, durum:'yaklasan', butce:2600000 },
+    { ad:'30 Gün Meydan Okuma',   marka:'Vitalis',       alan:'challenge-ust', bas:'2026-08-10', bit:'2026-09-10', kreatif:2, durum:'aktif',    butce:2100000 },
+    { ad:'Sözlük Sponsorluğu',    marka:'Fizyo Merkez',  alan:'sozluk-alt',    bas:'2026-07-01', bit:'2026-08-01', kreatif:1, durum:'bitti',    butce:900000 },
+    { ad:'Beslenme Videosu',      marka:'DadaGastro',    alan:'defter-video',  bas:'2026-08-25', bit:'2026-11-25', kreatif:1, durum:'aktif',    butce:0 },
+    { ad:'Sponsor Şeridi · Yıllık',marka:'Karma (3 marka)',alan:'hub-sponsor', bas:'2026-01-01', bit:'2026-12-31', kreatif:3, durum:'aktif',    butce:12000000 }
+  ];
+
+  /* ---------- kreatifler ---------- */
+  var KREATIFLER = [
+    { ad:'kis-formu-genis.webp',    kampanya:'Kış Formu 2026',        tip:'gorsel', olcu:'1240×160', alt:'Kış Formu kampanya görseli',        onay:'onayli' },
+    { ad:'kis-formu-mobil.webp',    kampanya:'Kış Formu 2026',        tip:'gorsel', olcu:'620×220',  alt:'Kış Formu mobil görseli',           onay:'onayli' },
+    { ad:'kis-formu-alternatif.webp',kampanya:'Kış Formu 2026',       tip:'gorsel', olcu:'1240×160', alt:'',                                  onay:'bekliyor' },
+    { ad:'vitalis-protein.webp',    kampanya:'Protein Serisi',        tip:'gorsel', olcu:'620×320',  alt:'Vitalis protein ürün görseli',      onay:'onayli' },
+    { ad:'vitalis-30gun.webp',      kampanya:'30 Gün Meydan Okuma',   tip:'gorsel', olcu:'1240×160', alt:'30 gün meydan okuma duyurusu',      onay:'onayli' },
+    { ad:'homegym-dikey.webp',      kampanya:'Ev Ekipmanı Kampanyası',tip:'gorsel', olcu:'300×600',  alt:'Ev ekipmanı kampanya görseli',      onay:'onayli' },
+    { ad:'homegym-yeni.webp',       kampanya:'Ev Ekipmanı Kampanyası',tip:'gorsel', olcu:'300×250',  alt:'Ev ekipmanı yeni görsel',           onay:'red' },
+    { ad:'adim-atolye-lansman.webp',kampanya:'Koşu Ayakkabısı Lansmanı',tip:'gorsel',olcu:'1240×120',alt:'Koşu ayakkabısı lansman görseli',   onay:'bekliyor' },
+    { ad:'gastro-denge.mp4',        kampanya:'Beslenme Videosu',      tip:'video',  olcu:'620×350',  alt:'Beslenme ve hareket dengesi videosu',onay:'onayli' },
+    { ad:'sponsor-seridi-3lu.svg',  kampanya:'Sponsor Şeridi · Yıllık',tip:'logo',  olcu:'1240×90',  alt:'Üç sponsor markanın logo şeridi',   onay:'onayli' }
+  ];
+
+  /* ---------- sayaçlar ---------- */
+  var aktifAlan = ALANLAR.filter(function (a) { return a.durum === 'aktif'; }).length;
+  var aktifKam = KAMPANYALAR.filter(function (k) { return k.durum === 'aktif'; }).length;
+  var bekleyenKre = KREATIFLER.filter(function (k) { return k.onay === 'bekliyor'; }).length;
+  var altsiz = KREATIFLER.filter(function (k) { return !k.alt; }).length;
+  var ortDoluluk = Math.round(ALANLAR.reduce(function (t, a) { return t + a.doluluk; }, 0) / ALANLAR.length);
+
+  document.getElementById('rkKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-crop-simple"></i></span><div>' +
+      '<b>' + n(ALANLAR.length) + '</b><span>Reklam alanı</span>' +
+      '<span class="note">' + n(aktifAlan) + ' tanesi yayında; kalanı boş ya da durduruldu.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-bullhorn"></i></span><div>' +
+      '<b>' + n(aktifKam) + '</b><span>Yayındaki kampanya</span>' +
+      '<span class="note">Toplam ' + n(KAMPANYALAR.length) + ' kampanya kaydı var.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-gauge-high"></i></span><div>' +
+      '<b>' + ortDoluluk + '<small>%</small></b><span>Ortalama doluluk</span>' +
+      '<span class="note">Alanların kaç günü satılmış — boş alanlar da ortalamaya giriyor.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-image"></i></span><div>' +
+      '<b>' + n(bekleyenKre) + '</b><span>Onay bekleyen kreatif</span>' +
+      '<span class="note">' + (altsiz ? n(altsiz) + ' kreatifin alt metni eksik — alt metinsiz kreatif yayına çıkamaz.' :
+                                        'Tüm kreatiflerin alt metni tam.') + '</span></div></div>';
+
+  /* ---------- alanlar tablosu ---------- */
+  function alanBas(){
+    document.getElementById('rkAlanGovde').innerHTML = ALANLAR.map(function (a) {
+      var d = a.durum === 'aktif' ? A.rozet('ok', 'Yayında', 'fa-play')
+            : a.durum === 'bos'   ? A.rozet('wait', 'Boş', 'fa-inbox')
+                                  : A.rozet('off', 'Durduruldu', 'fa-pause');
+      return '<tr data-durum="' + esc(a.durum) + '" data-tip="' + esc(a.tip) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(a.ad) + ' seç" /></td>' +
+        '<td><b>' + esc(a.ad) + '</b><small class="rk-kod">' + esc(a.kod) + '</small></td>' +
+        '<td><a href="' + esc(a.sayfa) + '" target="_blank" rel="noopener">' + esc(a.sayfa) + '</a><small>' + esc(a.konum) + '</small></td>' +
+        '<td><i class="' + TIP_IKO[a.tip] + '" aria-hidden="true"></i> ' + esc(a.olcu) + '<small>' + esc(TIP_AD[a.tip]) + '</small></td>' +
+        '<td class="num">' + (a.kampanya ? n(a.kampanya) : '—') + '</td>' +
+        '<td class="num">' + (a.doluluk ? a.doluluk + '%' : '—') + '</td>' +
+        '<td>' + d + '</td></tr>';
+    }).join('');
+    document.getElementById('rkAlanSay').textContent = ALANLAR.length;
+    A.secimKur(document.querySelector('.fit-pane[data-pane="alan"]'));
+    A.aramaKur(document.getElementById('rkAlanAra'), document.getElementById('rkAlanTablo'), document.getElementById('rkAlanSay'));
+  }
+
+  function alanSuzgec(){
+    var kok = document.getElementById('rkAlanSuzgec');
+    kok.innerHTML =
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="aktif"><i class="fa-solid fa-play"></i> Yayında</button>' +
+        '<button class="df-fchip" type="button" data-val="bos"><i class="fa-solid fa-inbox"></i> Boş</button>' +
+        '<button class="df-fchip" type="button" data-val="durdu"><i class="fa-solid fa-pause"></i> Durduruldu</button></div>' +
+      '<div class="fgroup" data-group="tip" role="group" aria-label="Kreatif tipi filtresi">' +
+        '<span class="lbl">Tip</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        Object.keys(TIP_AD).map(function (t) {
+          return '<button class="df-fchip" type="button" data-val="' + t + '"><i class="' + TIP_IKO[t] + '"></i> ' + esc(TIP_AD[t]) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { durum:new Set(), tip:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suzAlan(sec);
+        });
+      });
+    });
+  }
+
+  var bosAlan = null;
+  function suzAlan(sec){
+    var govde = document.getElementById('rkAlanGovde');
+    var say = 0;
+    govde.querySelectorAll('tr[data-durum]').forEach(function (tr) {
+      var ok = (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum'))) &&
+               (!sec.tip.size   || sec.tip.has(tr.getAttribute('data-tip')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('rkAlanSay').textContent = say;
+    if (say === 0) {
+      if (!bosAlan) {
+        bosAlan = document.createElement('tr');
+        bosAlan.innerHTML = '<td colspan="7">' +
+          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle alan kalmadı',
+                'Seçili durum ve tipin kesişiminde reklam alanı yok. Bir çipi kaldır ya da “Tümü”ne dön.') +
+          '</td>';
+        govde.appendChild(bosAlan);
+      }
+      bosAlan.hidden = false;
+    } else if (bosAlan) bosAlan.hidden = true;
+  }
+
+  /* ---------- kampanyalar tablosu ---------- */
+  function alanAdi(kod){
+    for (var i = 0; i < ALANLAR.length; i++) if (ALANLAR[i].kod === kod) return ALANLAR[i].ad;
+    return kod;
+  }
+  function kampanyaBas(){
+    document.getElementById('rkKamGovde').innerHTML = KAMPANYALAR.map(function (k) {
+      var d = k.durum === 'aktif'    ? A.rozet('ok', 'Yayında', 'fa-play')
+            : k.durum === 'yaklasan' ? A.rozet('wait', 'Yaklaşan', 'fa-clock')
+                                     : A.rozet('off', 'Bitti', 'fa-flag-checkered');
+      return '<tr>' +
+        '<td><b>' + esc(k.ad) + '</b><small>Bütçe: ' + (k.butce ? tl(k.butce) : 'Barter — tutar yok') + '</small></td>' +
+        '<td>' + esc(k.marka) + '</td>' +
+        '<td>' + esc(alanAdi(k.alan)) + '<small class="rk-kod">' + esc(k.alan) + '</small></td>' +
+        '<td>' + A.tarih(k.bas) + ' → ' + A.tarih(k.bit) + '</td>' +
+        '<td class="num">' + n(k.kreatif) + '</td>' +
+        '<td>' + d + '</td>' +
+        '<td class="act"><button class="adm-ico-btn" type="button" aria-label="' + esc(k.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('rkKamSay').textContent = KAMPANYALAR.length;
+    A.aramaKur(document.getElementById('rkKamAra'), document.getElementById('rkKamTablo'), document.getElementById('rkKamSay'));
+  }
+
+  /* ---------- kreatifler tablosu ---------- */
+  function kreatifBas(){
+    document.getElementById('rkKreGovde').innerHTML = KREATIFLER.map(function (k) {
+      var d = k.onay === 'onayli'   ? A.rozet('ok', 'Onaylı', 'fa-circle-check')
+            : k.onay === 'bekliyor' ? A.rozet('wait', 'Onay bekliyor', 'fa-clock')
+                                    : A.rozet('stop', 'Reddedildi', 'fa-circle-xmark');
+      /* Alt metni olmayan kreatif "—" ile geçmez: eksikliğin kendisi bir
+         yayın engelidir, o yüzden neden yazılı. */
+      var alt = k.alt ? esc(k.alt)
+        : '<b style="color:var(--hs-danger)">—</b><small>Alt metin yok — ekran okuyucu bu kreatifi okuyamaz, yayına çıkamaz.</small>';
+      return '<tr>' +
+        '<td><b class="rk-kod">' + esc(k.ad) + '</b></td>' +
+        '<td>' + esc(k.kampanya) + '</td>' +
+        '<td><i class="' + TIP_IKO[k.tip] + '" aria-hidden="true"></i> ' + esc(TIP_AD[k.tip]) + '</td>' +
+        '<td>' + esc(k.olcu) + '</td>' +
+        '<td>' + alt + '</td>' +
+        '<td>' + d + '</td></tr>';
+    }).join('');
+    document.getElementById('rkKreSay').textContent = KREATIFLER.length;
+    A.aramaKur(document.getElementById('rkKreAra'), document.getElementById('rkKreTablo'), document.getElementById('rkKreSay'));
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (t) {
+      var s = document.querySelectorAll('#rkAlanGovde input[type=checkbox]:checked').length;
+      var kap = document.getElementById('rkAlanBulk').querySelector('.b-acts');
+      var v = kap.querySelector('.adm-maket-not');
+      if (!v) {
+        v = document.createElement('span'); v.className = 'adm-maket-not';
+        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(v);
+      }
+      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+
+  A.maketKaydet(document.getElementById('rkKaydet'), 'reklam düzeni');
+
+  /* "Yeni …" düğmeleri bir FORM açmaz — bu turda alan ve kampanya formu
+     çizilmedi. `maketKaydet` burada yanlış cümle kurardı ("form doğrulandı"
+     diyecekti, oysa doğrulanacak form yok); düğme ne olmadığını kendisi
+     söylüyor. Sessizce hiçbir şey yapmayan bir düğme bırakmak, tıklanacak
+     bir şey vaat edip vermemektir. */
+  function yakinNot(dugme, ne){
+    if (!dugme) return;
+    dugme.addEventListener('click', function () {
+      var not = dugme.parentNode.querySelector('.adm-maket-not');
+      if (!not) {
+        not = document.createElement('span'); not.className = 'adm-maket-not';
+        not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        dugme.parentNode.appendChild(not);
+      }
+      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(ne) +
+        ' formu bu turda çizilmedi — satırlar örnek, arkasında kayıt yok.';
+    });
+  }
+  yakinNot(document.getElementById('rkAlanYeni'), 'Reklam alanı');
+  yakinNot(document.getElementById('rkKamYeni'), 'Kampanya');
+
+  alanBas();
+  alanSuzgec();
+  kampanyaBas();
+  kreatifBas();
+})();
+</script>
+</body>
+</html>

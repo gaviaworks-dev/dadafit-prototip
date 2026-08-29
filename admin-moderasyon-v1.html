@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Moderasyon — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi.
+   Kuyruk satırı kabuğun `.set-row` kiti, sekme `.fit-tabs`, boş durum
+   `.fpx-bos`, rozet `.fp-badge`, eylem düğmesi `.adm-ico-btn` (44×44).
+   Burada dört şey var, dördü de yerleşim — yeni renk/ölçü/token yok. */
+
+.md-tabwrap{padding:14px 20px;border-bottom:1px solid var(--line)}
+@media (max-width:640px){ .md-tabwrap{padding:14px} }
+
+/* Bildirilen metin ALINTIDIR: gövde yazısından ayrılsın diye kabuğun
+   gövde zeminine oturur ve sol kenardan çizgiyle işaretlenir. */
+.md-alinti{
+  display:block;margin:9px 0 0;padding:11px 14px;background:var(--bg);
+  border-left:3px solid var(--line);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.6;
+}
+/* Sağlık riski bildiriminde alıntının kenarı tehlike tokenine döner —
+   yeni renk değil, kabuğun kendi `--hs-danger-line`ı. */
+.set-row.is-saglik .md-alinti{border-left-color:var(--hs-danger-line);background:var(--hs-danger-tint)}
+
+.md-not{display:none;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--hs-warn);margin-top:9px}
+.md-not.is-on{display:flex}
+
+/* Dört eylem düğmesi dar ekranda satırın altına iner (kabuk `.set-row`
+   zaten ≤640'ta sarıyor; burada yalnız hizalama söyleniyor). */
+.md-acts{display:flex;gap:2px;flex-wrap:wrap}
+</style>
+</head>
+<body class="adm-body" data-adm="moderasyon">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Moderasyon</h2>
+        <p>Üyelerin bildirdiği yorum ve mesajlar. Dört karar var: içeriği
+           <b>onayla</b>, herkesten <b>gizle</b>, kalıcı olarak <b>sil</b>,
+           ya da yazarı <b>uyar</b>. Sağlık riski bildirimleri kuyruğun
+           başına geçer.</p>
+      </div>
+      <div class="h-acts">
+        <label class="sr-only" for="mdAra">Bildirim ara</label>
+        <input class="fk-input" type="search" id="mdAra" placeholder="Yazar, içerik ya da sebep ara" style="min-width:250px" />
+      </div>
+    </div>
+
+    <div id="mdKaynak"></div>
+
+    <!-- ============ KUYRUK (K2) ============ -->
+    <div class="adm-card" id="mdKuyruk">
+      <div class="md-tabwrap">
+        <nav class="fit-tabs" data-fit-tabs="md" aria-label="Bildirim durumu"></nav>
+      </div>
+      <div class="c-body" id="mdPanel"></div>
+    </div>
+
+    <!-- ============ KULLANICIYI UYAR (K4 ucu) ============ -->
+    <div class="adm-card" id="mdUyar" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> <span id="mdUyarBaslik">Kullanıcıyı uyar</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="mdUyarKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <form id="mdF">
+      <div class="c-body">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="muKisi">Uyarılacak üye</label>
+              <input class="fk-input" id="muKisi" readonly aria-readonly="true" />
+              <span class="fk-help" id="muGecmis"><i class="fa-solid fa-circle-info"></i> —</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="muSablon">Uyarı şablonu <span class="req">*</span></label>
+              <select class="fk-select" id="muSablon" name="sablon" required></select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Şablon metni aşağıya düşer; göndermeden önce olayı anlatacak şekilde düzenlenir.</span>
+            </div>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="muMetin">Üyeye gidecek metin <span class="req">*</span>
+              <span class="fk-count" id="muSay">0 / 1200</span></label>
+            <textarea class="fk-textarea" id="muMetin" name="metin" rows="6" required maxlength="1200"></textarea>
+          </div>
+      </div>
+      <!-- Kaydet düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
+           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
+           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
+           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
+           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu. -->
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
+     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
+     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="mdUyarGonder"><i class="fa-solid fa-paper-plane"></i> Uyarıyı gönder</button>
+        </div>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · MODERASYON   (R16/2)   — K2 kuyruk kalıbı
+   ---------------------------------------------------------------------
+   DESTEK EKRANIYLA AYNI İSKELET. İki kuyruk aynı kalıptır (plan §4/K2):
+   dört durum sekmesi · satır kartları · satır içi eylem · sekme başına
+   ayrı boş durum. Ayrı bir moderasyon kalıbı icat edilmedi; ayrılan tek
+   şey satırın taşıdığı veri ve satırın verdiği karardır.
+
+   🔴 SAĞLIK RİSKİ BU EKRANIN KENDİ EKSENİDİR. DadaFit tıbbi tavsiye
+   vermez (`saglik-bilgilendirme-v1.html`); ama üyeler birbirine veriyor.
+   "Ağrıya rağmen devam et", "günde 500 kalori yeter" gibi bir yorum spam
+   değildir, zarardır — bu yüzden `saglik-riski` sebebi ayrı bir rozet
+   taşır, alıntısı tehlike tokeniyle çerçevelenir ve satır kuyruğun
+   BAŞINA alınır. Sıralama bir görsel süs değil, karar sırasıdır.
+
+   VERİ ÖRNEK. Bu depoda yorum verisi tutan bir sözleşme modülü yok;
+   içerik tipleri (egzersiz · program · challenge yorumu, antrenör
+   değerlendirmesi, üye mesajı) mevcut sayfaların gerçek yüzeylerinden
+   alındı, metinler örnektir. Sunucu yok: hiçbir karar uygulanmaz.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc;
+
+  /* ---- kuyruk durumları: bildirimin ömrü ------------------------- */
+  var DURUM = [
+    { id:'bekleyen',  ad:'Bekleyen',  ico:'fa-flag',         rozet:'wait',
+      yon:'Bildirildi, karar verilmedi. Sağlık riski taşıyanlar listenin başında durur.' },
+    { id:'onaylanan', ad:'Onaylanan', ico:'fa-circle-check', rozet:'ok',
+      yon:'İçerik kuralları çiğnemiyor; yerinde kaldı ve bildiren üyeye sonuç bildirildi.' },
+    { id:'gizlenen',  ad:'Gizlenen',  ico:'fa-eye-slash',    rozet:'off',
+      yon:'İçerik herkesten gizlendi ama silinmedi; yazarı görür, itiraz edebilir.' },
+    { id:'silinen',   ad:'Silinen',   ico:'fa-trash',        rozet:'stop',
+      yon:'İçerik kalıcı olarak kaldırıldı. Yalnız kayıt satırı kalır, metin geri gelmez.' }
+  ];
+  function durumBul(id){ for (var i=0;i<DURUM.length;i++) if (DURUM[i].id===id) return DURUM[i]; return DURUM[0]; }
+
+  /* ---- sebepler: `agir` olan kuyruğun başına geçer ---------------- */
+  var SEBEP = {
+    'saglik-riski': { ad:'Sağlık riski', ico:'fa-heart-pulse',           rozet:'stop', agir:true },
+    'yanlis-bilgi': { ad:'Yanlış bilgi', ico:'fa-circle-exclamation',    rozet:'wait', agir:false },
+    'hakaret':      { ad:'Hakaret',      ico:'fa-face-angry',            rozet:'stop', agir:false },
+    'reklam':       { ad:'Reklam',       ico:'fa-bullhorn',              rozet:'off',  agir:false },
+    'spam':         { ad:'Spam',         ico:'fa-repeat',                rozet:'off',  agir:false }
+  };
+
+  var TUR = {
+    'egzersiz':  { ad:'Egzersiz yorumu',        ico:'fa-dumbbell' },
+    'program':   { ad:'Program yorumu',         ico:'fa-clipboard-list' },
+    'challenge': { ad:'Challenge yorumu',       ico:'fa-trophy' },
+    'antrenor':  { ad:'Antrenör değerlendirmesi', ico:'fa-user-check' },
+    'mesaj':     { ad:'Üye mesajı',             ico:'fa-comment-dots' }
+  };
+
+  var BILDIRIM = [
+    { id:'MOD-2026-0412', durum:'bekleyen', tur:'challenge', sebep:'saglik-riski',
+      yazar:'Kaan Erdem', yer:'30 Günde Hareket Alışkanlığı', bildiren:3, tarih:'2026-08-29',
+      metin:'Dizin ağrıyorsa bandaj sar ve setlere devam et, birkaç gün sonra kendiliğinden geçiyor. Ara verirsen seriyi baştan kurarsın.' },
+    { id:'MOD-2026-0409', durum:'bekleyen', tur:'program', sebep:'saglik-riski',
+      yazar:'Deniz Arda', yer:'Kuvvet Temeli · 8 Hafta', bildiren:5, tarih:'2026-08-28',
+      metin:'Bu programda kilo vermek isteyen günde 500 kalorinin altına insin, gerisi kendiliğinden gelir. Doktora gitmeye gerek yok.' },
+    { id:'MOD-2026-0407', durum:'bekleyen', tur:'egzersiz', sebep:'reklam',
+      yazar:'Tolga Demirci', yer:'Hava Squat', bildiren:2, tarih:'2026-08-27',
+      metin:'Aynı programın bire bir aynısını yarı fiyatına başka bir siteden alabilirsiniz, isteyene mesajdan gönderiyorum.' },
+    { id:'MOD-2026-0404', durum:'bekleyen', tur:'antrenor', sebep:'hakaret',
+      yazar:'Cem Uysal', yer:'Antrenör · Mert Özkan', bildiren:4, tarih:'2026-08-26',
+      metin:'(Bildirilen değerlendirme antrenöre yönelik aşağılayıcı ifadeler içeriyor; metin karar verilene kadar yalnız moderasyon kaydında tutuluyor.)' },
+    { id:'MOD-2026-0398', durum:'onaylanan', tur:'egzersiz', sebep:'yanlis-bilgi',
+      yazar:'Zeynep Aydın', yer:'Bulgar Split Squat', bildiren:1, tarih:'2026-08-22',
+      metin:'Bu hareketi ilk kez yapanlar için ağırlıksız başlamak daha güvenli; kendi deneyimimde denge oturmadan ağırlık eklemek işe yaramadı.' },
+    { id:'MOD-2026-0395', durum:'onaylanan', tur:'challenge', sebep:'spam',
+      yazar:'Merve Çelik', yer:'1000 Tekrar Challenge', bildiren:1, tarih:'2026-08-20',
+      metin:'12. gün · bugün 40 tekrar. Aynı formatta günlük not düşüyorum, rahatsız eden olursa yazsın.' },
+    { id:'MOD-2026-0391', durum:'gizlenen', tur:'mesaj', sebep:'spam',
+      yazar:'Burak Toprak', yer:'Üye mesajları', bildiren:7, tarih:'2026-08-18',
+      metin:'(Aynı tanıtım metni 14 farklı üyeye art arda gönderildi. İçerik gizlendi, yazara uyarı yazıldı.)' },
+    { id:'MOD-2026-0386', durum:'gizlenen', tur:'program', sebep:'yanlis-bilgi',
+      yazar:'İpek Yalçın', yer:'Masa Başı Esneme · 10 Dakika', bildiren:2, tarih:'2026-08-15',
+      metin:'(Bel fıtığı olanlara belirli hareketleri "kesinlikle iyi gelir" diye öneren metin. Sağlık uyarısıyla çeliştiği için gizlendi.)' },
+    { id:'MOD-2026-0380', durum:'silinen', tur:'mesaj', sebep:'hakaret',
+      yazar:'—', yer:'Üye mesajları', bildiren:9, tarih:'2026-08-11',
+      metin:'(İçerik kalıcı olarak silindi; metin geri getirilemez. Kayıt satırı denetim izi için duruyor.)' }
+  ];
+
+  var BUGUN = new Date('2026-08-30T00:00:00');
+  function gun(iso){ return Math.max(0, Math.round((BUGUN - new Date(iso + 'T00:00:00')) / 86400000)); }
+  function bul(id){ for (var i=0;i<BILDIRIM.length;i++) if (BILDIRIM[i].id===id) return BILDIRIM[i]; return null; }
+  function sayi(d){ return BILDIRIM.filter(function(b){ return b.durum===d; }).length; }
+
+  document.getElementById('mdKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Bildirim verisi örnektir.</b> Bu depoda yorum ve bildirim tutan bir sözleşme ' +
+    'modülü yok; içerik tipleri (egzersiz · program · challenge yorumu, antrenör ' +
+    'değerlendirmesi, üye mesajı) mevcut sayfaların gerçek yüzeylerinden alındı, ' +
+    'metinler uydurmadır. <b>Yazma yüzeyi maket:</b> onayla · gizle · sil · uyar ' +
+    'düğmelerinin hiçbiri içeriğe dokunmaz — bu prototipte sunucu yok.');
+
+  /* ---- sekmeler ---------------------------------------------------- */
+  document.querySelector('[data-fit-tabs="md"]').innerHTML = DURUM.map(function (d, i) {
+    return '<button class="fit-tab' + (i===0 ? ' active' : '') + '" type="button" data-tab="' + d.id + '">' +
+      '<i class="fa-solid ' + d.ico + '" aria-hidden="true"></i> ' + esc(d.ad) +
+      '<span class="cnt">' + sayi(d.id) + '</span></button>';
+  }).join('');
+
+  var BOS = {
+    'bekleyen':  ['fa-flag',         'Bekleyen bildirim yok',
+                  'Karar bekleyen bildirim kalmadı. Bir üye yorum ya da mesaj bildirdiğinde satır burada belirir.'],
+    'onaylanan': ['fa-circle-check', 'Onaylanmış bildirim yok',
+                  'Kuralları çiğnemediğine karar verilip yerinde bırakılmış içerik bulunmuyor.'],
+    'gizlenen':  ['fa-eye-slash',    'Gizlenmiş içerik yok',
+                  'Herkesten gizlenmiş içerik bulunmuyor. Gizlenen içerik silinmez; yazarı görür ve itiraz edebilir.'],
+    'silinen':   ['fa-trash',        'Silinmiş içerik yok',
+                  'Kalıcı olarak kaldırılmış içerik bulunmuyor. Silinen içeriğin yalnız kayıt satırı kalır.']
+  };
+
+  /* ---- eylem düğmeleri: dördü de 44×44 (`.adm-ico-btn`) ----------- */
+  var EYLEM = [
+    ['onayla', 'fa-circle-check',        'Onayla — içerik yerinde kalsın'],
+    ['gizle',  'fa-eye-slash',           'Gizle — herkesten gizlensin'],
+    ['sil',    'fa-trash',               'Sil — kalıcı olarak kaldırılsın'],
+    ['uyar',   'fa-triangle-exclamation','Yazarı uyar']
+  ];
+
+  function satir(b){
+    var t = TUR[b.tur], s = SEBEP[b.sebep];
+    return '<div class="set-row' + (s.agir ? ' is-saglik' : '') + '" data-id="' + esc(b.id) + '" data-ara="' +
+        esc((b.id + ' ' + b.yazar + ' ' + b.yer + ' ' + s.ad + ' ' + t.ad + ' ' + b.metin).toLocaleLowerCase('tr')) + '">' +
+      '<span class="sr-ico"><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i></span>' +
+      '<span class="sr-txt">' +
+        '<b>' + esc(t.ad) + ' · ' + esc(b.yer) + '</b>' +
+        '<span>' + A.rozet(s.rozet, s.ad, s.ico) +
+          ' <i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(b.id) +
+          ' · yazar ' + esc(b.yazar) +
+          ' · ' + b.bildiren + ' üye bildirdi' +
+          ' · <time datetime="' + esc(b.tarih) + '">' + esc(A.tarih(b.tarih)) + '</time> (' + gun(b.tarih) + ' gün önce)</span>' +
+        '<q class="md-alinti">' + esc(b.metin) + '</q>' +
+        '<span class="md-not" data-not><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span></span></span>' +
+      '</span>' +
+      '<span class="sr-act"><span class="md-acts">' +
+        EYLEM.map(function (e) {
+          return '<button class="adm-ico-btn" type="button" data-eylem="' + e[0] + '" data-hedef="' + esc(b.id) + '" ' +
+            'title="' + esc(e[2]) + '" aria-label="' + esc(b.id + ' · ' + e[2]) + '">' +
+            '<i class="fa-solid ' + e[1] + '" aria-hidden="true"></i></button>';
+        }).join('') +
+      '</span></span></div>';
+  }
+
+  /* Sağlık riski ÖNCE, sonra bildiren sayısı, sonra tarih. */
+  function sirala(a, b){
+    var fa = SEBEP[a.sebep].agir ? 0 : 1, fb = SEBEP[b.sebep].agir ? 0 : 1;
+    if (fa !== fb) return fa - fb;
+    if (a.bildiren !== b.bildiren) return b.bildiren - a.bildiren;
+    return a.tarih < b.tarih ? 1 : -1;
+  }
+
+  document.getElementById('mdPanel').innerHTML = DURUM.map(function (d, i) {
+    var liste = BILDIRIM.filter(function (b) { return b.durum === d.id; }).sort(sirala);
+    var agir = liste.filter(function (b) { return SEBEP[b.sebep].agir; }).length;
+    return '<div class="fit-pane" data-pane="' + d.id + '"' + (i===0 ? '' : ' hidden') + '>' +
+      '<div class="fp-row" style="border-bottom:1px solid var(--line);padding-top:0">' +
+        '<span class="ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + esc(d.ad) + '</b><small>' + esc(d.yon) + '</small></span>' +
+        '<span class="end">' + A.rozet(d.rozet, liste.length + ' bildirim', d.ico) +
+          (agir ? ' ' + A.rozet('stop', agir + ' sağlık riski', 'fa-heart-pulse') : '') + '</span></div>' +
+      '<div class="set-list" data-liste="' + d.id + '">' + liste.map(satir).join('') + '</div>' +
+      '<div data-bos="' + d.id + '" hidden>' + A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]) + '</div>' +
+      '</div>';
+  }).join('');
+
+  /* ---- arama: dört sekmede birden ---------------------------------- */
+  var ara = document.getElementById('mdAra');
+  function suz(){
+    var q = ara.value.trim().toLocaleLowerCase('tr');
+    DURUM.forEach(function (d) {
+      var n = 0;
+      document.querySelectorAll('[data-liste="' + d.id + '"] .set-row').forEach(function (r) {
+        var ok = !q || r.getAttribute('data-ara').indexOf(q) >= 0;
+        r.hidden = !ok; if (ok) n++;
+      });
+      var bos = document.querySelector('[data-bos="' + d.id + '"]');
+      if (bos) {
+        bos.hidden = (n > 0);
+        bos.innerHTML = (n === 0 && q)
+          ? A.bos('fa-magnifying-glass', 'Bu aramayla bildirim bulunamadı',
+                  '"' + ara.value.trim() + '" için bu durumda bildirim yok. Aramayı boşalt ya da başka bir sekmeye bak.')
+          : A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
+      }
+      var c = document.querySelector('.fit-tab[data-tab="' + d.id + '"] .cnt');
+      if (c) c.textContent = n;
+    });
+  }
+  ara.addEventListener('input', suz);
+
+  /* ---- uyarı formu ------------------------------------------------- */
+  var SABLON = {
+    'saglik':  ['Sağlık uyarısı', 'Merhaba, DadaFit\'te paylaşılan yorumlar tıbbi tavsiye yerine geçemez. Bildirilen yorumun, ağrı ya da sağlık durumu olan üyeleri riske sokabilecek bir öneri içerdiğini gördük. Kendi deneyimini anlatman değerli; ama "devam et", "doktora gerek yok" gibi yönlendirmeler için lütfen üyeleri bir sağlık uzmanına yönlendir.'],
+    'reklam':  ['Reklam ve yönlendirme', 'Merhaba, bildirilen yorumun DadaFit dışına satış yönlendirmesi içerdiğini gördük. Platform içindeki yorum alanları deneyim paylaşımı içindir; ticari yönlendirme kaldırılır. Tekrarı hâlinde yorum yazma hakkın süreli olarak durdurulur.'],
+    'hakaret': ['Üslup', 'Merhaba, bildirilen içeriğin bir üyeye ya da antrenöre yönelik aşağılayıcı ifade taşıdığını gördük. Eleştirini içeriğe yöneltebilirsin; kişiye yönelen ifadeler kaldırılır.'],
+    'spam':    ['Yinelenen içerik', 'Merhaba, aynı metnin kısa aralıklarla birden çok yere gönderildiğini gördük. Bu, diğer üyelerin akışını okunmaz hâle getiriyor. Gönderilerini seyrelttiğinde uyarı düşer.']
+  };
+  var uyarKart = document.getElementById('mdUyar');
+  var sablonSec = document.getElementById('muSablon');
+  sablonSec.innerHTML = Object.keys(SABLON).map(function (k) {
+    return '<option value="' + k + '">' + esc(SABLON[k][0]) + '</option>';
+  }).join('');
+  var metin = document.getElementById('muMetin');
+  function sablonUygula(){
+    metin.value = SABLON[sablonSec.value][1];
+    document.getElementById('muSay').textContent = metin.value.length + ' / 1200';
+  }
+  sablonSec.addEventListener('change', sablonUygula);
+  metin.addEventListener('input', function () {
+    document.getElementById('muSay').textContent = metin.value.length + ' / 1200';
+  });
+
+  function uyarAc(b){
+    document.getElementById('mdUyarBaslik').textContent = 'Kullanıcıyı uyar: ' + b.yazar;
+    document.getElementById('muKisi').value = b.yazar;
+    var gecmis = BILDIRIM.filter(function (x) { return x.yazar === b.yazar; }).length;
+    document.getElementById('muGecmis').innerHTML =
+      '<i class="fa-solid fa-circle-info"></i> Bu üyenin moderasyon kaydında ' + gecmis +
+      ' bildirim var · ilgili bildirim ' + esc(b.id);
+    sablonSec.value = SEBEP[b.sebep].agir ? 'saglik'
+      : (b.sebep === 'reklam' ? 'reklam' : (b.sebep === 'hakaret' ? 'hakaret' : 'spam'));
+    sablonUygula();
+    uyarKart.hidden = false;
+    uyarKart.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  document.getElementById('mdUyarKapat').addEventListener('click', function () { uyarKart.hidden = true; });
+
+  /* ---- kararlar: SESSİZCE UYGULANMIŞ GİBİ YAPMAZ ------------------- */
+  var KARAR_AD = { onayla:'Onayla', gizle:'Gizle', sil:'Sil', uyar:'Uyar' };
+  document.getElementById('mdPanel').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-eylem]');
+    if (!b) return;
+    var kayit = bul(b.getAttribute('data-hedef'));
+    if (b.getAttribute('data-eylem') === 'uyar') { uyarAc(kayit); return; }
+    var not = b.closest('.set-row').querySelector('[data-not]');
+    not.classList.add('is-on');
+    not.querySelector('span').textContent =
+      '"' + KARAR_AD[b.getAttribute('data-eylem')] + '" seçildi ama UYGULANMADI — ' +
+      'içerik yerinde duruyor, kayıt hâlâ "' + durumBul(kayit.durum).ad + '". Bu prototipte sunucu yok.';
+  });
+
+  A.maketKaydet(document.getElementById('mdUyarGonder'), 'uyarı');
+  suz();
+})();
+</script>
+</body>
+</html>

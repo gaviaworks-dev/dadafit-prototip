@@ -275,3 +275,79 @@ vaat etmek olurdu.
 | **Yönetimde arama** | *"Kullanıcı, içerik ara…"* | `.t-ara` — **21 ekranın kendisini** arar. Sunucu olmadığı için içerik aranamaz; yer tutucu "Ekran ara…" der ve tam olarak onu yapar. Klavye: ↑↓ gezinir, Enter açar, Esc kapatır |
 | **Menüyü daralt** | *"Menüyü daralt/genişlet"* | `.adm-daralt` — 276px → **74px**, tercih `localStorage`da durur. Daraltılmışken ad `title`/`aria-label` olarak kalır, bilgi kaybolmaz. Çekmece kipinde (≤1100px) devre dışı |
 
+---
+
+## 10 · Gastro admin paneli — TAM ÖLÇÜM (kaynak referansı)
+
+Kaynak: `dadagastro-profil` · Laravel + **elle yazılmış Blade** (Filament YOK) ·
+salt okuma, kod alınmadı. Diğer üç markaya taşınırken bu tablo referanstır.
+
+| Ölçüm | Sayı | Nereden |
+|---|---|---|
+| Admin rotası | **247** | `routes/web.php:1058–1669` (114 GET · 84 POST · 27 PUT · 19 DELETE · 3 PATCH) |
+| Görünen ekran | **100** | 114 GET − 9 export − 3 AJAX − 2 redirect |
+| Admin blade | 103 (22 partial · **80 ekran**) | 100 > 80 çünkü `form.blade` create+edit'i, `ayarlar/index` 8 sekmeyi besliyor |
+| Controller | 50 | `app/Http/Controllers/Admin/` |
+| Sidebar | **3 bölüm · 26 üst kalem · 21 alt kalem = 47 giriş** | `resources/views/admin/layout.blade.php` (508 satır) |
+
+### Liste kalıbı — ~30 ekranda aynı
+
+1. `.sa-flash` işlem bildirimi (kartın DIŞINDA, en üstte)
+2. `.pnl-page-head`: solda `<h1>` + sayaç taşıyan alt satır, sağda buton şeridi
+   (ghost ikincil → Dışa Aktar → birincil "+ Yeni X"). **Sayfa üstünde arama YOK.**
+3. `.pnl-card` açılır — geri kalan her şey kartın içinde
+4. `.filter-bar` kartın ilk satırı: **solda arama** (max 340px, kendi GET formu),
+   **sağında çipler** — süzgeç **çip**, açılır menü değil; her çip sayaç rozetli
+   `<a>`, hepsi gerçek query-string, client-side filtre yok
+5. `.ptable-wrap` > `<table class="ptable">`, son sütun "Aksiyon"
+6. Satır eylemi **en sağ hücrede**, 32×32 metinsiz ikon düğme, durum-koşullu;
+   yıkıcı eylemde kendi modalı — **native `confirm()` yasak**
+7. Boş durumda tablo yerine `.pnl-empty` (ikon + `<h4>` + açıklama + tek çıkış)
+8. **Sayfalama kartın İÇİNDE, en ayağında** (33 ekran): solda "X sonuçtan a–b
+   gösteriliyor", sağda ◂ · numaralar · ▸
+9. **Toplu işlem 47 kalemden yalnız BİRİNDE** (Yorum Moderasyonu) — blade'in
+   kendi yorumu "bu ekrana özel, admin genelinde yok" diyor
+
+### Form kalıbı
+
+- İki kolon. **Sol geniş kolon** sekmeli (`İçerik` / `SEO`, 10 ekran); dil
+  sekmesi ikisini birden sarar (24 ekran).
+- **Sağ kolon `position:sticky`** yayın kartı (14 ekran): durum · yayın tarihi ·
+  SEO skoru · toggle'lar.
+- 🔴 **Kaydet çubuğu SAĞDA** — `.form-actions{justify-content:flex-end}`, dokuz
+  ayrı sayfa CSS'inde birebir. Sıra: `İptal` · `Taslak Kaydet` · **birincil CTA
+  en sağda**. Sabit/yapışkan çubuk değil, sol kolonun dibinde ayrı bir kart.
+- Detay ekranları (7 tane) **sekmeli değil**: üst başlık + sağda eylemler +
+  altında salt-okunur kart yığını.
+
+### 🔴 Fit'te düzeltilen sapmalar
+
+| # | İskelette | Gastro'da | Yapıldı |
+|---|---|---|---|
+| M1 | Arama kartın başlığında sağda | Filtre şeridinde **solda** | Yeni ekranlarda sola; var olanlar bozulmasın diye zorlanmadı |
+| M2 | Süzgeç **açılır menü** | Süzgeç **sayaç rozetli çip** | 🔴 **Bilerek ayrıldık** — Beyar açıkça "egzersiz kütüphanesindeki dropdown'ı örnek al" dedi ve public yüzeyin süzgeci o. Panelin public'e benzemesi, Gastro'ya benzemesinden önce gelir |
+| M3 | Toplu seçim genel kalıpta | 47 kalemden 1'inde | Genel kalıptan çıkarıldı; yalnız anlamlı olduğu ekranda |
+| M4 | Raporlar OPERASYON | **YAPILANDIRMA** (son kalem) | Taşındı |
+| M5 | Rozet · Kademe · Log YAPILANDIRMA | **OPERASYON** | Taşındı |
+| M6 | "Moderasyon" tek kalem | Yorum · Medya Kuyruğu · **Geri Bildirim** ayrı | Fit'te tek kalem + sekme kaldı: medya kuyruğunun arkasında Fit'te yüzey yok, geri bildirim kabuğun "Görüş Bildir"inden besleniyor. Üç kalem yapmak arkasında iki boş ekran vaat etmek olurdu |
+| — | Kaydet **solda** | Kaydet **SAĞDA** | 🔴 8 dosyada 11 yerde düzeltildi |
+
+⚠ "Kaydet solda" kuralı devir belgesinden geliyordu ama o, dört markanın **hesap
+ekranlarının** kuralı; admin formunun değil. İki ayrı yüzey, iki ayrı kural —
+karıştırıldı ve ölçümle düzeltildi.
+
+### Gastro'da olup Fit'te karar bekleyenler
+
+1. **K6 çelişkisi:** Abonelik kalemleri Fit'te düşüyor, ama maketde `pro-v1.html`
+   ve `pro-odeme-v1.html` **duruyor**. Panelde abonelik ekranı açılmadı; public
+   taraftaki bu iki sayfa ayrı bir karar kalemi.
+2. **Antrenör konumu:** Gastro'da şef ayrı kalem değil, **üye detayının sekmesi**.
+   Fit'te ayrı kalem yapıldı — public tarafta antrenör kendi dünyası
+   (`antrenorler-v1.html`), başvuru kuyruğu üye listesine sıkışmazdı.
+3. **K12 üretici eşikleri** Fit'te tanımsız (Gastro: 50 tarif · 25 püf · 10 takip ·
+   10 takipçi, dördü de panelden). Ayarlar'da o sekme **açılmadı** — arkasında
+   veri yok.
+4. **Çok dillilik:** Gastro'da dil sekmesi 24 ekranda. Fit tek dilli
+   (`<html lang="tr">`), üstelik devir belgesi §10'da "Diller kalemi dört
+   markadan da kalkar" kararı var. Panelde dil sekmesi **yok**.
+

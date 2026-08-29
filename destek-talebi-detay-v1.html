@@ -87,42 +87,30 @@
  Bu bir SOHBET BOTU DEĞİL (belge §21: yapay zekâ sohbet asistanı eklenmez).
  Geçmişte olmuş bir yazışmanın dökümü + tek bir yanıt alanıdır; canlı
  bağlantı, yazıyor göstergesi, otomatik cevap yok. */
-.tk-thread{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
-.tk-msg{display:flex;gap:14px;align-items:flex-start}
-.tk-msg .av{flex:none;width:40px;height:40px;border-radius:var(--radius-circle);display:grid;place-items:center;font-size:13px;font-weight:800;letter-spacing:.02em}
-.tk-msg .bd{min-width:0;max-width:82%;border:1px solid var(--line);border-radius:var(--radius-lg);padding:15px 17px;background:var(--paper)}
-.tk-msg .mh{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.tk-msg .mh b{font-size:13.5px;color:var(--slate)}
-.tk-msg .mh .who{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.tk-msg .mh time{font-size:12px;color:var(--muted);font-weight:500;margin-left:auto;white-space:nowrap}
-.tk-msg .bd p{font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65;margin:0}
-.tk-msg .bd p+p{margin-top:9px}
-/* mesaja iliştirilen tek dosya (kanon §8.1) — adı YAZIYLA görünür */
-.tk-msg .bd p.msg-ek{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line);
-  font-size:12.5px;color:var(--fit-deep);font-weight:700;overflow-wrap:anywhere}
-.tk-msg .bd p.msg-ek i{font-size:12px;flex:none}
-
-/* destek ekibi — yeşil rozetli avatar, beyaz balon, solda */
-.tk-msg.is-team .av{background:var(--fit);color:#fff}
-/* kullanıcı — sağda, yeşil fısıltı zeminli balon.
-   AYRIM YALNIZ RENK/HİZA DEĞİL: her balonun başlığında "SEN" / "DADAFIT
-   DESTEK" etiketi metin olarak yazılı (belge §20). */
-.tk-msg.is-me{flex-direction:row-reverse}
-.tk-msg.is-me .av{background:var(--slate);color:#fff}
-.tk-msg.is-me .bd{background:var(--fit-tint);border-color:var(--fit-line)}
-.tk-msg.is-me .mh{flex-direction:row-reverse}
-.tk-msg.is-me .mh time{margin-left:0;margin-right:auto}
-
-/* sistem satırı — "talep kapatıldı" gibi durum olayları */
-.tk-msg.is-sys{justify-content:center}
-.tk-msg.is-sys .bd{max-width:none;background:var(--bg);border-style:dashed;text-align:center;padding:11px 16px}
-.tk-msg.is-sys .bd p{font-size:12.5px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-.tk-msg.is-sys .bd i{color:var(--fit-deep)}
+/* §Ö19 · §Ö20 · §Ö21 (Dalga 4, 2026-08-29) — YAZIŞMA KİTİ `.bub`e GEÇTİ.
+   ÖLÇÜLEN SAPMA — ve bir ölçüm düzeltmesi: eski `.tk-msg` gönderen ayrımını
+   ZATEN veriyordu (`is-me` sağa dönüyor ve `--fit-tint` zemin alıyordu); ilk
+   sondam `li` sarmalayıcısını okuduğu için "ayrım yok" demişti, `.bd`yi
+   okumamıştı. §U3 gereği kayda geçti. Gerçek sapma ÖLÇÜLERDE: eski kit
+   max-width 82% · dolgu `15px 17px` · 14px idi; şartname 68% · `10px 14px` ·
+   13.5px bağlıyor. Avatar da kalktı — §Ö19'un kitinde yok.
+   Kit artık kabukta (`fit-shell.css` → KANON KART KİTİ): `.bub` max-width 68%
+   · dolgu `10px 14px` · 13.5px/1.5 · radius-md, karşı köşe radius-sm;
+   `.bub.in` solda `--bg`+1px `--line`, `.bub.out` sağda marka fısıltısı;
+   `.bt` 11.5px `--muted`, giden mesajda derin marka tonu.
+   ⚠ `is-sys` (sistem notu) şartnamede YOK — gönderen mesajı değil, durum
+   kaydıdır. Ortada, nötr basılır; kayda geçti, sorulacak. */
+.bub.is-sys{align-self:center;background:var(--bg);border:1px dashed var(--line);color:var(--muted);font-size:12.5px;text-align:center;max-width:80%}
+.bub p{margin:0}
+.bub p+p{margin-top:8px}
+/* ek dosyası satırı balonun içinde kalır */
+.bub p.msg-ek{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:12.5px;font-weight:600}
+.bub p.msg-ek i{font-size:12px;flex:none}
 
 /* yeni eklenen mesaj göze çarpsın */
 @keyframes tkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.tk-msg.is-new{animation:tkIn .3s var(--ease)}
-@media (prefers-reduced-motion:reduce){.tk-msg.is-new{animation:none}}
+.bub.is-new{animation:tkIn .3s var(--ease)}
+@media (prefers-reduced-motion:reduce){.bub.is-new{animation:none}}
 
 /* ---- YANIT ALANI ---- */
 .tk-reply{margin-top:22px}
@@ -256,18 +244,14 @@
 /* ===== TABLET (≤1024px) ===== */
 @media (max-width:1024px){
   .tk-layout{grid-template-columns:1fr}
-  .tk-msg .bd{max-width:88%}
+  .bub{max-width:88%}
 }
 /* ===== MOBİL (≤640px) ===== */
 @media (max-width:640px){
   .tk-sec{padding:var(--sec-pad-sm) 0 var(--sec-pad)}
   .tk-card{padding:18px 16px}
   .tk-side .tk-card{padding:18px 16px}
-  .tk-msg{gap:10px}
-  .tk-msg .av{width:34px;height:34px;font-size:12px}
-  .tk-msg .bd{max-width:100%;padding:13px 14px}
-  .tk-msg .mh time{margin-left:0;width:100%}
-  .tk-msg.is-me .mh time{margin-right:0}
+  .bub{max-width:100%}
   .tk-idline{gap:8px}
   .tk-reply-foot{flex-direction:column;align-items:stretch}
   .tk-reply-foot .btn{width:100%}
@@ -289,35 +273,12 @@
 <main class="page-main" id="pageMain">
 
 <!-- ===== BANNER + BREADCRUMB (kabuğun .lib-top kiti) ================== -->
-<section class="lib-top">
-  <div class="wrap">
-    <nav class="lib-crumb" aria-label="Sayfa yolu">
-      <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
-      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-      <a href="destek-v1.html">Destek Merkezi</a>
-      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-      <a href="destek-talepleri-v1.html">Destek Taleplerim</a>
-      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-      <span class="cur" id="tkCrumb">Talep DF-2026-K7WQ9M</span>
-    </nav>
-    <span class="eyebrow"><i class="fa-solid fa-headset" aria-hidden="true"></i> Destek Talebi</span>
-    <!-- TEK H1 (belge §19) — metni seçili talebe göre JS günceller -->
-    <h1 id="tkTitle">Pro üyeliğim yenilendi ama paket ücretsize düştü</h1>
-    <div class="tk-idline">
-      <span class="tk-no" id="tkNo">#DF-2026-K7WQ9M</span>
-      <span class="tk-badge st-ok" id="tkBadge"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Çözülen</span></span> </div>
-    <p class="lib-sub">Bu talebin bütün yazışması aşağıda, en eskiden en yeniye sıralı. Yeni bir şey eklemek istersen yanıt yazabilir, konu çözüldüyse talebi kapatabilir, kapattığın bir talebi yeniden açabilirsin.</p>
-    <div class="chips">
-      <a class="btn btn-primary" href="#yanit"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt Yaz</a>
-      <a class="btn btn-ghost" href="destek-talepleri-v1.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Destek Taleplerime Dön</a>
-    </div>
-    <div class="lib-stats">
-      <div class="lib-stat"><b id="tkStatCount">4</b><span>mesaj</span></div>
-      <div class="lib-stat"><b id="tkStatOpen">12 Ağu</b><span>açılış</span></div>
-      <div class="lib-stat"><b id="tkStatLast">14 Ağu</b><span>son hareket</span></div>
-    </div>
-  </div>
-</section>
+<div id="fitPlanTop" data-plan-page="destek-detay" data-plan-title="Destek Talebi"
+     data-plan-sub="Bu talebin bütün yazışması aşağıda, en eskiden en yeniye sıralı."></div>
+
+<!-- §Ö2 · kabuk MODÜL SAYFASI kalıbıdır (§F), banner ailesi (§R) DEĞİL.
+     Eski `.lib-top` banner'ı ve içindeki künye/istatistik şeridi kalktı;
+     künye artık §Ö17'nin "Talep Bilgileri" kartında, tek yerde duruyor. -->
 
 <!-- ===== GÖVDE ======================================================= -->
 <section class="tk-sec">
@@ -330,6 +291,44 @@
 
       <!-- ---------- YAZIŞMA ---------- -->
       <div class="tk-main">
+
+        <!-- §Ö18 · ACİL SAĞLIK DURUMU UYARISI — bu kart İSTEĞE BAĞLI DEĞİLDİR.
+             Destek kanalı acil durumlar için kullanılmaz; §Ö17 onu sıranın
+             BİRİNCİSİ yapar, yani üye yazışmayı okumadan önce görür. -->
+        <div class="pnl-card warn-card" id="tkAcil">
+          <div class="pc-head">
+            <div>
+              <h2 class="pc-title"><i class="fa-solid fa-triangle-exclamation"></i> Acil sağlık durumu mu?</h2>
+              <p>Destek kanalı acil durumlar için kullanılmaz.</p>
+            </div>
+          </div>
+          <div class="pc-body">
+            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Göğüs ağrısı, nefes darlığı, baygınlık, ani ve şiddetli ağrı gibi bir durumda <b>112</b>'yi ara ya da en yakın acil servise başvur. Destek ekibi sağlık danışmanlığı vermez ve mesajları anlık olarak izlemez.</span></p>
+          </div>
+        </div>
+
+        <!-- §Ö17 · kart sırası ① acil uyarı ② TALEP BİLGİLERİ ③ Yazışma.
+             Kart yan sütundan buraya taşındı: şartname sırayı DOM üzerinde
+             bağlıyor ve künye, yazışmadan önce okunmalı. -->
+        <div class="pnl-card" id="tkInfoCard">
+          <div class="pc-head">
+            <div><h2 class="pc-title"><i class="fa-solid fa-file-lines"></i> Talep Bilgileri</h2></div>
+          </div>
+          <div class="pc-body">
+            <dl class="tk-meta">
+            <div><dt>Talep numarası</dt><dd id="mNo">DF-2026-K7WQ9M</dd></div>
+            <div><dt>Durum</dt><dd><span class="pstat ok" id="mBadge">Çözülen</span></dd></div>
+            <div><dt>Konu</dt><dd id="mKonu">DadaFit Pro ve ödeme</dd></div>
+            <div><dt>Açılış</dt><dd><time id="mOpen" datetime="2026-08-12">12 Ağustos 2026, 14:32</time></dd></div>
+            <div><dt>Son hareket</dt><dd><time id="mLast" datetime="2026-08-14">14 Ağustos 2026, 09:05</time></dd></div>
+            <div><dt>Mesaj</dt><dd id="mCount">4</dd></div>
+            <div><dt>Kanal</dt><dd id="mKanal">Web · Destek Taleplerim</dd></div>
+          </dl>
+            <div class="demo-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bu prototipteki talepler, numaralar ve yazışmalar örnektir, gerçek bir destek kaydı değildir.</span></div>
+        
+          </div>
+        </div>
+
         <div class="tk-card">
           <div class="tk-card-head">
             <i class="fa-solid fa-comments" aria-hidden="true"></i>
@@ -350,45 +349,31 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-08-12" data-open-txt="12 Ağustos 2026, 14:32" data-open-short="12 Ağu"
                data-last-iso="2026-08-14" data-last-txt="14 Ağustos 2026, 09:05" data-last-short="14 Ağu">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-08-12T14:32">12 Ağustos 2026 · 14:32</time></div>
-                  <p>Merhaba, Pro üyeliğim dün otomatik yenilendi ve ödeme geçti. Ama uygulamada paketim &quot;Ücretsiz&quot; görünüyor, video seanslarına girmeye çalışınca &quot;Pro üyelere özel&quot; uyarısı çıkıyor. Ödeme geçmişimde yenileme kaydını görüyorum.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-08-12T16:48">12 Ağustos 2026 · 16:48</time></div>
-                  <p>Merhaba Elif, yazdığın için teşekkürler. Yenileme kaydını biz de görüyoruz, ödeme tarafında bir sorun yok. Paket etiketinin neden güncellenmediğini bulmak için iki şey rica edeceğim:</p>
-                  <p>1) Çıkıp tekrar giriş yaptığında paket hâlâ &quot;Ücretsiz&quot; mi görünüyor? 2) Uyarıyı hangi seansta gördüysen adını yazabilir misin?</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-08-13T08:12">13 Ağustos 2026 · 08:12</time></div>
-                  <p>Çıkıp tekrar giriş yaptım, değişmedi. &quot;Sabah Mobilite Akışı&quot; ve &quot;Masa Başı Sırt Rahatlatma&quot; seanslarında aynı uyarıyı alıyorum. Ücretsiz seanslar sorunsuz açılıyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-08-14T09:05">14 Ağustos 2026 · 09:05</time></div>
-                  <p>Teşekkürler, bu bilgi yeterliydi. Hesabındaki paket etiketi yenileme sırasında güncellenmemiş; teknik ekip düzeltmeyi uyguladı. Uygulamayı bir kez kapatıp açtığında paketin &quot;Pro&quot; görünmeli ve iki seans da açılmalı.</p>
-                  <p>Bu talebi çözüldü olarak işaretledik. Sende de düzeldiyse talebi kapatabilirsin; düzelmediyse buraya yazman yeterli, talep yeniden açılır.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Destek ekibi talebi çözüldü olarak işaretledi · <time datetime="2026-08-14T09:05">14 Ağustos 2026 · 09:05</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-08-12T14:32">12 Ağustos 2026 · 14:32</time></div>
+                <p>Merhaba, Pro üyeliğim dün otomatik yenilendi ve ödeme geçti. Ama uygulamada paketim &quot;Ücretsiz&quot; görünüyor, video seanslarına girmeye çalışınca &quot;Pro üyelere özel&quot; uyarısı çıkıyor. Ödeme geçmişimde yenileme kaydını görüyorum.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-08-12T16:48">12 Ağustos 2026 · 16:48</time></div>
+                <p>Merhaba Elif, yazdığın için teşekkürler. Yenileme kaydını biz de görüyoruz, ödeme tarafında bir sorun yok. Paket etiketinin neden güncellenmediğini bulmak için iki şey rica edeceğim:</p>
+                <p>1) Çıkıp tekrar giriş yaptığında paket hâlâ &quot;Ücretsiz&quot; mi görünüyor? 2) Uyarıyı hangi seansta gördüysen adını yazabilir misin?</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-08-13T08:12">13 Ağustos 2026 · 08:12</time></div>
+                <p>Çıkıp tekrar giriş yaptım, değişmedi. &quot;Sabah Mobilite Akışı&quot; ve &quot;Masa Başı Sırt Rahatlatma&quot; seanslarında aynı uyarıyı alıyorum. Ücretsiz seanslar sorunsuz açılıyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-08-14T09:05">14 Ağustos 2026 · 09:05</time></div>
+                <p>Teşekkürler, bu bilgi yeterliydi. Hesabındaki paket etiketi yenileme sırasında güncellenmemiş; teknik ekip düzeltmeyi uyguladı. Uygulamayı bir kez kapatıp açtığında paketin &quot;Pro&quot; görünmeli ve iki seans da açılmalı.</p>
+                <p>Bu talebi çözüldü olarak işaretledik. Sende de düzeldiyse talebi kapatabilirsin; düzelmediyse buraya yazman yeterli, talep yeniden açılır.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Destek ekibi talebi çözüldü olarak işaretledi · <time datetime="2026-08-14T09:05">14 Ağustos 2026 · 09:05</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-B4TXN2 · Açık talep ===== -->
           <div class="tk-t" data-tk="DF-2026-B4TXN2" hidden
                data-title="Apple Health adım verisi iki gündür aktarılmıyor"
@@ -397,32 +382,22 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-08-09" data-open-txt="9 Ağustos 2026, 19:41" data-open-short="9 Ağu"
                data-last-iso="2026-08-11" data-last-txt="11 Ağustos 2026, 07:58" data-last-short="11 Ağu">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-08-09T19:41">9 Ağustos 2026 · 19:41</time></div>
-                  <p>Aktivite günlüğümde 7 ve 8 Ağustos günleri boş görünüyor, oysa o iki gün de yürüdüm. Telefonumdaki Apple Health kayıtları duruyor ama DadaFit tarafına düşmemiş.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-08-10T10:07">10 Ağustos 2026 · 10:07</time></div>
-                  <p>Merhaba Elif, bağlantı kaydına baktım: o iki günde aktivite izni kapalı görünüyor, bu yüzden veriler DadaFit'e gelmemiş. İzin kapalıyken geçmişe dönük aktarım da yapılmıyor.</p>
-                  <p>Bağlantı ayarlarından aktivite iznini tekrar açar mısın? Açtıktan sonra bir gün bekleyip son senkronizasyon zamanının güncellenip güncellenmediğini yazarsan devam ederiz.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-08-11T07:58">11 Ağustos 2026 · 07:58</time></div>
-                  <p>İzni açtım ama son senkronizasyon zamanı hâlâ 6 Ağustos'ta duruyor, bugünkü yürüyüş de gelmedi. Ekranın görüntüsünü de gönderebilirim.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-08-09T19:41">9 Ağustos 2026 · 19:41</time></div>
+                <p>Aktivite günlüğümde 7 ve 8 Ağustos günleri boş görünüyor, oysa o iki gün de yürüdüm. Telefonumdaki Apple Health kayıtları duruyor ama DadaFit tarafına düşmemiş.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-08-10T10:07">10 Ağustos 2026 · 10:07</time></div>
+                <p>Merhaba Elif, bağlantı kaydına baktım: o iki günde aktivite izni kapalı görünüyor, bu yüzden veriler DadaFit'e gelmemiş. İzin kapalıyken geçmişe dönük aktarım da yapılmıyor.</p>
+                <p>Bağlantı ayarlarından aktivite iznini tekrar açar mısın? Açtıktan sonra bir gün bekleyip son senkronizasyon zamanının güncellenip güncellenmediğini yazarsan devam ederiz.</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-08-11T07:58">11 Ağustos 2026 · 07:58</time></div>
+                <p>İzni açtım ama son senkronizasyon zamanı hâlâ 6 Ağustos'ta duruyor, bugünkü yürüyüş de gelmedi. Ekranın görüntüsünü de gönderebilirim.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-H9DKR6 · Açık talep ===== -->
           <div class="tk-t" data-tk="DF-2026-H9DKR6" hidden
                data-title="Video seansı ortasında baştan başlıyor"
@@ -431,17 +406,13 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-08-06" data-open-txt="6 Ağustos 2026, 21:10" data-open-short="6 Ağu"
                data-last-iso="2026-08-06" data-last-txt="6 Ağustos 2026, 21:10" data-last-short="6 Ağu">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-08-06T21:10">6 Ağustos 2026 · 21:10</time></div>
-                  <p>Uzun seanslarda yaklaşık yirminci dakikada video kendiliğinden başa dönüyor ve &quot;kaldığın yerden devam&quot; da o noktayı hatırlamıyor. İki farklı seansta oldu, ikisinde de aynı yerde.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-08-06T21:10">6 Ağustos 2026 · 21:10</time></div>
+                <p>Uzun seanslarda yaklaşık yirminci dakikada video kendiliğinden başa dönüyor ve &quot;kaldığın yerden devam&quot; da o noktayı hatırlamıyor. İki farklı seansta oldu, ikisinde de aynı yerde.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-QW3JZ8 · Yanıt bekleyen ===== -->
           <div class="tk-t" data-tk="DF-2026-QW3JZ8" hidden
                data-title="Programını Bul sonucundaki program planıma eklenmedi"
@@ -450,25 +421,18 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-28" data-open-txt="28 Temmuz 2026, 13:22" data-open-short="28 Tem"
                data-last-iso="2026-07-29" data-last-txt="29 Temmuz 2026, 11:40" data-last-short="29 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-28T13:22">28 Temmuz 2026 · 13:22</time></div>
-                  <p>Programını Bul sihirbazını bitirdim, sonuç ekranında bir program önerildi ve &quot;Planıma Ekle&quot; düğmesine bastım. Ama Planım sayfasında hâlâ eski programım duruyor, yenisi görünmüyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-07-29T11:40">29 Temmuz 2026 · 11:40</time></div>
-                  <p>Merhaba Elif, kayıtlarda ekleme isteğini görüyoruz ama aynı anda tek aktif program tutulduğu için yeni program eskisinin yerine geçmeden bekletilmiş. Planım sayfasındaki program kartında &quot;Değiştir&quot; adımını onayladığında yenisi aktif olur, eskisi geçmişine düşer.</p>
-                  <p>Bu adımı denediğinde yeni programın planına düştü mü? Yazarsan devam ederiz.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-28T13:22">28 Temmuz 2026 · 13:22</time></div>
+                <p>Programını Bul sihirbazını bitirdim, sonuç ekranında bir program önerildi ve &quot;Planıma Ekle&quot; düğmesine bastım. Ama Planım sayfasında hâlâ eski programım duruyor, yenisi görünmüyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-29T11:40">29 Temmuz 2026 · 11:40</time></div>
+                <p>Merhaba Elif, kayıtlarda ekleme isteğini görüyoruz ama aynı anda tek aktif program tutulduğu için yeni program eskisinin yerine geçmeden bekletilmiş. Planım sayfasındaki program kartında &quot;Değiştir&quot; adımını onayladığında yenisi aktif olur, eskisi geçmişine düşer.</p>
+                <p>Bu adımı denediğinde yeni programın planına düştü mü? Yazarsan devam ederiz.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-M2VYP7 · Yanıt bekleyen ===== -->
           <div class="tk-t" data-tk="DF-2026-M2VYP7" hidden
                data-title="Antrenman geçmişimde iki günlük boşluk görünüyor"
@@ -477,25 +441,18 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-26" data-open-txt="26 Temmuz 2026, 20:15" data-open-short="26 Tem"
                data-last-iso="2026-07-27" data-last-txt="27 Temmuz 2026, 10:48" data-last-short="27 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-26T20:15">26 Temmuz 2026 · 20:15</time></div>
-                  <p>Antrenman geçmişimde 18 ve 19 Temmuz boş. O iki gün de seans yaptım ve bitirdikten sonra tamamlandı işaretini gördüm. Aktivite günlüğünde adımlarım duruyor ama seanslar yok.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-07-27T10:48">27 Temmuz 2026 · 10:48</time></div>
-                  <p>Merhaba Elif, o iki günün kaydına baktım: seanslar başlatılmış ama tamamlanma kaydı sunucuya ulaşmamış. Bu genellikle seans biterken bağlantı kopunca oluyor.</p>
-                  <p>Seansları o gün hangi cihazdan yaptığını ve internetin kesildiğini fark edip etmediğini yazar mısın? İkisini de aldıktan sonra kayıtları elle tamamlayabiliriz.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-26T20:15">26 Temmuz 2026 · 20:15</time></div>
+                <p>Antrenman geçmişimde 18 ve 19 Temmuz boş. O iki gün de seans yaptım ve bitirdikten sonra tamamlandı işaretini gördüm. Aktivite günlüğünde adımlarım duruyor ama seanslar yok.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-27T10:48">27 Temmuz 2026 · 10:48</time></div>
+                <p>Merhaba Elif, o iki günün kaydına baktım: seanslar başlatılmış ama tamamlanma kaydı sunucuya ulaşmamış. Bu genellikle seans biterken bağlantı kopunca oluyor.</p>
+                <p>Seansları o gün hangi cihazdan yaptığını ve internetin kesildiğini fark edip etmediğini yazar mısın? İkisini de aldıktan sonra kayıtları elle tamamlayabiliriz.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-T6NGX4 · Açık talep ===== -->
           <div class="tk-t" data-tk="DF-2026-T6NGX4" hidden
                data-title="Challenge rozetim tamamlandığı hâlde düşmedi"
@@ -504,31 +461,21 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-22" data-open-txt="22 Temmuz 2026, 18:02" data-open-short="22 Tem"
                data-last-iso="2026-07-23" data-last-txt="23 Temmuz 2026, 08:30" data-last-short="23 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-22T18:02">22 Temmuz 2026 · 18:02</time></div>
-                  <p>&quot;14 Gün Hareket&quot; challenge'ını dün tamamladım, ilerleme çubuğu 14/14 gösteriyor ama rozetlerim sayfasında rozet görünmüyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-07-23T08:00">23 Temmuz 2026 · 08:00</time></div>
-                  <p>Merhaba Elif, challenge kaydında 14 günün 14'ü de işaretli görünüyor. Rozet dağıtımı gece toplu çalışıyor; bir gece daha bekleyip rozetlerim sayfasını yeniler misin?</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-23T08:30">23 Temmuz 2026 · 08:30</time></div>
-                  <p>Bugün sabah tekrar baktım, hâlâ yok. Challenge sayfasında &quot;tamamlandı&quot; yazısı duruyor ama rozetlerim boş.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-22T18:02">22 Temmuz 2026 · 18:02</time></div>
+                <p>&quot;14 Gün Hareket&quot; challenge'ını dün tamamladım, ilerleme çubuğu 14/14 gösteriyor ama rozetlerim sayfasında rozet görünmüyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-23T08:00">23 Temmuz 2026 · 08:00</time></div>
+                <p>Merhaba Elif, challenge kaydında 14 günün 14'ü de işaretli görünüyor. Rozet dağıtımı gece toplu çalışıyor; bir gece daha bekleyip rozetlerim sayfasını yeniler misin?</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-23T08:30">23 Temmuz 2026 · 08:30</time></div>
+                <p>Bugün sabah tekrar baktım, hâlâ yok. Challenge sayfasında &quot;tamamlandı&quot; yazısı duruyor ama rozetlerim boş.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-Z4KMD9 · Kapatılan ===== -->
           <div class="tk-t" data-tk="DF-2026-Z4KMD9" hidden
                data-title="Fatura adresimi güncellemek istiyorum"
@@ -537,36 +484,25 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-21" data-open-txt="21 Temmuz 2026, 13:05" data-open-short="21 Tem"
                data-last-iso="2026-07-22" data-last-txt="22 Temmuz 2026, 15:52" data-last-short="22 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-21T13:05">21 Temmuz 2026 · 13:05</time></div>
-                  <p>Taşındım, faturalarımda eski adresim yazıyor. Yeni adresi nereden güncelleyebilirim?</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-07-22T09:30">22 Temmuz 2026 · 09:30</time></div>
-                  <p>Merhaba Elif, fatura bilgilerini hesabındaki fatura alanından kendin güncelleyebiliyorsun. Değişiklik, güncellemeden sonra kesilen faturalara işler; geçmiş faturalar olduğu gibi kalır.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-22T15:44">22 Temmuz 2026 · 15:44</time></div>
-                  <p>Buldum ve güncelledim, teşekkür ederim.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-22T15:52">22 Temmuz 2026 · 15:52</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-21T13:05">21 Temmuz 2026 · 13:05</time></div>
+                <p>Taşındım, faturalarımda eski adresim yazıyor. Yeni adresi nereden güncelleyebilirim?</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-22T09:30">22 Temmuz 2026 · 09:30</time></div>
+                <p>Merhaba Elif, fatura bilgilerini hesabındaki fatura alanından kendin güncelleyebiliyorsun. Değişiklik, güncellemeden sonra kesilen faturalara işler; geçmiş faturalar olduğu gibi kalır.</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-22T15:44">22 Temmuz 2026 · 15:44</time></div>
+                <p>Buldum ve güncelledim, teşekkür ederim.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-22T15:52">22 Temmuz 2026 · 15:52</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-A8RUC3 · Yanıt bekleyen ===== -->
           <div class="tk-t" data-tk="DF-2026-A8RUC3" hidden
                data-title="Antrenör randevumu ertelemek istiyorum"
@@ -575,25 +511,18 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-20" data-open-txt="20 Temmuz 2026, 09:18" data-open-short="20 Tem"
                data-last-iso="2026-07-21" data-last-txt="21 Temmuz 2026, 14:05" data-last-short="21 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-20T09:18">20 Temmuz 2026 · 09:18</time></div>
-                  <p>Cuma 18:00'deki antrenör görüşmemi bir hafta ertelemem gerekiyor. Randevular sayfasında erteleme seçeneğini bulamadım, iptal edip yeniden almam mı gerekiyor?</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-07-21T14:05">21 Temmuz 2026 · 14:05</time></div>
-                  <p>Merhaba Elif, iptal edip yeniden almana gerek yok. Randevu kartındaki &quot;Saati değiştir&quot; adımı antrenörün açık saatlerini gösteriyor ve seçtiğin saati onun onayına gönderiyor.</p>
-                  <p>Hangi güne almak istediğini yazarsan biz de antrenörüne iletebiliriz.</p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-20T09:18">20 Temmuz 2026 · 09:18</time></div>
+                <p>Cuma 18:00'deki antrenör görüşmemi bir hafta ertelemem gerekiyor. Randevular sayfasında erteleme seçeneğini bulamadım, iptal edip yeniden almam mı gerekiyor?</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-21T14:05">21 Temmuz 2026 · 14:05</time></div>
+                <p>Merhaba Elif, iptal edip yeniden almana gerek yok. Randevu kartındaki &quot;Saati değiştir&quot; adımı antrenörün açık saatlerini gösteriyor ve seçtiğin saati onun onayına gönderiyor.</p>
+                <p>Hangi güne almak istediğini yazarsan biz de antrenörüne iletebiliriz.</p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-P7XBW2 · Kapatılan ===== -->
           <div class="tk-t" data-tk="DF-2026-P7XBW2" hidden
                data-title="Antrenör randevum takvimde iki kez göründü"
@@ -602,36 +531,25 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-15" data-open-txt="15 Temmuz 2026, 18:20" data-open-short="15 Tem"
                data-last-iso="2026-07-17" data-last-txt="17 Temmuz 2026, 10:05" data-last-short="17 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-15T18:20">15 Temmuz 2026 · 18:20</time></div>
-                  <p>Cuma günkü antrenör görüşmem randevular sayfamda iki kez listeleniyor. İki kayıt da aynı saati gösteriyor; iki kez ücretlendirilir miyim diye çekiniyorum.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-07-16T09:15">16 Temmuz 2026 · 09:15</time></div>
-                  <p>Merhaba Elif, içini rahat tut: tek bir randevu kaydı var, ikinci satır listeleme tarafındaki bir tekrardı ve ücretlendirmeye yansımıyor. Fazladan satırı kaldırdık, sayfayı yenilediğinde tek kayıt göreceksin.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-17T09:58">17 Temmuz 2026 · 09:58</time></div>
-                  <p>Yeniledim, tek randevu görünüyor. Teşekkürler.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-17T10:05">17 Temmuz 2026 · 10:05</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-15T18:20">15 Temmuz 2026 · 18:20</time></div>
+                <p>Cuma günkü antrenör görüşmem randevular sayfamda iki kez listeleniyor. İki kayıt da aynı saati gösteriyor; iki kez ücretlendirilir miyim diye çekiniyorum.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-16T09:15">16 Temmuz 2026 · 09:15</time></div>
+                <p>Merhaba Elif, içini rahat tut: tek bir randevu kaydı var, ikinci satır listeleme tarafındaki bir tekrardı ve ücretlendirmeye yansımıyor. Fazladan satırı kaldırdık, sayfayı yenilediğinde tek kayıt göreceksin.</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-17T09:58">17 Temmuz 2026 · 09:58</time></div>
+                <p>Yeniledim, tek randevu görünüyor. Teşekkürler.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-17T10:05">17 Temmuz 2026 · 10:05</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-E3QHT6 · Kapatılan ===== -->
           <div class="tk-t" data-tk="DF-2026-E3QHT6" hidden
                data-title="Bildirim tercihlerim her girişte sıfırlanıyor"
@@ -640,37 +558,26 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-08" data-open-txt="8 Temmuz 2026, 11:47" data-open-short="8 Tem"
                data-last-iso="2026-07-10" data-last-txt="10 Temmuz 2026, 16:30" data-last-short="10 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-08T11:47">8 Temmuz 2026 · 11:47</time></div>
-                  <p>Bildirim tercihlerimde hatırlatmaları kapatıyorum, kaydediyorum, ama bir sonraki girişimde hepsi tekrar açık geliyor. Üç kez denedim.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-07-09T14:02">9 Temmuz 2026 · 14:02</time></div>
-                  <p>Merhaba Elif, tarayıcıdan yapılan tercih değişikliği hesaba yazılıyor ama girişte varsayılanlarla üzerine yazılıyormuş — bunu doğruladık ve düzeltmeyi yayına aldık.</p>
-                  <p>Tercihlerini bir kez daha kaydeder misin? Bu sefer çıkış-giriş sonrasında da kalması gerekiyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-10T16:22">10 Temmuz 2026 · 16:22</time></div>
-                  <p>Kaydettim, çıkıp girdim, tercihlerim korunuyor. Çözüldü.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-10T16:30">10 Temmuz 2026 · 16:30</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-08T11:47">8 Temmuz 2026 · 11:47</time></div>
+                <p>Bildirim tercihlerimde hatırlatmaları kapatıyorum, kaydediyorum, ama bir sonraki girişimde hepsi tekrar açık geliyor. Üç kez denedim.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-09T14:02">9 Temmuz 2026 · 14:02</time></div>
+                <p>Merhaba Elif, tarayıcıdan yapılan tercih değişikliği hesaba yazılıyor ama girişte varsayılanlarla üzerine yazılıyormuş — bunu doğruladık ve düzeltmeyi yayına aldık.</p>
+                <p>Tercihlerini bir kez daha kaydeder misin? Bu sefer çıkış-giriş sonrasında da kalması gerekiyor.</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-10T16:22">10 Temmuz 2026 · 16:22</time></div>
+                <p>Kaydettim, çıkıp girdim, tercihlerim korunuyor. Çözüldü.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-10T16:30">10 Temmuz 2026 · 16:30</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-N9GVJ4 · Kapatılan ===== -->
           <div class="tk-t" data-tk="DF-2026-N9GVJ4" hidden
                data-title="Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor"
@@ -679,36 +586,25 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-07-01" data-open-txt="1 Temmuz 2026, 09:12" data-open-short="1 Tem"
                data-last-iso="2026-07-03" data-last-txt="3 Temmuz 2026, 12:15" data-last-short="3 Tem">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-01T09:12">1 Temmuz 2026 · 09:12</time></div>
-                  <p>Egzersiz kütüphanesinde &quot;Ekipmansız&quot; süzgecini seçtiğimde hiç sonuç çıkmıyor, oysa ekipmansız yüzlerce hareket olduğunu biliyorum. Süzgeci kaldırınca liste geri geliyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Merve</b><span class="who">DadaFit Destek</span><time datetime="2026-07-02T10:30">2 Temmuz 2026 · 10:30</time></div>
-                  <p>Merhaba Elif, doğrulayabildik: süzgeç değeri adresteki parametreyle eşleşmediği için boş liste dönüyormuş. Düzeltme yayına alındı; sayfayı yenileyip tekrar dener misin?</p>
-                </div>
-              </li>
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-07-03T12:08">3 Temmuz 2026 · 12:08</time></div>
-                  <p>Denedim, sonuçlar geliyor. Teşekkürler.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-03T12:15">3 Temmuz 2026 · 12:15</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-01T09:12">1 Temmuz 2026 · 09:12</time></div>
+                <p>Egzersiz kütüphanesinde &quot;Ekipmansız&quot; süzgecini seçtiğimde hiç sonuç çıkmıyor, oysa ekipmansız yüzlerce hareket olduğunu biliyorum. Süzgeci kaldırınca liste geri geliyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-07-02T10:30">2 Temmuz 2026 · 10:30</time></div>
+                <p>Merhaba Elif, doğrulayabildik: süzgeç değeri adresteki parametreyle eşleşmediği için boş liste dönüyormuş. Düzeltme yayına alındı; sayfayı yenileyip tekrar dener misin?</p>
+              </div>
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-07-03T12:08">3 Temmuz 2026 · 12:08</time></div>
+                <p>Denedim, sonuçlar geliyor. Teşekkürler.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Talebi kapattın · <time datetime="2026-07-03T12:15">3 Temmuz 2026 · 12:15</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- ===== DF-2026-U2FZR8 · Çözülen ===== -->
           <div class="tk-t" data-tk="DF-2026-U2FZR8" hidden
                data-title="Enerji defterinde su takibi her gün sıfırlanıyor"
@@ -717,37 +613,26 @@
                data-kanal="Web · Destek Taleplerim"
                data-open-iso="2026-06-24" data-open-txt="24 Haziran 2026, 07:40" data-open-short="24 Haz"
                data-last-iso="2026-06-26" data-last-txt="26 Haziran 2026, 11:20" data-last-short="26 Haz">
-            <ol class="tk-thread">
-              <li class="tk-msg is-me">
-                <span class="av" aria-hidden="true">EŞ</span>
-                <div class="bd">
-                  <div class="mh"><b>Elif Şahin</b><span class="who">Sen</span><time datetime="2026-06-24T07:40">24 Haziran 2026 · 07:40</time></div>
-                  <p>Enerji defterindeki su takibine gün içinde bardakları işaretliyorum, ama ertesi gün açtığımda geçmiş günün kaydı da sıfır görünüyor. Yalnız o günün değil, önceki günlerin kaydı da kayboluyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-06-25T15:12">25 Haziran 2026 · 15:12</time></div>
-                  <p>Merhaba Elif, su kaydı gün değişiminde sıfırlanırken geçmiş günlerin toplamını da siliyormuş. Hatayı doğruladık, düzeltme bu hafta yayına giriyor.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-team">
-                <span class="av" aria-hidden="true">DF</span>
-                <div class="bd">
-                  <div class="mh"><b>Kaan</b><span class="who">DadaFit Destek</span><time datetime="2026-06-26T11:20">26 Haziran 2026 · 11:20</time></div>
-                  <p>Düzeltme yayına alındı: bugünden sonraki kayıtlar korunuyor. Ne yazık ki silinmiş geçmiş günler geri getirilemiyor, bunun için kusura bakma.</p>
-                  <p>Talebi çözüldü olarak işaretliyorum. Aynı davranışı tekrar görürsen buraya yazman yeterli, talep yeniden açılır.</p>
-                </div>
-              </li>
-              <li class="tk-msg is-sys">
-                <div class="bd">
-                  <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Destek ekibi talebi çözüldü olarak işaretledi · <time datetime="2026-06-26T11:20">26 Haziran 2026 · 11:20</time></p>
-                </div>
-              </li>
-            </ol>
+            <div class="bub-list">
+              <div class="bub out">
+                <div class="bt"><b>Sen</b> <time datetime="2026-06-24T07:40">24 Haziran 2026 · 07:40</time></div>
+                <p>Enerji defterindeki su takibine gün içinde bardakları işaretliyorum, ama ertesi gün açtığımda geçmiş günün kaydı da sıfır görünüyor. Yalnız o günün değil, önceki günlerin kaydı da kayboluyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-06-25T15:12">25 Haziran 2026 · 15:12</time></div>
+                <p>Merhaba Elif, su kaydı gün değişiminde sıfırlanırken geçmiş günlerin toplamını da siliyormuş. Hatayı doğruladık, düzeltme bu hafta yayına giriyor.</p>
+              </div>
+              <div class="bub in">
+                <div class="bt"><b>Destek ekibi</b> <time datetime="2026-06-26T11:20">26 Haziran 2026 · 11:20</time></div>
+                <p>Düzeltme yayına alındı: bugünden sonraki kayıtlar korunuyor. Ne yazık ki silinmiş geçmiş günler geri getirilemiyor, bunun için kusura bakma.</p>
+                <p>Talebi çözüldü olarak işaretliyorum. Aynı davranışı tekrar görürsen buraya yazman yeterli, talep yeniden açılır.</p>
+              </div>
+              <div class="bub is-sys">
+                
+                <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Destek ekibi talebi çözüldü olarak işaretledi · <time datetime="2026-06-26T11:20">26 Haziran 2026 · 11:20</time></p>
+              </div>
+            </div>
           </div>
-
           <!-- talep numarası tanınmadıysa -->
           <div class="lib-empty" id="tkEmpty">
             <span class="ico"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
@@ -826,20 +711,6 @@
 
       <!-- ---------- YAN RAY ---------- -->
       <aside class="tk-side">
-
-        <div class="tk-card" id="tkInfoCard">
-          <div class="tk-card-head"><i class="fa-solid fa-file-lines" aria-hidden="true"></i><h3>Talep Bilgileri</h3></div>
-          <dl class="tk-meta">
-            <div><dt>Talep numarası</dt><dd id="mNo">DF-2026-K7WQ9M</dd></div>
-            <div><dt>Durum</dt><dd><span class="tk-badge st-ok" id="mBadge"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Çözülen</span></span></dd></div>
-            <div><dt>Konu</dt><dd id="mKonu">DadaFit Pro ve ödeme</dd></div>
-            <div><dt>Açılış</dt><dd><time id="mOpen" datetime="2026-08-12">12 Ağustos 2026, 14:32</time></dd></div>
-            <div><dt>Son hareket</dt><dd><time id="mLast" datetime="2026-08-14">14 Ağustos 2026, 09:05</time></dd></div>
-            <div><dt>Mesaj</dt><dd id="mCount">4</dd></div>
-            <div><dt>Kanal</dt><dd id="mKanal">Web · Destek Taleplerim</dd></div>
-          </dl>
-          <div class="demo-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Bu prototipteki talepler, numaralar ve yazışmalar örnektir, gerçek bir destek kaydı değildir.</span></div>
-        </div>
 
         <!-- TALEP İŞLEMLERİ — kanon §2.1'in ÜYE matrisinin ekran karşılığı.
              Hangi düğmenin göründüğü durumdan türer, elle yazılmaz:
@@ -1037,10 +908,15 @@
      riskin Fit'teki karşılığı yok. Etiket yine de kanonunkidir — çünkü dört
      marka aynı dili konuşacak ve Fit'te ayrım zaten gerekliydi. */
   var STATUS = {
-    'acik':           { cls:'st-wait', icon:'fa-inbox',        txt:'Açık talep' },
-    'yanit-bekleyen': { cls:'st-wait', icon:'fa-reply',        txt:'Yanıt bekleyen' },
-    'cozulen':        { cls:'st-ok',   icon:'fa-circle-check', txt:'Çözülen' },
-    'kapatilan':      { cls:'st-off',  icon:'fa-lock',         txt:'Kapatılan' }
+    /* §Ö24 · rozet §C11'in `.pstat` kitidir; ayrı bir rozet biçimi üretilmez.
+       §Ö25 · DÖRT DURUM DÖRT AYRI SINIF taşır — iki durum aynı rozeti
+       PAYLAŞAMAZ. Ölçülen kusur buydu: `acik` ve `yanit-bekleyen` ikisi de
+       `st-wait` idi ve dört durum ekranda ÜÇ renk gösteriyordu.
+       Ayrım anlamdan gelir: `wait` top destekte, `warm` top üyede. */
+    'acik':           { cls:'wait', icon:'fa-inbox',        txt:'Açık talep' },
+    'yanit-bekleyen': { cls:'warm', icon:'fa-reply',        txt:'Yanıt bekleyen' },
+    'cozulen':        { cls:'ok',   icon:'fa-circle-check', txt:'Çözülen' },
+    'kapatilan':      { cls:'off',  icon:'fa-lock',         txt:'Kapatılan' }
   };
 
   /* ---- AKTÖR — durumu KİMİN eli değiştiriyor -----------------------
@@ -1159,12 +1035,12 @@
   function paintBadge(node, key){
     if(!node) return;
     var s = STATUS[key] || STATUS['acik'];
-    node.className = 'tk-badge ' + s.cls;
-    node.innerHTML = '<i class="fa-solid ' + s.icon + '" aria-hidden="true"></i> <span>' + s.txt + '</span>';
+    node.className = 'pstat ' + s.cls;
+    node.textContent = s.txt;
   }
 
   function msgCount(node){
-    return node.querySelectorAll('.tk-thread > .tk-msg:not(.is-sys)').length;
+    return node.querySelectorAll('.bub-list > .bub:not(.is-sys)').length;
   }
 
   /* künyeyi seçili talebin data-* değerlerinden doldurur */
@@ -1173,12 +1049,11 @@
     var d = current.dataset;
     var n = msgCount(current);
 
-    setText('tkTitle', d.title);
-    setText('tkCrumb', 'Talep ' + d.tk);
-    setText('tkNo', '#' + d.tk);
-    setText('tkStatCount', String(n));
-    setText('tkStatOpen', d.openShort);
-    setText('tkStatLast', d.lastShort);
+    /* §Ö2 sonrası banner ailesi kalktı; künye artık TEK yerde, §Ö17'nin
+       "Talep Bilgileri" kartında. `setText` eksik düğümde sessizce geçer,
+       o yüzden kalkan kalemler (tkTitle/tkCrumb/tkNo/tkStat*) çağrıdan da
+       çıkarıldı — ölü referans bırakılmıyor.
+       Sayfa başlığını modül kabuğu basıyor (#fitPlanTop). */
     setText('tkHeadCount', n + ' mesaj');
 
     setText('mNo', d.tk);
@@ -1189,7 +1064,6 @@
     if(mo){ mo.setAttribute('datetime', d.openIso); mo.textContent = d.openTxt; }
     if(ml){ ml.setAttribute('datetime', d.lastIso); ml.textContent = d.lastTxt; }
 
-    paintBadge(byId('tkBadge'), d.status);
     paintBadge(byId('mBadge'),  d.status);
 
     /* seçili talebi yan raydaki "Taleplerin" listesinde işaretle (Y8.5) */
@@ -1237,9 +1111,6 @@
       replyBox.hidden = true;
       var ic = byId('tkInfoCard'); if(ic) ic.hidden = true;
       var cc = byId('tkActCard');  if(cc) cc.hidden = true;
-      var bb = byId('tkBadge');    if(bb) bb.hidden = true;
-      setText('tkTitle', 'Talep bulunamadı');
-      setText('tkCrumb', 'Talep bulunamadı');
       setText('tkNo', '#' + want);
       setText('tkHeadCount', '0 mesaj');
       setText('tkStatCount', '0');
@@ -1280,11 +1151,11 @@
   }
   function sistemSatiri(metin, ikon, s){
     var li = document.createElement('li');
-    li.className = 'tk-msg is-sys is-new';
+    li.className = 'bub is-sys is-new';
     li.innerHTML =
       '<div class="bd"><p><i class="fa-solid ' + ikon + '" aria-hidden="true"></i> ' +
       esc(metin) + ' · <time datetime="' + s.iso + '">' + s.txt + '</time></p></div>';
-    current.querySelector('.tk-thread').appendChild(li);
+    current.querySelector('.bub-list').appendChild(li);
     return li;
   }
 
@@ -1373,7 +1244,7 @@
         '<p>' + esc(ta.value.trim()) + '</p>' +
         (ekDosya ? '<p class="msg-ek"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> ' + esc(ekDosya.name) + '</p>' : '') +
       '</div>';
-    current.querySelector('.tk-thread').appendChild(li);
+    current.querySelector('.bub-list').appendChild(li);
 
     /* 🔴 Yan etki TEK KAYNAKTAN gelir (`yanitEtkisi`), burada yeniden
        yazılmaz — aktörü değişen ikinci bir kopya sessizce ayrışırdı.

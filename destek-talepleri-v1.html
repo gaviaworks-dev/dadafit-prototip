@@ -96,7 +96,7 @@
 
 /* ---- talep satırları ---- */
 .tk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.tk-item[hidden]{display:none}
+.set-row[hidden]{display:none}
 
 /* fit-type.css'teki `li{text-align:justify}` .tk-item'a düşüyor, kart başlığı
    h3 de onu MİRAS alıyor (h3 istisnası "text-align:inherit" yazıyor). ÖLÇÜM:
@@ -284,288 +284,230 @@
 <main class="page-main" id="pageMain">
 
 <!-- ===== BANNER + BREADCRUMB (kabuk .lib-top kiti) ===== -->
-<section class="lib-top">
-  <div class="wrap">
-    <nav class="lib-crumb" aria-label="Sayfa yolu">
-      <a href="dadafit-hub-v1.html" class="crumb-home"><i class="fa-solid fa-house" aria-hidden="true"></i><span class="sr-only">DadaFit ana sayfa</span></a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <a href="hesabim-v1.html">Hesap Ayarları</a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <a href="destek-v1.html">Destek Merkezi</a>
-      <i class="fa-solid fa-chevron-right"></i>
-      <span class="cur">Destek Taleplerim</span>
-    </nav>
-    <span class="eyebrow"><i class="fa-solid fa-headset"></i> Hesabım</span>
-    <h1>Destek Taleplerim</h1>
-    <p class="lib-sub">Açtığın destek taleplerini durumuna göre süz, hangisinin yanıtlandığını gör ve gerekirse yeni bir talep oluştur. Her talebin kendi numarası ve yazışma geçmişi var.</p>
-    <div class="chips">
-      <a class="btn btn-fit" href="#yeni-talep"><i class="fa-solid fa-plus"></i> Yeni talep oluştur</a>
-      <a class="btn btn-ghost" href="destek-v1.html"><i class="fa-solid fa-headset"></i> Destek Merkezi'ne bak</a>
-    </div>
-    <div class="lib-stats">
-      <div class="lib-stat"><b id="stTotal">12</b><span>toplam talep</span></div>
-      <div class="lib-stat"><b id="stOpen">3</b><span>açık talep</span></div>
-      <div class="lib-stat"><b id="stWait">3</b><span>yanıt bekleyen</span></div>
-    </div>
-  </div>
-</section>
+<div id="fitPlanTop" data-plan-page="destek-talepleri" data-plan-title="Destek Taleplerim"
+     data-plan-sub="Açtığın talepler, yazışmaları ve durumları."></div>
 
-<!-- ===== SEKME RAYI — iki akış: Destek | Taleplerim (R8 · madde 34) ===== -->
-<div class="pf-tabbar">
-  <div class="wrap">
-    <div class="pf-tabs is-center" role="group" aria-label="Destek akışları">
-      <a class="dt" href="destek-v1.html"><i class="fa-solid fa-headset" aria-hidden="true"></i> Destek Merkezi</a>
-      <a class="dt active" href="destek-talepleri-v1.html" aria-current="page"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Destek Taleplerim <span class="cnt">12</span></a>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TALEP LİSTESİ + DURUM SÜZGECİ ===== -->
-<section class="tk-body">
+<section class="hs-body">
   <div class="wrap">
 
-    <div class="tk-panel">
-      <div class="tk-head">
-        <div>
-          <h2 id="talepH"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Destek Taleplerim</h2>
-          <p>Bir talebi açmak için satırına dokun. Talep numarası, yazışmayla ilgili her yerde aynı kalır. Aşağıdaki talepler, tarihler ve numaralar prototipte ekran akışını göstermek için konmuş örneklerdir.</p>
+    <!-- §Ö4 · DURUM SÜZGECİ — İKİNCİ `.pf-tabbar > .pf-tabs`, BEŞ kalem.
+         Her kalem sayacını `<span class="muted">` ile basar.
+         §Ö5 · süzme ADRESLENEBİLİR: her kalem `?durum=<deger>`e giden bir <a>.
+         Tanınmayan değer sessizce "Tümü"ye düşer (sayfa JS'i beyaz liste tutar).
+         §Ö6 · sayaçlar süzgeçten BAĞIMSIZDIR — "Çözülen" seçiliyken de
+         "Açık talep 3" görünür; sayılar toplam kümeden hesaplanır. -->
+    <div class="pf-tabbar hs-rail">
+      <nav class="pf-tabs" id="tkFilter" aria-label="Talep durumu süzgeci">
+        <a class="dt active" href="?durum=tumu" data-f="tumu" aria-current="page"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tümü <span class="muted" data-c="tumu">12</span></a>
+        <a class="dt" href="?durum=acik" data-f="acik"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep <span class="muted" data-c="acik">3</span></a>
+        <a class="dt" href="?durum=yanit-bekleyen" data-f="yanit-bekleyen"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen <span class="muted" data-c="yanit-bekleyen">3</span></a>
+        <a class="dt" href="?durum=cozulen" data-f="cozulen"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen <span class="muted" data-c="cozulen">2</span></a>
+        <a class="dt" href="?durum=kapatilan" data-f="kapatilan"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan <span class="muted" data-c="kapatilan">4</span></a>
+      </nav>
+    </div>
+
+    <div class="hs-col">
+
+      <!-- §Ö12 · AÇIK TALEP ÖZETİ — liste kartının ÜSTÜNDE durur ve
+           SAYFALANMAZ. Akışta kalan işi gösterir, arşivi değil. -->
+      <div class="pnl-card" id="tkOzet">
+        <div class="pc-head">
+          <div>
+            <h2 class="pc-title"><i class="fa-solid fa-bolt"></i> Akışta kalan talepler</h2>
+            <p>Açık ve yanıt bekleyen taleplerin. Bu kart sayfalanmaz.</p>
+          </div>
+        </div>
+        <div class="pc-body flush">
+          <div class="set-list">
+          <a class="set-row" data-durum="acik" data-no="DF-2026-B4TXN2" href="destek-talebi-detay-v1.html?talep=DF-2026-B4TXN2">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Apple Health adım verisi iki gündür aktarılmıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-B4TXN2 · Aktivite ve cihaz bağlantıları · son hareket <time datetime="2026-08-11">11 Ağustos 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="acik" data-no="DF-2026-H9DKR6" href="destek-talebi-detay-v1.html?talep=DF-2026-H9DKR6">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Video seansı ortasında baştan başlıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-H9DKR6 · Video seansları · son hareket <time datetime="2026-08-06">6 Ağustos 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-QW3JZ8" href="destek-talebi-detay-v1.html?talep=DF-2026-QW3JZ8">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Programını Bul sonucundaki program planıma eklenmedi</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-QW3JZ8 · Programlar ve planım · son hareket <time datetime="2026-07-29">29 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-M2VYP7" href="destek-talebi-detay-v1.html?talep=DF-2026-M2VYP7">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Antrenman geçmişimde iki günlük boşluk görünüyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-M2VYP7 · Aktivite ve cihaz bağlantıları · son hareket <time datetime="2026-07-27">27 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="acik" data-no="DF-2026-T6NGX4" href="destek-talebi-detay-v1.html?talep=DF-2026-T6NGX4">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Challenge rozetim tamamlandığı hâlde düşmedi</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-T6NGX4 · Uygulama hatası · son hareket <time datetime="2026-07-23">23 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-A8RUC3" href="destek-talebi-detay-v1.html?talep=DF-2026-A8RUC3">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Antrenör randevumu ertelemek istiyorum</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-A8RUC3 · Antrenör ve randevu · son hareket <time datetime="2026-07-21">21 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          </div>
         </div>
       </div>
 
-      <!-- DURUM SÜZGECİ — kabuğun .fgroup + .df-fchip kiti.
-           Gerçekten süzer, aria-pressed taşır, seçim ?durum= parametresine
-           yazılır; geri/ileri ve sayfa yenileme seçimi korur (belge §23/§20). -->
-      <!-- Dört durum + "Tümü" · destek kanonu §1 ve §6.2.
-           🔴 "Tümü" bir DURUM DEĞİLDİR, bir GÖRÜNÜM SEÇİMİDİR: hiçbir kartın
-           `data-durum`u `tumu` olmaz. Kanon §6.2'nin gerekçesi — enum'a case
-           olarak girseydi `status` kolonuna yazılabilir hâle gelirdi. -->
-      <div class="tk-filter">
-        <div class="fgroup" role="group" aria-label="Talep durumuna göre süz" id="tkFilter">
-          <button type="button" class="df-fchip on" data-f="tumu" aria-pressed="true"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tümü <span class="tk-c" data-c="tumu">12</span></button>
-          <button type="button" class="df-fchip" data-f="acik" aria-pressed="false"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep <span class="tk-c" data-c="acik">3</span></button>
-          <button type="button" class="df-fchip" data-f="yanit-bekleyen" aria-pressed="false"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen <span class="tk-c" data-c="yanit-bekleyen">3</span></button>
-          <button type="button" class="df-fchip" data-f="cozulen" aria-pressed="false"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen <span class="tk-c" data-c="cozulen">2</span></button>
-          <button type="button" class="df-fchip" data-f="kapatilan" aria-pressed="false"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan <span class="tk-c" data-c="kapatilan">4</span></button>
+      <!-- §Ö7 · liste kiti `.pnl-card > .pc-body > .set-list > a.set-row` (§C10).
+           Tablo (`.ptable`) KULLANILMAZ — §C1'in sekiz kart tipinde tablo yok.
+           §Ö8 · satırın TAMAMI bağlantıdır, yalnız başlık değil.
+           §Ö9 · alt metin sırası sabit: referans · kategori · son hareket · mesaj sayısı. -->
+      <div class="pnl-card">
+        <div class="pc-head">
+          <div>
+            <h2 class="pc-title" id="talepH"><i class="fa-solid fa-inbox"></i> Destek Taleplerim</h2>
+            <p id="tkCount">12 talep gösteriliyor — süzgeç: tümü.</p>
+          </div>
+        </div>
+        <div class="pc-body flush">
+          <div class="set-list" id="tkList">
+          <a class="set-row" data-durum="cozulen" data-no="DF-2026-K7WQ9M" href="destek-talebi-detay-v1.html?talep=DF-2026-K7WQ9M">
+            <span class="sr-ico"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Pro üyeliğim yenilendi ama paket ücretsize düştü</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-K7WQ9M · DadaFit Pro ve ödeme · son hareket <time datetime="2026-08-14">14 Ağustos 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat ok">Çözülen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="acik" data-no="DF-2026-B4TXN2" href="destek-talebi-detay-v1.html?talep=DF-2026-B4TXN2">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Apple Health adım verisi iki gündür aktarılmıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-B4TXN2 · Aktivite ve cihaz bağlantıları · son hareket <time datetime="2026-08-11">11 Ağustos 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="acik" data-no="DF-2026-H9DKR6" href="destek-talebi-detay-v1.html?talep=DF-2026-H9DKR6">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Video seansı ortasında baştan başlıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-H9DKR6 · Video seansları · son hareket <time datetime="2026-08-06">6 Ağustos 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-QW3JZ8" href="destek-talebi-detay-v1.html?talep=DF-2026-QW3JZ8">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Programını Bul sonucundaki program planıma eklenmedi</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-QW3JZ8 · Programlar ve planım · son hareket <time datetime="2026-07-29">29 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-M2VYP7" href="destek-talebi-detay-v1.html?talep=DF-2026-M2VYP7">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Antrenman geçmişimde iki günlük boşluk görünüyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-M2VYP7 · Aktivite ve cihaz bağlantıları · son hareket <time datetime="2026-07-27">27 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="acik" data-no="DF-2026-T6NGX4" href="destek-talebi-detay-v1.html?talep=DF-2026-T6NGX4">
+            <span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Challenge rozetim tamamlandığı hâlde düşmedi</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-T6NGX4 · Uygulama hatası · son hareket <time datetime="2026-07-23">23 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat wait">Açık talep</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="kapatilan" data-no="DF-2026-Z4KMD9" href="destek-talebi-detay-v1.html?talep=DF-2026-Z4KMD9">
+            <span class="sr-ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Fatura adresimi güncellemek istiyorum</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-Z4KMD9 · Üyelik ve fatura · son hareket <time datetime="2026-07-22">22 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat off">Kapatılan</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="yanit-bekleyen" data-no="DF-2026-A8RUC3" href="destek-talebi-detay-v1.html?talep=DF-2026-A8RUC3">
+            <span class="sr-ico"><i class="fa-solid fa-reply" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Antrenör randevumu ertelemek istiyorum</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-A8RUC3 · Antrenör ve randevu · son hareket <time datetime="2026-07-21">21 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat warm">Yanıt bekleyen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="kapatilan" data-no="DF-2026-P7XBW2" href="destek-talebi-detay-v1.html?talep=DF-2026-P7XBW2">
+            <span class="sr-ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Antrenör randevum takvimde iki kez göründü</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-P7XBW2 · Antrenör ve randevu · son hareket <time datetime="2026-07-17">17 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat off">Kapatılan</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="kapatilan" data-no="DF-2026-E3QHT6" href="destek-talebi-detay-v1.html?talep=DF-2026-E3QHT6">
+            <span class="sr-ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Bildirim tercihlerim her girişte sıfırlanıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-E3QHT6 · Hesap ve giriş · son hareket <time datetime="2026-07-10">10 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat off">Kapatılan</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="kapatilan" data-no="DF-2026-N9GVJ4" href="destek-talebi-detay-v1.html?talep=DF-2026-N9GVJ4">
+            <span class="sr-ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-N9GVJ4 · Uygulama hatası · son hareket <time datetime="2026-07-03">3 Temmuz 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat off">Kapatılan</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          <a class="set-row" data-durum="cozulen" data-no="DF-2026-U2FZR8" href="destek-talebi-detay-v1.html?talep=DF-2026-U2FZR8">
+            <span class="sr-ico"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <span class="sr-txt">
+              <b>Enerji defterinde su takibi her gün sıfırlanıyor</b>
+              <span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-U2FZR8 · Uygulama hatası · son hareket <time datetime="2026-06-26">26 Haziran 2026</time> · 3 mesaj</span>
+            </span>
+            <span class="sr-act"><span class="pstat ok">Çözülen</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+          </a>
+          </div>
+
+          <!-- §Ö22 · boş durum §D2'nin `.pnl-empty` kitini kullanır, kartın
+               İÇİNDE yaşar (§D1) ve TEK eylem düğmesi taşır (§D5).
+               §Ö23 · süzgeç boş döndüğünde de basılır ve metni "hiç talebin
+               yok"tan AYRIDIR: talebi olan ama o durumda olmayan üyeye
+               "ilk talebini aç" denmez. İki dal, iki ayrı düğüm. -->
+          <div class="pnl-empty" id="tkEmptySuzgec" hidden>
+            <div class="pe-ico"><i class="fa-solid fa-filter-circle-xmark"></i></div>
+            <h4>Bu durumda talebin yok</h4>
+            <p>Seçtiğin durumda görüntülenecek bir talep bulunmuyor. Başka bir duruma bakabilirsin.</p>
+            <a class="btn btn-fit btn-sm" href="?durum=tumu"><i class="fa-solid fa-layer-group"></i> Tüm talepleri göster</a>
+          </div>
+          <div class="pnl-empty" id="tkEmptyHic" hidden>
+            <div class="pe-ico"><i class="fa-solid fa-inbox"></i></div>
+            <h4>Henüz destek talebin yok</h4>
+            <p>Bir sorun yaşarsan ya da bir şey sormak istersen ilk talebini buradan açabilirsin.</p>
+            <a class="btn btn-fit btn-sm" href="destek-v1.html"><i class="fa-solid fa-plus"></i> Yeni destek talebi</a>
+          </div>
+        </div>
+        <div class="pc-foot">
+          <!-- §Ö10 · sayfalama 10/sayfa ve süzgeci TAŞIR. §Ö11 · bileşen
+               deponun kendi pager'ıdır (`.pagi`/`.pg`), çıplak links() değil. -->
+          <nav class="pagi" id="tkPagi" aria-label="Talep sayfaları"></nav>
         </div>
       </div>
 
-      <!-- role="status"/aria-live BİLEREK KALDIRILDI: sayfalama motorunun kendi
-           `.pagi-note`u zaten aria-live="polite" ve aynı listeye bakıyor; iki
-           canlı bölge her süzgeç dokunuşunda üst üste okunuyordu. Satır ekranda
-           YAZILI kalıyor (belge §20'nin istediği kanal bu), duyurma işini
-           `.pagi-note` tek başına yapıyor. -->
-      <p class="tk-count" id="tkCount"><b>12</b> talep gösteriliyor — süzgeç: tümü.</p>
-
-      <!-- TEK DEFTER: on iki talebin numarası, konusu, durumu ve tarihi
-           destek-talebi-detay-v1.html ile BİREBİR aynı; oradaki her talebin
-           tam yazışması var, yani listedeki on iki bağlantının on ikisi de
-           gerçek bir yazışmaya iniyor (R8'de liste ile detay ayrı numara
-           kümesi taşıyordu ve satırların bir kısmı "talep bulunamadı"ya
-           düşüyordu — ölçüldü ve kapatıldı).
-           Durum dili kanondan: "Açık talep" · "Yanıt bekleyen" · "Çözülen" ·
-           "Kapatılan"; ikonlar fa-inbox / fa-reply / fa-circle-check / fa-lock. -->
-      <ul class="tk-list" id="tkList" aria-labelledby="talepH">
-
-        <li class="tk-item" data-durum="cozulen" data-no="DF-2026-K7WQ9M">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-K7WQ9M">
-            <span class="tk-badge st-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Pro üyeliğim yenilendi ama paket ücretsize düştü</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> DadaFit Pro ve ödeme</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-14">14 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-K7WQ9M</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="acik" data-no="DF-2026-B4TXN2">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-B4TXN2">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Apple Health adım verisi iki gündür aktarılmıyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-11">11 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-B4TXN2</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="acik" data-no="DF-2026-H9DKR6">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-H9DKR6">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Video seansı ortasında baştan başlıyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Video seansları</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-06">6 Ağustos 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-H9DKR6</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-QW3JZ8">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-QW3JZ8">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Programını Bul sonucundaki program planıma eklenmedi</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Programlar ve planım</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-29">29 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-QW3JZ8</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-M2VYP7">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-M2VYP7">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Antrenman geçmişimde iki günlük boşluk görünüyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Aktivite ve cihaz bağlantıları</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-27">27 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-M2VYP7</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="acik" data-no="DF-2026-T6NGX4">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-T6NGX4">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Challenge rozetim tamamlandığı hâlde düşmedi</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-23">23 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-T6NGX4</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-Z4KMD9">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-Z4KMD9">
-            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Fatura adresimi güncellemek istiyorum</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Üyelik ve fatura</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-22">22 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-Z4KMD9</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="yanit-bekleyen" data-no="DF-2026-A8RUC3">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-A8RUC3">
-            <span class="tk-badge st-wait"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Antrenör randevumu ertelemek istiyorum</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-21">21 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-A8RUC3</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-P7XBW2">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-P7XBW2">
-            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Antrenör randevum takvimde iki kez göründü</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Antrenör ve randevu</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-17">17 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-P7XBW2</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-E3QHT6">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-E3QHT6">
-            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Bildirim tercihlerim her girişte sıfırlanıyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Hesap ve giriş</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-10">10 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-E3QHT6</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="kapatilan" data-no="DF-2026-N9GVJ4">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-N9GVJ4">
-            <span class="tk-badge st-off"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-07-03">3 Temmuz 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-N9GVJ4</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-        <li class="tk-item" data-durum="cozulen" data-no="DF-2026-U2FZR8">
-          <a class="tk-row" href="destek-talebi-detay-v1.html?talep=DF-2026-U2FZR8">
-            <span class="tk-badge st-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen</span>
-            <span class="tk-main">
-              <h3 class="tk-subject">Enerji defterinde su takibi her gün sıfırlanıyor</h3>
-              <span class="tk-meta">
-                <span><i class="fa-solid fa-tag" aria-hidden="true"></i> Uygulama hatası</span>
-                <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-06-26">26 Haziran 2026</time></span>
-                <span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> DF-2026-U2FZR8</span>
-              </span>
-            </span>
-            <span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-          </a>
-        </li>
-
-      </ul>
-
-      <!-- boş durum — kabuğun .lib-empty kiti -->
-      <div class="lib-empty" id="tkEmpty">
-        <div class="ico"><i class="fa-solid fa-inbox"></i></div>
-        <h3>Bu durumda talebin yok</h3>
-        <p>Seçtiğin durumda görüntülenecek bir destek talebi bulunmuyor. Tümünü görmek için süzgeci sıfırlayabilirsin.</p>
-        <button class="btn btn-fit" type="button" id="tkEmptyReset"><i class="fa-solid fa-rotate-left"></i> Tüm talepleri göster</button>
-      </div>
-
-      <!-- SAYFALAMA — kanon §9/D5: Diet'te `paginate` YOK, kaynak GASTRO'dur
-           (`paginate(10)->withQueryString()`). Sayfa boyu 10 oradan alındı.
-           `withQueryString()`in maket karşılığı: sayfa değişimi adres çubuğuna
-           DOKUNMAZ, `?durum=` seçimi olduğu gibi kalır; süzgeç değişince
-           `pagi.yenile()` 1. sayfaya döner.
-           Biçim + davranış kabukta: fit-shell.css "SAYFALAMA" +
-           fit-shell.js "SAYFALAMA MOTORU" (FIT_PAGI). Yeni CSS yazılmadı. -->
-      <nav class="pagi" id="tkPagi" aria-label="Talep sayfaları"></nav>
     </div>
-
   </div>
 </section>
 
@@ -614,24 +556,51 @@
 
         <div class="fk-field">
           <label class="fk-label" for="tkBaslik">Başlık <span class="req" aria-hidden="true">*</span></label>
-          <input type="text" class="fk-input" id="tkBaslik" name="baslik" maxlength="90" required aria-required="true"
+          <input type="text" class="fk-input" id="tkBaslik" name="konu" minlength="3" maxlength="160" required aria-required="true"
                  placeholder="Sorunu tek cümlede özetle"
                  data-msg="Talebin için bir başlık yaz."
-                 data-msg-short="Başlık en az 8 karakter olsun — listede bu satırı sen tanıyacaksın."
+                 data-msg-short="Başlık en az 3 karakter olsun — listede bu satırı sen tanıyacaksın."
                  aria-describedby="tkBaslikErr" />
           <p class="fk-err" id="tkBaslikErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
         </div>
 
         <div class="fk-field">
           <label class="fk-label" for="tkMesaj">Talebin <span class="req" aria-hidden="true">*</span>
-            <span class="fk-count"><span id="tkMsgCount">0</span>/1000</span></label>
-          <textarea class="fk-textarea" id="tkMesaj" name="mesaj" maxlength="1000" required aria-required="true"
+            <span class="fk-count"><span id="tkMsgCount">0</span>/5000</span></label>
+          <textarea class="fk-textarea" id="tkMesaj" name="aciklama" minlength="10" maxlength="5000" required aria-required="true"
                     placeholder="Ne olduğunu, ne zaman olduğunu ve hangi ekranda gördüğünü yazabilirsin."
                     data-msg="Ne olduğunu birkaç cümleyle anlat."
-                    data-msg-short="Talebin en az 20 karakter olsun"
+                    data-msg-short="Talebin en az 10 karakter olsun"
                     aria-describedby="tkMesajHelp tkMesajErr"></textarea>
           <p class="fk-help" id="tkMesajHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Hangi cihazı ve uygulama sürümünü kullandığını yazarsan talep daha hızlı çözülür.</p>
           <p class="fk-err" id="tkMesajErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
+        </div>
+
+        <!-- §Ö13 · alan seti SABİTTİR: kategori* · konu* · açıklama* ·
+             ilgili randevu · ilgili ödeme referansı · ek dosya.
+             Bu iki alan eksikti ve eklendi; ikisi de isteğe bağlıdır.
+             §Ö14 · `related_payment_reference` max:64.
+             ⚠ Fit statik HTML — sunucu sözleşmesi yok; `name` nitelikleri
+             MAKET DÜZEYİNDE, şartnamenin alan adlarıyla yazıldı. İlgili
+             randevunun SAHİPLİK kontrolü (§Ö14) sunucu kalemidir, burada
+             karşılığı yok: seçenekler üyenin kendi randevularıdır. -->
+        <div class="fk-grid c2">
+          <div class="fk-field">
+            <label class="fk-label" for="tkRandevu">İlgili randevu <span class="opt">(isteğe bağlı)</span></label>
+            <select class="fk-select" id="tkRandevu" name="ilgili_randevu">
+              <option value="">Seçme</option>
+              <option value="RND-2026-0841">14 Ağustos 2026 · Selin Aksoy · Değerlendirme</option>
+              <option value="RND-2026-0796">2 Ağustos 2026 · Selin Aksoy · Takip seansı</option>
+              <option value="RND-2026-0712">19 Temmuz 2026 · Kaan Demir · Fit test</option>
+            </select>
+            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Talep bir randevuyla ilgiliyse seçersen destek ekibi kaydı hemen görür.</p>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="tkOdeme">İlgili ödeme referansı <span class="opt">(isteğe bağlı)</span></label>
+            <input type="text" class="fk-input" id="tkOdeme" name="ilgili_odeme_referansi" maxlength="64"
+                   placeholder="Ör. ODM-2026-4417" />
+            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Ödeme ve fatura konularında referansı <a href="hesabim-v1.html#odeme">Ödeme</a> bölümünden kopyalayabilirsin.</p>
+          </div>
         </div>
 
         <!-- EK DOSYA — kanon §8.1: MESAJ başına TEK dosya, alan adı `ek`.
@@ -720,13 +689,23 @@
   var LABEL = {tumu:'tümü', 'acik':'açık talepler', 'yanit-bekleyen':'yanıt bekleyenler',
                'cozulen':'çözülenler', 'kapatilan':'kapatılanlar'};
 
+  function bosGoster(bosMu){
+    var hicTalepVar = items().length > 0;
+    if(bosSuzgec) bosSuzgec.hidden = !(bosMu && hicTalepVar);
+    if(bosHic)    bosHic.hidden    = !(bosMu && !hicTalepVar);
+  }
   var bar   = document.getElementById('tkFilter');
   var list  = document.getElementById('tkList');
-  var empty = document.getElementById('tkEmpty');
+  /* §Ö23 · boş durum İKİ DALLIDIR: süzgeç boş döndüğünde ayrı metin basılır,
+     talebi olan üyeye "ilk talebini aç" denmez. */
+  var bosSuzgec = document.getElementById('tkEmptySuzgec');
+  var bosHic    = document.getElementById('tkEmptyHic');
   var cnt   = document.getElementById('tkCount');
   if(!bar || !list || !cnt) return;
 
-  function items(){ return [].slice.call(list.querySelectorAll('.tk-item')); }
+  /* §Ö7/§Ö8 · satırlar artık `a.set-row`. §Ö12 · özet kartının satırları
+     BU listede değildir, o yüzden ne sayılır ne sayfalanır. */
+  function items(){ return [].slice.call(list.querySelectorAll('.set-row')); }
 
   function readParam(){
     var v = new URLSearchParams(location.search).get('durum');
@@ -741,7 +720,7 @@
       var d = li.getAttribute('data-durum');
       if(n[d] !== undefined) n[d]++;
     });
-    bar.querySelectorAll('.tk-c').forEach(function(el){
+    bar.querySelectorAll('[data-c]').forEach(function(el){
       var k = el.getAttribute('data-c');
       if(n[k] !== undefined) el.textContent = n[k];
     });
@@ -775,7 +754,7 @@
     ciz: function(gosterilecek, hepsi){
       items().forEach(function(li){ li.hidden = true; });
       gosterilecek.forEach(function(li){ li.hidden = false; });
-      if(empty) empty.classList.toggle('show', hepsi.length === 0);
+      bosGoster(hepsi.length === 0);
       list.hidden = (hepsi.length === 0);
     }
   }) : null;
@@ -784,10 +763,10 @@
     if(VALID.indexOf(f) < 0) f = 'tumu';   /* beyaz liste — geçersiz sessizce "Tümü" */
     secili = f;
 
-    bar.querySelectorAll('.df-fchip').forEach(function(b){
+    bar.querySelectorAll('.dt').forEach(function(b){
       var on = b.getAttribute('data-f') === f;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.classList.toggle('active', on);
+      if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
     });
 
     var shown = eslesen().length;
@@ -801,7 +780,7 @@
       items().forEach(function(li){
         li.hidden = !(f === 'tumu' || li.getAttribute('data-durum') === f);
       });
-      if(empty) empty.classList.toggle('show', shown === 0);
+      bosGoster(shown === 0);
       list.hidden = (shown === 0);
     }
 
@@ -812,17 +791,13 @@
     return shown;
   }
 
+  /* §Ö5 · kalemler gerçek <a href="?durum=…"> — JS yalnız sayfa yenilemesini
+     keser, adres yine de yazılır (pushState). JS düşerse bağlantı çalışır. */
   bar.addEventListener('click', function(e){
-    var b = e.target.closest('.df-fchip');
+    var b = e.target.closest('.dt');
     if(!b) return;
+    e.preventDefault();
     apply(b.getAttribute('data-f'), true);
-  });
-
-  var reset = document.getElementById('tkEmptyReset');
-  if(reset) reset.addEventListener('click', function(){
-    apply('tumu', true);
-    var first = bar.querySelector('.df-fchip[data-f="tumu"]');
-    if(first) first.focus();
   });
 
   window.addEventListener('popstate', function(){ apply(readParam(), false); });
@@ -844,7 +819,10 @@
   var sum     = document.getElementById('tkErrSum');
   var sumText = sum ? sum.querySelector('span') : null;
   var okBox   = document.getElementById('tkOk');
-  var MIN_BASLIK = 8, MIN_MSG = 20;
+  /* §Ö14 · doğrulama değerleri şartnamenin sayılarıdır:
+     konu `min:3` `max:160` · açıklama `min:10` `max:5000`.
+     Öncesi 8/20 ve 90/1000 idi — ölçülen sapma. */
+  var MIN_BASLIK = 3, MIN_MSG = 10;
   var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 
   function errBox(el){
@@ -980,23 +958,23 @@
     var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     var trh = d.getDate() + ' ' + AYLAR[d.getMonth()] + ' ' + d.getFullYear();
 
-    var li = document.createElement('li');
-    li.className = 'tk-item';
+    /* §Ö7/§Ö8 · yeni satır da kanon kitle basılır: `a.set-row`, satırın
+       TAMAMI bağlantı. §Ö9 · alt metin sırası referans · kategori ·
+       son hareket · mesaj sayısı. §Ö25 · yeni talep `acik` → `.pstat wait`. */
+    var li = document.createElement('a');
+    li.className = 'set-row is-new';
+    li.setAttribute('href','destek-talebi-detay-v1.html?talep=' + no);
     li.setAttribute('data-durum','acik');
     li.setAttribute('data-no', no);
     li.innerHTML =
-      '<a class="tk-row is-new" href="destek-talebi-detay-v1.html?talep=' + esc(no) + '">' +
-        '<span class="tk-badge st-wait"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep</span>' +
-        '<span class="tk-main">' +
-          '<h3 class="tk-subject">' + esc(bas) + '</h3>' +
-          '<span class="tk-meta">' +
-            '<span><i class="fa-solid fa-tag" aria-hidden="true"></i> ' + esc(kat) + '</span>' +
-            '<span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="' + iso + '">' + trh + '</time></span>' +
-            '<span class="tk-no"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(no) + '</span>' +
-          '</span>' +
+        '<span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>' +
+        '<span class="sr-txt">' +
+          '<b>' + esc(bas) + '</b>' +
+          '<span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(no) + ' · ' + esc(kat) +
+            ' · son hareket <time datetime="' + iso + '">' + trh + '</time> · 1 mesaj</span>' +
         '</span>' +
-        '<span class="tk-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>' +
-      '</a>';
+        '<span class="sr-act"><span class="pstat wait">Açık talep</span>' +
+        '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>'
     list.insertBefore(li, list.firstElementChild);
 
     recount();

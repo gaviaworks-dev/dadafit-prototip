@@ -568,26 +568,65 @@
   function kademeBas() {
     var k = R.kademe(), hepsi = R.liste();
 
+    /* KADEMESİZ (sira 0) — merdivenin ALTINDA olmak GERÇEK bir durumdur.
+       İlk basamak Yeni Başlayan 1 aktif gün ister; hiç hareket kaydı olmayan
+       hesap hiçbir basamakta değildir ve eşiği düşürmek kademenin "kazanılır"
+       kuralını delerdi (Beyar kararı: (b)+(c), (a) yok).
+       Eskiden bu hâlde de koyu ilerleme paneli basılıyordu ve üç şey birden
+       yanlıştı: nişan boş bir madalyaydı, çubuk %0'da duruyordu, alt satır
+       "Puan %100 · eşik 0" diyordu. Panel yerine kitin boş durum kalıbı
+       (fit-kit.md §9, dört parça) geliyor — boş ekran bir davettir.
+       Kap ID'si aynı kalıyor, YALNIZ sınıfı değişiyor: `.rank-now`un koyu
+       gradyanı bir boş durum kartının zemini olamaz. Yeni sınıf yazılmadı;
+       `.fp-card.fpx-bos` (fit-planim.css:942) bu sayfada zaten kullanılıyor
+       (Puan Defteri boş hâli) ve sayfa o dosyayı satır 18'de yüklüyor. */
+    var rank = el('rzRank');
+    if (!k.sira) {
+      var ilk = k.sonraki;                 /* Kademesizken sonraki = ilk basamak */
+      /* Eşik metni MOTORDAN okunuyor, sayı sayfaya gömülmüyor: eşikler
+         değişirse bu cümle kendiliğinden doğru kalır. Sıfır eşik hiç
+         söylenmez — "0 puan gerekiyor" bilgi değil, gürültüdür. */
+      var sart = [];
+      if (ilk && ilk.minGun)  sart.push('<b>' + n(ilk.minGun) + ' aktif gün</b>');
+      if (ilk && ilk.minPuan) sart.push('<b>' + n(ilk.minPuan) + ' puan</b>');
+      rank.className = 'fp-card fpx-bos';
+      rank.innerHTML =
+        '<span class="pe-ico"><i class="fa-solid fa-stairs"></i></span>' +
+        '<h4>Merdivende henüz yerin yok</h4>' +
+        '<p>' + (ilk
+          ? esc(ilk.ad) + ' kademesi ' + sart.join(' ve ') + ' istiyor; ' +
+            'senin kaydın şimdilik ' + n(k.aktifGun) + ' aktif gün. ' +
+            'Bir hareketi kaydettiğin gün ilk basamağa adım atarsın.'
+          : 'İlk basamak tanımlı değil.') + '</p>' +
+        '<a class="btn btn-primary" href="egzersiz-kutuphane-v1.html">' +
+        '<i class="fa-solid fa-dumbbell"></i> Hareket kütüphanesini aç</a>';
+    } else {
+
     /* İKİ EKSEN AYRI GÖSTERİLİR. Tek çubuk yalan olurdu: puanı bitirip
-       günü bitirmemiş biri "%100" görürdü. Engel hangi eksense o söylenir. */
-    el('rzRank').innerHTML =
+       günü bitirmemiş biri "%100" görürdü. Engel hangi eksense o söylenir.
+       ÖLÇÜLEMEZ EKSEN (oran null) hiç konuşulmaz: aralığı sıfır olan bir
+       eşik için "geçtin" demek olmayan bir başarıyı bildirmek olurdu. */
+    var pO = (typeof k.puanOran === 'number'), gO = (typeof k.gunOran === 'number');
+    rank.className = 'rank-now';
+    rank.innerHTML =
       '<span class="rn-insignia"><i class="' + k.ico + '"></i></span>' +
       '<div class="rn-body">' +
-        '<div class="rn-eyebrow">Kademe' + (k.sira ? ' · ' + k.sira + ' / ' + k.toplam : '') + '</div>' +
+        '<div class="rn-eyebrow">Kademe · ' + k.sira + ' / ' + k.toplam + '</div>' +
         '<div class="rn-name">' + esc(k.ad) + ' <small>· ' + n(k.puan) + ' puan · ' + n(k.aktifGun) + ' aktif gün</small></div>' +
         '<p class="rn-next">' + (k.sonraki
           ? 'Sonraki kademe <b>' + esc(k.sonraki.ad) + '</b> — ' + (
               k.engel === 'ikisi' ? '<b>' + n(k.kalanPuan) + ' puan</b> ve <b>' + n(k.kalanGun) + ' aktif gün</b> kaldı.'
-              : k.engel === 'puan' ? '<b>' + n(k.kalanPuan) + ' puan</b> kaldı; gün barajını geçtin.'
-              : '<b>' + n(k.kalanGun) + ' aktif gün</b> kaldı; puan eşiğini geçtin.')
+              : k.engel === 'puan' ? '<b>' + n(k.kalanPuan) + ' puan</b> kaldı' + (gO ? '; gün barajını geçtin.' : '.')
+              : '<b>' + n(k.kalanGun) + ' aktif gün</b> kaldı' + (pO ? '; puan eşiğini geçtin.' : '.'))
           : 'Son kademedesin. Merdiven bitti, sayaç saymaya devam ediyor.') + '</p>' +
         '<div class="rn-bar"><span style="width:' + k.oran + '%"></span></div>' +
         '<div class="rn-bar-meta">' +
-          '<span>Puan %' + k.puanOran + (k.sonraki ? ' · eşik ' + n(k.sonraki.minPuan) : '') + '</span>' +
-          '<span>Gün %' + k.gunOran + (k.sonraki ? ' · baraj ' + n(k.sonraki.minGun) : '') + '</span>' +
+          '<span>' + (pO ? 'Puan %' + k.puanOran + (k.sonraki ? ' · eşik ' + n(k.sonraki.minPuan) : '') : 'Puan eşiği yok') + '</span>' +
+          '<span>' + (gO ? 'Gün %' + k.gunOran + (k.sonraki ? ' · baraj ' + n(k.sonraki.minGun) : '') : 'Gün barajı yok') + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="rn-points"><b>' + n(k.puan) + '</b><span>Toplam puan</span></div>';
+    }
 
     el('rzLadder').innerHTML = k.kademeler.map(function (b, i) {
       var d = (i < k.sira - 1) ? 'done' : (i === k.sira - 1 ? 'current' : 'locked');

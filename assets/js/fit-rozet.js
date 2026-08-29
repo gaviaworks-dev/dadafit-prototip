@@ -440,15 +440,31 @@
 
     /* İlerleme İKİ EKSENLİ olduğu için tek bir yüzde YALAN olurdu:
        puanı tamamlamış ama günü tamamlamamış biri "%100" görürdü.
-       Yüzde, iki eksenin DÜŞÜK olanıdır — asıl engel hangisiyse o. */
+       Yüzde, iki eksenin DÜŞÜK olanıdır — asıl engel hangisiyse o.
+
+       ⚠ ÜÇÜNCÜ HÂL: EKSEN ÖLÇÜLEMEZ (null).  Bir eksenin aralığı sıfır
+       olabilir — iki kademe arasında o eksende hiç mesafe yoktur. Bugün
+       gerçek örneği ilk basamaktır: Kademesiz → Yeni Başlayan yolunda
+       puan eşiği 0'dan 0'a gider. Eski kod bu durumda oranı 100 yazıyordu
+       ve ekran "Puan %100 · eşik 0" basıyordu: 0 puanı olan birine
+       "puan eşiğini geçtin" demek, olmayan bir başarıyı bildirmekti.
+       Sıfır aralık "tamamlandı" değil, "ölçülemez"dir → null döner ve
+       ekran o ekseni hiç konuşmaz. (Ölçüldü: `puanOran`/`gunOran`ı okuyan
+       tek yer rozetlerim-v1.html; kabuk profil kartı ve hesabim-v1
+       yalnız `sira`·`ad`·`ico`·`toplam` okuyor, onlar etkilenmez.)
+
+       `oran` SAYI KALIR — kabuk sözleşmesi onu sayı bekliyor. Ölçülemez
+       eksen minimuma katılmaz; `Math.min(null, 50)` 0 verirdi ve çubuğu
+       yanlış yere çekerdi. */
     var puanOran = 100, gunOran = 100;
     if (sonraki) {
       var altP = simdiki ? simdiki.minPuan : 0, altG = simdiki ? simdiki.minGun : 0;
-      puanOran = sonraki.minPuan > altP ? Math.min(100, Math.round((p - altP) / (sonraki.minPuan - altP) * 100)) : 100;
-      gunOran  = sonraki.minGun  > altG ? Math.min(100, Math.round((m.aktifGun - altG) / (sonraki.minGun - altG) * 100)) : 100;
-      if (puanOran < 0) puanOran = 0;
-      if (gunOran  < 0) gunOran  = 0;
+      puanOran = sonraki.minPuan > altP ? Math.min(100, Math.round((p - altP) / (sonraki.minPuan - altP) * 100)) : null;
+      gunOran  = sonraki.minGun  > altG ? Math.min(100, Math.round((m.aktifGun - altG) / (sonraki.minGun - altG) * 100)) : null;
+      if (puanOran !== null && puanOran < 0) puanOran = 0;
+      if (gunOran  !== null && gunOran  < 0) gunOran  = 0;
     }
+    var olculebilir = [puanOran, gunOran].filter(function (o) { return typeof o === 'number'; });
     var kalanPuan = sonraki ? Math.max(0, sonraki.minPuan - p) : 0;
     var kalanGun  = sonraki ? Math.max(0, sonraki.minGun - m.aktifGun) : 0;
 
@@ -464,10 +480,14 @@
                            minPuan: sonraki.minPuan, minGun: sonraki.minGun } : null,
       kalanPuan: kalanPuan,
       kalanGun: kalanGun,
-      oran: sonraki ? Math.min(puanOran, gunOran) : 100,
+      oran: !sonraki ? 100 : (olculebilir.length ? Math.min.apply(null, olculebilir) : 100),
       puanOran: puanOran, gunOran: gunOran,
       /* Sonraki kademeye engel olan eksen — ekran hangisini söyleyeceğini
-         tahmin etmesin diye burada karara bağlanıyor. */
+         tahmin etmesin diye burada karara bağlanıyor.
+         Ölçülemez eksen buraya HİÇ giremez ve bu bir kural değil, sonuç:
+         aralık sıfırsa `sonraki.minX <= altX` ve kullanıcı zaten `altX`in
+         üstündedir, yani o eksenin `kalan`ı hep 0'dır. Yine de ekran
+         "geçtin" cümlesini basmasın diye `puanOran === null` bakar. */
       engel: !sonraki ? null : (kalanPuan > 0 && kalanGun > 0) ? 'ikisi'
              : kalanPuan > 0 ? 'puan' : kalanGun > 0 ? 'gun' : null,
       kademeler: KADEMELER

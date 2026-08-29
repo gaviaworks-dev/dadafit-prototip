@@ -119,7 +119,7 @@ Sayma yöntemi CLAUDE.md'deki bağlayıcı yöntemdir; yeniden ölçüldü.
 
 | | `.fp-badge` | `.df-fchip` | `.pstat` |
 |---|---|---|---|
-| **Yükseklik (px)** | `30` | `35` | `26` |
+| **Yükseklik (px)** | `30` | `44` | `26` |
 | **İç dolgu** | `5px 11px` | `9px 16px` | `4px 10px` |
 | **Yarıçap** | `8px` | `8px` | `8px` |
 | **Yazı** | `11.5px/800/17.825px` | `13px/600/normal` | `11.5px/700/17.825px` |
@@ -127,6 +127,16 @@ Sayma yöntemi CLAUDE.md'deki bağlayıcı yöntemdir; yeniden ölçüldü.
 | **İkon aralığı** | `6px` | `7px` | `6px` |
 
 Durum sınıfları: `.ok` (yeşil) · `.wait` (sarı) · `.off` (nötr) · `.stop` (kırmızı). **Yeni durum rengi üretilmez.**
+
+🔴 **R16/2 · `.df-fchip` 38 → 44px.** İlk ölçüm `35` yazıyordu ve kitin kendi
+44px dokunma hedefiyle (WCAG 2.5.8) çelişiyordu — çip 60 public sayfanın süzgeç
+yüzeyinde duruyor, yani eksik tek ekranın değil kabuğun kusuruydu. R15'te
+`.fit-tab` için verilen kararla birebir aynı yöntem: **`min-height` eklendi,
+dolgu değiştirilmedi** (dolgu büyüseydi çipler arası yatay ritim de kayardı,
+oysa eksik yalnız dikeydeydi). Aynı turda ortak filtre bileşeninin iki kalemi
+de yükseltildi: `.ff-btn` **40 → 44**, `.ff-pop-clear` **26 → 44** (görsel
+boyut korunarak, `.kyt-btn` deseniyle: hedef 44, göz 26).
+Ölçüldü: yedi süzgeçli sayfada çip ve facet düğmesi **44px**, taşma 0, konsol 0.
 
 ## 6 · Sekme şeridi
 

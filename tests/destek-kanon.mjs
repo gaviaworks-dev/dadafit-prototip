@@ -20,7 +20,9 @@
       yanit-bekleyen / acik → yalnız [Kapat]
       Üye hiçbir talebi `yanit-bekleyen`e ya da `cozulen`e SOKAMAZ.
       Yanıt yazmak topu karşı tarafa atar (kanon §3.1): cozulen → acik.
-      Y8.5'in iki bloğu: "Taleplerin" 12 kalem + aktif işaretli, dört durum
+      Y8.5'in iki bloğu: "Taleplerin" 11 kalem + aktif işaretli, dört durum
+      (12 → 11: Video Seansları modülü 2026-08-29'da kalktı, ona ait
+      DF-2026-H9DKR6 talebi de düştü — ölçüt zayıflamadı, küme küçüldü)
       birden; "Beklerken" Çözüm Merkezi'nin altı konusuna bağlı.
    5  TALEP NUMARASI: DF-<yıl>-<6 karakter>, alfabe 30 karakter,
       I·O·S·0·1·5 YOK (kanon §5.2). Yeni talep de aynı kalıptan doğar ve
@@ -100,7 +102,7 @@ console.log('\n2 · Dört durum · süzgeç · sayfalama');
   console.log('   ', JSON.stringify(d.sayim), '· görünür', d.gorunur, '· sayfa düğmeleri', JSON.stringify(d.pagi));
   console.log('    not:', d.not);
   console.log('    etiketler:', JSON.stringify(d.etiket));
-  if(d.toplam!==12) bad('talep sayısı '+d.toplam+', 12 bekleniyordu');
+  if(d.toplam!==11) bad('talep sayısı '+d.toplam+', 11 bekleniyordu');
   if(d.gorunur!==10) bad('1. sayfada '+d.gorunur+' satır, 10 bekleniyordu');
   if(d.tumuDurum) bad('bir kartın data-durum değeri "tumu" — kanon §6.2 ihlali');
   const bekCip=['tumu','acik','yanit-bekleyen','cozulen','kapatilan'];
@@ -108,7 +110,7 @@ console.log('\n2 · Dört durum · süzgeç · sayfalama');
   const bekEt=['Açık talep','Yanıt bekleyen','Çözülen','Kapatılan'];
   if(!bekEt.every(e=>d.etiket.includes(e))) bad('etiket eksik: '+JSON.stringify(d.etiket));
   if(!d.pagi.length) bad('sayfalama rayı basılmadı');
-  if(!fail) ok('12 talep · 4 durum · 5 çip · 10/sayfa · "tumu" hiçbir kartta yok');
+  if(!fail) ok('11 talep · 4 durum · 5 çip · 10/sayfa · "tumu" hiçbir kartta yok');
 
   /* süzgeç sayfa değişiminde korunuyor mu */
   await p.evaluate(()=>document.querySelector('#tkFilter .dt[data-f="kapatilan"]').click());
@@ -210,7 +212,7 @@ console.log('\n4 · Geçiş kuralları ekranda');
   if(d.durum!=='yanit-bekleyen'||!d.kapat||d.yeniden) bad('yanit-bekleyen ekranı yanlış: '+JSON.stringify(d));
   else ok('yanit-bekleyen: yalnız [Kapat] · üye cozulen/yanit-bekleyen\'e SOKAMIYOR');
 
-  /* taleplerin: aktif işaretli, 12 kalem, 4 durum */
+  /* taleplerin: aktif işaretli, 11 kalem, 4 durum */
   const yan=await p.evaluate(()=>{
     const a=[...document.querySelectorAll('.tk-card .tk-others a[href*="?talep="]')];
     return {n:a.length,aktif:a.filter(x=>x.getAttribute('aria-current')==='page').map(x=>x.getAttribute('href')),
@@ -218,10 +220,12 @@ console.log('\n4 · Geçiş kuralları ekranda');
       beklerken:[...document.querySelectorAll('.tk-others a[href^="destek-v1.html#konu-"]')].length};
   });
   console.log('    Taleplerin:',yan.n,'· aktif:',JSON.stringify(yan.aktif),'· durumlar:',JSON.stringify(yan.durumlar),'· Beklerken:',yan.beklerken);
-  if(yan.n!==12) bad('Taleplerin '+yan.n+' kalem');
+  if(yan.n!==11) bad('Taleplerin '+yan.n+' kalem');
   if(yan.aktif.length!==1) bad('aktif talep işareti '+yan.aktif.length);
   if(yan.durumlar.length!==4) bad('Taleplerin dört durumu göstermiyor');
-  if(yan.beklerken!==6) bad('Beklerken '+yan.beklerken+' konu');
+  /* 6 → 5: Video Seansları modülü 2026-08-29'da kalktı, Çözüm Merkezi'nin
+     "Video seansları" konu akordeonu ve ona giden çapraz geçiş de düştü. */
+  if(yan.beklerken!==5) bad('Beklerken '+yan.beklerken+' konu');
   if(hata.length) bad('konsol: '+hata.join(' | '));
   await ctx.close();
 }
@@ -234,12 +238,15 @@ console.log('\n5 · Talep numarası kalıbı ve ek dosya alanı');
   const ALF='ABCDEFGHJKLMNPQRTUVWXYZ2346789';
   const nums=await p.evaluate(()=>[...document.querySelectorAll('#tkList .set-row')].map(x=>x.getAttribute('data-no')));
   const kotu=nums.filter(n=>!/^DF-2026-[A-Z0-9]{6}$/.test(n)||[...n.slice(8)].some(c=>!ALF.includes(c)));
-  if(kotu.length) bad('kalıba uymayan numara: '+kotu.join(', ')); else ok('12 numaranın 12\'si DF-2026-<6 karakter>, I·O·S·0·1·5 yok');
+  if(kotu.length) bad('kalıba uymayan numara: '+kotu.join(', ')); else ok('11 numaranın 11\'i DF-2026-<6 karakter>, I·O·S·0·1·5 yok');
   /* yeni talep gönder */
   await p.evaluate(()=>{
-    document.getElementById('tkKategori').value='Video seansları';
-    document.getElementById('tkBaslik').value='Seans listesi boş görünüyor';
-    document.getElementById('tkMesaj').value='Video seansları sayfasında liste bugün boş açılıyor, süzgeci sıfırlasam da değişmiyor.';
+    /* Kategori "Video seansları" idi; modül kalkınca o seçenek de kalktı
+       ve boş `value` doğrulamayı düşürüyordu. Var olan bir kategoriye
+       çevrildi — ölçüt aynı: yeni talep "Açık talep" doğuyor mu. */
+    document.getElementById('tkKategori').value='Uygulama hatası';
+    document.getElementById('tkBaslik').value='Program listesi boş görünüyor';
+    document.getElementById('tkMesaj').value='Programlar sayfasında liste bugün boş açılıyor, süzgeci sıfırlasam da değişmiyor.';
   });
   await p.evaluate(()=>document.getElementById('tkForm').dispatchEvent(new Event('submit',{cancelable:true})));
   await p.waitForTimeout(400);
@@ -341,7 +348,7 @@ console.log('\n7 · Aktör ayrımı (ÜYE / DESTEK) ve yazışmanın durumu doğ
   const kapSys=tut.filter(x=>x.durum==='kapatilan'&&!/kapattın/.test(x.sonSatir||''));
   console.log('    durum→son söz:',JSON.stringify(tut.map(x=>x.durum+':'+x.sonSoz)));
   if(yanlis.length) bad('durumu yazışmasıyla çelişen talep: '+JSON.stringify(yanlis));
-  else ok('12 talebin 12\'sinde durum yazışmadan okunuyor (yanit-bekleyen/cozulen → son söz destekte, acik → üyede)');
+  else ok('11 talebin 11\'inde durum yazışmadan okunuyor (yanit-bekleyen/cozulen → son söz destekte, acik → üyede)');
   if(cozSys.length) bad('cozulen talepte destek beyanı sistem satırı yok: '+JSON.stringify(cozSys.map(x=>x.no)));
   else ok('cozulen taleplerde "Destek ekibi ... çözüldü olarak işaretledi" satırı var — destek kolunun görünür izi');
   if(kapSys.length) bad('kapatilan talepte kapatma satırı yok');

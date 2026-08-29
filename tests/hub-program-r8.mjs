@@ -358,38 +358,15 @@ for(const W of [1440,390]){
 }
 
 /* ==================================================================
-   31 · video-seansları · görünür "Sırala" yok, erişilebilir ad var,
-        sıralama İŞLEVİ duruyor (Beyar kararı)
+   31 · KALKTI — video-seansları · "Sırala" ölçütü
+   ------------------------------------------------------------------
+   🔴 Video Seansları modülü 2026-08-29'da Beyar kararıyla TAMAMEN
+   kaldırıldı (menü kalemi · iki sayfa · Pro paket matrisi satırı ·
+   reklam envanteri yuvası · Kaydettiklerim süzgeci · destek talebi).
+   Bu bölüm yalnız `video-seanslari-v1.html`i ölçüyordu; sayfa artık
+   diskte yok, ölçüt de düştü. Ölçüt ZAYIFLATILMADI — ölçtüğü yüzey
+   kalktı. Numara 31 §W5 gereği geri dönüştürülmez, boş kalır.
    ================================================================== */
-console.log('\n31 · "Sırala" etiketi + sıralama işlevi');
-for(const W of [1440,390]){
-  const { ctx, p } = await sayfa(W);
-  await git(p,'video-seanslari-v1.html');
-  const meta = await p.evaluate(() => {
-    const seg=document.getElementById('vsSort');
-    return { gorunurEtiket:[...document.querySelectorAll('.lib-sort .lbl')].filter(e=>getComputedStyle(e).display!=='none').length,
-      govdedeSirala:(document.body.innerText.match(/Sırala/g)||[]).length,
-      ariaLabel:seg?seg.getAttribute('aria-label'):null,
-      durum:seg?[...seg.querySelectorAll('button')].map(x=>x.getAttribute('aria-pressed')):null,
-      tasma:document.documentElement.scrollWidth-document.documentElement.clientWidth };
-  });
-  esit(meta.gorunurEtiket, 0, `@${W} görünür "Sırala" etiketi`);
-  esit(meta.govdedeSirala, 0, `@${W} sayfa metninde "Sırala" geçişi`);
-  esit(meta.ariaLabel, 'Sırala', `@${W} #vsSort erişilebilir adı`);
-  esit(meta.durum ? meta.durum.filter(x=>x==='true').length : -1, 1, `@${W} aria-pressed="true" olan segment sayısı`);
-  /* İŞLEV DURUYOR MU — üç segment de listeyi değiştiriyor */
-  const ilk3 = () => p.evaluate(() => [...document.querySelectorAll('#vsGrid a[data-name]')]
-    .filter(k=>k.getBoundingClientRect().height>0).slice(0,3).map(k=>k.getAttribute('data-name')));
-  const once = await ilk3();
-  for(const [sr,bekle] of [['kisa',true],['az',true],['pop',false]]){
-    await p.click(`#vsSort button[data-sort="${sr}"]`); await p.waitForTimeout(380);
-    const s3 = await ilk3();
-    esit(JSON.stringify(s3)!==JSON.stringify(once), bekle,
-         `@${W} "${sr}" sonrası ilk 3 değişti mi — ${s3.join(' / ')}`);
-  }
-  esit(meta.tasma, 0, `@${W} yatay taşma`);
-  await ctx.close();
-}
 
 /* ==================================================================
    32 · challenge-merkezi · section içi kartlar tek yükseklik ailesinde

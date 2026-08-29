@@ -43,7 +43,23 @@
 /* ---- banner: eyebrow + demo ibaresi aynı satırda (§22) ---- */
 .faq-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
-/* ---- banner içi canlı arama: kabuk .lib-search + temizle düğmesi ---- */
+/* ---- canlı arama: kabuk .lib-search + temizle düğmesi ----
+   §R11 (Dalga 4) — kutu banner'dan çıkıp gövdeye indi. Kabuğun `.lib-search`
+   kiti KOYU banner için yazılmış (cam zemin + beyaz metin); açık zeminde
+   beyaz metin görünmez oluyordu (ölçüldü: zemin rgba(255,255,255,.1),
+   metin #fff, gövde zemini krem). Kutu bu yüzden açık yüzey kitine çevrildi:
+   kart zemini, `--line` kenarlık, `--slate` metin — form alanı kitinin
+   (§C17) dilidir, yeni renk icat edilmedi. */
+.faq-searchbar{padding:26px 0 0}
+.faq-searchbar .lib-search{
+  background:var(--paper);border:1px solid var(--line);
+}
+.faq-searchbar .lib-search:focus-within{border-color:var(--fit);background:var(--paper)}
+.faq-searchbar .lib-search i{color:var(--muted)}
+.faq-searchbar .lib-search input{color:var(--slate)}
+.faq-searchbar .lib-search input::placeholder{color:var(--muted)}
+.faq-searchbar .faq-search .sx{background:var(--bg);color:var(--slate)}
+.faq-searchbar .faq-search .sx:hover{background:var(--line)}
 .faq-search .sx{flex:none;width:40px;height:42px;padding:0;border-radius:var(--radius-sm);border:none;background:rgba(255,255,255,.14);color:#fff;font-size:14px;cursor:pointer;display:none;place-items:center;transition:background .2s var(--ease)}
 .faq-search .sx.show{display:grid}
 .faq-search .sx:hover{background:rgba(255,255,255,.26)}
@@ -134,13 +150,25 @@
          sayfanın adı kondu. -->
     <h1>Çözüm Merkezi</h1>
     <p class="lib-sub">Üyelikten hareket seçimine, program takibinden antrenör randevusuna — aklındaki sorunun cevabı büyük ihtimalle burada.</p>
+    <!-- §R11 (Dalga 4, 2026-08-29) — ARAMA KUTUSU BANNER'DAN ÇIKTI.
+         "Banner'ın içinde arama kutusu bulunmaz." Kutu silinmedi, kategori
+         şeridinin hemen üstüne indi: aynı `#faqSearch` kimliği, aynı JS,
+         aynı davranış — yalnız yeri değişti. Emsal §R12: kutu kalkınca
+         kullanıcı aramaya başka yoldan ulaşır; burada yol aynı sayfanın
+         gövdesidir, bir tık bile uzaklaşmaz. -->
+  </div>
+</section>
+
+<!-- ===== SORU ARAMA — §R11 gereği banner'ın DIŞINDA, gövdenin başında ===== -->
+<div class="faq-searchbar">
+  <div class="wrap">
     <form class="lib-search faq-search" role="search" onsubmit="return false" aria-label="Soru ara">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="faqSearch" type="text" placeholder="Soru ara: örn. program, antrenör, Pro, izin…" aria-label="Soru ara" autocomplete="off" />
       <button class="sx" id="faqClear" type="button" aria-label="Aramayı temizle"><i class="fa-solid fa-xmark"></i></button>
     </form>
   </div>
-</section>
+</div>
 
 <!-- ===== KATEGORİ ŞERİDİ (?kat=) ===== -->
 <div class="pf-tabbar">

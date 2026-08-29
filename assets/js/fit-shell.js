@@ -348,16 +348,35 @@ var FOOTER_LEGAL = { title:'Yasal ve Sağlık', links:[
    Enerji Defteri raydan İNDİ ama SİLİNMEDİ — PLAN_EXTRA'ya geçtiler, yani
    banner/breadcrumb çözümleri ve data-plan-page anahtarları aynen çalışıyor.
    Erişim kaybı yok: dördü de açılır menüde kendi kalemini aldı. */
+/* §F3 · §F4 (Dalga 4, 2026-08-29) — MODÜL ŞERİDİ YEDİ KALEME ÇIKTI.
+   Şerit bugüne kadar Planım'ın KENDİ alt gezinmesiydi (Bugün · Plan ve
+   Takvim · İlerlemem). Şartname şeridi MODÜL geçişi sayıyor: §F3 "modül
+   sekme sayısı markanın kendi modül sayısından doğar — Fit 7", §F4 yedi
+   adı tek tek yazıyor. Kalem uydurulmadı; yedisi de PLAN_EXTRA'da
+   kayıtlıydı ve sayfaları yayında.
+   Adlar §F4'ün dizgileridir. Hesap menüsündeki karşılıkları bilerek daha
+   uzun ("Challenge'larım ve Rozetlerim" · "Sağlık ve Hareket Profilim"):
+   menü §G14'ten, şerit §F4'ten besleniyor.
+   Eski üçlü PLAN_EXTRA'ya indi — rayda görünmez, kabuğu (banner,
+   breadcrumb, data-plan-page anahtarı) kullanmaya devam eder. */
 var PLAN_TABS = [
-  {key:'bugun',     label:'Bugün',          href:'fit-planim-v1.html',           icon:'fa-solid fa-sun',           desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
-  {key:'programim', label:'Plan ve Takvim', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-calendar-days', desc:'Aktif program, haftalık plan, takvim'},
-  {key:'ilerleme',  label:'İlerlemem',      href:'fit-planim-ilerleme-v1.html',  icon:'fa-solid fa-chart-line',    desc:'Süre, gelişim, challenge, rozetler'}
+  {key:'defter',         label:'Enerji Defterim',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
+  {key:'gecmis',         label:'Aktivite Kayıtlarım', href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
+  {key:'kaydettiklerim', label:'Kaydettiklerim',      href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
+  {key:'rozetler',       label:"Challenge'larım",     href:'fit-planim-rozetler-v1.html',       icon:'fa-solid fa-medal',             desc:'Kilometre taşların'},
+  {key:'testlerim',      label:'Fit Test Sonuçlarım', href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin ve kendi başlangıcınla karşılaştırman'},
+  {key:'randevular',     label:'Antrenörüm',          href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
+  {key:'saglik',         label:'Sağlık Profilim',     href:'fit-planim-saglik-profil-v1.html',  icon:'fa-solid fa-heart-pulse',       desc:'Kısıt, hedef, tercih'}
 ];
 
 /* Ray dışında kalan ama Planım kabuğunu kullanan sayfalar. Ray'da GÖRÜNMEZLER;
    yalnız banner/breadcrumb çözümü ve eski data-plan-page anahtarlarının
    kırılmaması için burada dururlar. */
 var PLAN_EXTRA = [
+  /* §F3/§F4 sonrası raydan inen eski üçlü — Planım'ın kendi alt gezinmesiydi. */
+  {key:'bugun',     label:'Bugün',          href:'fit-planim-v1.html',           icon:'fa-solid fa-sun',           desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
+  {key:'programim', label:'Plan ve Takvim', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-calendar-days', desc:'Aktif program, haftalık plan, takvim'},
+  {key:'ilerleme',  label:'İlerlemem',      href:'fit-planim-ilerleme-v1.html',  icon:'fa-solid fa-chart-line',    desc:'Süre, gelişim, challenge, rozetler'},
   /* G2 — Enerji Defteri dört ayrı sayfaya bölündü; üçü ray dışı alt sayfa.
      Ray'da yalnız 'Enerji Defteri' (bugun) kalemi görünür, alt sekmeler
      sayfanın kendi .fit-tabs şeridinden gezinilir. */
@@ -366,16 +385,9 @@ var PLAN_EXTRA = [
   {key:'defter-haftalik', label:'Haftalık Özet',  href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week',  desc:'Haftanın hareket ve enerji tablosu'},
   /* R9 · K66 — raydan inip menüye geçen dört sayfa. Ray'da GÖRÜNMEZLER,
      kabuğu (banner + breadcrumb) kullanmaya devam ederler. */
-  {key:'testlerim',      label:'Fit Test Sonuçlarım',href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin, kategori kapsamın ve kendi başlangıcınla karşılaştırman'},
-  {key:'gecmis',         label:'Aktivite Kayıtlarım',href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
-  {key:'kaydettiklerim', label:'Kaydettiklerim',     href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
-  {key:'randevular',     label:'Antrenörüm',         href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
-  {key:'defter',         label:'Enerji Defteri',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
   {key:'aktivite',  label:'Aktivite Günlüğü',           href:'aktivite-gunlugu-v1.html',         icon:'fa-solid fa-shoe-prints',            desc:'Adım, süre, mesafe, yaklaşık enerji'},
   {key:'cihazlar',  label:'Bağlı Uygulamalar',          href:'bagli-uygulamalar-v1.html',        icon:'fa-solid fa-plug-circle-check',      desc:'Apple Health · Health Connect · saat'},
   {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
-  {key:'rozetler',  label:'Challenge ve Rozetler',      href:'fit-planim-rozetler-v1.html',      icon:'fa-solid fa-medal',                  desc:'Kilometre taşların'},
-  {key:'saglik',    label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',            desc:'Kısıt, hedef, tercih'},
   {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın · uygulama tercihleri'}
 ];
 /* ------------------------------------------------------------------
@@ -621,7 +633,15 @@ function drawerNavHtml(){
      aynı sayfaya giden gerçek bağlantı. Ray dışı sayfalar drawer'da da
      görünmez; onlara kendi sahiplerinden gidilir (Enerji Defteri ana menüde,
      rozetler İlerlemem içinde, sağlık/veri Hesabım'da). */
-  var planSubs = PLAN_TABS.slice(1).map(function(p){
+  /* §F3/§F4 sonrası (Dalga 4): ray yedi MODÜLE açıldı ve eski üçlü alt
+     gezinme (Bugün · Plan ve Takvim · İlerlemem) PLAN_EXTRA'ya indi.
+     Drawer'ın listesi ikisini BİRDEN taşır — yoksa @390'da o üç sayfanın
+     tek mobil kapısı kapanırdı. Nöbet bunu ölçtü: "İlerlemem yok,
+     header'dan indi, hiçbir kapı kalmadı". §U6 gereği yetenek düşmez.
+     "Bugün" listeye girmez: üstteki "Planım" satırı zaten ona giden gerçek
+     bağlantıdır ve aynı hedefe iki kapı açılmaz. */
+  var planAlt = PLAN_EXTRA.filter(function(p){ return p.key==='programim' || p.key==='ilerleme'; });
+  var planSubs = PLAN_TABS.concat(planAlt).map(function(p){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
   out.push('<div class="d-item d-plan d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');

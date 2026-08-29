@@ -20,7 +20,7 @@
    odak sırası, üyelik kaleminin dört kırılımı, alt bar etiketleri.
 
    NE KANITLAR
-   1. Planım rayı TAM ÜÇ kalem (belge §3 Bugün · §4 Plan ve Takvim ·
+   1. Planım rayı TAM YEDİ kalem (§F3/§F4 · modül geçişi;
       §5 İlerlemem) ve raydan inen adlar rayda DURMAZ.
    2. Açılır menü TAM 11 kalem; adlar belgeyle birebir. Gruplama R11/M15'ten
       beri BAŞLIKLA değil AYRAÇLA yapılıyor (grup başlığı 0, ayraç ≥3).
@@ -49,11 +49,21 @@ const REPO = new URL('..', import.meta.url).pathname;
 const ONDISK = new Set(readdirSync(REPO).filter(f => f.endsWith('.html')));
 
 /* ---- belge §2 · rayda kalan üç kalem ---- */
-const RAY = ['Bugün', 'Plan ve Takvim', 'İlerlemem'];
+/* 🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4 · §F3/§F4.
+   Ray, "belge §2"nin üçlü ALT gezinmesiydi (Bugün · Plan ve Takvim ·
+   İlerlemem). Şartname şeridi MODÜL geçişi sayıyor: §F3 sekme sayısını
+   markanın modül sayısından türetiyor (Fit 7) ve §F4 yedi adı tek tek
+   yazıyor. Eski üçlü silinmedi, PLAN_EXTRA'ya indi ve sayfaları duruyor. */
+const RAY = ['Enerji Defterim', 'Aktivite Kayıtlarım', 'Kaydettiklerim',
+  "Challenge'larım", 'Fit Test Sonuçlarım', 'Antrenörüm', 'Sağlık Profilim'];
 /* raydan İNEN adlar — rayda görünürlerse taşıma yarım kalmış demektir */
-const RAYDA_OLMAMALI = ['Aktivite Kayıtlarım', 'Kaydettiklerim', 'Antrenörüm',
-  'Enerji Defteri', 'Enerji Defterim', 'Enerji Köprüsü', 'Challenge ve Rozetler',
-  "Challenge'larım ve Rozetlerim", 'Sağlık ve Hareket Profilim', 'Veri ve İzinlerim'];
+/* §F4 rayı yedi modüle açtı, bu yüzden eski yasak listesinin çoğu kalktı.
+   Kalanlar hâlâ rayda DURMAMALI: ikisi ray dışı yardımcı sayfa, ikisi de
+   §F4'ün kullanmadığı UZUN adlar — menü (§G14) o adları kullanır, ray
+   kısa olanı. Yani liste zayıflamadı, ekseni değişti. */
+const RAYDA_OLMAMALI = ['Enerji Köprüsü', 'Veri ve İzinlerim',
+  'Challenge ve Rozetler', "Challenge'larım ve Rozetlerim",
+  'Sağlık ve Hareket Profilim', 'Enerji Defteri'];
 
 /* ---- belge §2 · menünün on iki kalemi, üç grup, SIRASIYLA ----
    R12/S10 (Beyar) · DadaDiet paritesi için "Aboneliğim ve Ödemelerim" kalemi
@@ -137,8 +147,8 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
     [...document.querySelectorAll('.pf-tabbar .fit-tab, .pf-tabs .dt')]
       .map(a => ({ t: a.textContent.trim(), href: a.getAttribute('href') })));
 
-  if (tabs.length !== 3) rec(`Planım rayı ${tabs.length} kalem — belge §2 sonrası ÜÇ olmalı: ${tabs.map(t => t.t).join(' · ')}`);
-  else ok(`Planım rayı 3 kalem: ${tabs.map(t => t.t).join(' · ')}`);
+  if (tabs.length !== 7) rec(`Planım rayı ${tabs.length} kalem — §F3 gereği Fit'te YEDİ olmalı: ${tabs.map(t => t.t).join(' · ')}`);
+  else ok(`Planım rayı 7 kalem (§F3/§F4): ${tabs.map(t => t.t).join(' · ')}`);
 
   for (const b of RAY) if (!tabs.some(t => t.t === b)) rec(`rayda "${b}" sekmesi yok (belge §2)`);
   for (const y of RAYDA_OLMAMALI)
@@ -473,4 +483,4 @@ for (const [ad, kullanici, etiket, hedef] of UYELIK) {
 await browser.close();
 console.log(`\n${fail} sorun`);
 if (bad.length) { console.log('\nSORUNLAR:'); bad.forEach(b => console.log('  ✗ ' + b)); process.exit(1); }
-console.log('✓ Ray 3 kalem · menü 13 kalem · 4 ayraç (§G2/§G4) · grup başlığı 0, ayraçla ayrılıyor (§G1) · "Bildirimlerim" basılı (§G13) · raydan inen 4 sayfa yetim değil · kırık hedef yok.');
+console.log('✓ Ray 7 kalem (§F3/§F4) · menü 13 kalem · 4 ayraç (§G2/§G4) · grup başlığı 0, ayraçla ayrılıyor (§G1) · "Bildirimlerim" basılı (§G13) · raydan inen 4 sayfa yetim değil · kırık hedef yok.');

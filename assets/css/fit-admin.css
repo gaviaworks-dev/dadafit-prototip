@@ -1,0 +1,226 @@
+/* =====================================================================
+   DadaFit · YÖNETİM PANELİ KABUĞU   (R16/2)
+   ---------------------------------------------------------------------
+   Bu dosya `assets/css/fit-shell.css`in ÜSTÜNE biner; onun tokenlerini
+   ve bileşenlerini kullanır, hiçbirini yeniden tanımlamaz.
+
+   YENİ RENK · YENİ ÖLÇÜ ÜRETİLMEDİ. Buradaki her değer ya kitin bir
+   tokeni (`--fit`, `--line`, `--radius-md` …) ya da kitin ölçülmüş bir
+   sayısıdır (44px dokunma hedefi, 14px alan yazısı). İki sayı yenidir ve
+   ikisi de admin'e özgüdür — public yüzeyde karşılığı yok:
+     --adm-side-w : 276px  (gerekçesi docs/fit-admin-plan.md §7/1)
+     --adm-top-h  : 64px   (üst çubuk; 44px hedef + 2×10px nefes)
+
+   NEDEN AYRI DOSYA
+   Admin, public yüzeyin bileşenlerini paylaşır ama YERLEŞİMİNİ
+   paylaşmaz: orada bir sayfa okunur, burada bir tablo taranır. Kuralları
+   `fit-shell.css`e karıştırmak, 60 public sayfanın hiç kullanmayacağı
+   ~400 satırı her ziyarette indirtirdi. Admin sayfaları bu dosyayı
+   kabuktan SONRA yükler.
+   ===================================================================== */
+
+:root{
+  --adm-side-w:276px;
+  --adm-top-h:64px;
+}
+
+/* ---------------------------------------------------------------------
+   1 · İSKELET
+   Sidebar sabit (`position:fixed`), gövde onun genişliği kadar içeri
+   itilir. Gastro'nun deseni; orada 340px, burada 276 — Fit'in admin
+   ekranlarının çoğu tablo ve 340 kolonları sıkıştırıyordu (plan §7/1).
+   --------------------------------------------------------------------- */
+.adm-body{background:var(--bg);min-height:100vh}
+.adm-main{margin-left:var(--adm-side-w);min-height:100vh;display:flex;flex-direction:column}
+
+/* ---- sidebar ---- */
+.adm-side{
+  position:fixed;top:0;left:0;bottom:0;width:var(--adm-side-w);z-index:60;
+  background:var(--paper);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.adm-brand{
+  display:flex;align-items:center;gap:11px;height:var(--adm-top-h);flex:none;
+  padding:0 20px;border-bottom:1px solid var(--line);color:var(--slate);
+}
+.adm-brand .mark{
+  width:34px;height:34px;flex:none;border-radius:var(--radius-md);
+  background:var(--fit);color:#fff;display:grid;place-items:center;font-size:16px;
+}
+.adm-brand b{font-size:16px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.adm-brand small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+
+.adm-nav{flex:1;overflow-y:auto;padding:14px 12px 24px}
+/* Bölüm başlığı AYRAÇ DEĞİL. Ölçüldü (devir §10): "Gastro bölümleri başlık
+   ile ayırıyor, ayrı bir çizgi öğesi yok." Fit de öyle. */
+.adm-sec{
+  font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:18px 10px 7px;
+}
+.adm-nav>.adm-sec:first-child{padding-top:4px}
+.adm-item{
+  display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 10px;
+  border-radius:var(--radius-md);font-size:13.5px;font-weight:600;color:var(--slate-2);
+  transition:background .18s var(--ease),color .18s var(--ease);
+}
+.adm-item i{width:17px;text-align:center;font-size:14px;color:var(--muted);flex:none;transition:color .18s var(--ease)}
+.adm-item:hover{background:var(--bg);color:var(--slate)}
+.adm-item:hover i{color:var(--fit-deep)}
+.adm-item.is-on{background:var(--fit-tint);color:var(--fit-deep);font-weight:800}
+.adm-item.is-on i{color:var(--fit-deep)}
+.adm-item:focus-visible{outline:3px solid var(--fit);outline-offset:-2px}
+/* Kuyruk sayacı — sıfırsa BASILMAZ. "0 bekleyen" bir bilgi değil gürültüdür. */
+.adm-item .cnt{
+  margin-left:auto;flex:none;min-width:22px;height:20px;padding:0 6px;border-radius:var(--radius-pill);
+  background:var(--fit);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;
+}
+.adm-item.is-on .cnt{background:var(--fit-deep)}
+
+/* ---- üst çubuk ---- */
+.adm-top{
+  position:sticky;top:0;z-index:50;flex:none;
+  height:var(--adm-top-h);display:flex;align-items:center;gap:16px;padding:0 26px;
+  background:var(--paper);border-bottom:1px solid var(--line);
+}
+.adm-top .t-crumb{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.adm-top .t-crumb a{color:var(--muted)}
+.adm-top .t-crumb a:hover{color:var(--fit-deep)}
+.adm-top h1{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--slate);margin:0;line-height:1.2}
+.adm-top .t-acts{margin-left:auto;display:flex;align-items:center;gap:10px}
+.adm-top .t-who{display:flex;align-items:center;gap:9px;padding-left:14px;border-left:1px solid var(--line);min-height:44px}
+.adm-top .t-who span{width:32px;height:32px;border-radius:50%;background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:12px;font-weight:800}
+.adm-top .t-who b{font-size:12.5px;font-weight:700;color:var(--slate)}
+.adm-top .t-who small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+
+/* mobil menü düğmesi — ≥1101'de gizli */
+.adm-burger{display:none;width:44px;height:44px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);color:var(--slate);cursor:pointer;place-items:center;font-size:15px}
+
+/* ---- sayfa gövdesi ---- */
+.adm-page{padding:26px;flex:1}
+.adm-head{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.adm-head .h-txt{min-width:0;flex:1}
+.adm-head h2{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--slate);margin:0 0 6px}
+.adm-head p{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;max-width:78ch;margin:0}
+.adm-head .h-acts{display:flex;gap:10px;flex-wrap:wrap;flex:none}
+
+/* ---------------------------------------------------------------------
+   2 · KAYNAK ŞERİDİ — `.adm-src`
+   Bu prototipin en dürüst parçası. Her admin ekranı, gösterdiği verinin
+   NEREDEN geldiğini yazar:
+     .is-canli → tarayıcıda gerçekten çalışan bir sözleşme modülünden
+                 okunuyor (fit-challenge · fit-rozet · fit-paket · fit-su)
+     .is-ornek → örnek veri; sunucu yok, yazma yüzeyi maket
+   Böylece "hangisi gerçek" sorusu ekranın kendisinde cevaplanır ve
+   "maket olanı gerçekmiş gibi gösterme" kuralı tek bir bileşene iner.
+   --------------------------------------------------------------------- */
+.adm-src{
+  display:flex;align-items:flex-start;gap:11px;margin-bottom:18px;padding:12px 16px;
+  border-radius:var(--radius-md);font-size:12.5px;font-weight:600;line-height:1.55;
+}
+.adm-src i{flex:none;margin-top:2px;font-size:13px}
+.adm-src b{font-weight:800}
+.adm-src.is-canli{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-ink)}
+.adm-src.is-canli i{color:var(--fit-deep)}
+.adm-src.is-ornek{background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line);color:var(--hs-warn)}
+.adm-src.is-ornek i{color:var(--hs-warn)}
+.adm-src code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;background:rgba(255,255,255,.6);padding:1px 5px;border-radius:5px}
+
+/* ---------------------------------------------------------------------
+   3 · SAYAÇ KARTLARI — `.adm-kpi`
+   Devir belgesi §1: dört markada da 4 kutu, aynı yerde. Ölçüler oradan.
+   --------------------------------------------------------------------- */
+.adm-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.adm-kpi .k{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px;display:flex;gap:14px;align-items:flex-start}
+.adm-kpi .k .ico{width:44px;height:44px;flex:none;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
+.adm-kpi .k b{display:block;font-size:26px;font-weight:800;line-height:1.05;letter-spacing:-.02em;color:var(--slate);font-variant-numeric:tabular-nums}
+.adm-kpi .k b small{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:0}
+.adm-kpi .k span{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:4px}
+.adm-kpi .k .note{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:7px;line-height:1.45}
+
+/* ---------------------------------------------------------------------
+   4 · VERİ TABLOSU — `.adm-table`
+   Yatay kaydırma KABIN işi (`.adm-tw`), tablonun değil; hücreler
+   kırpılmaz. Sayısal kolonlar `tabular-nums`.
+   --------------------------------------------------------------------- */
+.adm-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.adm-card+.adm-card{margin-top:16px}
+.adm-card .c-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.adm-card .c-head h3{font-size:15px;font-weight:800;color:var(--slate);margin:0;display:flex;align-items:center;gap:9px}
+.adm-card .c-head h3 i{color:var(--fit-deep);font-size:14px}
+.adm-card .c-head .c-acts{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+.adm-card .c-body{padding:20px}
+.adm-card .c-body.flush{padding:0}
+
+.adm-tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.adm-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.adm-table th{
+  text-align:left;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);padding:11px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--bg);
+}
+.adm-table td{padding:13px 16px;border-bottom:1px solid var(--line);color:var(--slate-2);font-weight:500;vertical-align:middle}
+.adm-table tbody tr:last-child td{border-bottom:0}
+.adm-table tbody tr:hover td{background:var(--bg)}
+.adm-table td b{color:var(--slate);font-weight:700}
+.adm-table td small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+.adm-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.adm-table .act{text-align:right;white-space:nowrap}
+.adm-table .sel{width:44px}
+.adm-table input[type=checkbox]{width:18px;height:18px;accent-color:var(--fit);cursor:pointer}
+/* Satır eylemi 44px dokunma hedefi (WCAG 2.5.8) — görsel 32px, kalanı şeffaf. */
+.adm-ico-btn{
+  width:44px;height:44px;border:0;background:transparent;color:var(--muted);cursor:pointer;
+  display:inline-grid;place-items:center;border-radius:var(--radius-md);font-size:14px;
+  transition:color .18s var(--ease),background .18s var(--ease);
+}
+.adm-ico-btn:hover{color:var(--fit-deep);background:var(--fit-tint)}
+.adm-ico-btn:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+
+/* ---- sayfalama ---- */
+.adm-pager{display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.adm-pager .p-info{font-size:12.5px;font-weight:600;color:var(--muted)}
+.adm-pager .p-btns{margin-left:auto;display:flex;gap:6px}
+.adm-pg{min-width:44px;height:44px;padding:0 12px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);font-size:13px;font-weight:700;color:var(--slate-2);cursor:pointer}
+.adm-pg:hover:not([disabled]):not(.is-on){border-color:var(--fit);color:var(--fit-deep)}
+.adm-pg.is-on{background:var(--fit);border-color:var(--fit);color:#fff}
+.adm-pg[disabled]{opacity:.4;pointer-events:none}
+
+/* ---- toplu eylem çubuğu — seçim yokken YOK ---- */
+.adm-bulk{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--fit-tint);border-bottom:1px solid var(--fit-line);flex-wrap:wrap}
+.adm-bulk b{font-size:13px;font-weight:800;color:var(--fit-ink)}
+.adm-bulk .b-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.adm-bulk[hidden]{display:none}
+
+/* ---------------------------------------------------------------------
+   5 · İKİ KOLON — liste + yan panel
+   --------------------------------------------------------------------- */
+.adm-cols{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* ---------------------------------------------------------------------
+   6 · KIRILIM NOKTALARI
+   1100 → sidebar çekmeceye döner (gövde tam genişlik)
+    640 → sayaç ızgarası ikiye, tablo kabı kaydırır
+   --------------------------------------------------------------------- */
+@media (max-width:1240px){
+  .adm-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .adm-cols{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:1100px){
+  .adm-main{margin-left:0}
+  .adm-side{transform:translateX(-100%);transition:transform .24s var(--ease);box-shadow:var(--sh-lg)}
+  .adm-side.is-open{transform:none}
+  .adm-burger{display:grid}
+  .adm-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,18,12,.42);opacity:0;visibility:hidden;transition:opacity .2s var(--ease),visibility .2s var(--ease)}
+  .adm-scrim.is-on{opacity:1;visibility:visible}
+}
+@media (max-width:640px){
+  .adm-page{padding:16px}
+  .adm-top{padding:0 14px;gap:10px}
+  .adm-top h1{font-size:15px}
+  .adm-top .t-who b,.adm-top .t-who small{display:none}
+  .adm-top .t-who{padding-left:10px}
+  .adm-kpi{grid-template-columns:minmax(0,1fr);gap:12px}
+  .adm-head h2{font-size:19px}
+  .adm-card .c-head{padding:14px}
+  .adm-card .c-body{padding:14px}
+  .adm-table th,.adm-table td{padding:11px 12px}
+}

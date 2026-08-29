@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Genel Bakış — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Kabuk TOKENLERİ ve bileşenleri (kart · düğme · rozet · form · boş durum).
+     ⚠ `fit-shell.js` YÜKLENMEZ: public kabuk kendi header/footer'ını basar ve
+     admin'in üst çubuğuyla iki sabit şerit olurdu. Admin yalnız CSS'i alır. -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="genel">
+
+<!-- KABUK: sidebar + perde (fit-admin.js basar) -->
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <!-- üst çubuk buraya basılır -->
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Genel Bakış</h2>
+        <p>Panelin giriş ekranı. Sayaçlar ve kuyruklar; dikkat isteyen ne varsa
+           burada görünür, ayrıntı kendi ekranında açılır.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-raporlar-v1.html"><i class="fa-solid fa-chart-line"></i> Raporlar</a>
+        <a class="btn btn-primary" href="admin-challenge-v1.html"><i class="fa-solid fa-plus"></i> Yeni challenge</a>
+      </div>
+    </div>
+
+    <div id="gbKaynak"></div>
+
+    <!-- SAYAÇLAR -->
+    <div class="adm-kpi" id="gbKpi"></div>
+
+    <div class="adm-cols">
+      <!-- SOL: dikkat isteyen kuyruklar -->
+      <div>
+        <div class="adm-card">
+          <div class="c-head">
+            <h3><i class="fa-solid fa-inbox"></i> Bekleyen işler</h3>
+            <div class="c-acts"><span class="fp-badge wait" id="gbBekleyenSay">—</span></div>
+          </div>
+          <div class="c-body flush">
+            <div class="adm-tw">
+              <table class="adm-table">
+                <thead>
+                  <tr><th>Kuyruk</th><th class="num">Bekleyen</th><th>En eski</th><th class="act">Aç</th></tr>
+                </thead>
+                <tbody id="gbKuyruk"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head">
+            <h3><i class="fa-solid fa-trophy"></i> Challenge kataloğu</h3>
+            <div class="c-acts"><a class="btn btn-ghost" href="admin-challenge-v1.html">Tümünü yönet</a></div>
+          </div>
+          <div class="c-body flush">
+            <div class="adm-tw">
+              <table class="adm-table">
+                <thead>
+                  <tr><th>Challenge</th><th>Tip</th><th class="num">Süre</th><th>Hedef</th><th class="num">Ödül</th><th>Durum</th></tr>
+                </thead>
+                <tbody id="gbChallenge"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAĞ: sistem durumu -->
+      <div>
+        <div class="adm-card">
+          <div class="c-head"><h3><i class="fa-solid fa-database"></i> Veri kaynakları</h3></div>
+          <div class="c-body flush">
+            <div class="adm-tw">
+              <table class="adm-table">
+                <thead><tr><th>Modül</th><th>Durum</th></tr></thead>
+                <tbody id="gbKaynaklar"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h3><i class="fa-solid fa-triangle-exclamation"></i> Veri bekleyen alanlar</h3></div>
+          <div class="c-body">
+            <div class="fp-list" id="gbAcik"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-challenge.js"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   GENEL BAKIŞ   (R16/2)
+   ---------------------------------------------------------------------
+   Bu ekranın yarısı GERÇEK, yarısı ÖRNEK — ve hangisinin hangisi olduğu
+   ekranda yazılı (`.adm-src` şeridi ve her tablonun kendi rozeti).
+
+   GERÇEK: challenge kataloğu, rozet kataloğu, kademe eşikleri ve
+   kademe⇄özellik matrisi. Bunlar tarayıcıda çalışan sözleşme
+   modüllerinden okunuyor; burada ikinci bir kopya TUTULMUYOR.
+
+   ÖRNEK: üye sayısı, kuyruk sayıları, antrenör sayısı. Bu prototipte
+   sunucu yok ve başka kullanıcı verisi yok. Uydurma sayı basmak yerine
+   örnek olduğunu söylüyoruz — devir notunun dürüstlük sözleşmesi.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, C = window.FIT_CHALLENGE, R = window.FIT_ROZET;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  /* ---- kaynak şeridi ---- */
+  document.getElementById('gbKaynak').innerHTML = A.kaynak('canli',
+    '<b>Bu ekranın bir kısmı gerçek.</b> Challenge kataloğu, rozet kataloğu, ' +
+    'kademe eşikleri ve paket matrisi tarayıcıda çalışan sözleşme modüllerinden ' +
+    'okunuyor (<code>fit-challenge.js</code> · <code>fit-rozet.js</code> · ' +
+    '<code>fit-paket.js</code>). Üye ve kuyruk sayıları <b>örnektir</b> — bu ' +
+    'prototipte sunucu ve başka kullanıcı verisi yok. Yazma yüzeyi maket: ' +
+    'formlar doğrulanır, kayıt gitmez.');
+
+  /* ---- sayaçlar ----
+     Gerçek olan sayı gerçek kaynaktan, örnek olan "örnek" diye işaretli. */
+  var rozetSay = R ? R.KATALOG.length : 0;
+  var kademeSay = R ? R.KADEMELER.length : 0;
+  var chSay = C ? C.KATALOG.length : 0;
+  var kpi = [
+    ['fa-solid fa-users', n(1284), '', 'Üye', 'Örnek veri — sunucu yok'],
+    ['fa-solid fa-trophy', chSay, '', 'Challenge', 'Katalogdan okundu · ' + (C ? Object.keys(C.TIP).length : 0) + ' tip'],
+    ['fa-solid fa-medal', rozetSay, '', 'Rozet', kademeSay + ' kademeli merdiven · katalogdan'],
+    ['fa-solid fa-user-check', 3, '', 'Antrenör başvurusu', 'Örnek veri — kuyruk bekliyor']
+  ];
+  document.getElementById('gbKpi').innerHTML = kpi.map(function (k) {
+    return '<div class="k"><span class="ico"><i class="' + k[0] + '" aria-hidden="true"></i></span>' +
+      '<div><b>' + k[1] + (k[2] ? '<small>' + k[2] + '</small>' : '') + '</b>' +
+      '<span>' + esc(k[3]) + '</span><span class="note">' + esc(k[4]) + '</span></div></div>';
+  }).join('');
+
+  /* ---- bekleyen işler ---- */
+  var kuyruk = [
+    ['Antrenör başvurusu', 3, '2 gün önce', 'admin-antrenorler-v1.html'],
+    ['Destek talebi',      5, '4 saat önce', 'admin-destek-v1.html'],
+    ['Moderasyon',         2, '1 gün önce',  'admin-moderasyon-v1.html'],
+    ['İade talebi',        1, '3 gün önce',  'admin-hizmetler-v1.html']
+  ];
+  document.getElementById('gbKuyruk').innerHTML = kuyruk.map(function (k) {
+    return '<tr><td><b>' + esc(k[0]) + '</b></td>' +
+      '<td class="num"><b>' + k[1] + '</b></td>' +
+      '<td>' + esc(k[2]) + '</td>' +
+      '<td class="act"><a class="adm-ico-btn" href="' + k[3] + '" aria-label="' + esc(k[0]) + ' kuyruğunu aç">' +
+      '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>';
+  }).join('');
+  document.getElementById('gbBekleyenSay').textContent =
+    kuyruk.reduce(function (t, k) { return t + k[1]; }, 0) + ' iş';
+
+  /* ---- challenge kataloğu: GERÇEK ---- */
+  var chGovde = document.getElementById('gbChallenge');
+  if (C) {
+    chGovde.innerHTML = C.KATALOG.map(function (k) {
+      var t = C.TIP[k.tip];
+      var hedef = k.tip === 'sureli' ? n(k.hedef.deger) + ' ' + esc(k.hedef.ad)
+                : k.tip === 'seri'   ? k.adimlar.length + ' adım'
+                : 'her gün işaretle';
+      var d = k.durum === 'aktif' ? A.rozet('ok', 'Aktif', 'fa-play')
+                                  : A.rozet('wait', 'Yaklaşan', 'fa-clock');
+      return '<tr><td><b>' + esc(k.ad) + '</b><small>' + esc(k.slug) + '</small></td>' +
+        '<td><i class="' + t.ikon + '" aria-hidden="true"></i> ' + esc(t.etiket) + '</td>' +
+        '<td class="num">' + k.gun + ' gün</td>' +
+        '<td>' + hedef + '</td>' +
+        '<td class="num">+' + k.odul.puan + '</td>' +
+        '<td>' + d + '</td></tr>';
+    }).join('');
+  } else {
+    chGovde.innerHTML = '<tr><td colspan="6">' +
+      A.bos('fa-trophy', 'Challenge motoru yüklenmedi',
+            'Katalog fit-challenge.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
+  }
+
+  /* ---- veri kaynakları: hangi modül gerçekten çalışıyor ---- */
+  var kaynaklar = [
+    ['fit-challenge.js', !!C, C ? C.KATALOG.length + ' challenge · 3 tip' : 'yüklenemedi'],
+    ['fit-rozet.js',     !!R, R ? R.KATALOG.length + ' rozet · ' + R.KADEMELER.length + ' kademe' : 'yüklenemedi'],
+    ['fit-paket.js',     !!window.FIT_PAKET, window.FIT_PAKET ? 'kademe⇄özellik matrisi' : 'yüklenemedi'],
+    ['Sunucu',           false, 'yok — statik prototip'],
+    ['Üye veritabanı',   false, 'yok — örnek veri']
+  ];
+  document.getElementById('gbKaynaklar').innerHTML = kaynaklar.map(function (k) {
+    return '<tr><td><b>' + esc(k[0]) + '</b><small>' + esc(k[2]) + '</small></td>' +
+      '<td>' + (k[1] ? A.rozet('ok', 'Çalışıyor', 'fa-circle-check')
+                     : A.rozet('off', 'Yok', 'fa-circle-minus')) + '</td></tr>';
+  }).join('');
+
+  /* ---- veri bekleyen alanlar ----
+     Kaynağı olmayan alan "—" kalır; uydurulmaz. Panel doğunca aynı kod okur. */
+  var acik = [
+    ['fa-tag',           'Pro Max fiyatı',   'fit-paket.js içinde fiyat alanı boş; ekranlarda "onay bekliyor" yazıyor.'],
+    ['fa-map-location-dot','İlçe listesi',   '81 il tam; 973 ilçe serbest metin. Gerçek liste tek dosyaya girer.'],
+    ['fa-calendar-plus', 'Üyelik tarihi',    'Hiçbir şemada kayıt tarihi alanı yok; profil kartında "—" duruyor.'],
+    ['fa-bell',          'Hatırlatma',       'Su takibinde ayar ekranı gerçek, bildirim gönderimi maket.']
+  ];
+  document.getElementById('gbAcik').innerHTML = acik.map(function (x) {
+    return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
+      '<span class="txt"><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

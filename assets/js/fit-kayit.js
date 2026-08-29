@@ -15,8 +15,7 @@
    DEPOLAMA
      localStorage['dm_fit_kayit_v1'] = {
        surum: 1,
-       kayitlar: [Kayit],          // en yeni başta
-       koleksiyonlar: [Koleksiyon]
+       kayitlar: [Kayit]           // en yeni başta
      }
      (kabuğun `dm_fit_*` anahtar ailesiyle aynı önek)
 
@@ -30,11 +29,6 @@
        meta  : 'Bacak · Dambıl',      // kartın tek satırlık künyesi
        tarih : '2026-08-29T…'         // kaydedildiği an (ISO)
      }
-
-   KOLEKSİYON ŞEMASI
-     { id:'kol_…', ad:'Evde', uyeler:['hareket:goblet-squat', …] }
-     Üye anahtarı `tur:slug` — kaydın kendisine referans, kopyası değil.
-     Kayıt silinirse koleksiyonlardan da düşer (sessiz sarkan üye kalmaz).
 
    NE UYDURULMAZ
      · `ad` verilmeden kayıt AÇILMAZ. Slug'ı güzelleştirip ad üretmek
@@ -72,7 +66,7 @@
   };
 
   /* ---- düşük seviye: oku / yaz ------------------------------------ */
-  function bos() { return { surum: 1, kayitlar: [], koleksiyonlar: [] }; }
+  function bos() { return { surum: 1, kayitlar: [] }; }
 
   function oku() {
     try {
@@ -80,7 +74,6 @@
       if (!ham) return bos();
       var d = JSON.parse(ham);
       if (!d || !Array.isArray(d.kayitlar)) return bos();
-      if (!Array.isArray(d.koleksiyonlar)) d.koleksiyonlar = [];
       if (typeof d.surum !== 'number') d.surum = 1;
       return d;
     } catch (e) { return bos(); }
@@ -90,8 +83,6 @@
     try { kok.localStorage.setItem(ANAHTAR, JSON.stringify(d)); return true; }
     catch (e) { return false; }              /* kota dolu / gizli kip */
   }
-
-  function anahtarla(tur, slug) { return String(tur) + ':' + String(slug); }
 
   function haberVer(tur, slug, kayitli, sayi) {
     try {
@@ -148,7 +139,7 @@
       return true;
     },
 
-    /* Kaydı siler ve koleksiyonlardan da düşürür. */
+    /* Kaydı siler. */
     kaldir: function (tur, slug) {
       var d = oku(), n = d.kayitlar.length;
       d.kayitlar = d.kayitlar.filter(function (k) {
@@ -156,10 +147,6 @@
       });
       if (d.kayitlar.length === n) return false;
 
-      var ak = anahtarla(tur, slug);
-      d.koleksiyonlar.forEach(function (c) {
-        c.uyeler = (c.uyeler || []).filter(function (u) { return u !== ak; });
-      });
       if (!yaz(d)) return false;
       haberVer(tur, slug, false, d.kayitlar.length);
       return true;
@@ -191,49 +178,11 @@
       return d;
     },
 
-    /* ---- koleksiyonlar ---------------------------------------------
-       Kullanıcının kendi adlandırdığı kümeler. Üyelik `tur:slug`
-       anahtarıyla tutulur; kayıt silinince üyelik de düşer. */
-    koleksiyonlar: function () { return oku().koleksiyonlar.slice(); },
-
-    koleksiyonAc: function (ad) {
-      if (!ad) return null;
-      var d = oku();
-      var c = { id: 'kol_' + Date.now().toString(36), ad: String(ad), uyeler: [] };
-      d.koleksiyonlar.push(c);
-      if (!yaz(d)) return null;
-      haberVer(null, null, null, d.kayitlar.length);
-      return c.id;
-    },
-
-    koleksiyonSil: function (id) {
-      var d = oku(), n = d.koleksiyonlar.length;
-      d.koleksiyonlar = d.koleksiyonlar.filter(function (c) { return c.id !== id; });
-      if (d.koleksiyonlar.length === n) return false;
-      if (!yaz(d)) return false;
-      haberVer(null, null, null, d.kayitlar.length);
-      return true;
-    },
-
-    /* Üyeliği aç/kapa. Dönen: işlemden sonraki üyelik. */
-    koleksiyonDegistir: function (id, tur, slug) {
-      var d = oku();
-      var c = d.koleksiyonlar.filter(function (x) { return x.id === id; })[0];
-      if (!c) return false;
-      c.uyeler = c.uyeler || [];
-      var ak = anahtarla(tur, slug), i = c.uyeler.indexOf(ak), sonuc;
-      if (i > -1) { c.uyeler.splice(i, 1); sonuc = false; }
-      else        { c.uyeler.push(ak);     sonuc = true;  }
-      if (!yaz(d)) return false;
-      haberVer(tur, slug, API.kayitli(tur, slug), d.kayitlar.length);
-      return sonuc;
-    },
-
-    koleksiyonUyesi: function (id, tur, slug) {
-      var c = oku().koleksiyonlar.filter(function (x) { return x.id === id; })[0];
-      if (!c) return false;
-      return (c.uyeler || []).indexOf(anahtarla(tur, slug)) > -1;
-    },
+    /* R15 · KOLEKSİYON YÜZEYİ KALDIRILDI (Beyar, 2026-08-30): "böyle bir
+       özelliğimiz yok". `koleksiyonlar/koleksiyonAc/koleksiyonSil/
+       koleksiyonDegistir/koleksiyonUyesi` ve şemadaki `koleksiyonlar[]`
+       dizisi söküldü. `oku()` eski kayıtta o alanı görürse SESSİZCE
+       yok sayar — kullanıcının deposunu bozmaz, taşımaz, uydurmaz. */
 
     temizle: function () {
       try { kok.localStorage.removeItem(ANAHTAR); haberVer(null, null, null, 0); return true; }

@@ -538,20 +538,11 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
         <p class="fpx-durum" id="kytDurum" role="status" aria-live="polite"></p>
       </div>
 
-      <!-- KOLEKSİYONLAR — gerçek: FIT_KAYIT.koleksiyonlar (aynı depoda) -->
-      <div class="fp-card" style="margin-top:18px">
-        <div class="fp-head">
-          <h3><i class="fa-solid fa-folder-open"></i> Koleksiyonların</h3>
-          <span class="fp-badge off" id="kolCount">0 koleksiyon</span>
-        </div>
-        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65;max-width:70ch">Kaydettiklerini kendi adlandırdığın kümelere ayırırsın — "Evde", "Ofis molası", "Diz dostu". Bir kayıt birden çok koleksiyonda durabilir; koleksiyondan çıkarmak kaydı silmez.</p>
-        <div class="fpx-kol" id="kolList"></div>
-        <form class="fpx-kolform" id="kolForm" autocomplete="off">
-          <label class="sr-only" for="kolAd">Yeni koleksiyon adı</label>
-          <input id="kolAd" type="text" maxlength="40" placeholder="Yeni koleksiyon adı" required />
-          <button class="btn btn-line" type="submit"><i class="fa-solid fa-folder-plus"></i> Koleksiyon aç</button>
-        </form>
-      </div>
+      <!-- R15 · KOLEKSİYONLAR BÖLÜMÜ KALDIRILDI (Beyar, 2026-08-30):
+           "böyle bir özelliğimiz yok". Kaydettiklerim listesi duruyor;
+           kayıtları kümeleyen ikinci katman kalktı. Satır içindeki
+           "koleksiyona ekle" düğmesi, süzgeci ve FIT_KAYIT'in koleksiyon
+           yüzeyi de söküldü — ölü kod bırakılmadı. -->
     </div>
 
   </div>
@@ -1233,10 +1224,7 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
   var say   = document.getElementById('kytCount');
   var durum = document.getElementById('kytDurum');
   var chips = document.getElementById('kytChips');
-  var kolList = document.getElementById('kolList');
-  var kolSay  = document.getElementById('kolCount');
-  var kolForm = document.getElementById('kolForm');
-  var aktifTur = 'all', aktifKol = null, durumZaman = null;
+  var aktifTur = 'all', durumZaman = null;
 
   function durumYaz(m){
     if (!durum) return;
@@ -1249,7 +1237,6 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
     var K = window.FIT_KAYIT; if (!K || !list) return;
     var hepsi = K.listele();
     var l = aktifTur === 'all' ? hepsi : hepsi.filter(function(k){ return k.tur === aktifTur; });
-    if (aktifKol) l = l.filter(function(k){ return K.koleksiyonUyesi(aktifKol, k.tur, k.slug); });
 
     if (say) say.textContent = hepsi.length + ' kayıt';
 
@@ -1262,7 +1249,7 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
     }
     if (!l.length) {
       list.innerHTML = '<div class="fpx-bos"><span class="pe-ico"><i class="fa-solid fa-filter"></i></span>' +
-        '<h4>Bu süzgeçle kayıt yok</h4><p>Başka bir tür ya da koleksiyon seç.</p></div>';
+        '<h4>Bu süzgeçle kayıt yok</h4><p>Başka bir tür seç.</p></div>';
       return;
     }
 
@@ -1274,30 +1261,9 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
              '<span class="ico"><i class="' + ik + '"></i></span>' +
              '<span class="txt"><b>' + esc(k.ad) + '</b><small>' + esc(alt) + '</small></span>' +
              '<span class="end"><span class="fpx-ops">' +
-               '<button class="fpx-op" type="button" data-op="koleksiyon" aria-label="Koleksiyona ekle veya çıkar" title="Koleksiyona ekle veya çıkar"><i class="fa-solid fa-folder-plus"></i></button>' +
                '<button class="fpx-op" type="button" data-op="kaldir" aria-label="Kaydı kaldır" title="Kaydı kaldır"><i class="fa-solid fa-bookmark"></i></button>' +
              '</span>' + (k.href ? '<a class="fp-act" href="' + esc(k.href) + '">Aç <i class="fa-solid fa-arrow-right"></i></a>' : '') +
              '</span></div>';
-    }).join('');
-  }
-
-  function kolBas(){
-    var K = window.FIT_KAYIT; if (!K || !kolList) return;
-    var c = K.koleksiyonlar();
-    if (kolSay) kolSay.textContent = c.length + ' koleksiyon';
-    if (!c.length) {
-      kolList.innerHTML = '<p style="font-size:13.5px;color:var(--muted);font-weight:500;margin:6px 0 0">Henüz koleksiyon açmadın.</p>';
-      return;
-    }
-    kolList.innerHTML = c.map(function (x) {
-      var on = aktifKol === x.id;
-      /* markup kiti fit-planim.css'te ZATEN var (.fpx-kol-ico/.fpx-kol-txt) —
-         yeni sınıf icat edilmedi, var olan kap birebir kullanıldı. */
-      return '<button class="fpx-kol-oge" type="button" data-kol="' + esc(x.id) + '" aria-pressed="' + (on?'true':'false') + '">' +
-             '<span class="fpx-kol-ico"><i class="fa-solid fa-folder"></i></span>' +
-             '<span class="fpx-kol-txt"><b>' + esc(x.ad) + '</b><small>' + (x.uyeler || []).length + ' kayıt</small></span>' +
-             '<span class="fpx-kol-sil" data-kolsil="' + esc(x.id) + '" aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>' +
-             '</button>';
     }).join('');
   }
 
@@ -1333,42 +1299,11 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
       return;
     }
 
-    /* koleksiyona ekle/çıkar — koleksiyon yoksa dürüstçe söyle, sahte onay verme */
-    var kols = K.koleksiyonlar();
-    if (!kols.length) { durumYaz('Önce aşağıdan bir koleksiyon aç.'); return; }
-    var hedef = aktifKol || kols[0].id;
-    var sonuc = K.koleksiyonDegistir(hedef, tur, slug);
-    var kAd = kols.filter(function(x){return x.id===hedef;})[0].ad;
-    durumYaz(sonuc ? '"' + ad + '" → "' + kAd + '" koleksiyonuna eklendi.'
-                   : '"' + ad + '" "' + kAd + '" koleksiyonundan çıkarıldı.');
   });
 
-  if (kolList) kolList.addEventListener('click', function (e) {
-    var K = window.FIT_KAYIT;
-    var sil = e.target.closest('[data-kolsil]');
-    if (sil) { e.stopPropagation(); K.koleksiyonSil(sil.getAttribute('data-kolsil'));
-               if (aktifKol === sil.getAttribute('data-kolsil')) aktifKol = null;
-               durumYaz('Koleksiyon silindi — içindeki kayıtlar duruyor.'); return; }
-    var b = e.target.closest('.fpx-kol-oge'); if (!b) return;
-    var id = b.getAttribute('data-kol');
-    aktifKol = (aktifKol === id) ? null : id;
-    kolBas(); kytBas();
-    durumYaz(aktifKol ? '"' + b.querySelector('b').textContent + '" koleksiyonu gösteriliyor.'
-                      : 'Koleksiyon süzgeci kaldırıldı.');
-  });
+  window.addEventListener('fit-kayit-degisti', function () { kytBas(); });
 
-  if (kolForm) kolForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var K = window.FIT_KAYIT;
-    var i = document.getElementById('kolAd');
-    var ad = (i.value || '').trim(); if (!ad) return;
-    K.koleksiyonAc(ad); i.value = '';
-    durumYaz('"' + ad + '" koleksiyonu açıldı.');
-  });
-
-  window.addEventListener('fit-kayit-degisti', function () { kytBas(); kolBas(); });
-
-  bugunBas(); sonBas(); kytBas(); kolBas();
+  bugunBas(); sonBas(); kytBas();
 })();
 </script>
 

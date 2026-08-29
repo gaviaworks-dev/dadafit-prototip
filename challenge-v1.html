@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
   <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Haziran Challenge — DadaFit</title>
+<title>Challenge — DadaFit</title>
 <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
 <!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
 <link rel="stylesheet"
@@ -97,7 +97,7 @@
  Taşma güvenliği: ray min-width:0 ile büzülür, olgular sarar; 390px'te
  uçlar üst üste değil ALT ALTA gelir. */
 .chl-time{
-  margin-top:26px;padding:18px 20px;max-width:640px;
+  margin-top:26px;padding:18px 20px;   /* max-width:640px SÖKÜLDÜ — kardeş kartla eşit genişlik */
   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
   border-radius:var(--radius-lg)
 }
@@ -164,13 +164,35 @@
 .chl-card-meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:18px}
 .chl-card-meta b{color:#fff;font-weight:700}
 /* kompakt 30-gün rozet ızgarası (df-daygrid dili) */
-.chl-mini{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
-.chl-mini span{aspect-ratio:1;border-radius:var(--radius-sm);background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:11px;font-weight:700;color:#857e74}
-.chl-mini span.done{background:var(--fit);color:#fff}
-.chl-mini span.today{background:rgba(0,157,79,.22);color:#fff;border:1.5px solid var(--fit-bright)}
+/* .chl-mini kuralları SİLİNDİ — mini takvim kartın içinden çıkarıldı
+   (gerekçesi kartBas() içinde yazılı), ölü kural bırakılmadı. */
 .chl-card-foot{display:flex;align-items:center;gap:9px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;font-weight:600;color:rgba(255,255,255,.74)}
 .chl-card-foot i{color:var(--fit-bright)}
 .chl-card-foot b{color:#fff;font-weight:800}
+
+/* ===== GÖVDE BANDI VE DİKİŞ =====================================
+ Kalıp `antrenor-detay-v1.html`in `.cp-body`sinden ÖLÇÜLEREK alındı
+ (1440·1024·768'te birebir aynı): margin-top −22, yarıçap 22, opak
+ --bg-white, position:relative. Yeni ölçü üretilmedi.
+ `padding-top:40px` de aynı emsalden (.cp-body{padding:40px 0 var(--sec-pad)}).*/
+.chl-body{
+  position:relative;z-index:2;
+  margin-top:-22px;border-radius:22px;
+  background:var(--bg-white);
+  padding-top:40px;
+}
+/* Gövdenin İLK çocuğu artık gövdenin kendi dolgusunu alıyor; kabuğun
+   .fit-band-panel'ine gömülü 32px üst boşluk burada çift sayardı. */
+.chl-body>.fit-band-panel:first-child{margin-top:0}
+
+/* Banner alt dolgusu 48 → görünen nefes 48−22 = 26 px (emsalle birebir).
+   Kabuk `padding:var(--hero-pt) 0 var(--hero-pb) !important` dediği için
+   özgüllük ve !important emsaldeki gibi tekrarlanıyor
+   (antrenor-detay-v1.html:214 ile aynı kalıp). */
+body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
+
+/* Katılım düğmeleri kartın içinde, kartın kendi dilinde. */
+.chl-card-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
 
 /* ---------------------------------------------------------------------
  2 · TAKİP — tam-genişlik 30 günlük takvim + ilerleme (signature)
@@ -360,14 +382,41 @@
   padding:14px 24px;border-radius:var(--radius-md);transition:.2s var(--ease);
 }
 .chl-cta-panel .btn-line:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.42)}
-.chl-cta-note{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.6);margin-top:18px}
+.chl-cta-note{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.6)}
 .chl-cta-note i{color:var(--fit-bright)}
+/* ===== R15/5 · İKİ KUSUR, İKİSİ DE ÖLÇÜLDÜ =====================
+ 1 · SOLA KAYMA. Panel `text-align:center` taşıyor ve not da onu MİRAS
+     ALIYOR (computed değer gerçekten "center"). Buna rağmen tek satırlık
+     not sola yaslıydı: `fit-type.css:164` bütün <p>'lere
+     `text-align-last:start` veriyor ve TEK SATIRLIK bir paragrafın o tek
+     satırı aynı zamanda SON satırdır — yani `text-align-last` `text-align`i
+     yeniyor. Ölçüm (1440): metnin sol boşluğu 274 px, sağ boşluğu 384.7 px.
+     Yeni bir hizalama dili yazılmıyor; panelin KENDİ ortalaması, son satır
+     için de açıkça tekrar ediliyor.
+
+ 2 · DÜĞMELERE YAPIŞIKLIK. Yazarın niyeti zaten `margin-top:18px` idi ama
+     hiç uygulanmıyordu: `.chl-cta-panel p{margin:0 auto 28px}` özgüllüğü
+     (0,1,1), `.chl-cta-note`unkini (0,1,0) yeniyor ve margin-top'u 0'a
+     eziyordu. Ölçüm: düğmelerle ara 0 px, computed margin-top 0px.
+     YENİ ÖLÇÜ ÜRETİLMEDİ — dosyada zaten yazılı olan 18 px'in uygulanması
+     için özgüllük (0,2,0)'a yükseltildi (docs/fit-kit.md: "değişken varsa o
+     kullanılır"; kitte bu tier için bir token yok, sayfanın kendi yazılı
+     değeri var). `--sec-pad-sm` (32 px) BÖLÜM dolgusudur, kart içi bir
+     dipnot adımı değil; kart içi satır aralığı (10 px) ise ölçüldüğünde
+     notu düğme grubunun parçası gibi okutuyordu — bildirilen kusurun ta
+     kendisi. */
+/* Aynı kusur panelin ÜST paragrafında da vardı: iki satırlık lead'in ikinci
+   (son) satırı sola yaslı kalıyordu. Kural notla sınırlı tutulsaydı düzeltme
+   yarım kalırdı — panelin bütün paragrafları panelin kendi ortalamasını
+   son satırda da sürdürür. */
+.chl-cta-panel p{ text-align-last:center; }
+.chl-cta-panel .chl-cta-note{ margin-top:18px; }
 
 /* ===================== SAYFA RESPONSIVE ===================== */
 @media (max-width:1024px){
   .chl-hero{margin-top:112px}
   .chl-grid{grid-template-columns:1fr;gap:34px}
-  .chl-card{max-width:520px}
+  /* .chl-card{max-width:520px} SÖKÜLDÜ — iki kart her genişlikte eşit */
   .chl-hero h1{font-size:39px}
   .how-grid{grid-template-columns:repeat(2,1fr)}
   .earn-grid{grid-template-columns:repeat(2,1fr)}
@@ -420,24 +469,20 @@
   .earn-grid{grid-template-columns:1fr}
 }
 
-/* ===== TAB SWITCHER — challenge / su içme takibi ===== */
-.chl-tabbar{background:var(--bg-white);border-bottom:1px solid var(--line);position:sticky;top:112px;z-index:38}
-.chl-tabbar .wrap{display:flex;gap:0}
-.chl-tb{flex:none;font-family:inherit;font-size:15px;font-weight:700;color:var(--muted);background:none;border:none;
-  padding:17px 24px;cursor:pointer;position:relative;transition:color .2s;display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
-.chl-tb:hover{color:var(--slate)}
-.chl-tb.active{color:var(--fit)}
-.chl-tb.active::after{content:"";position:absolute;left:24px;right:24px;bottom:-1px;height:2.5px;background:var(--fit);border-radius:var(--radius-sm)}
-.chl-tb i{font-size:14px}
-/* pane gizle/göster */
-.chl-pane{display:none}
-.chl-pane.active{display:block}
-@media(max-width:640px){
-  .chl-tabbar .wrap{overflow-x:auto;scrollbar-width:none}
-  .chl-tabbar .wrap::-webkit-scrollbar{display:none}
-  .chl-tb{padding:15px 18px;font-size:14px}
-  .chl-tabbar{top:62px}
-}
+/* ===== SEKME ŞERİDİ — KİTE ÇEKİLDİ (R15/5) =====================
+ Bu sayfa kendi şeridini (.chl-tabbar / .chl-tb / .chl-pane) çiziyordu:
+ alt çizgili, kutusuz, YAPIŞKAN (sticky, top:112px), aktif kalem boş
+ zeminli. Kardeş modül sayfaları (egzersizlerim · programlarim · destek)
+ üçü de kabuğun ORTAK bileşenini kullanıyor ve birbirinin aynısı.
+ Sapan sayı ölçüldü: kap kenarlığı yok / yarıçap 0 / dolgu 0, aktif kalem
+ zemini rgba(0,0,0,0), yarıçapı 0, yazısı 15px, yüksekliği 52px.
+
+ Şerit artık `.pf-tabbar.fp-tabbar > .wrap > nav.fit-tabs` — kabuğun modül
+ sayfalarında bastığı kalıbın birebir aynısı. Rol/aria/klavye/roving-tabindex
+ ve panel geçişi kabukta kurulu (fit-shell.js "SEKME BİLEŞENİ"), sayfada
+ tekrarlanmıyor; sayfanın kendi geçiş JS'i de silindi. Sticky kuralı gitti,
+ kit `static`. Bu blokta artık SIFIR kural var — kitin dışına çıkan tek şey
+ yoktu, o yüzden yerine bir şey yazılmadı. */
 
 /* ===== SU İÇME TAKİBİ PANELİ (.wt-*) ===== */
 .wt-sec{padding:56px 0;background:var(--bg-white)}
@@ -539,12 +584,12 @@
            Geri dönüş yolu doğru ebeveyne gidiyor: Challenge Merkezi. -->
       <a href="challenge-merkezi-v1.html">Challenge Merkezi</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span class="cur" data-ch="ad">Haziran Challenge</span>
+      <span class="cur" data-ch="ad">Challenge</span>
     </nav>
     <div class="chl-grid">
       <div class="chl-lead">
         <div class="chl-eyebrow-row">
-          <span class="eyebrow"><i class="fa-solid fa-flag-checkered"></i> <span data-ch="donem">Haziran Challenge</span></span>
+          <span class="eyebrow"><i class="fa-solid fa-flag-checkered"></i> <span data-ch="donem">Challenge</span></span>
           <span class="chl-live" data-ch="durum-rozet"><span class="dot"></span> <span data-ch="durum">Şu an aktif</span></span>
         </div>
         <h1 data-ch="baslik">30 günde <em>hareket alışkanlığı</em></h1>
@@ -560,15 +605,12 @@
           <button class="btn-line" type="button" id="chLeave" hidden><i class="fa-solid fa-xmark"></i> Challenge'ı bırak</button>
           <a class="btn-line" href="#nasil"><i class="fa-solid fa-circle-info"></i> Nasıl çalışır?</a>
         </div>
+        <!-- Burada bir avatar yığını ve "Bu ay 2.840 kişi birlikte hareket
+             ediyor" cümlesi vardı. Sayıyı üretecek bir kayıt hiçbir yerde
+             yok; hero'nun ilk cümlesi uydurma olamaz. Yerine challenge'ın
+             KENDİ doğrusu geldi: ödülü ve neyin kanıt sayıldığı. -->
         <div class="chl-join">
-          <div class="chl-avastack">
-            <span style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80&auto=format&fit=crop')"></span>
-            <span style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&q=80&auto=format&fit=crop')"></span>
-            <span style="background-image:url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=120&q=80&auto=format&fit=crop')"></span>
-            <span style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80&auto=format&fit=crop')"></span>
-            <span class="more">+2.8K</span>
-          </div>
-          <p>Bu ay <b>2.840 kişi</b> birlikte hareket ediyor. Sen de aralarında ol.</p>
+          <p data-ch="kanit">İlerlemen antrenman kayıtlarından hesaplanır.</p>
         </div>
       </div>
 
@@ -577,6 +619,23 @@
     </div>
   </div>
 </section>
+
+<!-- ===== GÖVDE BANDI — DİKİŞ (R15/5) ==========================
+     Ölçülen kusur: banner'ın altında hiç dikiş yoktu. Banner tam genişlik,
+     üst yarıçap 0; sonraki blok `.wrap.fit-band-panel` üst yarıçap 0, zemin
+     SAYDAM ve banner'la arası +32 px BOŞLUK (bindirme değil). Yani ne
+     yuvarlaklık, ne bindirme, ne opak gövde.
+
+     Kalıp `antrenor-detay-v1.html`den ölçülerek alındı (üç genişlikte
+     birebir aynı çıktı): gövde `margin-top:-22px` ile banner'ın üstüne
+     biner, üst köşeleri 22 px, zemini OPAK `--bg-white`, `position:relative`.
+     Banner alt dolgusu 48 px → görünen nefes 48−22 = 26 px.
+
+     ⚠ Yuvarlaklık `.fit-band-panel`e VERİLMEDİ: o, kabuk yorumunda yazdığı
+     gibi "banner kenarına bilerek oturtulmuş saydam yüzen kart"tır ve
+     kabuğun "dikişi rayın dibine çek" bloğu saydam blokları gövdeye taşır.
+     Dikiş, onları İÇİNE ALAN gerçek gövde bandına verildi. -->
+<div class="chl-body">
 
 <!-- R15 · İKİNCİL PANEL BANNER'DAN ÇIKARILDI: 30 günlük zaman çizelgesi
      (187.2 px) sabit 560 px kutuya sığmıyordu (içerik 550.1 / kutu 386). -->
@@ -601,158 +660,79 @@
             <li><b data-ch="toplam">30 gün</b><span>toplam süre</span></li>
             <li><b data-ch="kalan">23 gün</b><span>kaldı</span></li>
             <li><b data-ch="sure">10–15 dk</b><span>günlük süre</span></li>
-            <li><b data-ch="katilimci">2.840</b><span>katılımcı</span></li>
+            <li><b data-ch="katilimci">+250</b><span>rozet puanı</span></li>
           </ul>
         </div>
 </div>
 
 
-<!-- BANNER KURALI: ikincil panel bandın dışına alındı (banner ≤ %50 ekran) -->
+<!-- ===== "İLERLEMEN" KARTI — TEK KART, GERÇEK VERİ (R15/5) =========
+     Burada İKİ kart vardı ve ikisi de AYNI ŞEYİ anlatıyordu:
+       .chl-card      → tamamen sabit HTML (%23 · "7 / 30 gün tamam" ·
+                        "5 gün üst üste" + otuz sabit mini kutu)
+       #chStateWrap   → aynı bilginin gerçek veriye bağlı kopyası
+     İki kart aynı soruya iki farklı cevap veriyordu. Sabit olanın GÖRSELİ
+     tutuldu, VERİSİ motordan bağlandı; kopya kart kaldırıldı. Katılım
+     düğmeleri de bu kartın içine alındı.
+
+     Genişlik: `.chl-time` 640 px, `.chl-card` 1176 px (@1440) idi — 536 px
+     fark. İkisinin de kendi `max-width`i söküldü; artık ikisi de bandın
+     tam genişliğinde ve aynı sol kenarda. -->
 <div class="wrap fit-band-panel">
-<div class="chl-card">
-        <div class="chl-card-top">
-          <span class="ttl"><i class="fa-solid fa-calendar-check"></i> İlerlemen</span>
-          <span class="pct">%23</span>
-        </div>
-        <div class="chl-bar"><i style="width:23%"></i></div>
-        <div class="chl-card-meta"><span>7 / 30 gün tamam</span><span><b>5 gün</b> üst üste</span></div>
-        <div class="chl-mini">
-          <span class="done">1</span><span class="done">2</span><span class="done">3</span><span class="done">4</span><span class="done">5</span>
-          <span class="done">6</span><span class="today">7</span><span>8</span><span>9</span><span>10</span>
-          <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
-          <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span>
-          <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span>
-          <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-        </div>
-        <div class="chl-card-foot"><i class="fa-solid fa-fire-flame-curved"></i> Bugün <b>Gün 7</b> seni bekliyor — 12 dakikalık esneme.</div>
-      </div>
+  <div class="chl-card" id="chCard"></div>
 </div>
 
-<!-- KATILIM DURUMU — Fit Planım'a yansıyan yaşam döngüsü (belge §8.4) -->
-<div class="wrap" id="chStateWrap" hidden>
-  <div class="fp-card" style="margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-    <div style="min-width:240px;flex:1">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <b style="font-size:16px" id="chStateName">30 Günde Hareket Alışkanlığı</b>
-        <span class="fp-badge ok" id="chStateBadge"><i class="fa-solid fa-play"></i> Devam ediyor</span>
-      </div>
-      <p style="font-size:13.5px;color:var(--muted);font-weight:500;margin-top:5px" id="chStateLine">Katıldın. İlerlemen Fit Planım'a işleniyor.</p>
-      <div class="fp-bar"><span id="chStateBar" style="width:3%"></span></div>
-      <div class="fp-meta">
-        <span><b id="chStateDay">1</b> / <b id="chStateTotal">30</b> gün</span>
-        <span><b id="chStateStreak">1</b> gün üst üste</span>
-        <span>Telafi hakkı: <b id="chStateGrace">2</b> / 2</span>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <a class="btn btn-ghost" href="fit-planim-rozetler-v1.html"><i class="fa-solid fa-medal"></i> Fit Planım'da gör</a>
-      <button class="btn btn-ghost" type="button" id="chMiss"><i class="fa-solid fa-forward"></i> Bugünü kaçırdım</button>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- ===== TAB SWITCHER — challenge / su içme takibi ===== -->
-<div class="chl-tabbar">
+<!-- ===== SEKME ŞERİDİ — kabuğun ortak bileşeni (docs/fit-kit.md §6) =====
+     `role`/`aria-*`/klavye/roving-tabindex KABUKTA kurulur, burada yazılmaz.
+     Anahtarlar sayfadaki çapalarla (#takip · #nasil) ve `?slug=` ile
+     çakışmıyor. -->
+<div class="pf-tabbar fp-tabbar">
   <div class="wrap">
-    <button class="chl-tb active" type="button" data-pane="challenge" role="tab" aria-selected="true">
-      <i class="fa-solid fa-flag-checkered"></i> Hareket Challenge
-    </button>
-    <button class="chl-tb" type="button" data-pane="su" role="tab" aria-selected="false">
-      <i class="fa-solid fa-droplet"></i> Su İçme Takibi
-    </button>
+    <nav class="fit-tabs" data-fit-tabs="challenge" aria-label="Challenge bölümleri">
+      <button class="fit-tab active" type="button" data-tab="challenge" aria-selected="true"><i class="fa-solid fa-flag-checkered"></i> Hareket Challenge</button>
+      <button class="fit-tab" type="button" data-tab="su" aria-selected="false"><i class="fa-solid fa-droplet"></i> Su İçme Takibi</button>
+    </nav>
   </div>
 </div>
 
 <!-- ===== TAB 1 · CHALLENGE İÇERİĞİ ===== -->
-<div class="chl-pane active" id="chl-pane-challenge" role="tabpanel">
+<div class="fit-pane" data-pane="challenge">
 
 <!-- ===== 2 · TAKİP: tam-genişlik 30 günlük takvim (signature) ===== -->
 <section class="chl-track" id="takip">
   <div class="wrap">
     <div class="sec-head sec-fit">
       <div>
-        <span class="eyebrow"><i class="fa-solid fa-calendar-days"></i> 30 Günlük Takvim</span>
+        <span class="eyebrow"><i class="fa-solid fa-calendar-days"></i> <span data-ch="takvimBaslik">Takvim</span></span>
         <h2>Her gün bir kutu — kaldığın yerden devam</h2>
-        <p class="lead">Tamamladığın günler yeşile döner, bugünün halkalı. Dinlenme günleri de planın parçası; ritmini koru, hız yarışı değil.</p>
+        <p class="lead">Kayıt düşen günler yeşile döner, bugün vurgulu. Boş bir kutu iddia taşımaz — o gün bir kayıt olmadığı anlamına gelir, başka bir şey değil.</p>
       </div>
     </div>
 
     <div class="track-wrap">
-      <!-- özet şerit -->
-      <div class="track-summary">
-        <div class="ts-cell">
-          <span class="lbl"><i class="fa-solid fa-circle-check"></i> Tamamlanan</span>
-          <b>7<small>/30 gün</small></b>
-          <div class="note">İyi gidiyorsun, devam</div>
-        </div>
-        <div class="ts-cell">
-          <span class="lbl"><i class="fa-solid fa-fire-flame-curved"></i> Üst üste seri</span>
-          <b>5<small>gün</small></b>
-          <div class="note">En uzun serin: 5 gün</div>
-        </div>
-        <div class="ts-cell">
-          <span class="lbl"><i class="fa-solid fa-clock"></i> Toplam hareket</span>
-          <b>84<small>dk</small></b>
-          <div class="note">Bu ay biriktirdiğin</div>
-        </div>
-        <div class="ts-cell">
-          <span class="lbl"><i class="fa-solid fa-hourglass-half"></i> Kalan</span>
-          <b>23<small>gün</small></b>
-          <div class="note">Bitişe daha çok var</div>
-        </div>
-      </div>
+      <!-- Özet şerit GERÇEK kayıttan doldurulur; dört hücrenin ne ölçtüğü
+           challenge tipine göre değişir (R15/5). Eskiden dört sayı da sabitti. -->
+      <div class="track-summary" id="trackSummary"></div>
 
       <!-- ilerleme bar -->
-      <div class="track-bar-wrap">
-        <div class="track-bar-top"><span>Aylık ilerleme</span><b>%23</b></div>
-        <div class="track-bar"><i style="width:23%"></i></div>
+      <div class="track-bar-wrap" id="trackBar">
+        <div class="track-bar-top"><span>İlerlemen</span><b>%0</b></div>
+        <div class="track-bar"><i style="width:0%"></i></div>
       </div>
 
       <!-- tam-genişlik daygrid -->
       <div class="track-grid-wrap">
-        <div class="track-grid" id="trackGrid">
-          <div class="tg-day done"><span class="n">1</span><i class="fa-solid fa-check ic"></i></div>
-          <div class="tg-day done"><span class="n">2</span><i class="fa-solid fa-check ic"></i></div>
-          <div class="tg-day done"><span class="n">3</span><i class="fa-solid fa-check ic"></i></div>
-          <div class="tg-day rest"><span class="n">4</span><i class="fa-solid fa-mug-hot ic"></i></div>
-          <div class="tg-day done"><span class="n">5</span><i class="fa-solid fa-check ic"></i></div>
-          <div class="tg-day done"><span class="n">6</span><i class="fa-solid fa-check ic"></i></div>
-          <div class="tg-day today"><span class="n">7</span><i class="fa-solid fa-bolt ic"></i></div>
-          <div class="tg-day"><span class="n">8</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">9</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">10</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">11</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day rest"><span class="n">12</span><i class="fa-solid fa-mug-hot ic"></i></div>
-          <div class="tg-day"><span class="n">13</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">14</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">15</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">16</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">17</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">18</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day rest"><span class="n">19</span><i class="fa-solid fa-mug-hot ic"></i></div>
-          <div class="tg-day"><span class="n">20</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">21</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">22</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">23</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">24</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">25</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day rest"><span class="n">26</span><i class="fa-solid fa-mug-hot ic"></i></div>
-          <div class="tg-day"><span class="n">27</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">28</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">29</span><i class="fa-regular fa-circle ic"></i></div>
-          <div class="tg-day"><span class="n">30</span><i class="fa-solid fa-flag-checkered ic"></i></div>
-        </div>
+        <!-- Otuz kutu SABİT HTML'di ve hiçbir veriye bağlı değildi (yedi
+             "done", üç "rest", biri "today"). Artık motor dolduruyor. -->
+        <div class="track-grid" id="trackGrid"></div>
       </div>
 
       <!-- legend + bugünün hareketi CTA -->
       <div class="track-legend">
         <span class="tl-item"><span class="tl-swatch done"></span> Tamamlandı</span>
         <span class="tl-item"><span class="tl-swatch today"></span> Bugün</span>
-        <span class="tl-item"><span class="tl-swatch rest"></span> Dinlenme</span>
         <span class="tl-item"><span class="tl-swatch todo"></span> Gelecek gün</span>
-        <span class="track-cta"><button class="btn btn-fit" type="button" data-lg-gate data-lg-title="Bugünün hareketini yapmak için giriş yap" data-lg-desc="Günün hareketini tamamlayıp serini sürdürmek için hesabına giriş yap."><i class="fa-solid fa-bolt"></i> Bugünün hareketini yap</button></span>
+        <span class="track-cta"><a class="btn btn-fit" href="challengelarim-v1.html"><i class="fa-solid fa-trophy"></i> Challenge'larım</a></span>
       </div>
     </div>
   </div>
@@ -846,6 +826,14 @@
         <p class="lead">Aynı takvimi paylaşan binlerce kişiyle aynı yoldasın. Kimse kimseyle yarışmıyor; herkes kendi temposunda ilerliyor.</p>
       </div>
     </div>
+    <!-- 🔴 TEK DÜRÜST ŞERİT (docs/fit-kit.md §11) — bu bölümdeki sayılar ve
+         sözler MAKET. Prototipte sunucu yok; "1.612 kişi" gibi bir sayıyı
+         üretecek bir kayıt hiçbir yerde tutulmuyor. Şerit sayıların yanına
+         değil bölümün başına konur, düğme başına rozet serpilmez. -->
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p><b>Bu bölüm maket:</b> prototipte sunucu ve başka kullanıcı verisi yok, aşağıdaki sayılar ve sözler örnektir. <b>Gerçek olan senin ilerlemen</b> — takvimin, serin ve rozetlerin tarayıcındaki kendi kayıtlarından geliyor.</p>
+    </div>
     <div class="comm-grid">
       <!-- sol: koyu topluluk paneli -->
       <div class="comm-panel">
@@ -869,7 +857,7 @@
           <p class="quote">Spor salonu fikri beni hep korkuturdu. Burada günde 12 dakika, evde, kendi halimde. İlk kez bir şeyi bırakmadım.</p>
           <div class="voice-who">
             <span class="ava" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80&auto=format&fit=crop')"></span>
-            <div><b>Merve K.</b><small>Haziran katılımcısı</small></div>
+            <div><b>Merve K.</b><small>Örnek katılımcı</small></div>
             <span class="day">Gün 19</span>
           </div>
         </div>
@@ -877,7 +865,7 @@
           <p class="quote">İki gün kaçırdım, panik yapmadım. Kaldığım yerden devam ettim — suçluluk olmadan. Asıl fark bu oldu benim için.</p>
           <div class="voice-who">
             <span class="ava" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80&auto=format&fit=crop')"></span>
-            <div><b>Selin A.</b><small>Haziran katılımcısı</small></div>
+            <div><b>Selin A.</b><small>Örnek katılımcı</small></div>
             <span class="day">Gün 24</span>
           </div>
         </div>
@@ -896,58 +884,28 @@
         <p class="lead">Her ay yeni bir tema. Tamamladıklarını rozetlerinde sakla, yaklaşanlara şimdiden katılma listene ekle.</p>
       </div>
     </div>
-    <div class="more-grid">
-      <a class="cc-card" href="challenge-v1.html?slug=hareket-aliskanligi" style="background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <span class="cc-state live"><i class="fa-solid fa-circle" style="font-size:7px"></i> Aktif</span>
-        <div class="cc-body">
-          <div class="meta"><i class="fa-regular fa-calendar"></i> Haziran · 30 gün</div>
-          <h3>Hareket Alışkanlığı</h3>
-          <p>Her gün 10–15 dakika. Süreklilik odaklı, herkese uygun.</p>
-          <span class="cc-go">Devam et <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <a class="cc-card" href="challenge-v1.html?slug=sabah-esneme" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
-        <span class="cc-state soon"><i class="fa-regular fa-clock"></i> Yakında</span>
-        <div class="cc-body">
-          <div class="meta"><i class="fa-regular fa-calendar"></i> Temmuz · 21 gün</div>
-          <h3>Sabah Esneme Ritüeli</h3>
-          <p>Güne 8 dakikalık nazik esnemeyle başla. Başlangıç dostu.</p>
-          <span class="cc-go">Hatırlat <i class="fa-solid fa-bell"></i></span>
-        </div>
-      </a>
-      <a class="cc-card is-past" href="challenge-v1.html?slug=adim-adim-yuruyus" style="background-image:url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14')">
-        <span class="cc-state past"><i class="fa-solid fa-check"></i> Tamamlandı</span>
-        <div class="cc-body">
-          <div class="meta"><i class="fa-regular fa-calendar"></i> Mayıs · 30 gün</div>
-          <h3>Adım Adım Yürüyüş</h3>
-          <p>Bir ay boyunca günlük yürüyüş. 3.120 kişi tamamladı.</p>
-          <span class="cc-go">Rozetini gör <i class="fa-solid fa-medal"></i></span>
-        </div>
-      </a>
-    </div>
+      <!-- Üç kart SABİTTİ ve kataloğa AYKIRIYDI: "Haziran · 30 gün",
+           "Temmuz · 21 gün", "3.120 kişi tamamladı" — hiçbiri doğru değildi
+           (Sabah Esneme 7 gün, Adım Adım Yürüyüş 21 gün; katılımcı sayısını
+           tutan bir yer hiç yok). Kartlar artık katalogdan basılıyor. -->
+      <div class="more-grid" id="moreGrid"></div>
   </div>
 </section>
 
 <!-- ===== 7 · KAPANIŞ CTA ===== -->
 <section class="chl-cta-sec">
   <div class="wrap">
-    <div class="chl-cta-panel">
-      <span class="eyebrow"><i class="fa-solid fa-flag-checkered"></i> Haziran Challenge</span>
-      <h2>Bugün başla, 23 gün önünde</h2>
-      <p>Kusursuz olmana gerek yok — sadece başlamana. İlk kutunu bugün işaretle, gerisi gün gün gelsin.</p>
-      <div class="cta-acts">
-        <button class="btn btn-fit" type="button" data-lg-gate data-lg-title="Challenge'a katılmak için giriş yap" data-lg-desc="Haziran Challenge'a katılıp ilerlemeni ve serini takip etmek için hesabına giriş yap."><i class="fa-solid fa-plus"></i> Challenge'a Katıl</button>
-        <a class="btn-line" href="dadafit-kopru-v1.html"><i class="fa-solid fa-scale-balanced"></i> Enerji köprünü kur</a>
-      </div>
-      <p class="chl-cta-note"><i class="fa-solid fa-circle-check"></i> Ücretsiz · İstediğin an ara ver, kaldığın yerden devam et</p>
-    </div>
+      <!-- Panel "Haziran Challenge · Bugün başla, 23 gün önünde" diyordu.
+           Üç sayı da sabitti ve hangi challenge açık olursa olsun aynı
+           kalıyordu. Artık bu sayfanın kendi challenge'ından okunuyor. -->
+      <div class="chl-cta-panel" id="ctaPanel"></div>
   </div>
 </section>
 
-</div><!-- /.chl-pane#chl-pane-challenge -->
+</div><!-- /.fit-pane[data-pane=challenge] -->
 
 <!-- ===== TAB 2 · SU İÇME TAKİBİ ===== -->
-<div class="chl-pane" id="chl-pane-su" role="tabpanel">
+<div class="fit-pane" data-pane="su" hidden>
 
 <!-- günlük takip + hesaplayıcı -->
 <section class="wt-sec">
@@ -968,19 +926,8 @@
           <span id="wtCups">7</span> / 11 bardak · <span id="wtPct">64</span>% tamamlandı
         </p>
 
-        <div class="wt-cups" id="wtCupsGrid" aria-label="Su bardakları (dolu = içildi)">
-          <button class="wt-cup filled" type="button" aria-label="Bardak 1 — içildi" data-cup="1"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 2 — içildi" data-cup="2"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 3 — içildi" data-cup="3"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 4 — içildi" data-cup="4"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 5 — içildi" data-cup="5"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 6 — içildi" data-cup="6"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup filled" type="button" aria-label="Bardak 7 — içildi" data-cup="7"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup" type="button" aria-label="Bardak 8 — içilmedi" data-cup="8"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup" type="button" aria-label="Bardak 9 — içilmedi" data-cup="9"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup" type="button" aria-label="Bardak 10 — içilmedi" data-cup="10"><i class="fa-solid fa-droplet"></i></button>
-          <button class="wt-cup" type="button" aria-label="Bardak 11 — içilmedi" data-cup="11"><i class="fa-solid fa-droplet"></i></button>
-        </div>
+        <!-- Bardak sayısı HEDEFE bağlı; sabit 11 kutu değil (R15/7). -->
+        <div class="wt-cups" id="wtCupsGrid" aria-label="Su bardakları (dolu = içildi)"></div>
         <p class="wt-cup-note">1 bardak = 200 ml · tamamlandı ✓ yeşil, boş ○ henüz içilmedi</p>
 
         <div class="wt-actions">
@@ -993,12 +940,8 @@
       <div class="wt-side">
         <div class="wt-stats-card">
           <h4><i class="fa-solid fa-chart-bar"></i> Bu Hafta</h4>
-          <div class="wt-stat-grid">
-            <div class="wt-stat"><b>5</b><span>günlük hedef tamamlandı</span></div>
-            <div class="wt-stat"><b>13.8<small style="font-size:13px">L</small></b><span>haftalık toplam</span></div>
-            <div class="wt-stat"><b>1.97<small style="font-size:13px">L</small></b><span>günlük ortalama</span></div>
-            <div class="wt-stat"><b>3</b><span>gün üst üste hedef</span></div>
-          </div>
+          <!-- Dört sayı da SABİTTİ (5 gün · 13.8 L · 1.97 L · 3 gün). Motor dolduruyor. -->
+          <div class="wt-stat-grid" id="wtStats"></div>
         </div>
 
         <div class="wt-calc">
@@ -1017,6 +960,7 @@
           <div class="wt-calc-result" id="wtCalcResult">
             <i class="fa-solid fa-droplet"></i>
             <div><b id="wtCalcLitre">2.2 litre/gün</b><span id="wtCalcNote">68 kg için önerilen · ≈ 11 bardak</span></div>
+            <button class="btn btn-ghost" type="button" id="wtCalcUygula" style="margin-left:auto;flex:none"><i class="fa-solid fa-check"></i> Hedefim yap</button>
           </div>
         </div>
       </div>
@@ -1035,19 +979,14 @@
         <p class="lead">Her günün çubuğu toplam miktarı gösterir — yeşil çubuk hedefe ulaştığını işaret eder.</p>
       </div>
     </div>
-    <div class="wt-week">
-      <div class="wt-wday miss"><div class="wd-name">Pzt</div><div class="wd-date">9 Haz</div><div class="wd-fill"><i style="height:58%"></i></div><div class="wd-ml">1.300 ml</div></div>
-      <div class="wt-wday"><div class="wd-name">Sal</div><div class="wd-date">10 Haz</div><div class="wd-fill"><i style="height:100%"></i></div><div class="wd-ml">2.200 ml</div></div>
-      <div class="wt-wday"><div class="wd-name">Çar</div><div class="wd-date">11 Haz</div><div class="wd-fill"><i style="height:95%"></i></div><div class="wd-ml">2.100 ml</div></div>
-      <div class="wt-wday"><div class="wd-name">Per</div><div class="wd-date">12 Haz</div><div class="wd-fill"><i style="height:100%"></i></div><div class="wd-ml">2.400 ml</div></div>
-      <div class="wt-wday miss"><div class="wd-name">Cum</div><div class="wd-date">13 Haz</div><div class="wd-fill"><i style="height:40%"></i></div><div class="wd-ml">880 ml</div></div>
-      <div class="wt-wday"><div class="wd-name">Cmt</div><div class="wd-date">14 Haz</div><div class="wd-fill"><i style="height:100%"></i></div><div class="wd-ml">2.200 ml</div></div>
-      <div class="wt-wday today"><div class="wd-name">Paz</div><div class="wd-date">Bugün</div><div class="wd-fill"><i style="height:64%"></i></div><div class="wd-ml">1.400 ml</div></div>
-    </div>
+    <!-- Yedi gün SABİT HTML'di ("9 Haz" gibi tarihler dahil). Motor dolduruyor. -->
+    <div class="wt-week" id="wtWeek"></div>
   </div>
 </section>
 
-</div><!-- /.chl-pane#chl-pane-su -->
+</div><!-- /.fit-pane[data-pane=su] -->
+
+</div><!-- /.chl-body -->
 
 </main><!-- /.page-main -->
 
@@ -1056,200 +995,381 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- CHALLENGE MOTORU (R15/5) — katalog, üç tip, ilerleme hesabı -->
+<script src="assets/js/fit-challenge.js"></script>
+<!-- SU TAKİBİ SÖZLEŞMESİ (R15/7) — bu sekmenin bütün sayıları buradan -->
+<script src="assets/js/fit-su.js"></script>
+<!-- ROZET · PUAN — challenge bitince rozet buradan mühürlenir -->
+<script src="assets/js/fit-rozet.js"></script>
 <script>
-/* ===== CHALLENGE DETAY — slug veri kümesi + katılım yaşam döngüsü (belge §8.4 · §13) ===== */
+/* =====================================================================
+   CHALLENGE DETAY   (R15/5)
+   ---------------------------------------------------------------------
+   ESKİ HÂL: bu sayfa kendi `VERI` kümesini taşıyordu (üç challenge'ın
+   metni, süresi, "gecen" günü ve 2.840 gibi bir KATILIMCI SAYISI) ve
+   ilerlemeyi `challengeGunTamamla()` ile artırıyordu.
+   İki kusur vardı:
+     1. Katalog iki yerdeydi (burada ve Challenge'larım'da) — ayrışabilirdi.
+     2. `gecen` ve katılımcı sayısı UYDURMAYDI; sunucu yok, başka kullanıcı
+        yok. "2.840 katılımcı" tutulamayan bir sözdü, kaldırıldı.
+   Artık tek kaynak `fit-challenge.js`. Sayılar hesaplanır, artırılmaz.
+   ===================================================================== */
 (function(){
-  var VERI = {
-    'hareket-aliskanligi':{ad:"30 Günde Hareket Alışkanlığı", donem:'Ağustos Challenge', toplam:30,
-      basla:'1 Ağustos', bitis:'30 Ağustos', gecen:18,
-      baslik:'30 günde <em>hareket alışkanlığı</em>', sure:'10–15 dk', katilimci:'2.840',
-      ozet:'Büyük hedef değil, küçük süreklilik. Her gün 10–15 dakika ufak bir hareket; ayın sonunda bir alışkanlık. Kaçırdığın gün suçluluk yok — kaldığın yerden devam et.',
-      durum:'Şu an aktif'},
-    'sabah-esneme':{ad:'7 Gün Sabah Esneme Ritüeli', donem:'Yaklaşan challenge', toplam:7,
-      basla:'1 Eylül', bitis:'7 Eylül', gecen:0,
-      baslik:'7 günde <em>sabah esneme ritüeli</em>', sure:'8–10 dk', katilimci:'640',
-      ozet:'Bir haftalık kısa deneme. Güne yumuşak başlamanın nasıl bir şey olduğunu görmek için iyi bir başlangıç — alışkanlık tutarsa uzun challenge sırada.',
-      durum:'Yakında başlıyor'},
-    'adim-adim-yuruyus':{ad:'21 Gün Adım Adım Yürüyüş', donem:'Tamamlanan challenge', toplam:21,
-      basla:'1 Temmuz', bitis:'21 Temmuz', gecen:21,
-      baslik:'21 günde <em>adım adım yürüyüş</em>', sure:'15–30 dk', katilimci:'1.480',
-      ozet:'Her gün biraz daha uzun bir yürüyüş. Ekipman yok, salon yok — sadece dışarısı ve düzenli tempo.',
-      durum:'Tamamlandı'}
-  };
+  var C = window.FIT_CHALLENGE;
+  if(!C) return;
   var slug = new URLSearchParams(location.search).get('slug') || 'hareket-aliskanligi';
-  var C = VERI[slug] || VERI['hareket-aliskanligi'];
+  var K = C.bul(slug) || C.KATALOG[0];
+  slug = K.slug;
+  var T = C.TIP[K.tip];
 
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function n(x){ return Number(x||0).toLocaleString('tr-TR'); }
+  function tarih(iso){
+    if(!iso) return '—';
+    var t=new Date(iso); if(isNaN(t)) return '—';
+    return t.toLocaleDateString('tr-TR',{day:'numeric',month:'long'});
+  }
   function set(k,v){ document.querySelectorAll('[data-ch="'+k+'"]').forEach(function(el){ el.innerHTML=v; }); }
-  set('ad',C.ad); set('donem',C.donem); set('baslik',C.baslik); set('ozet',C.ozet);
-  set('sure',C.sure); set('katilimci',C.katilimci); set('durum',C.durum);
-  /* F3 · zaman çizelgesi tek kaynaktan beslenir — "kalan" değeri de burada
-     hesaplanır, artık hero'da toplam süreyi "kalan" diye göstermiyoruz. */
-  set('basla',C.basla); set('bitis',C.bitis); set('toplam',C.toplam+' gün');
-  /* F3 · Çizelge CHALLENGE'IN TAKVİMİNİ gösterir, kullanıcının ilerlemesini
-     değil — o sağdaki "İlerlemen" kartının işi. Eskiden hero'daki tek zaman
-     kalemi TOPLAM süreyi "kalan" etiketiyle gösteriyordu (30 gün / gün bitime)
-     ve aşağıdaki şeritteki "KALAN 23 gün" ile çelişiyordu. */
-  (function zamanCizelgesi(){
-    var gecen = Math.max(0, Math.min(C.gecen, C.toplam));
-    var kalan = C.toplam - gecen;
-    set('kalan', kalan + ' gün');
-    set('bugun',
-      gecen === 0            ? 'Henüz başlamadı' :
-      kalan === 0            ? 'Tamamlandı' :
-      ('Bugün · ' + gecen + '. gün'));
-    document.querySelectorAll('[data-ch="ilerlemeYuzde"]').forEach(function(el){
-      el.style.width = Math.round(gecen / C.toplam * 100) + '%';
-    });
-  })();
-  document.title = C.ad + ' — Challenge | DadaFit';
 
-  var S = window.FIT_SHELL && window.FIT_SHELL.state;
-  var wrap=document.getElementById('chStateWrap');
+  var kart=document.getElementById('chCard');
   var join=document.getElementById('chJoin'), day=document.getElementById('chDay'),
-      leave=document.getElementById('chLeave'), miss=document.getElementById('chMiss');
+      leave=document.getElementById('chLeave');
 
-  function paint(){
-    if(!S) return;
-    var st=S.read().challenge;
-    var mine = st && st.slug===slug && st.durum!=='birakildi';
-    wrap.hidden = !mine;
-    join.hidden = !!mine;
-    day.hidden = !(mine && st.durum==='devam');
-    leave.hidden = !mine;
-    if(!mine) return;
-    document.getElementById('chStateName').textContent = st.ad;
-    var b=document.getElementById('chStateBadge');
-    b.className='fp-badge '+S.rozet(st.durum);
-    b.innerHTML='<i class="fa-solid fa-circle"></i> '+S.etiket(st.durum);
-    document.getElementById('chStateBar').style.width = Math.round(st.gun/st.toplam*100)+'%';
-    document.getElementById('chStateDay').textContent = st.gun;
-    document.getElementById('chStateTotal').textContent = st.toplam;
-    document.getElementById('chStateStreak').textContent = st.seri;
-    document.getElementById('chStateGrace').textContent = Math.max(0, 2-(st.telafi||0));
-    document.getElementById('chStateLine').textContent =
-      st.durum==='tamamlandi' ? 'Tamamladın. Rozetin Fit Planım’da seni bekliyor.'
-      : (st.seri===0 ? 'Seri baştan başladı — sorun değil, bugün yeniden başlıyorsun.'
-                     : 'Katıldın. İlerlemen Fit Planım’a işleniyor.');
+  /* "Bugünü kaçırdım" düğmesi KALKTI. Kaçırılan gün bir VERİ DEĞİL, verinin
+     YOKLUĞUDUR: o güne kayıt düşmemesi zaten kaçırıldığı anlamına gelir.
+     Kullanıcıya "kaçırdım" diye bastırmak, olmayan bir şeyi kaydetmekti. */
+
+  function boya(){
+    var i = C.ilerleme(slug);
+
+    /* ---- sabit sunum alanları (katalogdan) ---- */
+    set('ad', esc(K.ad));
+    set('donem', esc(K.donem || T.etiket));
+    set('baslik', K.baslik || esc(K.ad));
+    set('ozet', esc(K.uzunOzet || K.ozet));
+    set('sure', esc(K.gunlukSure || '—'));
+    set('toplam', K.gun + ' gün');
+    /* Uydurma katılımcı sayısı yerine tutulabilir bir sayı: challenge'ın ödülü. */
+    set('katilimci', '+' + K.odul.puan);
+    set('takvimBaslik', K.gun + ' Günlük Takvim');
+    set('kanit', esc(T.kanit) + ' Bitirince <b>+' + K.odul.puan + ' puan</b> ve rozet.');
+    set('durum', i.katildi
+      ? (i.durum==='tamamlandi' ? 'Tamamladın' : i.suresiDoldu ? 'Süre doldu' : 'Katıldın')
+      : esc(T.etiket));
+
+    /* ---- takvim penceresi: KATILDIĞIN GÜN başlar ----
+       Sabit "1 Ağustos – 30 Ağustos" bir takvim yalanıydı; pencere kullanıcının
+       katıldığı güne bağlıdır ve katılmadıysa henüz yoktur. */
+    if(i.katildi){
+      var bas = new Date(i.baslangic);
+      var son = new Date(bas.getTime()); son.setDate(son.getDate() + K.gun - 1);
+      set('basla', tarih(bas.toISOString()));
+      set('bitis', tarih(son.toISOString()));
+      set('kalan', i.kalanGun + ' gün');
+      set('bugun', i.durum==='tamamlandi' ? 'Tamamlandı'
+                 : i.suresiDoldu ? 'Süre doldu'
+                 : 'Bugün · ' + i.gecenGun + '. gün');
+      document.querySelectorAll('[data-ch="ilerlemeYuzde"]').forEach(function(el){
+        el.style.width = Math.round(i.gecenGun / K.gun * 100) + '%';
+      });
+    } else {
+      set('basla', 'Katıldığın gün');
+      set('bitis', K.gun + '. gün');
+      set('kalan', K.gun + ' gün');
+      set('bugun', 'Henüz katılmadın');
+      document.querySelectorAll('[data-ch="ilerlemeYuzde"]').forEach(function(el){ el.style.width='0%'; });
+    }
+
+    /* ---- "İlerlemen" kartı — tek kart, gerçek veri ---- */
+    var mine = i.katildi && i.durum !== 'birakildi';
+    join.hidden = !!(mine && i.durum === 'devam');
+    join.innerHTML = i.katildi && i.durum !== 'devam'
+      ? '<i class="fa-solid fa-rotate-right"></i> Yeniden başla'
+      : '<i class="fa-solid fa-plus"></i> Challenge\'a Katıl';
+    /* Günlük işaretleme YALNIZ alışkanlık tipinde anlamlı. Süreli hedef ve
+       egzersiz serisi kendi kayıtlarından beslenir; oraya "günü işaretle"
+       düğmesi koymak kanıtsız ilerleme üretirdi. */
+    day.hidden = !(mine && i.durum === 'devam' && K.tip === 'aliskanlik');
+    day.disabled = !!i.bugunIsaretli;
+    day.innerHTML = i.bugunIsaretli
+      ? '<i class="fa-solid fa-check"></i> Bugün işaretlendi'
+      : '<i class="fa-solid fa-check"></i> Bugünün görevini tamamla';
+    leave.hidden = !(mine && i.durum === 'devam');
+
+    kartBas(i, mine);
+
+    takvimBas(i);
+    digerBas();
+    ctaBas(i);
+    document.title = K.ad + ' — Challenge | DadaFit';
   }
 
-  join.addEventListener('click', function(){
-    if(!S) return;
-    S.challengeKatil({slug:slug, ad:C.ad, toplam:C.toplam});
-    paint();
+  /* ---- "İlerlemen" kartı ----
+     Kartın GÖRSELİ eski sabit karttan (mini takvim + yüzde + alt not),
+     VERİSİ motordan. Katılmadıysan sahte bir ilerleme çubuğu basılmaz;
+     kart challenge'ın ne istediğini anlatır ve katılma davetiyle biter. */
+  function kartBas(i, mine){
+    if(!kart) return;
+    /* MİNİ TAKVİM BURADAN ÇIKARILDI. Kart 520 px'lik dar bir yan karttı ve
+       otuz mini kutu orada bir ÖNİZLEMEydi. Kart bandın tam genişliğine
+       (1176 px) çıkınca önizleme 611 px'lik dev bir ızgaraya dönüştü ve
+       hemen altındaki gerçek 30 günlük takvimin AYNISINI ikinci kez çizdi —
+       iki kartı zaten bu yüzden birleştirmiştik. Takvim tek yerde. */
+    kart.innerHTML =
+      '<div class="chl-card-top"><span class="ttl"><i class="' + T.ikon + '"></i> ' +
+        (mine ? 'İlerlemen' : esc(T.etiket)) + '</span>' +
+        '<span class="pct">' + (mine ? '%' + i.oran : '+' + K.odul.puan + ' puan') + '</span></div>' +
+      '<div class="chl-bar"><i style="width:' + (mine ? i.oran : 0) + '%"></i></div>' +
+      '<div class="chl-card-meta">' + (mine
+        ? '<span>' + olcuMetni(i) + '</span><span>' + yanMetni(i) + '</span>'
+        : '<span>' + esc(T.aciklama) + '</span><span><b>' + K.gun + '</b> günlük</span>') + '</div>' +
+      '<div class="chl-card-foot"><i class="fa-solid fa-fire-flame-curved"></i> ' + (mine
+        ? (i.durum === 'tamamlandi'
+            ? 'Tamamladın. Rozetin ve <b>+' + K.odul.puan + ' puanın</b> Rozetlerim’de.'
+            : i.suresiDoldu
+              ? 'Süre doldu. Hedefe ulaşmadın ama kazandığın rozetler sende kaldı.'
+              : esc(T.kanit) + ' Günü gün takip etmek için <b>aşağıdaki takvime</b> bak.')
+        : 'Katıldığın gün pencere açılır; ilerlemen antrenman kayıtlarından hesaplanır.') + '</div>' +
+      (mine ? '<div class="chl-card-acts"><a class="btn btn-ghost" href="rozetlerim-v1.html">' +
+              '<i class="fa-solid fa-medal"></i> Rozetlerimde gör</a>' +
+              '<a class="btn btn-ghost" href="#takip"><i class="fa-solid fa-calendar-days"></i> Takvime git</a></div>' : '');
+  }
+
+  /* Sağ taraf: tipin İKİNCİ ölçüsü. Soldakiyle aynı sayıyı tekrar etmez. */
+  function yanMetni(i){
+    if(K.tip === 'aliskanlik') return 'Telafi hakkı: <b>' + i.telafiKalan + '</b> / ' + C.TELAFI_HAKKI;
+    if(K.tip === 'seri')       return 'Sırada: <b>' + esc(i.siradaki ? i.siradaki.ad : 'kalmadı') + '</b>';
+    return '<b>' + i.gecenGun + ' / ' + K.gun + '</b> gün geçti';
+  }
+
+  function olcuMetni(i){
+    if(K.tip === 'sureli') return '<b>' + n(i.biriken) + ' / ' + n(i.hedef) + '</b> ' + esc(i.birimAd);
+    if(K.tip === 'seri')   return '<b>' + i.biriken + ' / ' + i.hedef + '</b> adım';
+    return '<b>' + i.biriken + ' / ' + i.hedef + '</b> gün · <b>' + i.seri + '</b> gün üst üste';   /* alışkanlık */
+  }
+
+  /* ---- diğer challenge'lar: katalogdan, durumu GERÇEK katılımdan ---- */
+  function digerBas(){
+    var kok = document.getElementById('moreGrid'); if(!kok) return;
+    kok.innerHTML = C.KATALOG.map(function(k){
+      var j = C.ilerleme(k.slug);
+      var t = C.TIP[k.tip];
+      var rozet, git;
+      if(j.durum === 'tamamlandi'){ rozet='<span class="cc-state past"><i class="fa-solid fa-check"></i> Tamamladın</span>'; git='Rozetini gör <i class="fa-solid fa-medal"></i>'; }
+      else if(j.durum === 'devam'){ rozet='<span class="cc-state live"><i class="fa-solid fa-circle" style="font-size:7px"></i> Katıldın</span>'; git='Devam et <i class="fa-solid fa-arrow-right"></i>'; }
+      else { rozet='<span class="cc-state"><i class="'+t.ikon+'"></i> '+esc(t.etiket)+'</span>'; git='Katıl ve başla <i class="fa-solid fa-arrow-right"></i>'; }
+      var hedef = k.tip==='sureli' ? n(k.hedef.deger)+' '+esc(k.hedef.ad)
+                : k.tip==='seri'   ? k.adimlar.length+' adım'
+                : 'her gün işaretle';
+      return '<a class="cc-card'+(j.durum==='tamamlandi'?' is-past':'')+'" href="challenge-v1.html?slug='+esc(k.slug)+'"'+
+             ' style="background-image:url(\''+esc(k.gorsel)+'\')">'+rozet+
+             '<div class="cc-body"><div class="meta"><i class="fa-regular fa-calendar"></i> '+k.gun+' gün · '+hedef+'</div>'+
+             '<h3>'+esc(k.ad)+'</h3><p>'+esc(k.ozet)+'</p>'+
+             '<span class="cc-go">'+git+'</span></div></a>';
+    }).join('');
+  }
+
+  /* ---- kapanış paneli: bu challenge'ın kendi sayıları ---- */
+  function ctaBas(i){
+    var kok = document.getElementById('ctaPanel'); if(!kok) return;
+    var bitti = i.durum === 'tamamlandi';
+    kok.innerHTML =
+      '<span class="eyebrow"><i class="'+T.ikon+'"></i> '+esc(K.donem || T.etiket)+'</span>'+
+      '<h2>'+(bitti ? 'Bitirdin — sırada ne var?'
+             : i.katildi ? (i.kalanGun+' gün önünde')
+             : 'Bugün başla, '+K.gun+' gün önünde')+'</h2>'+
+      '<p>'+(bitti
+        ? 'Rozetin ve +'+K.odul.puan+' puanın Rozetlerim’de. Aynı challenge’a yeniden katılabilir ya da başka bir tipi deneyebilirsin.'
+        : i.katildi
+          ? 'İlerlemen antrenman kayıtlarından hesaplanıyor. '+esc(T.kanit)
+          : 'Kusursuz olmana gerek yok — sadece başlamana. Katıldığın gün pencere açılır, ilerleme kayıtlarından işler.')+'</p>'+
+      '<div class="cta-acts">'+
+        (bitti || !i.katildi
+          ? '<button class="btn btn-fit" type="button" id="ctaJoin"><i class="fa-solid fa-'+(bitti?'rotate-right':'plus')+'"></i> '+(bitti?'Yeniden başla':'Challenge\'a Katıl')+'</button>'
+          : '<a class="btn btn-fit" href="#takip"><i class="fa-solid fa-calendar-days"></i> Takvimine dön</a>')+
+        '<a class="btn-line" href="rozetlerim-v1.html"><i class="fa-solid fa-medal"></i> Rozetlerim</a>'+
+      '</div>'+
+      '<p class="chl-cta-note"><i class="fa-solid fa-circle-check"></i> Ücretsiz · İstediğin an ara ver, kaldığın yerden devam et</p>';
+    var cj = document.getElementById('ctaJoin');
+    if(cj) cj.addEventListener('click', function(){ C.katil(slug); });
+  }
+
+  /* ---- 30 günlük takvim: GERÇEK kayıtlardan ----
+     Eskiden otuz kutunun hepsi sabit HTML'di (yedi "done", üç "rest", biri
+     "today") ve hiçbir veriye bağlı değildi. Artık her kutu challenge
+     penceresindeki gerçek kayda bakar. */
+  function takvimBas(i){
+    var grid = document.getElementById('trackGrid');
+    if(!grid) return;
+    var isaretli = {};
+    (i.gunler || []).forEach(function(g){ isaretli[g] = 1; });
+    var bas = i.katildi ? new Date(i.baslangic) : null;
+    var bugun = new Date(); bugun.setHours(0,0,0,0);
+
+    var html='';
+    for(var d=0; d<K.gun; d++){
+      var cls='tg-day', ico='fa-regular fa-circle';
+      if(bas){
+        var t=new Date(bas.getTime()); t.setHours(0,0,0,0); t.setDate(t.getDate()+d);
+        var anahtar = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+        if(isaretli[anahtar]){ cls+=' done'; ico='fa-solid fa-check'; }
+        else if(t.getTime()===bugun.getTime()){ cls+=' today'; ico='fa-solid fa-bolt'; }
+        else if(t < bugun){ ico='fa-regular fa-circle'; }   /* geçmiş ve boş: iddia yok */
+      }
+      if(d===K.gun-1 && !/done/.test(cls)) ico='fa-solid fa-flag-checkered';
+      html += '<div class="'+cls+'"><span class="n">'+(d+1)+'</span><i class="'+ico+' ic"></i></div>';
+    }
+    grid.innerHTML = html;
+
+    var ozet = document.getElementById('trackSummary');
+    if(ozet){
+      var m = K.tip==='sureli'
+        ? [['fa-solid fa-route','Biriken', n(i.biriken), '/'+n(i.hedef)+' '+i.birimAd, 'Yalnız ölçülmüş ve cihaz kaydı'],
+           ['fa-solid fa-calendar-day','Geçen gün', i.gecenGun, '/'+K.gun+' gün', 'Pencere katıldığın gün başladı'],
+           ['fa-solid fa-clipboard-check','Sayılan kayıt', n(i.sayilanKayit||0), 'kayıt', (i.elenenBeyan||0)+' beyan kaydı sayılmadı'],
+           ['fa-solid fa-hourglass-half','Kalan', i.kalanGun, 'gün', i.kalanGun? 'Bitişe var':'Süre doldu']]
+        : K.tip==='seri'
+          ? [['fa-solid fa-list-ol','Kapanan adım', i.biriken, '/'+i.hedef, 'Sırayla açılır'],
+             ['fa-solid fa-forward','Sırada', i.siradaki?(i.adimlar.indexOf(i.siradaki)+1):'—', '. adım', i.siradaki?i.siradaki.ad:'Seri tamam'],
+             ['fa-solid fa-calendar-day','Geçen gün', i.gecenGun, '/'+K.gun+' gün', 'Pencere katıldığın gün başladı'],
+             ['fa-solid fa-hourglass-half','Kalan', i.kalanGun, 'gün', i.kalanGun? 'Bitişe var':'Süre doldu']]
+          : [['fa-solid fa-circle-check','İşaretlenen', i.biriken, '/'+K.gun+' gün', i.biriken?'İyi gidiyorsun':'İlk günü işaretle'],
+             ['fa-solid fa-fire-flame-curved','Üst üste seri', i.seri, 'gün', 'En uzun serin: '+i.enUzunSeri+' gün'],
+             ['fa-solid fa-heart-crack','Telafi hakkı', i.telafiKalan, '/'+C.TELAFI_HAKKI, 'Kaçırdığın gün seriyi sıfırlamaz'],
+             ['fa-solid fa-hourglass-half','Kalan', i.kalanGun, 'gün', i.kalanGun? 'Bitişe var':'Süre doldu']];
+      ozet.innerHTML = m.map(function(x){
+        return '<div class="ts-cell"><span class="lbl"><i class="'+x[0]+'"></i> '+esc(x[1])+'</span>'+
+               '<b>'+x[2]+'<small>'+esc(x[3])+'</small></b><div class="note">'+esc(x[4])+'</div></div>';
+      }).join('');
+    }
+
+    var bar = document.getElementById('trackBar');
+    if(bar){
+      bar.querySelector('.track-bar-top b').textContent = '%'+i.oran;
+      bar.querySelector('.track-bar i').style.width = i.oran+'%';
+    }
+  }
+
+  join.addEventListener('click', function(){ C.katil(slug); });
+  day.addEventListener('click', function(){ C.isaretle(slug); });
+  leave.addEventListener('click', function(){
+    if(window.confirm('"'+K.ad+'" bırakılsın mı? O güne kadar kazandığın rozetler sende kalır.')) C.birak(slug);
   });
-  day.addEventListener('click', function(){ S.challengeGunTamamla(); paint(); });
-  miss.addEventListener('click', function(){ S.challengeGunKacir(); paint(); });
-  leave.addEventListener('click', function(){ S.challengeBirak(); paint(); });
-  document.addEventListener('fit:state', paint);
-  paint();
+  C.dinle(boya);
 })();
 </script>
 <script>
-/* ===== SAYFA JS — CHALLENGE: gün kutusuna tıkla → bilgilendir (mockup) ===== */
+/* ===== R15/5 · SAHTE DÜĞME KALDIRILDI =====
+   Burada otuz gün kutusuna `role="button"` ve `tabindex="0"` veren bir blok
+   vardı. Kutuların hiçbir tıklama davranışı YOKTU: klavye kullanıcısı otuz
+   kez sekme tuşuna basıp otuz "düğmeye" uğruyor, hiçbiri bir şey yapmıyordu.
+   Ayrıca 390 px'te kutular 26×26 px, yani dokunma hedefi tabanının (44×44,
+   WCAG 2.5.8) altında — düğme oldukları sürece bu bir erişilebilirlik
+   kusuruydu. Kutular artık ne oldukları gibi duruyor: ilerlemenin GÖRÜNTÜSÜ.
+   Günü işaretleme tek yerde, hero'daki düğmede. */
+
+/* ===== SAYFANIN KENDİ SEKME MOTORU SİLİNDİ (R15/5) =====
+   Panelleri artık kabuğun ortak bileşeni yönetiyor (.fit-pane[data-pane]).
+   Bu motor ayrıca her geçişte `window.scrollTo` çağırıyordu; kabuk bileşeni
+   bilerek çağırmıyor ("SAYFA ZIPLAMASI YOK" — sözleşmesinde yazılı). */
+
+/* ===== SU İÇME TAKİBİ — FIT_SU'ya bağlandı (R15/7) ====================
+   ESKİ HÂL: bu sekmenin kendi sayacı vardı ve TAMAMEN BELLEKTEYDİ —
+   `cups=7` ile açılıyor, yenilemede sıfırlanıyordu; "Günü Sıfırla" bile
+   sıfıra değil 7'ye dönüyordu. Hedef (2200 ml), bardak sayısı (11), haftalık
+   istatistikler ve yedi günlük geçmiş de sabitti. Enerji Defteri'ndeki su
+   ekranıyla aynı gün için iki farklı sayı gösteriyorlardı.
+   Artık tek kaynak `FIT_SU`; bu blok yalnız çiziyor. */
 (function(){
-  var grid=document.getElementById('trackGrid');
-  if(!grid)return;
-  grid.querySelectorAll('.tg-day').forEach(function(d){
-    d.setAttribute('tabindex','0');
-    d.setAttribute('role','button');
+  var SU = window.FIT_SU; if(!SU) return;
+  var n = function(x){ return Number(x||0).toLocaleString('tr-TR'); };
+  var GUN_AD = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  var AY_KISA = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  var ML_PER_KG = 33;      /* sayfanın kendi hesabı: 68 kg → 2,2 L */
+
+  function boya(){
+    var g = SU.bugun(), h = SU.haftalik(), sr = SU.seri();
+    var adet = Math.max(1, Math.round(g.tabanMl / g.bardakMl));
+    var dolu = Math.floor(g.ml / g.bardakMl);
+
+    var el;
+    if((el=document.getElementById('wtMl')))
+      el.innerHTML = g.ml >= 1000 ? (g.ml/1000).toFixed(1)+'<small>L</small>' : n(g.ml)+'<small>ml</small>';
+    if((el=document.getElementById('wtBar'))) el.style.width = g.oran+'%';
+    if((el=document.getElementById('wtCups'))) el.textContent = dolu;
+    if((el=document.getElementById('wtPct'))) el.textContent = g.oran;
+
+    var not = document.querySelector('.wt-cup-note');
+    if(not) not.innerHTML = dolu + ' / ' + adet + ' bardak · %' + g.oran + ' tamamlandı' +
+      (g.ekMl ? ' · <b>bugün antrenman payı +' + n(g.ekMl) + ' ml</b>' : '');
+
+    var grid = document.getElementById('wtCupsGrid');
+    if(grid){
+      var out='';
+      for(var i=1;i<=adet;i++){
+        out += '<button class="wt-cup'+(i<=dolu?' filled':'')+'" type="button" data-cup="'+i+'"'+
+               ' aria-label="Bardak '+i+' — '+(i<=dolu?'içildi':'içilmedi')+'">'+
+               '<i class="fa-solid fa-droplet"></i></button>';
+      }
+      grid.innerHTML = out;
+    }
+
+    var st = document.getElementById('wtStats');
+    if(st) st.innerHTML =
+      '<div class="wt-stat"><b>'+h.tutan+'</b><span>günlük hedef tamamlandı</span></div>'+
+      '<div class="wt-stat"><b>'+(h.toplamMl/1000).toFixed(1)+'<small style="font-size:13px">L</small></b><span>haftalık toplam</span></div>'+
+      '<div class="wt-stat"><b>'+(h.ortalamaMl/1000).toFixed(2)+'<small style="font-size:13px">L</small></b><span>kayıtlı gün ortalaması</span></div>'+
+      '<div class="wt-stat"><b>'+sr.guncel+'</b><span>gün üst üste hedef</span></div>';
+
+    var wk = document.getElementById('wtWeek');
+    if(wk){
+      var enY = Math.max.apply(null, h.gunler.map(function(x){return x.ml;}).concat([1]));
+      wk.innerHTML = h.gunler.map(function(x){
+        var t = new Date(x.tarih+'T00:00:00');
+        return '<div class="wt-wday'+(x.tamam?'':' miss')+'">'+
+          '<div class="wd-name">'+GUN_AD[t.getDay()]+'</div>'+
+          '<div class="wd-date">'+t.getDate()+' '+AY_KISA[t.getMonth()]+'</div>'+
+          '<div class="wd-fill"><i style="height:'+Math.max(4,Math.round(x.ml/enY*100))+'%"></i></div>'+
+          '<div class="wd-ml">'+(x.kayitVar ? n(x.ml)+' ml' : 'kayıt yok')+'</div></div>';
+      }).join('');
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('#wtCupsGrid .wt-cup');
+    if(c){
+      var i = +c.getAttribute('data-cup'), g = SU.bugun();
+      var hedef = (i*g.bardakMl === Math.round(g.ml)) ? (i-1)*g.bardakMl : i*g.bardakMl;
+      SU.ekleMl(hedef - g.ml); return;
+    }
+    if(e.target.closest('#wtAdd')){ SU.bardakEkle(1); return; }
+    /* "Günü Sıfırla" GERÇEKTEN sıfırlıyor. Eskiden 7 bardağa dönüyordu. */
+    if(e.target.closest('#wtReset')){ SU.sifirla(); return; }
+    if(e.target.closest('#wtCalcUygula')){
+      var kg = parseFloat((document.getElementById('wtKilo')||{}).value);
+      if(kg) SU.hedefAyarla(Math.round(kg*ML_PER_KG), 'ml');
+      return;
+    }
   });
+
+  SU.dinle(boya);
+
+  /* Kilo → önerilen günlük su. Katsayı sayfanın kendi hesabından geliyor
+     (68 kg → 2,2 L ≈ 11 bardak, yani ~33 ml/kg) ve TEK YERDE duruyor;
+     "Hedefim yap" düğmesi de aynı katsayıyı kullanıyor.
+     Global çünkü alanın satır içi `oninput="calcWater()"` bağı var. */
+  window.calcWater = function(){
+    var kg = parseFloat((document.getElementById('wtKilo')||{}).value);
+    var lt = document.getElementById('wtCalcLitre'), no = document.getElementById('wtCalcNote');
+    if(!lt || !no) return;
+    if(!kg || kg < 30 || kg > 200){ no.textContent = 'Kiloyu 30–200 kg arasında gir.'; return; }
+    var ml = Math.round(kg * ML_PER_KG);
+    var g = SU.bugun();
+    lt.textContent = (ml/1000).toFixed(1) + ' litre/gün';
+    no.textContent = kg + ' kg için önerilen · ≈ ' + Math.round(ml/g.bardakMl) + ' bardak';
+  };
+  calcWater();
 })();
-
-/* ===== TAB MOTOR — challenge / su takibi ===== */
-(function(){
-  var tabs=document.querySelectorAll('.chl-tb');
-  var panes=document.querySelectorAll('.chl-pane');
-  tabs.forEach(function(t){
-    t.addEventListener('click',function(){
-      var pane=t.getAttribute('data-pane');
-      tabs.forEach(function(x){x.classList.remove('active');x.setAttribute('aria-selected','false');});
-      panes.forEach(function(x){x.classList.remove('active');});
-      t.classList.add('active');
-      t.setAttribute('aria-selected','true');
-      var target=document.getElementById('chl-pane-'+pane);
-      if(target){target.classList.add('active');}
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-  });
-})();
-
-/* ===== SU İÇME TAKİBİ JS ===== */
-(function(){
-  var cups=0;
-  var total=11;
-  var mlPerCup=200;
-  var goal=2200;
-
-  function sync(){
-    var ml=cups*mlPerCup;
-    var pct=Math.round(ml/goal*100);
-    var el=document.getElementById('wtMl');
-    if(el)el.innerHTML=(ml>=1000?(ml/1000).toFixed(1)+'<small>L</small>':ml+'<small>ml</small>');
-    var bar=document.getElementById('wtBar');
-    if(bar)bar.style.width=Math.min(pct,100)+'%';
-    var cpEl=document.getElementById('wtCups');
-    if(cpEl)cpEl.textContent=cups;
-    var pctEl=document.getElementById('wtPct');
-    if(pctEl)pctEl.textContent=Math.min(pct,100);
-    document.querySelectorAll('#wtCupsGrid .wt-cup').forEach(function(c,i){
-      var idx=parseInt(c.getAttribute('data-cup'),10);
-      if(idx<=cups){c.classList.add('filled');c.setAttribute('aria-label','Bardak '+idx+' — içildi');}
-      else{c.classList.remove('filled');c.setAttribute('aria-label','Bardak '+idx+' — içilmedi');}
-    });
-  }
-
- // bardak tıkla: tıklanan bardakla birlikte o ana kadarki tüm bardakları doldur / boşalt
-  var grid=document.getElementById('wtCupsGrid');
-  if(grid){
-    grid.querySelectorAll('.wt-cup').forEach(function(c){
-      c.addEventListener('click',function(){
-        var idx=parseInt(c.getAttribute('data-cup'),10);
- // eğer bu bardak doluysa → bu bardak dahil hepsini boşalt (toggle)
-        if(idx<=cups){cups=idx-1;}
-        else{cups=idx;}
-        if(cups<0)cups=0;
-        sync();
-      });
-    });
-  }
-
- // "Bir Bardak Ekle" butonu
-  var addBtn=document.getElementById('wtAdd');
-  if(addBtn){
-    addBtn.addEventListener('click',function(){
-      if(cups<total)cups++;
-      sync();
-    });
-  }
-
- // "Günü Sıfırla" butonu
-  var resetBtn=document.getElementById('wtReset');
-  if(resetBtn){
-    resetBtn.addEventListener('click',function(){
-      cups=7; // mockup başlangıç: 7 bardak dolu
-      sync();
-    });
-  }
-
- // ilk render (7 bardak dolu — mock)
-  cups=7;
-  sync();
-})();
-
-/* ===== KILO HESAPLAYICI ===== */
-function calcWater(){
-  var kEl=document.getElementById('wtKilo');
-  if(!kEl)return;
-  var kg=parseFloat(kEl.value)||68;
-  if(kg<30)kg=30; if(kg>300)kg=300;
-  var ml=kg*33;
-  var litre=(ml/1000).toFixed(1);
-  var cups=Math.round(ml/200);
-  var rL=document.getElementById('wtCalcLitre');
-  var rN=document.getElementById('wtCalcNote');
-  if(rL)rL.textContent=litre+' litre/gün';
-  if(rN)rN.textContent=kg+' kg için önerilen · ≈ '+cups+' bardak';
-}
 </script>
 
 

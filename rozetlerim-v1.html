@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rozetlerim — DadaFit · Rozet, puan, yolculuk ve liderlik</title>
+<meta name="description" content="Kazandığın rozetler, topladığın puan, hareket yolculuğundaki basamağın ve liderlik tablosundaki sıran tek ekranda." />
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<!-- Fit Planım ailesi CSS (tek kaynak) — kabuktan SONRA, fit-type.css'ten ÖNCE -->
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<style>
+/* =====================================================================
+   ROZETLERİM — TEK ROZET EKRANI   (R15/5 · Beyar kararı 2026-08-29)
+   ---------------------------------------------------------------------
+   Bu sayfa İKİ ekranın yerine geçti:
+     rozetler-v1.html            (galeri · 42 sabit rozet · 8 basamak)
+     fit-planim-rozetler-v1.html (planım karşılığı · DOM'dan sayım)
+   Görsel dil `rozetler-v1.html`ten BİREBİR taşındı — .rank-now, .ladder,
+   .rank-step, .badge-*, .bgal-* aynı ölçülerle geldi. Yeni renk, yeni
+   yarıçap, yeni gölge ÜRETİLMEDİ (docs/fit-kit.md kuralı); durum renkleri
+   kitin dört durumundan alındı (ok · wait · off · stop).
+
+   TEK YENİ DURUM SINIFI: `.badge-card.olcusuz`. Yeni RENK değil — kitin
+   nötr durumunu (.off ailesi, --muted/--bg) kullanır. Neden var: bir rozet
+   üç hâlde olabilir ve ikisi aynı şey değildir —
+     kazanildi → mühürlendi
+     yolda     → ölçüsü var, ilerliyor
+     olcusuz   → ölçüsü HENÜZ HİÇBİR EKRAN TARAFINDAN KAYDEDİLMİYOR
+   Üçüncüsünü "yolda" göstermek ilerlediğini ima ederdi. İlerlemiyor.
+   ===================================================================== */
+
+/* ===== YOLCULUK — mevcut basamak paneli + 8 basamaklı şerit ===== */
+/* Izgara ÜÇ kolon: nişan · gövde · puan. Devraldığımız kural iki kolon
+   (`auto 1fr`) tanımlıyordu ve üçüncü çocuk (.rn-points) ikinci satıra,
+   yani panelin SOL ALTINA düşüyordu — ölçüldü. Puan sağ üstte durmalı. */
+.rank-now{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;background:linear-gradient(135deg,#2b2820,#211E16 55%,#123a26);color:#fff;border-radius:var(--radius-lg);padding:28px 30px;box-shadow:var(--sh-md);position:relative;overflow:hidden}
+.rank-now::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:6px 6px;opacity:.45;pointer-events:none}
+.rn-insignia{position:relative;z-index:1;flex:none;width:96px;height:96px;border-radius:var(--radius-circle);background:radial-gradient(circle at 35% 30%,#5fd89a,#009d4f 60%,#006a35);color:#fff;display:grid;place-items:center;font-size:42px;box-shadow:0 8px 22px rgba(0,157,79,.45),inset 0 2px 6px rgba(255,255,255,.32)}
+.rn-body{position:relative;z-index:1;min-width:0}
+.rn-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--fit-bright);margin-bottom:5px}
+.rn-name{font-size:28px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+.rn-name small{font-size:13px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:0}
+.rn-next{font-size:13.5px;color:#e2e7e2;font-weight:500;margin-bottom:14px}
+.rn-next b{color:#fff;font-weight:700}
+.rn-bar{height:9px;border-radius:var(--radius-pill);background:rgba(255,255,255,.16);overflow:hidden;max-width:520px}
+.rn-bar span{display:block;height:100%;border-radius:var(--radius-pill);background:linear-gradient(90deg,#5fd89a,#009d4f)}
+.rn-bar-meta{display:flex;justify-content:space-between;max-width:520px;margin-top:7px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.65)}
+.rn-points{position:relative;z-index:1;align-self:flex-start;flex:none;text-align:right}
+.rn-points b{display:block;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.rn-points span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+
+.ladder-hint{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:12.5px;font-weight:600;color:var(--slate-2)}
+.ladder-hint i{color:var(--fit);font-size:12px}
+.ladder{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-top:12px}
+.rank-step{position:relative;text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:26px 8px 24px;transition:.2s var(--ease);cursor:pointer;font-family:inherit;width:100%;appearance:none}
+.rs-ico{width:46px;height:46px;margin:0 auto 9px;border-radius:var(--radius-circle);background:var(--bg);color:#bdbdbd;display:grid;place-items:center;font-size:18px;border:1.5px solid var(--line)}
+.rank-step b{display:block;font-size:12.5px;font-weight:700;color:var(--slate);line-height:1.2}
+.rank-step span{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:3px}
+.rank-step.done .rs-ico{background:var(--fit-wash);color:var(--fit);border-color:rgba(0,157,79,.3)}
+.rank-step.current{border-color:var(--fit);box-shadow:0 6px 18px rgba(0,157,79,.16);background:#fff}
+.rank-step.current .rs-ico{background:radial-gradient(circle at 35% 30%,#5fd89a,#009d4f 65%,#006a35);color:#fff;border-color:var(--fit);box-shadow:0 5px 14px rgba(0,157,79,.4)}
+.rank-step .rs-now{position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:2;margin:0;font-size:9px;line-height:1;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--fit);padding:4px 10px;border-radius:var(--radius-pill);white-space:nowrap;box-shadow:0 2px 6px rgba(0,157,79,.28)}
+.rank-step.locked{border-style:dashed;background:transparent}
+.rank-step.locked .rs-lock{position:absolute;top:8px;right:9px;font-size:9px;color:#c8c8c8}
+.rank-step:hover{border-color:var(--fit);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,157,79,.12)}
+.rank-step.locked:hover{border-color:var(--fit)}
+.rank-step:focus-visible{outline:2px solid var(--fit);outline-offset:2px}
+.rank-step.sel{border-color:var(--fit);border-style:solid;box-shadow:0 0 0 3px rgba(0,157,79,.14),0 8px 20px rgba(0,157,79,.16)}
+.rank-step .rs-pick{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);z-index:2;margin:0;opacity:0;visibility:hidden;font-size:9px;line-height:1;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--fit);padding:4px 10px;border-radius:var(--radius-pill);white-space:nowrap;box-shadow:0 2px 6px rgba(0,157,79,.28);transition:opacity .18s var(--ease)}
+.rank-step.sel .rs-pick{opacity:1;visibility:visible}
+.rank-step .rs-cnt{display:block;font-size:9.5px;font-weight:700;color:#6b6b6b;margin-top:4px;letter-spacing:.02em}
+.rank-step.done .rs-cnt,.rank-step.current .rs-cnt{color:var(--fit-deep)}
+
+/* ===== FİLTRE ŞERİDİ ===== */
+.bgal-filter{display:none;align-items:center;gap:12px;margin:0 0 22px;padding:13px 18px;background:linear-gradient(120deg,var(--fit-wash),#fff 80%);border:1px solid rgba(0,157,79,.28);border-radius:var(--radius-md)}
+.bgal-filter.show{display:flex}
+.bgal-filter .bf-ico{flex:none;width:34px;height:34px;border-radius:var(--radius-sm);background:var(--fit);color:#fff;display:grid;place-items:center;font-size:14px}
+.bgal-filter .bf-txt{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--slate)}
+.bgal-filter .bf-txt b{font-weight:800;color:var(--fit)}
+.bgal-filter .bf-txt small{display:block;font-size:11.5px;font-weight:500;color:var(--slate-2);margin-top:1px}
+.bgal-clear{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--slate);background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 14px;cursor:pointer;transition:.18s var(--ease)}
+.bgal-clear:hover{border-color:var(--fit);color:var(--fit)}
+
+/* ===== GALERİ ===== */
+.bgal-stat{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 12px}
+.bgal-pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-pill);padding:8px 15px}
+.bgal-pill i{font-size:12px}
+.bgal-pill .pill-earn{color:var(--fit-deep)}
+.bgal-pill .pill-lock{color:var(--c-petrol)}
+.bgal-pill .pill-off{color:var(--muted)}
+.bgal-pill b{color:var(--slate);font-weight:800}
+/* Alt payı 0: bu not artık bölümünün SON öğesi ve bölümün üst/alt dolgusu
+   eşit olmalı (ölçüldü: 22px alt pay bölümü 32/54 yapıyordu). */
+.bgal-note{font-size:12.5px;color:var(--muted);font-weight:500;margin:0;max-width:70ch}
+
+/* aile çipleri — kabuğun .df-fchip kiti (yeni bileşen yok) */
+.bgal-cips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.bgal-cips .df-fchip{min-height:44px}
+
+.badge-cat{margin-top:30px}
+.badge-cat:first-of-type{margin-top:0}
+.badge-cat.cat-empty{display:none}
+.badge-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.badge-head h3{font-size:17px;display:inline-flex;align-items:center;gap:9px}
+.badge-head h3 i{color:var(--fit);font-size:14px}
+.badge-head .bh-cnt{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:auto}
+.badge-src{font-size:12px;color:var(--muted);font-weight:500;margin:0 0 14px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px}
+
+.badge-card{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:13px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px;text-align:left;transition:.2s var(--ease);outline:none;cursor:pointer;font-family:inherit;width:100%}
+.badge-card:hover{border-color:#dcdcdc;transform:translateY(-2px);box-shadow:var(--sh-sm)}
+.badge-card:focus-visible{outline:2px solid var(--fit);outline-offset:2px}
+.badge-card>div{flex:1;min-width:0}
+.badge-ico{flex:none;width:42px;height:42px;border-radius:var(--radius-md);background:var(--fit-wash);color:var(--fit);display:grid;place-items:center;font-size:17px;transition:color .2s var(--ease)}
+.badge-card b{display:block;font-size:13.5px;font-weight:700;color:var(--slate);line-height:1.2}
+.badge-card>div>span{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px}
+.badge-card.locked{border-style:dashed;border-color:#ddd;background:transparent}
+.badge-card.locked:hover{border-color:#c9c9c9;transform:none;box-shadow:none}
+.badge-card.locked .badge-ico{background:var(--bg);color:#c2c2c2}
+.badge-card.locked b{color:var(--muted)}
+.badge-lock{position:absolute;top:9px;right:11px;font-size:10px;color:#c2c2c2}
+/* ölçü bekleyen rozet — nötr (kitin .off durumu), "yolda"dan AYRI okunur */
+.badge-card.olcusuz{border-style:dotted;border-color:#d6d6d6;background:var(--bg)}
+.badge-card.olcusuz:hover{transform:none;box-shadow:none;border-color:#c9c9c9}
+.badge-card.olcusuz .badge-ico{background:#efefef;color:#b4b4b4}
+.badge-card.olcusuz b{color:var(--muted)}
+/* yeni kazanılan — bir kez görülünce söner */
+.badge-card.yeni{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
+.b-yeni{position:absolute;top:-8px;left:14px;z-index:2;font-size:9px;line-height:1;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--fit);padding:4px 9px;border-radius:var(--radius-pill)}
+
+/* puan etiketi — kartın sağ üstü */
+.b-puan{position:absolute;top:9px;right:11px;font-size:10px;font-weight:800;color:var(--fit-deep);letter-spacing:.02em}
+.badge-card.locked .b-puan,.badge-card.olcusuz .b-puan{color:#bdbdbd}
+
+/* kart altı durum notu */
+.b-note{flex-basis:100%;display:flex;align-items:center;gap:7px;margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.01em}
+.b-note.earned{color:var(--fit-deep)}
+.b-note.earned i{font-size:10px}
+.b-note.locked{color:var(--c-petrol);flex-wrap:wrap}
+.b-note.olcusuz{color:var(--muted)}
+.b-prog{flex:1;min-width:60px;height:5px;border-radius:var(--radius-pill);background:#ececec;overflow:hidden;order:2}
+.b-prog span{display:block;height:100%;border-radius:var(--radius-pill);background:linear-gradient(90deg,#4aa6b6,#006072)}
+.b-note.locked .b-left{order:3;flex-basis:100%;color:#3f6d78;font-weight:600;font-size:10px;margin-top:1px}
+.b-note.locked > i{order:1;font-size:10px}
+
+/* tooltip */
+.badge-tip{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%) translateY(6px);width:max(210px,100%);background:var(--slate);color:#f0efec;border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--sh-lg);z-index:30;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s var(--ease),transform .18s var(--ease),visibility .18s}
+.badge-card:hover .badge-tip,.badge-card:focus-within .badge-tip,.badge-card.tip-open .badge-tip{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.badge-tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) rotate(45deg) translateY(-5px);width:11px;height:11px;background:var(--slate)}
+.badge-card .badge-tip b{display:block;font-size:12.5px;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:0}
+.badge-card .badge-tip p{font-size:11.5px;font-weight:500;line-height:1.5;color:#c9c7c2;margin:0}
+.badge-tip .tip-how{display:flex;align-items:flex-start;gap:7px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:600;color:var(--fit-bright)}
+.badge-tip .tip-how i{font-size:10px;margin-top:2px;flex:none}
+.badge-tip .tip-rank{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fit-bright)}
+.badge-cat .hr-note{margin:0 0 14px}
+/* Ölçü şeridindeki bağlantı dokunma hedefi tabanını taşır (WCAG 2.5.8) —
+   kart içindeki 28×26 px'lik bağlantının yerini bu aldı. */
+.badge-cat .hr-note a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--fit-deep);font-weight:700;text-decoration:underline}
+
+/* ===== PUAN DEFTERİ ===== */
+.pd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px}
+.pd-kart{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px 18px}
+.pd-kart .pd-ust{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--slate)}
+.pd-kart .pd-ust i{color:var(--fit);font-size:13px}
+.pd-kart .pd-sayi{display:block;font-size:22px;font-weight:800;color:var(--slate);letter-spacing:-.01em;margin-top:9px}
+.pd-kart .pd-alt{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+.pd-kart .fp-bar{margin-top:11px}
+
+/* ===== LİDERLİK ===== */
+.ld-tablo{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.ld-satir{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.ld-satir:last-child{border-bottom:0}
+.ld-satir.ben{background:var(--fit-wash)}
+.ld-sira{flex:none;width:38px;height:38px;border-radius:var(--radius-circle);background:var(--bg);color:var(--slate-2);display:grid;place-items:center;font-size:13px;font-weight:800}
+.ld-satir.ben .ld-sira{background:var(--fit);color:#fff}
+.ld-satir:nth-child(1) .ld-sira{background:var(--fit-tint);color:var(--fit-deep)}
+.ld-kim{flex:1;min-width:0}
+.ld-kim b{display:block;font-size:14px;font-weight:700;color:var(--slate);line-height:1.25}
+.ld-kim small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+.ld-puan{flex:none;text-align:right}
+.ld-puan b{display:block;font-size:16px;font-weight:800;color:var(--slate);letter-spacing:-.01em}
+.ld-puan small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+
+@media (max-width:1024px){
+  .rank-now{grid-template-columns:auto 1fr;gap:18px;padding:22px}   /* ≤1024: puan gizli, iki kolon yeter */
+  .rn-points{display:none}
+  .ladder{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:640px){
+  .rank-now{grid-template-columns:1fr;text-align:center;gap:14px}
+  .rn-insignia{margin:0 auto}
+  .rn-bar,.rn-bar-meta{max-width:none}
+  .ladder{grid-template-columns:repeat(2,1fr)}
+  .badge-grid,.pd-grid{grid-template-columns:1fr}
+  .bgal-filter{flex-wrap:wrap}
+  .bgal-filter .bf-txt{flex-basis:calc(100% - 46px)}
+  .bgal-clear{margin-left:46px}
+  .ld-satir{padding:13px 15px;gap:11px}
+  .badge-tip{bottom:auto;top:calc(100% + 10px);transform:translateX(-50%) translateY(-6px)}
+  .badge-card:hover .badge-tip,.badge-card:focus-within .badge-tip,.badge-card.tip-open .badge-tip{transform:translateX(-50%) translateY(0)}
+  .badge-tip::after{top:auto;bottom:100%;transform:translateX(-50%) rotate(45deg) translateY(5px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .rank-step:hover,.badge-card:hover{transform:none}
+  .badge-tip{transition:opacity .01s}
+}
+</style>
+<!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="rozetlerim-v1">
+
+<!-- KABUK: ust katman -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<div id="fitModulTop"
+     data-modul="rozetlerim"
+     data-modul-title="Rozetlerim"
+     data-modul-sub="Kazandığın rozetler, topladığın puan, hareket yolculuğundaki basamağın ve liderlik tablosundaki sıran."
+     data-modul-tabs="koleksiyon:Koleksiyon:fa-solid fa-medal|yolculuk:Yolculuk:fa-solid fa-route|puan:Puan Defteri:fa-solid fa-coins|liderlik:Liderlik:fa-solid fa-ranking-star"
+     data-modul-aktif="koleksiyon"></div>
+
+<div class="modul-govde">
+
+<!-- ============================================================ -->
+<!-- SEKME 1 · KOLEKSİYON                                          -->
+<!-- ============================================================ -->
+<div class="fit-pane" data-pane="koleksiyon">
+<!-- ZEBRA (R15/6): her blok `.fit-pane`in DOĞRUDAN çocuğu bir <section>.
+     Zemin ve dolgu KABUKTA (fit-shell.css `.modul-govde .fit-pane > section`,
+     nth-of-type odd/even); sayfa ne zemin ne dolgu yazar. Bloklar `.wrap`ın
+     içinde kalır, bant tam genişlikte olur.
+     `.fpx-sec`in 44px üst payı bırakıldı: bölüm dolgusu üstte ve altta eşit
+     (32/32) olmalı, 44px onu bozardı. -->
+<section id="koleksiyon">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-medal"></i> Kazandıkların</span>
+        <h2>Rozet koleksiyonun</h2>
+        <p class="lead">Her rozet tek bir ölçülebilir kayıttan doğar: hareket ettiğin gün, kaydettiğin süre, bitirdiğin plan, tamamladığın challenge. Kazandığın rozet geri alınmaz.</p>
+      </div>
+    </div>
+    <div class="bgal-stat" id="rzStat"></div>
+    <p class="bgal-note" id="rzNot"></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-filter"></i> Süzgeç</span>
+        <h2>Aileye ve basamağa göre</h2>
+        <p class="lead">Bir aileyi seç ya da Yolculuk sekmesinden bir basamağa dokun; galeri ona süzülür.</p>
+      </div>
+    </div>
+    <div class="bgal-cips" id="rzCips" role="group" aria-label="Aileye göre süz"></div>
+    <div class="bgal-filter" id="rzFiltre" role="status" aria-live="polite">
+      <span class="bf-ico"><i class="fa-solid fa-medal"></i></span>
+      <span class="bf-txt"><b id="rzFiltreAd">—</b><small id="rzFiltreMeta"></small></span>
+      <button type="button" class="bgal-clear" id="rzFiltreSil"><i class="fa-solid fa-xmark"></i> Süzgeci temizle</button>
+    </div>
+    <div id="rzGaleri"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ -->
+<!-- SEKME 2 · YOLCULUK                                            -->
+<!-- ============================================================ -->
+<div class="fit-pane" data-pane="yolculuk" hidden>
+<section id="yolculuk">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-route"></i> Hareket yolculuğun</span>
+        <h2>Yolculuğunda neredesin?</h2>
+        <p class="lead">Basamakların tek ölçüsü var: kaç ayrı gün hareket ettiğin. Kaçırdığın gün geri saymaz; kaldığın yerden devam edersin.</p>
+      </div>
+    </div>
+    <div class="rank-now" id="rzRank"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-stairs"></i> Sekiz basamak</span>
+        <h2>Nereden nereye</h2>
+        <p class="lead">Her basamak bir aktif gün eşiğidir. Bir basamağa dokun — o basamakta açılan rozetleri koleksiyonda süzülmüş gör.</p>
+      </div>
+    </div>
+    <div class="ladder" id="rzLadder" role="list" aria-label="Hareket yolculuğu basamakları"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-ruler"></i> Ölçüler</span>
+        <h2>Basamağı besleyen sayılar</h2>
+        <p class="lead">Aşağıdaki her sayı tarayıcındaki kayıtlarından okundu; hiçbiri örnek değil.</p>
+      </div>
+    </div>
+    <div class="pd-grid" id="rzOlcu"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ -->
+<!-- SEKME 3 · PUAN DEFTERİ                                        -->
+<!-- ============================================================ -->
+<div class="fit-pane" data-pane="puan" hidden>
+<section id="puan">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-coins"></i> Puan</span>
+        <h2>Puanın nereden geliyor?</h2>
+        <p class="lead">Puan ayrı bir sayaç değil: kazandığın rozetlerin puanlarının toplamı. Bir rozeti kazandığın an puanın artar, başka hiçbir yoldan değişmez.</p>
+      </div>
+    </div>
+    <div class="fp-card is-dark" id="rzPuanKart"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Ailelere göre</span>
+        <h2>Hangi aileden ne kadar</h2>
+        <p class="lead">Her ailenin kendi puan tavanı var; çubuk o ailenin ne kadarını topladığını gösterir.</p>
+      </div>
+    </div>
+    <div class="pd-grid" id="rzPuanAile"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> Kazanım defteri</span>
+        <h2>Ne zaman ne kazandın</h2>
+        <p class="lead">En yeni üstte. Tarih, rozetin mühürlendiği andır.</p>
+      </div>
+    </div>
+    <div id="rzDefter"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ -->
+<!-- SEKME 4 · LİDERLİK                                            -->
+<!-- ============================================================ -->
+<div class="fit-pane" data-pane="liderlik" hidden>
+<section id="liderlik">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-ranking-star"></i> Liderlik</span>
+        <h2>Tek tablo, herkes aynı yerde</h2>
+        <p class="lead">Sıralama toplam puana göre kurulur. Rozetlerinin profilinde görünüp görünmeyeceğine <a href="hesabim-v1.html#profil">Hesap ve Ayarlar</a>&#39;dan sen karar verirsin.</p>
+      </div>
+    </div>
+    <!-- 🔴 TEK DÜRÜST ŞERİT — kitin §11 kuralı: maket ekran başında tek şerit
+         taşır, düğme başına rozet serpilmez. "Yakında" YAZILMAZ. -->
+    <div class="hr-note" id="rzLdNot">
+      <i class="fa-solid fa-circle-info"></i>
+      <p><b>Liderlik tablosu maket:</b> bu prototipte sunucu yok, başka kullanıcı verisi yok. Aşağıdaki yedi satır örnek isimlerdir. <b>Kendi satırın gerçektir</b> — puanı rozet defterinden okunur, sıran da o gerçek puanın örnek satırlar arasındaki yeridir.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="ld-tablo" id="rzLdTablo"></div>
+  </div>
+</section>
+</div><!-- /.fit-pane[data-pane=liderlik] -->
+
+</div><!-- /.modul-govde -->
+</main>
+
+<!-- KABUK: alt katman -->
+<div id="fitShellBottom"></div>
+
+<script src="assets/js/fit-shell.js"></script>
+<!-- PLAN KAYDI SÖZLEŞMESİ — rozet ölçüleri buradan da beslenir -->
+<script src="assets/js/fit-plan-kayit.js"></script>
+<!-- CHALLENGE MOTORU — rozet ölçülerinden önce yüklenmeli -->
+<script src="assets/js/fit-challenge.js"></script>
+<!-- ROZET · PUAN · LİDERLİK MOTORU -->
+<script src="assets/js/fit-rozet.js"></script>
+<script>
+/* =====================================================================
+   ROZETLERİM — ekran katmanı
+   Bu dosya HESAP YAPMAZ. Bütün sayılar FIT_ROZET'ten gelir; burada yalnız
+   çizim ve etkileşim var. Ekranda görünen her rakamın kaynağı tek yerde
+   olsun diye böyle: iki yerde hesaplanan sayı er geç ikiye ayrılır.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var R = window.FIT_ROZET;
+  if (!R) return;
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function n(x) { return Number(x || 0).toLocaleString('tr-TR'); }
+  function tarih(iso) {
+    if (!iso) return '';
+    var t = new Date(iso); if (isNaN(t)) return '';
+    return t.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function el(id) { return document.getElementById(id); }
+
+  /* Süzgeç durumu: basamak (yolculuktan) VEYA aile (çipten). İkisi birlikte
+     çalışır; boş kümede kart gizlenmez, ailesi gizlenir. */
+  var suz = { basamak: null, aile: null };
+
+  /* ---------------- 1 · KOLEKSİYON ---------------- */
+  function galeriBas() {
+    var o = R.ozet(), hepsi = R.liste();
+
+    el('rzStat').innerHTML =
+      '<span class="bgal-pill"><i class="fa-solid fa-circle-check pill-earn"></i> <b>' + o.kazanildi + '</b> kazanıldı</span>' +
+      '<span class="bgal-pill"><i class="fa-solid fa-hourglass-half pill-lock"></i> <b>' + o.yolda + '</b> yolda</span>' +
+      '<span class="bgal-pill"><i class="fa-solid fa-circle-minus pill-off"></i> <b>' + o.olcusuz + '</b> ölçü bekliyor</span>' +
+      '<span class="bgal-pill"><i class="fa-solid fa-coins pill-earn"></i> <b>' + n(o.puan) + '</b> puan</span>';
+
+    el('rzNot').innerHTML =
+      'Sayılar tarayıcındaki kayıtlarından okundu: <b>' + n(o.olcu.kayit) + '</b> antrenman kaydı, <b>' +
+      n(o.olcu.aktifGun) + '</b> aktif gün, <b>' + n(o.olcu.toplamDk) + ' dk</b> toplam süre.' +
+      (o.olcu.tarihsizKayit
+        ? ' <b>' + n(o.olcu.tarihsizKayit) + '</b> kaydın tarihi yok, o yüzden gün sayısına giremiyor — eski kayıtlarda tarih alanı tutulmuyordu.'
+        : '') +
+      ' <b>' + o.olcusuz + '</b> rozetin ölçüsü henüz hiçbir ekran tarafından kaydedilmiyor; kartında hangi ekranın kaydetmesi gerektiği yazıyor.';
+
+    /* aile çipleri */
+    el('rzCips').innerHTML =
+      '<button class="df-fchip' + (suz.aile ? '' : ' on') + '" type="button" data-aile="">Tümü</button>' +
+      R.AILELER.map(function (a) {
+        var say = hepsi.filter(function (x) { return x.aile === a.key && x.durum === 'kazanildi'; }).length;
+        var tp = hepsi.filter(function (x) { return x.aile === a.key; }).length;
+        return '<button class="df-fchip' + (suz.aile === a.key ? ' on' : '') + '" type="button" data-aile="' + a.key + '">' +
+               '<i class="' + a.ico + '"></i> ' + esc(a.ad) + ' ' + say + '/' + tp + '</button>';
+      }).join('');
+
+    /* süzgeç şeridi */
+    var f = el('rzFiltre');
+    if (suz.basamak || suz.aile) {
+      var bas = suz.basamak ? R.BASAMAKLAR.filter(function (b) { return b.key === suz.basamak; })[0] : null;
+      var ail = suz.aile ? R.AILELER.filter(function (a) { return a.key === suz.aile; })[0] : null;
+      el('rzFiltreAd').textContent = [bas && bas.ad + ' basamağı', ail && ail.ad].filter(Boolean).join(' · ');
+      var kac = hepsi.filter(esle).length;
+      el('rzFiltreMeta').textContent = kac + ' rozet gösteriliyor.';
+      f.classList.add('show');
+    } else {
+      f.classList.remove('show');
+    }
+
+    /* aileye göre kartlar */
+    el('rzGaleri').innerHTML = R.AILELER.map(function (a) {
+      var kartlar = hepsi.filter(function (x) { return x.aile === a.key; });
+      var gorunen = kartlar.filter(esle);
+      var kazan = kartlar.filter(function (x) { return x.durum === 'kazanildi'; }).length;
+      /* Ölçüsü olmayan aile, ilgili ekranların bağlantısını KART İÇİNDE değil
+         kendi şeridinde taşır — kart bir <button>, içine <a> girmez. */
+      var ekranlar = {}, olcusuz = 0;
+      kartlar.forEach(function (x) {
+        if (x.durum !== 'olcusuz') return;
+        olcusuz++;
+        if (x.kaynakEkran) ekranlar[x.kaynakEkran] = x.kaynakEkranAd || x.kaynakEkran;
+      });
+      var serit = olcusuz
+        ? '<div class="hr-note"><i class="fa-solid fa-circle-info"></i>' +
+          '<p><b>' + olcusuz + ' rozetin ölçüsü henüz kaydedilmiyor.</b> Bu ailedeki ilerleme, ilgili ekran sonucu saklamaya başlayınca kendiliğinden işler; kartlarda hangi kaydın eksik olduğu yazıyor. İlgili ekran: ' +
+          Object.keys(ekranlar).map(function (h) {
+            return '<a href="' + esc(h) + '">' + esc(ekranlar[h]) + '</a>';
+          }).join(' · ') + '</p></div>'
+        : '';
+      return '<div class="badge-cat' + (gorunen.length ? '' : ' cat-empty') + '" data-aile="' + a.key + '">' +
+        '<div class="badge-head"><h3><i class="' + a.ico + '"></i> ' + esc(a.ad) + '</h3>' +
+        '<span class="bh-cnt">' + kazan + ' / ' + kartlar.length + '</span></div>' +
+        '<p class="badge-src">Ölçü: ' + esc(a.olcu) + '</p>' + serit +
+        '<div class="badge-grid">' + gorunen.map(kart).join('') + '</div></div>';
+    }).join('');
+  }
+
+  function esle(x) {
+    if (suz.basamak && x.basamak !== suz.basamak) return false;
+    if (suz.aile && x.aile !== suz.aile) return false;
+    return true;
+  }
+
+  function kart(x) {
+    var bas = R.BASAMAKLAR.filter(function (b) { return b.key === x.basamak; })[0];
+    var cls = 'badge-card' +
+      (x.durum === 'yolda' ? ' locked' : '') +
+      (x.durum === 'olcusuz' ? ' olcusuz' : '') +
+      (x.yeni ? ' yeni' : '');
+
+    var alt, not;
+    if (x.durum === 'kazanildi') {
+      alt = tarih(x.tarih);
+      not = '<span class="b-note earned"><i class="fa-solid fa-circle-check"></i> Kazanıldı · ' + esc(tarih(x.tarih)) + '</span>';
+    } else if (x.durum === 'yolda') {
+      alt = 'Yolda';
+      not = '<span class="b-note locked"><i class="fa-solid fa-hourglass-half"></i>' +
+            '<span class="b-prog"><span style="width:' + x.oran + '%"></span></span>' +
+            '<span class="b-left">' + n(x.simdi) + ' / ' + n(x.hedef) + ' — ' + n(x.kalan) + ' kaldı</span></span>';
+    } else {
+      alt = 'Ölçü bekliyor';
+      not = '<span class="b-note olcusuz"><i class="fa-solid fa-circle-minus"></i> Bu ölçü henüz kaydedilmiyor</span>';
+    }
+
+    return '<button type="button" class="' + cls + '" data-rozet="' + esc(x.slug) + '">' +
+      (x.yeni ? '<span class="b-yeni">Yeni</span>' : '') +
+      '<span class="b-puan">+' + x.puan + '</span>' +
+      (x.durum === 'yolda' ? '<i class="fa-solid fa-lock badge-lock"></i>' : '') +
+      '<span class="badge-ico"><i class="' + x.ico + '"></i></span>' +
+      '<div><b>' + esc(x.ad) + '</b><span>' + esc(alt) + '</span></div>' + not +
+      '<span class="badge-tip"><b>' + esc(x.ad) + ' · ' + x.puan + ' puan</b>' +
+        '<p>' + esc(x.nasil) + '</p>' +
+        '<span class="tip-how"><i class="fa-solid ' + (x.durum === 'kazanildi' ? 'fa-bullseye' : x.durum === 'olcusuz' ? 'fa-circle-minus' : 'fa-lock') + '"></i> ' +
+          (x.durum === 'kazanildi' ? 'Tamamlandı'
+           : x.durum === 'olcusuz'
+             /* Burada bir <a> vardı: <button> içinde <a> geçersiz iç içe
+                geçmedir ve ölçüldüğünde 28×26 px'lik dokunma hedefi
+                üretiyordu. Bağlantı ailenin kendi şeridine taşındı. */
+               ? esc(x.kaynakNot || '')
+             : n(x.kalan) + ' kaldı') + '</span>' +
+        (bas ? '<span class="tip-rank"><i class="' + bas.ico + '"></i> ' + esc(bas.ad) + ' basamağı</span>' : '') +
+      '</span></button>';
+  }
+
+  /* ---------------- 2 · YOLCULUK ---------------- */
+  function yolculukBas() {
+    var y = R.yolculuk(), hepsi = R.liste();
+
+    el('rzRank').innerHTML =
+      '<span class="rn-insignia"><i class="' + (y.simdiki ? y.simdiki.ico : 'fa-solid fa-medal') + '"></i></span>' +
+      '<div class="rn-body">' +
+        '<div class="rn-eyebrow">Mevcut basamak' + (y.simdiki ? ' · ' + (y.indeks + 1) + ' / ' + y.basamaklar.length : '') + '</div>' +
+        '<div class="rn-name">' + (y.simdiki ? esc(y.simdiki.ad) : 'Henüz başlamadın') +
+          ' <small>· ' + n(y.aktifGun) + ' aktif gün</small></div>' +
+        '<p class="rn-next">' + (y.sonraki
+          ? 'Sonraki basamak <b>' + esc(y.sonraki.ad) + '</b> — <b>' + n(y.kalan) + ' aktif gün</b> kaldı.'
+          : 'Son basamaktasın. Yolculuğun burada bitmiyor; sayaç saymaya devam ediyor.') + '</p>' +
+        '<div class="rn-bar"><span style="width:' + y.oran + '%"></span></div>' +
+        '<div class="rn-bar-meta"><span>' + n(y.aktifGun) + ' aktif gün</span>' +
+          '<span>' + (y.sonraki ? esc(y.sonraki.ad) + ' eşiği ' + n(y.sonraki.esik) : 'Eşik kalmadı') + '</span></div>' +
+      '</div>' +
+      '<div class="rn-points"><b>' + n(y.puan) + '</b><span>Toplam puan</span></div>';
+
+    el('rzLadder').innerHTML = y.basamaklar.map(function (b, i) {
+      var d = (i < y.indeks) ? 'done' : (i === y.indeks ? 'current' : 'locked');
+      var acilan = hepsi.filter(function (x) { return x.basamak === b.key; });
+      var kazan = acilan.filter(function (x) { return x.durum === 'kazanildi'; }).length;
+      return '<button type="button" class="rank-step ' + d + (suz.basamak === b.key ? ' sel' : '') + '"' +
+        ' role="listitem" data-basamak="' + b.key + '" aria-pressed="' + (suz.basamak === b.key) + '"' +
+        (d === 'current' ? ' aria-current="true"' : '') + '>' +
+        (d === 'current' ? '<span class="rs-now">Buradasın</span>' : '') +
+        (d === 'locked' ? '<i class="fa-solid fa-lock rs-lock"></i>' : '') +
+        '<div class="rs-ico"><i class="' + b.ico + '"></i></div><b>' + esc(b.ad) + '</b>' +
+        '<span>' + n(b.esik) + ' aktif gün</span>' +
+        '<span class="rs-cnt">' + kazan + ' / ' + acilan.length + ' rozet</span>' +
+        '<span class="rs-pick">Seçili</span></button>';
+    }).join('');
+
+    var m = R.olcular();
+    var olculer = [
+      { ad: 'Aktif gün',        ico: 'fa-solid fa-calendar-check', d: n(m.aktifGun),  a: 'ayrı günde hareket kaydın var' },
+      { ad: 'En uzun seri',     ico: 'fa-solid fa-fire',           d: n(m.seri),      a: 'gün üst üste' },
+      { ad: 'Toplam süre',      ico: 'fa-solid fa-clock',          d: n(m.toplamDk) + ' dk', a: 'kayıtlı hareket süresi' },
+      { ad: 'Farklı hareket',   ico: 'fa-solid fa-shuffle',        d: n(m.cesit),     a: 'ayrı hareket denedin' },
+      { ad: 'Kuvvet günü',      ico: 'fa-solid fa-dumbbell',       d: n(m.kuvvetGun), a: 'set/tekrar kaydı taşıyan gün' },
+      { ad: 'Biten plan',       ico: 'fa-solid fa-clipboard-check',d: n(m.bitenPlan), a: 'sonuna kadar götürdüğün plan' },
+      { ad: 'Biten challenge',  ico: 'fa-solid fa-trophy',         d: n(m.bitenChallenge), a: 'tamamladığın challenge' },
+      { ad: 'Ölçülmüş mesafe',  ico: 'fa-solid fa-route',          d: n(m.km) + ' km', a: 'yalnız ölçüm ve cihaz kaydı' }
+    ];
+    el('rzOlcu').innerHTML = olculer.map(function (o) {
+      return '<div class="pd-kart"><span class="pd-ust"><i class="' + o.ico + '"></i> ' + esc(o.ad) + '</span>' +
+             '<b class="pd-sayi">' + o.d + '</b><span class="pd-alt">' + esc(o.a) + '</span></div>';
+    }).join('');
+  }
+
+  /* ---------------- 3 · PUAN DEFTERİ ---------------- */
+  function puanBas() {
+    var o = R.ozet(), hepsi = R.liste(), y = R.yolculuk();
+    var kazanilanlar = hepsi.filter(function (x) { return x.durum === 'kazanildi'; })
+      .sort(function (a, b) { return String(b.tarih).localeCompare(String(a.tarih)); });
+    var acikPuan = hepsi.filter(function (x) { return x.durum === 'yolda'; })
+      .reduce(function (a, x) { return a + x.puan; }, 0);
+
+    el('rzPuanKart').innerHTML =
+      '<div class="fp-head"><h3><i class="fa-solid fa-coins"></i> Toplam puanın</h3>' +
+      '<span class="fp-badge ok"><i class="fa-solid fa-medal"></i> ' + o.kazanildi + ' rozet</span></div>' +
+      '<b style="font-size:32px;letter-spacing:-.02em">' + n(o.puan) + '</b>' +
+      '<p style="margin-top:6px">' + (o.kazanildi
+        ? 'Kazandığın ' + o.kazanildi + ' rozetin puanları toplandı. Yoldaki ' + o.yolda + ' rozette <b>' + n(acikPuan) + ' puan</b> daha duruyor.'
+        : 'Henüz rozet kazanmadın. İlk hareketini kaydettiğin an ilk puanın gelir.') + '</p>' +
+      '<div class="fp-meta">' +
+        '<span>Yolculuk: <b>' + (y.simdiki ? esc(y.simdiki.ad) : '—') + '</b></span>' +
+        '<span>Liderlik sırası: <b>#' + R.liderlik().benimSira + '</b></span>' +
+        '<span>Açık puan: <b>' + n(acikPuan) + '</b></span>' +
+      '</div>';
+
+    el('rzPuanAile').innerHTML = R.AILELER.map(function (a) {
+      var k = hepsi.filter(function (x) { return x.aile === a.key; });
+      var kz = k.filter(function (x) { return x.durum === 'kazanildi'; });
+      var p = kz.reduce(function (s, x) { return s + x.puan; }, 0);
+      var t = k.reduce(function (s, x) { return s + x.puan; }, 0);
+      return '<div class="pd-kart"><span class="pd-ust"><i class="' + a.ico + '"></i> ' + esc(a.ad) + '</span>' +
+             '<b class="pd-sayi">' + n(p) + '</b>' +
+             '<span class="pd-alt">' + kz.length + ' / ' + k.length + ' rozet · ailenin tamamı ' + n(t) + ' puan</span>' +
+             '<div class="fp-bar"><span style="width:' + (t ? Math.round(p / t * 100) : 0) + '%"></span></div></div>';
+    }).join('');
+
+    el('rzDefter').innerHTML = kazanilanlar.length
+      ? '<div class="fp-card"><div class="fp-list">' + kazanilanlar.map(function (x) {
+          return '<div class="fp-row"><span class="ico"><i class="' + x.ico + '"></i></span>' +
+                 '<span class="txt"><b>' + esc(x.ad) + '</b><small>' + esc(tarih(x.tarih)) + ' · ' + esc(x.nasil) + '</small></span>' +
+                 '<span class="end"><span class="fp-badge ok">+' + x.puan + '</span></span></div>';
+        }).join('') + '</div></div>'
+      : '<div class="fp-card fpx-bos">' +
+        '<span class="pe-ico"><i class="fa-solid fa-coins"></i></span>' +
+        '<h4>Defter henüz boş</h4>' +
+        '<p>İlk rozetini kazandığın an buraya tarihiyle düşer. En hızlısı bir antrenmanı sonuna kadar götürmek.</p>' +
+        '<a class="btn btn-primary" href="programlarim-v1.html"><i class="fa-solid fa-play"></i> Fit Planım’ı aç</a></div>';
+  }
+
+  /* ---------------- 4 · LİDERLİK ---------------- */
+  function liderlikBas() {
+    var l = R.liderlik();
+    el('rzLdTablo').innerHTML = l.satirlar.map(function (s) {
+      return '<div class="ld-satir' + (s.ben ? ' ben' : '') + '"' + (s.ben ? ' aria-current="true"' : '') + '>' +
+        '<span class="ld-sira">' + s.sira + '</span>' +
+        '<span class="ld-kim"><b>' + esc(s.ad) + (s.ben ? ' <span class="fp-badge ok">Sen</span>' : '') + '</b>' +
+        '<small>' + esc(s.handle) + ' · ' + s.rozet + ' rozet' + (s.ben ? ' · gerçek kayıt' : ' · örnek satır') + '</small></span>' +
+        '<span class="ld-puan"><b>' + n(s.puan) + '</b><small>puan</small></span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------------- etkileşim ---------------- */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-basamak]');
+    if (b) {
+      var k = b.getAttribute('data-basamak');
+      suz.basamak = (suz.basamak === k) ? null : k;
+      boya();
+      if (suz.basamak) {
+        var tab = document.querySelector('.fit-tab[data-tab="koleksiyon"]');
+        if (tab) tab.click();
+      }
+      return;
+    }
+    var c = e.target.closest && e.target.closest('[data-aile]');
+    if (c && c.classList.contains('df-fchip')) {
+      var a = c.getAttribute('data-aile');
+      suz.aile = a || null;
+      boya();
+      return;
+    }
+    /* Rozet kartına dokunmak "yeni" işaretini söndürür ve ipucunu açar
+       (dokunmatikte hover yok — kart <button>, ipucu odakla da açılır). */
+    var r = e.target.closest && e.target.closest('[data-rozet]');
+    if (r) {
+      R.gorulduIsaretle(r.getAttribute('data-rozet'));
+      r.classList.toggle('tip-open');
+    }
+  });
+
+  el('rzFiltreSil').addEventListener('click', function () {
+    suz.basamak = null; suz.aile = null; boya();
+  });
+
+  function boya() { galeriBas(); yolculukBas(); puanBas(); liderlikBas(); }
+  R.dinle(boya);
+})();
+</script>
+
+</body>
+</html>

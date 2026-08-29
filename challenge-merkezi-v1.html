@@ -21,10 +21,6 @@
 .cm-panel .fgroup .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:104px}
 .cm-count{margin:22px 0 18px;font-size:14px;font-weight:600;color:var(--muted)}
 .cm-count b{color:var(--slate);font-weight:800}
-.cm-state{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:var(--radius-sm);background:var(--fit);color:#fff}
-.cm-state.wait{background:rgba(255,255,255,.94);color:var(--slate)}
-.cm-state.done{background:rgba(20,18,12,.78);color:#fff}
-.cm-len{position:absolute;top:12px;right:12px;z-index:2;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm)}
 @media (max-width:1024px){ .sec{padding:var(--sec-pad) 0} }
 @media (max-width:640px){ .cm-panel{padding:16px} .cm-panel .fgroup .lbl{min-width:100%} .sec{padding:var(--sec-pad) 0} }
 
@@ -83,7 +79,12 @@
 </section>
 
 <!-- ===== KATILDIĞIN CHALLENGE (Fit Planım'dan okunur) ===== -->
-<section class="sec sec-fit" style="background:var(--bg-white);padding-bottom:0">
+<!-- ÖLÇÜLEN KUSUR (R15/5, düzeltmeden önce @1440): bölüm yüksekliği 371.1 px,
+     padding-top 74 px, padding-bottom 0 px, kartın altındaki boşluk 0 px —
+     kart section'ın tabanına yapışıktı. Kaynağı buradaki satır içi
+     `padding-bottom:0` idi. Kaldırıldı; bölüm artık kabuğun kendi 74/74
+     ritmine döndü ve kart dikeyde merkezde duruyor. -->
+<section class="sec sec-fit" style="background:var(--bg-white)">
   <div class="wrap">
     <div class="fp-card is-dark" id="cmMine" hidden>
       <div class="fp-head">
@@ -93,14 +94,12 @@
       <b style="font-size:19px" id="cmName">30 Günde Hareket Alışkanlığı</b>
       <p style="margin-top:6px" id="cmLine">İlerlemen Fit Planım'a işleniyor.</p>
       <div class="fp-bar"><span id="cmBar" style="width:3%"></span></div>
-      <div class="fp-meta">
-        <span><b id="cmDay">1</b> / <b id="cmTotal">30</b> gün</span>
-        <span><b id="cmStreak">1</b> gün üst üste</span>
-        <span>Telafi hakkı: <b id="cmGrace">2</b> / 2</span>
-      </div>
+      <!-- Ölçü satırı TİPE GÖRE kurulur (R15/5). Üç sabit span vardı ve
+           üçü de yalnız alışkanlık tipini anlatıyordu. -->
+      <div class="fp-meta" id="cmOlcu"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
         <a class="btn btn-primary" id="cmOpen" href="challenge-v1.html"><i class="fa-solid fa-play"></i> Bugünün görevini aç</a>
-        <a class="btn btn-ghost" href="fit-planim-rozetler-v1.html">Fit Planım'da gör</a>
+        <a class="btn btn-ghost" href="challengelarim-v1.html">Challenge'larım</a>
       </div>
     </div>
     <div class="hm-gate-strip" id="cmNone" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--cream-2);border:1px solid #e7ddcb;border-radius:var(--radius-lg);padding:18px 22px">
@@ -137,6 +136,13 @@
         <button class="df-fchip" type="button" data-val="mobilite"><i class="fa-solid fa-child-reaching"></i> Mobilite</button>
         <button class="df-fchip" type="button" data-val="kondisyon"><i class="fa-solid fa-heart-pulse"></i> Kondisyon</button>
       </div>
+      <div class="fgroup" data-group="tip" role="group" aria-label="Tip seç">
+        <span class="lbl">Tip</span>
+        <button class="df-fchip on" type="button" data-val="all">Tümü</button>
+        <button class="df-fchip" type="button" data-val="sureli"><i class="fa-solid fa-gauge-high"></i> Süreli hedef</button>
+        <button class="df-fchip" type="button" data-val="seri"><i class="fa-solid fa-list-ol"></i> Egzersiz serisi</button>
+        <button class="df-fchip" type="button" data-val="aliskanlik"><i class="fa-solid fa-seedling"></i> Alışkanlık</button>
+      </div>
       <div class="fgroup" data-group="sure" role="group" aria-label="Süre seç">
         <span class="lbl">Süre</span>
         <button class="df-fchip on" type="button" data-val="all">Tümü</button>
@@ -149,7 +155,7 @@
     <p class="cm-count"><b id="cmCount">3</b> challenge gösteriliyor </p>
 
     <div class="hub-grid cols-3" id="cmGrid">
-      <a class="cc-card" href="challenge-v1.html?slug=hareket-aliskanligi" data-durum="aktif" data-kategori="aliskanlik" data-sure="30"
+      <a class="cc-card" href="challenge-v1.html?slug=hareket-aliskanligi" data-durum="aktif" data-kategori="aliskanlik" data-tip="aliskanlik" data-sure="30"
          style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
         <span class="cm-state"><i class="fa-solid fa-play"></i> Aktif</span>
         <span class="cm-len">30 gün</span>
@@ -160,7 +166,7 @@
         </div>
       </a>
 
-      <a class="cc-card" href="challenge-v1.html?slug=sabah-esneme" data-durum="yaklasan" data-kategori="mobilite" data-sure="7"
+      <a class="cc-card" href="challenge-v1.html?slug=sabah-esneme" data-durum="yaklasan" data-kategori="mobilite" data-tip="seri" data-sure="7"
          style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12')">
         <span class="cm-state wait"><i class="fa-regular fa-clock"></i> Yaklaşan</span>
         <span class="cm-len">7 gün</span>
@@ -171,7 +177,7 @@
         </div>
       </a>
 
-      <a class="cc-card is-past" href="challenge-v1.html?slug=adim-adim-yuruyus" data-durum="gecmis" data-kategori="kondisyon" data-sure="21"
+      <a class="cc-card is-past" href="challenge-v1.html?slug=adim-adim-yuruyus" data-durum="gecmis" data-kategori="kondisyon" data-tip="sureli" data-sure="21"
          style="min-height:300px;background-image:url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=700&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-14')">
         <span class="cm-state done"><i class="fa-solid fa-check"></i> Tamamlandı</span>
         <span class="cm-len">21 gün</span>
@@ -214,11 +220,15 @@
       </div>
       <div class="fp-card">
         <div class="fp-head"><h3><i class="fa-solid fa-medal"></i> Rozet</h3></div>
-        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Rozetler kıyas için değil, <b>kendi kilometre taşların</b> için. İlk gün, beş günlük seri ve challenge sonu ayrı rozetlerdir; kazanılan rozet geri alınmaz.</p>
+        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Rozetler kıyas için değil, <b>kendi kilometre taşların</b> için. İlk gün, beş günlük seri ve challenge sonu ayrı rozetlerdir; kazanılan rozet geri alınmaz. Her rozet <a href="rozetlerim-v1.html#puan">puan</a> da getirir.</p>
       </div>
+      <!-- R15/5 · Buradaki eski kart "katılımcı sayıları gerçek veriyle
+           üretilir" diyordu. Bu prototipte sunucu yok, başka kullanıcı verisi
+           yok — söz tutulamıyordu. Yerine tutulabilir olan geldi: kanıt kuralı,
+           ki o gerçekten çalışıyor. -->
       <div class="fp-card">
-        <div class="fp-head"><h3><i class="fa-solid fa-users"></i> Katılımcı sayısı</h3></div>
-        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">Katılımcı ve tamamlanma sayıları <b>gerçek veriyle</b> üretilir. Kimse kimseyle yarışmıyor; sayı yalnız "yalnız değilsin" demek için var.</p>
+        <div class="fp-head"><h3><i class="fa-solid fa-shield-halved"></i> Kanıt</h3></div>
+        <p style="font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65">İlerlemeni elle bastığın bir düğme değil, <b>antrenman kayıtların</b> belirler. Her kayıt neye dayandığını taşır: ölçüldü, cihazdan geldi ya da beyan. <b>Beyan alışkanlık serisini besler, sayısal hedefe girmez.</b></p>
       </div>
     </div>
     <div class="hr-note">
@@ -235,13 +245,17 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- CHALLENGE MOTORU (R15/5) — katalog, üç tip, ilerleme hesabı -->
+<script src="assets/js/fit-challenge.js"></script>
+<!-- ROZET · PUAN — challenge bitince rozet buradan mühürlenir -->
+<script src="assets/js/fit-rozet.js"></script>
 <script>
 /* ===== CHALLENGE MERKEZİ — filtre + katılım durumu ===== */
 (function(){
   var grid=document.getElementById('cmGrid');
   var cards=Array.prototype.slice.call(grid.querySelectorAll('.cc-card'));
   var count=document.getElementById('cmCount'), empty=document.getElementById('cmEmpty');
-  var sel={durum:new Set(),kategori:new Set(),sure:new Set()};
+  var sel={durum:new Set(),kategori:new Set(),tip:new Set(),sure:new Set()};
   function apply(){
     var n=0;
     cards.forEach(function(c){
@@ -291,30 +305,46 @@
   })();
   apply();
 
-  /* katıldığın challenge — Fit Planım durumundan okunur */
-  var S=window.FIT_SHELL && window.FIT_SHELL.state;
+  /* ---------- KATILDIĞIN CHALLENGE — motordan okunur (R15/5) ----------
+     Eskiden `FIT_SHELL.state.challenge` tek nesnesinden okunuyordu ve tek
+     bir "gün / toplam" cümlesi basıyordu. Üç tip aynı cümleyi paylaşamaz:
+     süreli hedef kilometre sayar, seri adım sayar, alışkanlık gün sayar.
+     Ölçü satırı artık tipe göre kuruluyor. */
+  var C = window.FIT_CHALLENGE;
+  function n(x){ return Number(x||0).toLocaleString('tr-TR'); }
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
   function paintMine(){
-    if(!S)return;
-    var st=S.read().challenge;
-    var mine = st && st.durum!=='birakildi';
-    document.getElementById('cmMine').hidden=!mine;
-    document.getElementById('cmNone').hidden=!!mine;
-    if(!mine)return;
-    document.getElementById('cmName').textContent=st.ad;
-    var b=document.getElementById('cmBadge');
-    b.className='fp-badge '+S.rozet(st.durum);
-    b.innerHTML='<i class="fa-solid fa-circle"></i> '+S.etiket(st.durum);
-    document.getElementById('cmBar').style.width=Math.round(st.gun/st.toplam*100)+'%';
-    document.getElementById('cmDay').textContent=st.gun;
-    document.getElementById('cmTotal').textContent=st.toplam;
-    document.getElementById('cmStreak').textContent=st.seri;
-    document.getElementById('cmGrace').textContent=Math.max(0,2-(st.telafi||0));
-    document.getElementById('cmOpen').setAttribute('href','challenge-v1.html?slug='+st.slug);
-    document.getElementById('cmLine').textContent = st.durum==='tamamlandi'
-      ? 'Tamamladın. Rozetin Fit Planım’da.' : 'İlerlemen Fit Planım’a işleniyor.';
+    if(!C) return;
+    var devam = C.ozet().devam;
+    var mine = devam.length > 0;
+    document.getElementById('cmMine').hidden = !mine;
+    document.getElementById('cmNone').hidden = !!mine;
+    if(!mine) return;
+
+    var x = devam[0], k = x.katalog, i = x.ilerleme, t = C.TIP[k.tip];
+    document.getElementById('cmName').textContent = k.ad;
+    var b = document.getElementById('cmBadge');
+    b.className = 'fp-badge ' + (i.suresiDoldu ? 'wait' : 'ok');
+    b.innerHTML = '<i class="' + t.ikon + '"></i> ' + esc(t.etiket);
+    document.getElementById('cmBar').style.width = i.oran + '%';
+    document.getElementById('cmOlcu').innerHTML =
+      (k.tip === 'sureli'
+        ? '<span><b>' + n(i.biriken) + '</b> / ' + n(i.hedef) + ' ' + esc(i.birimAd) + '</span>' +
+          '<span><b>' + i.gecenGun + '</b> / ' + i.toplamGun + ' gün geçti</span>'
+        : k.tip === 'seri'
+          ? '<span><b>' + i.biriken + '</b> / ' + i.hedef + ' adım</span>' +
+            '<span>Sırada: <b>' + esc(i.siradaki ? i.siradaki.ad : 'kalmadı') + '</b></span>'
+          : '<span><b>' + i.biriken + '</b> / ' + i.hedef + ' gün</span>' +
+            '<span><b>' + i.seri + '</b> gün üst üste</span>' +
+            '<span>Telafi hakkı: <b>' + i.telafiKalan + '</b> / ' + C.TELAFI_HAKKI + '</span>') +
+      (devam.length > 1 ? '<span><b>' + (devam.length - 1) + '</b> challenge daha sürüyor</span>' : '');
+    document.getElementById('cmOpen').setAttribute('href','challenge-v1.html?slug=' + k.slug);
+    document.getElementById('cmLine').textContent = i.suresiDoldu
+      ? 'Süre doldu. Hedefe ulaşmadın ama kazandığın rozetler sende kaldı.'
+      : t.aciklama + ' ' + t.kanit;
   }
-  document.addEventListener('fit:state',paintMine);
-  paintMine();
+  if(C) C.dinle(paintMine); else paintMine();
 })();
 </script>
 </body>

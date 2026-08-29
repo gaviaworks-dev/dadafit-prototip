@@ -439,3 +439,61 @@ tek başına "çalışıyor" görünüyordu; kırık olan **aradaki sözleşmeyd
 ve iki tarafa oradan basılır. Maket veride bile bu geçerlidir — "nasılsa örnek"
 diye ayrışan iki küme, bağlantıların hepsini sessizce koparır. Kapı da kimliğin
 kendisidir: numara kalıbını ve alfabeyi ölçen bir test, iki tarafı birden tutar.
+
+---
+
+## 23 · Motor gerçek, üretici yok: tüketiciyi ölçmek yetmez
+
+**Ne oldu (R16, challenge).** `fit-challenge.js` üç challenge tipini de doğru
+hesaplıyordu ve konsolda uçtan uca çalıştığı ölçülebiliyordu: katıl, kayıt yaz,
+`süreli 100/100 tamam`, `seri 7/7 tamam`, beyan elendi, puan `0→580→715`.
+Motor kusursuzdu. Ama ilerlemeyi besleyen üç alanı — `slug` · `metrik` ·
+`tarihISO` — **arayüzde yazan hiçbir yüzey yoktu** (grep: 0 üretici).
+Antrenman kaydını üreten tek ekran (`egzersiz-detay-v1`) yalnız
+`ad · dk · kcal · kaynak` yazıyordu. Yani üç tipten ikisi — egzersiz serisi ve
+süreli hedef — **kullanıcı ne yaparsa yapsın ilerlemiyordu**. Sözleşme
+yazılmıştı, imzanın bir tarafı boştu.
+
+**Neden görünmedi.** Motoru ölçen sonda kaydı KENDİ yazıyordu
+(`antrenmanTamamla({metrik:{km:20}, …})`). Sonda, üreticinin yerine geçince
+üreticinin yokluğu ölçülemez hâle geldi. Devir notu da bu yüzden "motor hazır,
+bağla" diyordu — bağın hangi ucunun kopuk olduğunu kimse ölçmemişti.
+
+**Kural.** Bir sözleşme modülü "çalışıyor" denmeden önce **üretici tarafı**
+ölçülür: bu alanı yazan gerçek bir ekran var mı? Kanıt sondası veriyi kendi
+üretmez, **kullanıcının bastığı düğmelere basar**. R16'da kapanış kanıtı böyle
+alındı: egzersiz sayfasında setler kapatıldı, "Antrenmanı bitir"e basıldı ve
+challenge ilerlemesinin kendiliğinden `0/7 → 1/7` olduğu, aynı kaydın süreli
+hedefe de `44/1000` yazdığı ölçüldü.
+
+---
+
+## 24 · Yorumdaki iddia da ölçülür
+
+**Ne oldu (R16).** `fit-challenge.js`in katalog başlığında şu yazıyordu:
+*"Slug'lar diskteki gerçek sayfalarla eşleşir; uydurma yok."* Ölçüldü:
+`sabah-esneme` challenge'ının yedi adım slug'ının **hiçbiri** egzersiz
+kataloğunda yoktu (25 gerçek slug'a karşı **0 eşleşme**). Adımı kapatacak bir
+sayfa olmadığı için o challenge hiçbir yoldan bitirilemiyordu — ve bunu söyleyen
+tek şey, aksini iddia eden bir yorumdu.
+
+**Kural.** Kod yorumundaki "uydurma yok · tek kaynak · gerçek sayfa" gibi
+iddialar **denetimin kendisi değil, denetlenecek şeydir**. Böyle bir cümle
+yazılıyorsa yanına onu üretecek ölçüm de yazılır; yoksa cümle, kusuru gizleyen
+bir güvence hâline gelir.
+
+---
+
+## 25 · Sonda yerel günü, kayıt UTC'yi konuşursa motor bozuk görünür
+
+**Ne oldu (R16).** Seri challenge'ı 7/7 kayıt yazılmasına rağmen `0/7`
+gösteriyordu. Motor doğruydu: sonda kayıtları `d.setMinutes(-100)` ile yazıyor,
+ISO dizgisi **UTC** oluyordu (`2026-08-29T20:35Z`); katılım penceresi ise
+**yerel** gün anahtarıyla açılıyordu (`2026-08-30`). Kayıtlar pencerenin bir gün
+dışına düşüyordu — motor onları haklı olarak saymıyordu.
+
+**Kural.** Gün penceresi hesaplayan bir motoru sınarken kayıt tarihleri
+**yerel güne** göre yazılır; birkaç saatlik geriye kaydırma, saat dilimi
+farkı kadar bir sonraki/önceki güne taşır. Bu, deponun "ölçüm sondası 0/boş
+dönerse önce sondadan şüphelen" kuralının bir örneğidir — bu turda da sonda
+kördü, ölçülen kusurlu değildi.

@@ -24,14 +24,73 @@ destek tek adreste · zebra · 44px dokunma hedefi.
 
 ## SIRADAKİ
 
-### 1 · Challenge sistemi gerçek olacak 🔴 SONRAKİ OTURUMUN ANA İŞİ
-Motor (`fit-challenge.js`) çalışıyor — 3 katalog, üç tip (`sureli`·`seri`·
-`aliskanlik`), kanıt kademesi, puan/rozet bağı. **Akış yarım:**
-`challenge-merkezi-v1.html` 3 kart basıyor ama **katıl düğmesi 0** — keşif
-yüzeyinden katılınamıyor; yalnız `challengelarim-v1.html`den katılınıyor (3/3).
-🔴 `challenge-v1.html` hâlâ eski `FIT_SHELL.state.challenge` (tek nesne,
-tarihsiz) kullanıyor — **iki kayıt yeri var**, ilk iş bunu teke indirmek.
-Ayrıntılı yol haritası devir notunun **6. bölümünde**.
+### ✅ 1 · Challenge sistemi — KAPANDI (R16, 2026-08-30)
+
+**Devir notunun tablosu iki yerde eskimişti** (ölçüldü): `challenge-v1.html`
+zaten motora taşınmıştı (`state.challenge` geçişi 0, katıl/bırak/işaretle
+motorda) ve 0 değil **2** katıl düğmesi vardı.
+
+**Asıl kusur başkaydı: HUNİ KOPUKTU.** Motor `slug` · `metrik` · `tarihISO`
+alanlarından hesaplıyor, ama depoda o alanları yazan **hiçbir üretici yoktu**
+(grep: 0). Yani üç tipten ikisi — egzersiz serisi ve süreli hedef — arayüzden
+**hiç ilerlemiyordu**. Ölçen sonda kaydı kendi yazdığı için boşluk görünmüyordu.
+
+Yapılanlar:
+1. **Huni bağlandı** — `egzersiz-detay-v1.html` artık `slug` + `metrik:{tekrar,
+   set, kg, dk}` + `tarihISO` yazıyor. Üçü de sayfanın kendi ölçümü (kapatılan
+   setler, kronometre), uydurma değil; `kaynak:'olculdu'` dürüst kalıyor.
+   Kanonik slug tek yerde çözülüyor (`data-ex-slug`) — bilinmeyen slug ekranda
+   `goblet-squat`a düşerken kayıt ham parametreyi taşımıyor.
+2. **İkinci kayıt yeri söküldü** — `fit-shell.js`teki dört elle-artıran uç
+   (`challengeKatil` · `challengeGunTamamla` · `challengeGunKacir` ·
+   `challengeBirak`) kaldırıldı. Çağıranı 0'dı; `s.challenge` alanı DURUYOR ve
+   okunuyor, ona yalnız motorun `_yansit()`i yazıyor.
+3. **Katalog gerçeğe çekildi** (Beyar kararı):
+   · `sabah-esneme` → **`ekipmansiz-temel`** · 7 Gün Ekipmansız Temel Seri.
+     Yedi adım artık GERÇEK egzersiz slug'ları (kopru · superman · hava-squat ·
+     hamle · sinav · dead-bug · plank). Eskiden 25 gerçek slug'a karşı
+     **0 eşleşme** vardı — adımı kapatacak sayfa yoktu.
+   · `adim-adim-yuruyus` → **`bin-tekrar`** · 21 Günde 1.000 Tekrar.
+     "100 km" ölçülemiyordu (GPS yok, `metrik.km` yazan 0 üretici) ve kanıt
+     kuralı beyanı elediği için hiçbir yoldan dolamıyordu. Ölçü, uygulamanın
+     GERÇEKTEN saydığı şeye çevrildi.
+   · Sıra kuralı: **sıralı kaldı** (Beyar kararı).
+   · Slug değişimi üç yerde daha yazıldı: `programini-bul-v1` ·
+     `programlar-merkezi-v1` · `tests/wizard-page.mjs`.
+4. **Challenge Merkezi katalogdan basılıyor** — üç sabit kart, dört sabit çip
+   grubu ve üç sabit hero sayısı kaldırıldı. Hepsi kataloğun ikinci kopyasıydı
+   ve çelişiyordu: hero "1 aktif · 2 yaklaşan" diyordu (katalog 2 aktif ·
+   1 yaklaşan), yürüyüş kartı "Tamamlandı" rozeti taşıyordu (katalog `aktif`),
+   süzgeçte katalogda olmayan bir "Tamamlanan" durumu vardı.
+   **Katıl düğmesi geldi** (3/3) + "Benim" süzgeç ekseni (katıldıklarım ·
+   tamamladıklarım · katılmadıklarım) + katıldıysan kartta ilerleme çubuğu.
+5. **Üç tipin izleği ayrıştı** — `seri` artık gün takvimi değil **adım listesi**
+   (`.fp-list`/`.fp-row`, yeni sınıf yok): kapandı · sırada (tek eylem düğmesi,
+   doğrudan o hareketin sayfasına) · kilitli. Kilitli satırın ikonu nötre
+   alındı (`--line`/`--muted`) — yedi yeşil kutu hiyerarşiyi düzlüyordu.
+   Başlık ve alt metin de tipe göre kuruluyor.
+6. **Yansıtma kusuru** — `challenge.seri` alanı alışkanlıkta "gün", diğer iki
+   tipte `biriken`di; `programlarim-v1` onu tipe bakmadan **"güncel seri ·
+   N gün"** diye basıyordu (süreli hedefte "132 gün" yazıyordu). Yansıtılan
+   nesneye `tip` eklendi, okuyan taraf alışkanlık değilse "—" basıyor.
+
+**KAPANIŞ ÖLÇÜMÜ** (Playwright · `?auth=1` · gerçek arayüzden, sonda veri
+yazmadan):
+| | |
+|---|---|
+| Katıl → 1. adım | düğmeye bas · `kopru` sayfasında 4 set kapat · "Antrenmanı bitir" → **seri 0/7 → 1/7**, süreli **0 → 44/1000** |
+| İkinci antrenman | **2/7** · **88/1000** · puan **0→55→65** · rozet **0→4→5** · kademe **Kademesiz→Yeni Başlayan** |
+| Sıra kuralı | 4. adım sırasız yapıldı → **adım 2/7'de KALDI**, ama süreli hedef **132/1000**'e çıktı (aynı kayıt, iki tip, iki doğru cevap) |
+| Merkez | kart 3 · katıl düğmesi 3 · çip grubu 4 · çip 15 · hero **2 aktif · 1 yaklaşan** |
+| Süzgeç | "katıldıklarım" → 1 · "+katılmadıklarım" → 3 |
+| Adım listesi | 7 satır · 1 açık (44px üstü: **90×50**) · kilitli 6 · satır yüksekliği 76px (kit §8) |
+| Yatay taşma | **0** (1440 · 1024 · 768 · 390, 8 sayfa) |
+| Ölü bağlantı | **0** (57 benzersiz bağlantı) |
+| Konsol hatası | **0** |
+
+Dersler `docs/lessons.md` §23 · §24 · §25.
+
+---
 
 ### 2 · Destek formu koşullu alanlar 🔵 SIRADA
 Yeni talep formunda seçilen konuya göre açılan/kapanan alan yok; her talep aynı
@@ -49,6 +108,15 @@ ikinci gerçek kaynak olmasın diye modüle taşındı.)
 **Ölçüldü:** 199 ülke · varsayılan 🇹🇷 · "alman" → 1 sonuç (Almanya +49) ·
 seçim gizli alana `DE` yazıyor · Esc kapatıyor · taşma 0 · konsol 0.
 Ayrıca üç sayfada düğme 96×43 → **96×45** (1px dokunma hedefi eksiğiydi).
+
+### 5 · Egzersiz ekleme — ölç ve kur 🔵 SIRADA (2026-08-30, oturum içinde geldi)
+`egzersiz-detay-v1.html`de "Programa ekle" düğmesi var. ÖLÇÜLECEK:
+gerçekten ekliyor mu · nereye ekliyor · yoksa sahte mi (ikon değişip hiçbir
+şey kaydetmiyor mu) · kullanıcının planına mı, kendi oluşturduğu programa mı.
+⚠ Ayrıca **"Egzersizi ekle" düğmesi YOK** — kullanıcı bir egzersizi bugünün
+antrenmanına doğrudan ekleyemiyor; o da kurulacak.
+Sahteyse gerçek yapılacak: `FIT_PLAN` deseninde kaydetsin, yenilemeden sonra
+dursun, Planım sayfasında görünsün. **Tarayıcıda ölç ve kanıtla.**
 
 ---
 

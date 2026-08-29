@@ -13,7 +13,17 @@
 
 ## 1 · Renk ve ölçü tokenleri
 
-Token sistemi `assets/css/fit-shell.css`'in `:root` bloklarıdır — **70 benzersiz değişken** ölçüldü.
+Token sistemi `assets/css/fit-shell.css`'in `:root` bloklarıdır — **76 benzersiz değişken** ölçüldü.
+
+⚠ **R16/1'de 70 → 76.** Form kiti üç sayfadan kabuğa taşınırken ölçüldü ki
+kabukta **hiç tehlike/uyarı tokeni yoktu** (`danger` geçişi 0); taşınan
+kurallar onları okuyordu. Altı token eklendi — **yeni renk üretilmedi**,
+değerler `hesabim-v1`in kendi `:root`undan birebir alındı (`odemelerim-v1`
+zaten üçünü tekrarlıyordu):
+`--hs-danger` `#b3261e` · `--hs-danger-dark` `#8c1d17` · `--hs-danger-tint`
+`#fdecea` · `--hs-danger-line` `rgba(179,38,30,.34)` · `--hs-warn` `#8a4b00` ·
+`--hs-warn-tint` `#fdf3e4` · `--hs-warn-line` `rgba(138,75,0,.30)`.
+Sayma yöntemi CLAUDE.md'deki bağlayıcı yöntemdir; yeniden ölçüldü.
 
 **Marka**
 
@@ -196,3 +206,35 @@ Durum `FIT_KAYIT.kayitli()`den okunur — ikon ayrı bir durum tutmaz.
 - Sayfa scriptleri kabuğun ID'leriyle (`#fbModal` ailesi) çakışan ad kullanmaz.
 - Maket ekranlar (ödeme · fatura · kart · liderlik · randevu · destek yazışması)
   başlarında **tek dürüst şerit** taşır; düğme başına rozet serpilmez.
+
+---
+
+## 12 · Kart üstü öğe yerleşimi — DÖRT KÖŞE SÖZLEŞMESİ
+
+🔴 **Kaydet düğmesi (`.kyt-btn`) sağ ÜST köşeyi tek başına tutar.**
+`top:8px · right:8px · 44×44` ve `z-index:4` — kartı kaplayan görünmez
+bağlantı yüzeyinin (`.kyt-link::after`, z-index 3) üstünde. O köşeye başka
+bir öğe konulmaz; konulursa düğmenin altında kalır ve okunmaz.
+
+| Köşe | Ne durur | Ölçü |
+|---|---|---|
+| Sol üst | Kategori / hedef rozeti (`.ex-cat` · `.pr-goal` · `.cm-state`) | `top:12px · left:12px` |
+| **Sağ üst** | **YALNIZ `.kyt-btn`** — kayıt düğmesi yoksa boş kalır ya da tip rozeti (`.cm-len`) girer | `top:8px · right:8px` |
+| Sol alt | Etiket / ekipman şeridi (`.ex-tags` · `.pr-tags`) | `bottom:12px · left:12px` |
+| Sağ alt | Zorluk / seviye rozeti (`.ex-level` · `.pr-level`) | `bottom:12px · right:12px` |
+
+**Sol üstte ikinci bir kalem gerekiyorsa** aşağı iner, sağa kaymaz
+(`.pr-pro` → `top:46px · left:12px`).
+
+**Dar kolonda alt sıra dikeye döner.** Ölçüldü (768 px, üç kolonlu ızgara):
+görsel genişliği **222 px**, en geniş seviye rozeti **103 px**, en geniş
+etiket şeridi **134 px** — yan yana sığmıyorlar. Bu bir hizalama ayarı
+değil geometrik bir sınırdır; `641–900 px` arasında seviye rozeti alt sola,
+etiketlerin bir sıra üstüne geçer (`left:12px · bottom:46px`). 1440 ve
+1024'te yan yana sığıyor, orada değişmez.
+
+**Ölçüm kapısı** (bir kart tipine kaydet düğmesi eklerken zorunlu):
+kaydet düğmesinin sınır kutusu, aynı kart içindeki `position:absolute`
+her öğeyle **0 px² kesişmeli** — üç genişlikte (1440 · 1024 · 390).
+R15'te bu ölçüm yapılmadığı için `.ex-level` ve `.pr-level` düğmenin altına
+düştü: kesişim **1162 px²**, iki sayfada **21 kartın 21'inde**, üç genişlikte de.

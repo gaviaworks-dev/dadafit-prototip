@@ -60,18 +60,31 @@ const RAYDA_OLMAMALI = ['Aktivite Kayıtlarım', 'Kaydettiklerim', 'Antrenörüm
    eklendi (hesabim-v1.html#uyelik), "Hesap ve Ayarlar"ın hemen üstünde.
    ASIL GARANTİ (adlar + sıra + kırık hedef yok, docs/lessons.md §5) DEĞİŞMEDİ,
    yalnız kalem SAYISI 11 → 12'ye taşındı. */
-const GRUPLAR = ['Günlük Takibim', 'Gelişimim', 'Profil ve Üyelik'];
+/* 🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4, 2026-08-29 · `docs/arayuz-sartnamesi.md` v1.8.1.
+   Bu blok 2026-08-26 tarihli ESKİ kararı kodluyordu ve şartname o kararların
+   üzerine yazdı (§W2: eski karar silinmez, üzerine yazılır). Değişen üç şey:
+
+   ① §G4 · kalem sayısı 12 → 13. Eklenen kalem "Bildirimlerim"dir (§G13):
+      hedefi `bildirimler-v1.html`, üst çubuktaki zille AYNI sayfa (§G19).
+      Testin eski `MENUDE_OLMAMALI` listesi "Bildirimler"i yasaklıyordu —
+      o yasak §G13 ile ters düştüğü için kalktı. Yerine kalemin VARLIĞI ve
+      TAM ADI ("Bildirimlerim") ölçülüyor; ölçüt zayıflamadı, yön değiştirdi.
+   ② §G12 · rozet kalemi ile "Bildirimlerim" AYNI grupta durur ve o grup
+      hesap grubunun hemen üstündedir → grup sayısı 3 → 4 (§G2: 4 ayraç).
+   ③ §G10 · Slot 2 dizgisi dört markada KİLİTLİ: "Hizmetlerim ve Ödemelerim".
+      Fit'in "Hizmet Paketlerim" adı bu kilitten önceki turun kararıydı.
+      K6 (Fit'te abonelik yoktur) kalkmadı — kalem hâlâ antrenör hizmet
+      paketine bakıyor, yalnız ADI dört markada tekleşti. */
+const GRUPLAR = ['moduller', 'gelisim', 'hesap', 'sabit'];
 const MENU = ['Enerji Defterim', 'Aktivite Kayıtlarım', 'Kaydettiklerim',
-  "Challenge'larım ve Rozetlerim", 'Fit Test Sonuçlarım', 'Antrenörüm',
-  'Sağlık ve Hareket Profilim', /* üyelik kalemi kademeye göre ad değiştirir → ayrı ölçülür */
-  /* 🔴 1. KALEM FIT'TE İKAME (Beyar 2026-08-26 · sözleşme §7.6.2):
-     "Aboneliğim ve Ödemelerim" → "Hizmet Paketlerim". Fit'te ABONELİK YOK
-     (K6); karşılığı antrenör hizmet paketidir. Sıra · yer · ikon kanondan,
-     DİZGİ markanın gerçek yeteneğinden (§7.6.1). Kayıt güncellendi, ölçüt
-     zayıflatılmadı. */
-  'Hizmet Paketlerim', 'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
-/* menüde ASLA bulunmayacaklar */
-const MENUDE_OLMAMALI = ['Bildirimler', 'Bildirim Tercihlerim', 'Planım'];
+  'Fit Test Sonuçlarım', 'Antrenörüm', 'Sağlık ve Hareket Profilim',
+  "Challenge'larım ve Rozetlerim", 'Bildirimlerim',
+  /* üyelik kalemi (Slot 1) kademeye göre ad değiştirir → ayrı ölçülür */
+  'Hizmetlerim ve Ödemelerim', 'Hesap ve Ayarlar', 'Destek Merkezi', 'Çıkış'];
+/* menüde ASLA bulunmayacaklar. "Bildirimler" §G13 ile listeden ÇIKTI —
+   ama tekil/çoğul ayrımı korunuyor: kalemin adı "Bildirimlerim"dir,
+   "Bildirim Tercihlerim" değil. */
+const MENUDE_OLMAMALI = ['Bildirim Tercihlerim', 'Planım'];
 
 /* raydan inen ama Planım kabuğunu kullanan sayfalar — yetim kalmamalı */
 const RAY_DISI = ['fit-planim-gecmis-v1.html', 'fit-planim-kaydettiklerim-v1.html',
@@ -80,7 +93,10 @@ const RAY_DISI = ['fit-planim-gecmis-v1.html', 'fit-planim-kaydettiklerim-v1.htm
 /* belge §14 · üyelik kaleminin dört kırılımı */
 const UYELIK = [
   ['kademe yok', { auth: true, roles: ['kullanici'] }, "Pro'ya Yükselt", 'pro-v1.html'],
-  ['pro', { auth: true, roles: ['kullanici'], paket: 'pro' }, 'Aboneliğim', 'uyelik-faturalandirma-v1.html'],
+    /* §G7 · Slot 1 dizgisi dört markada KİLİTLİ: ücretsiz üyede
+     "Pro'ya Yükselt", Pro üyede "Pro Üyeliğim". "Aboneliğim" adı hem
+     §G7'ye hem K6'ya (Fit'te abonelik yoktur) aykırıydı. */
+  ['pro', { auth: true, roles: ['kullanici'], paket: 'pro' }, 'Pro Üyeliğim', 'uyelik-faturalandirma-v1.html'],
   /* P8 (2026-08-25) · paket ad alanı tekleşti: `pro_max` → `pro_max_ai`,
      etiket "Pro Max AI Üyeliğim". İkinci satır, tarayıcıda kalmış ESKİ demo
      kaydının (`pro_max`) sessizce yeni ada düştüğünü kilitler — göç akışı
@@ -88,7 +104,7 @@ const UYELIK = [
   ['pro_max_ai', { auth: true, roles: ['kullanici'], paket: 'pro_max_ai' }, 'Pro Max AI Üyeliğim', 'uyelik-faturalandirma-v1.html'],
   ['eski pro_max kaydı', { auth: true, roles: ['kullanici'], paket: 'pro_max' }, 'Pro Max AI Üyeliğim', 'uyelik-faturalandirma-v1.html'],
   ['ödeme sorunu', { auth: true, roles: ['kullanici'], paket: 'pro', odemeSorunu: true },
-    'Aboneliğim — İşlem Gerekli', 'uyelik-faturalandirma-v1.html']
+    'Pro Üyeliğim — İşlem Gerekli', 'uyelik-faturalandirma-v1.html']
 ];
 
 /* belge §1 · mobil alt bar */
@@ -188,9 +204,12 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
 
   if (!m) rec('açılır menü bulunamadı (.acct-menu yok — üye kipi açılmadı mı?)');
   else {
-    if (m.kalemler.length !== 12)
-      rec(`açılır menü ${m.kalemler.length} kalem — R12/S10 sonrası ON İKİ olmalı: ${m.kalemler.map(k => k.t).join(' · ')}`);
-    else ok(`açılır menü 12 kalem: ${m.kalemler.map(k => k.t).join(' · ')}`);
+    /* §G4 · menü kalem sayıları: Gastro 12 · Diet 14 · Gourmet 12 · FİT 13.
+       Sayı = 7 marka modülü (§F4) + Bildirimlerim + Slot 1 + Slot 2 + sabit
+       üçlü. Eski 12, "Bildirimlerim" kalemi basılmadan önceki hâldi (§G13). */
+    if (m.kalemler.length !== 13)
+      rec(`açılır menü ${m.kalemler.length} kalem — §G4 gereği Fit'te ON ÜÇ olmalı: ${m.kalemler.map(k => k.t).join(' · ')}`);
+    else ok(`açılır menü 13 kalem (§G4): ${m.kalemler.map(k => k.t).join(' · ')}`);
 
     /* ---------------------------------------------------------------
        BEKLENTİ DEĞİŞTİ — R11/M15 (Beyar):
@@ -211,8 +230,12 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
        `>= 3` idi ve gerekçesi "Çıkış öncesi" diyordu; o gerekçe kanonla
        çeliştiği için ölçüt tam sayıya çevrildi (dördüncü ayraç ölçüldü ve
        kaldırıldı). */
-    else if (m.ayraclar !== 3)
-      rec(`menüde ${m.ayraclar} ayraç var — TAM 3 olmalı (profil altı + 2 grup arası); Çıkış'ın üstüne ayraç konmaz`);
+    /* §G2 · menü kimlik bloğuyla başlar, ardından DÖRT bağlantı grubu gelir;
+       ayraç sayısı TAM 4'tür: biri kimlik bloğunu, üçü grupları ayırır.
+       Eski 3, dördüncü grup (rozet + Bildirimlerim, §G12) doğmadan önceki
+       hâldi. §G6 hâlâ geçerli: Çıkış'ın üstüne ayraç KONMAZ. */
+    else if (m.ayraclar !== 4)
+      rec(`menüde ${m.ayraclar} ayraç var — §G2 gereği TAM 4 olmalı (kimlik bloğu + 3 grup arası); Çıkış'ın üstüne ayraç konmaz`);
     else ok(`grup başlığı 0 · ayraç ${m.ayraclar} (başlıksız kip, DadaDiet kalıbı · Çıkış grubun içinde)`);
 
     if (m.aciklamaliKalem)
@@ -222,8 +245,8 @@ async function sayfa(kullanici = UYE, vp = { width: 1440, height: 1100 }) {
     for (const beklenen of MENU)
       if (!m.kalemler.some(k => k.t === beklenen)) rec(`menüde "${beklenen}" kalemi yok (belge §2)`);
     /* üyelik kalemi: adı kademeye göre değişir, ama biri MUTLAKA olmalı */
-    if (!m.kalemler.some(k => /Yükselt|Aboneliğim|Üyeliğim/.test(k.t)))
-      rec('menüde üyelik kalemi yok (belge §2: "Pro\'ya Yükselt / Aboneliğim")');
+    if (!m.kalemler.some(k => /Yükselt|Üyeliğim/.test(k.t)))
+      rec('menüde Slot 1 üyelik kalemi yok (§G7: "Pro\'ya Yükselt" / "Pro Üyeliğim")');
 
     for (const yasak of MENUDE_OLMAMALI) {
       const n = m.kalemler.filter(k => k.t === yasak).length;
@@ -450,4 +473,4 @@ for (const [ad, kullanici, etiket, hedef] of UYELIK) {
 await browser.close();
 console.log(`\n${fail} sorun`);
 if (bad.length) { console.log('\nSORUNLAR:'); bad.forEach(b => console.log('  ✗ ' + b)); process.exit(1); }
-console.log('✓ Ray 3 kalem · menü 12 kalem (R12/S10) · grup başlığı 0, ayraçla ayrılıyor (R11/M15) · Bildirimler menüde 0 · raydan inen 4 sayfa yetim değil · kırık hedef yok.');
+console.log('✓ Ray 3 kalem · menü 13 kalem · 4 ayraç (§G2/§G4) · grup başlığı 0, ayraçla ayrılıyor (§G1) · "Bildirimlerim" basılı (§G13) · raydan inen 4 sayfa yetim değil · kırık hedef yok.');

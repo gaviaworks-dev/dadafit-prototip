@@ -456,11 +456,11 @@ function uyelikKalemi(){
     odemeSorunu = !!(u && u.odemeSorunu);
   }catch(e){}
   if(paket==='pro_max') paket='pro_max_ai';   /* eski demo kaydı — P8 adına çevrilir */
-  if(odemeSorunu) return {label:'Aboneliğim — İşlem Gerekli', href:'uyelik-faturalandirma-v1.html#paket',
+  if(odemeSorunu) return {label:'Pro Üyeliğim — İşlem Gerekli', href:'uyelik-faturalandirma-v1.html#paket',
                           icon:'fa-solid fa-triangle-exclamation', cls:'acct-uyari', desc:'Ödeme alınamadı, güncelle'};
   if(paket==='pro_max_ai') return {label:'Pro Max AI Üyeliğim', href:'uyelik-faturalandirma-v1.html#paket',
                                  icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
-  if(paket==='pro')      return {label:'Aboneliğim',       href:'uyelik-faturalandirma-v1.html#paket',
+  if(paket==='pro')      return {label:'Pro Üyeliğim',     href:'uyelik-faturalandirma-v1.html#paket',
                                  icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
   return {label:"Pro'ya Yükselt", href:'pro-v1.html', icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Tüm programlar, video seansları, testler'};
 }
@@ -471,8 +471,7 @@ var ACCOUNT = [
   {label:'Aktivite Kayıtlarım',  href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
   {label:'Kaydettiklerim',       href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
 
-  {grup:'Gelişimim'},
-  {label:"Challenge'larım ve Rozetlerim", href:'fit-planim-rozetler-v1.html', icon:'fa-solid fa-medal',          desc:'Kilometre taşların'},
+
   /* YER TUTUCU KAPANDI — sayfa geldi (R9-DOKUMAN) ve bağlandı. Ölçüldü:
      HTTP 200 · h1 "Fit Test Sonuçlarım" · breadcrumb çözülüyor · 7 bölüm ·
      konsol hatası 0 · yatay taşma 0. `docs/icerik-bekleyen.md` kaydı
@@ -483,8 +482,18 @@ var ACCOUNT = [
   {label:'Fit Test Sonuçlarım',  href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin, kategori kapsamın ve kendi başlangıcınla karşılaştırman'},
   {label:'Antrenörüm',           href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
 
-  {grup:'Profil ve Üyelik'},
   {label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',  desc:'Kısıt, hedef, tercih'},
+
+  /* GRUP 3 — §G12: rozet kalemi ile "Bildirimlerim" AYNI grupta durur ve o
+     grup hesap grubunun hemen üstündedir. §G13: kalemin adı dört markada
+     "Bildirimlerim"dir ve kalem BASILIR — hedefi `bildirimler-v1.html`,
+     üst çubuktaki zil ile AYNI sayfa (§G19, ölçüldü). */
+  {grup:'Gelişimim'},
+  {label:"Challenge'larım ve Rozetlerim", href:'fit-planim-rozetler-v1.html', icon:'fa-solid fa-medal',          desc:'Kilometre taşların'},
+  {label:'Bildirimlerim',        href:'bildirimler-v1.html',               icon:'fa-regular fa-bell',            desc:'Antrenman, randevu, rozet ve sistem bildirimlerin'},
+
+  /* GRUP 4 — hesap grubu. §G8: Slot 1 grubun İLK kalemi. §G9: Slot 2 hemen altı. */
+  {grup:'Profil ve Üyelik'},
   uyelikKalemi(),
   /* R12/S10 · DadaDiet dropdown'ındaki alt üçlüde (Aboneliğim ve Ödemelerim ·
      Hesap ve Ayarlar · Destek Merkezi) DadaFit'te bu kalem eksikti — uyelikKalemi()
@@ -539,7 +548,11 @@ var ACCOUNT = [
      ANTRENÖRÜN kendi tarafıdır ve oradaki paketler antrenörün SATTIĞI
      paketlerdir; üyenin menüsünü oraya bağlamak iki tarafı karıştırırdı.
      `fa-receipt` Fit'te başka bir anlam taşımıyor (ölçüldü), korundu. */
-  {label:'Hizmet Paketlerim',    href:'hesabim-v1.html#uyelik',            icon:'fa-solid fa-receipt',           desc:'Antrenör paketlerin, fatura ve ödeme yöntemin'},
+  {label:'Hizmetlerim ve Ödemelerim', href:'hesabim-v1.html#uyelik',            icon:'fa-solid fa-receipt',           desc:'Antrenör paketlerin, fatura ve ödeme yöntemin'},
+
+  /* GRUP 5 — sabit üçlü. §G5: dört markada aynı sıra. §G6: Çıkış bu grubun
+     içindedir, üstüne ayrı ayraç KONMAZ. */
+  {grup:'Hesap ve Destek'},
   {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-sliders',           desc:'Profil, güvenlik, dil, birimler, veri'},
   {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-headset',           desc:'Yardım ve taleplerin'},
   /* "DadaMutfak'a dön" kalemi burada YOK (belge §1: DadaFit'in hesap ve üyelik
@@ -704,11 +717,27 @@ var TOPBAR = ''+
 '    </div>\n'+
 '    <div class="tb-right">\n'+
 '      <nav class="brand-switch" aria-label="Dada dünyaları">\n'+
+/* §O1 · §O2 · §O10 — ÜST BANT YEDİ KALEM, SIRA SABİT:
+   ① Gastro ② Diet ③ Gourmet ④ Fit AKTİF → ⑤ DadaAkademi ⑥ DadaStore
+   ⑦ DadaCampus KİLİTLİ, SONDA. `.is-soon` indeksleri [4,5,6].
+   §O6 · pasiflik İKİ mekanizmayı birlikte kullanır: `.is-soon` görünümü,
+        `aria-disabled="true"` erişilebilirliği verir.
+   §O7 · kilitli kalemde kilit rozeti basılır (rail'in `.sr-lock` deseni).
+   §O8 · kilitli kalemde "Yakında" metni ya da `title`'ı YAZILMAZ.
+   Kilitli kalemler <a href> DEĞİL <span>: deponun kendi kuralı — ölü
+   bağlantı bırakılmaz (bkz. `.acct-soon`, footer mağaza düğmeleri).
+   ⚠ DadaCampus'ün eski `ECO.campus` hedefi (akademi-v1.html) PARK EDİLDİ:
+   §O13/§Y-1'de Campus ile Akademi'nin aynı marka olup olmadığı AÇIK,
+   §U2 gereği burada yakınsama yapılmaz; kalem şartnamenin dediği gibi
+   kilitli durur ve karar gelince hedefi geri bağlanır.
+   §N5 · Diet'in ikonu `fa-heart-pulse`tır (bugünkü `fa-leaf` sapmaydı). */
 '        <a class="bs-item bs-gastro" href="'+ECO.gastro+'" title="DadaGastro"><i class="fa-solid fa-utensils"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gastro</span></span></a>\n'+
-'        <a class="bs-item bs-diet" href="'+ECO.diet+'" title="DadaDiet"><i class="fa-solid fa-leaf"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Diet</span></span></a>\n'+
-'        <a class="bs-item bs-fit is-active" href="dadafit-hub-v1.html" aria-current="page"><i class="fa-solid fa-dumbbell"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Fit</span></span></a>\n'+
+'        <a class="bs-item bs-diet" href="'+ECO.diet+'" title="DadaDiet"><i class="fa-solid fa-heart-pulse"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Diet</span></span></a>\n'+
 '        <a class="bs-item bs-gourmet" href="'+ECO.gourmet+'" title="DadaGourmet"><i class="fa-solid fa-map-location-dot"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Gourmet</span></span></a>\n'+
-'        <a class="bs-item bs-campus" href="'+ECO.campus+'" title="DadaCampus"><i class="fa-solid fa-graduation-cap"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Campus</span></span></a>\n'+
+'        <a class="bs-item bs-fit is-active" href="dadafit-hub-v1.html" aria-current="page"><i class="fa-solid fa-dumbbell"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Fit</span></span></a>\n'+
+'        <span class="bs-item bs-akademi is-soon" aria-disabled="true" aria-label="DadaAkademi — kilitli"><i class="fa-solid fa-graduation-cap"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Akademi</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
+'        <span class="bs-item bs-store is-soon" aria-disabled="true" aria-label="DadaStore — kilitli"><i class="fa-solid fa-bag-shopping"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Store</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
+'        <span class="bs-item bs-campus is-soon" aria-disabled="true" aria-label="DadaCampus — kilitli"><i class="fa-solid fa-school"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Campus</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
 '      </nav>\n'+
 '      <div class="tb-lang" id="tbLang">\n'+
 '        <button class="tb-lang-btn" id="tbLangBtn" type="button" aria-haspopup="true" aria-expanded="false">\n'+
@@ -759,6 +788,49 @@ function accountHtml(){
     return '<a href="'+a.href+'"'+(a.cls?' class="'+a.cls+'"':'')+'><i class="'+a.icon+'"></i> <span>'+a.label+
            '</span></a>';
   }).join('\n            ');
+}
+
+/* ============================================================
+ §N · SOL DAR RAIL — Ekran I. Taban GASTRO, taşıma BİREBİR (§U7).
+ §N1 · rail ALTI ikon taşır.  §N2 · ayraç YOKTUR, tek dizidir.
+ §N3 · sıra sabit: ① Gastro fa-utensils ② Diet fa-heart-pulse
+       ③ Gourmet fa-map-location-dot ④ Fit fa-dumbbell
+       ⑤ DadaAkademi ⑥ DadaStore.
+ §N4 · ilk dört aktif/tıklanabilir, son iki KİLİTLİ ve SONDA.
+ §N6 · Fit'in ikonu fa-dumbbell.
+ §N15 · kilitli markada "Yakında" METNİ yazılmaz — yalnız kilit rozeti.
+ Kilitli kalem <a href> DEĞİL <span>: ölü bağlantı bırakılmaz.
+ ⚠ §N7 (dizinin `AdminMenu::rail()`tan okunması) Laravel kalemidir ve
+ bu depoda karşılığı yoktur — statik prototipte dizi burada yaşar.
+ ============================================================ */
+var RAIL = [
+  {ad:'Gastro',  ikon:'fa-solid fa-utensils',          href:ECO.gastro,  acc:'#E14827', rgb:'225,72,39'},
+  {ad:'Diet',    ikon:'fa-solid fa-heart-pulse',       href:ECO.diet,    acc:'#3BB77E', rgb:'59,183,126'},
+  {ad:'Gourmet', ikon:'fa-solid fa-map-location-dot',  href:ECO.gourmet, acc:'#b14fc5', rgb:'177,79,197'},
+  {ad:'Fit',     ikon:'fa-solid fa-dumbbell',          href:'dadafit-hub-v1.html', acc:'#009d4f', rgb:'0,157,79', aktif:true},
+  {ad:'DadaAkademi', ikon:'fa-solid fa-graduation-cap', kilit:true},
+  {ad:'DadaStore',   ikon:'fa-solid fa-bag-shopping',   kilit:true}
+];
+
+function railHtml(){
+  var kalemler = RAIL.map(function(r){
+    var stil = ' style="--acc:' + (r.acc||'#e9e2d6') + ';--acc-rgb:' + (r.rgb||'233,226,214') + '"';
+    if(r.kilit) return '<span class="sa-brand is-locked" aria-disabled="true" aria-label="' + r.ad +
+      ' — kilitli"><i class="' + r.ikon + '" aria-hidden="true"></i>' +
+      '<i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>';
+    return '<a class="sa-brand' + (r.aktif ? ' is-active' : '') + '" href="' + r.href + '"' + stil +
+      (r.aktif ? ' aria-current="page"' : '') + ' aria-label="Dada' + r.ad + '">' +
+      '<i class="' + r.ikon + '" aria-hidden="true"></i></a>';
+  }).join('\n    ');
+  return '<nav class="sa-rail" aria-label="Marka geçişi">\n' +
+'  <a class="sa-rail-logo" href="dadafit-hub-v1.html" aria-label="DadaFit">' + MARK + '</a>\n' +
+'    ' + kalemler + '\n' +
+'  <div class="sa-rail-foot">\n' +
+'    <span class="sa-rail-hair" aria-hidden="true"></span>\n' +
+'    <a href="dadafit-hub-v1.html" title="Siteyi Görüntüle" aria-label="Siteyi Görüntüle"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>\n' +
+'    <a href="https://gaviaworks.com" title="Gaviaworks" aria-label="Gaviaworks"><i class="fa-solid fa-code" aria-hidden="true"></i></a>\n' +
+'  </div>\n' +
+'</nav>';
 }
 
 function headerHtml(){
@@ -1086,7 +1158,10 @@ function footerHtml(){
  ============================================================ */
 var _top = document.getElementById('fitShellTop');
 if(_top){
-  _top.outerHTML = TOPBAR + '\n' + headerHtml() + '\n' + drawerHtml() +
+  /* §N18 · rail YALNIZ `body[data-fit-rail="1"]` taşıyan yüzeye biner —
+     Fit'te yönetim kabuğu yok (§M8 · Dalga P), bileşen hazır durur. */
+  var RAIL_HTML = document.body.getAttribute('data-fit-rail') === '1' ? railHtml() + '\n' : '';
+  _top.outerHTML = RAIL_HTML + TOPBAR + '\n' + headerHtml() + '\n' + drawerHtml() +
     '\n<nav class="bottom-nav" aria-label="Mobil alt navigasyon">\n  ' + bottomNavHtml() + '\n</nav>\n' +
     FEEDBACK_HTML + '\n' + COOKIE_HTML;
 }

@@ -374,6 +374,11 @@ var PLAN_TABS = [
    kırılmaması için burada dururlar. */
 var PLAN_EXTRA = [
   /* §F3/§F4 sonrası raydan inen eski üçlü — Planım'ın kendi alt gezinmesiydi. */
+  /* §Ö · destek ekranları da modül kabuğunu kullanır (§Ö2); anahtarları
+     burada durur ki banner/breadcrumb çözümü onları da tanısın. */
+  {key:'destek-talepleri', label:'Destek Taleplerim',  href:'destek-talepleri-v1.html',      icon:'fa-solid fa-inbox', desc:'Açtığın destek talepleri ve yazışmaları'},
+  {key:'destek',           label:'Yeni Destek Talebi', href:'destek-v1.html',                icon:'fa-solid fa-plus',  desc:'Yeni bir destek talebi aç'},
+  {key:'destek-detay',     label:'Destek Talebi',      href:'destek-talebi-detay-v1.html',   icon:'fa-solid fa-comments', desc:'Talep yazışması'},
   {key:'bugun',     label:'Bugün',          href:'fit-planim-v1.html',           icon:'fa-solid fa-sun',           desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
   {key:'programim', label:'Plan ve Takvim', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-calendar-days', desc:'Aktif program, haftalık plan, takvim'},
   {key:'ilerleme',  label:'İlerlemem',      href:'fit-planim-ilerleme-v1.html',  icon:'fa-solid fa-chart-line',    desc:'Süre, gelişim, challenge, rozetler'},
@@ -417,6 +422,18 @@ var DEFTER_TABS = [
   {key:'defter-dengele',  label:'Dengele',       href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced'},
   {key:'defter-su',       label:'Su Takibi',     href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet'},
   {key:'defter-haftalik', label:'Haftalık Özet', href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week'}
+];
+
+/* §Ö3 (Dalga 4, 2026-08-29) — DESTEK MERKEZİ BÖLÜM ŞERİDİ, ÜÇ KALEM:
+   Destek Taleplerim · Yeni Destek Talebi · Çözüm Merkezi.
+   Kit §F2 ile aynı: <a> kalemler, aktif olan aria-current="page".
+   ⚠ "Çözüm Merkezi" Fit'te `sss-v1.html`tir — ad kanonu 2026-08-26'da
+   böyle bağlandı ("Destek Merkezi" destek yüzeyinin, "Çözüm Merkezi" SSS
+   tarafının adı). Yeni ekran üretilmedi, var olan yüzey şeride bağlandı. */
+var DESTEK_TABS = [
+  {key:'destek-talepleri',    label:'Destek Taleplerim',  href:'destek-talepleri-v1.html', icon:'fa-solid fa-inbox'},
+  {key:'destek',              label:'Yeni Destek Talebi', href:'destek-v1.html',           icon:'fa-solid fa-plus'},
+  {key:'sss',                 label:'Çözüm Merkezi',      href:'sss-v1.html',              icon:'fa-solid fa-circle-question'}
 ];
 
 var PLAN_PAGES = PLAN_TABS.concat(PLAN_EXTRA);
@@ -1214,11 +1231,20 @@ if(_plan){
   /* R10 · K29 — RAY BÖLÜME GÖRE SEÇİLİR (yukarıdaki DEFTER_TABS yorumuna bak).
      Eski RAY_UST eşlemesi alt sayfaları 'defter' anahtarına çeviriyordu, ama
      K66'dan beri 'defter' PLAN_TABS'te yok — hiçbir kalem aktif olmuyordu. */
-  var rayKit    = DEFTER_TABS.some(function(it){ return it.key===pk; }) ? DEFTER_TABS : PLAN_TABS;
-  var rayAdi    = (rayKit===DEFTER_TABS) ? 'defter' : 'planim';
-  var rayEtiket = (rayKit===DEFTER_TABS) ? 'Enerji Defteri bölümleri' : 'Fit Planım bölümleri';
+  /* §Ö2/§Ö3 — üçüncü ray kiti: destek modülü. Desen DEFTER_TABS'inkiyle
+     aynı, yeni mekanizma kurulmadı. */
+  var destekAnahtar = ['destek-talepleri','destek','destek-detay'];
+  var rayKit    = DEFTER_TABS.some(function(it){ return it.key===pk; }) ? DEFTER_TABS
+                : (destekAnahtar.indexOf(pk)>-1 ? DESTEK_TABS : PLAN_TABS);
+  var rayAdi    = (rayKit===DEFTER_TABS) ? 'defter' : (rayKit===DESTEK_TABS ? 'destek' : 'planim');
+  var rayEtiket = (rayKit===DEFTER_TABS) ? 'Enerji Defteri bölümleri'
+                : (rayKit===DESTEK_TABS ? 'Destek merkezi bölümleri' : 'Fit Planım bölümleri');
+  /* §Ö3 · aktif kalem TEK olmalı (`[aria-current=page]` sayısı === 1).
+     Talep detayı şeridin kendi kalemi DEĞİLDİR; atası "Destek Taleplerim"
+     aktif görünür — yoksa detay ekranında hiçbir kalem işaretlenmezdi. */
+  var rayAktif = (pk==='destek-detay') ? 'destek-talepleri' : pk;
   var tabs = rayKit.map(function(it){
-    var on = it.key===pk;
+    var on = it.key===rayAktif;
     return '<a class="fit-tab" href="'+it.href+'" aria-selected="'+(on?'true':'false')+'"'+
            (on?' aria-current="page"':'')+'><i class="'+it.icon+'"></i> '+it.label+'</a>';
   }).join('\n        ');

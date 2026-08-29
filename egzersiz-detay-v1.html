@@ -310,6 +310,22 @@
 .ed-track-cta .btn{width:100%}
 .ed-track-cta .btn-line{background:var(--bg-white);color:var(--slate);border:1px solid var(--line)}
 .ed-track-cta .btn-line:hover{border-color:var(--fit);color:var(--fit-deep);transform:translateY(-2px)}
+/* plana ekleme: gün seçici + dürüst durum satırı */
+.ed-plan-pick{display:flex;flex-direction:column;gap:9px;background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-md);padding:12px}
+.ed-plan-pick[hidden]{display:none}
+.ed-plan-satir{display:flex;flex-direction:column;gap:6px}
+.ed-plan-satir[hidden]{display:none}
+.ed-plan-lbl{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fit-deep)}
+.ed-plan-sel{width:100%;height:44px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--slate);background:var(--bg-white);border:1px solid var(--fit-line);border-radius:var(--radius-sm);padding:0 12px}
+.ed-plan-gunler{display:flex;flex-direction:column;gap:6px}
+.ed-plan-gun{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;text-align:left;font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);background:var(--bg-white);border:1px solid var(--fit-line);border-radius:var(--radius-sm);padding:9px 12px;cursor:pointer;transition:.18s var(--ease)}
+.ed-plan-gun:hover{border-color:var(--fit);color:var(--fit-deep)}
+.ed-plan-gun.is-sirada{border-color:var(--fit)}
+.ed-plan-gun small{flex:none;font-size:11.5px;font-weight:600;color:var(--muted)}
+.ed-plan-durum{font-size:12.5px;font-weight:500;line-height:1.55;color:var(--slate-2);background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-md);padding:11px 13px}
+.ed-plan-durum.is-notr{background:var(--bg-cream);border-color:var(--line)}
+.ed-plan-durum b{font-weight:700;color:var(--slate)}
+.ed-plan-durum a{color:var(--fit-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .ed-track-note{display:flex;gap:9px;font-size:11.5px;font-weight:500;color:var(--muted);line-height:1.5;padding:0 18px 20px}
 .ed-track-note i{flex:none;color:var(--fit-deep);margin-top:2px}
 
@@ -562,7 +578,21 @@
 
         <div class="ed-track-cta">
           <button class="btn btn-fit" type="button" id="edFinish"><i class="fa-solid fa-flag-checkered"></i> Antrenmanı bitir</button>
-          <button class="btn btn-line" type="button" data-lg-gate data-lg-title="Programına eklemek için giriş yap" data-lg-desc="Bu hareketi programına kaydetmek ve ilerlemeni takip etmek için hesabına giriş yap."><i class="fa-solid fa-circle-plus"></i> Programa ekle</button>
+          <button class="btn btn-line" type="button" id="edBugune" data-lg-gate data-lg-title="Bugünkü antrenmana eklemek için giriş yap" data-lg-desc="Bu hareketi bugünkü antrenmanına yazmak ve ilerlemeni takip etmek için hesabına giriş yap."><i class="fa-solid fa-calendar-day"></i> Bugünkü antrenmana ekle</button>
+          <button class="btn btn-line" type="button" id="edPlanaEkle" aria-expanded="false" aria-controls="edPlanPick" data-lg-gate data-lg-title="Programına eklemek için giriş yap" data-lg-desc="Bu hareketi programına kaydetmek ve ilerlemeni takip etmek için hesabına giriş yap."><i class="fa-solid fa-circle-plus"></i> Programa ekle</button>
+
+          <!-- gün seçici — "Programa ekle" açar; hangi plan, hangi gün -->
+          <div class="ed-plan-pick" id="edPlanPick" hidden>
+            <div class="ed-plan-satir" id="edPlanSatir" hidden>
+              <label class="ed-plan-lbl" for="edPlanSel">Hangi plan</label>
+              <select class="ed-plan-sel" id="edPlanSel"></select>
+            </div>
+            <span class="ed-plan-lbl" id="edPlanGunLbl">Hangi gün</span>
+            <div class="ed-plan-gunler" id="edPlanGunler" role="group" aria-labelledby="edPlanGunLbl"></div>
+          </div>
+
+          <p class="ed-plan-durum" id="edPlanDurum" role="status" hidden></p>
+
           <button class="btn btn-line" type="button" id="edResetSets"><i class="fa-solid fa-rotate-left"></i> Setleri sıfırla</button>
         </div>
         <div class="ed-track-note"><i class="fa-solid fa-circle-info"></i><span>Hacim = Σ (tekrar × ağırlık). Girdiğin değerler bu tarayıcıda saklanır; sonraki antrenmanda kıyas için kullanılır.</span></div>
@@ -687,6 +717,9 @@
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- PLAN KAYDI SÖZLEŞMESİ — "Bugünkü antrenmana ekle" ve "Programa ekle"
+     bunu KULLANIR. Bu sayfa kendi plan depolama kodunu yazmaz. -->
+<script src="assets/js/fit-plan-kayit.js"></script>
 <script>
 /* =====================================================================
  §13 — BENZERSİZ KİMLİK/SLUG: kart doğru hareketi açar
@@ -1120,6 +1153,12 @@
   var slug  = param || 'goblet-squat';
   var bilinmeyen = !!param && !VERI[slug];
   var E = VERI[slug] || VERI['goblet-squat'];
+  /* R16/1 · KANONİK SLUG tek yerde çözülüyor ve aşağıdaki antrenman
+     bloğu da onu okuyor. Bilinmeyen bir slug ekranda `goblet-squat`a
+     düşüyor; kayıt ham parametreyi taşısaydı geçmişte GÖSTERİLMEYEN bir
+     harekete ait bir kayıt doğardı ve seri challenge'ı yanlış adımı
+     kapatırdı. Kayıt, ekranda ne gösterildiyse onu söyler. */
+  document.body.setAttribute('data-ex-slug', VERI[slug] ? slug : 'goblet-squat');
 
   /* metin alanları — başlık, breadcrumb, meta rozetleri */
   ['ad','kategori','bolge','seviye','ekipman','sure','ozet'].forEach(function(k){
@@ -1203,7 +1242,10 @@
   var list = document.getElementById('edSetList');
   if(!list) return;
 
-  var SLUG = new URLSearchParams(location.search).get('slug') || 'goblet-squat';
+  /* Kanonik slug yukarıdaki blokta çözüldü (bilinmeyen slug → goblet-squat).
+     Öznitelik yoksa aynı düşüşü burada da yaparız. */
+  var SLUG = document.body.getAttribute('data-ex-slug') ||
+             new URLSearchParams(location.search).get('slug') || 'goblet-squat';
   var KEY  = 'dm_fit_ex';
 
   function readStore(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } }
@@ -1471,12 +1513,219 @@
          değil. Bu depodaki en güçlü kanıt kademesi burada üretiliyor; kaynağı
          geçmezsek şema haklı olarak 'beyan' yazıyordu ve ölçülmüş veri en zayıf
          kademeye düşüyordu. */
-      FIT_SHELL.state.antrenmanTamamla({ad:ad, dk:Math.max(1,Math.round(clockSec/60)), kcal:Math.round(t.vol*0.08)+40, kaynak:'olculdu'});
+      /* R16/1 · HUNİ GERÇEKTEN BAĞLANDI.
+         ÖLÇÜLDÜ (düzeltmeden önce): bu çağrı yalnız `ad · dk · kcal · kaynak`
+         yazıyordu. Oysa `fit-challenge.js` ilerlemeyi `slug` ve `metrik`ten
+         hesaplıyor ve depoda o iki alanı yazan BAŞKA hiçbir yüzey yoktu
+         (grep: 0 üretici). Sonuç: üç challenge tipinden ikisi — egzersiz
+         serisi ve süreli hedef — arayüzden HİÇ ilerleyemiyordu. Motor
+         doğruydu, huninin ağzı kapalıydı.
+         Yazılan üç alan da UYDURMA DEĞİL, bu sayfanın kendi ölçümü:
+           slug   → hangi hareketin sayfasındayız (adres çubuğundaki kayıt)
+           tekrar → kullanıcının kapattığı setlerdeki toplam tekrar (t.reps)
+           set    → kapatılan set sayısı (t.done)
+           kg     → toplam hacim (t.vol)
+           dk     → çalışan kronometre (clockSec), tahmin değil
+         `kaynak:'olculdu'` bu yüzden dürüst kalıyor. */
+      FIT_SHELL.state.antrenmanTamamla({
+        ad:ad,
+        slug:SLUG,
+        metrik:{tekrar:t.reps, set:t.done, kg:t.vol, dk:Math.max(1,Math.round(clockSec/60))},
+        tarihISO:new Date().toISOString(),
+        dk:Math.max(1,Math.round(clockSec/60)), kcal:Math.round(t.vol*0.08)+40, kaynak:'olculdu'});
     }
 
     sumoOv.hidden = false; sumo.hidden = false;
     if(window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
     document.getElementById('edSumoClose').focus();
+  });
+
+  /* ---------------- PLANA EKLEME (sözleşme: FIT_PLAN) ------------------
+     ÖLÇÜLDÜ (düzeltmeden önce, 1440×1024, ?auth=1): "Programa ekle"
+     düğmesi yalnız `data-lg-gate` taşıyordu. Giriş yapılmışken tıklama
+     sonrası değişen localStorage anahtarı sayısı 0; aria-pressed yok,
+     ikon bile değişmiyor, konsol hatası da yok. Yani düğme sahte bile
+     değildi — tamamen sessizdi. Yetenek yoktu, düğme vardı.
+
+     İKİ AYRI İŞ, İKİ AYRI DÜĞME — ikisi de aynı şeyi yapsaydı biri
+     gereksizdi:
+       Bugünkü antrenmana ekle → aktif planın SIRADAKİ günü
+                                 (FIT_PLAN.ozet().aktifGun), tek dokunuş
+       Programa ekle           → hangi plan / hangi gün, kullanıcı seçer
+
+     Bu blok kendi depolama kodunu YAZMAZ; yalnız FIT_PLAN'ı okur ve
+     `kaydet()` çağırır — aktivite-gunlugu-v1.html §7.3 ile aynı desen.
+
+     HAREKET GÜNÜN SONUNA EKLENİR. İlerleme anahtarları 'g<no>-h<idx>'
+     olduğu için araya sokmak var olan işaretleri bir sonraki harekete
+     kaydırırdı: kullanıcının "yaptım" dediği şey sessizce başka bir
+     hareketin üstüne yapışırdı.
+     ------------------------------------------------------------------ */
+  var planPick = document.getElementById('edPlanPick');
+  var planSat  = document.getElementById('edPlanSatir');
+  var planSel  = document.getElementById('edPlanSel');
+  var planGunl = document.getElementById('edPlanGunler');
+  var planDur  = document.getElementById('edPlanDurum');
+  var btnBugun = document.getElementById('edBugune');
+  var btnPlan  = document.getElementById('edPlanaEkle');
+
+  function esc(t){ var d = document.createElement('div'); d.textContent = (t == null ? '' : t); return d.innerHTML; }
+
+  function pickKapat(){
+    planPick.hidden = true;
+    btnPlan.setAttribute('aria-expanded', 'false');
+  }
+
+  /* Tek durum satırı: ne olduğunu ya da NE OLMADIĞINI söyler.
+     `notr` = işlem yapılmadı (uyarı değil, bilgi). */
+  function durum(html, notr){
+    planDur.innerHTML = html;
+    planDur.classList.toggle('is-notr', !!notr);
+    planDur.hidden = false;
+  }
+
+  function planYok(){
+    durum('Kayıtlı bir planın yok, bu yüzden hiçbir şey eklenmedi. Önce bir plan kur: ' +
+      '<a href="antrenman-olusturucu-v1.html">Antrenman Oluşturucu</a> ya da ' +
+      '<a href="programlar-merkezi-v1.html">hazır programlar</a>.', true);
+  }
+
+  function defterYok(){
+    durum('Plan defteri bu sayfada yüklenemedi; hiçbir şey eklenmedi. ' +
+      '<a href="programlarim-v1.html#programlarim">Planına git</a> ve oradan ekle.', true);
+  }
+
+  /* Bu sayfanın hareket künyesi. HİÇBİR ALAN UYDURULMAZ: her değer ya
+     ekranda görünen veriden ya da kullanıcının bu panelde girdiğinden
+     gelir. Ad `[data-ex="ad"]`in metninden okunur — VERI'deki ham dizge
+     HTML varlığı taşıyabiliyor, ekranda görünen ad ise çözülmüş hâli. */
+  function hareketKaydi(){
+    var E  = (window.ED_VERI || {})[SLUG] || null;
+    var ad = ((document.querySelector('[data-ex="ad"]') || {}).textContent || '').trim();
+    var h  = { slug: SLUG, set: sets.length, dinlenme: restLen, video: SLUG };
+    if (ad) h.ad = ad;                 /* ad yoksa slug güzelleştirilmez */
+
+    var r = sets.map(function(s){ return +s.reps || 0; }).filter(function(n){ return n > 0; });
+    if (r.length){
+      var mn = Math.min.apply(null, r), mx = Math.max.apply(null, r);
+      h.tekrar = (mn === mx) ? mn : (mn + '–' + mx);   /* setler farklıysa aralık */
+    }
+    if (E && E.ekipman && E.ekipman !== 'Ekipmansız') h.ekipman = [E.ekipman];
+
+    /* alternatif: bu sayfa hem slug'ı hem GÖRÜNEN adı biliyor — şemanın
+       `alternatifAd` alanı tam olarak bunun için var (okuyan sayfa slug'ı
+       güzelleştirirse fabrikasyon yapar). */
+    var alt = E && E.benzer && E.benzer[0];
+    var A   = alt && (window.ED_VERI || {})[alt];
+    if (A){ h.alternatif = alt; h.alternatifAd = A.ad; }
+    return h;
+  }
+
+  function ekle(plan, gun){
+    gun.hareketler = gun.hareketler || [];
+    var h     = hareketKaydi();
+    var gunAd = gun.ad || ('Gün ' + gun.no);
+    var v     = -1;
+    gun.hareketler.forEach(function(x, i){ if (v < 0 && x && x.slug === h.slug) v = i; });
+
+    if (v > -1){
+      durum('<b>' + esc(h.ad || 'Bu hareket') + '</b> zaten <b>' + esc(plan.ad || 'planında') +
+        '</b> planının <b>' + esc(gunAd) + '</b> gününde, ' + (v + 1) +
+        '. sırada duruyor. İkinci kez eklenmedi. ' +
+        '<a href="programlarim-v1.html#programlarim">Plana git</a>', true);
+      return false;
+    }
+
+    gun.hareketler.push(h);
+    if (!FIT_PLAN.kaydet(plan)){
+      gun.hareketler.pop();
+      durum('Plana yazılamadı — tarayıcın yerel depolamayı engelliyor olabilir. Hiçbir şey eklenmedi.', true);
+      return false;
+    }
+
+    /* Gün ve plan tamamlanma hâlini TEK KAYNAK yeniden hesaplasın: yeni
+       hareket henüz karar almadı, yani kapanmış bir gün geri açılmalı.
+       Kendi durum mantığımızı yazmak yerine sözleşmenin geri-alma yolunu
+       çağırıyoruz — olmayan bir işareti silmek ilerlemeye dokunmaz, yalnız
+       gunDurum ve plan durumunu tazeler (mühürler yerinde kalır). */
+    FIT_PLAN.isaretle(plan.id, gun.no, gun.hareketler.length - 1, { yapildi: false });
+
+    var o = [];
+    if (h.set)      o.push(h.set + ' set');
+    if (h.tekrar)   o.push(h.tekrar + ' tekrar');
+    if (h.dinlenme) o.push(h.dinlenme + ' sn dinlenme');
+
+    durum('<b>' + esc(h.ad || 'Hareket') + '</b> — ' + esc(o.join(' · ')) + ' — <b>' +
+      esc(plan.ad || 'planına') + '</b> planının <b>' + esc(gunAd) +
+      '</b> gününe eklendi. O gün artık ' + gun.hareketler.length + ' hareket taşıyor. ' +
+      '<a href="programlarim-v1.html#programlarim">Plana git</a>');
+    return true;
+  }
+
+  /* ---- Bugünkü antrenmana ekle: seçim yok, sıradaki gün ---- */
+  if (btnBugun) btnBugun.addEventListener('click', function(){
+    pickKapat();
+    if (!window.FIT_PLAN){ defterYok(); return; }
+    var plan = FIT_PLAN.aktif();
+    if (!plan || !(plan.gunler || []).length){ planYok(); return; }
+    var oz = FIT_PLAN.ozet(plan.id);
+    var no = (oz && oz.aktifGun) || plan.gunler[0].no;
+    var g  = plan.gunler.filter(function(x){ return x.no === no; })[0] || plan.gunler[0];
+    ekle(plan, g);
+  });
+
+  /* ---- Programa ekle: hangi plan, hangi gün ---- */
+  function gunleriBas(){
+    var p = FIT_PLAN.getir(planSel.value);
+    if (!p){ planGunl.innerHTML = ''; return; }
+    var oz   = FIT_PLAN.ozet(p.id);
+    var sira = oz && oz.aktifGun;
+    planGunl.innerHTML = (p.gunler || []).map(function(g){
+      var n  = (g.hareketler || []).length;
+      var gd = FIT_PLAN.gunDurumu(p.id, g.no);
+      var et = n + ' hareket';
+      if (gd && gd.durum === 'tamamlandi') et += ' · tamamlandı';
+      else if (g.no === sira)              et += ' · sırada';
+      return '<button class="ed-plan-gun' + (g.no === sira ? ' is-sirada' : '') +
+             '" type="button" data-gun="' + g.no + '">' +
+             '<span>' + esc(g.ad || ('Gün ' + g.no)) + (g.odak ? ' · ' + esc(g.odak) : '') + '</span>' +
+             '<small>' + esc(et) + '</small></button>';
+    }).join('');
+  }
+
+  if (btnPlan) btnPlan.addEventListener('click', function(){
+    if (!planPick.hidden){ pickKapat(); return; }
+    if (!window.FIT_PLAN){ defterYok(); return; }
+    var hepsi = FIT_PLAN.listele().filter(function(p){ return (p.gunler || []).length; });
+    if (!hepsi.length){ planYok(); return; }
+
+    planSel.innerHTML = hepsi.map(function(p){
+      return '<option value="' + esc(p.id) + '">' + esc(p.ad || 'Planım') + '</option>';
+    }).join('');
+    var a = FIT_PLAN.aktif();
+    if (a && hepsi.some(function(p){ return p.id === a.id; })) planSel.value = a.id;
+    /* tek plan varken seçici gürültüdür — gizlenir, gün listesi kalır */
+    planSat.hidden = hepsi.length < 2;
+
+    gunleriBas();
+    planPick.hidden = false;
+    btnPlan.setAttribute('aria-expanded', 'true');
+    var ilk = planGunl.querySelector('.ed-plan-gun');
+    if (ilk) ilk.focus();
+  });
+
+  if (planSel)  planSel.addEventListener('change', gunleriBas);
+
+  if (planGunl) planGunl.addEventListener('click', function(e){
+    var b = e.target.closest('.ed-plan-gun');
+    if (!b) return;
+    var p = FIT_PLAN.getir(planSel.value);
+    if (!p) return;
+    var no = +b.getAttribute('data-gun');
+    var g  = (p.gunler || []).filter(function(x){ return x.no === no; })[0];
+    if (!g) return;
+    if (ekle(p, g)){ pickKapat(); btnPlan.focus(); }
+    else { gunleriBas(); }        /* eklenmedi: liste açık kalsın, başka gün seçilebilsin */
   });
 
   /* önceki antrenman notu varsa alanı doldur — hatırlatma budur */

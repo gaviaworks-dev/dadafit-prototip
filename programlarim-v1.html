@@ -4142,7 +4142,14 @@ var FPX = (function () {
       ? Math.round(degisimler.reduce(function (a, b) { return a + b; }, 0) / degisimler.length)
       : null;
 
-    var seri = (st && st.challenge && st.challenge.durum === 'devam') ? (st.challenge.seri || 0) : null;
+    /* R16/1 · "Güncel seri" YALNIZ alışkanlık challenge'ında bir GÜN sayısıdır.
+       ÖLÇÜLEN KUSUR: bu satır `challenge.seri`yi tipe bakmadan okuyup altına
+       "gün" yazıyordu; süreli hedefte o alan TEKRAR sayısı, egzersiz serisinde
+       KAPANAN ADIM sayısıdır. Süreli hedefe katılmış bir üyeye "132 gün güncel
+       seri" basılıyordu. Tip alışkanlık değilse ölçü yoktur ve "—" kalır —
+       0 yazmak da yalan olurdu, "seri kopmuş" gibi okunurdu. */
+    var chAktif = (st && st.challenge && st.challenge.durum === 'devam') ? st.challenge : null;
+    var seri = (chAktif && chAktif.tip === 'aliskanlik') ? (chAktif.seri || 0) : null;
 
     var stats = Q('fpxSureStats');
     if (stats) {

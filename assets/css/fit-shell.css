@@ -1701,6 +1701,16 @@ body.is-auth .d-acct-block{display:block}
       kalırlar ki üzerlerine tıklamak da kartı açsın (tıklanamaz ada
       dönüşmesinler)
 
+ 🔴 DÖRT KÖŞE SÖZLEŞMESİ (R16/1 · docs/fit-kit.md §12)
+ Bu düğme SAĞ ÜST köşeyi TEK BAŞINA tutar. Diğer üç köşe:
+   sol üst  → kategori/hedef rozeti      sol alt  → etiket şeridi
+   sağ alt  → zorluk/seviye rozeti
+ R15'te düğme eklendi ama köşe boşaltılmadı: `.ex-level` ve `.pr-level`
+ hâlâ `top:12px;right:12px` idi ve düğmenin (z-index 4) altında kaldı.
+ ÖLÇÜLDÜ: kesişim 1162 px², iki sayfada 21 kartın 21'inde, üç genişlikte.
+ Bir kart tipine bu düğmeyi eklerken ölçüm kapısı: düğmenin sınır kutusu,
+ aynı karttaki `position:absolute` her öğeyle 0 px² kesişmeli.
+
  Dokunma hedefi 44×44 (WCAG 2.5.8) — görsel daire 40px, kalan 4px
  şeffaf dolgudur; ölçüm bunu hedef sayar, göz görmez.
  ===================================================================== */
@@ -4547,3 +4557,468 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
 .fpx-kural{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .fpx-kural .fp-card p{font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65}
 @media (max-width:900px){ .fpx-kural{grid-template-columns:minmax(0,1fr)} }
+
+
+/* =====================================================================
+ FORM VE HESAP KİTİ — ÜÇ SAYFADAN KABUĞA
+ (giris-v1 · hesabim-v1 · odemelerim-v1 → assets/css/fit-shell.css)
+ ---------------------------------------------------------------------
+ 🔴 BU BLOK KABUĞA YAZILMAK ÜZERE HAZIRLANDI, HENÜZ YAZILMADI.
+    Kabuğa yalnız Ajan 4 / lead yazar (fit-kit.md §11).
+
+ NEDEN TAŞINIYOR
+ ---------------
+ `.fk-cc*` ailesi ÜÇ sayfada birebir tekrarlanıyordu: giris-v1 36 geçiş ·
+ hesabim-v1 32 · odemelerim-v1 30. VERİ zaten tek kaynakta
+ (`assets/js/fit-ulke.js`, 199 ülke) ama GÖRÜNÜM üç ayrı `<style>`de
+ duruyordu: bir ölçü düzeltilince üç dosyanın da elle güncellenmesi
+ gerekiyordu. Üç kopyanın halihazırda BİRBİRİNDEN AYRILDIĞI ölçüldü
+ (aşağıdaki sapma listesi) — yani "üç kopya bir gün ayrışır" bir tahmin
+ değil, olmuş bir olay.
+
+ NASIL ÖLÇÜLDÜ
+ -------------
+ Playwright · Chromium · 1440×1200 · `?auth=1` · `getComputedStyle` +
+ `getBoundingClientRect`. Betikler: scratchpad/cc-olcum.mjs ·
+ cc-sapma.mjs · hs-sapma.mjs · cc-is1.mjs. Kontrast oranları WCAG 2.x
+ bağıl parlaklık formülüyle hesaplandı.
+
+ BİRLEŞTİRME KURALI (bağlayıcı, keyfi değil)
+ -------------------------------------------
+ 1. Üç kopya AYNIYSA → dokunulmaz, olduğu gibi taşınır.
+ 2. AYRIŞMIŞSA → ölçülebilir bir gerekçe (WCAG eşiği, kit ölçüsü) varsa
+    o kazanır; yoksa çoğunluk (2/3) kazanır.
+ 3. Ölçülebilir gerekçe de çoğunluk da yoksa → TAŞINMAZ, §F'de soru
+    olarak durur. Sapmayı çözmeden taşımak üç ekranı birbirine
+    benzemez hâlde DONDURMAK olur.
+ Yeni renk · yeni ölçü · yeni token ÜRETİLMEDİ; her değer üç dosyanın
+ birinde zaten vardı.
+
+ ÖLÇÜLEN SAPMALAR VE KARARLARI
+ -----------------------------
+ S1 · `.fk-input::placeholder` — giris #a7a7a7 · hesabim #8d8d8d ·
+      odemelerim #6f6f6f. Zemin `--bg` (#f9f9f9) üstünde kontrast
+      2.28:1 · 3.15:1 · 4.77:1. WCAG 1.4.3'ü (4.5:1) yalnız #6f6f6f
+      geçiyor → **#6f6f6f**. (Kural 2, ölçülebilir gerekçe.)
+ S2 · `.fk-cc-search input::placeholder` — aynı üçlü, aynı gerekçe →
+      **#6f6f6f**.
+ S3 · `.fk-cc-list li .kod` ve `.fk-cc-bos` — giris `--muted`
+      (rgb 113,113,113) · diğer ikisi `--slate-2` (rgb 86,81,74).
+      İkisi de AA geçiyor (4.88:1 · 7.87:1) → çoğunluk **`--slate-2`**.
+ S4 · `.fk-cc-pop[hidden]{display:none}` — hesabim ve odemelerim'de VAR,
+      giris'te YOK. Bugün zararsız (`.fk-cc-pop` `display` bildirmediği
+      için tarayıcının `[hidden]` kuralı geçiyor), ama kabuk ileride
+      `display` verirse giris sessizce bozulurdu → **kural taşınır**.
+ S5 · `.fk-eye` — giris 44×44 (`right:4px`, `.fk-pass .fk-input`
+      `padding-right:56px`) · hesabim 36×36 (`right:7px`, dolgu 50px).
+      36px WCAG 2.5.8'in (44×44) ALTINDA → **giris'in ölçüsü**.
+      `.fk-eye:hover` rengi `--fit` / `--fit-deep` ayrımında çoğunluk
+      yok; `--fit-deep` alındı çünkü `.fk-help i` de bu blokta
+      `--fit-deep`e indi (S6) ve ikisi aynı vurgu ailesi.
+ S6 · `.fk-help i` — giris `--fit` · diğer ikisi `--fit-deep` →
+      çoğunluk **`--fit-deep`**.
+ S7 · `.fk-input,.fk-select,.fk-textarea` `min-height:44px` —
+      yalnız odemelerim'de var. Kit §7 zaten "input yüksekliği 44px"
+      diyor; kuralsız kalan `.set-row .fk-select` hesabim'de **35px**
+      ölçüldü (WCAG 2.5.5 altı) → **min-height:44px taşınır**.
+      Serbest `.fk-input` üç sayfada da 45px, değişmiyor.
+ S8 · `.fk-textarea` min-height — hesabim 104px · odemelerim 120px.
+      Kit §7 ölçümü 108px (kutu yüksekliği; 104 + 2px kenarlık = 106,
+      120 + 2 = 122). 104 kite 2px, 120 ise 14px uzak → **104px**.
+ S9 · Hata API'si — giris `.fk-error` + `.fk-field.has-error`;
+      hesabim · odemelerim · pro-odeme `.fk-hata` + `.fk-hata.show` +
+      `.fk-input.is-err`. Kanon **`.fk-hata`** (3 sayfa). Bu blok
+      `.fk-error`ı TAŞIMIYOR → giris-v1'in markup'ı ve script'i FAZ 2'de
+      yeniden adlandırılmalı (16 `fk-error` + 5 `has-error` geçişi).
+      Ayrıntı §F2.
+ S10· Hata rengi — giris `--au-danger` (#b3261e) · hesabim `--hs-danger`
+      (#b3261e, aynı renk farklı ad) · odemelerim `--hs-warn` (#8a4b00).
+      İki sayfa aynı kırmızıda → **`--hs-danger`**. odemelerim'in kahve
+      tonu hata değil UYARI paletidir (`.hs-warn` kutusu); alan hatası
+      ile uyarı kutusunun aynı rengi taşıması ayrımı siliyordu.
+ S11· `.tgl` — hesabim ray zemini #cfcac1, kap yüksekliği **26px**;
+      odemelerim #8f8a82, **44px**. #cfcac1 beyaz üstünde 1.63:1 (WCAG
+      1.4.11'in 3:1'i altında), #8f8a82 3.43:1; 26px de 2.5.8 altında →
+      **odemelerim'in ikisi de**. Görsel ray yine 46×26, yükseklik
+      etiketten geliyor — kit ölçüsü büyütülmedi.
+ S12· `.uys-manage` — hesabim `padding:9px 16px`, ölçülen yükseklik
+      **36px**; odemelerim `10px 16px` + `min-height:44px`, ölçülen 44 →
+      **odemelerim** (2.5.8). `:focus-visible` halkası da yalnız
+      odemelerim'de vardı, taşındı: odak görünürlüğü pazarlık konusu
+      değil.
+ S13· İkincil metin `--muted` / `--slate-2` ayrımı — YALNIZ iki sayfanın
+      ÇELİŞTİĞİ yerde çözüldü (`.uys-plan` · `.uys-renew` ·
+      `.uys-price span` · `.hs-facts dt` · `.hs-state` → `--slate-2`).
+      İki sayfanın da `--muted` yazdığı yerlere (`.sub-tier-price span`
+      · `.sub-inv-desc small`) DOKUNULMADI — sapma yoksa karar da yok.
+ S14· `.hs-warn` / `.hs-check` taban paleti — hesabim tabanı renksiz
+      bırakıp rengi `.warn-card` / `.danger-card` sarmalayıcısından
+      alıyor; odemelerim sarmalayıcısız kullanıyor ve rengi tabana
+      yazıyor. Ölçüldü: hesabim'in HER `.hs-warn`ı bir warn/danger
+      kartın içinde, odemelerim'inkilerin hiçbiri değil. Taban =
+      uyarı paleti + `.danger-card` üzerine yazıyor → **iki sayfa da
+      bugünkü görünümünü birebir koruyor** (kayıpsız birleşme).
+
+ TAŞINMAYANLAR VE SEBEPLERİ
+ --------------------------
+ · `.form-card` — bu üç sayfanın HİÇBİRİNDE yok (hesabim'de sökülmüş,
+   yerine `.pc-head/.pc-body/.pc-foot` gelmiş). antrenor-ol · destek ·
+   pro-odeme'de var ve dolgusu ÜÇÜ DE FARKLI (24px 26px · 26px · 28px).
+   Ayrı bir sapma çözme turu ister; bu blokta yeri yok.
+ · `.cc-*` (kayıtlı kart satırı) — TEK sayfada: odemelerim. hesabim'den
+   2026-08-29'da taşınmış, orada kopya bırakılmamış. Tek kullanıcılı kural
+   kabuğa çıkmaz.
+ · `.hs-col` · `.hs-rail` · `.hs-sec` · `.hs-body` · `.hs-go` ·
+   `.hs-save` · `.hs-list` — hesabim'e özgü SAYFA YERLEŞİMİ, kit değil.
+ · `.sub-inv-*` · `.sub-free*` — tek sayfada (hesabim).
+ · `.set-row` ailesi — zaten kabukta (`fit-shell.css:1431-1440`); iki
+   sayfa kabuğun kuralının aynısını yerelde tekrarlıyor. Bu bir TAŞIMA
+   değil SİLME kalemi; §E5'e bak.
+ · `.uys-*` ≤640 sıralaması — iki sayfa farklı sıra veriyor (hesabim
+   fiyat `order:1`, odemelerim `order:3`) ve hangisinin doğru olduğunu
+   söyleyecek bir ölçü yok. Yerel kalır, §F3'te soru olarak duruyor.
+ ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+ §A · TOKENLER — `:root` bloğuna
+ ---------------------------------------------------------------------
+ 🔴 DİKKAT: kabukta bugün hiçbir tehlike/uyarı tokeni YOK (ölçüldü:
+ fit-shell.css'te `danger` ve `hs-warn` geçişi sıfır). Bu altı değişken
+ hesabim-v1'in `:root`unda tanımlı; odemelerim aynı üç uyarı tokenini
+ BİREBİR tekrarlıyor. Aşağıdaki kurallar bu tokenleri okuduğu için
+ taşınmaları zorunlu — yeni renk üretilmiyor, var olan taşınıyor.
+ giris-v1 aynı kırmızıyı `.au-card{--au-danger:#b3261e}` diye YEREL
+ tanımlıyor; tint'i bir basamak farklı (#fdeceb ≠ #fdecea) — kanon
+ hesabim'in değeri. --------------------------------------------------- */
+:root{
+  --hs-danger:#b3261e; --hs-danger-dark:#8c1d17;
+  --hs-danger-tint:#fdecea; --hs-danger-line:rgba(179,38,30,.34);
+  --hs-warn:#8a4b00; --hs-warn-tint:#fdf3e4; --hs-warn-line:rgba(138,75,0,.30);
+}
+
+
+/* ---------------------------------------------------------------------
+ §B · FORM ALANI KİTİ — `.fk-*`
+ ---------------------------------------------------------------------
+ Üç sayfada da var; kit §7'nin CSS karşılığı. Bugün ayrıca yedi sayfa
+ daha (antrenor-ol · destek · destek-talebi-detay · iletisim · pro-odeme
+ · reklam-ver · programlarim) kendi `.fk-*` kopyasını taşıyor — onlar bu
+ turun kapsamı değil, ama kabukta tek kural durunca birer birer
+ silinebilir hâle geliyorlar.
+ --------------------------------------------------------------------- */
+.fk-field{margin-bottom:22px}
+.fk-field:last-child{margin-bottom:0}
+
+.fk-label{display:flex;align-items:baseline;gap:7px;font-size:14px;font-weight:700;color:var(--slate);margin-bottom:9px}
+/* F1 · ZORUNLU ALAN YILDIZI — KARARA BAĞLANDI (Beyar, 2026-08-30).
+   Üç sayfa üç ayrı renk taşıyordu: `#b3261e` (giris) · `--fit-deep`
+   (hesabim) · `--fit-ink` (odemelerim). Üçü de kontrastı geçiyordu,
+   çoğunluk yoktu — ölçüm karar veremediği için soru olarak duruyordu.
+   KARAR: **marka yeşili**. Gerekçe: yıldız bir HATA değildir; form
+   doldurulmadan önce de oradadır ve "bu alan gerekli" diye İŞARET eder.
+   Kırmızı gerçek alan hatasına (`.fk-hata`, `--hs-danger`) saklanır —
+   ikisi aynı rengi paylaşsaydı hata durumu görsel ağırlığını yitirirdi.
+   Değer kit §3'ün "üst etiket" rengiyle birebir aynı: rgb(0,122,61). */
+.fk-label .req{color:var(--fit-deep)}
+.fk-label .opt{font-size:11.5px;color:var(--muted);font-weight:500}
+.fk-label .fk-count{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+
+/* S7 · `min-height:44px` ÖLÇÜMLE GELDİ: dolgudan doğan yükseklik serbest
+   alanda 45px ama dar `.set-row .fk-select`te 35px, `select`te 42px
+   çıkıyordu — ikisi de WCAG 2.5.5'in altında. Kit §7 zaten 44px diyor;
+   yeni ölçü üretilmedi, kitin ölçüsü zorlandı. */
+.fk-input,.fk-select,.fk-textarea{
+  width:100%;min-height:44px;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:13px 15px;outline:none;transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+/* S1 · #6f6f6f = `--bg` üstünde 4.77:1. Elenenler #a7a7a7 (2.28:1) ve
+   #8d8d8d (3.15:1); ikisi de WCAG 1.4.3'ün 4.5:1'ini geçmiyordu. */
+.fk-input::placeholder,.fk-textarea::placeholder{color:#6f6f6f}
+.fk-input:focus,.fk-select:focus,.fk-textarea:focus{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
+/* S8 · 104px: kit §7'nin ölçtüğü 108px kutuya 2px uzak (104+2 kenarlık);
+   elenen 120px 14px uzaktı. */
+.fk-textarea{min-height:104px;resize:vertical;line-height:1.6}
+.fk-select{
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;padding-right:40px;
+}
+
+.fk-help{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
+.fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
+.fk-help.done{color:var(--fit-deep)}
+
+/* S9/S10 · Hata kanonu: `.fk-hata` + `.show` + `.is-err`, renk
+   `--hs-danger`. Renk TEK BAŞINA taşıyıcı değil — kural ikonlu satır
+   bekliyor (`<i class="fa-solid fa-circle-exclamation">`), giris-v1'in
+   kendi kuralında yazdığı gibi. */
+.fk-hata{display:none;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:700;color:var(--hs-danger);margin-top:8px;line-height:1.5}
+.fk-hata.show{display:flex}
+.fk-hata i{font-size:12px;margin-top:2px;flex:none}
+.fk-input.is-err,.fk-select.is-err{border-color:var(--hs-danger);box-shadow:0 0 0 3px rgba(179,38,30,.10)}
+
+.fk-grid{display:grid;gap:16px 18px}
+.fk-grid .fk-field{margin-bottom:0}
+.fk-grid.c2{grid-template-columns:1fr 1fr}
+.fk-grid.c3{grid-template-columns:repeat(3,1fr)}
+/* Alanlar arası boşluk 22px'tir; ızgara↔ızgara geçişi 18px'te kalmıştı
+   (hesabim §C18 ölçümü), ikisi tek ritme indi. */
+.fk-grid+.fk-grid{margin-top:22px}
+.fk-grid+.fk-field,.fk-field+.fk-grid{margin-top:22px}
+
+/* şifre göster/gizle — S5: 44×44 dokunma hedefi (WCAG 2.5.8).
+   Elenen hesabim ölçüsü 36×36 idi. Alanın sağ dolgusu düğmeyi
+   kapsayacak kadar: 44 + 4 (sağ boşluk) + 8 (nefes) = 56. */
+.fk-pass{position:relative}
+.fk-pass .fk-input{padding-right:56px}
+.fk-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.18s var(--ease)}
+.fk-eye:hover{color:var(--fit-deep);background:var(--fit-wash)}
+.fk-eye:focus-visible{outline:3px solid var(--fit);outline-offset:2px;border-radius:var(--radius-sm)}
+
+
+/* ---------------------------------------------------------------------
+ §C · ÜLKE KODLU TELEFON — `.fk-tel` / `.fk-cc*`
+ ---------------------------------------------------------------------
+ 🔴 VERİ VE DAVRANIŞ BURADA DEĞİL: `assets/js/fit-ulke.js`. 199 ülke,
+ bayrak üretimi, arama, klavye ve seçim orada; sayfalar yalnız kabı
+ basıp `FIT_ULKE.kur()` çağırıyor. Kap sözleşmesi o dosyanın başında
+ yazılı. Bu blok o bileşenin GÖRÜNÜMÜDÜR ve üç sayfadan buraya geliyor.
+ --------------------------------------------------------------------- */
+.fk-tel{position:relative}
+.fk-tel .fk-input{padding-left:104px}
+
+/* `top/bottom:0` ÖLÇÜMLE GELDİ: `1px` içeriden oturunca düğme 96×43
+   çıkıyordu (alan 45px), yani dokunma hedefi 1px eksikti (WCAG 2.5.5).
+   Kenardan kenara oturunca 96×45 — üç sayfada da ölçüldü.
+   ⚠ Hesabim ve odemelerim'in yorumları "giris-v1 hâlâ 1px'li" diyor;
+   BU ARTIK DOĞRU DEĞİL (ec17964 ile düzeltilmiş, ölçüldü: 96×45).
+   Yorum taşınırken güncellendi. */
+.fk-cc{
+  position:absolute;left:1px;top:0;bottom:0;width:96px;z-index:2;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);
+  background:var(--bg-cream);border:0;border-right:1px solid var(--line);
+  border-radius:var(--radius-md) 0 0 var(--radius-md);cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.fk-cc:hover{background:var(--fit-tint)}
+.fk-cc:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+.fk-cc-flag{font-size:16px;line-height:1}
+.fk-cc i{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
+.fk-cc[aria-expanded="true"] i{transform:rotate(180deg)}
+
+.fk-cc-pop{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:min(360px,100%);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  box-shadow:var(--sh-lg);overflow:hidden;
+}
+/* S4 · giris-v1'de eksikti. Bugün `.fk-cc-pop` `display` bildirmediği
+   için tarayıcının `[hidden]` kuralı geçiyordu; kabuk ileride `display`
+   verirse o sayfa sessizce açık kalırdı. Kural açıkça yazılır. */
+.fk-cc-pop[hidden]{display:none}
+
+.fk-cc-search{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.fk-cc-search i{color:var(--muted);font-size:12.5px;flex:none}
+.fk-cc-search input{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);padding:4px 0}
+.fk-cc-search input:focus{outline:none}
+/* S2 · S1 ile aynı gerekçe: #a7a7a7 kontrastı 2.28:1'de kalıyordu. */
+.fk-cc-search input::placeholder{color:#6f6f6f}
+
+.fk-cc-list{list-style:none;margin:0;padding:6px;max-height:264px;overflow-y:auto}
+/* satır en az 44px (WCAG 2.5.5) — ölçüldü, üç sayfada da 44 */
+.fk-cc-list li{display:flex;align-items:center;gap:11px;padding:0 10px;min-height:44px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--slate);cursor:pointer}
+.fk-cc-list li .bay{font-size:17px;line-height:1;flex:none}
+.fk-cc-list li .ad{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* S3 · `--slate-2` (7.87:1) — elenen `--muted` de geçiyordu (4.88:1)
+   ama üç sayfanın ikisi zaten bu tokendeydi. */
+.fk-cc-list li .kod{color:var(--slate-2);font-weight:700;font-size:13px;flex:none}
+.fk-cc-list li:hover,.fk-cc-list li.on{background:var(--fit-tint)}
+.fk-cc-list li[aria-selected="true"]{font-weight:700}
+.fk-cc-list li[aria-selected="true"] .kod{color:var(--fit-deep)}
+/* Boş durum: liste boşalınca "Eşleşen ülke yok." satırı görünür —
+   `fit-ulke.js` `bos.hidden`ı sürüyor, sayfa değil. */
+.fk-cc-bos{padding:18px 14px;font-size:13.5px;color:var(--slate-2);font-weight:500;text-align:center}
+
+
+/* ---------------------------------------------------------------------
+ §D · HESAP / ÖDEME KİTİ — hesabim-v1 ve odemelerim-v1 ortak
+ ---------------------------------------------------------------------
+ Bu aile iki sayfada tekrarlanıyor. `.fk-cc` kadar geniş bir tekrar değil
+ ama aynı kusuru taşıyor: aynı kutunun iki kopyası ve aralarında
+ ölçülmüş dokunma hedefi farkları (S11 · S12).
+ --------------------------------------------------------------------- */
+
+/* ---- paket / abonelik kartı ---- */
+.sub-tier-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+/* `flex-wrap:wrap` odemelerim'de tabanda, hesabim'de yalnız ≤640'ta idi;
+   geniş ekranda kalemler zaten sığdığı için taban hâli üst küme. */
+.sub-tier-top{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sub-tier-badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,var(--fit),var(--fit-ink));padding:6px 13px;border-radius:var(--radius-pill)}
+.sub-tier-badge.free{background:var(--bg-cream);color:var(--slate-2);border:1px solid var(--line)}
+.sub-tier-info{flex:1;min-width:0}
+.sub-tier-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:15.5px;color:var(--slate);font-weight:700}
+.sub-renew{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:5px}
+.sub-renew i{color:var(--fit-deep);font-size:11px}
+.sub-tier-price{flex:none;text-align:right}
+.sub-tier-price b{font-size:22px;color:var(--slate);font-weight:800;letter-spacing:-.03em}
+.sub-tier-price span{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.sub-tier-body{padding:18px 20px;border-bottom:1px solid var(--line)}
+.sub-tier-feats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sub-tier-feats span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:7px 12px;border-radius:var(--radius-sm)}
+.sub-tier-feats span i{color:var(--fit-deep);font-size:11px}
+.sub-tier-acts{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-wrap:wrap}
+.sub-tier-acts .btn{padding:12px 20px;font-size:13.5px}
+
+/* ---- künye ızgarası ve durum hapı ---- */
+.hs-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin:0}
+.hs-facts div{background:var(--paper);padding:14px 16px;min-width:0}
+.hs-facts dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2)}
+.hs-facts dd{font-size:14.5px;font-weight:700;color:var(--slate);margin:5px 0 0;letter-spacing:-.01em}
+.hs-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.03em;padding:3px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.hs-pill.on{color:var(--fit-deep);background:rgba(0,157,79,.10);border:1px solid rgba(0,157,79,.24)}
+.hs-pill.off{color:var(--slate-2);background:var(--bg);border:1px solid var(--line)}
+.hs-pill.due{color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+
+/* ---- uyarı kutusu · onay kapısı · durum satırı ----
+   S14 · Taban UYARI paletini taşır (odemelerim'in sarmalayıcısız
+   kullanımı), `.danger-card` üzerine yazar (hesabim'in tehlike kartı).
+   Ölçüldü: hesabim'in iki `.hs-warn`ı da bir warn/danger kartın
+   içinde, odemelerim'in ikisi de dışında — iki sayfa da bugünkü
+   rengini birebir koruyor. */
+.hs-warn{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;font-weight:500;line-height:1.55;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:18px;
+  color:var(--hs-warn);background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line)}
+.hs-warn i{flex:none;font-size:15px;margin-top:2px}
+.hs-warn b{font-weight:800}
+.danger-card .hs-warn{color:var(--hs-danger-dark);background:var(--hs-danger-tint);border-color:var(--hs-danger-line)}
+
+.hs-check{display:flex;align-items:flex-start;gap:11px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--slate);line-height:1.5;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px}
+.hs-check input{flex:none;width:19px;height:19px;margin-top:1px;accent-color:var(--hs-warn);cursor:pointer}
+.danger-card .hs-check input{accent-color:var(--hs-danger)}
+.hs-check:hover{border-color:#d6d0c6}
+
+.hs-gate{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.hs-gate-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hs-state{flex:1;min-width:200px;display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:600;color:var(--slate-2);line-height:1.5;margin:0}
+.hs-state i{flex:none;margin-top:3px;font-size:11.5px;color:var(--fit-deep)}
+.hs-state.blocked{color:var(--hs-warn)}
+.hs-state.blocked i{color:var(--hs-warn)}
+.hs-state.done{color:var(--fit-deep)}
+
+.btn-warn{background:var(--paper);color:var(--hs-warn);border:1px solid var(--hs-warn-line)}
+.btn-warn:hover{border-color:var(--hs-warn);background:var(--hs-warn-tint);transform:translateY(-2px)}
+.btn-danger{background:var(--hs-danger);color:#fff}
+.btn-danger:hover{background:var(--hs-danger-dark);transform:translateY(-2px)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none !important}
+
+/* ---- anahtar (toggle) ----
+   S11 · Görsel ray 46×26 (kit ölçüsü, BÜYÜTÜLMEDİ); dokunma hedefi
+   44px'e ETİKETTEN çıkarılıyor. Ray zemini #8f8a82: beyaz üstünde
+   3.43:1, WCAG 1.4.11'in 3:1 eşiğini geçiyor. Elenen #cfcac1 1.63:1'de
+   kalıyordu — kapalı anahtar görünmüyordu. */
+.tgl{position:relative;display:inline-flex;align-items:center;min-height:44px;flex:none;cursor:pointer}
+.tgl input{position:absolute;opacity:0;pointer-events:none}
+.tgl .tk{width:46px;height:26px;border-radius:var(--radius-md);background:#8f8a82;transition:background .2s var(--ease);position:relative}
+.tgl .tk::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:var(--radius-circle);background:#fff;box-shadow:0 1px 4px rgba(33,30,22,.25);transition:transform .2s var(--ease)}
+.tgl input:checked+.tk{background:var(--fit)}
+.tgl input:checked+.tk::after{transform:translateX(20px)}
+.tgl input:focus-visible+.tk{box-shadow:0 0 0 3px rgba(0,157,79,.22)}
+
+/* ---- tercih satırındaki dar seçici ----
+   `.set-row`ın kendisi ZATEN KABUKTA (fit-shell.css:1431); yalnız bu
+   kural eksikti ve iki sayfa yerelde tutuyordu. S7 ile birlikte
+   yüksekliği 35px'ten 44'e çıkıyor. */
+.set-row .fk-select{width:220px;flex:none;padding:10px 36px 10px 13px;font-size:13px}
+
+/* ---- antrenör paketi satırı ---- */
+.uys-list{display:flex;flex-direction:column;gap:14px}
+.uys-row{display:flex;align-items:center;gap:16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 18px;transition:.2s var(--ease)}
+.uys-row:hover{border-color:#dcdcdc;box-shadow:var(--sh-sm)}
+.uys-ava{flex:none;width:52px;height:52px;border-radius:var(--radius-circle);background-size:cover;background-position:center}
+.uys-info{flex:1;min-width:0}
+.uys-info b{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14.5px;color:var(--slate);font-weight:700}
+.uys-info .uys-plan{display:block;font-size:13px;color:var(--slate-2);font-weight:500;margin-top:3px}
+.uys-info .uys-renew{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-2);font-weight:500;margin-top:6px}
+.uys-info .uys-renew i{color:var(--fit-deep);font-size:11px}
+.uys-price{flex:none;text-align:right}
+.uys-price b{font-size:17px;color:var(--slate);font-weight:800;letter-spacing:-.02em}
+.uys-price span{display:block;font-size:11.5px;color:var(--slate-2);font-weight:500}
+.uys-acts{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* S12 · min-height:44px + odak halkası (ölçülen hesabim hâli 36px'ti) */
+.uys-manage{font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 16px;min-height:44px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.uys-manage:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-wash)}
+.uys-manage:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
+
+/* ---- bildirim/açıklama alt satırı ---- */
+.ntf-foot{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--slate-2);font-weight:500;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);line-height:1.55}
+.ntf-foot i{color:var(--fit-deep);font-size:12px;margin-top:3px;flex:none}
+.ntf-foot a{color:var(--fit-deep);font-weight:700}
+.ntf-foot a:hover{text-decoration:underline;text-underline-offset:2px}
+
+
+/* ---------------------------------------------------------------------
+ §E · KIRILIM NOKTALARI
+ ---------------------------------------------------------------------
+ Üç sayfanın media bloklarından yalnız BU KİTE ait satırlar geldi;
+ sayfaya özgü satırlar (`.au-*` · `.od-*` · `.pc-*` · `.hs-col` …)
+ yerinde kalıyor.
+ ⚠ `text-align:left;text-align-last:auto` bildirimleri BURAYA ALINMADI:
+ onlar `fit-type.css`in yaslama katmanına karşı yazılmış ve o katman
+ sayfa stillerinden SONRA yükleniyor — kabuğa taşınsalardı özgüllük
+ sırası değişir ve yaslama geri gelirdi. Sayfada kalırlar (§F4).
+ --------------------------------------------------------------------- */
+@media (max-width:1024px){
+  .fk-grid.c3{grid-template-columns:1fr 1fr}
+  .hs-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media (max-width:640px){
+  .fk-grid.c2,.fk-grid.c3{grid-template-columns:1fr}
+  .hs-facts{grid-template-columns:1fr}
+  .sub-tier-top{gap:12px}
+  .sub-tier-price{order:3;margin-left:auto;text-align:left}
+  .sub-tier-acts .btn{width:100%}
+  .set-row{flex-wrap:wrap;gap:10px 14px}
+  .set-row .fk-select{width:100%}
+  .set-row .tgl,.set-row .sr-act,.set-row .sr-on{margin-left:auto}
+  .hs-gate-acts .btn{width:100%}
+}
+
+/* Açılır liste dar ekranda alanın tam genişliğine oturur. Üç sayfada da
+   aynı eşik ve aynı kural. */
+@media (max-width:520px){ .fk-cc-pop{width:100%} }
+
+
+/* =====================================================================
+ §F · KABUĞA GİRMEYENLER — AÇIK SORULAR
+ ---------------------------------------------------------------------
+ Birleştirme kuralı 3: ölçülebilir gerekçe de çoğunluk da yoksa taşıma.
+ Aşağıdakiler cevap bekliyor; cevap gelene kadar üç sayfa kendi
+ satırını korur ve FAZ 2'de o satırlar SİLİNMEZ.
+
+ F1 · `.fk-label .req` (zorunlu alan yıldızı) rengi ÜÇ SAYFADA ÜÇ AYRI:
+      giris `--au-danger` #b3261e · hesabim `--fit-deep` #007a3d ·
+      odemelerim `--fit-ink` #006a35. Üçü de kontrastı geçiyor, çoğunluk
+      yok. Bu bir ÜRÜN kararı: yıldız bir HATA mı (kırmızı) yoksa bir
+      İŞARET mi (marka yeşili)? Öneri: `--fit-deep` — yıldız hata değil,
+      alan doldurulmadan önce de orada duruyor; ayrıca kit §3 "üst
+      etiket" rengi de rgb(0,122,61). KARAR BEYAR'IN.
+
+ F2 · Hata API'si tek ada inmeli: `.fk-error`/`.fk-field.has-error` →
+      `.fk-hata`/`.fk-hata.show`/`.fk-input.is-err`. Bu bir CSS taşıma
+      değil, giris-v1'de MARKUP + SCRIPT değişikliği (16 `fk-error`,
+      5 `has-error` geçişi). FAZ 2'de ayrı bir adım olarak yapılmalı ve
+      giriş/kayıt formunun doğrulaması yeniden ölçülmeli. Yapılmazsa
+      giris-v1 kendi `.fk-error` kurallarını KORUR (bu blok onları
+      taşımıyor, silinecek satır listesinde de yoklar).
+
+ F3 · `.uys-*` ≤640 sıralaması iki sayfada farklı: hesabim fiyatı
+      `order:1` ile üste alıyor, odemelerim `order:3` ile alta.
+      Hangisinin doğru olduğunu söyleyecek bir ölçü yok — dar ekranda
+      hangi bilgi önce okunmalı sorusu. Yerel kaldı.
+
+ F4 · `text-align:left;text-align-last:auto` bildirimleri sayfada kalır
+      (yukarıda §E'de gerekçesi). Kabuğa taşınırlarsa `fit-type.css`
+      yaslamayı geri alır.
+ ===================================================================== */

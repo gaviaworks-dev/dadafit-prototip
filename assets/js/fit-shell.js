@@ -3014,32 +3014,20 @@ setTimeout(function(){
       return write(s);
     },
 
-    /* ---- challenge (belge §8.4) ---- */
-    challengeKatil:function(c){
-      var s=read();
-      s.challenge={slug:c.slug,ad:c.ad,durum:'devam',gun:1,toplam:c.toplam||30,seri:1,telafi:0};
-      return write(s);
-    },
-    challengeGunTamamla:function(){
-      var s=read();
-      if(s.challenge && s.challenge.durum==='devam'){
-        s.challenge.gun++; s.challenge.seri++;
-        if(s.challenge.gun>s.challenge.toplam){ s.challenge.gun=s.challenge.toplam; s.challenge.durum='tamamlandi'; }
-      }
-      return write(s);
-    },
-    /* esnek seri kuralı: ayda iki telafi; üçüncüde seri baştan (belge §15) */
-    challengeGunKacir:function(){
-      var s=read();
-      if(s.challenge && s.challenge.durum==='devam'){
-        if((s.challenge.telafi||0) < 2){ s.challenge.telafi=(s.challenge.telafi||0)+1; }
-        else { s.challenge.seri=0; }
-        s.challenge.gun++;
-      }
-      return write(s);
-    },
-    challengeBirak:function(){ var s=read(); if(s.challenge)s.challenge.durum='birakildi'; return write(s); },
-
+    /* ---- challenge ----
+       R16/1 · İKİNCİ KAYIT YERİ SÖKÜLDÜ.
+       Burada dört yazma ucu vardı ve `s.challenge` tek nesnesini ELLE
+       ARTIRIYORDU: katıl → gun:1/seri:1, günü tamamla → gun++/seri++,
+       kaçır → telafi++, bırak → durum. Hiçbiri kanıt almıyordu ve
+       `fit-challenge.js` aynı soruya BAŞKA bir cevap veriyordu: o,
+       ilerlemeyi `gecmis[]`ten her seferinde YENİDEN HESAPLIYOR.
+       Aynı veriye iki yazıcı, biri sayaç biri hesap — bu depoda üç kez
+       temizlenen "aynı soruya iki cevap" kusurunun tam kendisi.
+       ÖLÇÜLDÜ: dördünün de çağıranı 0'dı (sayfalar R15/5'te motora geçti).
+       Yazma artık YALNIZ `FIT_CHALLENGE.katil/birak/isaretle`den geçer.
+       `s.challenge` alanı DURUYOR ve okunmaya devam ediyor (programlarim ·
+       kabuğun modül rozeti); ona motorun `_yansit()`i yazar — okuyan taraf
+       kırılmadı, yazan taraf teke indi. */
     /* ---- randevu yaşam döngüsü (belge §11, 9 adım) ---- */
     randevuAl:function(r){
       var s=read();
@@ -3376,6 +3364,11 @@ setTimeout(function(){
   function build(panel){
     var groups = Array.prototype.slice.call(panel.querySelectorAll('.fgroup[data-group]'));
     if(!groups.length) return;
+    /* R16/1 · İKİ KEZ KURULMAYA KARŞI MÜHÜR. `filtreKur()` açık uç olunca
+       aynı panel iki kez gelebilir; ikinci kurulum iskeleti çiftler ve
+       facet düğmeleri iki kopya olurdu. */
+    if(panel.getAttribute('data-ff-kuruldu') === '1') return;
+    panel.setAttribute('data-ff-kuruldu','1');
 
     panel.classList.add('ff');
     var id = 'ff' + (++uid);
@@ -3936,6 +3929,30 @@ setTimeout(function(){
   }
 
   panels.forEach(build);
+
+  /* =================================================================
+     R16/1 · VERİDEN DOĞAN PANELLER İÇİN AÇIK UÇ — `FIT_SHELL.filtreKur()`
+     -----------------------------------------------------------------
+     ÖLÇÜLEN KUSUR: bu bileşen `document.querySelectorAll('[data-ff]')`i
+     BİR KEZ, betik yüklenirken okuyor. Çipleri sabit HTML'de duran
+     sayfalar (egzersiz-kutuphane · program-liste) bundan yararlanıyor;
+     ama süzgecini KENDİ VERİSİNDEN üreten bir sayfa (challenge-merkezi,
+     çipleri `FIT_CHALLENGE.KATALOG`tan basıyor) bu tarama bittikten
+     sonra doluyor ve bileşen onu hiç görmüyordu. Sonuç: aynı `.fgroup`
+     sözleşmesini yazan iki sayfadan biri açılır menü alıyor, öteki çıplak
+     çip yığını olarak kalıyordu — kabuk kiti ikiye ayrılmıştı.
+     Çözüm bir kural değişikliği değil, eksik olan uç: panelini sonradan
+     dolduran sayfa doldurunca haber verir. Bileşenin davranışı aynı;
+     yalnız "ne zaman kurulacağı" çağırana açıldı.
+     ================================================================= */
+  if(window.FIT_SHELL){
+    window.FIT_SHELL.filtreKur = function(panel){
+      if(typeof panel === 'string') panel = document.querySelector(panel);
+      if(!panel) return false;
+      build(panel);
+      return panel.getAttribute('data-ff-kuruldu') === '1';
+    };
+  }
 })();
 
 

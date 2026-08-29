@@ -86,28 +86,31 @@ kusurdur, kopyalanmaz.
 | Sayfalar ve SEO | O | Statik sayfalar, başlık/açıklama, yayın durumu | `admin-sayfalar-v1.html` |
 
 ### OPERASYON — günlük iş
+> ⚠ Bölümleme §9'da Gastro'nun ölçülen sidebar'ına çekildi; aşağıdaki tablo o
+> düzeltmeyi taşır (Rozetler ve Log buraya geldi, Raporlar YAPILANDIRMA'ya gitti).
+
 | Kalem | | Ekranın işi | Dosya |
 |---|---|---|---|
 | Üyeler ve Yetki | O | Üye listesi, rol, durum, kademe; tek üye detayı | `admin-uyeler-v1.html` |
 | Antrenörler | F | Başvuru kuyruğu + onaylı antrenörler; belge doğrulama | `admin-antrenorler-v1.html` |
+| Moderasyon | O | Yorum ve içerik bildirimi kuyruğu | `admin-moderasyon-v1.html` |
+| Destek Talepleri | O | Dört durumlu kuyruk (K8 kanonu), atama, yanıt | `admin-destek-v1.html` |
 | Hizmetler ve Satışlar | F | Antrenör hizmet paketleri, satın alımlar, iade talepleri | `admin-hizmetler-v1.html` |
 | Kazançlar ve Ödemeler | O | Komisyon, ay sonu ödeme listesi, alt sınır altı bakiyeler | `admin-odemeler-v1.html` |
-| Destek Talepleri | O | Dört durumlu kuyruk (K8 kanonu), atama, yanıt | `admin-destek-v1.html` |
-| Moderasyon | O | Yorum ve içerik bildirimi kuyruğu | `admin-moderasyon-v1.html` |
-| Raporlar | O | Genel · içerik · finansal · moderasyon | `admin-raporlar-v1.html` |
+| Rozetler ve Kademeler | O | Rozet kataloğu, puan değerleri, 8 kademe eşiği (puan + aktif gün) | `admin-rozetler-v1.html` |
+| Log Yönetimi | O | Yönetici işlem kaydı | `admin-log-v1.html` |
 
 ### YAPILANDIRMA
 | Kalem | | Ekranın işi | Dosya |
 |---|---|---|---|
-| Rozetler ve Kademeler | O | Rozet kataloğu, puan değerleri, 8 kademe eşiği (puan + aktif gün) | `admin-rozetler-v1.html` |
-| Paketler ve Özellikler | F | Kademe⇄özellik matrisi (`fit-paket.js`), fiyat alanları | `admin-paketler-v1.html` |
 | Menü ve Navigasyon | O | Header, footer, hesap menüsü kalemleri | `admin-menu-v1.html` |
-| Sponsorluk ve Reklam | O | Reklam alanları, kampanya, kreatif | `admin-reklam-v1.html` |
+| Sponsorluk ve Reklam | O | Reklam alanları, kampanya, kreatif (üç sekme) | `admin-reklam-v1.html` |
+| Paketler ve Özellikler | F | Kademe⇄özellik matrisi (`fit-paket.js`), fiyat alanları | `admin-paketler-v1.html` |
 | Bildirim Şablonları | O | E-posta ve uygulama içi bildirim metinleri | `admin-bildirim-v1.html` |
 | Ayarlar | O | Marka ayarları, para parametreleri (K13), sağlık uyarı metni | `admin-ayarlar-v1.html` |
-| Log Yönetimi | O | Yönetici işlem kaydı | `admin-log-v1.html` |
+| Raporlar | O | Genel · içerik · finansal · moderasyon (bölümün sonu — Gastro deseni) | `admin-raporlar-v1.html` |
 
-**Toplam: 1 + 6 + 7 + 7 = 21 ekran.**
+**Toplam: 1 + 6 + 8 + 6 = 21 ekran.**
 Ortak **13**, Fit'e özel **8**. Diet ve Gourmet'e taşınırken 13'ü aynen gider,
 8'i markanın kendi modülleriyle değişir.
 

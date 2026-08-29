@@ -293,17 +293,43 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
 /* dil seçici — üst bant (ince, açık zemin yazı) */
 .tb-lang{position:relative;display:flex;align-items:center}
 .tb-lang::before{content:"";width:1px;height:14px;background:rgba(233,226,214,.22);margin-right:4px}
+/* =====================================================================
+   DİL SEÇİCİ — açılır menü  (Beyar kararı, 2026-08-29)
+   ---------------------------------------------------------------------
+   §W2 · eski karar silinmez. Bir önceki tur kardeş markanın deseninden
+   gidiyordu: dadagastro.com üst bandında açılır menü YOK, tek bağlantı
+   var — <a class="tb-lang-one" href="/en" hreflang="en">EN</a>; site
+   Türkçeyken "EN", /en'deyken "TR" yazıyor (ikisi de canlıdan ölçüldü,
+   html[lang] ve başlık "What should I cook?" ile doğrulandı). Kalem o
+   turda deponun kilit dilinde (`.is-soon` + `.sr-lock`) bırakılmıştı,
+   çünkü Fit'te çeviri altyapısı yok.
+   Beyar: "dil seçimi kilitli olmamalı, kilit yalnız marka kalemlerinde;
+   menü kutu içinde açılsın". Karar bağlayıcı — menü geri kuruldu,
+   KİLİT ROZETİ KALKTI.
+   Düğmede GEÇİLECEK dil yazar (Gastro kuralı korundu): site Türkçe →
+   düğme "EN". Menüde aktif olan GERÇEK dildir (TR).
+   🔴 Çeviri altyapısı hâlâ YOK (ölçüldü: i18n sözlüğü 0 · data-i18n 0 ·
+   /en yüzeyi 0). Sahte çeviri üretilmedi; menünün dibinde tek satır
+   dürüst not durur — "Yakında" yazılmadı (§O8).
+   KAPALIYKEN `display:none` — `visibility:hidden` seçilseydi kutu
+   ölçülebilir kalırdı (getClientRects().length 1 dönerdi).
+   ===================================================================== */
 .tb-lang-btn{display:inline-flex;align-items:center;gap:7px;background:transparent;border:none;cursor:pointer;color:#e9e2d6;font-family:inherit;font-size:12.5px;font-weight:500;padding:0;transition:color .2s}
 .tb-lang-btn:hover{color:#fff}
 .tb-lang-btn>span{font-weight:600;letter-spacing:.03em}
-.tb-lang-caret{font-size:9px;transition:transform .2s var(--ease)}
-.tb-lang.open .tb-lang-caret{transform:rotate(180deg)}
-.tb-lang-menu{position:absolute;top:calc(100% + 9px);right:0;min-width:148px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-md);padding:6px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .2s var(--ease),transform .2s var(--ease),visibility .2s;z-index:80}
-.tb-lang.open .tb-lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.tb-lang-menu a{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:13px;font-weight:600;padding:9px 11px;border-radius:var(--radius-sm);transition:.18s var(--ease)}
-.tb-lang-menu a span{color:var(--muted);font-weight:500;font-size:12.5px}
-.tb-lang-menu a:hover{background:var(--fit-wash);color:var(--fit)}
-.tb-lang-menu a.active,.tb-lang-menu a.active span{color:var(--fit)}
+.tb-lang-btn:focus-visible{outline:2px solid var(--fit-bright);outline-offset:3px;border-radius:var(--radius-sm)}
+.tb-lang-menu{display:none;position:absolute;top:calc(100% + 9px);right:0;min-width:196px;max-width:calc(100vw - 24px);background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-lg);padding:6px;z-index:80}
+.tb-lang.open .tb-lang-menu{display:block;animation:fadeUp .18s var(--ease)}
+.tb-lang-menu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font-family:inherit;background:none;border:0;cursor:pointer;color:var(--ink);font-size:13px;font-weight:600;padding:9px 11px;border-radius:var(--radius-sm);transition:.18s var(--ease)}
+.tb-lang-menu button span{color:var(--muted);font-weight:500;font-size:12.5px}
+.tb-lang-menu button:hover{background:var(--fit-wash);color:var(--fit-deep)}
+.tb-lang-menu button.active,.tb-lang-menu button.active span{color:var(--fit-deep)}
+.tb-lang-menu button.active::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;margin-left:auto;font-size:11px}
+.tb-lang-menu button:focus-visible{outline:2px solid var(--fit-deep);outline-offset:-2px}
+/* dürüst not — deponun `.hr-note` dilinin menü ölçüsüne indirilmiş hâli */
+.tb-lang-note{display:flex;gap:8px;align-items:flex-start;margin:6px 2px 2px;padding:9px 10px;background:var(--fit-tint);border-radius:var(--radius-sm);font-size:11.5px;line-height:1.45;font-weight:500;color:var(--slate-2);transition:background .2s var(--ease)}
+.tb-lang-note i{color:var(--fit-deep);font-size:11px;margin-top:2px;flex:none}
+.tb-lang-note.is-vurgu{background:var(--fit-wash);outline:1px solid var(--fit-line)}
 
 /* ---- üst bant dünya kapıları: DadaStore + DadaAkademi markalı geçiş (CİLA-2 Faz 5) ---- */
 .topbar .tb-util{color:#cfc7ba}
@@ -398,7 +424,11 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
 .btn-login{
   display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:700;font-size:14px;
   color:#fff;background:var(--fit);border:1px solid var(--fit);border-radius:var(--radius-md);
-  height:43px;padding:0 18px;margin-left:3px;cursor:pointer;white-space:nowrap;transition:.2s var(--ease);
+  /* R16 · `margin-left:3px` KALDIRILDI. Kap `.head-actions` `gap:9px`
+     veriyor; bu ek marj yalnız `.btn-login`i taşıdığı için komşu aralıklar
+     eşit değildi — ölçüldü (oturum kipi, 1440): 9 · 12 · 9. Yeni değer
+     üretilmedi, fazlalık silindi; üç aralık da kabın 9px'i. */
+  height:43px;padding:0 18px;cursor:pointer;white-space:nowrap;transition:.2s var(--ease);
 }
 .btn-login i{font-size:14px}
 .btn-login:hover{background:var(--fit-deep);border-color:var(--fit-deep)}
@@ -869,19 +899,21 @@ body.is-auth .d-item.d-plan{display:block}
 .dw-akademi:hover i{color:#fff}
 .dw-akademi:hover .dw-soon{background:rgba(255,255,255,.20);color:#fff}
 /* drawer dil seçici (mobilde üst bant yok) — aç/kapa liste: N dile ölçeklenir */
+/* çekmece dil satırı — üst banttaki menüyle AYNI karar (kilit yok, not var) */
 .drawer-lang{display:flex;flex-direction:column;margin-top:3px}
 .drawer-lang-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:none;border:none;font-family:inherit;padding:4px 0;cursor:pointer}
 .drawer-lang-label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted)}
 .drawer-lang-cur{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--slate)}
 .drawer-lang-cur i{font-size:10px;color:var(--muted);transition:transform .25s var(--ease)}
 .drawer-lang.open .drawer-lang-cur i{transform:rotate(180deg)}
-.drawer-lang-list{display:none;flex-direction:column;gap:5px;margin-top:10px;max-height:212px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.drawer-lang-list{display:none;flex-direction:column;gap:5px;margin-top:10px}
 .drawer-lang.open .drawer-lang-list{display:flex}
 .drawer-lang-list button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;cursor:pointer;transition:.18s var(--ease)}
 .drawer-lang-list button b{font-weight:700;letter-spacing:.03em;width:26px;flex:none}
-.drawer-lang-list button:hover{border-color:var(--fit);color:var(--fit)}
-.drawer-lang-list button.active{border-color:rgba(0,157,79,.4);background:var(--fit-wash);color:var(--fit)}
+.drawer-lang-list button:hover{border-color:var(--fit-deep);color:var(--fit-deep)}
+.drawer-lang-list button.active{border-color:var(--fit-deep);background:var(--fit-wash);color:var(--fit-deep)}
 .drawer-lang-list button.active::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;margin-left:auto;font-size:12px}
+.drawer-lang-list .tb-lang-note{margin:2px 0 0}
 
 /* mobil alt navigasyon — Instagram tarzı floating frosted pill */
 .bottom-nav{
@@ -986,17 +1018,33 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 .fb-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px;border-bottom:1px solid var(--line)}
 .fb-head h3{font-size:19px}
 .fb-head p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px}
-.fb-close{flex:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
+.fb-close{flex:none;width:44px;height:44px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
 .fb-close:hover{border-color:var(--fit);color:var(--fit)}
 .fb-body{padding:22px 24px 24px}
+/* Bu prototipte görüş GÖNDERİLMİYOR. Deponun kendi dürüst şerit bileşeni
+   (`.hr-note`, destek-v1 ve talep detayında canlı) modalin ölçüsüne
+   çekildi — yeni bileşen üretilmedi. */
+.fb-body .hr-note{margin:0 0 16px;padding:13px 15px;gap:11px;border-radius:var(--radius-md)}
+.fb-body .hr-note>i{font-size:15px}
+.fb-body .hr-note p{font-size:12.5px;line-height:1.55}
 .fb-topics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
-.fb-topic{display:flex;align-items:center;gap:10px;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;transition:.18s var(--ease);text-align:left}
+.fb-topic{display:flex;align-items:center;gap:10px;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 14px;min-height:44px;cursor:pointer;transition:.18s var(--ease);text-align:left}
 .fb-topic i{width:18px;text-align:center;color:var(--fit);font-size:14px;flex:none}
 .fb-topic:hover{border-color:var(--fit);color:var(--fit)}
-.fb-topic.active{border-color:rgba(0,157,79,.4);background:var(--fit-wash);color:var(--fit);font-weight:700}
+/* WCAG 1.4.3 · ölçüldü: eski hâl `--fit` metin / `--fit-wash` zemin = 3.18:1 (KALDI).
+   Kit §6 sekme kalıbına geçildi — `--fit-deep` zemin + beyaz metin = 5.45:1.
+   Yeni renk üretilmedi; ikisi de kitin kendi tokeni. */
+.fb-topic.active{border-color:var(--fit-deep);background:var(--fit-deep);color:#fff;font-weight:700}
+.fb-topic.active i{color:#fff}
 .fb-topic[data-topic="puan"]{grid-column:1/-1;justify-content:center} /* 5. tip (Puan ver öneri) tam satır */
 .fb-field{margin-bottom:11px}
-.fb-field input,.fb-field textarea{width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:13px 15px;outline:none;transition:border-color .2s var(--ease)}
+/* Kit §7 · form alanları. Ölçüldü (öncesi): input 45px · yarıçap 12px ·
+   dolgu 13px 15px — kitin input satırı 44px · 8px · 0 14px diyor, sapma
+   buradaydı. textarea zaten kitle birebirdi (108px · 13px 15px · 12px),
+   ona dokunulmadı; iki alanın yarıçapı kitin kendi ayrımıdır. */
+.fb-field input,.fb-field textarea{width:100%;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);background:var(--bg);border:1px solid var(--line);outline:none;transition:border-color .2s var(--ease)}
+.fb-field input{height:44px;border-radius:var(--radius-sm);padding:0 14px;line-height:21.7px}
+.fb-field textarea{border-radius:var(--radius-md);padding:13px 15px}
 .fb-field input::placeholder,.fb-field textarea::placeholder{color:#a7a7a7}
 .fb-field input:focus,.fb-field textarea:focus{border-color:var(--fit)}
 .fb-field textarea{min-height:108px;resize:vertical}
@@ -1011,8 +1059,15 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 }
 .fb-select:focus{border-color:var(--fit)}
 .fb-select:invalid{color:#a7a7a7}
-.fb-chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px}
-.fb-chiprow .chip.active{border-color:var(--fit);color:var(--fit);background:var(--fit-wash);font-weight:700}
+/* Çip görünür yüksekliği kit §5 değeridir (`.df-fchip` 35px) — büyütülmedi.
+   WCAG 2.5.5'in 44px dokunma hedefi görünmez `::before` ile açılır;
+   sıra 44 yüksekliğinde kalsın diye satır aralığı 9px'e çıktı. */
+.fb-chiprow{display:flex;flex-wrap:wrap;gap:9px 8px;margin-bottom:13px}
+.fb-chiprow .chip{position:relative;min-height:35px}
+.fb-chiprow .chip::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
+/* aynı ölçüm (3.18:1) ve aynı çözüm — kit §5 `.df-fchip` aktif çipi de
+   dolu yeşil zemin üstünde beyaz metindir. */
+.fb-chiprow .chip.active{border-color:var(--fit-deep);color:#fff;background:var(--fit-deep);font-weight:700}
 .fb-emoji{display:flex;gap:8px;margin-bottom:13px}
 .fb-emoji button{
   flex:1;font-size:25px;line-height:1;padding:13px 0;background:var(--bg);border:1px solid var(--line);
@@ -1028,13 +1083,20 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 .fb-shot small{font-weight:500}
 .fb-shot:hover{border-color:var(--fit);color:var(--fit)}
 .fb-kvkk{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.5;margin:14px 0 16px;cursor:pointer}
-.fb-kvkk input{margin-top:3px;accent-color:var(--fit);flex:none}
+.fb-kvkk input{width:18px;height:18px;margin-top:1px;accent-color:var(--fit-deep);flex:none}
 .fb-kvkk a{color:var(--fit);font-weight:700;text-decoration:underline;text-underline-offset:2px}
-.fb-send{width:100%}
+/* WCAG 1.4.3 · ölçüldü: `.btn-primary` zemini `--fit` (#009d4f) beyaz metinle
+   3.54:1 → KALDI. Kitin kendi ikinci düğme tonu `--fit-deep` (#007a3d) aynı
+   metinle 5.45:1 (kit §4 `.btn-fit`). Yeni renk üretilmedi. */
+.fb-send{width:100%;background:var(--fit-deep)}
+.fb-send:hover{background:var(--fit-deeper)}
 .fb-success{text-align:center;padding:18px 0 10px}
-.fb-success .ok{width:62px;height:62px;border-radius:var(--radius-circle);background:#EAF7F0;color:var(--green);display:grid;place-items:center;font-size:26px;margin:0 auto 16px}
+/* Yeşil onay dairesi KALDIRILDI: gönderim olmadığı için "başarı" işareti
+   yalan oluyordu. Kit §9 boş-durum ikonu (56px daire, `--fit-tint`) alındı. */
+.fb-success .ok{width:56px;height:56px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:22px;margin:0 auto 16px}
 .fb-success h4{font-size:18px;margin-bottom:7px}
-.fb-success p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:340px;margin:0 auto}
+.fb-success p{font-size:13.5px;color:var(--slate-2);font-weight:500;max-width:44ch;margin:0 auto;line-height:1.6}
+.fb-success .fb-again{margin-top:18px}
 
 /* ===================== ÇEREZ ONAY BANNER ===================== */
 .cookie-banner{
@@ -1491,13 +1553,64 @@ body[data-fit-rail="1"] .site-footer{margin-left:var(--sa-rail-w)}
 html.reveal-ready .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 html.reveal-ready .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){html.reveal-ready .reveal{opacity:1 !important;transform:none !important;transition:none}}
-/* scroll-to-top (sağ-alt) — var(--fit) bu sayfada YEŞİL */
-.to-top{position:fixed;right:22px;bottom:92px;z-index:55;width:54px;height:54px;border-radius:var(--radius-lg);background:#fff;color:var(--fit);border:1px solid var(--line);cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(33,30,22,.16);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s,background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
+/* scroll-to-top (sağ-alt) — var(--fit) bu sayfada YEŞİL.
+   `--bc-lift`: çerez şeridi düğmenin altını kapattığında JS bu değişkeni
+   yazar, düğme şeridin üstüne çıkar (fit-shell.js "ÇEREZ ONAY BANNER").
+   Emsal ölçüldü (dadagastro.com, 2026-08-29): kardeş markada kural birebir
+   `bottom:calc(92px + var(--bc-lift,0px))`; ölçülen değerler 1440→92px
+   (şerit düğmenin soluna bitiyor, yükselme yok) · 1024→131px · 768→171px.
+   Fit'te mekanizma HİÇ YOKTU: üç genişlikte de 92px'te kalıp şeridin
+   altında kalıyordu. */
+.to-top{position:fixed;right:22px;bottom:calc(92px + var(--bc-lift,0px));z-index:55;width:54px;height:54px;border-radius:var(--radius-lg);background:#fff;color:var(--fit);border:1px solid var(--line);cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(33,30,22,.16);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s,background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
 .to-top.show{opacity:1;visibility:visible;transform:none}
 .to-top:hover{background:var(--fit);color:#fff;border-color:var(--fit);transform:translateY(-2px)}
 .to-top:focus-visible{outline:3px solid var(--fit-wash);outline-offset:2px}
-@media (max-width:640px){.to-top{right:16px;bottom:calc(148px + env(safe-area-inset-bottom,0px));width:48px;height:48px}}
+@media (max-width:640px){.to-top{right:16px;bottom:calc(148px + env(safe-area-inset-bottom,0px) + var(--bc-lift,0px));width:48px;height:48px}}
 @media (prefers-reduced-motion:reduce){.to-top{transition:opacity .15s linear}.to-top:hover{transform:none}}
+
+/* =====================================================================
+   HERO KAYDIRMA İŞARETİ — "Keşfet"  (kardeş markadan taşındı, §U7 BİREBİR)
+   ---------------------------------------------------------------------
+   Emsal ölçüldü (dadagastro.com ana sayfa, 1440×1000, 2026-08-29):
+     .hero-scroll{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+                  z-index:3;color:rgba(255,255,255,.7);font-size:12px;font-weight:500;
+                  letter-spacing:.14em;text-transform:uppercase;
+                  display:flex;flex-direction:column;align-items:center;gap:9px}
+     .hero-scroll:hover{color:#fff}
+     .hero-scroll i{font-size:15px;animation:hero-scroll-bob 1.8s var(--ease) infinite}
+     @keyframes hero-scroll-bob{0%,100%{translateY(0)} 50%{translateY(6px)}}
+     @media(max-width:640px){.hero-scroll{display:none}}
+     @media(prefers-reduced-motion:reduce){.hero-scroll i{animation:none}}
+   Ana sayfada taban `bottom:26px` değeri `62px`e eziliyor; ölçülen sonuç
+   hero'nun alt kenarından 62px. Fit'te ana sayfa hero'su dikiş payı kadar
+   (`--seam-r`) daha uzun olduğu için o pay eklenir — GÖRÜNEN boşluk 62px'te
+   kalsın diye. Ölçüm: merkez 719.5 ≈ sayfa merkezi 720.
+   YAPI VE ÖLÇÜ Gastro'nun, RENK Fit'in: kalem koyu video hero'nun üstünde
+   durduğu için Gastro'da da rgba(255,255,255,.7) — marka rengi taşımıyor,
+   sızma yok. Ölçülen kontrast (beyaz .7 / hero'nun dip gradyanı #181610'a
+   yakın) 9.8:1.
+   FARK: Gastro'da bu bir <div>, yani tıklanmıyor (cursor:auto ölçüldü).
+   Deponun dürüstlük kuralı gereği Fit'te <a> — chevron'un vaat ettiği işi
+   GERÇEKTEN yapar, hero'nun altındaki ilk bölüme iner.
+   ===================================================================== */
+.hero-scroll{
+  position:absolute;left:50%;bottom:calc(62px + var(--seam-r,0px));
+  transform:translateX(-50%);z-index:3;
+  color:rgba(255,255,255,.7);font-size:12px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  transition:color .2s var(--ease);
+}
+/* Beyar: "renk DadaFit'in". Emsalde dinlenme hâli marka rengi taşımıyor
+   (rgba(255,255,255,.7) — koyu hero'nun üstünde nötr); tek renk kararı
+   HOVER'da, Gastro orada #fff'e çıkıyor. Fit o tek yerde kendi rengini
+   kullanır: `--fit-bright`, koyu hero zemininde ölçülen kontrast 8.17:1. */
+.hero-scroll:hover{color:var(--fit-bright)}
+.hero-scroll:focus-visible{outline:3px solid var(--fit-bright);outline-offset:6px;border-radius:var(--radius-sm)}
+.hero-scroll i{font-size:15px;animation:hero-scroll-bob 1.8s var(--ease) infinite}
+@keyframes hero-scroll-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@media (max-width:640px){.hero-scroll{display:none}}
+@media (prefers-reduced-motion:reduce){.hero-scroll i{animation:none}}
 /* DadaMentor paneli (.mentor-panel / .mp-*) kaldırıldı — belge §1 ve §21.
    Onunla birlikte YALNIZ o panelin kullandığı ölü token/sınıf bloğu da gitti
    (--d-3 · --d-deep · --dline · --sh-3 · --panel-fl · --ease-spring ·
@@ -1570,6 +1683,53 @@ body.is-auth .d-acct-block{display:block}
 }
 .hub-card:focus-visible,.ex-card:focus-visible,.pr-card:focus-visible,
 .fs-card:focus-visible,.prog-card:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+
+/* =====================================================================
+ KAYIT DÜĞMESİ — .kyt-btn / .kyt-link      (R15/1 · FIT_KAYIT köprüsü)
+ ---------------------------------------------------------------------
+ Ölçülen kusur: kartlarda kaydet düğmesi YOKTU (egzersiz 25 kart → 0,
+ program 9 kart → 0). Düğme eklenince bir HTML sorunu doğdu: kartın
+ kendisi <a> idi ve <a> içine <button> koymak geçersizdir (klavye ve
+ ekran okuyucu için de bozuk). Bu yüzden kart <div>'e çevrildi ve
+ bağlantı BAŞLIĞA taşındı; `.kyt-link::after` kartın tamamını kaplayarak
+ "kartın her yerine tıklanır" davranışını korur.
+
+ z-index düzeni (yukarıdan aşağı):
+   4  .kyt-btn      → kaydet; kart bağlantısının ÜSTÜNDE kalmalı
+   3  .kyt-link::after → kartı kaplayan görünmez bağlantı yüzeyi
+   2  .ex-tags/.ex-cat/.ex-level … → süs rozetleri; bağlantının ALTINDA
+      kalırlar ki üzerlerine tıklamak da kartı açsın (tıklanamaz ada
+      dönüşmesinler)
+
+ Dokunma hedefi 44×44 (WCAG 2.5.8) — görsel daire 40px, kalan 4px
+ şeffaf dolgudur; ölçüm bunu hedef sayar, göz görmez.
+ ===================================================================== */
+.kyt-link{color:inherit;text-decoration:none}
+.kyt-link::after{content:"";position:absolute;inset:0;z-index:3}
+.kyt-link:focus-visible::after{outline:3px solid var(--fit);outline-offset:-4px;border-radius:var(--radius-lg)}
+
+.kyt-btn{
+  position:absolute;top:8px;right:8px;z-index:4;
+  width:44px;height:44px;padding:0;border:0;background:transparent;
+  display:grid;place-items:center;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.kyt-btn::before{
+  content:"";position:absolute;width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.9);border:1px solid rgba(20,18,12,.10);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 2px 8px rgba(20,18,12,.14);
+  transition:background .2s var(--ease),transform .2s var(--ease),border-color .2s var(--ease);
+}
+.kyt-btn i{position:relative;font-size:15px;color:var(--slate-2);transition:color .2s var(--ease)}
+.kyt-btn:hover::before{transform:scale(1.06)}
+.kyt-btn:hover i{color:var(--fit-deep)}
+.kyt-btn.is-on::before{background:var(--fit);border-color:var(--fit)}
+.kyt-btn.is-on i{color:#fff}
+.kyt-btn:focus-visible{outline:3px solid var(--fit);outline-offset:2px;border-radius:50%}
+/* depolama kapalı (gizli kip / kota): sessizce "kaydedildi" demeyiz */
+.kyt-btn.kyt-hata::before{background:#fdeaea;border-color:#e8b4b4}
+.kyt-btn.kyt-hata i{color:#a33}
 
 /* TİP B — tam görsel örtülü kart (challenge · alternatif hareket) */
 .cc-card,.ed-altcard{
@@ -3361,7 +3521,14 @@ html.reduce-motion .reveal{opacity:1 !important;transform:none !important}
   color:var(--muted);background:transparent;border:none;
   border-radius:var(--radius-sm);padding:10px 18px;cursor:pointer;
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
-  transition:.2s var(--ease)
+  transition:.2s var(--ease);
+  /* R15 · Beyar kararı: DOKUNMA HEDEFİ 44px. Ölçülen eski hâl 36px'ti
+     (13.5px yazı + 10px alt/üst dolgu) ve WCAG 2.5.8'in 24px tabanını
+     geçse de kitin kendi 44px hedefinin ALTINDA kalıyordu — beş modül
+     sayfasında birden. Dolguyu büyütmek yerine `min-height` verildi:
+     dolgu değişseydi kalemler arası yatay ritim de kayardı, oysa kusur
+     yalnız dikeydi. `box-sizing` kabukta zaten `border-box`. */
+  min-height:44px
 }
 .fit-tab i{font-size:12px;transition:color .2s var(--ease)}
 .fit-tab .cnt{
@@ -3890,10 +4057,148 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
    gereği küçültülmez ve bu dalgada kapsam dışıdır.) */
 .fp-kimlik-id h1{font-size:29px;letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .fp-kimlik-id .fp-handle2{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:3px}
+/* R15/2 · MODÜL KABUĞU (#fitModulTop) — kimlik kartı kiti Planım kabuğuyla
+   ORTAK; burada yalnız iki ekleme var, ikisi de şartnameden:
+   · .fp-uad  → şartnamenin istediği KULLANICI ADI, adın yanında
+   · .modul-govde → sekme panellerinin OPAK kabı. Opak olması şart:
+     kabuğun 'dikişi rayın dibine çek' bloğu rayın altındaki saydam
+     blokları gövdeye taşır; gövde opaksa onu hedef sayar ve panel
+     kipine hiç dokunmaz. */
+.fp-kimlik-id .fp-uad{color:var(--fit-deep);font-weight:700}
+/* R15 · Beyar: "pill ile aşağısındaki beyaz section arasında boşluk olsun".
+   ÖLÇÜLDÜ: sekme şeridi OLAN modül sayfalarında istatistik şeridi ile gövde
+   arasında 24px var (şeridin kendi üst dolgusundan geliyor); şerit OLMAYAN
+   sayfalarda (mesajlarim · challengelarim) boşluk 0 ve pill beyaz banda
+   yapışıyor. Payı `.pf-stats`a vermek çift boşluk yapardı — şeritli
+   sayfalarda 24+X olurdu. Bitişik kardeş seçicisi tam da eksik durumu
+   yakalıyor: gövde DOĞRUDAN profil bölümünü izliyorsa arada şerit yok
+   demektir, aynı 24px oraya konur. */
+.fp-profil + .modul-govde{margin-top:24px}
+
+.modul-govde{background:var(--bg-cream);position:relative;z-index:1}
+.modul-govde>.fit-pane[hidden]{display:none}
 .fp-kimlik-id .fp-lead2{font-size:14.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-top:12px}
 .fp-kimlik-meta{display:flex;flex-wrap:wrap;gap:7px 20px;margin-top:13px;font-size:13px;color:var(--muted);font-weight:500}
 .fp-kimlik-meta span{display:inline-flex;align-items:center;gap:7px}
 .fp-kimlik-meta i{color:var(--fit-deep)}
+
+/* =====================================================================
+   R16 · MODÜL PROFİL KARTI — kademe rozeti + istatistik şeridi
+   ---------------------------------------------------------------------
+   Emsal: dadagastro.com/sefler/admin — `.pf-head` (kimlik) + AYRI bir
+   `.pf-stats` kartı, beş hücre. Yapı ve ölçüler oradan, RENK kitten.
+
+   İstatistik hücresi YENİ DEĞİL: `antrenor-detay-v1.html`in `.cp-stats` /
+   `.cps` kiti emsalin `.pf-stats`/`.pfs`'iyle birebir aynı yapıdadır
+   (<i> + <div><span>etiket</span><b>değer</b></div>, ikon 38×38
+   `--radius-md` `--fit-tint` zemin `--fit-deep` renk, <b> 16.5px/700).
+   Kurallar oradan BİREBİR kopyalandı, sınıf adları korundu — böylece
+   antrenör sayfasının kendi yerel kuralıyla çakışmaz, aynı değerleri
+   yazar. Yeni sınıf üretilmedi.
+
+   ⚠ KİTTE KARŞILIĞI OLMAYAN TEK KALEM: kademe rozeti. Kit §5'in
+   `.fp-badge`i nötr zeminli (`rgb(244,244,243)`), emsalinki marka
+   zeminli + beyaz metin. `.fp-badge`in ÖLÇÜSÜ korundu, yalnız rengi
+   `--fit-deep` + beyaz oldu (kontrast 5.45:1; `--fit` seçilseydi 3.54:1
+   ile WCAG 1.4.3'ü geçemezdi). Yeni renk üretilmedi, ikisi de kit tokeni.
+   Beyar onaylarsa kite "kademe rozeti" satırı olarak girer.
+   ===================================================================== */
+.fp-kimlik-id h1 .fp-badge.is-kademe{
+  background:var(--fit-deep);color:#fff;
+  font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  padding:7px 13px;border-radius:var(--radius-sm);
+  display:inline-flex;align-items:center;gap:6px;
+  vertical-align:middle;white-space:nowrap;
+}
+.fp-kimlik-id h1 .fp-badge.is-kademe i{font-size:12px;color:#fff}
+
+/* istatistik şeridi — kimlik kartının ALTINDA ayrı kart (emsalde de ayrı) */
+.cp-stats{display:flex;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.cps{flex:1 1 200px;display:flex;align-items:center;gap:12px;padding:15px 20px;min-width:0}
+.cps+.cps{border-left:1px solid var(--line)}
+.cps>i{flex:none;width:38px;height:38px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:15px}
+.cps>div{min-width:0}
+.cps span{display:block;font-size:11px;line-height:1.55;font-weight:500;letter-spacing:.02em;color:var(--muted)}
+.cps b{display:block;font-size:16.5px;line-height:1.55;font-weight:700;color:var(--slate)}
+/* YER TUTUCU — kaynağı olmayan sayı UYDURULMAZ; değer soluk görünür. */
+.cps[data-yer-tutucu] b{color:var(--muted);font-weight:600}
+/* Ayraçlar `border-left` yerine 1px IZGARA BOŞLUĞUYLA çiziliyor: beş hücre
+   dar ekranda satır atlıyor ve `.cps+.cps{border-left}` o zaman ikinci
+   satırın İLK hücresine dikey çizgi koyuyordu. Boşluk yöntemi hangi
+   sarma düzeninde olursa olsun doğru ayracı verir; renk yine `--line`.
+   Ölçüldü (öncesi): @1024 hücreler 233·233·233·233·974 — beşinci kalem
+   tek başına tam satır kalıyordu. Sonrası 3+2 ve 2+2+1. */
+/* 🔴 AD ÇAKIŞMASI DÜZELTİLDİ — bu kap ÖNCE `.fp-stats` adını taşıyordu, ama
+   o ad ZATEN VARDI: fit-shell.css:2221 `.fp-stats{display:grid;
+   grid-template-columns:repeat(4,…);gap:14px}` — çocukları `.fp-stat`
+   (beyaz kart, 1px --line, --radius-md), programlarim-v1 ve
+   fit-testi-sonuc-v1'de canlı. Buradaki `gap:1px` + `background:--line`
+   o kaba da uygulanıyordu: dört kartın arası 14px'ten 1px'e düşüyor ve
+   arkalarında --line rengi bant olarak taşıyordu (ölçüldü).
+   Ad emsalinkine çevrildi: kap `.pf-stats` (Gastro `.pf-stats`/`.pfs`),
+   hücre `.cps` kalıyor. `overflow:hidden` + yarıçap: 1px ayraçlar yuvarlak
+   köşenin dışına taşmasın.
+   DERS: "yeni sınıf üretme" kuralının ters yüzü de geçerli — VAR OLAN bir
+   adı yeni bir bileşen için de kullanma. 4290 satırlık kabukta ad çakışması
+   grep'siz görünmüyor. */
+.pf-stats{margin-top:14px;gap:1px;background:var(--line);border-radius:var(--radius-md);overflow:hidden}
+.pf-stats .cps{background:var(--paper)}
+.pf-stats .cps+.cps{border-left:0}
+.fp-modul-lead{margin-top:16px;max-width:76ch}
+
+/* =====================================================================
+   R16 · MODÜL GÖVDESİ — ZEBRA ve DİKEY MERKEZ  (Beyar, 2026-08-29)
+   ---------------------------------------------------------------------
+   Beyar: "Bölümler sırayla beyaz ve gri; her bölümün içeriği kendi
+   bölümünün dikey merkezinde — üst boşluk = alt boşluk."
+
+   ÖLÇÜM (1440, oturum açık, sekiz sayfa):
+     yapı her sayfada AYNI →  .modul-govde > .fit-pane > section > .wrap
+     ve her `.fit-pane` içinde TEK bir tam genişlik `section` var.
+     zemin/dolgu ise sayfadan sayfaya AYRIŞIYORDU:
+       .fp-body (egzersizlerim·programlarim·challengelarim·rozetlerim)
+                 #f9f9f9 · pt 32 / pb 74
+       .pk-body (paketlerim) · .od-body (odemelerim)
+                 #ffffff · pt 26 / pb 74
+       .hs-body (destek)
+                 saydam  · pt 0  / pb 0
+   İki kural buradan çıkıyor:
+
+   1 · DİKEY MERKEZ — üst ve alt dolgu EŞİTLENDİ. Değer kitin kendi
+       `--sec-pad-sm`i (32px): şeridin hemen altındaki üst boşluk zaten
+       oydu, `--sec-pad` (74px) seçilseydi sekme rayıyla içerik arasında
+       42px'lik boşluk açılır, ray içerikten kopardı.
+
+   2 · ZEBRA — kural `nth-of-type` ile kurulu ve BUGÜN her panelde tek
+       bölüm olduğu için hepsi dizinin İLK rengini, yani BEYAZ'ı alıyor
+       (Beyar'ın verdiği sıra: beyaz · gri · beyaz · gri). Böylece sekiz
+       sayfanın bugünkü ayrışması da kapandı.
+       🔴 AÇIK KALEM: gerçek zebra için panelde BİRDEN FAZLA tam genişlik
+       `section` gerekiyor. Bugün bölünecek bloklar `.wrap`ın İÇİNDE
+       (1240px, kenar boşluklu) — oraya zemin verilirse bant tam genişlik
+       olmaz, üstelik o bloklar kart/başlık/liste ve sayfa ajanlarının
+       markup'ı. Sayfa tarafı `.fit-pane` altına ardışık `<section>`
+       yazdığı gün BU KURAL onları kendiliğinden dönüşümlü boyar; kabuk
+       tarafı hazır. Sayfa markup'ına dokunmadım.
+   ===================================================================== */
+.modul-govde .fit-pane > section{
+  padding-top:var(--sec-pad-sm);
+  padding-bottom:var(--sec-pad-sm);
+}
+.modul-govde .fit-pane > section:nth-of-type(odd){ background:var(--bg-white) }
+.modul-govde .fit-pane > section:nth-of-type(even){ background:var(--bg-cream) }
+@media (max-width:1180px){ .pf-stats .cps{flex:1 1 30%} }
+@media (max-width:900px){
+  .cps{flex:1 1 140px}
+  .cps+.cps{border-left:none}
+  .cps:nth-child(odd)+.cps{border-left:1px solid var(--line)}
+  .pf-stats .cps+.cps{border-left:0}
+}
+@media (max-width:640px){
+  .pf-stats{margin-top:12px}
+  .pf-stats .cps{flex:1 1 44%;padding:13px 14px}
+  .fp-kimlik-id h1 .fp-badge.is-kademe{font-size:11px;padding:6px 11px}
+}
 /* sayaç şeridi — referansın `.pf-stats`/`.pfs` ölçüleri birebir */
 .fp-sayac{
   display:flex;background:var(--paper);border:1px solid var(--line);
@@ -4212,3 +4517,22 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
   padding:5px 8px;margin:-5px -8px;
   min-height:26px;
 }
+
+
+/* =====================================================================
+ CHALLENGE KART ROZETLERİ — .cm-state / .cm-len
+ ---------------------------------------------------------------------
+ R15/2'ye kadar challenge-merkezi-v1.html'in KENDİ stiliydi. Challenge'larım
+ modül sayfası da aynı kartı basınca iki kopya olacaktı; kural kabuğa taşındı
+ ve yerel kopya SİLİNDİ (tek kaynak — yeni sınıf üretilmedi, değerler birebir).
+ ===================================================================== */
+.cm-state{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:var(--radius-sm);background:var(--fit);color:#fff}
+.cm-state.wait{background:rgba(255,255,255,.94);color:var(--slate)}
+.cm-state.done{background:rgba(20,18,12,.78);color:#fff}
+.cm-len{position:absolute;top:12px;right:12px;z-index:2;background:rgba(20,18,12,.72);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:var(--radius-sm)}
+
+/* R15/2 · CHALLENGE'LARIM — kural üçlüsünün ızgarası. `.fpx-kural` yeni;
+   diğer her şey (.fp-card/.fpx-acts/.cc-card/.hub-grid) var olan kitten. */
+.fpx-kural{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fpx-kural .fp-card p{font-size:14px;color:var(--slate-2);font-weight:500;line-height:1.65}
+@media (max-width:900px){ .fpx-kural{grid-template-columns:minmax(0,1fr)} }

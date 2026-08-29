@@ -580,12 +580,19 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
 .rc-body{padding:17px 18px 19px;display:flex;flex-direction:column;flex:1}
 /* başlık iki satıra sabitlenir — referansın kart yükseklikleri bu yüzden
    tek değer (363px). `2lh` desteklenmeyen tarayıcıda em karşılığına düşer. */
+/* Kırpma: referansta kural İKİ yerde — h4'te ve içindeki `a`da. Çalışan
+   `a`dakidir: `.rc-body` bir flex kabı olduğu için h4 flex kalemidir ve
+   tarayıcı onun `-webkit-box` değerini bloka çeviriyor (ölçüldü: h4'ün
+   hesaplanmış `display`i hem burada hem Gastro'da `flow-root`). Burada
+   yalnız `overflow:hidden` + 2lh vardı: iki satırı aşan başlık üç nokta
+   OLMADAN kesiliyordu. Kartın referanstan sapan tek özelliği buydu. */
 .rc-body h4{
   font-size:18px;color:var(--slate);letter-spacing:-.01em;margin-bottom:11px;
   overflow:hidden;min-height:2.24em;max-height:2.24em;
 }
 @supports (height:1lh){ .rc-body h4{min-height:2lh;max-height:2lh} }
-.rc-body h4 a{color:inherit;text-decoration:none}
+.rc-body h4 a{color:inherit;text-decoration:none;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rc-body h4 a::after{content:"";position:absolute;inset:0;z-index:1}
 .rc-body h4 a:focus-visible{outline:3px solid var(--fit);outline-offset:3px;border-radius:4px}
 /* künye — tek satır, kalemler arası dikey ayraç (referansta gap YOK,
@@ -746,14 +753,23 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
       <div class="df-hmain">
         <span class="eyebrow"><i class="fa-solid fa-bolt"></i> DadaFit · Beslenme ve hareket bir arada</span>
         <h1>Tabağındaki yemek ile bedenindeki hareket, <span class="accent">aynı çatı altında</span>.</h1>
-        <p class="lead">DadaFit bir vücut geliştirme uygulaması değil — beslenme ile hareketi buluşturan denge alanın. Ne yediğini, ne harcadığını ve sırada ne pişireceğini tek akışta gör.</p>
+        <!-- R16 · Beyar: "tek cümleye indir, iki satırı geçmesin; beslenme ve
+             hareket birlikteliği kalsın". Ölçüldü: eski metin 1440'ta 520px
+             kapta 16px/25.6px ile ÜÇ satırdı. Yeni cümle 93 karakter —
+             iki yarım fikir ("değil…" tanımı ve üç maddelik sayım) düştü,
+             kalan tek fikir ikisinin bir arada olması. -->
+        <p class="lead">Ne yediğin ve ne harcadığın aynı ekranda: DadaFit beslenme ile hareketi tek akışta buluşturur.</p>
         <div class="df-hcta">
           <!-- R13 — sihirbaz pop-up değil, kendi sayfası: düğme düz bağlantı oldu -->
           <a class="btn btn-fit" href="programini-bul-v1.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Programını Bul</a>
           <a class="btn btn-line" href="egzersiz-kutuphane-v1.html"><i class="fa-solid fa-dumbbell"></i> Hareketleri Keşfet</a>
-          <!-- "Köprüyü Gör" geri kondu: hero tam ekran olduğu için üç düğmeye yer var
- (referans kıyaslama turunda bant kısayken mobilde şişirdiği için çıkarılmıştı). -->
-          <a class="btn btn-line" href="dadafit-kopru-v1.html"><i class="fa-solid fa-scale-balanced"></i> Köprüyü Gör</a>
+          <!-- 🔴 "KÖPRÜYÜ GÖR" KALDIRILDI — Beyar, 2026-08-29 (§W2: eski karar
+               silinmez, üstüne yazılır). Önceki karar "hero tam ekran, üç düğmeye
+               yer var" diyordu; hero şimdi iki düğme taşıyor.
+               ÖLÜ SAYFA RİSKİ YOK — ölçüldü: `dadafit-kopru-v1.html`e sekiz ayrı
+               dosyadan on bir bağlantı geliyor; bu düğme kalkınca sayfa hâlâ yedi
+               dosyadan ulaşılabilir (bu sayfadan da: "Yaklaşımı Keşfet" ve
+               "Dengene Uygun Tarifler" bandındaki köprü kartı). -->
         </div>
         <div class="df-htrust">
           <span><i class="fa-solid fa-circle-check"></i> 25 hareket</span>
@@ -766,6 +782,24 @@ body.df-searching #kutuphane .df-toolrow{justify-content:flex-end}
       
     </div>
   </div>
+  <!-- HERO KAYDIRMA İŞARETİ — kardeş markadan taşındı (ölçüm ve gerekçe:
+       assets/css/fit-shell.css `.hero-scroll`). Gastro'da <div>, yani
+       tıklanmıyor; burada <a>, çünkü deponun dürüstlük kuralı "tıklanan her
+       şey ya çalışsın ya maket olduğu belli olsun" diyor — chevron aşağıyı
+       gösteriyorsa aşağı İNMELİ.
+       🔴 HEDEF AÇIK KALEM: brief `egzersiz-kutuphane-v1.html` ya da
+       `programlar-merkezi-v1.html` diyordu; ikisi de sayfa hedefi. Ama
+       `egzersiz-kutuphane-v1.html` hero'nun kendi "Hareketleri Keşfet"
+       düğmesinin hedefi (23 satır yukarıda) — aynı hedefe farklı adla
+       ikinci kapı açılmaz (deponun kendi kuralı, drawer notunda yazılı).
+       O yüzden işaret şimdilik emsalin işini yapıyor: hero'nun altındaki
+       ilk bölüme (#kopru — "Yediğini hareketle dengele", modülün kalbi)
+       iniyor. Enerji Defteri paneli hedef OLAMAZ: kabuk onu her genişlikte
+       hero'nun İÇİNE taşıyor (fit-shell.css §"ANA SAYFA HERO'SU TAM EKRAN"),
+       ölçüldü — belge içi konumu 0, yani aşağı inmiyordu.
+       Beyar sayfa hedefi isterse tek satır: href `#kopru` yerine
+       `programlar-merkezi-v1.html` olur. -->
+  <a class="hero-scroll" href="#kopru"><span>Keşfet</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></a>
 </section>
 
 <!-- BANNER KURALI: ikincil panel bandın dışına alındı (banner ≤ %50 ekran) -->

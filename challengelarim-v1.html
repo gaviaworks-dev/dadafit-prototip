@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Challenge'larım — DadaFit</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<!-- FontAwesome 6.5.2 (kilitli ikon seti) -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- DadaFit ortak kabuk (tek kaynak) -->
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<!-- Fit Planım ailesi CSS (tek kaynak) — kabuktan SONRA, fit-type.css'ten ÖNCE -->
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir -->
+<link rel="stylesheet" href="assets/css/fit-type.css" />
+</head>
+<body data-brand="fit" data-fit-page="challengelarim-v1">
+
+<!-- KABUK: ust katman (topbar+header+drawer+alt bar+gorus+cerez) — ortak kabuk JS basar -->
+<div id="fitShellTop"></div>
+
+<main class="page-main" id="pageMain">
+
+<!-- MODÜL KABUĞU: kimlik kartı + panel kipinde sekme şeridi (ortak kabuk JS basar).
+     Sekme değişince SAYFA DEĞİŞMEZ; kimlik kartı yerinde kalır (şartname R15/2). -->
+<div id="fitModulTop"
+     data-modul="challengelarim"
+     data-modul-title="Challenge'larım"
+     data-modul-sub="Katıldığın challenge, ilerlemen, serin ve tamamladıkların. Üç tip var; ilerlemeni antrenman kayıtların belirliyor."
+     data-modul-tabs=""
+     data-modul-aktif=""></div>
+
+<div class="modul-govde">
+<!-- ===== SEKME: Challenge'larım ===== -->
+<div class="fit-pane" data-pane="challengelarim">
+<!-- ZEBRA (R15/6): her blok `.fit-pane`in DOĞRUDAN çocuğu bir <section>.
+     Zemin ve dolgu KABUKTA (fit-shell.css `.modul-govde .fit-pane > section`,
+     nth-of-type odd/even); sayfa ne zemin ne dolgu yazar. Bloklar `.wrap`ın
+     içinde kalır, bant tam genişlikte olur.
+     `.fpx-sec` sınıfı bırakıldı: 44px üst payı, bölümün üst ve alt
+     dolgusunu (32/32) asimetrik yapıyordu. -->
+
+<!-- ============ KATILDIĞIN CHALLENGE ============
+     GERÇEK VERİ: FIT_CHALLENGE. Katılmadıysan sahte bir ilerleme çubuğu
+     basılmaz — dürüst boş durum + katılma kapısı. -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-trophy"></i> Şu an</span>
+        <h2>Katıldığın challenge</h2>
+        <p class="lead">İlerleme antrenman kayıtlarından hesaplanır, elle artırılan bir sayaçtan değil. Bir kaydı silersen ilerleme de geri düşer — sayı her zaman kaydın kendisidir.</p>
+      </div>
+    </div>
+    <div id="chmAktif"></div>
+  </div>
+</section>
+
+<!-- ============ ÜÇ TİP VE SERİ KURALI ============
+     Kartlar `FIT_CHALLENGE.TIP` tablosundan basılır — kurallar iki yerde
+     yazılı olsaydı biri eskir, ikisi çelişirdi. -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Kurallar</span>
+        <h2>Üç challenge tipi, tek kanıt kuralı</h2>
+        <p class="lead">İlerlemeni elle işaretlediğin bir düğme değil, antrenman kayıtların belirler. Hangi kaydın hangi tipe sayıldığı burada yazılı.</p>
+      </div>
+    </div>
+    <div class="fpx-kural" id="chmKural"></div>
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p><b>Kanıt kademesi:</b> her antrenman kaydı neye dayandığını taşır — <b>ölçüldü</b>, <b>cihaz</b> ya da <b>beyan</b>. Beyan alışkanlık serisini besler; sayısal hedefe (kilometre, adım, tekrar) <b>girmez</b>. Sebebi basit: "100 km koştum" demek ile ölçülmüş 100 km aynı şey değil.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAMAMLADIKLARIN ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-flag-checkered"></i> Arşiv</span>
+        <h2>Tamamladıkların</h2>
+        <p class="lead">Bitirdiğin her challenge burada kalır. Aynı challenge'a yeniden katılırsan eski turun kaydı silinmez, yanına yazılır.</p>
+      </div>
+    </div>
+    <div id="chmArsiv"></div>
+  </div>
+</section>
+
+<!-- ============ KATILABİLECEKLERİN ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Açık challenge'lar</span>
+        <h2>Katılabileceklerin</h2>
+        <p class="lead">Katılım ücretsizdir; istediğin an bırakır, istediğin an geri dönersin.</p>
+      </div>
+      <div class="sec-tools">
+        <a class="see-all" href="challenge-merkezi-v1.html">Challenge merkezinin tamamı <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+    <div id="chmAcik"></div>
+  </div>
+</section>
+</div><!-- /.fit-pane[data-pane=challengelarim] -->
+</div><!-- /.modul-govde -->
+
+</main>
+
+<!-- KABUK: alt katman (giris kapisi + footer + basa don) -->
+<div id="fitShellBottom"></div>
+
+<!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
+<script src="assets/js/fit-shell.js"></script>
+<!-- PLAN KAYDI SÖZLEŞMESİ — Fit Planım ailesi buradan OKUR -->
+<script src="assets/js/fit-plan-kayit.js"></script>
+<!-- KAYIT (favori) SÖZLEŞMESİ — kart düğmeleri ve Kaydettiklerim buradan okur -->
+<script src="assets/js/fit-kayit.js"></script>
+<!-- CHALLENGE MOTORU (R15/5) — katalog, üç tip, ilerleme hesabı -->
+<script src="assets/js/fit-challenge.js"></script>
+<!-- ROZET · PUAN — challenge bitince rozet buradan mühürlenir -->
+<script src="assets/js/fit-rozet.js"></script>
+<script>
+/* =====================================================================
+   CHALLENGE'LARIM — kişisel challenge ekranı   (R15/5)
+   ---------------------------------------------------------------------
+   Şartname: "Challenge'larım → sekme yok, tek ekran."
+
+   R15/5'TE DEĞİŞEN: bu ekran artık kendi kataloğunu taşımıyor ve kendi
+   sayacını artırmıyor. Katalog da ilerleme hesabı da `fit-challenge.js`te.
+   Ekran YALNIZ çizer. Eskiden burada duran KATALOG dizisi ve
+   `challengeGunTamamla()` çağrısı kalktı; ilerleme artık geçmiş
+   kayıtlarından HESAPLANIYOR (motorun başlığında gerekçesi yazılı).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var C = window.FIT_CHALLENGE;
+  if (!C) return;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function n(x){ return Number(x||0).toLocaleString('tr-TR'); }
+  function tarih(iso){
+    if(!iso) return '';
+    var t = new Date(iso); if(isNaN(t)) return '';
+    return t.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'});
+  }
+
+  var aktifKok = document.getElementById('chmAktif');
+  var arsivKok = document.getElementById('chmArsiv');
+  var acikKok  = document.getElementById('chmAcik');
+  var kuralKok = document.getElementById('chmKural');
+
+  /* Her tipin ilerlemesi FARKLI bir cümledir. Tek kalıba sıkıştırmak
+     "30 günde 100 km" ile "her gün işaretle"yi aynı şey gösterirdi. */
+  function olcuSatiri(k, i){
+    if (k.tip === 'sureli')
+      return '<span><b>' + n(i.biriken) + '</b> / ' + n(i.hedef) + ' ' + esc(i.birimAd) + '</span>' +
+             '<span><b>' + i.gecenGun + '</b> / ' + i.toplamGun + ' gün geçti</span>' +
+             '<span>Sayılan kayıt: <b>' + n(i.sayilanKayit) + '</b></span>';
+    if (k.tip === 'seri')
+      return '<span><b>' + i.biriken + '</b> / ' + i.hedef + ' adım</span>' +
+             '<span>Sırada: <b>' + esc(i.siradaki ? i.siradaki.ad : 'kalmadı') + '</b></span>' +
+             '<span><b>' + i.gecenGun + '</b> / ' + i.toplamGun + ' gün geçti</span>';
+    return '<span><b>' + i.biriken + '</b> / ' + i.hedef + ' gün</span>' +
+           '<span><b>' + i.seri + '</b> gün üst üste</span>' +
+           '<span>Telafi hakkı: <b>' + i.telafiKalan + '</b> / ' + C.TELAFI_HAKKI + '</span>';
+  }
+
+  /* Kanıt dökümü — kullanıcı kendi geçmişinin ne kadar sağlam olduğunu
+     görmeli. Süreli hedefte elenen beyan kayıtları AYRICA söylenir;
+     sessizce yutmak "neden ilerlemiyorum" sorusunu cevapsız bırakırdı. */
+  function kanitSatiri(k, i){
+    var p = [];
+    if (i.kanit.olculdu) p.push(i.kanit.olculdu + ' ölçüldü');
+    if (i.kanit.cihaz)   p.push(i.kanit.cihaz + ' cihazdan');
+    if (i.kanit.beyan)   p.push(i.kanit.beyan + ' beyan');
+    if (i.kanit.video)   p.push(i.kanit.video + ' video');
+    var alt = '';
+    if (k.tip === 'sureli' && i.elenenBeyan)
+      alt = ' <b>' + i.elenenBeyan + '</b> beyan kaydı sayılmadı — sayısal hedefe yalnız ölçülmüş ve cihazdan gelen kayıt girer.';
+    if (i.tarihsiz)
+      alt += ' <b>' + i.tarihsiz + '</b> kaydın tarihi yok, pencereye giremiyor.';
+    if (!p.length && !alt) return '';
+    return '<p class="fpx-note">Kanıt: ' + (p.length ? esc(p.join(' · ')) : 'henüz kayıt yok') + '.' + alt + '</p>';
+  }
+
+  /* ---------- 1 · KATILDIĞIN CHALLENGE ----------------------------- */
+  function aktifBas(){
+    if (!aktifKok) return;
+    var o = C.ozet();
+    if (!o.devam.length) {
+      aktifKok.innerHTML =
+        '<div class="fp-card fpx-bos">' +
+        '<span class="pe-ico"><i class="fa-solid fa-trophy"></i></span>' +
+        '<h4>Şu an bir challenge\'a katılmadın</h4>' +
+        '<p>Aşağıdan birini seç; katıldığın an ilerlemen antrenman kayıtlarından hesaplanmaya başlar.</p>' +
+        '</div>';
+      return;
+    }
+    aktifKok.innerHTML = o.devam.map(function (x) {
+      var k = x.katalog, i = x.ilerleme, t = C.TIP[k.tip];
+      return '<div class="fp-card is-dark" style="margin-bottom:14px">' +
+        '<div class="fp-head">' +
+          '<h3><i class="' + t.ikon + '"></i> ' + esc(k.ad) + '</h3>' +
+          '<span class="fp-badge ' + (i.suresiDoldu ? 'wait' : 'ok') + '">' +
+            (i.suresiDoldu ? 'Süre doldu' : 'Devam ediyor') + '</span>' +
+        '</div>' +
+        '<p style="margin-top:2px"><b>' + esc(t.etiket) + '</b> · ' + esc(t.aciklama) + ' ' + esc(t.kanit) + '</p>' +
+        '<div class="fp-bar"><span style="width:' + i.oran + '%"></span></div>' +
+        '<div class="fp-meta">' + olcuSatiri(k, i) + '</div>' +
+        kanitSatiri(k, i) +
+        (k.tip === 'seri' ? adimSeridi(i) : '') +
+        '<div class="fpx-acts">' +
+          (k.tip === 'aliskanlik'
+            ? '<button class="btn btn-primary" type="button" data-ch="isaretle" data-slug="' + esc(k.slug) + '"' +
+              (i.bugunIsaretli ? ' disabled' : '') + '><i class="fa-solid fa-check"></i> ' +
+              (i.bugunIsaretli ? 'Bugün işaretlendi' : 'Bugünü işaretle') + '</button>'
+            : '<a class="btn btn-primary" href="challenge-v1.html?slug=' + esc(k.slug) + '"><i class="fa-solid fa-play"></i> Bugünün görevini aç</a>') +
+          '<a class="btn btn-line" href="challenge-v1.html?slug=' + esc(k.slug) + '">Takvimini aç</a>' +
+          '<button class="btn btn-ghost" type="button" data-ch="birak" data-slug="' + esc(k.slug) + '">Bırak</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function adimSeridi(i){
+    return '<div class="fpx-gunler">' + i.adimlar.map(function (a, ix) {
+      return '<span class="fpx-gun' + (a.tamam ? ' is-on' : (i.siradaki && i.siradaki.slug === a.slug ? ' is-now' : '')) + '">' +
+             (a.tamam ? '<i class="fa-solid fa-check" aria-hidden="true"></i> ' : '') +
+             (ix + 1) + '. ' + esc(a.ad) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------- 2 · TAMAMLADIKLARIN ---------------------------------- */
+  function arsivBas(){
+    if (!arsivKok) return;
+    var o = C.ozet();
+    var bitenler = o.biten.concat(o.birakilan);
+    if (!bitenler.length) {
+      arsivKok.innerHTML =
+        '<div class="fp-card fpx-bos">' +
+        '<span class="pe-ico"><i class="fa-solid fa-flag-checkered"></i></span>' +
+        '<h4>Henüz tamamladığın challenge yok</h4>' +
+        '<p>Bitirdiğin ilk challenge rozetiyle ve puanıyla birlikte buraya düşecek.</p></div>';
+      return;
+    }
+    arsivKok.innerHTML = '<div class="fp-card"><div class="fp-list">' +
+      bitenler.map(function (x) {
+        var k = x.katalog, i = x.ilerleme;
+        var bitti = x.katilim.durum === 'tamamlandi';
+        return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + (bitti ? 'fa-medal' : 'fa-circle-half-stroke') + '"></i></span>' +
+               '<span class="txt"><b>' + esc(k.ad) + (x.katilim.tur > 1 ? ' · ' + x.katilim.tur + '. tur' : '') + '</b>' +
+               '<small>' + esc(C.TIP[k.tip].etiket) + ' · ' + n(i.biriken) + ' / ' + n(i.hedef) + ' ' + esc(i.birimAd) +
+               (x.katilim.bitis ? ' · ' + esc(tarih(x.katilim.bitis)) : '') + '</small></span>' +
+               '<span class="end"><span class="fp-badge ' + (bitti ? 'ok' : 'off') + '">' +
+               (bitti ? '+' + k.odul.puan + ' puan' : 'Bırakıldı') + '</span></span></div>';
+      }).join('') + '</div></div>';
+  }
+
+  /* ---------- 3 · KATILABİLECEKLERİN ------------------------------- */
+  function acikBas(){
+    if (!acikKok) return;
+    acikKok.innerHTML = '<div class="hub-grid cols-3">' + C.ozet().acik.map(function (k) {
+      var t = C.TIP[k.tip];
+      var i = C.ilerleme(k.slug);
+      var bitti = i.katildi && i.durum === 'tamamlandi';
+      var rozet = bitti
+        ? '<span class="cm-state done"><i class="fa-solid fa-check"></i> Tamamladın</span>'
+        : k.durum === 'yaklasan'
+          ? '<span class="cm-state wait"><i class="fa-regular fa-clock"></i> Yaklaşan</span>'
+          : '<span class="cm-state"><i class="fa-solid fa-play"></i> Aktif</span>';
+      var hedefMetni = k.tip === 'sureli' ? (n(k.hedef.deger) + ' ' + esc(k.hedef.ad) + ' · ' + k.gun + ' gün')
+                     : k.tip === 'seri'   ? (k.adimlar.length + ' adım · ' + k.gun + ' gün')
+                     : (k.gun + ' gün · her gün işaretle');
+      return '<div class="cc-card" style="min-height:300px;background-image:url(\'' + esc(k.gorsel) + '\')">' +
+             rozet + '<span class="cm-len">' + esc(t.etiket) + '</span>' +
+             '<div style="position:relative;z-index:2;padding:22px">' +
+               '<b style="display:block;font-size:19px;color:#fff;margin-bottom:6px">' + esc(k.ad) + '</b>' +
+               '<p style="font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;line-height:1.55">' + esc(k.ozet) + '</p>' +
+               '<p style="font-size:12.5px;color:var(--fit-bright);font-weight:700;margin-top:8px">' + hedefMetni + ' · +' + k.odul.puan + ' puan</p>' +
+               '<div class="fpx-acts" style="margin-top:14px">' +
+                 '<button class="btn btn-primary" type="button" data-katil="' + esc(k.slug) + '">' +
+                 '<i class="fa-solid fa-' + (bitti ? 'rotate-right' : 'plus') + '"></i> ' +
+                 (bitti ? 'Yeniden başla' : 'Katıl ve başla') + '</button>' +
+               '</div>' +
+             '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------- etkileşim ---------- */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ch]');
+    if (b) {
+      var op = b.getAttribute('data-ch'), slug = b.getAttribute('data-slug');
+      if (op === 'isaretle') C.isaretle(slug);
+      if (op === 'birak') {
+        var k = C.bul(slug);
+        if (window.confirm('"' + k.ad + '" bırakılsın mı? O güne kadar kazandığın rozetler sende kalır.')) C.birak(slug);
+      }
+      return;
+    }
+    var j = e.target.closest && e.target.closest('[data-katil]');
+    if (j) {
+      var kk = C.bul(j.getAttribute('data-katil')); if (!kk) return;
+      C.katil(kk.slug);
+      boya();
+      document.getElementById('chmAktif').scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  });
+
+  /* ---------- 0 · ÜÇ TİP KARTI (tek kaynak: FIT_CHALLENGE.TIP) ------ */
+  function kuralBas(){
+    if (!kuralKok) return;
+    kuralKok.innerHTML = Object.keys(C.TIP).map(function (key) {
+      var t = C.TIP[key];
+      var ornek = C.KATALOG.filter(function (k) { return k.tip === key; })[0];
+      return '<div class="fp-card">' +
+        '<div class="fp-head"><h3><i class="' + t.ikon + '"></i> ' + esc(t.etiket) + '</h3></div>' +
+        '<p>' + esc(t.aciklama) + ' ' + esc(t.kanit) + '</p>' +
+        (ornek ? '<p class="fpx-note">Örnek: <b>' + esc(ornek.ad) + '</b></p>' : '') +
+      '</div>';
+    }).join('') +
+    '<div class="fp-card">' +
+      '<div class="fp-head"><h3><i class="fa-solid fa-fire"></i> Seri ve telafi</h3></div>' +
+      '<p>Seri yalnız <b>alışkanlık</b> tipinde işler: üst üste kaç gün işaretlediğini sayar. Ayda <b>' + C.TELAFI_HAKKI + '</b> gün kaçırabilirsin, serin bozulmaz; üçüncüde seri baştan başlar. Katılımın ve o güne kadarki günlerin silinmez.</p>' +
+    '</div>';
+  }
+
+  function boya(){ kuralBas(); aktifBas(); arsivBas(); acikBas(); }
+  C.dinle(boya);
+})();
+</script>
+
+</body>
+</html>

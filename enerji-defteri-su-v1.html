@@ -301,8 +301,16 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 .wl-count b{font-size:44px;font-weight:700;color:var(--slate);font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
 .wl-count span{font-size:15px;font-weight:600;color:var(--muted)}
 .water-glasses{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 14px}
-.glass{width:32px;height:42px;border-radius:6px 6px 11px 11px;border:2px solid #bcdff0;background:#eef8fd;display:grid;place-items:center;color:#c3e2f2;font-size:13px}
-.glass.full{background:linear-gradient(180deg,#7cc6ef,#4aa8e0);border-color:#4aa8e0;color:#fff}
+/* BARDAK — R15/7'de TIKLANABİLİR oldu, bu yüzden dokunma hedefi taşımalı.
+   Kalıp kitin §10'undaki `.kyt-btn` ile birebir aynı: hedef 44×44 px
+   (WCAG 2.5.8), GÖRSEL küçük kalır. Kap 32×42 olarak ::before'a taşındı;
+   düğmenin kendisi saydam 44×44'lük hedeftir. Ölçülen kusur: düğme
+   32×42 iken 390 px'te on üç hedef birden tabanın altındaydı. */
+.glass{position:relative;width:44px;height:44px;padding:0;border:none;background:none;display:grid;place-items:center;color:#c3e2f2;font-size:13px;font-family:inherit}
+.glass::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:32px;height:42px;border-radius:6px 6px 11px 11px;border:2px solid #bcdff0;background:#eef8fd}
+.glass>i{position:relative;z-index:1}
+.glass.full{color:#fff}
+.glass.full::before{background:linear-gradient(180deg,#7cc6ef,#4aa8e0);border-color:#4aa8e0}
 .water-msg{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6}
 .water-r{border-left:1px solid var(--line);padding-left:36px}
 .water-r .wr-lbl{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
@@ -313,6 +321,77 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 .wk-day>span{font-size:10.5px;color:var(--muted);font-weight:600}
 .wk-day.is-today .wk-bar{background:linear-gradient(180deg,#4aa8e0,#2a86bd)}
 .wr-not{font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.55;margin-top:12px}
+
+/* ===== R15/7 · SU GERÇEK SİSTEM =====================================
+ Palet GENİŞLETİLMEDİ: aşağıdaki maviler bu sayfada zaten tanımlı
+ (#eef8fd · #bcdff0 · #cfe6f4 · #7cc6ef · #4aa8e0 · #2a86bd). Marka yeşili
+ ve kitin durum renkleri olduğu gibi kullanılıyor; yeni renk/yarıçap/gölge
+ üretilmedi (docs/fit-kit.md kuralı). */
+
+/* ---- İMZA: hedef çubuğu. Antrenman payı çubuğun ÜSTÜNDE ayrı bir
+   dilim olarak durur ve taban hedefin bittiği yere bir çentik konur —
+   kullanıcı hedefin nerede büyüdüğünü OKUMADAN görür. ---- */
+.su-bar{position:relative;height:16px;border-radius:var(--radius-pill);background:#eef8fd;border:1px solid #bcdff0;overflow:hidden;margin:18px 0 10px}
+.su-bar>i{display:block;height:100%;background:linear-gradient(90deg,#7cc6ef,#4aa8e0);transition:width .35s var(--ease)}
+.su-bar>.su-ek{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(135deg,#cfe6f4 0 6px,#eef8fd 6px 12px);border-left:2px solid #4aa8e0;pointer-events:none}
+.su-bar-alt{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;font-weight:600;color:var(--muted)}
+.su-bar-alt b{color:var(--slate);font-weight:800}
+
+/* ---- antrenman payı açıklaması ---- */
+.su-ek-not{display:flex;align-items:flex-start;gap:11px;margin:14px 0 0;padding:14px 16px;border-radius:var(--radius-md);background:#eef8fd;border:1px solid #bcdff0}
+.su-ek-not>i{flex:none;margin-top:2px;color:#2a86bd;font-size:14px}
+.su-ek-not p{margin:0;font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.6}
+.su-ek-not b{color:var(--slate);font-weight:800}
+.su-ek-not small{display:block;margin-top:4px;font-size:11.5px;color:var(--muted);font-weight:500}
+
+/* ---- ekleme düğmeleri ---- */
+.su-ekle{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.su-ekle .su-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;font-family:inherit;font-size:13.5px;font-weight:700;color:#1d5f81;background:#eef8fd;border:1px solid #bcdff0;border-radius:var(--radius-md);cursor:pointer;transition:.18s var(--ease)}
+.su-ekle .su-btn:hover{background:#dff1fb;border-color:#4aa8e0}
+.su-ekle .su-btn:focus-visible{outline:2px solid #2a86bd;outline-offset:2px}
+.glass{cursor:pointer}
+.glass:focus-visible{outline:2px solid #2a86bd;outline-offset:2px}
+
+/* ---- hedef düzenleyici ---- */
+.su-hedef{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;align-items:end}
+.su-alan label{display:block;font-size:12.5px;font-weight:600;color:var(--slate-2);margin-bottom:8px}
+/* Alanlar KİTİN §7 değerleriyle: 44px yükseklik · 8px yarıçap · 0 14px
+   dolgu · 14px/500 · 1px solid var(--line). Kabukta global bir input kuralı
+   YOK (kitin satırı `.fb-field`e kapalı, ölçüldü), o yüzden burada yazılıyor —
+   yeni ölçü üretilmedi, kitin kendi sayıları kopyalandı. Tarayıcı
+   varsayılanıyla bırakılsalardı 19px olurlardı (ölçüldü) ve dokunma hedefi
+   tabanının çok altında kalırlardı. */
+.su-alan input[type="number"],.su-alan input[type="time"]{
+  width:100%;height:44px;padding:0 14px;border-radius:var(--radius-sm);
+  font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);
+  background:var(--paper);border:1px solid var(--line);outline:none;
+  transition:border-color .2s var(--ease)
+}
+.su-alan input:focus{border-color:var(--fit)}
+.su-alan input:focus-visible{outline:2px solid var(--fit);outline-offset:2px}
+.su-birim{display:flex;gap:6px;padding:4px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md)}
+.su-birim button{flex:1;min-height:44px;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);background:transparent;border:none;border-radius:var(--radius-sm);cursor:pointer}
+.su-birim button[aria-pressed="true"]{background:var(--fit-deep);color:#fff}
+.su-birim button:focus-visible{outline:2px solid var(--fit);outline-offset:2px}
+.su-onizle{font-size:12.5px;font-weight:600;color:var(--muted);margin:14px 0 0}
+.su-onizle b{color:var(--slate);font-weight:800}
+
+/* ---- ritim: hafta / ay ---- */
+.su-grafik{display:flex;align-items:flex-end;gap:6px;height:132px;margin-top:16px}
+.su-gun{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.su-gun .cb{width:100%;border-radius:5px 5px 0 0;background:#cfe6f4;min-height:4px;position:relative}
+.su-gun.tam .cb{background:linear-gradient(180deg,#7cc6ef,#4aa8e0)}
+.su-gun.bugun .cb{background:linear-gradient(180deg,#4aa8e0,#2a86bd)}
+.su-gun.bos .cb{background:repeating-linear-gradient(135deg,#f0f0f0 0 4px,#fafafa 4px 8px)}
+.su-gun>span{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+.su-grafik.ay .su-gun>span{display:none}
+.su-grafik.ay .su-gun:nth-child(5n+1)>span{display:block}
+.su-ozet{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+
+@media (max-width:640px){
+  .su-grafik{height:104px;gap:3px}
+  .su-hedef{grid-template-columns:1fr}
+}
 
 /* --- MODÜL 6 · DADA GASTRO GÜNLÜK ÖNERİ (tomato aksan, köprü) --- */
 .sec-food .eyebrow{color:var(--food)}
@@ -427,56 +506,158 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 <div id="fitPlanTop" data-plan-page="defter-su" data-plan-title="Su Takibi"
      data-plan-sub="Günlük su hedefin ve bugün ne kadar içtiğin. Bardak bardak, baskısız."></div>
 
-<!-- ===== MODÜL 5 · SU TAKİBİ ===== -->
+<!-- ===== 1 · BUGÜN ===== -->
 <section class="sec sec-fit" id="su" style="background:var(--bg-cream)">
   <div class="wrap">
     <div class="sec-head">
       <div>
         <span class="eyebrow"><i class="fa-solid fa-droplet"></i> Su Takibi</span>
         <h2>Bugün ne kadar su içtin?</h2>
-        <p class="lead">Küçük bir alışkanlık, büyük fark. Her bardağı işaretle, haftalık ritmini gör.</p>
+        <p class="lead">Hedefini sen koyarsın; antrenman yaptığın günde kendiliğinden yükselir. Her kayıt tarihiyle saklanır — ritmini ve serini bu yüzden görebiliyorsun.</p>
       </div>
     </div>
-    <div class="water-card reveal">
-      <!-- Sayaç ARTIK KALICI (belge §6 · açık kalem D16).
-           Aşağıdaki 0 / 8 hâli JS'siz DÜRÜST BAŞLANGIÇTIR — uydurma bir
-           "5 bardak içtin" yazmıyor. JS açıkken sayı dm_fit.bugun.su'dan
-           gelir ve Fit Planım'daki su kartıyla AYNI depodur. -->
+
+    <div class="water-card">
       <div class="water-l">
-        <div class="wl-count"><b id="suSayi">0</b><span>/ <span id="suHedef">8</span> bardak</span></div>
-        <div class="water-glasses" id="suBardaklar" role="img" aria-label="İçilen bardak sayısı: 0 / 8">
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
-          <span class="glass"><i class="fa-solid fa-plus"></i></span>
+        <div class="wl-count"><b id="suSayi">0</b><span id="suHedefEt">/ 0</span></div>
+
+        <!-- İMZA · hedef çubuğu: antrenman payı ayrı dilim + taban çentiği -->
+        <div class="su-bar" role="img" id="suBar" aria-label="Günlük su ilerlemesi">
+          <i id="suBarDolu" style="width:0%"></i>
+          <span class="su-ek" id="suBarEk" style="width:0%"></span>
         </div>
-        <p class="water-msg" id="suMesaj">Günün başında bir bardakla başla. Her bardağı işaretledikçe sayaç dolar; kayıt bu cihazda kalır.</p>
-        <div class="mod-cta">
-          <button class="btn btn-fit" type="button" id="suEkle" data-lg-gate data-lg-title="Su takibi için giriş yap" data-lg-desc="Günlük su hedefini takip etmek ve hatırlatıcı kurmak için DadaFit hesabına giriş yapman gerekiyor."><i class="fa-solid fa-plus"></i> Bardak Ekle</button>
-          <button class="btn btn-ghost" type="button" id="suSifirla" hidden><i class="fa-solid fa-rotate-left"></i> Sayacı Sıfırla</button>
-          <a class="btn btn-ghost" href="hesabim-v1.html#bildirim"><i class="fa-regular fa-bell"></i> Hatırlatıcı Kur</a>
+        <div class="su-bar-alt">
+          <span id="suAltSol">—</span>
+          <span id="suAltSag">—</span>
+        </div>
+
+        <div class="water-glasses" id="suBardaklar" role="group" aria-label="Bardaklar"></div>
+        <p class="water-msg" id="suMesaj"></p>
+
+        <div class="su-ekle">
+          <button class="su-btn" type="button" data-su="bardak"><i class="fa-solid fa-plus"></i> <span id="suBardakEt">Bardak</span></button>
+          <button class="su-btn" type="button" data-su="250"><i class="fa-solid fa-plus"></i> 250 ml</button>
+          <button class="su-btn" type="button" data-su="500"><i class="fa-solid fa-plus"></i> 500 ml</button>
+          <button class="su-btn" type="button" data-su="-bardak"><i class="fa-solid fa-minus"></i> Geri al</button>
+          <button class="su-btn" type="button" data-su="sifir"><i class="fa-solid fa-rotate-left"></i> Günü sıfırla</button>
+        </div>
+
+        <div class="su-ek-not" id="suEkNot" hidden>
+          <i class="fa-solid fa-person-running"></i>
+          <p id="suEkMetin"></p>
         </div>
       </div>
+
       <div class="water-r">
-        <span class="wr-lbl">Haftalık su takibi</span>
-        <div class="water-week">
-          <div class="wk-day"><div class="wk-bar" style="height:75%"></div><span>Pzt</span></div>
-          <div class="wk-day"><div class="wk-bar" style="height:100%"></div><span>Sal</span></div>
-          <div class="wk-day low"><div class="wk-bar" style="height:50%"></div><span>Çar</span></div>
-          <div class="wk-day"><div class="wk-bar" style="height:88%"></div><span>Per</span></div>
-          <div class="wk-day"><div class="wk-bar" style="height:100%"></div><span>Cum</span></div>
-          <div class="wk-day low"><div class="wk-bar" style="height:38%"></div><span>Cmt</span></div>
-          <div class="wk-day" id="suBugunGun"><div class="wk-bar" id="suBugunBar" style="height:6%"></div><span>Bugün</span></div>
-        </div>
-        <!-- DÜRÜSTLÜK NOTU: şemada GÜNLÜK su geçmişi yok (dm_fit yalnız
-             bugun.su tutar). Bugünün çubuğu gerçek kayıttan; önceki altı
-             gün örnek veridir ve bunu saklamak yerine söylüyoruz. -->
-        <p class="wr-not">Bugünün çubuğu senin kaydından gelir. Önceki günler örnek veridir — günlük su geçmişi henüz saklanmıyor.</p>
+        <span class="wr-lbl">Serin</span>
+        <div class="wl-count" style="margin-top:8px"><b id="suSeri">0</b><span id="suSeriEt">günlük seri</span></div>
+        <p class="wr-not" id="suSeriNot"></p>
+        <div class="su-ozet" id="suRozet"></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 · HEDEF ===== -->
+<section class="sec sec-fit" id="hedef" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-bullseye"></i> Hedefin</span>
+        <h2>Günlük hedefini sen koy</h2>
+        <p class="lead">Bardakla ya da mililitreyle. İçeride her şey mililitre tutulur; bardak yalnız bir görüntü birimidir, bardak boyunu değiştirdiğinde hedefin bozulmaz.</p>
+      </div>
+    </div>
+    <div class="fp-card">
+      <div class="su-hedef">
+        <div class="su-alan">
+          <label for="suBirim">Birim</label>
+          <div class="su-birim" id="suBirim" role="group" aria-label="Birim seç">
+            <button type="button" data-birim="bardak" aria-pressed="true">Bardak</button>
+            <button type="button" data-birim="ml" aria-pressed="false">Mililitre</button>
+          </div>
+        </div>
+        <div class="su-alan">
+          <label for="suHedefGiris">Günlük taban hedefin</label>
+          <input type="number" id="suHedefGiris" min="1" step="1" inputmode="numeric" />
+        </div>
+        <div class="su-alan">
+          <label for="suBardakBoy">Bir bardak kaç ml?</label>
+          <input type="number" id="suBardakBoy" min="100" max="1000" step="10" inputmode="numeric" />
+        </div>
+        <div class="su-alan">
+          <button class="btn btn-primary" type="button" id="suHedefKaydet" style="width:100%"><i class="fa-solid fa-check"></i> Hedefi kaydet</button>
+        </div>
+      </div>
+      <p class="su-onizle" id="suOnizle"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 · RİTİM ===== -->
+<section class="sec sec-fit" id="ritim" style="background:var(--bg-cream)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-chart-column"></i> Ritmin</span>
+        <h2>Hangi günler tuttun?</h2>
+        <p class="lead">Dolu sütun o gün hedefi tuttuğun anlamına gelir. Kesik desenli sütun kayıt olmayan gündür — ölçülmemiş bir günü "içmedi" saymıyoruz, ortalamaya da katmıyoruz.</p>
+      </div>
+      <div class="sec-tools">
+        <nav class="fit-tabs" data-su-aralik aria-label="Aralık seç">
+          <button class="fit-tab active" type="button" data-aralik="7" aria-selected="true">Hafta</button>
+          <button class="fit-tab" type="button" data-aralik="30" aria-selected="false">Ay</button>
+        </nav>
+      </div>
+    </div>
+    <div class="fp-card">
+      <div class="su-grafik" id="suGrafik" role="img" aria-label="Günlük su grafiği"></div>
+      <div class="su-ozet" id="suGrafikOzet"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4 · HATIRLATMA ===== -->
+<section class="sec sec-fit" id="hatirlatma" style="background:var(--bg-white)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow"><i class="fa-regular fa-bell"></i> Hatırlatma</span>
+        <h2>Gün içinde ne sıklıkta hatırlatalım?</h2>
+        <p class="lead">Sıklığı ve saat aralığını sen seçersin. Ayarın kaç hatırlatmaya denk geldiğini hemen altında görürsün.</p>
+      </div>
+    </div>
+
+    <!-- 🔴 TEK DÜRÜST ŞERİT (docs/fit-kit.md §11) — maket olan yalnız
+         bildirimin KENDİSİ; ayar gerçekten kaydediliyor. "Yakında" yazmıyoruz. -->
+    <div class="hr-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <p><b>Hatırlatma maket:</b> bu prototip statik bir sayfa, bildirim gönderemez. <b>Ayarların gerçekten kaydediliyor</b> ve sayfayı yenilediğinde yerinde duruyor; gönderim, uygulama sürümünde bu ayarları okuyacak.</p>
+    </div>
+
+    <div class="fp-card">
+      <div class="su-hedef">
+        <div class="su-alan">
+          <label for="suHatAcik">Hatırlatma</label>
+          <div class="su-birim" id="suHatAcik" role="group" aria-label="Hatırlatma açık mı">
+            <button type="button" data-hat="1" aria-pressed="false">Açık</button>
+            <button type="button" data-hat="0" aria-pressed="true">Kapalı</button>
+          </div>
+        </div>
+        <div class="su-alan">
+          <label for="suHatSiklik">Sıklık (dakika)</label>
+          <input type="number" id="suHatSiklik" min="15" max="480" step="15" inputmode="numeric" />
+        </div>
+        <div class="su-alan">
+          <label for="suHatBas">Başlangıç saati</label>
+          <input type="time" id="suHatBas" />
+        </div>
+        <div class="su-alan">
+          <label for="suHatSon">Bitiş saati</label>
+          <input type="time" id="suHatSon" />
+        </div>
+      </div>
+      <p class="su-onizle" id="suHatOnizle"></p>
     </div>
   </div>
 </section>
@@ -488,72 +669,245 @@ body.df-searching #kutuphane .df-filterbar,body.df-searching #kutuphane .df-fcar
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- CHALLENGE MOTORU — su serisi onun alışkanlık hesabını kullanır -->
+<script src="assets/js/fit-challenge.js"></script>
+<!-- SU TAKİBİ SÖZLEŞMESİ (R15/7) — ekran kendi depolama kodunu yazmaz -->
+<script src="assets/js/fit-su.js"></script>
+<!-- ROZET · PUAN — su rozetleri buradan mühürlenir -->
+<script src="assets/js/fit-rozet.js"></script>
 <script>
 /* =====================================================================
-   §6 · SU TAKİBİ — KALICI  (açık kalem D16 kapanıyor)
+   SU TAKİBİ — ekran katmanı   (R15/7)
    ---------------------------------------------------------------------
-   Sayaç bugüne kadar SAYFA İÇİNDEYDİ: her yenilemede sıfırlanıyordu ve
-   Fit Planım'daki su kartıyla iki ayrı sayı gösteriyordu. Şema v2 ile
-   `dm_fit.bugun.su` açıldı; iki sayfa da AYNI depoyu okuyup yazıyor.
-   Bu sayfa kendi depolama kodunu yazmıyor — yalnız kabuğun yüzeyi:
-     FIT_SHELL.state.read().bugun.su · suEkle(n) · suSifirla()
-
-   "Bardak Ekle" artık gerçekten bardak ekliyor. Önceden `<a href="#">` idi
-   ve `data-lg-gate` YALNIZ ÇIKIŞTA kapı açtığı için girişli kullanıcıda
-   HİÇBİR ŞEY yapmıyordu (ölü düğme).
+   Bu dosya HESAP YAPMAZ ve DEPOLAMA KODU YAZMAZ. Her sayı `FIT_SU`dan,
+   seri `FIT_CHALLENGE`in alışkanlık hesabından, rozet `FIT_ROZET`ten
+   gelir. Aynı sayı iki yerde hesaplanırsa er geç ikiye ayrılır.
    ===================================================================== */
-(function(){
-  var S = window.FIT_SHELL && window.FIT_SHELL.state; if(!S) return;
-  var sayi = document.getElementById('suSayi'),
-      kaplar = document.getElementById('suBardaklar'),
-      mesaj = document.getElementById('suMesaj'),
-      ekle  = document.getElementById('suEkle'),
-      sifir = document.getElementById('suSifirla'),
-      bar   = document.getElementById('suBugunBar'),
-      barGun= document.getElementById('suBugunGun');
-  if(!sayi || !kaplar || !ekle) return;
+(function () {
+  'use strict';
+  var SU = window.FIT_SU; if (!SU) return;
+  var el = function (id) { return document.getElementById(id); };
+  var n  = function (x) { return Number(x || 0).toLocaleString('tr-TR'); };
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  var HEDEF = 8;                       /* tek yerde; Fit Planım'la aynı */
-  var hedefEl = document.getElementById('suHedef');
-  if(hedefEl) hedefEl.textContent = HEDEF;
+  var GUN_AD = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  var aralik = 7;
 
-  function boya(){
-    var su = Math.max(0, (S.read().bugun || {}).su || 0);
-    var dolu = Math.min(su, HEDEF);
-    sayi.textContent = su;
+  /* Kullanıcının seçtiği birimde yaz — iki birim iki ayrı sayı değil,
+     tek ml değerinin iki görüntüsü. */
+  function birimli(ml, g) {
+    return g.birim === 'ml'
+      ? n(Math.round(ml)) + ' ml'
+      : (Math.round(ml / g.bardakMl * 10) / 10) + ' bardak';
+  }
 
-    var h = '', i;
-    for(i = 1; i <= HEDEF; i++){
-      h += i <= dolu
-        ? '<span class="glass full"><i class="fa-solid fa-droplet"></i></span>'
-        : '<span class="glass"><i class="fa-solid fa-plus"></i></span>';
+  /* ---------------- 1 · BUGÜN ---------------- */
+  function bugunBas() {
+    var g = SU.bugun();
+
+    el('suSayi').textContent = g.birim === 'ml' ? n(g.ml) : (Math.round(g.ml / g.bardakMl * 10) / 10);
+    el('suHedefEt').textContent = '/ ' + birimli(g.hedefMl, g);
+    el('suBardakEt').textContent = 'Bardak (' + g.bardakMl + ' ml)';
+
+    el('suBarDolu').style.width = g.oran + '%';
+    /* Antrenman payı çubuğun SAĞ ucunda ayrı dilim: taban hedefin bittiği
+       yerden itibaren. Payı yoksa hiç çizilmez. */
+    var ekYuzde = g.hedefMl ? Math.round(g.ekMl / g.hedefMl * 100) : 0;
+    el('suBarEk').style.width = ekYuzde + '%';
+    el('suBarEk').hidden = !g.ekMl;
+    el('suBar').setAttribute('aria-label',
+      'Günlük su: ' + birimli(g.ml, g) + ' / ' + birimli(g.hedefMl, g) + ' (%' + g.oran + ')');
+
+    el('suAltSol').innerHTML = '<b>%' + g.oran + '</b> tamam';
+    el('suAltSag').innerHTML = g.tamam
+      ? '<b>Hedef tuttu</b>'
+      : '<b>' + birimli(g.hedefMl - g.ml, g) + '</b> kaldı';
+
+    /* Bardak sırası — taban hedef kadar kutu; her biri tıklanabilir.
+       Tavan yok: hedefin üstüne de içilebilir, sayaç onu gösterir. */
+    var adet = Math.max(1, Math.round(g.tabanMl / g.bardakMl));
+    var dolu = Math.floor(g.ml / g.bardakMl);
+    var h = '';
+    for (var i = 1; i <= adet; i++) {
+      h += '<button type="button" class="glass' + (i <= dolu ? ' full' : '') + '" data-glass="' + i + '"' +
+           ' aria-label="' + i + '. bardak' + (i <= dolu ? ' — içildi' : '') + '">' +
+           '<i class="fa-solid fa-' + (i <= dolu ? 'droplet' : 'plus') + '"></i></button>';
     }
-    kaplar.innerHTML = h;
-    kaplar.setAttribute('aria-label', 'İçilen bardak sayısı: ' + su + ' / ' + HEDEF);
+    el('suBardaklar').innerHTML = h;
 
-    var kalan = HEDEF - su;
-    mesaj.textContent = su === 0
-      ? 'Günün başında bir bardakla başla. Her bardağı işaretledikçe sayaç dolar; kayıt bu cihazda kalır.'
-      : (kalan > 0
-          ? 'Bugün ' + su + ' bardak tamamlandı. Hedefe ' + kalan + ' bardak kaldı.'
-          : 'Günlük hedefin tamam — ' + su + ' bardak. Antrenman yaptığın günlerde biraz daha içmek iyi gelir.');
+    el('suMesaj').textContent = !SU.kullanilabilir()
+      ? 'Tarayıcın bu sayfaya kayıt yazamıyor (gizli kip olabilir). Sayaç çalışır ama sayfayı kapatınca kalmaz.'
+      : g.ml === 0
+        ? 'Güne bir bardakla başla. Her kayıt tarihiyle saklanır; ritmini aşağıdaki grafikte görürsün.'
+        : g.tamam
+          ? 'Bugünün hedefi tamam — ' + birimli(g.ml, g) + '. Serin bu günü sayıyor.'
+          : 'Bugün ' + birimli(g.ml, g) + ' içtin. Hedefe ' + birimli(g.hedefMl - g.ml, g) + ' kaldı.';
 
-    ekle.disabled = false;             /* hedefin üstüne de içilebilir */
-    if(sifir) sifir.hidden = su === 0;
+    /* ---- antrenman payı açıklaması ---- */
+    var e = g.ekNeden;
+    var not = el('suEkNot');
+    if (g.ekMl > 0) {
+      not.hidden = false;
+      var neden = e.dk > 0 ? '<b>' + e.dk + ' dk</b> antrenman' : '<b>' + n(e.kcal) + ' kcal</b> kayıtlı hareket';
+      var kaynakMetni = Object.keys(e.kaynaklar).map(function (k) {
+        return e.kaynaklar[k] + ' ' + ({olculdu:'ölçülmüş', cihaz:'cihazdan', video:'video', beyan:'beyan'}[k] || k);
+      }).join(' · ');
+      el('suEkMetin').innerHTML =
+        'Bugün ' + neden + ' yaptın; hedefin <b>+' + n(g.ekMl) + ' ml</b> arttı — ' +
+        birimli(g.tabanMl, g) + ' yerine <b>' + birimli(g.hedefMl, g) + '</b>.' +
+        '<small>Kural: kayıtlı her antrenman dakikası için 10 ml (ACSM’in saatte 0,4–0,8 L önerisinin orta değeri), 50 ml’ye yuvarlanır, günde en çok ' + n(SU.EK_TAVAN_ML) + ' ml. ' +
+        'Kayıt: ' + esc(kaynakMetni) + '.' +
+        (e.suresizKayit ? ' <b>' + e.suresizKayit + '</b> kaydın ne süresi ne kalorisi var, o yüzden paya girmedi.' : '') +
+        (e.tavanaDayandi ? ' Hesap tavana dayandı.' : '') + '</small>';
+    } else {
+      not.hidden = true;
+    }
 
-    if(bar){
-      bar.style.height = Math.max(6, Math.round(Math.min(su, HEDEF) / HEDEF * 100)) + '%';
-      if(barGun){
-        barGun.classList.add('is-today');
-        barGun.classList.toggle('low', su > 0 && su < HEDEF / 2);
-      }
+    /* ---- seri ---- */
+    var sr = SU.seri();
+    /* İKİ SERİ AYRI SAYIDIR ve ayrı okunmalı:
+         guncel → telafi hakkı SAYILARAK bugüne kadar gelen seri
+         enUzun → telafisiz, gerçekten kesintisiz en uzun dizi
+       Etiketi "gün üst üste" bırakmak yanıltıcıydı: telafi kullanılmışsa
+       o günler üst üste DEĞİL. Kaç telafi harcandığı açıkça yazılıyor. */
+    var telafiKullanilan = (sr.telafiKalan === null) ? 0 : (2 - sr.telafiKalan);
+    el('suSeri').textContent = sr.guncel;
+    el('suSeriEt').textContent = telafiKullanilan ? 'günlük seri' : 'gün üst üste';
+    el('suSeriNot').textContent = sr.toplamGun === 0
+      ? 'Hedefi tuttuğun ilk gün seri başlar. Bir gün kaçırmak seriyi sıfırlamaz — ay içinde iki telafi hakkın var.'
+      : (telafiKullanilan
+          ? 'Bu serinin ' + telafiKullanilan + ' günü telafi hakkıyla bağışlandı; kesintisiz en uzun serin ' + sr.enUzun + ' gün. '
+          : 'Kesintisiz en uzun serin ' + sr.enUzun + ' gün. ') +
+        'Toplam ' + sr.toplamGun + ' gün hedefi tuttun.' +
+        (sr.telafiKalan === null ? '' : ' Telafi hakkı: ' + sr.telafiKalan + ' / 2.');
+
+    /* ---- su rozetleri (FIT_ROZET'ten, bu sayfa rozet hesabı yapmaz) ---- */
+    var R = window.FIT_ROZET;
+    if (R) {
+      var su = R.liste().filter(function (x) { return x.aile === 'su'; });
+      el('suRozet').innerHTML = su.map(function (x) {
+        return '<span class="fp-badge ' + (x.durum === 'kazanildi' ? 'ok' : 'off') + '">' +
+               '<i class="' + x.ico + '"></i> ' + esc(x.ad) +
+               (x.durum === 'kazanildi' ? ' <b>+' + x.puan + '</b>' : ' <b>' + x.simdi + '/' + x.hedef + '</b>') +
+               '</span>';
+      }).join('');
     }
   }
 
-  ekle.addEventListener('click', function(){ S.suEkle(1); boya(); });
-  if(sifir) sifir.addEventListener('click', function(){ S.suSifirla(); boya(); ekle.focus(); });
-  document.addEventListener('fit:state', boya);
-  boya();
+  /* ---------------- 2 · HEDEF ---------------- */
+  function hedefBas() {
+    var d = SU.oku();
+    document.querySelectorAll('#suBirim button').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-birim') === d.birim ? 'true' : 'false');
+    });
+    var giris = el('suHedefGiris');
+    giris.value = d.birim === 'ml' ? d.hedefMl : Math.round(d.hedefMl / d.bardakMl * 10) / 10;
+    giris.step = d.birim === 'ml' ? 50 : 0.5;
+    el('suBardakBoy').value = d.bardakMl;
+    var g = SU.bugun();
+    el('suOnizle').innerHTML =
+      'Taban hedefin <b>' + n(d.hedefMl) + ' ml</b> — ' + (Math.round(d.hedefMl / d.bardakMl * 10) / 10) +
+      ' bardak (bardak ' + d.bardakMl + ' ml).' +
+      (g.ekMl ? ' Bugün antrenman payıyla birlikte <b>' + n(g.hedefMl) + ' ml</b>.' : '');
+  }
+
+  /* ---------------- 3 · RİTİM ---------------- */
+  function ritimBas() {
+    var o = aralik === 7 ? SU.haftalik() : SU.aylik();
+    var enYuksek = Math.max.apply(null, o.gunler.map(function (x) { return x.ml; }).concat([1]));
+    var bugun = SU.bugun().tarih;
+    var grafik = el('suGrafik');
+    grafik.classList.toggle('ay', aralik === 30);
+    grafik.innerHTML = o.gunler.map(function (x) {
+      var t = new Date(x.tarih + 'T00:00:00');
+      var cls = 'su-gun' + (x.tamam ? ' tam' : '') + (x.tarih === bugun ? ' bugun' : '') + (x.kayitVar ? '' : ' bos');
+      var yuk = Math.max(4, Math.round(x.ml / enYuksek * 100));
+      return '<span class="' + cls + '" title="' + x.tarih + ' · ' + n(x.ml) + ' / ' + n(x.hedefMl) + ' ml">' +
+             '<span class="cb" style="height:' + yuk + '%"></span>' +
+             '<span>' + (aralik === 7 ? GUN_AD[t.getDay()] : t.getDate()) + '</span></span>';
+    }).join('');
+    grafik.setAttribute('aria-label',
+      aralik + ' günün su grafiği: ' + o.tutan + ' gün hedef tuttu, ortalama ' + n(o.ortalamaMl) + ' ml.');
+
+    el('suGrafikOzet').innerHTML =
+      '<span class="fp-badge ok"><i class="fa-solid fa-circle-check"></i> ' + o.tutan + ' / ' + aralik + ' gün hedef tuttu</span>' +
+      '<span class="fp-badge"><i class="fa-solid fa-droplet"></i> ortalama ' + n(o.ortalamaMl) + ' ml</span>' +
+      '<span class="fp-badge"><i class="fa-solid fa-calendar-check"></i> ' + o.kayitliGun + ' gün kayıt var</span>';
+  }
+
+  /* ---------------- 4 · HATIRLATMA ---------------- */
+  function hatBas() {
+    var h = SU.oku().hatirlatma;
+    document.querySelectorAll('#suHatAcik button').forEach(function (b) {
+      b.setAttribute('aria-pressed', (b.getAttribute('data-hat') === '1') === !!h.acik ? 'true' : 'false');
+    });
+    el('suHatSiklik').value = h.sikligiDk;
+    el('suHatBas').value = h.bas;
+    el('suHatSon').value = h.son;
+    var kac = SU.hatirlatmaSayisi();
+    el('suHatOnizle').innerHTML = h.acik
+      ? 'Bu ayarla <b>' + h.bas + '</b> ile <b>' + h.son + '</b> arasında <b>' + kac + '</b> hatırlatma düşer — her <b>' + h.sikligiDk + ' dakikada</b> bir.'
+      : 'Hatırlatma kapalı. Açtığında bu ayarla <b>' + kac + '</b> hatırlatma düşecek.';
+  }
+
+  /* ---------------- etkileşim ---------------- */
+  document.addEventListener('click', function (ev) {
+    var b;
+
+    if ((b = ev.target.closest('[data-su]'))) {
+      var v = b.getAttribute('data-su'), d = SU.oku();
+      if (v === 'bardak')       SU.bardakEkle(1);
+      else if (v === '-bardak') SU.ekleMl(-d.bardakMl);
+      else if (v === 'sifir')   SU.sifirla();
+      else                      SU.ekleMl(+v);
+      return;
+    }
+    /* Bardağa dokunmak o sayıya AYARLAR — dolu bardağa dokununca geri alır. */
+    if ((b = ev.target.closest('[data-glass]'))) {
+      var i = +b.getAttribute('data-glass'), gg = SU.bugun();
+      var hedefMl = (i * gg.bardakMl === Math.round(gg.ml)) ? (i - 1) * gg.bardakMl : i * gg.bardakMl;
+      SU.ekleMl(hedefMl - gg.ml);
+      return;
+    }
+    if ((b = ev.target.closest('#suBirim button'))) { SU.birimAyarla(b.getAttribute('data-birim')); return; }
+    if ((b = ev.target.closest('#suHatAcik button'))) { SU.hatirlatmaAyarla({acik: b.getAttribute('data-hat') === '1'}); return; }
+    if ((b = ev.target.closest('[data-aralik]'))) {
+      aralik = +b.getAttribute('data-aralik');
+      document.querySelectorAll('[data-aralik]').forEach(function (x) {
+        var on = x === b;
+        x.classList.toggle('active', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      ritimBas();
+      return;
+    }
+    if (ev.target.closest('#suHedefKaydet')) {
+      /* İKİ DEĞER DE YAZMADAN ÖNCE OKUNUR. Önce bardak boyunu yazıp sonra
+         hedefi okumak ÇALIŞMIYORDU (ölçüldü: 12 bardak girildi, hedef 2000
+         ml kaldı): ilk yazma `fit-su-degisti` yayınlıyor, dinleyici
+         `hedefBas()`i çalıştırıyor ve alanı depodaki ESKİ değere geri
+         yazıyor; ikinci satır artık kullanıcının girdiğini değil o eski
+         değeri okuyordu. */
+      var birim = SU.oku().birim;
+      var boy = parseFloat(el('suBardakBoy').value);
+      var deg = parseFloat(el('suHedefGiris').value);
+      if (boy) SU.bardakBoyuAyarla(boy);
+      if (deg) SU.hedefAyarla(deg, birim);
+    }
+  });
+
+  ['suHatSiklik','suHatBas','suHatSon'].forEach(function (id) {
+    el(id).addEventListener('change', function () {
+      SU.hatirlatmaAyarla({
+        sikligiDk: parseInt(el('suHatSiklik').value, 10) || 90,
+        bas: el('suHatBas').value || '08:00',
+        son: el('suHatSon').value || '22:00'
+      });
+    });
+  });
+
+  function boya(){ bugunBas(); hedefBas(); ritimBas(); hatBas(); }
+  SU.dinle(boya);
 })();
 </script>
 <script>

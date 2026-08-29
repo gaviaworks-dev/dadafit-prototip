@@ -183,7 +183,10 @@ var BOTTOM = [
   {label:'Hareketler', href:'egzersiz-kutuphane-v1.html',    icon:'fa-solid fa-person-running',  match:['egzersiz-kutuphane-v1','egzersiz-detay-v1','hareket-rehberi-v1','hareket-yeni-baslayanlar-v1','hareket-dogru-form-v1','hareket-sureye-gore-v1','hareket-hedefe-gore-v1','hareket-bolgeye-gore-v1','hareket-masa-basi-v1','hareket-isinma-soguma-v1','hareket-sozluk-v1','sozluk-v1','sozluk-detay-v1','anatomi-v1','antrenman-olusturucu-v1']},
   {label:'Programlar', href:'programlar-merkezi-v1.html', icon:'fa-solid fa-dumbbell', center:true, match:['programlar-merkezi-v1','program-liste-v1','program-detay-v1','programini-bul-v1','challenge-merkezi-v1','challenge-v1']},
   /* R8 madde 1 — `cls` alanı: alt bar kalemi oturuma bağlandı (bn-plan). */
-  {label:'Planım',     cls:'bn-plan', href:'fit-planim-v1.html',         icon:'fa-solid fa-list-check',      match:['fit-planim-v1','enerji-defteri-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','fit-planim-programim-v1','fit-planim-gecmis-v1','fit-planim-ilerleme-v1','fit-planim-rozetler-v1','fit-planim-kaydettiklerim-v1','fit-planim-randevular-v1','fit-planim-saglik-profil-v1','fit-planim-veri-izin-v1']},
+  /* R15/1 · Beyar kararı — kalem ad ve hedef olarak Programlarım'a döndü.
+     `match` listesi modül sayfalarını ve Planım kabuğunu hâlâ kullanan
+     sayfaları birlikte sayar; hiçbiri kalemsiz kalmaz. */
+  {label:'Programlarım', cls:'bn-plan', href:'programlarim-v1.html',      icon:'fa-solid fa-dumbbell',        match:['programlarim-v1','egzersizlerim-v1','challengelarim-v1','rozetlerim-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','aktivite-gunlugu-v1','bagli-uygulamalar-v1','fit-planim-veri-izin-v1']},
   /* §1 — belge alt bar son kalemini "Profil" diye adlandırıyor. */
   {label:'Profil',     href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
@@ -225,7 +228,7 @@ var FOOTER_COLS = [
       {label:'Antrenör Ol',    href:'antrenor-ol-v1.html'}
   ]},
   { key:'enerji', title:'Enerji ve Denge', links:[
-      {label:'Enerji Defteri',                   href:'enerji-defteri-v1.html'},
+      {label:'Enerji Defteri',                   href:'egzersizlerim-v1.html#defter'},
       {label:'Enerji Köprüsü',                   href:'dadafit-kopru-v1.html'},
       {label:'Günlük Enerji İhtiyacını Hesapla', href:'enerji-ihtiyaci-v1.html'},
       {label:'Aktivite Günlüğü',                 href:'aktivite-gunlugu-v1.html'},
@@ -242,7 +245,7 @@ var FOOTER_COLS = [
  diğer altı kalemle AYNI biçimde (aynı punto, ağırlık, renk).
 
  Hedefler diskte doğrulandı, hiçbiri uydurulmadı:
-   Çözüm Merkezi    → sss-v1.html                 (SSS tarafı — R8 madde 6+35
+   Çözüm Merkezi    → destek-v1.html#cozum                 (SSS tarafı — R8 madde 6+35
      GÜNCELLENDİ, Beyar kararı 2026-08-26; aşağıdaki şerhe bak)
    Öneri ve Şikâyet → iletisim-v1.html#conForm   (ayrı sayfası YOK;
      iletişim formu "Öneri ve şikâyetlerini de bu formdan iletebilirsin"
@@ -253,15 +256,15 @@ var FOOTER_CORP = [
   {label:'Künye',                         href:'hakkimizda-v1.html#kunye'},
   {label:'İletişim',                      href:'iletisim-v1.html'},
   /* R8 madde 6+35 — kalem BANTTA KALIYOR, hedefi İKİ KEZ değişti.
-     ESKİ HÂL (R8/6+35): `destek-talepleri-v1.html` → `destek-v1.html`.
+     ESKİ HÂL (R8/6+35): `destek-v1.html#taleplerim` → `destek-v1.html`.
      Gerekçesi: gastro footer'ındaki "Çözüm Merkezi" misafirde `/sss`'ye,
      girişte `/hesabim/destek`'e gidiyor — TALEP LİSTESİNE değil DESTEK
      HUB'INA; o gün `destek-v1.html` h1'i "Destek"ti.
 
-     🔴 GÜNCEL HÂL — BEYAR KARARI, 2026-08-26: hedef `sss-v1.html`.
+     🔴 GÜNCEL HÂL — BEYAR KARARI, 2026-08-26: hedef `destek-v1.html#cozum`.
      NEDEN DEĞİŞTİ: ad kanonu Beyar kararıyla yeniden bağlandı —
      `destek-v1.html` artık **Destek Merkezi**, "Çözüm Merkezi" adı
-     `sss-v1.html`e (SSS tarafı) geçti. Etiket ile hedef ayrışmıştı:
+     `destek-v1.html#cozum`e (SSS tarafı) geçti. Etiket ile hedef ayrışmıştı:
      "Çözüm Merkezi" yazan bağlantı, o adı TAŞIMAYAN bir sayfaya iniyordu
      ve kullanıcıyı yanıltıyordu. Artık etiket = hedefin h1'i.
      Eski karar SİLİNMEDİ, ÜSTÜNE YAZILDI (bkz. KARARLAR.md K64/2).
@@ -273,7 +276,7 @@ var FOOTER_CORP = [
        · `tests/footer-yapi.mjs` → kurumsal bant 8 kalem kalır
      Destek hub'ının footer girişi kaybolmadı: hesap menüsündeki
      "Destek Merkezi" kalemi `destek-v1.html`e iniyor (§7.6). */
-  {label:'Çözüm Merkezi',                 href:'sss-v1.html'},
+  {label:'Çözüm Merkezi',                 href:'destek-v1.html#cozum'},
   {label:'Öneri ve Şikâyet',              href:'iletisim-v1.html#conForm'},
   {label:'İş Birliği',                    href:'reklam-ver-v1.html#isbirligi'},
   {label:'Reklam ve Marka İş Birlikleri', href:'reklam-ver-v1.html#reklam'},
@@ -362,28 +365,31 @@ var FOOTER_LEGAL = { title:'Yasal ve Sağlık', links:[
    Eski üçlü PLAN_EXTRA'ya indi — rayda görünmez, kabuğu (banner,
    breadcrumb, data-plan-page anahtarı) kullanmaya devam eder. */
 var PLAN_TABS = [
-  {key:'defter',         label:'Enerji Defterim',     href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
-  {key:'gecmis',         label:'Aktivite Kayıtlarım', href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
-  {key:'kaydettiklerim', label:'Kaydettiklerim',      href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
-  {key:'rozetler',       label:"Challenge'larım",     href:'fit-planim-rozetler-v1.html',       icon:'fa-solid fa-medal',             desc:'Kilometre taşların'},
-  {key:'testlerim',      label:'Fit Test Sonuçlarım', href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin ve kendi başlangıcınla karşılaştırman'},
-  {key:'randevular',     label:'Antrenörüm',          href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
-  {key:'saglik',         label:'Sağlık Profilim',     href:'fit-planim-saglik-profil-v1.html',  icon:'fa-solid fa-heart-pulse',       desc:'Kısıt, hedef, tercih'}
+  /* R15/2 — ŞERİT MODÜL ŞERİDİ OLDU. Eskiden Planım'ın yedi alt sayfasını
+     sayıyordu; o yedi sayfa modüllerin SEKMESİ hâline geldi ve kendi
+     adreslerini kaybetti, yani şeritte gösterilecek bir hedefleri kalmadı.
+     Şeridi silmek yerine bir üst kademeye çıkardık: Planım kabuğunu hâlâ
+     kullanan sayfalar (Veri ve İzinlerim · Aktivite Günlüğü · Bağlı
+     Uygulamalar · Enerji Köprüsü) artık modüller arasında geziniyor.
+     Kalem uydurulmadı: dördü de menüdeki dört modülün ta kendisi. */
+  {key:'m-egzersizlerim', label:'Egzersizlerim',   href:'egzersizlerim-v1.html',  icon:'fa-solid fa-person-running', desc:'Hareketlerin, antrenörün, enerji defterin'},
+  {key:'m-programlarim',  label:'Programlarım',    href:'programlarim-v1.html',   icon:'fa-solid fa-dumbbell',       desc:'Programın, planın, testlerin, ilerlemen'},
+  {key:'m-challenge',     label:"Challenge'larım", href:'challengelarim-v1.html', icon:'fa-solid fa-trophy',         desc:'Katıldığın challenge ve serin'},
+    /* GEÇİCİ HEDEF KALKTI — `rozetlerim-v1.html` doğdu (R15/6) ve
+     `fit-planim-rozetler-v1.html` silindi. Kalem gerçek sayfasına bağlandı,
+     anahtar da kardeşleriyle aynı `m-` kalıbına geçti. */
+  {key:'m-rozetler',      label:'Rozetlerim',      href:'rozetlerim-v1.html',     icon:'fa-solid fa-medal',          desc:'Rozetlerin, puanın, liderlik tablosu'}
 ];
 
 /* Ray dışında kalan ama Planım kabuğunu kullanan sayfalar. Ray'da GÖRÜNMEZLER;
    yalnız banner/breadcrumb çözümü ve eski data-plan-page anahtarlarının
    kırılmaması için burada dururlar. */
 var PLAN_EXTRA = [
-  /* §F3/§F4 sonrası raydan inen eski üçlü — Planım'ın kendi alt gezinmesiydi. */
+  /* R15/2 — eski üçlü (Bugün · Plan ve Takvim · İlerlemem) buradan SİLİNDİ:
+     üç sayfa da Programlarım'ın sekmesi oldu, kendi adresleri kalmadı. */
   /* §Ö · destek ekranları da modül kabuğunu kullanır (§Ö2); anahtarları
      burada durur ki banner/breadcrumb çözümü onları da tanısın. */
-  {key:'destek-talepleri', label:'Destek Taleplerim',  href:'destek-talepleri-v1.html',      icon:'fa-solid fa-inbox', desc:'Açtığın destek talepleri ve yazışmaları'},
-  {key:'destek',           label:'Yeni Destek Talebi', href:'destek-v1.html',                icon:'fa-solid fa-plus',  desc:'Yeni bir destek talebi aç'},
   {key:'destek-detay',     label:'Destek Talebi',      href:'destek-talebi-detay-v1.html',   icon:'fa-solid fa-comments', desc:'Talep yazışması'},
-  {key:'bugun',     label:'Bugün',          href:'fit-planim-v1.html',           icon:'fa-solid fa-sun',           desc:'Bugünkü antrenman, hareket ve toparlanma özeti'},
-  {key:'programim', label:'Plan ve Takvim', href:'fit-planim-programim-v1.html', icon:'fa-solid fa-calendar-days', desc:'Aktif program, haftalık plan, takvim'},
-  {key:'ilerleme',  label:'İlerlemem',      href:'fit-planim-ilerleme-v1.html',  icon:'fa-solid fa-chart-line',    desc:'Süre, gelişim, challenge, rozetler'},
   /* G2 — Enerji Defteri dört ayrı sayfaya bölündü; üçü ray dışı alt sayfa.
      Ray'da yalnız 'Enerji Defteri' (bugun) kalemi görünür, alt sekmeler
      sayfanın kendi .fit-tabs şeridinden gezinilir. */
@@ -420,7 +426,7 @@ var PLAN_EXTRA = [
  breadcrumb çözümü PLAN_PAGES üzerinden yürüyor.
  ------------------------------------------------------------------ */
 var DEFTER_TABS = [
-  {key:'defter',          label:'Bugün',         href:'enerji-defteri-v1.html',          icon:'fa-solid fa-sun'},
+  {key:'defter',          label:'Bugün',         href:'egzersizlerim-v1.html#defter',          icon:'fa-solid fa-sun'},
   {key:'defter-dengele',  label:'Dengele',       href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced'},
   {key:'defter-su',       label:'Su Takibi',     href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet'},
   {key:'defter-haftalik', label:'Haftalık Özet', href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week'}
@@ -429,13 +435,18 @@ var DEFTER_TABS = [
 /* §Ö3 (Dalga 4, 2026-08-29) — DESTEK MERKEZİ BÖLÜM ŞERİDİ, ÜÇ KALEM:
    Destek Taleplerim · Yeni Destek Talebi · Çözüm Merkezi.
    Kit §F2 ile aynı: <a> kalemler, aktif olan aria-current="page".
-   ⚠ "Çözüm Merkezi" Fit'te `sss-v1.html`tir — ad kanonu 2026-08-26'da
+   ⚠ "Çözüm Merkezi" Fit'te `destek-v1.html#cozum`tir — ad kanonu 2026-08-26'da
    böyle bağlandı ("Destek Merkezi" destek yüzeyinin, "Çözüm Merkezi" SSS
    tarafının adı). Yeni ekran üretilmedi, var olan yüzey şeride bağlandı. */
+/* R15/3 — DESTEK ÜÇLÜSÜ TEK ADRESE İNDİ. `destek-talepleri-v1.html` ve
+   `sss-v1.html` silindi; üçü de `destek-v1.html`in PANELİ oldu ve şeridini
+   modül kabuğundan (#fitModulTop) alıyor. Bu dizi yalnız TALEP DETAYI
+   ekranında (destek-talebi-detay-v1) kaldı: o hâlâ ayrı bir sayfa ve
+   Planım kabuğunu kullanıyor, şeridi oradan besleniyor. */
 var DESTEK_TABS = [
-  {key:'destek-talepleri',    label:'Destek Taleplerim',  href:'destek-talepleri-v1.html', icon:'fa-solid fa-inbox'},
-  {key:'destek',              label:'Yeni Destek Talebi', href:'destek-v1.html',           icon:'fa-solid fa-plus'},
-  {key:'sss',                 label:'Çözüm Merkezi',      href:'sss-v1.html',              icon:'fa-solid fa-circle-question'}
+  {key:'destek-talepleri',    label:'Destek Taleplerim',  href:'destek-v1.html#taleplerim', icon:'fa-solid fa-inbox'},
+  {key:'destek',              label:'Yeni Destek Talebi', href:'destek-v1.html#yeni',       icon:'fa-solid fa-plus'},
+  {key:'sss',                 label:'Çözüm Merkezi',      href:'destek-v1.html#cozum',      icon:'fa-solid fa-circle-question'}
 ];
 
 var PLAN_PAGES = PLAN_TABS.concat(PLAN_EXTRA);
@@ -466,128 +477,65 @@ var PLAN_NAV = PLAN_PAGES;
  Toplam 11 kalem (belge §2 birebir).
  ============================================================ */
 
-/* §14 · üyelik kalemi kademeye göre ad değiştirir. Kaynak: dm_user.paket.
-   Prototip kancası — kademe yoksa "ucretsiz" varsayılır.
+/* ============================================================
+ AÇILIR KULLANICI MENÜSÜ — R15/1 (Beyar kararı, 2026-08-29)
+ ------------------------------------------------------------
+ Menü artık MODÜL menüsüdür. Dört grup, on kalem, üç grup ayracı:
 
-   PAKET AD ALANI (P8, 2026-08-25) — dört markada TEK üçlü:
-   `ucretsiz` · `pro` · `pro_max_ai`. Eski `pro_max` anahtarı bu üçlünün
-   dışındaydı ve içeriği antrenör/ekosistem paketiydi; P8 ad alanını
-   tekleştirdi. Gerçek abone ve gerçek ödeme olmadığı için GÖÇ AKIŞI
-   YAZILMADI — tek yaptığımız, tarayıcıda kalmış eski demo kaydının
-   sessizce "Pro'ya Yükselt"e düşmesini engellemek.
+   Egzersizlerim · Programlarım · Challenge'larım
+   ─ Rozetlerim
+   ─ Paketlerim · Ödemelerim · Hesap Ayarları · Çözüm Merkezi
+   ─ Çıkış
 
-   🔴 Antrenör hizmet paketi bir PLATFORM paketi DEĞİLDİR ve bu anahtarı
-   hiç kullanmaz; iki ayrı kutudur (P5 · P7/2). Antrenör paketleri
-   hesabim-v1.html#uyelik'in ikinci kartında yaşar. */
-function uyelikKalemi(){
-  var paket='ucretsiz', odemeSorunu=false;
-  try{
-    var u=JSON.parse(localStorage.getItem('dm_user')||'{}');
-    if(u && u.paket) paket=String(u.paket);
-    odemeSorunu = !!(u && u.odemeSorunu);
-  }catch(e){}
-  if(paket==='pro_max') paket='pro_max_ai';   /* eski demo kaydı — P8 adına çevrilir */
-  if(odemeSorunu) return {label:'Pro Üyeliğim — İşlem Gerekli', href:'uyelik-faturalandirma-v1.html#paket',
-                          icon:'fa-solid fa-triangle-exclamation', cls:'acct-uyari', desc:'Ödeme alınamadı, güncelle'};
-  if(paket==='pro_max_ai') return {label:'Pro Max AI Üyeliğim', href:'uyelik-faturalandirma-v1.html#paket',
-                                 icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
-  if(paket==='pro')      return {label:'Pro Üyeliğim',     href:'uyelik-faturalandirma-v1.html#paket',
-                                 icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Paket, yenileme, fatura'};
-  return {label:"Pro'ya Yükselt", href:'pro-v1.html', icon:'fa-solid fa-crown', cls:'acct-pro', desc:'Tüm programlar, video seansları, testler'};
-}
+ KALKAN KALEMLER — içerik KAYBOLMADI, sekmeye/bölüme taşındı:
+   Enerji Defterim            → Egzersizlerim > Enerji Defteri (sekme)
+   Antrenörüm                 → Egzersizlerim > Antrenörüm (sekme)
+   Kaydettiklerim             → Egzersizlerim sayfasının BÖLÜMÜ (R15/6)
+   Aktivite Kayıtlarım        → sayfa kalkıyor (Beyar, R15/6)
+   Fit Test Sonuçlarım        → Programlarım > Fit Test Sonuçlarım (sekme)
+   Sağlık ve Hareket Profilim → Programlarım > Sağlık Profilim (sekme)
+   Challenge'larım ve Rozetlerim → İKİYE ayrıldı: Challenge'larım · Rozetlerim
+   Bildirimlerim              → üst çubuktaki ZİL (§G19 · aynı sayfa)
+   Pro'ya Yükselt             → Paketlerim (kendi sayfası, R15/4)
+   Hizmetlerim ve Ödemelerim  → Ödemelerim (kendi sayfası, R15/4)
+   Destek Merkezi             → Çözüm Merkezi (destek sayfasının 3. sekmesi)
 
+ Beyar'ın R15 soru turundaki üç cevabı da buraya işlendi:
+   · İlerlemem              → Programlarım'ın sekmesi
+   · Planım (Bugün + Plan ve Takvim) → Programlarım'ın İKİ sekmesi
+   · header'daki İlerlemem grafik ikonu KALKTI; mobil alt bardaki
+     "Planım" kalemi ad ve hedef olarak "Programlarım"a döndü
+
+ 🔴 K6 GERİ ALINDI (Beyar, 2026-08-29). "Fit'te abonelik yoktur" kararı
+ kalktı: iki kademe var (Ücretsiz · Pro) ve Paketlerim kendi sayfasıdır.
+ Bu yüzden `uyelikKalemi()` SİLİNDİ — kademeye göre ad değiştiren kalem
+ yerine sabit adlı "Paketlerim" duruyor; kademeyi okumak artık
+ paketlerim-v1.html'in kendi işidir. "Pro Max AI" kademesi de kalktı.
+
+ YER TUTUCU: sayfası henüz üretilmemiş kalem `yerTutucu` taşır ve <a>
+ değil <span> basar (accountHtml · drawerAccountHtml). Sayfa yayına
+ girince alan silinir — ölü bağlantı hiçbir adımda kalmaz.
+ 🔴 2026-08-29 · ŞU AN YER TUTUCU TAŞIYAN KALEM YOK. Üçü de (Rozetlerim ·
+ Paketlerim · Ödemelerim) sayfalarına kavuştu, alanları silindi; ölçüldü:
+ `.acct-soon` 3 → 0, `.d-soon` 3 → 0. Mekanizma DURUYOR — yeni bir kalem
+ sayfasından önce menüye girerse aynı yolu kullanır.
+ ============================================================ */
 var ACCOUNT = [
-  {grup:'Günlük Takibim'},
-  {label:'Enerji Defterim',      href:'enerji-defteri-v1.html',            icon:'fa-solid fa-bolt',              desc:'Günlük denge · su · haftalık özet'},
-  {label:'Aktivite Kayıtlarım',  href:'fit-planim-gecmis-v1.html',         icon:'fa-solid fa-clock-rotate-left', desc:'Tamamlanan antrenman ve aktiviteler'},
-  {label:'Kaydettiklerim',       href:'fit-planim-kaydettiklerim-v1.html', icon:'fa-solid fa-bookmark',          desc:'Hareket, program, rehber, seans, antrenör'},
+  {grup:'Modüllerim'},
+  {label:'Egzersizlerim',   href:'egzersizlerim-v1.html',  icon:'fa-solid fa-person-running', desc:'Egzersizlerin, antrenörün ve enerji defterin'},
+  {label:'Programlarım',    href:'programlarim-v1.html',   icon:'fa-solid fa-dumbbell',       desc:'Programın, planın, testlerin, sağlık profilin'},
+  {label:"Challenge'larım", href:'challengelarim-v1.html', icon:'fa-solid fa-trophy',         desc:'Katıldığın challenge, serin ve görevlerin'},
 
-
-  /* YER TUTUCU KAPANDI — sayfa geldi (R9-DOKUMAN) ve bağlandı. Ölçüldü:
-     HTTP 200 · h1 "Fit Test Sonuçlarım" · breadcrumb çözülüyor · 7 bölüm ·
-     konsol hatası 0 · yatay taşma 0. `docs/icerik-bekleyen.md` kaydı
-     kütüğün 3. kuralı gereği silindi.
-     `yerTutucu` MEKANİZMASI duruyor (`accountHtml()` · `drawerAccountHtml()`):
-     bir sonraki bağlanmamış kalem için hazır — ölü `href="#"` bırakmadan
-     odak dışı, aria-disabled, "Yakında" etiketli kalem basar. */
-  {label:'Fit Test Sonuçlarım',  href:'fit-test-sonuclarim-v1.html',       icon:'fa-solid fa-clipboard-check',   desc:'Test arşivin, kategori kapsamın ve kendi başlangıcınla karşılaştırman'},
-  {label:'Antrenörüm',           href:'fit-planim-randevular-v1.html',     icon:'fa-solid fa-user-tie',          desc:'Randevular, mesajlar, paylaşılanlar'},
-
-  {label:'Sağlık ve Hareket Profilim', href:'fit-planim-saglik-profil-v1.html', icon:'fa-solid fa-heart-pulse',  desc:'Kısıt, hedef, tercih'},
-
-  /* GRUP 3 — §G12: rozet kalemi ile "Bildirimlerim" AYNI grupta durur ve o
-     grup hesap grubunun hemen üstündedir. §G13: kalemin adı dört markada
-     "Bildirimlerim"dir ve kalem BASILIR — hedefi `bildirimler-v1.html`,
-     üst çubuktaki zil ile AYNI sayfa (§G19, ölçüldü). */
   {grup:'Gelişimim'},
-  {label:"Challenge'larım ve Rozetlerim", href:'fit-planim-rozetler-v1.html', icon:'fa-solid fa-medal',          desc:'Kilometre taşların'},
-  {label:'Bildirimlerim',        href:'bildirimler-v1.html',               icon:'fa-regular fa-bell',            desc:'Antrenman, randevu, rozet ve sistem bildirimlerin'},
+  {label:'Rozetlerim',      href:'rozetlerim-v1.html',     icon:'fa-solid fa-medal',          desc:'Rozetlerin, puanın ve liderlik tablosu'},
 
-  /* GRUP 4 — hesap grubu. §G8: Slot 1 grubun İLK kalemi. §G9: Slot 2 hemen altı. */
-  {grup:'Profil ve Üyelik'},
-  uyelikKalemi(),
-  /* R12/S10 · DadaDiet dropdown'ındaki alt üçlüde (Aboneliğim ve Ödemelerim ·
-     Hesap ve Ayarlar · Destek Merkezi) DadaFit'te bu kalem eksikti — uyelikKalemi()
-     yalnız YÜKSELTME/DURUM göstergesi (kademeye göre ad değişir), fatura/ödeme
-     yönetimine giden sabit bir kalem değil. Beyar kararı: yeni sayfa üretilmeyecek,
-     hesabim-v1.html'in mevcut "Üyelik" sekmesine (#uyelik, hesabim-v1.html:624)
-     bağlanacak. Çapa G1 tarafından doğrulandı — var. */
-  /* ===== AÇILIR MENÜ ALT ÜÇLÜSÜ — KANON DIET (Beyar kararı, 2026-08-26) =====
-     Dört markada da bu üçlü AYNI SIRAYLA, AYNI YERDE, BİREBİR AYNI METİNLERLE
-     durur. Kaynak: `dadadiet` → `dd-shell.js:838-841` (grup 3 "Üyelik ve Hesap").
+  {grup:'Hesabım'},
+  {label:'Paketlerim',      href:'paketlerim-v1.html',     icon:'fa-solid fa-crown',          desc:'Ücretsiz ve Pro — karşılaştır, yükselt'},
+  {label:'Ödemelerim',      href:'odemelerim-v1.html',     icon:'fa-solid fa-receipt',        desc:'Abonelik, antrenör ödemeleri, fatura, kart'},
+  {label:'Hesap Ayarları',  href:'hesabim-v1.html',        icon:'fa-solid fa-sliders',        desc:'Profil, güvenlik, dil, birimler, veri'},
+  {label:'Çözüm Merkezi',   href:'destek-v1.html#cozum',   icon:'fa-solid fa-headset',        desc:'SSS, destek taleplerin ve yeni talep'},
 
-       1  Aboneliğim ve Ödemelerim   fa-receipt              (koşullu)
-       2  Hesap ve Ayarlar           fa-sliders
-       3  Destek Merkezi             fa-headset              (koşullu)
-       4  Çıkış                      fa-right-from-bracket
-
-     🔴 ÇIKIŞ BU GRUBUN İÇİNDEDİR — üstüne ayrı ayraç KONMAZ. Önceki hâlde
-     buraya `{sep:true}` yazılıydı ve dördüncü bir çizgi basıyordu (ölçüldü:
-     menüde 4 ayraç); kanon üç grubun arasına ÜÇ ayraç ister, dördüncüsünü
-     değil. Kalem silindi, ayraç sayısı 4 → 3'e indi.
-
-     🔴 İKİ İKON KANONA ÇEVRİLDİ, metinler zaten kanondaydı:
-       `Hesap ve Ayarlar`  fa-gear            → fa-sliders
-       `Destek Merkezi`    fa-circle-question → fa-headset
-     Yeni ikon icat edilmedi; ikisi de FontAwesome 6.5.2'de var ve Diet'in
-     kullandığı adların aynısı.
-
-     ✅ S1 KAPANDI (Beyar, 2026-08-26): "Ad kanonu 'Destek Merkezi'. Fit'teki
-     sayfanın adı da öyle olsun." `destek-v1.html`in `<h1>`i "Destek Merkezi"
-     oldu; "Çözüm Merkezi" adı `sss-v1.html`e (SSS tarafı) geçti. Menü kalemi
-     "Destek Merkezi" adıyla "Destek Merkezi"ne iniyor — ad ile hedef artık
-     ÇELİŞMİYOR.
-     🔴 AÇIK KALAN: kurumsal footer bandındaki `Çözüm Merkezi` kalemi hâlâ
-     `destek-v1.html`e iniyor (R8/6+35 kararı, `tests/footer-yapi.mjs:110`
-     ile kilitli). O kalem artık "Destek Merkezi"ne inen bir "Çözüm Merkezi"
-     etiketidir. Kendi başına DEĞİŞTİRİLMEDİ — bir Beyar kararını geri almak
-     olurdu; lead'e ayrı bir soru olarak raporlandı.
-
-     🔴 1. KALEMİN METNİ FIT'TE İKAME EDİLDİ — Beyar kararı, 2026-08-26;
-     sözleşmeye **§7.6.2** olarak işlendi: *yetenek yoksa kalem O ADLA
-     basılmaz.* K6 gereği Fit'te ABONELİK YOKTUR; karşılığı **antrenör
-     hizmet paketidir** (K4/P7: üye üreticiden hizmet SATIN ALIR).
-       "Aboneliğim ve Ödemelerim"  →  "Hizmet Paketlerim"
-     Bu bir SİLME DEĞİL İKAMEDİR: grubun 1. sırası dolu kalır, sıra · yer ·
-     koşulluluk · ikon (`fa-receipt`) kanondan gelir, yalnız DİZGİ markanın
-     gerçek yeteneğini adlandırır (§7.6.1: "dizgi bağlanmaz").
-
-     ⚠ HEDEF ÖLÇÜLDÜ, DEĞİŞMEDİ — `hesabim-v1.html#uyelik`. Gerekçe: bu
-     menü ÜYENİN menüsüdür ve üyenin SATIN ALDIĞI antrenör paketi kutusu
-     zaten orada duruyor (`hesabim-v1.html:1112` — "Antrenör paketleri
-     DadaFit Pro üyeliğine dâhil değildir…"). `antrenor-panelim-v1.html`
-     ANTRENÖRÜN kendi tarafıdır ve oradaki paketler antrenörün SATTIĞI
-     paketlerdir; üyenin menüsünü oraya bağlamak iki tarafı karıştırırdı.
-     `fa-receipt` Fit'te başka bir anlam taşımıyor (ölçüldü), korundu. */
-  {label:'Hizmetlerim ve Ödemelerim', href:'hesabim-v1.html#uyelik',            icon:'fa-solid fa-receipt',           desc:'Antrenör paketlerin, fatura ve ödeme yöntemin'},
-
-  /* GRUP 5 — sabit üçlü. §G5: dört markada aynı sıra. §G6: Çıkış bu grubun
-     içindedir, üstüne ayrı ayraç KONMAZ. */
-  {grup:'Hesap ve Destek'},
-  {label:'Hesap ve Ayarlar',     href:'hesabim-v1.html',                   icon:'fa-solid fa-sliders',           desc:'Profil, güvenlik, dil, birimler, veri'},
-  {label:'Destek Merkezi',       href:'destek-v1.html',                    icon:'fa-solid fa-headset',           desc:'Yardım ve taleplerin'},
-  /* "DadaMutfak'a dön" kalemi burada YOK (belge §1: DadaFit'in hesap ve üyelik
-     yapısı bağımsız görünmeli). Ekosistem geçişi üst banttaki marka barında. */
+  {grup:'Oturum'},
   {label:'Çıkış', href:FIT_LOGOUT, icon:'fa-solid fa-right-from-bracket', cls:'acct-logout'}
 ];
 
@@ -603,8 +551,12 @@ function isActive(item){
 }
 /* Planım alanındaki herhangi bir sayfada mıyız? (header düğmesi + drawer bölümü için) */
 var PLAN_ACTIVE = PLAN_NAV.some(function(p){ return p.href.replace(/\.html$/,'') === PAGE; });
-var ILERLEME_ACTIVE = (PAGE === 'fit-planim-ilerleme-v1');
+/* R15/1 — `ILERLEME_ACTIVE` SİLİNDİ: tek tüketicisi header'daki İlerlemem
+   ikonuydu, o ikon kalktı (bkz. accountHtml üstündeki not). */
 var AVA = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5";
+/* R15/2 · kimlik kartı ad + kullanıcı adı taşıyor; ikisi de TEK yerde.
+   Kabuğun üç yüzeyi (hesap menüsü · çekmece · modül kimlik kartı) buradan okur. */
+var FIT_USER = { ad:'Elif Şahin', handle:'@elifsahin' };
 var MARK = '<svg class="fit-mark" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11.5" fill="#009d4f"/><path d="M25 8 L13.6 26 H19.8 L18.2 36 L30.4 17.6 H23.8 Z" fill="#fff"/></svg>';
 var WORD = '<span class="fit-word"><b>Dada</b><span class="ft">Fit</span></span>';
 
@@ -663,7 +615,7 @@ function drawerNavHtml(){
   var planSubs = PLAN_TABS.concat(planAlt).map(function(p){
     return '<a href="'+p.href+'"><i class="'+p.icon+'"></i> '+p.label+'</a>';
   }).join('\n        ');
-  out.push('<div class="d-item d-plan d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="fit-planim-v1.html"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
+  out.push('<div class="d-item d-plan d-has-sub'+(planActive?' open':'')+'">\n      <div class="d-row">\n        <a class="d-link'+(planActive?' active':'')+'" href="programlarim-v1.html#programlarim"><i class="fa-solid fa-list-check"></i> Planım</a>\n        <button class="d-toggle" type="button" aria-expanded="'+(planActive?'true':'false')+'" aria-label="Planım alt menüsü"><i class="fa-solid fa-chevron-down"></i></button>\n      </div>\n      <div class="d-sub">\n        '+planSubs+'\n      </div>\n    </div>');
 
   /* R9 · K66 — AÇILIR MENÜNÜN MOBİL KARŞILIĞI.
      ÖLÇÜLEN KUSUR: §2 rayın içeriğini açılır menüye taşıdı, ama açılır menü
@@ -776,15 +728,40 @@ var TOPBAR = ''+
 '        <a class="bs-item bs-fit is-active" href="dadafit-hub-v1.html" aria-current="page"><i class="fa-solid fa-dumbbell"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Fit</span></span></a>\n'+
 '        <span class="bs-item bs-akademi is-soon" aria-disabled="true" aria-label="DadaAkademi — kilitli"><i class="fa-solid fa-graduation-cap"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Akademi</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
 '        <span class="bs-item bs-store is-soon" aria-disabled="true" aria-label="DadaStore — kilitli"><i class="fa-solid fa-bag-shopping"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Store</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
-'        <span class="bs-item bs-campus is-soon" aria-disabled="true" aria-label="DadaCampus — kilitli"><i class="fa-solid fa-school"></i><span class="bs-name"><span class="bd">Dada</span><span class="sf">Campus</span></span><i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>\n'+
+/* 🔴 DADACAMPUS KALEMİ KALDIRILDI — Beyar, 2026-08-29 (§W2: eski karar
+   silinmez, üstüne yazılır). §O1'in yedi kalemi ALTIYA indi:
+     ① Gastro ② Diet ③ Gourmet ④ Fit AKTİF ⑤ DadaAkademi ⑥ DadaStore
+   SIRAYA DOKUNULMADI (Beyar: "sıraya dokunma") — Gourmet bugün olduğu
+   gibi Fit'ten önce kalıyor. Kalem kilitli bir <span>'di, href taşımıyordu:
+   kaldırılması ölü bağlantı DOĞURMAZ (ölçüldü, sonrası 0).
+   §O13/§Y-1'deki "Campus ile Akademi aynı marka mı" açık kalemi bu
+   kaldırmayla kapanmadı; kalem geri istenirse yukarıdaki iki komşusunun
+   kalıbı birebir kopyalanır. */
 '      </nav>\n'+
+/* §O14 · DİL SEÇİCİ — açılır menü (Beyar kararı, 2026-08-29 · §W2).
+   Bir önceki tur kardeş markanın tek-kalem desenindeydi (dadagastro.com:
+   <a class="tb-lang-one" href="/en" hreflang="en">, açılır menü yok) ve
+   kalem deponun kilit dilinde duruyordu. Beyar: "dil seçimi kilitli
+   olmamalı, menü kutu içinde açılsın" — menü geri, KİLİT ROZETİ KALKTI.
+   Gastro'nun ASIL kuralı korundu: düğme SEÇİLİ dili değil GEÇİLECEK dili
+   gösterir. Site Türkçe → düğme "EN". Menüde işaretli olan gerçek dildir.
+   Kalemler <a href="#"> değil <button>: deponun kendi kuralı, ölü
+   bağlantı bırakılmaz.
+   🔴 Çeviri altyapısı YOK (ölçüldü: i18n sözlüğü 0 · data-i18n 0 · /en
+   yüzeyi 0). Menünün dibindeki not bunu söylüyor; "Yakında" yazılmadı. */
 '      <div class="tb-lang" id="tbLang">\n'+
-'        <button class="tb-lang-btn" id="tbLangBtn" type="button" aria-haspopup="true" aria-expanded="false">\n'+
-'          <i class="fa-solid fa-globe"></i><span>EN</span><i class="fa-solid fa-chevron-down tb-lang-caret"></i>\n'+
+'        <button class="tb-lang-btn" id="tbLangBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Dil menüsü — site Türkçe">\n'+
+/* Beyar, 2026-08-29: "'EN' düğmesinin yanındaki aşağı ok kalkacak;
+   yalnız küre ikonu ve dil kodu kalsın." Aşağı ok (.tb-lang-caret)
+   söküldü, CSS kuralları da silindi — ölü sınıf bırakılmadı.
+   `aria-expanded` DÜĞMEDE DURUYOR: açılırlık bilgisi görsel oka değil
+   ona bağlı, ok kalkınca ekran okuyucu bilgisi kaybolmasın. */
+'          <i class="fa-solid fa-globe" aria-hidden="true"></i><span lang="en">EN</span>\n'+
 '        </button>\n'+
 '        <div class="tb-lang-menu" id="tbLangMenu" role="menu">\n'+
-'          <a href="#" role="menuitem" data-lang="tr">TR <span>Türkçe</span></a>\n'+
-'          <a href="#" role="menuitem" class="active" data-lang="en">EN <span>English</span></a>\n'+
+'          <button type="button" role="menuitemradio" aria-checked="true" class="active" data-lang="tr">TR <span>Türkçe</span></button>\n'+
+'          <button type="button" role="menuitemradio" aria-checked="false" data-lang="en">EN <span>English</span></button>\n'+
+'          <p class="tb-lang-note" id="tbLangNote"><i class="fa-solid fa-flask" aria-hidden="true"></i><span>Bu prototip yalnız Türkçe. İngilizce yüzey henüz üretilmedi.</span></p>\n'+
 '        </div>\n'+
 '      </div>\n'+
 '    </div>\n'+
@@ -881,15 +858,26 @@ function headerHtml(){
 '      <nav class="nav">\n        '+navHtml()+'\n      </nav>\n'+
 '      <div class="head-actions">\n'+
 '        <button class="icon-btn" aria-label="Ara" onclick="location.href=\'arama-fit-v1.html\'"><i class="fa-solid fa-magnifying-glass"></i></button>\n'+
-/* PLANIM — ana menüye girmez; kişisel buton olarak burada durur ve HER İKİ oturum
- durumunda da görünür (DadaDiet head-actions sırası: arama · Planım · Giriş/Hesap). */
-'        <a class="btn-login btn-plan'+(PLAN_ACTIVE?' active':'')+'" href="fit-planim-v1.html"'+(PLAN_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-list-check"></i> Planım</a>\n'+
+/* R16 · Beyar, 2026-08-29 — HEAD-ACTIONS SIRASI DEĞİŞTİ.
+ Öncesi (oturum kipi, soldan sağa): arama · Planım · zil · avatar
+ Sonrası:                           arama · zil · Planım · avatar
+ Yani ZİL, Planım'ın SOLUNA geçti; Planım avatarın hemen soluna oturdu.
+ Misafir kipinde zil ve avatar `display:none` (fit-shell.css `body.is-auth`),
+ o kipte sıra arama · Planım · Giriş Yap olarak KORUNUR — misafir görünümü
+ değişmedi. Aralık kabın kendi `gap`inden gelir, kalem başına boşluk yok. */
+'        <a class="icon-btn head-bell" href="bildirimler-v1.html" aria-label="Bildirimler"><i class="fa-solid fa-bell"></i><span class="hb-badge">3</span></a>\n'+
+/* PLANIM — ana menüye girmez; kişisel buton olarak burada durur ve HER İKİ
+ oturum durumunda da görünür. */
+'        <a class="btn-login btn-plan'+(PLAN_ACTIVE?' active':'')+'" href="programlarim-v1.html#programlarim"'+(PLAN_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-list-check"></i> Planım</a>\n'+
 /* §1 — İLERLEMEM header'a çıktı. Belge sırası: Arama · Planım · İlerlemem ·
  Bildirimler · Profil. İkon düğme: Planım zaten metinli, ikisi yan yana metinli
  olsa dar ekranda head-actions taşardı (ölçüm: 1440'ta 6 öğe zaten sığıyor). */
-'        <a class="icon-btn head-prog'+(ILERLEME_ACTIVE?' active':'')+'" href="fit-planim-ilerleme-v1.html" aria-label="İlerlemem"'+(ILERLEME_ACTIVE?' aria-current="page"':'')+'><i class="fa-solid fa-chart-line"></i></a>\n'+
+/* R15/1 · Beyar kararı — HEADER'DAKİ İLERLEMEM İKONU KALKTI.
+    Gerekçe: `fit-planim-ilerleme-v1.html` artık ayrı sayfa değil,
+    Programlarım'ın sekmesi (`programlarim-v1.html#ilerleme`). Üst çubukta
+    yalnız ZİL kalır (§G19 · bildirim orada). Erişim kaybı yok: kalem hem
+    modül şeridinde hem Programlarım sekmesinde duruyor. */
 '        <button class="btn-login" onclick="location.href=\'giris-v1.html\'"><i class="fa-regular fa-user"></i> Giriş Yap</button>\n'+
-'        <a class="icon-btn head-bell" href="bildirimler-v1.html" aria-label="Bildirimler"><i class="fa-solid fa-bell"></i><span class="hb-badge">3</span></a>\n'+
 '        <div class="acct-item acct-wrap">\n'+
 '          <button class="acct-btn" aria-label="Hesabım" aria-haspopup="true">\n'+
 '            <span class="acct-ava" style="background-image:url(\''+AVA+'\')"></span>\n'+
@@ -898,7 +886,7 @@ function headerHtml(){
 '          <div class="acct-menu">\n'+
 '            <div class="acct-id">\n'+
 '              <span class="acct-ava" style="background-image:url(\''+AVA+'\')"></span>\n'+
-'              <span class="acct-id-txt"><b>Elif Şahin</b><small>@elifsahin</small></span>\n'+
+'              <span class="acct-id-txt"><b>'+FIT_USER.ad+'</b><small>'+FIT_USER.handle+'</small></span>\n'+
 '            </div>\n'+
 '            <div class="acct-div"></div>\n'+
 '            '+accountHtml()+'\n'+
@@ -925,7 +913,7 @@ function drawerHtml(){
 '    <div class="drawer-acct">\n'+
 '      <span class="da-ava" style="background-image:url(\''+AVA+'\')"></span>\n'+
 '      <div class="da-info">\n'+
-'        <b>Elif Şahin</b>\n'+
+'        <b>'+FIT_USER.ad+'</b>\n'+
 '        <div class="da-links">\n'+
 /* R9 · K66 — "Planım" ve "Ayarlar" bu şeritten kalktı: ikisi de artık
  drawer'ın kendi gövdesinde gerçek kalem ("Planım" nav satırı · "Hesap ve
@@ -943,14 +931,17 @@ function drawerHtml(){
  "DadaMutfak'a dön" kısayolu da kaldırıldı (belge §1: DadaFit bir alt sayfa gibi
  görünmemeli, hesap/üyelik yapısı bağımsız olmalı). Ekosistem geçişi üst bandın
  marka barında duruyor; kontrollü bağlantı orada. */
+/* çekmece dil satırı — üst banttaki menüyle AYNI karar: kilit yok,
+ liste var, seçilen dil değişmez, dürüst not dipte. */
 '    <div class="drawer-lang" id="drawerLang">\n'+
 '      <button class="drawer-lang-toggle" type="button" aria-haspopup="true" aria-expanded="false">\n'+
 '        <span class="drawer-lang-label"><i class="fa-solid fa-globe"></i> Dil</span>\n'+
-'        <span class="drawer-lang-cur"><span id="drawerLangCur">EN — English</span> <i class="fa-solid fa-chevron-down"></i></span>\n'+
+'        <span class="drawer-lang-cur"><span lang="en">EN</span> <i class="fa-solid fa-chevron-down"></i></span>\n'+
 '      </button>\n'+
 '      <div class="drawer-lang-list" role="menu">\n'+
-'        <button type="button" data-lang="tr" data-name="Türkçe"><b>TR</b> Türkçe</button>\n'+
-'        <button type="button" class="active" data-lang="en" data-name="English"><b>EN</b> English</button>\n'+
+'        <button type="button" role="menuitemradio" aria-checked="true" class="active" data-lang="tr"><b>TR</b> Türkçe</button>\n'+
+'        <button type="button" role="menuitemradio" aria-checked="false" data-lang="en"><b>EN</b> English</button>\n'+
+'        <p class="tb-lang-note"><i class="fa-solid fa-flask" aria-hidden="true"></i><span>Bu prototip yalnız Türkçe. İngilizce yüzey henüz üretilmedi.</span></p>\n'+
 '      </div>\n'+
 '    </div>\n'+
 '  </div>\n'+
@@ -975,6 +966,15 @@ var FEEDBACK_HTML = `<span class="fb-rail" aria-hidden="true"></span>
     </div>
     <div class="fb-body">
       <form id="fbForm">
+        <!-- 🔴 DÜRÜSTLÜK — Beyar, bağlayıcı. Bu depo statik bir prototip:
+             sunucu yok, form hiçbir yere POST etmiyor. Şerit deponun kendi
+             dürüst maket bileşeni (.hr-note — destek-v1 ve talep detayında
+             canlı); yeni bileşen üretilmedi ve "Yakında" yazılmadı.
+             Formun İÇİNDE duruyor ki gönderim ekranında tekrar etmesin. -->
+        <div class="hr-note">
+          <i class="fa-solid fa-flask" aria-hidden="true"></i>
+          <p><b>Bu ekran maket: görüş gönderilmez.</b> Form bir arka uca bağlı değil — alanları doldurabilirsin ama yazdıkların iletilmez ve kaydedilmez.</p>
+        </div>
         <!-- M17: konu tipine göre alan seti değişir (Onedio referansı, mevcut dil korunarak) -->
         <div class="fb-topics" role="group" aria-label="Konu seç">
           <button class="fb-topic active" type="button" data-topic="oneri"><i class="fa-solid fa-lightbulb"></i> Önerim var</button>
@@ -1062,10 +1062,17 @@ var FEEDBACK_HTML = `<span class="fb-rail" aria-hidden="true"></span>
         </label>
         <button class="btn btn-primary fb-send" type="submit"><i class="fa-solid fa-paper-plane"></i> Gönder</button>
       </form>
+      <!-- 🔴 Eski hâl SAHTEYDİ: yeşil onay + "Görüşün bize ulaştı / Ekibimiz
+           en kısa sürede inceleyip e-posta ile dönüş yapacak". Hiçbiri
+           olmuyor — gönderim yok, e-posta yok, inceleyen yok. Metin de
+           işaret de gerçeğe çekildi; onay tiki yerine kitin maket ikonu
+           (fa-flask — destek şeridiyle aynı), yeşil "başarı" dairesi
+           yerine kit §9 boş-durum dairesi. "Yakında" yazılmadı. -->
       <div class="fb-success" id="fbSuccess" hidden>
-        <span class="ok"><i class="fa-solid fa-check"></i></span>
-        <h4>Görüşün bize ulaştı</h4>
-        <p>Teşekkürler! Ekibimiz en kısa sürede inceleyip gerekirse e-posta ile dönüş yapacak.</p>
+        <span class="ok"><i class="fa-solid fa-flask" aria-hidden="true"></i></span>
+        <h4>Görüşün gönderilmedi — burası maket</h4>
+        <p>Yazdıkların hiçbir yere iletilmedi ve kaydedilmedi. Bu ekran, canlı sürümde gönderimden sonra göreceğin adımın yerini tutuyor.</p>
+        <button class="btn btn-ghost fb-again" type="button" id="fbAgain">Forma dön</button>
       </div>
     </div>
   </div>
@@ -1214,6 +1221,64 @@ if(_bot){
     '\n<button class="to-top" id="toTop" type="button" aria-label="Basa don"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>';
 }
 
+/* =====================================================================
+ R15/5 · ANTRENÖR SOHBETİ MODÜLÜ — TEK NOKTADAN YÜKLEME
+ ---------------------------------------------------------------------
+ `assets/js/fit-mesaj.js` yüzen sohbet düğmesini ve sağdan açılan paneli
+ kendi kendine kurar. 62 sayfaya ayrı ayrı `<script>` satırı yazmak yerine
+ kabuk tek yerden enjekte ediyor: yeni sayfa açan hiç kimsenin bu satırı
+ hatırlaması gerekmiyor.
+
+ · CSS satırı GEREKMİYOR — modül kendi `<link>`ini `document.currentScript.src`
+   üzerinden türetip enjekte ediyor ve çift yüklemeyi kendi kontrol ediyor
+   (dinamik enjeksiyonda da doğrulandı).
+ · `mesajlarim-v1.html` kendi `<script>` satırını taşıyor; modül çift
+   yüklemeye karşı korumalı, yine de burada `querySelector` ile bakıyoruz.
+ · Kabuğun kendi yolundan türetiliyor ki alt dizinden açılan sayfa da
+   doğru adresi bulsun.
+ ===================================================================== */
+/* R15/6 · ROZET/PUAN MOTORU da kabuktan yükleniyor. Sebep ölçüldü: kimlik
+   kartının istatistik şeridi 8 modül sayfasında basılıyor ama `fit-rozet.js`
+   yalnız 4 sayfada `<script>` ile çağrılıyordu; kalan 4'te `FIT_ROZET`
+   tanımsız kalıyor ve "Kazanılan rozet" ile "Toplam puan" kutuları hep "—"
+   gösteriyordu. Modül saf sözleşme modülü — DOM'a ya da CSS'e dokunmuyor,
+   yalnız `dm_fit_rozet_v1`i okuyup `window.FIT_ROZET`i açıyor. */
+function _modulYukle(dosya){
+  if(document.querySelector('script[src*="'+dosya+'"]')) return;
+  var kok = '';
+  try{
+    var kabuk = document.querySelector('script[src*="fit-shell.js"]');
+    if(kabuk) kok = (kabuk.getAttribute('src')||'').replace(/fit-shell\.js.*$/,'');
+  }catch(e){}
+  var sc = document.createElement('script');
+  sc.src = (kok || 'assets/js/') + dosya;
+  sc.defer = true;
+  document.body.appendChild(sc);
+}
+
+function _mesajYukle(){
+  /* Belge TAMAMEN ayrıştırıldıktan sonra bakılır: kabuk `<script>`i sayfanın
+     kendi `fit-mesaj.js` satırından ÖNCE koştuğu için erken bakış onu
+     göremiyor ve ikinci bir etiket basılıyordu (ölçüldü: mesajlarim-v1'de
+     script sayısı 2). Modül çift yüklemeye karşı zaten korumalı ama iki
+     etiket bırakmak yanıltıcı. */
+  if(document.querySelector('script[src*="fit-mesaj.js"]')) return;
+  var kok = '';
+  try{
+    var kabuk = document.querySelector('script[src*="fit-shell.js"]');
+    if(kabuk) kok = (kabuk.getAttribute('src')||'').replace(/fit-shell\.js.*$/,'');
+  }catch(e){}
+  var sc = document.createElement('script');
+  sc.src = (kok || 'assets/js/') + 'fit-mesaj.js';
+  sc.defer = true;
+  document.body.appendChild(sc);
+}
+function _rozetYukle(){ _modulYukle('fit-rozet.js'); }
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', _mesajYukle);
+  document.addEventListener('DOMContentLoaded', _rozetYukle);
+} else { _mesajYukle(); _rozetYukle(); }
+
 /* ---- FİT PLANIM kişisel kabuğu: banner + breadcrumb + sekme rayı ---- */
 /* R11/M17 · plan profilinin kapak görseli — tek yerde, 14 sayfa ortak */
 var PLAN_KAPAK = 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80&auto=format&fit=crop&sat=-12';
@@ -1275,7 +1340,7 @@ if(_plan){
    '<i class="fa-solid fa-house" aria-hidden="true"></i>'+
    '<span class="sr-only">DadaFit ana sayfa</span></a>\n'+
    '      <i class="fa-solid fa-chevron-right"></i>\n'+
-   '      <a href="fit-planim-v1.html">Fit Planım</a>\n'+
+   '      <a href="programlarim-v1.html#programlarim">Fit Planım</a>\n'+
    '      <i class="fa-solid fa-chevron-right"></i>\n'+
    '      <span class="cur">'+(cur?cur.label:ptit)+'</span>\n'+
    '    </nav>\n'+
@@ -1302,11 +1367,11 @@ if(_plan){
       `.fp-who`/`.fp-ava`/`.fp-who-txt` kiti bu değişiklikle son canlı
       referanslarını da kaybediyor → ÖLÜ KURAL (fit-shell.css'te işaretli,
       KARARLAR.md K68). */
-   '        <span class="fp-handle2">Elif Şahin</span>\n'+
+   '        <span class="fp-handle2">'+FIT_USER.ad+'</span>\n'+
    (psub? '        <p class="fp-lead2">'+psub+'</p>\n' : '')+
    '        <div class="fp-kimlik-meta">\n'+
    '          <span><i class="fa-solid fa-user"></i> Ücretsiz üye · 3 haftadır burada</span>\n'+
-   '          <a href="fit-planim-rozetler-v1.html"><i class="fa-solid fa-award"></i> Rozetlerim</a>\n'+
+   '          <a href="rozetlerim-v1.html"><i class="fa-solid fa-award"></i> Rozetlerim</a>\n'+
    '        </div>\n'+
    '      </div>\n'+
    '    </div>\n'+
@@ -1331,6 +1396,246 @@ if(_plan){
    '    <span class="fp-gate-acts"><a class="btn btn-primary" href="giris-v1.html"><i class="fa-regular fa-user"></i> Giriş Yap</a><a class="btn btn-ghost" href="giris-v1.html?tab=kayit">Ücretsiz hesap oluştur</a></span>\n'+
    '  </div>\n'+
    '</div>';
+}
+
+/* =====================================================================
+ MODÜL KABUĞU — #fitModulTop   (R15/2 · Beyar kararı, 2026-08-29)
+ ---------------------------------------------------------------------
+ Menü modül menüsü olunca (R15/1) modüller kendi ADRESLERİNE taşındı ve
+ her modül kendi sekmelerini aldı. Planım kabuğundan (#fitPlanTop) TEK
+ farkı var, o fark da şartnamenin kendisi:
+
+   #fitPlanTop  → sekmeler <a>; tıklayınca SAYFA DEĞİŞİR, kimlik kartı
+                  baştan kurulur
+   #fitModulTop → sekmeler <button>, panel kipi; SAYFA DEĞİŞMEZ →
+                  "Kimlik kartı sekme değişince KAYBOLMAZ, sabit kalır"
+
+ Kimlik kartı kiti (.fp-profil / .fp-kapak / .fp-kimlik) BİREBİR Planım
+ kabuğundan alındı — yeni görsel dil icat edilmedi. Tek ekleme şartnamenin
+ istediği KULLANICI ADI (@handle); Planım kabuğunda yalnız ad vardı.
+
+ Şerit kabuğun ORTAK sekme bileşenine bağlanır ([data-fit-tabs] · panel
+ kipi): rol/aria/klavye/roving-tabindex orada kuruludur, burada
+ tekrarlanmaz. Bileşen geçişte scroll ÇAĞIRMAZ; kart yerinde kalır.
+
+ KULLANIM
+   <div id="fitModulTop"
+        data-modul="egzersizlerim"
+        data-modul-title="Egzersizlerim"
+        data-modul-sub="…"
+        data-modul-tabs="anahtar:Etiket:fa-solid fa-x|anahtar2:Etiket2:fa-solid fa-y"
+        data-modul-aktif="anahtar"></div>
+   <div class="modul-govde">
+     <div class="fit-pane" data-pane="anahtar">…</div>
+     <div class="fit-pane" data-pane="anahtar2" hidden>…</div>
+   </div>
+
+ `data-modul-tabs` BOŞ bırakılırsa şerit HİÇ basılmaz — Challenge'larım
+ şartnamede sekmesiz tek ekrandır; boş bir şerit basmak yalan olurdu.
+
+ ⚠ `.modul-govde` OPAK ve tam genişlikte olmalı: yukarıdaki "PLAN KABUĞU ·
+ dikişi rayın dibine çek" bloğu rayın altındaki SAYDAM blokları gövdenin
+ içine taşır. Gövde opak olduğu için o blok onu hedef sayar ve hiçbir şey
+ taşımaz — panel kipi bozulmaz (ölçüldü).
+ ===================================================================== */
+var _modul = document.getElementById('fitModulTop');
+if(_modul){
+  var mk    = _modul.getAttribute('data-modul') || 'modul';
+  var mtit  = _modul.getAttribute('data-modul-title') || 'Modülüm';
+  var msub  = _modul.getAttribute('data-modul-sub') || '';
+  var mham  = (_modul.getAttribute('data-modul-tabs') || '').trim();
+  var maktif= _modul.getAttribute('data-modul-aktif') || '';
+
+  /* "anahtar:Etiket:ikon|…" → dizi. Ayrıştırma burada, çünkü sayfa
+     markup'ında ham HTML tekrar etmesin: 7 modül sayfası tek satır yazar. */
+  var mtabs = mham ? mham.split('|').map(function(p){
+    var q = p.split(':');
+    return { key:(q[0]||'').trim(), label:(q[1]||'').trim(), icon:(q[2]||'fa-solid fa-circle').trim() };
+  }).filter(function(t){ return t.key && t.label; }) : [];
+
+  if(mtabs.length && !mtabs.some(function(t){ return t.key===maktif; })) maktif = mtabs[0].key;
+
+  /* DERİN BAĞLANTI — #<sekme>. Modüller kendi adreslerine taşınınca (R15/2)
+     eski sayfaların bağlantıları da taşındı: `programlarim-v1.html#takvim`
+     yerine `programlarim-v1.html#takvim`. Hash bir SEKME ANAHTARIYSA açılışta
+     o sekme seçilir; değilse (bölüm çapası, ör. #kaydettiklerim) dokunulmaz ve
+     tarayıcının normal çapa davranışı sürer. */
+  var mhash = (location.hash || '').replace('#','');
+  if(mhash && mtabs.some(function(t){ return t.key===mhash; })) maktif = mhash;
+
+  var mtabHtml = mtabs.length
+    ? '<div class="pf-tabbar fp-tabbar">\n  <div class="wrap">\n' +
+      '    <nav class="fit-tabs" data-fit-tabs="' + mk + '" aria-label="' + mtit + ' bölümleri">\n      ' +
+      mtabs.map(function(t){
+        var on = t.key === maktif;
+        return '<button class="fit-tab' + (on?' active':'') + '" type="button" data-tab="' + t.key +
+               '" aria-selected="' + (on?'true':'false') + '"><i class="' + t.icon + '"></i> ' + t.label + '</button>';
+      }).join('\n      ') +
+      '\n    </nav>\n  </div>\n</div>\n'
+    : '';
+
+  /* =====================================================================
+     R16 · KİMLİK KARTI = PROFİL KARTI  (Beyar kararı, 2026-08-29 · §W2)
+     ---------------------------------------------------------------------
+     Öncesi: <h1> SAYFA ADINI basıyordu ("Egzersizlerim", "Programlarım",
+     "Challenge'larım", "Destek Merkezi", "Mesajlarım"). Beyar: kart bir
+     PROFİL kartıdır, sayfa başlığı değil — sayfa adı zaten kartın
+     ALTINDAKİ sekme şeridinde duruyor (ve kırıntının son kaleminde).
+     Artık kartın içeriği SEKMEDEN BAĞIMSIZ: hangi sekme açık olursa
+     olsun aynı beş satır ve aynı beş kutu görünür.
+
+     Emsal: dadagastro.com/sefler/admin (.pf-head + .pf-stats). Yapı ve
+     ölçüler oradan, renkler kitten — `--fit` · `--fit-tint` · `--fit-deep`
+     · `--line` · `--slate` · `--muted`; yeni renk üretilmedi.
+     İstatistik hücresi YENİ DEĞİL: `antrenor-detay-v1.html`in `.cp-stats`
+     / `.cps` kiti (emsalin `.pf-stats`/`.pfs`'iyle birebir aynı yapı)
+     kabuğa taşındı, sınıf adları aynen korundu.
+
+     🔴 UYDURULMAYAN ALANLAR — kaynak yok, değer "—" bırakıldı:
+       · üyelik tarihi   → `dm_user` şeması {auth,roles[],verified,level};
+                           kayıt tarihi alanı YOK (ölçüldü)
+       · rozet sayısı    → `dm_fit` şemasında rozet alanı YOK
+       · toplam puan     → `dm_fit` şemasında puan alanı YOK
+     Gerçek kaynağı olan üç kutu VERİDEN okunur (`dm_fit`):
+       · tamamlanan antrenman → gecmis.length
+       · aktif program        → program.durum === 'devam'
+       · challenge            → challenge.durum === 'devam'
+     `dm_fit` doğrudan okunuyor çünkü `FIT_SHELL.state` bu bloktan SONRA
+     tanımlanıyor (dosya sırası) — aynı anahtar, aynı veri.
+     ===================================================================== */
+  var mDurum = (function(){
+    try{ return JSON.parse(localStorage.getItem('dm_fit')||'null') || {}; }catch(e){ return {}; }
+  })();
+  var mBiten  = Array.isArray(mDurum.gecmis) ? mDurum.gecmis.length : 0;
+  var mProg   = (mDurum.program   && mDurum.program.durum   === 'devam') ? 1 : 0;
+  var mChall  = (mDurum.challenge && mDurum.challenge.durum === 'devam') ? 1 : 0;
+  var YOK     = '—';
+
+  /* Kademe rozeti. ⚠ ÖLÇÜLDÜ: `dm_user` şemasında `paket` alanı YOK
+     ({auth,roles[],verified,level}); depodaki `paket` anahtarı
+     uyelik-faturalandirma-v1'in KENDİ yerel durumu ve değerleri t0/t2…
+     Alan ileride gelirse burası onu okur; gelene kadar paketsiz hesabın
+     doğru kademesi Ücretsiz'dir (K6 geri alındıktan sonra iki kademe var:
+     Ücretsiz · Pro). Sayı uydurulmadı, varsayılan durum yazıldı. */
+  var mKademe = (function(){
+    try{
+      var u = JSON.parse(localStorage.getItem('dm_user')||'null');
+      return {pro:'Pro', pro_max:'Pro Max'}[u && u.paket] || 'Ücretsiz';
+    }catch(e){ return 'Ücretsiz'; }
+  })();
+
+  function mKutu(ikon, etiket, deger, tutucu){
+    /* `data-kutu` KALICI tutamak, `data-yer-tutucu` GEÇİCİ damga:
+       değer gerçek kaynaktan gelince damga siliniyor ama kutuyu bir daha
+       bulabilmek gerekiyor (ölçüldü: damga silinince ikinci boyama kutuyu
+       kaybediyordu ve sayı ilk değerinde donuyordu). */
+    return '      <div class="cps'+(tutucu?'" data-kutu="'+tutucu+'" data-yer-tutucu="'+tutucu:'')+'">'+
+           '<i class="'+ikon+'" aria-hidden="true"></i>'+
+           '<div><span>'+etiket+'</span><b>'+deger+'</b></div></div>\n';
+  }
+
+  _modul.outerHTML =
+   '<section class="fp-profil">\n'+
+   '  <div class="wrap">\n'+
+   '    <nav class="lib-crumb pf-crumb" aria-label="Sayfa yolu">\n'+
+   '      <a href="dadafit-hub-v1.html" class="crumb-home">'+
+   '<i class="fa-solid fa-house" aria-hidden="true"></i>'+
+   '<span class="sr-only">DadaFit ana sayfa</span></a>\n'+
+   '      <i class="fa-solid fa-chevron-right"></i>\n'+
+   '      <span class="cur">'+mtit+'</span>\n'+
+   '    </nav>\n'+
+   '    <div class="fp-kapak" data-fit-px style="--px-img:url(\''+PLAN_KAPAK+'\')">\n'+
+   '      <span class="fp-kapak-mark"><i class="fa-solid fa-bolt"></i> DadaFit · kişisel alanın</span>\n'+
+   '    </div>\n'+
+   '    <div class="fp-kimlik">\n'+
+   '      <span class="fp-ava2" style="background-image:url(\''+AVA+'\')"></span>\n'+
+   '      <div class="fp-kimlik-id">\n'+
+   '        <h1>'+FIT_USER.ad+' <span class="fp-badge is-kademe"><i class="fa-solid fa-medal" aria-hidden="true"></i> '+mKademe+'</span></h1>\n'+
+   '        <span class="fp-handle2"><span class="fp-uad">'+FIT_USER.handle+'</span></span>\n'+
+   '        <div class="fp-kimlik-meta">\n'+
+   '          <span><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Üyelik tarihi '+YOK+'</span>\n'+
+   '          <span><i class="fa-solid fa-award" aria-hidden="true"></i> Rozet '+YOK+'</span>\n'+
+   '        </div>\n'+
+   /* Modülün tanıtım cümlesi kartın İÇİNDE kalır — sekmeye göre değişmeyen
+      sayfa düzeyi bir metin, ayrıca kartın dışına alınsaydı istatistik
+      şeridinin altında öksüz bir paragraf olurdu (ölçüldü, ekran). */
+   (msub? '        <p class="fp-lead2">'+msub+'</p>\n' : '')+
+   '      </div>\n'+
+   '    </div>\n'+
+   '    <div class="cp-stats pf-stats" role="group" aria-label="Fit özetin">\n'+
+   mKutu('fa-solid fa-dumbbell',   'Tamamlanan antrenman', mBiten) +
+   mKutu('fa-solid fa-list-check', 'Aktif program',        mProg) +
+   mKutu('fa-solid fa-award',      'Kazanılan rozet',      YOK, 'fit-rozet-sayisi') +
+   mKutu('fa-solid fa-trophy',     'Challenge',            mChall) +
+   mKutu('fa-solid fa-star',       'Toplam puan',          YOK, 'fit-toplam-puan') +
+   '    </div>\n'+
+   '  </div>\n'+
+   '</section>\n'+
+   mtabHtml;
+
+  /* ---- ROZET VE PUAN KUTULARI — GERÇEK VERİYE BAĞLANIYOR ------------
+     Kutular `fit-rozet-sayisi` / `fit-toplam-puan` id'leriyle "—" olarak
+     basılıyor (kaynak yokken uydurma sayı yazmamak için). `FIT_ROZET`
+     yüklendiğinde ikisi de gerçek değeri alır: `ozet().kazanildi` ve
+     `puan()`. Motor kabuktan sonra yüklendiği için olayla bekliyoruz;
+     zaten yüklüyse hemen boyuyoruz. */
+  (function(){
+    function rozetBas(){
+      var R = window.FIT_ROZET; if(!R) return;
+      /* Kutular id DEĞİL `data-yer-tutucu` taşıyor (mKutu'nun 4. argümanı).
+         Değer gerçek kaynaktan gelince yer tutucu damgası da SİLİNİYOR —
+         dolu bir kutunun üstünde "kaynağı yok" işareti kalmamalı. */
+      var a = document.querySelector('[data-kutu="fit-rozet-sayisi"] b');
+      var b = document.querySelector('[data-kutu="fit-toplam-puan"] b');
+      function damgaSil(el){ var k = el && el.closest('[data-yer-tutucu]'); if(k) k.removeAttribute('data-yer-tutucu'); }
+      try{
+        if(a && R.ozet){ a.textContent = String(R.ozet().kazanildi); damgaSil(a); }
+        if(b && R.puan){ b.textContent = String(R.puan());           damgaSil(b); }
+        /* meta satırındaki "Rozet —" de aynı sayıyı taşır */
+        var meta = document.querySelector('.fp-kimlik-meta span:last-child');
+        if(meta && R.ozet) meta.innerHTML =
+          '<i class="fa-solid fa-award" aria-hidden="true"></i> Rozet ' + R.ozet().kazanildi;
+      }catch(e){}
+    }
+    rozetBas();
+    window.addEventListener('fit-rozet-degisti', rozetBas);
+    document.addEventListener('fit:state', rozetBas);
+    /* motor kabuktan SONRA yükleniyor: ilk boyama için bir tur bekle */
+    if(!window.FIT_ROZET) setTimeout(rozetBas, 0);
+    window.addEventListener('load', rozetBas);
+  })();
+
+  /* ---- AYNI SAYFAYA GİDEN SEKME BAĞLANTILARI --------------------------
+     Taşınan içeriğin içinde kardeş sekmeye giden bağlantılar var
+     (ör. Bugün ekranındaki "Plan ve Takvim" kısayolu). Bunlar artık
+     `programlarim-v1.html#takvim`e işaret ediyor — çalışır ama SAYFAYI
+     YENİLER. Şartname "sayfa değişmeden" diyor, o yüzden aynı sayfaya
+     giden bağlantı gezinme yerine sekme geçişine çevrilir.
+     Başka sayfaya giden bağlantıya DOKUNULMAZ. */
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if(!a) return;
+    var h = a.getAttribute('href') || '';
+    var pr = h.split('#'); if(pr.length < 2 || !pr[1]) return;
+    var dosya = pr[0].split('?')[0];
+    var buSayfa = location.pathname.split('/').pop();
+    if(dosya && dosya !== buSayfa) return;              /* başka sayfa */
+    var hedef = document.querySelector('.fit-tab[data-tab="'+pr[1]+'"]');
+    if(!hedef) return;                                  /* bölüm çapası — dokunma */
+    e.preventDefault();
+    hedef.click();
+  });
+
+  /* Adres çubuğundan gelen hash değişimi de sekmeyi açsın. Sayfa ZATEN
+     yüklüyken yalnız hash değişirse tarayıcı yeniden yüklemez; bu dinleyici
+     olmadan bağlantı "çalışmıyor" görünürdü (ölçüm sondası bu yüzden bir kez
+     yanlış cevap verdi — docs/lessons.md, sonda körlüğü). */
+  window.addEventListener('hashchange', function(){
+    var h = (location.hash || '').replace('#','');
+    if(!h) return;
+    var t = document.querySelector('.fit-tab[data-tab="'+h+'"]');
+    if(t && t.getAttribute('aria-selected') !== 'true') t.click();
+  });
 }
 
 /* ---- PLAN KABUĞU · dikişi rayın dibine çek (Beyar · Revize 1) --------
@@ -1941,28 +2246,35 @@ document.addEventListener('click',function(e){
   if(location.search.indexOf('lg=1')>-1){open();}                    // SS paramı
 })();
 
-// ---- DİL SEÇİCİ (üst bant dropdown) ----
+/* ---- DİL SEÇİCİ (üst bant açılır menü) ----
+   Eski blok seçilen kalemi düğmeye basıyordu — `btn span.textContent =
+   data-lang`. Kardeş markada kural TERSİ: düğme GEÇİLECEK dili gösterir
+   (dadagastro.com canlıdan ölçüldü, html[lang=tr] → "EN", /en → "TR").
+   Burada gerçek dil TEK: Türkçe. Bu yüzden düğme sabit "EN" gösterir ve
+   menüde işaretli kalem TR'dir. "English" seçilince SAHTE bir geçiş
+   YAPILMAZ (çeviri altyapısı yok); menü açık kalır ve dipteki dürüst not
+   vurgulanır — kullanıcı neden bir şeyin değişmediğini anında görür. */
 (function(){
   var lang=document.getElementById('tbLang');
   if(!lang)return;
   var btn=document.getElementById('tbLangBtn');
+  var not=document.getElementById('tbLangNote');
+  function kapat(){lang.classList.remove('open');btn.setAttribute('aria-expanded','false');}
   btn.addEventListener('click',function(e){
     e.preventDefault();e.stopPropagation();
-    var open=lang.classList.toggle('open');
-    btn.setAttribute('aria-expanded',open?'true':'false');
+    var acik=lang.classList.toggle('open');
+    btn.setAttribute('aria-expanded',acik?'true':'false');
   });
-  lang.querySelectorAll('.tb-lang-menu a').forEach(function(a){
-    a.addEventListener('click',function(e){
-      e.preventDefault();
-      lang.querySelectorAll('.tb-lang-menu a').forEach(function(x){x.classList.remove('active')});
-      a.classList.add('active');
-      btn.querySelector('span').textContent=a.getAttribute('data-lang').toUpperCase();
-      lang.classList.remove('open');btn.setAttribute('aria-expanded','false');
+  lang.querySelectorAll('.tb-lang-menu button').forEach(function(b){
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(b.getAttribute('data-lang')==='tr'){ kapat(); return; }   /* zaten aktif dil */
+      /* İngilizce yüzey yok — etiket değiştirilmez, dil değiştirilmez. */
+      if(not){ not.classList.add('is-vurgu'); setTimeout(function(){not.classList.remove('is-vurgu');},1600); }
     });
   });
-  document.addEventListener('click',function(e){
-    if(!e.target.closest('#tbLang')){lang.classList.remove('open');btn.setAttribute('aria-expanded','false');}
-  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('#tbLang')) kapat(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') kapat(); });
 })();
 
 // ---- MOBİL DRAWER aç/kapa ----
@@ -2005,20 +2317,22 @@ document.addEventListener('click',function(e){
   drawer.querySelectorAll('.d-sub a, a.d-link, .drawer-foot a, .drawer-foot > button').forEach(function(a){
     a.addEventListener('click',close);
   });
- // drawer dil seçici — aç/kapa liste + seçim (drawer kapanmaz, N dile ölçeklenir)
+ /* çekmece dil listesi — aç/kapa. Üst bantla aynı karar: "English"
+    seçilince sahte geçiş yapılmaz, dipteki not vurgulanır. */
   var dl=document.getElementById('drawerLang');
   if(dl){
     var dlToggle=dl.querySelector('.drawer-lang-toggle');
+    var dlNot=dl.querySelector('.tb-lang-note');
     dlToggle.addEventListener('click',function(){
-      var open=dl.classList.toggle('open');
-      dlToggle.setAttribute('aria-expanded',open?'true':'false');
+      var acik=dl.classList.toggle('open');
+      dlToggle.setAttribute('aria-expanded',acik?'true':'false');
     });
     dl.querySelectorAll('.drawer-lang-list button').forEach(function(b){
       b.addEventListener('click',function(){
-        dl.querySelectorAll('.drawer-lang-list button').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');
-        document.getElementById('drawerLangCur').textContent=b.getAttribute('data-lang').toUpperCase()+' — '+b.getAttribute('data-name');
-        dl.classList.remove('open');dlToggle.setAttribute('aria-expanded','false');
+        if(b.getAttribute('data-lang')==='tr'){
+          dl.classList.remove('open');dlToggle.setAttribute('aria-expanded','false');return;
+        }
+        if(dlNot){ dlNot.classList.add('is-vurgu'); setTimeout(function(){dlNot.classList.remove('is-vurgu');},1600); }
       });
     });
   }
@@ -2198,6 +2512,15 @@ document.addEventListener('click',function(e){
   form.addEventListener('submit',function(e){
     e.preventDefault();
     form.hidden=true;success.hidden=false;
+    /* durum değişimini ekran okuyucuya duyur ve odağı yeni içeriğe taşı —
+       yoksa odak gizlenen formda kalır (§20 odak tuzağı modal içinde). */
+    success.setAttribute('tabindex','-1');
+    success.focus();
+  });
+  var again=document.getElementById('fbAgain');
+  if(again) again.addEventListener('click',function(){
+    success.hidden=true;form.hidden=false;
+    var ilk=form.querySelector('.fb-topic'); if(ilk) ilk.focus();
   });
   if(location.search.indexOf('fb=1')>-1){open();}
 })();
@@ -2218,6 +2541,38 @@ document.addEventListener('click',function(e){
   }
   document.getElementById('cookieAccept').addEventListener('click',function(){dismiss('accepted');});
   document.getElementById('cookieReject').addEventListener('click',function(){dismiss('rejected');});
+
+  /* ---- `--bc-lift` · "başa dön" çerez şeridinin ÜSTÜNE çıkar ----
+     Emsal ölçüldü (dadagastro.com, 2026-08-29): kardeş markada kural
+     `bottom:calc(92px + var(--bc-lift,0px))` ve ölçülen değerler
+       1440 → 92px  (şerit düğmenin soluna bitiyor, yükselme yok)
+       1024 → 131px = 24 (şeridin dip payı) + 95 (şerit) + 12 (aralık)
+       768  → 171px = 24 + 135 + 12
+     Fit'te mekanizma HİÇ YOKTU: üç genişlikte de 92px'te kalıp şeridin
+     altına giriyordu. Formül birebir aynı; yükselme YALNIZ ikisi yatayda
+     çakışırsa uygulanır (Gastro'da 1440'ta çakışma yok, o yüzden 0). */
+  var TT_TABAN = 92, TT_ARALIK = 12;
+  function lift(){
+    var btn = document.getElementById('toTop');
+    var kok = document.documentElement;
+    if(!btn){ kok.style.removeProperty('--bc-lift'); return; }
+    var acik = banner.classList.contains('show') && banner.getClientRects().length > 0;
+    if(!acik){ kok.style.removeProperty('--bc-lift'); return; }
+    var b = banner.getBoundingClientRect(), t = btn.getBoundingClientRect();
+    var cakisiyor = b.right > t.left && b.left < t.right;
+    if(!cakisiyor){ kok.style.removeProperty('--bc-lift'); return; }
+    var dip = window.innerHeight - b.bottom;               // şeridin dip payı
+    var hedef = dip + b.height + TT_ARALIK;
+    kok.style.setProperty('--bc-lift', Math.max(0, Math.round(hedef - TT_TABAN)) + 'px');
+  }
+  window.addEventListener('resize', lift);
+  window.addEventListener('load', lift);
+  /* Şerit 700ms sonra açılıyor ve KAYARAK giriyor. Ölçüldü: 800ms'te kutu
+     hâlâ ekranın altındaydı (dip negatif → yükselme 0 çıkıyordu). Bitişi
+     `transitionend` ile yakalanıyor; zamanlayıcılar yalnız yedek. */
+  banner.addEventListener('transitionend', lift);
+  setTimeout(lift, 60); setTimeout(lift, 800); setTimeout(lift, 1600);
+  document.addEventListener('click', function(){ setTimeout(lift, 60); }, true);
 })();
 
 
@@ -2520,7 +2875,7 @@ setTimeout(function(){
          planda seans süresi YOK (`secimler`de süre alanı yok,
          `hareketler[].sure` null), yalnız set/tekrar/dinlenme var. 25
          yazmak uydurma olurdu; kanıt kademesinin öldürmeye çalıştığı şey
-         de bu (fit-planim-v1.html'de `antrenmanTamamla` bu yüzden hiç
+         de bu (programlarim-v1.html#programlarim'de `antrenmanTamamla` bu yüzden hiç
          çağrılmıyordu: "gecmis'e 'Gün sonu · 0 dk' diye sahte bir
          antrenman kaydı düşürür").
            sayı verildi (0 dahil) → o sayı
@@ -2546,7 +2901,22 @@ setTimeout(function(){
          Uydurma bir kademe yazmaktansa zayıf ama doğru olanı yazıyoruz. */
       var kaynak = (a&&a.kaynak && KAYNAKLAR.indexOf(a.kaynak)>=0) ? a.kaynak : 'beyan';
       s.bugun.dk += (dk||0); s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
-      s.gecmis.unshift({tarih:'bugün',ad:ad,dk:dk,kcal:kcal,kaynak:kaynak});
+      /* R15/5 · ÜÇ ALAN EKLENDİ — challenge motorunun tek hunisi.
+         Üçü de İSTEĞE BAĞLI; eski kayıtlarda yok ve okuyan taraf yokluğu
+         göstermez, uydurmaz (fit-plan-kayit.js v2 şema göçünün deseni).
+           tarihISO → süreli hedef penceresi + alışkanlık serisi
+           slug     → egzersiz serisi eşleşmesi
+           metrik   → sayısal hedef toplamı, ör. {km,tekrar,set,dk,adim}
+         `goc()` DEĞİŞMEDİ, yeni olay kanalı da gerekmedi: `write()` zaten
+         `fit:state` yayınlıyor ve `fit-challenge.js` ona abone. */
+      s.gecmis.unshift({
+        tarih:'bugün',
+        tarihISO:(a && a.tarihISO) || new Date().toISOString(),
+        ad:ad,
+        slug:(a && a.slug) || null,
+        metrik:(a && a.metrik && typeof a.metrik==='object') ? a.metrik : null,
+        dk:dk, kcal:kcal, kaynak:kaynak
+      });
       if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += (dk||0);
       if(s.program && s.program.durum==='devam'){
         s.program.biten++;
@@ -2729,7 +3099,7 @@ setTimeout(function(){
         metin:   sonraki
                    ? 'Sıradaki gün: ' + (sonraki.ad || ('Gün ' + sonraki.no)) + '.'
                    : 'Planın son günüydü.',
-        href:    'fit-planim-programim-v1.html?plan=' + p.id
+        href:    'programlarim-v1.html?plan=#takvim' + p.id
       });
     }
 
@@ -2753,7 +3123,7 @@ setTimeout(function(){
         baslik:  '"' + (p.ad || 'Planın') + '" planını bitirdin.',
         metin:   (oz.gunSayisi || 0) + ' gün, ' + (oz.toplam || 0) + ' hareket. ' +
                  'Özet Plan ve Takvim sayfasında, kayıt arşivde.',
-        href:    'fit-planim-programim-v1.html?plan=' + p.id
+        href:    'programlarim-v1.html?plan=#takvim' + p.id
       });
     }
   });
@@ -3720,6 +4090,12 @@ setTimeout(function(){
         else if(tr.right > br.right) bar.scrollLeft += (tr.right - br.right) + 8;
       }
       if(window.__bnUpdate) window.__bnUpdate();
+      /* R15/2 · MODÜL SAYFASINDA adres sekmeyi taşır: sekme değişince URL de
+         değişir, paylaşılan bağlantı doğru sekmeyi açar. `replaceState` —
+         geçmişe yığın bırakmaz, geri tuşu sekmeler arasında hapsolmaz. */
+      if(document.querySelector('.modul-govde')){
+        try{ history.replaceState(null,'','#'+tab.getAttribute('data-tab')); }catch(e){}
+      }
       bar.dispatchEvent(new CustomEvent('fit:tabchange',{bubbles:true,detail:{key:tab.getAttribute('data-tab')}}));
     }
 

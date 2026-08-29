@@ -24,6 +24,42 @@ destek tek adreste · zebra · 44px dokunma hedefi.
 
 ## SIRADAKİ
 
+### 🟢 YÖNETİM PANELİ — R16/2, bu oturumda kuruldu
+
+**Giriş adresi: `http://127.0.0.1:8788/admin-v1.html`**
+
+Fit'te yönetim paneli yoktu (depoda yalnız `antrenor-panelim-v1.html` vardı, o
+antrenörün kendi paneli). Sıfırdan kuruldu; iskelet **Gastro'nun ölçülen
+sidebar'ı**, dört markada aynı olacak şekilde.
+
+| Parça | Dosya |
+|---|---|
+| Plan | `docs/fit-admin-plan.md` (§9 Gastro hizalaması + düzeltilen dört sapma) |
+| Kabuk | `assets/css/fit-admin.css` · `assets/js/fit-admin.js` |
+| Kit | `docs/fit-kit.md` §13 (`.adm-*` ailesi) |
+| Denetim | `docs/qa/admin-denetim.mjs` — 21 ekran × 4 genişlik, bütün kapılar |
+
+**21 ekran · 3 bölüm** (Genel Bakış + Ana içerik · Operasyon · Yapılandırma).
+Ortak 13, Fit'e özel 8 — Diet ve Gourmet'e taşınırken 13'ü aynen gider.
+
+**Gerçek veri okuyan ekranlar** (ikinci kopya tutulmuyor): Genel Bakış ·
+Challenge · Rozetler ve Kademeler · Paketler ve Özellikler. Kalanı örnek veri ve
+**her ekran bunu kendi kaynak şeridinde yazıyor** (`.adm-src`, `is-canli` /
+`is-ornek`) — "maket olanı gerçekmiş gibi gösterme" kuralı tek bileşene indi.
+
+**Gastro'dan alınan iki yetenek:** yönetimde arama (21 ekranı arar; içerik
+araması yapmıyor ve bunu söylüyor) · menüyü daralt (276→74px, tercih saklanır).
+
+**Bilerek ayrılan iki nokta:** Rozetler ve Kademeler tek kalem (Gastro'da iki —
+ikisi de aynı motordan geliyor) · Sponsorluk ve Reklam tek kalem + sekme
+(Gastro'da yedi — Fit'te arkasında altı boş ekran olurdu).
+
+🔴 **Panel yazma yüzeyi MAKET.** Formlar doğrulanır, kayıt gitmez; her ekran
+bunu yazıyor. Panel gerçek yazmayı getirdiğinde o şeritler kalkmalı — şerit
+kalırsa yalan tersine döner.
+
+---
+
 ### ✅ 1 · Challenge sistemi — KAPANDI (R16, 2026-08-30)
 
 **Devir notunun tablosu iki yerde eskimişti** (ölçüldü): `challenge-v1.html`
@@ -92,10 +128,17 @@ Dersler `docs/lessons.md` §23 · §24 · §25.
 
 ---
 
-### 2 · Destek formu koşullu alanlar 🔵 SIRADA
-Yeni talep formunda seçilen konuya göre açılan/kapanan alan yok; her talep aynı
-formu dolduruyor (ör. "ödeme" → fatura numarası, "antrenör" → antrenör seçici).
-Şartname bu turda gelmedi, ölçüm yapılmadı — **önce ölç**.
+### ✅ 2 · Destek formu koşullu alanlar — KAPANDI (R16)
+`destek-v1.html#yeni` formunda alanlar artık talep türüne göre açılıyor.
+**Ölçüldü:** 8 konu · randevu alanı **1/8**'de (Antrenör ve randevu) · ödeme
+referansı **2/8**'de (DadaFit Pro ve ödeme · Üyelik ve fatura) · kalan 5'te ikisi
+de gizli. Gizli alan `required` almıyor (8/8), konu değişince değer temizleniyor.
+İki alan da **gerçek kaynaktan** besleniyor: randevu `FIT_SHELL.state.randevular`,
+ödeme referansı `fit-fatura.js` defterinden (10 fatura). Kayıt yoksa seçici
+dürüstçe "Kayıtlı randevun yok" deyip `disabled` kalıyor — uydurma `RND-…`
+satırları silindi.
+Yakalanan kusur: `[hidden]` çalışmıyordu, `.fk-grid{display:grid}` onu eziyordu.
+Kategori yüksekliği 42 → **45px** (44 hedefinin altındaydı).
 
 ### ✅ Hesap ayarları telefon ülke kodu — KAPANDI (bu oturum)
 `hesabim-v1.html` profil sekmesindeki telefon alanı düz metin; ülke kodu
@@ -109,14 +152,16 @@ ikinci gerçek kaynak olmasın diye modüle taşındı.)
 seçim gizli alana `DE` yazıyor · Esc kapatıyor · taşma 0 · konsol 0.
 Ayrıca üç sayfada düğme 96×43 → **96×45** (1px dokunma hedefi eksiğiydi).
 
-### 5 · Egzersiz ekleme — ölç ve kur 🔵 SIRADA (2026-08-30, oturum içinde geldi)
-`egzersiz-detay-v1.html`de "Programa ekle" düğmesi var. ÖLÇÜLECEK:
-gerçekten ekliyor mu · nereye ekliyor · yoksa sahte mi (ikon değişip hiçbir
-şey kaydetmiyor mu) · kullanıcının planına mı, kendi oluşturduğu programa mı.
-⚠ Ayrıca **"Egzersizi ekle" düğmesi YOK** — kullanıcı bir egzersizi bugünün
-antrenmanına doğrudan ekleyemiyor; o da kurulacak.
-Sahteyse gerçek yapılacak: `FIT_PLAN` deseninde kaydetsin, yenilemeden sonra
-dursun, Planım sayfasında görünsün. **Tarayıcıda ölç ve kanıtla.**
+### ✅ 5 · Egzersiz ekleme — KAPANDI (R16)
+**Ölçüldü:** "Programa ekle" düğmesinin JS dinleyicisi bile yoktu; giriş
+yapılmışken tıklayınca **0 localStorage anahtarı** değişiyordu ve sayfa
+`fit-plan-kayit.js`i hiç yüklemiyordu. Sahte değil, sessizdi.
+İki ayrı düğme kuruldu: **Bugünkü antrenmana ekle** (aktif planın sıradaki günü,
+tek dokunuş) ve **Programa ekle** (gün seçici).
+**Kanıt:** `1:sinav` → `1:sinav+goblet-squat` · yenilemeden sonra duruyor ·
+ikinci tık çiftlemiyor · Planım'da `#fpxHareketler` **2 öğe** · konsol 0.
+Yazılan künye uydurma taşımıyor: set = paneldeki satır sayısı, tekrar = girilen
+değer, alternatif adı `ED_VERI`den.
 
 ---
 

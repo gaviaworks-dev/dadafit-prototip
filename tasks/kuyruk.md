@@ -1,45 +1,63 @@
-# KUYRUK — 2026-08-29 · R15
+# KUYRUK — R15 kapanış · 2026-08-30
 
 Sunucu: `python3 -m http.server 8788 --bind 127.0.0.1`
-Ölçüm: `PW_HOME=~/.pw node <betik>.mjs` · oturum kipi: `?auth=1`
-Kit: **`docs/fit-kit.md`** (8 sayfadan `getComputedStyle` ile ölçüldü, 70 token)
-Ölçüm betiği: `docs/qa/kit-olcum.mjs`
+Ölçüm: `PW_HOME=~/.pw node <betik>.mjs` · oturum kipi **`?auth=1`**
+(⚠ `dm_fit_login` bu depoda YOK; kabuk `dm_user` okuyup `body.is-auth` basıyor)
+Kit: `docs/fit-kit.md` · ölçüm betiği `docs/qa/kit-olcum.mjs`
+Devir notu: `~/Desktop/dada-fit-handoff-2.md`
 
-## BİTENLER — lead
+## YAYIN
+| Adres | Ne |
+|---|---|
+| `gaviaworks-dev.github.io/dadafit-prototip/` | **v1** — `d4839be`e sabit |
+| `…/dadafit-prototip/v2/` | **v2** — `main`, her push'ta tazelenir |
+Workflow `.github/workflows/pages.yml`; yeni dondurulmuş sürüm için `V1_SHA`.
 
-| # | İş | Kanıt |
-|---|---|---|
-| 1 | Menü yeniden kuruldu | 13 → **9 kalem**, 3 grup ayracı, ölü bağlantı 0 |
-| 2 | Kaydetme yeteneği (`fit-kayit.js` → `dm_fit_kayit_v1`) | egzersiz 25/25 · program 9/9 düğme (önce 0/0) · 44×44 · yenilemede duruyor |
-| 3 | Üç modül sayfası | 9 sayfa silindi (71→62) · 140 bağlantı yeniden yazıldı · çift ID 9×3 → 0 · `null.textContent` ×6 → 0 |
-| 4 | Destek üçlüsü tek adrese | form yalnız 2. sekmede · şerit 344/344 ortalı · arama 190/190 · kolon 860px |
-| 5 | antrenor-detay sekme dikişi | 30px → **32px** (`--sec-pad-sm`) + zemin opak `--paper` |
-| 6 | antrenor-detay banner dikişi | 8/12/**−11**px → **26/26/26**px (Gastro emsali 26px) · kırpma giderildi |
-| 7 | giris-v1: onay · ülke kodu · marka ikonu | kutu 3→2, 20×20→16×16 · 199 ülke aranabilir · Google 4 renk SVG |
-| 8 | giris-v1: görsel büyümesi | sol görsel +174px → **0** · arka plan `cover` → `100% auto` |
-| 9 | 18 kırmızı test atlanacak duruma getirildi | iddialar silinmedi · `FIT_TESTI_ZORLA=1` ile açılır |
-| 10 | bildirimler: tip şeridi gövdeye | şerit 280/280 ortalı · çip merkezi = sayfa merkezi · prototip ibaresi kalktı |
+## R15'TE KAPANANLAR
+Menü 13→9 kalem · 7 yeni sayfa · 8 sözleşme modülü · 15 sayfa silindi ·
+170+ bağlantı yeniden yazıldı · kaydetme · challenge (3 tip) · rozet · puan ·
+liderlik · su takibi · kademe (8) · antrenör sohbeti · ödeme ve paketler ·
+destek tek adreste · zebra · 44px dokunma hedefi.
+**60 sayfa · ölü bağlantı 0 · konsol hatası 0 · "Yakında" 0 · yer tutucu 0.**
 
-## BİTENLER — ajanlar
+---
 
-| Ajan | Ürün | Kanıt |
-|---|---|---|
-| 1 · destek | `destek-v1.html` | 4 genişlikte taşma 0 · şerit her genişlikte ortalı · konsol 0 |
-| 2 · ödeme | `paketlerim-v1.html` · `odemelerim-v1.html` · `fit-paket.js` | "Pro Max AI" 0 · 3 kademe · tablo 37 satır · 5 sekme dolu |
-| 3 · challenge/rozet | `rozetlerim-v1.html` · `fit-challenge.js` · `fit-rozet.js` | puan 0→30 gerçek · yenilemede duruyor · liderlik + dürüst maket şeridi |
-| 4 · kabuk | `fit-shell.js` · `fit-shell.css` · hub | yer tutucu 6→**0** · header sırası · marka şeridi 6 · Keşfet · **profil kartı** |
-| 5 · sohbet | `fit-mesaj.js` · `fit-mesaj.css` · `mesajlarim-v1.html` | mesaj kaydediliyor, ekranda görünüyor, yenilemede duruyor |
+## SIRADAKİ
 
-## AJANLARDA AÇIK
-- **Ajan 2:** hesabim popup · "Kaldır" · sekme ortalama · 3 sekme kaldırma (9→6) · "Veri ve Hesap" adı · doğum tarihi takvimi · yükseltme akışı
-- **Ajan 3:** challenge-merkezi alt yazı merkezi + boşluk · challenge-v1 dikiş yarıçapı + iki kart hizası · challenge-v1 sekme şeridi kite çekilecek
-- **Ajan 4:** zebra + bölüm dikey merkezi (8 sayfa) · hero metni + "Köprüyü Gör" kalkacak · dil düğmesindeki ok · görüş bildir popup · hub tarif kartları
+### 1 · Hesap ayarları telefon alanı — ülke kodu seçici 🔵 SIRADA
+`hesabim-v1.html` profil sekmesindeki telefon alanı düz metin; ülke kodu
+seçicisi yok.
+`giris-v1.html`dekinin aynısı gelecek: bayrak · ülke adı · alan kodu ·
+aranabilir liste.
+🔴 **`assets/js/fit-ulke.js` zaten var, oradan beslenecek — ikinci kopya
+üretilmeyecek.** (Aynı hata bir kez yapıldı: liste `giris-v1`de satır içiydi,
+ikinci gerçek kaynak olmasın diye modüle taşındı.)
+Kanıt: seçici açılıyor mu · arama çalışıyor mu · seçilen kod alana yazılıyor mu ·
+üç genişlikte taşma · konsol hatası 0.
 
-## SON DURUM ÖLÇÜMÜ
-- **62 sayfa · ölü bağlantı 0 · konsol hatası 0 · "Yakında" 0**
-- Kimlik kartı 6 modül sayfasında sekmeler arası **sabit** (`farkliIcerik: 1`)
+---
 
-## AÇIK KARARLAR — Beyar'a soruldu, cevap bekliyor
-- **"Başa dön" düğmesi:** ölçüm Gastro ile çelişiyor. 1440'ta ikisi de 92px, 768'de ikisi de 151px, 1024'te Fit **114** / Gastro **131** (Fit zaten daha aşağıda). Gastro'ya çekmek düğmeyi YUKARI taşır. Daha aşağı isteniyorsa yeni hedef sayı gerekiyor.
-- Pro Max özellik listesi geçici; kademe–özellik eşlemesi ileride admin panelden seçilecek (`fit-paket.js`te tek veri kaynağı hazır).
-- Gerçek çeviri altyapısı yok — Ajan 4 ölçüp raporlayacak, sahte çeviri üretilmeyecek.
+## AÇIK KALEMLER (veri ya da karar bekliyor)
+
+1. **Pro Max fiyatı** — `fit-paket.js`te `fiyat:null`, ekranda "Fiyat onay
+   bekliyor". Rakam gelince tek satır; kart, tablo ve ödeme özeti aynı diziden
+   basıldığı için üç ekran birden güncellenir.
+2. **İlçe listesi** — 81 il tam; 973 ilçe serbest metin. Hafızadan üretmek
+   yanlış veri riskiydi. Gerçek liste verilirse tek dosyaya girer.
+3. **Hatırlatma** — su takibinde ayar ekranı gerçek, bildirim maket ve bunu
+   ekranda söylüyor. Backend gelince bağlanır.
+4. **Kademe alanı** — `dm_user` şemasında `paket` YOK; profil kartı savunmacı
+   okuyup "Ücretsiz" basıyor (onaylandı).
+5. **Üyelik tarihi** — hiçbir şemada kayıt tarihi yok, kartta "—".
+6. **Ölü CSS** — `fit-planim.css`teki `.fpx-kol-*` kuralları koleksiyon
+   kalkınca ölü kaldı. Regex denemesi dosyayı kırdı, geri alındı; düzgün bir
+   CSS ayrıştırıcısıyla alınmalı.
+7. **`h1` semantiği** — modül sayfalarında `<h1>` sayfa adı değil kullanıcı adı
+   (kasıtlı). Sayfa adı breadcrumb, `<title>` ve sekme şeridinde.
+
+---
+
+## SONRAKİ OTURUM: ADMİN PANEL
+`fit-paket.js` (kademe⇄özellik matrisi) ve `fit-challenge.js` (challenge
+kataloğu) bugün okunabilir veri; panel yazma ucunu ekleyecek. Ayrıntı devir
+notunun 6. bölümünde.

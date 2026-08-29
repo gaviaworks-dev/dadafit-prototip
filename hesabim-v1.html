@@ -403,6 +403,65 @@
 .fb-close:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
 
 /* =====================================================================
+ ÜLKE KODLU TELEFON — .fk-tel / .fk-cc*
+ ---------------------------------------------------------------------
+ 🔴 VERİ VE DAVRANIŞ BURADA DEĞİL: `assets/js/fit-ulke.js`. 199 ülke,
+ bayrak üretimi, arama, klavye ve seçim orada; bu sayfa yalnız kabı
+ basıp `FIT_ULKE.kur()` çağırıyor. Liste bu turda bir kez zaten
+ kopyalanmış ve tek kaynağa toplanmıştı (giris-v1'in satır içi kopyası
+ silindi) — üçüncü kopya ÜRETİLMEDİ.
+
+ ⚠ KURALLAR kopyalandı, veri değil. `.fk-cc*` görünümü kabukta YOK ve
+ kabuğa yazmak bu ajana yasak; giris-v1 ve odemelerim-v1 de aynı
+ kuralları kendi <style>'ında taşıyor. Üç sayfada tekrarlanan bu blok
+ `.fk-*` form kitiyle birlikte kabuğa taşınmalı — raporlandı.
+ Değerlerin hepsi kit tokeni: `--bg-cream` zemin, `--line` kenarlık,
+ `--radius-md`, `--sh-lg`, satır en az 44px (WCAG 2.5.5).
+ ===================================================================== */
+.fk-tel{position:relative}
+.fk-tel .fk-input{padding-left:104px}
+/* ⚠ `top/bottom:0` ÖLÇÜMLE GELDİ: `1px` içeriden oturunca düğme 96×43
+   çıkıyordu (alan 45px), yani dokunma hedefi 1px eksikti (WCAG 2.5.5).
+   Kenardan kenara oturunca 96×45 ve dolgu alanın tam yüksekliğini
+   kaplıyor — görsel olarak da daha doğru.
+   ⚠ `giris-v1.html` aynı kuralın `1px`li hâlini taşıyor (o dosya bu
+   ajanın değil); orada da 43px, raporlandı. */
+.fk-cc{
+  position:absolute;left:1px;top:0;bottom:0;width:96px;z-index:2;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate);
+  background:var(--bg-cream);border:0;border-right:1px solid var(--line);
+  border-radius:var(--radius-md) 0 0 var(--radius-md);cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.fk-cc:hover{background:var(--fit-tint)}
+.fk-cc:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+.fk-cc-flag{font-size:16px;line-height:1}
+.fk-cc i{font-size:10px;color:var(--muted);transition:transform .2s var(--ease)}
+.fk-cc[aria-expanded="true"] i{transform:rotate(180deg)}
+.fk-cc-pop{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:min(360px,100%);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  box-shadow:var(--sh-lg);overflow:hidden;
+}
+.fk-cc-pop[hidden]{display:none}
+.fk-cc-search{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.fk-cc-search i{color:var(--muted);font-size:12.5px;flex:none}
+.fk-cc-search input{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:14px;font-weight:500;color:var(--slate);padding:4px 0}
+.fk-cc-search input:focus{outline:none}
+.fk-cc-search input::placeholder{color:#6f6f6f}
+.fk-cc-list{list-style:none;margin:0;padding:6px;max-height:264px;overflow-y:auto}
+.fk-cc-list li{display:flex;align-items:center;gap:11px;padding:0 10px;min-height:44px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--slate);cursor:pointer}
+.fk-cc-list li .bay{font-size:17px;line-height:1;flex:none}
+.fk-cc-list li .ad{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fk-cc-list li .kod{color:var(--slate-2);font-weight:700;font-size:13px;flex:none}
+.fk-cc-list li:hover,.fk-cc-list li.on{background:var(--fit-tint)}
+.fk-cc-list li[aria-selected="true"]{font-weight:700}
+.fk-cc-list li[aria-selected="true"] .kod{color:var(--fit-deep)}
+.fk-cc-bos{padding:18px 14px;font-size:13.5px;color:var(--slate-2);font-weight:500;text-align:center}
+@media (max-width:520px){ .fk-cc-pop{width:100%} }
+
+/* =====================================================================
  DOĞUM TARİHİ TAKVİMİ — .fk-tar   (Beyar, 2026-08-29)
  ---------------------------------------------------------------------
  Öncesi: düz metin alanı, "gg.aa.yyyy" ipucu, elle yazım. Şimdi alana
@@ -903,7 +962,27 @@
             </div>
             <div class="fk-field">
               <label class="fk-label" for="hsTel">Telefon <span class="opt">(opsiyonel)</span></label>
-              <input class="fk-input" id="hsTel" name="telefon" type="tel" autocomplete="tel" value="0555 555 55 55" />
+              <!-- Kap sözleşmesi `assets/js/fit-ulke.js`in başında yazılı;
+                   seçici o modülden sürülüyor (`FIT_ULKE.kur()`), liste
+                   burada TEKRARLANMIYOR. Numaranın başındaki 0 kalktı:
+                   ülke kodu artık ayrı alanda (+90), "0555…" iki kez
+                   önek yazmak olurdu. -->
+              <div class="fk-tel" data-cc-kok>
+                <button class="fk-cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Ülke kodu">
+                  <span class="fk-cc-flag" aria-hidden="true">&#127481;&#127479;</span><span class="fk-cc-dial">+90</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <input class="fk-input" id="hsTel" name="telefon" type="tel" autocomplete="tel-national" value="555 555 55 55" />
+                <input type="hidden" name="telefonUlke" id="hsTelUlke" value="TR" />
+                <div class="fk-cc-pop" role="dialog" aria-label="Ülke seç" hidden>
+                  <div class="fk-cc-search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <label class="sr-only" for="hsCcAra">Ülke ara</label>
+                    <input id="hsCcAra" type="text" placeholder="Ülke veya kod ara" autocomplete="off" />
+                  </div>
+                  <ul class="fk-cc-list" role="listbox" aria-label="Ülkeler" tabindex="-1"></ul>
+                  <p class="fk-cc-bos" hidden>Eşleşen ülke yok.</p>
+                </div>
+              </div>
             </div>
           </div>
           <div class="fk-grid c2">
@@ -1793,6 +1872,11 @@
      scroll kilidi). Bu sayfaya KALEM #1 (fotoğraf) ve #2 (2FA) ile girdi;
      profil-v1 ve antrenor-detay ile aynı kaynak, ikinci kopya yazılmadı. -->
 <script src="assets/js/fit-modal.js"></script>
+<!-- Ülke kodu seçicisinin verisi ve davranışı — TEK KAYNAK.
+     ⚠ Kabuk bu modülü kendisi yüklemiyor (yalnız fit-mesaj/fit-rozet'i
+     yüklüyor, ölçüldü: fit-shell.js:1276-1280), bu yüzden etiket burada.
+     Sayfada başka bir `fit-ulke.js` etiketi YOK. -->
+<script src="assets/js/fit-ulke.js"></script>
 <script>
 /* =====================================================================
  SAYFA JS — HESAP AYARLARI
@@ -2181,6 +2265,9 @@
     });
   });
 })();
+
+/* Ülke kodu seçicisini sür — kap `[data-cc-kok]`, gerisi modülde. */
+(function(){ if(window.FIT_ULKE) FIT_ULKE.kur(); })();
 
 /* =====================================================================
  KİMLİK KARTI ROZETLERİ — paket + kademe

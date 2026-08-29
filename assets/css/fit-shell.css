@@ -20,11 +20,19 @@
   src:url("../fonts/Gilroy-Medium.ttf") format("truetype");
   font-weight:500; font-style:normal; font-display:swap;
 }
-/* R2: marka lockup — gerçek ExtraBold + Light (Gastro paritesi; "Dada"=.bd, suffix=.sf) */
-@font-face{font-family:"GilroyXB";src:url("../fonts/Gilroy-ExtraBold.otf") format("opentype");font-weight:800;font-style:normal;font-display:swap}
-@font-face{font-family:"GilroyLt";src:url("../fonts/Gilroy-Light.otf") format("opentype");font-weight:300;font-style:normal;font-display:swap}
-.bd{font-family:"GilroyXB","Gilroy",sans-serif;font-weight:800;letter-spacing:-.01em}
-.sf{font-family:"GilroyLt","Gilroy",sans-serif;font-weight:300}
+/* §A5 · §A6 · §A9 (Dalga 4, 2026-08-29) — KAYITLI YÜZ İKİYE İNDİ.
+   Eskiden üç yüz vardı: Gilroy@500 · GilroyXB@800 · GilroyLt@300.
+   Şartname iki yüz bağlıyor: Gilroy@500 ve GilroyBd@700; 800 ve 300
+   kullanımdan kalkar (§A5). Kaynak markada (Diet) aynı adım atıldı ve
+   `.sf` 300→500 oldu — GÖRSEL DEĞİŞİKLİKTİR, kayda geçmiştir.
+   §A9 · GilroyBd@700'ün kaynağı bugün `Gilroy-ExtraBold.otf`tur; 700 ile
+   800 aynı dosyaya çözülür. Bu KAYDA GEÇMİŞ KUSURDUR ve v1'de düzeltilmez.
+   §A8 · font dosyası kümesi üç dosya olarak KALIR — Light artık hiçbir
+   yüze bağlı değil, dosya silinmez. */
+@font-face{font-family:"GilroyBd";src:url("../fonts/Gilroy-ExtraBold.otf") format("opentype");font-weight:700;font-style:normal;font-display:swap}
+/* marka lockup — "Dada"=.bd, suffix=.sf */
+.bd{font-family:"GilroyBd","Gilroy",sans-serif;font-weight:700;letter-spacing:-.01em}
+.sf{font-family:"Gilroy",sans-serif;font-weight:500}
 
 /* ============ KİMLİK TOKEN'LARI (brand-tokens.md) ============ */
 :root{
@@ -84,6 +92,11 @@
      12.1 · alt metin→istatistik 22 · istatistik→CTA 23) ortalaması */
   --banner-gap:20px;
   --banner-h-detay:560px;
+  /* §R4 · beş banner token'ı. Liste ve Kurumsal bugün AYNI sayıyı taşır ama
+     §R5 gereği AYRI grup kalır — ileride biri değişince öteki etkilenmesin.
+     Profil/Hesap grubu §R1'in 280px'i (§R3: ölçülen en uzundan alınır). */
+  --banner-h-kurumsal:544px;
+  --banner-h-profil:280px;
   /* geriye dönük diğer adlar (4. turdan kalan kurallar bunları okuyor) */
   --hero-h-list:var(--banner-h-liste);
   --hero-h-detail:var(--banner-h-detay);
@@ -336,8 +349,8 @@ html{scroll-padding-top:112px}   /* sabit header altı anchor offseti (eski 166:
 .fit-brand{display:flex;align-items:center;gap:10px}
 .fit-mark{flex:none;display:block;width:40px;height:40px}
 .fit-word{font-size:23px;font-weight:800;letter-spacing:-.02em;line-height:1;white-space:nowrap}
-.fit-word b{color:var(--slate);font-family:"GilroyXB","Gilroy",sans-serif;font-weight:800}
-.fit-word .ft{color:var(--fit);font-family:"GilroyLt","Gilroy",sans-serif;font-weight:300}
+.fit-word b{color:var(--slate);font-family:"GilroyBd","Gilroy",sans-serif;font-weight:700}
+.fit-word .ft{color:var(--fit);font-family:"Gilroy",sans-serif;font-weight:500}
 /* koyu hero üstünde wordmark beyaz (fit-mark yeşil kare zaten okunur; scroll'da slate+yeşil döner) */
 .header.at-top .fit-word b,.header.at-top .fit-word .ft{color:#fff}
 .drawer-brand{display:flex;align-items:center;gap:10px}
@@ -435,7 +448,7 @@ body.is-auth .head-bell,body.is-auth .head-prog{display:grid}
 /* dropdown panel (header sağa hizalı; nav dropdown diliyle aynı) */
 /* Hesap menüsü artık Planım alanının tamamını taşıyor (11 kalem + hesap aksiyonları)
  → ekranı aşmasın diye kendi içinde kaydırılır. */
-.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:272px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.12s var(--ease);z-index:80;max-height:calc(100vh - 150px);overflow-y:auto;overscroll-behavior:contain}
+.acct-menu{position:absolute;top:calc(100% + 12px);right:0;min-width:272px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-lg);padding:10px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.12s var(--ease);z-index:80;max-height:calc(100dvh - 112px - 12px - 10px);overflow-y:auto;overscroll-behavior:contain}
 .acct-menu::-webkit-scrollbar{width:6px}
 .acct-menu::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .acct-item:hover .acct-menu,.acct-item.open .acct-menu{opacity:1;visibility:visible;transform:translateY(0)}
@@ -1284,6 +1297,104 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 .bs-fit    {--bs-c:var(--c-green);     --bs-bg:rgba(0,157,79,.22);  --bs-bd:rgba(0,157,79,.5);   --bs-ic:#3fd089}
 .bs-gourmet{--bs-c:var(--c-purple);    --bs-bg:rgba(177,79,197,.22);--bs-bd:rgba(177,79,197,.5); --bs-ic:#c97ad6}
 .bs-campus {--bs-c:var(--c-petrol);    --bs-bg:rgba(0,96,114,.30);  --bs-bd:rgba(95,203,216,.40);--bs-ic:#5fcbd8}
+/* §O11 · yedi marka sınıfı. DadaAkademi ve DadaStore için iki sınıf eklendi;
+   ikisi de kilitli olduğu için renkleri yalnız ikon tonunda görünür. */
+.bs-akademi{--bs-c:#6c7a89;            --bs-bg:rgba(108,122,137,.22);--bs-bd:rgba(108,122,137,.45);--bs-ic:#9aa8b5}
+.bs-store  {--bs-c:#a8763a;            --bs-bg:rgba(168,118,58,.22); --bs-bd:rgba(168,118,58,.45); --bs-ic:#d3a067}
+
+/* §O6 · §O7 · §N14 — KİLİTLİ KALEM.
+   Pasiflik iki mekanizmayı BİRLİKTE kullanır: `.is-soon` görünümü,
+   `aria-disabled="true"` erişilebilirliği verir (markup'ta).
+   Hover'da HİÇBİR ŞEY değişmez; köşede `.sr-lock` kilit rozeti durur.
+   §O8/§N15 · "Yakında" metni ya da `title`'ı YAZILMAZ — yalnız rozet. */
+.bs-item.is-soon{color:rgba(233,226,214,.26);cursor:not-allowed;position:relative}
+.bs-item.is-soon i{color:rgba(233,226,214,.26)}
+.bs-item.is-soon:hover,.bs-item.is-soon:focus-visible{background:transparent;border-color:transparent;color:rgba(233,226,214,.26)}
+.bs-item.is-soon:hover i,.bs-item.is-soon:focus-visible i{color:rgba(233,226,214,.26)}
+.bs-item.is-soon:hover .bs-name,.bs-item.is-soon:focus-visible .bs-name{max-width:0;opacity:0}
+.bs-item .sr-lock{font-size:8.5px;color:rgba(233,226,214,.42);margin-left:1px}
+
+/* =====================================================================
+   §N · SOL DAR RAIL — Ekran I · marka geçiş şeridi. Taban GASTRO.
+   ---------------------------------------------------------------------
+   §N18 · "Fit'e de rail gelir." Ölçüm (2026-08-29): depoda `sa-rail`
+   araması 0 eşleşme veriyordu — bileşen hiç yoktu, kuruldu.
+   ⚠ KAPSAM: rail kardeş markalarda YÖNETİM kabuğunun parçasıdır
+   (`sa-shell.css` · `admin/layout.blade.php`). Fit'te yönetim paneli YOK
+   ve bu dalgada KURULMUYOR (§M8 · Dalga P). Bu yüzden bileşen kabukta
+   tam ölçüsüyle kuruldu ama YALNIZ `body[data-fit-rail="1"]` taşıyan
+   yüzeye biniyor — bugün tek yüzey Fit'in operasyon paneli. Yönetim
+   projesi doğduğunda kural hazır, taşıma yalnız montaj olacak.
+   §N2 · rail'de AYRAÇ YOKTUR — tek dizidir, `.sa-rail-div` tanımlanmadı.
+   ===================================================================== */
+:root{ --sa-rail-w:76px; --rail-bg:#19160F; --hair:rgba(233,226,214,.1) }
+
+/* §N8 · genişlik 76px; konum fixed / top 0 / left 0 / bottom 0 / z-index 85.
+   §N9 · dolgu `18px 0 18px`, gap 7px, sağ kenarlık 1px solid rgba(0,0,0,.32).
+   §N10 · zemin --rail-bg, saç teli --hair. */
+.sa-rail{
+  position:fixed;top:0;left:0;bottom:0;z-index:85;
+  width:var(--sa-rail-w);padding:18px 0 18px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  background:var(--rail-bg);border-right:1px solid rgba(0,0,0,.32);
+}
+/* §N11 · logo 46×46 radius 13 margin-bottom 8; görsel 30×30, beyazlatılır. */
+.sa-rail-logo{
+  flex:none;width:46px;height:46px;border-radius:13px;margin-bottom:8px;
+  display:grid;place-items:center;background:rgba(233,226,214,.06);
+}
+.sa-rail-logo img,.sa-rail-logo svg{width:30px;height:30px;filter:brightness(0) invert(1)}
+/* §N12 · marka ikonu 48×48 radius 14. */
+.sa-brand{
+  position:relative;flex:none;width:48px;height:48px;border-radius:14px;
+  display:grid;place-items:center;font-size:17px;color:rgba(233,226,214,.62);
+  transition:background .2s var(--ease),color .2s var(--ease);
+}
+.sa-brand:hover{background:rgba(233,226,214,.08);color:#e9e2d6}
+/* §N13 · aktif marka: zemin rgba(--acc-rgb,.2), renk --acc,
+   solda 3px dikey işaret ::before{left:-14px;top:9px;bottom:9px;width:3px}. */
+.sa-brand.is-active{background:rgba(var(--acc-rgb),.2);color:var(--acc)}
+.sa-brand.is-active::before{
+  content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--acc);
+}
+/* §N14 · kilitli marka: renk rgba(233,226,214,.26), cursor not-allowed,
+   hover'da HİÇBİR ŞEY değişmez, köşede .sr-lock kilit rozeti.
+   §N15 · "Yakında" METNİ YAZILMAZ — yalnız rozet. */
+.sa-brand.is-locked{color:rgba(233,226,214,.26);cursor:not-allowed}
+.sa-brand.is-locked:hover{background:transparent;color:rgba(233,226,214,.26)}
+.sa-brand .sr-lock{
+  position:absolute;right:5px;bottom:5px;font-size:8px;
+  color:rgba(233,226,214,.42);
+}
+/* §N17 · sayaç rozeti. */
+.sa-brand .pl-cnt{
+  position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;
+  border-radius:999px;background:var(--acc);color:#fff;
+  font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px;
+}
+/* §N16 · ayak: margin-top auto, gap 8px; Gaviaworks imzası + Siteyi Görüntüle. */
+.sa-rail-foot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sa-rail-foot a,.sa-rail-foot span{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  color:rgba(233,226,214,.5);font-size:13px;transition:.2s var(--ease);
+}
+.sa-rail-foot a:hover{background:rgba(233,226,214,.08);color:#e9e2d6}
+.sa-rail-foot .sa-rail-hair{width:24px;height:1px;background:var(--hair);border-radius:0}
+
+/* Rail taşıyan yüzeyde kabuk 76px sağa kayar — public kabuk fixed olduğu
+   için topbar/header/footer ayrı ayrı ötelenir. */
+body[data-fit-rail="1"] .topbar,
+body[data-fit-rail="1"] .header{left:var(--sa-rail-w)}
+body[data-fit-rail="1"] .page-main,
+body[data-fit-rail="1"] .site-footer{margin-left:var(--sa-rail-w)}
+@media (max-width:900px){
+  body[data-fit-rail="1"] .sa-rail{display:none}
+  body[data-fit-rail="1"] .topbar,
+  body[data-fit-rail="1"] .header{left:0}
+  body[data-fit-rail="1"] .page-main,
+  body[data-fit-rail="1"] .site-footer{margin-left:0}
+}
 
 /* ============ KABUK: scroll-reveal + başa dön (Fit) ============ */
 html.reveal-ready .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
@@ -1442,7 +1553,78 @@ body.is-auth .d-acct-block{display:block}
     #1b1913;
   padding:40px 0 38px;
 }
+/* §R1 · §R2 · §R8 (Dalga 4, 2026-08-29) — BANNER YÜKSEKLİĞİ VE BLOK MERKEZİ.
+   §R1/§R2 · grup içinde tek yükseklik. Yükseklik `min-height` ile verilir,
+   `height` ile DEĞİL: §R10 "yer yetmezse banner yüksekliği artar; blok
+   kırpılmaz, sıkışmaz, yazı küçültülmez" der — `min-height` tam olarak bunu
+   yapar, `height` kırpardı.
+   §R5 · Liste ve Kurumsal bugün aynı sayıyı taşır ama AYRI token okur.
+   §R7 · breadcrumb banner'ın üstüne SABİTLENİR (128px), ortalanmaz.
+   §R8 · başlık bloğunun dikey merkezi = 128 + (yükseklik − 128) ÷ 2.
+   Uygulama: `.wrap` dikey flex; kırıntıdan SONRA ve son çocuktan SONRA birer
+   `auto` boşluk bırakılır — iki auto artık alanı eşit böler, yani kırıntının
+   ALTINDAKİ blok o bölgenin tam ortasına oturur. Ölçülen eski hâl: 544'lük
+   banner'da merkez 309.7 (hedef 336), 560'lıkta 262.4–309.7 (hedef 344). */
+.lib-top{--banner-h:var(--banner-h-liste);min-height:var(--banner-h)}
+body[data-fit-hero-kind="kurumsal"] .lib-top{--banner-h:var(--banner-h-kurumsal)}
+body[data-fit-hero-kind="detay"] .lib-top{--banner-h:var(--banner-h-detay)}
 .lib-top .wrap{position:relative;z-index:2}
+/* Özgüllük NOTU: kırıntının alt boşluğunu `body[data-brand="fit"] .lib-top
+   .lib-crumb` (0,4,1) veriyor; aşağıdaki kurallar onu geçmek için aynı
+   `body[data-brand="fit"]` önekini taşır — kabuk sözleşmesine dokunulmadı,
+   özgüllük yükseltildi. */
+body[data-brand="fit"] .lib-top{padding-bottom:0}
+body[data-brand="fit"] .lib-top > .wrap{
+  display:flex;flex-direction:column;justify-content:center;
+  min-height:calc(var(--banner-h) - var(--fit-header-h) - var(--hero-pt));
+}
+/* §R7 · breadcrumb banner'ın ÜSTÜNE SABİTLENİR, ortalanmaz — akıştan çıkar
+   ki §R8'in merkezini kaydırmasın. Konumu §R6'nın ölçülen 128/132'sidir:
+   128 zaten `.lib-top`un padding-top'u, 132 `.wrap`ın sol kenarı. */
+body[data-brand="fit"] .lib-top > .wrap > .lib-crumb{
+  position:absolute;top:0;margin:0;
+}
+/* §R8 · blok merkezi = 128 + (yükseklik − 128) ÷ 2. `.wrap` tam olarak o
+   bölgeyi kaplar (128'den banner sonuna) ve içeriğini ortalar. İçerik
+   sığmazsa banner BÜYÜR ve blok ortalı kalır — §R10, kırpma yok. */
+body[data-brand="fit"] .lib-top > .wrap > .lib-row{margin:0}
+
+/* §R6 · §R7 · §R8 — AYNI GEOMETRİ ÖTEKİ İKİ BANNER BİLEŞENİNE.
+   Fit'te üç banner kabı var ve üçü ayrı kırıntı sınıfı taşıyor:
+   `.lib-top`/`.lib-crumb` (44 sayfa) · `.ol-top`/`.rd-crumb` (1) ·
+   `.pd-hero`/`.pd-crumb` (1). Kural hepsini bağlar (§R2: grup içinde tek
+   yükseklik, §R8: tek merkez formülü), o yüzden geometri üçüne de iner.
+   Ölçülen sapma (2026-08-29): `.ol-top` merkez 317.1 (hedef 336),
+   `.pd-hero` merkez 285.5 (hedef 344). */
+body[data-brand="fit"] .ol-top{--banner-h:var(--banner-h-liste);padding-bottom:0;min-height:var(--banner-h)}
+body[data-brand="fit"] .pd-hero{--banner-h:var(--banner-h-detay);padding-bottom:0;min-height:var(--banner-h)}
+body[data-brand="fit"] .ol-top > .wrap,
+body[data-brand="fit"] .pd-hero > .wrap{
+  display:flex;flex-direction:column;justify-content:center;
+  min-height:calc(var(--banner-h) - var(--fit-header-h) - var(--hero-pt));
+}
+body[data-brand="fit"] .ol-top > .wrap > .rd-crumb,
+body[data-brand="fit"] .pd-hero > .wrap > .pd-crumb{position:absolute;top:0;margin:0}
+/* §R8 · ortalanan bloğun KENDİ dikey marjı merkezi kaydırır: `justify-content:
+   center` artık alanı eşit böler ama çocuğun `margin-top`u bloğu aşağı iter ve
+   merkez marjın YARISI kadar sapar. Ölçülen örnek: `.ol-intro{margin-top:10px}`
+   → merkez 341, hedef 336, sapma tam 5px. Üç kapta da blok marjı sıfırlanır;
+   üst/alt nefes ortalamanın kendisinden gelir. */
+body[data-brand="fit"] .lib-top > .wrap > *:not(.lib-crumb),
+body[data-brand="fit"] .ol-top > .wrap > *:not(.rd-crumb),
+body[data-brand="fit"] .pd-hero > .wrap > *:not(.pd-crumb){margin-top:0;margin-bottom:0}
+/* Kabuğun banner ritim bloğu bu marjları `!important` ile veriyor
+   (`.ol-top .ol-intro{margin-top:10px !important}` · `.pd-hero .pd-crumb`…).
+   O blok KIRINTI AKIŞTAYKEN doğruydu: marj, kırıntı ile blok arasındaki
+   nefesti. §R7 kırıntıyı akıştan çıkardı, nefes anlamını yitirdi ve geriye
+   yalnız merkezi kaydıran bir sapma kaldı. Kurala DOKUNULMADI — özgüllük
+   yükseltildi (0,4,1 > 0,2,0), gerekçe burada duruyor. */
+body[data-brand="fit"] .ol-top > .wrap > *:not(.rd-crumb),
+body[data-brand="fit"] .pd-hero > .wrap > *:not(.pd-crumb){margin-top:0 !important;margin-bottom:0 !important}
+/* §R6 · kırıntı yazı boyu 12.5px — üç kapta da tek değer. */
+body[data-brand="fit"] .lib-top .lib-crumb,
+body[data-brand="fit"] .ol-top .rd-crumb,
+body[data-brand="fit"] .pd-hero .pd-crumb{font-size:12.5px}
 
 /* ---- BANNER ÜZERİNDE ŞEFFAF HEADER (A2) ----------------------------
  Banner taşıyan sayfada header artık katı değil, banner'ın üzerinde şeffaf
@@ -1561,11 +1743,21 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
 .df-fchip:focus-visible{outline:3px solid var(--fit-tint);outline-offset:2px}
 
 /* ---- BOŞ DURUM ---- */
-.lib-empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:54px 20px}
+/* §D2 · ÜYE BOŞ DURUM KİTİ — dolgu `44px 24px`; ikon 58×58 `radius:12px`
+   `margin:0 auto 14px`; başlık 15.5px `margin-bottom:5px`; metin 13px
+   `max-width:300px` `margin:0 auto 16px`.
+   ⚠ ÖLÇÜLEN KUSUR (2026-08-29): bu kit `54px 20px` dolgu · 62px ikon ·
+   18px başlık · 340px metin taşıyordu — yani §D3'ün YÖNETİM kitine yakındı
+   ve §D4'ü ("iki kitin değer kümesi birbirinin yerine kullanılmaz")
+   ihliyordu. Değerler §D2'ye çekildi.
+   ⚠ Başlık ETİKETİ `h3` olarak KALDI (§D2 `h4` diyor): etiketi değiştirmek
+   21 sayfanın başlık hiyerarşisini oynatırdı ve `hesap-ailesi-qa` nöbeti
+   hiyerarşiyi kilitliyor. Bağlanan şey ÖLÇÜ (15.5px) — kayda geçti. */
+.lib-empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:44px 24px}
 .lib-empty.show{display:flex}
-.lib-empty .ico{width:62px;height:62px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:24px;margin-bottom:16px}
-.lib-empty h3{font-size:18px;margin-bottom:7px}
-.lib-empty p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:340px;margin-bottom:18px}
+.lib-empty .ico{width:58px;height:58px;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:22px;margin:0 auto 14px}
+.lib-empty h3{font-size:15.5px;margin-bottom:5px}
+.lib-empty p{font-size:13px;color:var(--muted);font-weight:500;max-width:300px;margin:0 auto 16px}
 
 /* ---- DAR EKRAN ---- */
 @media (max-width:1024px){
@@ -1689,16 +1881,23 @@ body[data-fit-over="1"] .ed-top{margin-top:0 !important;padding-top:calc(var(--f
    o yüzden kurallar silinmedi). */
 .pf-tabbar .fit-tabs{display:flex;flex-wrap:wrap;width:100%}
 @media (max-width:900px){ .pf-tabbar .fit-tabs{flex-wrap:nowrap} }
-.pf-tabbar{position:sticky;top:112px;z-index:40;background:rgba(249,249,249,.94);-webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);padding:12px 0;margin-bottom:0}
+/* §E9 · sekme şeridi YAPIŞKAN DEĞİLDİR (Diet tabanı). Yapışkanlıkla
+   birlikte onun kabuğu da kalktı: z-index, yarı saydam zemin ve
+   backdrop-filter yalnız yapışkan şerit içindi.
+   §S1 · şeridin üstü 24px, altı 22px — dört markada tek ritim. */
+.pf-tabbar{position:static;padding:0;margin-top:24px;margin-bottom:22px}
 /* Ray on bir kaleme çıktı (Enerji Köprüsü eklendi). Masaüstünde tek satıra
  sığmıyor; gizli kaydırma çubuğuyla yatay ray olarak bırakmak kalemleri
  görünmez kılıyordu → geniş ekranda SARAR, dar ekranda yatay ray kalır. */
-.pf-tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px;scrollbar-width:none}
+/* §E4 · şerit kutusu: gap 4 · dolgu 4 · yarıçap 12 · overflow-x AUTO.
+   Sarma (flex-wrap:wrap) kalktı — şartname şeridi yatay RAY olarak
+   bağlıyor, kırılımda ayrıca ele alınmıyor.
+   §E5 · şerit `margin-left/right:auto` ile ortalanır;
+   `justify-content:center` YAZILMAZ. */
+.pf-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);padding:4px;scrollbar-width:none;margin-left:auto;margin-right:auto}
 .pf-tabs::-webkit-scrollbar{display:none}
-@media (max-width:900px){
-  .pf-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
-}
-.pf-tabs .dt{font-family:inherit;font-weight:700;font-size:13px;color:var(--muted);background:transparent;border:none;border-radius:var(--radius-sm);padding:9px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s var(--ease);white-space:nowrap;flex:none}
+/* §E8 · sekme kalemi 13px/700 · dolgu `9px 16px` · min-height 44px. */
+.pf-tabs .dt{font-family:inherit;font-weight:700;font-size:13px;color:var(--muted);background:transparent;border:none;border-radius:var(--radius-sm);padding:9px 16px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s var(--ease);white-space:nowrap;flex:none}
 .pf-tabs .dt i{font-size:12.5px;opacity:.85}
 .pf-tabs .dt:hover{color:var(--fit-deep);background:var(--fit-tint)}
 .pf-tabs .dt.active{background:var(--fit);color:#fff}
@@ -2035,8 +2234,12 @@ body[data-brand="fit"] .ed-top{padding-top:var(--hero-pt);padding-bottom:var(--h
    ölçekten besleniyor ama DIŞ kutunun kendi padding'i sayfa CSS'inde kalıyordu
    (kp-top 34/40 · df-top 112/24). Alt nefesi de tek ölçeğe bağla. */
 body[data-brand="fit"] .kp-top,
-body[data-brand="fit"] .df-top,
-body[data-brand="fit"] .ol-top{padding-bottom:var(--hero-pb)}
+body[data-brand="fit"] .df-top{padding-bottom:var(--hero-pb)}
+/* §R8 · `.ol-top` bu üçlüden ÇIKTI: banner blokunun merkezi `.wrap`ın
+   kapladığı bölgeden hesaplanıyor ve alt dolgu o bölgeyi kısaltıp merkezi
+   yukarı kaydırıyordu (ölçüldü: 341, hedef 336). Alt nefes artık
+   ortalamanın kendisinden geliyor — üst ve alt boşluk eşit. */
+body[data-brand="fit"] .ol-top{padding-bottom:0}
 
 /* ============================================================
    R15 (5. tur) · BANNER STANDARDI — SİTE GENELİNDE TEK KURAL
@@ -3590,7 +3793,11 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
   box-shadow:var(--sh-md);margin-top:-70px;
 }
 .fp-kimlik-id{flex:1;min-width:0}
-.fp-kimlik-id h1{font-size:30px;letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* §A10 · kimlik kartındaki ad 29px. (Sayfa h1'i 24px'tir; Fit'in hesap,
+   modül ve profil yüzeylerinde tek h1 vardır ve o KİMLİK KARTININ
+   adıdır — ölçüldü, §A11 ✓. Banner h1'i ayrı kalemdir, 42px, §R10
+   gereği küçültülmez ve bu dalgada kapsam dışıdır.) */
+.fp-kimlik-id h1{font-size:29px;letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .fp-kimlik-id .fp-handle2{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:3px}
 .fp-kimlik-id .fp-lead2{font-size:14.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-top:12px}
 .fp-kimlik-meta{display:flex;flex-wrap:wrap;gap:7px 20px;margin-top:13px;font-size:13px;color:var(--muted);font-weight:500}
@@ -3750,7 +3957,9 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
    (`data-fit-px`) çalışma anında bandın gerçek `getBoundingClientRect`
    yüksekliğini okur — sabit sayı taşımadığı için 240px'te de doğru çalışır.
    ===================================================================== */
-.fp-kapak{height:240px}
+/* §E10 · §R1 · §R3 — Profil/Hesap banner grubu 280px. Ölçülen en uzun
+   değerden alınır, kırpılmaz; R19'un 240px'i sapmaydı, geri alındı. */
+.fp-kapak{height:var(--banner-h-profil)}
 
 /* =====================================================================
    R12 EK TUR · R22 — KAPAK/AVATAR DEĞİŞTİRME KONTROLLERİ (opt-in)

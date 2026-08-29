@@ -1,4 +1,4 @@
-sartname v1.8.1 · 2026-08-29
+sartname v1.11.0 · 2026-08-29
 
 # Dada Arayüz Şartnamesi — dört marka
 
@@ -19,6 +19,61 @@ yanına gelir**. Sözleşme *veriyi* bağlar; bu şartname *arayüzü* bağlar.
 (317 satır, md5 `33cedbd7785ee21451288415f1570caf`). Bu turda **hiçbir depoya
 yazılmadı**; `dadadiet/docs/hesap-sozlesmesi.md` yalnız biçim emsali olarak
 okundu.
+
+**v1.10.0 → v1.11.0:** **G18'in sayısı yeniden ölçüldü: 702 → 746**
+(Diet, 2026-08-29). Eski ölçüm menü **13 kalemliyken** alınmıştı; §Y‑3
+kapanıp bildirim merkezi kurulunca *"Bildirimlerim"* kalemi doğdu ve menü
+G4'ün zaten bağladığı **14**'e çıktı. Yeni yükseklik 702 + 44 (§G17'nin
+kalem yüksekliği) = **746**; 1080px'te sınır `946px` ve çubuk yine **yok**,
+yani hüküm değişmedi, yalnız girdisi büyüdü. MINOR (§W4: bir sayı değişti).
+
+⚠ Aynı turda §Ç'nin üreticileri de kuruldu (olay tabanlı altı konu, üç
+zamanlanmış hatırlatma, bir yönetim duyuru ucu) ama **yeni kural
+gerektirmedi** — hepsi §Ç13 · §Ç25 · §Y‑19'un zaten yazdığı hükümlerin
+uygulamasıdır.
+
+**v1.9.0 → v1.10.0:** **Yeni bölüm: Ö — DESTEK MERKEZİ (Ekran M)**, 28
+kural (Beyar kararı, 2026-08-29). Dört markada birebir olacak yüzeyin
+şartnamesi; bölümü yoktu, eklendi.
+
+🔴 **TABAN DİET** — ve bu bir tercih değil ölçüm: durum süzgeci sunucu
+taraflı ve adreslenebilir, ek dosyası kuralı tek kaynakta, mesaj kiti
+gönderen ayrımını **hem hiza hem renkle** veriyor. Kaynak markanın `.tk-msg`i
+düz satırdır ve o ayrımı hiç vermez. §U8 *"iyileştirme kaynakta yapılır"*
+diyor; burada iyileştirme zaten Diet'te olduğu için taban da Diet oldu.
+
+**Bölüm yazılırken Diet'te iki kusur ölçülüp düzeltildi:** liste `.ptable`
+(bir YÖNETİM kiti) kullanıyordu → §C10'un `.set-row`una geçti; `Açık` ile
+`Yanıt bekleyen` aynı rozeti (`wait`) paylaşıyordu, yani **dört durum üç
+renk** gösteriyordu → dördü dört ayrı sınıfa ayrıldı, yeni renk üretilmeden.
+
+**Kaynak markada iki sapma ölçüldü (§Ö29, §U8 kalemi):** boş durum
+`.pf-empty` basıyor (§D2 `.pnl-empty` bağlıyor) ve rozet `.status-chip`
+kullanıyor (§C11 `.pstat` bağlıyor) — üstelik `.pstat` o depoda **zaten var**
+ve değerleri §C11 ile birebir.
+
+⚠ **Üçüncü bir kusur iddiası DOĞRULANAMADI** ve §U3 gereği kayda geçti:
+*"süzgeç boşken boş durum basılmıyor"* denen kalem ölçüldü, iki depo da o
+ayrımı yapıyor. Kural (**Ö23**) yine de yazıldı.
+
+⚠ **MINOR** (§W4): yeni bölüm ve yeni kurallar eklendi, ters çevrilen hüküm
+yok. Harf `Ö` alfabede kullanılmamıştı; bölüm `O` ile `P` arasına girdi.
+
+**v1.8.1 → v1.9.0:** Diet'in şartname uyum turunda **iki kuralın kapsamı
+ölçümle daraltıldı** (Beyar, 2026-08-29).
+① **E13 — §U3 UYGULANDI.** Satır `/hesabim`ı da bağlıyordu; ölçümün kaynağı
+(öni:784) ise yalnız **Ekran B / `/planim`**dir. Diet'te ölçüldü: `/planim`
+**194px ve dolu**, `/hesabim`'da sütun **hiç basılmıyor** ve ekranın kendi
+şerhi bunun uydurulmadığını yazıyor. Kapsam `/planim`e indi; **kod
+değişmedi**.
+② **B9 — koşul yazıldı.** Kural görünmez başlık yer tutucusunu koşulsuz
+istiyordu; amacı komşu kartların hizasıdır. Diet'te ölçüldü: açıklamalı
+`.pc-head` **0 adet**, yani hizalanacak komşu yok ve yer tutucu 39+ kartın
+her birine ~25px eklerdi — **saf gerileme**. Koşul eklendi: *"aynı ızgarada
+açıklamalı bir komşu kart varsa"*.
+⚠ **MINOR, MAJOR değil** (§W4): iki hüküm de ters çevrilmedi, ölçütleri
+kuralın söylediği şeye hizalandı — §H29'un v1.3.0'daki kapsam daraltmasıyla
+**aynı emsal**.
 
 **v1.8.0 → v1.8.1:** Eylem alanı düzeltildi (Beyar, 2026-08-29).
 `.btn--ghost` satırda krem/beyaz kutular üretiyordu (`background:var(--paper)`)
@@ -174,7 +229,8 @@ altyapısı, 14 kural, Dalga 7 kapsamı. Yeni kurallar H29–H33 · J18 ·
 ⚠ **Sürüm MINOR'dur, MAJOR değil** (§W4): H27 bir `T` satırıydı, ters
 çevrilen bir hüküm değil — `T` → `Ö` çevrimi MINOR'dur.
 
-**Bu sürümde:** **327 kural**, **22 kural bölümü** (A–Ü, `Q` kullanılmadı;
+**Bu sürümde:** **355 kural**, **23 kural bölümü** (A–Ü, `Q` kullanılmadı;
+**Ö** v1.10.0'da eklendi;
 **Ç** v1.2.0'da eklendi) artı beş meta bölüm (V · W · Z · Y · X). Önizlemenin 25 bölümünün tamamı ve
 handoff'un 35 kararı taranmıştır. Dayanak dağılımı: **295 ölçüm** (7'si
 tarayıcıda), **12 türetme**, **9 ölçülemedi**, 1 karma (P5).
@@ -346,7 +402,7 @@ başvuru, panel — hepsinde geçerlidir.
 | **B6** | Yan yana duran her kart çifti | Aynı satırdaki kartların **alt** kenarı aynı çizgidedir; fark 0px'tir. | Ö‑tar · aynı ölçüm (öni:861-865) | `pw:` her çiftte `Math.abs(bottomA − bottomB) === 0` | 4× |
 | **B7** | `.dash-cols` · `.kpi-grid` · `.g-grid` | Yan yana ızgaralarda komşuluk üst boşluğu sıfırlanır: `.dash-cols>*+*, .kpi-grid>*+*, .g-grid>*+*{margin-top:0}`. **Kural savunma amaçlıdır** — kusur her markup'ta doğmaz, ama markup düzleşince sessizce doğar. | Ö‑tar · kök neden `.pnl-card + .pnl-card{margin-top:16px}` (`planim.css:37`); önizlemede ölçülen sapma **tam 16px** (öni:873-882). ⚠ **Diet'te bugün ateşlemiyor** — 2026-08-29'da tarayıcıda ölçüldü: ızgara çocukları `.pnl-card` değil çıplak `<div>` sarmalayıcılar (`planim/index.blade.php:216-218`), komşuluk seçicisi hiç kurulmuyor, ölçülen `margin-top` **0px**. Şartnamenin v1.1.2'ye kadarki şerhi Diet için bunun tersini **öngörüyordu**; öngörü ölçümle yanlışlandı ve düzeltildi. | `js:` ızgaradaki ikinci çocukta `marginTop === "0px"` | 4× |
 | **B8** | Admin ekran kalıbı `.g-grid` | `.g-grid`'in `align-items` değeri `stretch`'tir; `start` yazılmaz. | Ö‑tar · `start` iken ölçülen alt kenar farkı 5.1px (öni:884-886) | `js: getComputedStyle(".g-grid").alignItems === "stretch"` | 4× |
-| **B9** | Kart başlığı | Açıklaması olmayan kartta başlık satırı silinmez, görünmez basılır (`.ph-hold{visibility:hidden}`); yükseklik için `min-height` **verilmez**. | Ö · yükseklik ölçülen kuraldan doğar: 13px × 1.55 + `margin-top:5px`, `planim.css:145` (öni:833-834) | `js:` `.ph-hold` sayısı > 0 ve `visibility === "hidden"`; hiçbir `.pc-head`'de `min-height` yok | 4× |
+| **B9** | Kart başlığı | Açıklaması olmayan kartta başlık satırı silinmez, görünmez basılır (`.ph-hold{visibility:hidden}`); yükseklik için `min-height` **verilmez**. ⚠ **KOŞUL: aynı ızgarada açıklamalı bir komşu kart varsa.** Yoksa yer tutucu basılmaz. | Ö · yükseklik ölçülen kuraldan doğar: 13px × 1.55 + `margin-top:5px`, `planim.css:145` (öni:833-834). ⚠ **Koşul v1.9.0'da eklendi** (karar Beyar, 2026-08-29): kuralın amacı komşu kartların hizasıdır ve hizalanacak komşu yoksa yer tutucunun ölçülen bedeli **saf gerileme**dir. Diet'te ölçüldü: açıklaması (`<p>`) olan `.pc-head` **0 adet** (`planim.css`in kendi şerhi de böyle diyor), yani 39+ kartın hepsine boş yer tutucu basmak her kartın başlığına ~25px eklerdi ve karşılığında hiçbir hiza düzelmezdi. | `js:` açıklamalı komşu VARSA `.ph-hold` sayısı > 0 ve `visibility === "hidden"`; hiçbir `.pc-head`'de `min-height` yok | 4× |
 | **B10** | Kart başlığı | Açıklaması olan kartta `.pc-head:has(p){align-items:flex-start}` uygulanır. | Ö · `planim.css:143` (öni:834) | `css:` kuralın varlığı | 4× |
 | **B11** | Bütün belge sayfaları | Bölüm zeminleri beyaz `#ffffff` ile gri `#f9f9f9` arasında **dönüşümlüdür** (zebra). | Ö · `dd-shell.css:67-69`, Diet'in kendi tanımı (öni:431 · öni:541-542) · karar hnd:69 | `js:` ardışık `section`'ların `backgroundColor` dizisi `rgb(255,255,255)` ve `rgb(249,249,249)` sırasını izler | 4× |
 | **B12** | Modül · hesap | ≤900px'te `.kpi-grid` ve `.dash-cols` tek sütuna düşer. | Ö‑tar · 900px'te yan yana çift bulunmadı (öni:868). ⚠ Diet'te 2026-08-29'da ölçülen sapma: `planim.css:717` `.kpi-grid`'i ≤1024'te `1fr 1fr` yapıyordu ve 768'de **iki sütun** kalıyordu (ölçüm: 2 çift yan yana). **Karar (Beyar, 2026-08-29): şartnamenin ≤900px sınırı doğrudur, Diet'in kırılımı düzeltilir.** Diet'e `@media (max-width:900px){.kpi-grid{grid-template-columns:minmax(0,1fr)}}` eklendi; yeniden ölçüldü, 768'de `0` çift. | `pw:` 768px ve 414px'te yan yana çift sayısı `=== 0` | 4× |
@@ -545,7 +601,7 @@ karıştırılmaz** (öni:1440).
 | **E10** | `/hesabim` | Kapak yüksekliği **280px**, `radius` 24px'tir. | Ö · hedef R1 (öni:2045); Diet'in bugünkü 240px'i sapmadır — `planim.css:276` (öni:536 · öni:1971) | `pw: rect(".pf-banner").height === 280` | 4× |
 | **E11** | `/hesabim` | Kimlik kartı `margin-top:-78px`, dolgu `26px 30px 28px`, `gap` 26px taşır. | Ö · `planim.css:280` (öni:536) | `js:` üç değerin eşitliği | 4× |
 | **E12** | `/hesabim` | Avatar 128×128, `border:4px #fff`, `margin-top:-70px`; harf avatarında yazı 51px'tir. | Ö · `planim.css:281` · `:302` (öni:536) | `js:` dört değerin eşitliği | 4× |
-| **E13** | `/hesabim` · `/planim` | Kimlik kartının sağ sütunu `.pf-actions` 194px'tir ve **doludur**. | Ö · `planim.css:287` (öni:784) | `js: rect(".pf-actions").width === 194` | 4× |
+| **E13** | `/planim` | Kimlik kartının sağ sütunu `.pf-actions` 194px'tir ve **doludur**. | Ö · `planim.css:287` (öni:784). ⚠ **KAPSAM v1.9.0'da DARALDI — §U3** (karar Beyar, 2026-08-29): satır `/hesabim`ı da sayıyordu ama ölçümün kaynağı öni:784'tür ve oradaki bağlam **Ekran B = modül sayfası** (*"Taban: Diet'in `/planim` yüzeyi"*); `/hesabim` ölçülmemişti, Kapsam sütununa sonradan eklenmişti. Diet'te ölçüldü (1440px): `/planim` **194px ve dolu**, `/hesabim`'da sütun **hiç basılmıyor** — ve ekranın kendi şerhi bunun bilinçli olduğunu yazıyor (*"bu ekranın 'Öğün Ekle'/'Programa Dön' karşılığı yok, uydurulmadı"*). Ölçüm düzeltildi, kod değişmedi. | `js: rect(".pf-actions").width === 194` | 4× |
 | **E14** | `/hesabim` · modül | Fotoğraf ve kapak düzenleme düğmeleri **yalnız** ayarlar ekranında basılır; modül sayfalarında sayısı sıfırdır. | Ö · `hesabim.blade.php:147-152`, `:164`; Planım'ın sekiz ekranında `.pf-ava-edit` sayısı 0 (öni:538) | `js:` modül sayfasında `querySelectorAll(".pf-ava-edit").length === 0` | 4× |
 | **E15** | `/hesabim` | Hesap dondurma ve hesap silme **"Veri ve izinler"** sekmesinin içindedir; bunlar için ayrı sekme açılmaz. | Ö · Diet `hesabim.blade.php:865-942` (dondurma) ve `:786-855` (silme) (öni:2086) · karar hnd:64 | `js:` sekme etiketleri arasında `Dondurma` ve `Hesap Silme` yok; `veri` panelinde iki kart var | 4× |
 | **E16** | `/hesabim` | Dondurma ve silme kartlarının metinleri Fit'in dizgileridir; yerleri Diet'e göredir. | T · kaynak marka Fit, yerleşim Diet (hnd:64 · öni:2515) | `sh:` dizgi karşılaştırması dört depoda | 4× |
@@ -602,7 +658,7 @@ serbest.**
 | **G15** | Açılır menü | **"Alışveriş Listem"** yalnız **Gastro**'da basılır. | Ö · Diet'ten çıkarıldı, menü 15→14 (hnd:70); Gourmet ve Fit belgelerinde "alışveriş" araması 0 eşleşme (öni:669-672); Diet'in güncel menü dizisinde yok (öni:2319-2321). ⚠ Önizlemenin öni:602 ve öni:670 satırları Diet için hâlâ "var" diyor — **eskimiştir**. | `sh:` dört menüde `Alışveriş` araması yalnız Gastro'da `1` | Gastro |
 | **G16** | Açılır menü | Menü kabı `max-height: calc(100dvh − 112px − 12px − 10px)` ve `overflow-y:auto` taşır. Çubuk **yalnız taşma olunca** belirir (`auto`, `scroll` değil). | T · üç girdi ölçüldü: 112px kabuk (`dd-shell.css:337` + `:396`), 12px tetikleyici mesafesi, 10px kap dolgusu; toplam **hesaptır** (öni:714-720). ⚠ **Kural v1.5.0'a kadar HİÇBİR DEPODA uygulanmamıştı** — Diet'te ölçüldü: kap `max-height` taşımıyordu ve uzun menünün alt kalemleri **görünmüyordu**. Diet'e uygulandı ve ölçüldü (1080/900 çubuksuz · 700/560 çubuklu). ⚠ Kardeş markada `calc(100vh − 150px)` yazılı — **farklı değer**; tekleştirme §U8 kalemidir. | `css:` değerin birebir yazılışı · `pw:` 1080px'te çubuk yok, 700px'te var | 4× |
 | **G17** | Açılır menü | Menü kalem yüksekliği 44px'tir (11+11 dolgu + 14px × 1.55). | Ö · `dd-shell.css:505` (öni:722-723) | `pw:` `a` yüksekliği `=== 44` | 4× |
-| **G18** | Açılır menü | En uzun menünün toplam yüksekliği **702px**'tir ve 1080px ekranda kaydırma çubuğu çıkmaz. | Ö‑tar · Diet'te ölçüldü (2026-08-29, 1440×1080): `scrollHeight = 702`, sınır `946px`, çubuk **yok**. ⚠ v1.4.x'e kadar `T` idi ve CSS'ten **≈719px** diye hesaplanmıştı; gerçek ölçüm 702px verdi — §U4 gereği `Ö`ye çevrildi. | `pw:` 1080px'te `scrollHeight <= clientHeight` | 4× |
+| **G18** | Açılır menü | En uzun menünün toplam yüksekliği **746px**'tir ve 1080px ekranda kaydırma çubuğu çıkmaz. | Ö‑tar · Diet'te ölçüldü (2026-08-29, 1440×1080): `scrollHeight = 746`, sınır `946px`, çubuk **yok**. ⚠ v1.4.x'e kadar `T` idi ve CSS'ten **≈719px** diye hesaplanmıştı; gerçek ölçüm 702 verdi — §U4 gereği `Ö`ye çevrildi. ⚠ **702 → 746 (v1.11.0):** o ölçüm menü **13 kalemliyken** alındı; §Y‑3 kapanıp *"Bildirimlerim"* kalemi doğunca menü G4'ün bağladığı **14**'e çıktı ve 702 + 44 (§G17'nin kalem yüksekliği) = **746** ölçüldü. Sayı değişti, hüküm değişmedi: sınır hâlâ aşılmıyor. | `pw:` 1080px'te `scrollHeight <= clientHeight` | 4× |
 | **G19** | Üst çubuk + menü | Üst çubuktaki zil ikonu ile menüdeki "Bildirimlerim" kalemi **aynı sayfaya** çıkar; ikinci bir ekran üretilmez. Bu bilinçli bir tekrardır. | Ö · Fit belgesi §13'ün kendi hükmü (öni:704-710) | `js:` iki bağlantının `href` değeri eşit | 4× |
 | **G20** | Açılır menü | Yeteneği olmayan kalem menüye konmaz. | Ö · G11 ve G15'in gerekçesi (öni:671-672 · öni:626) | `sh:` her menü kaleminin hedef rotası çözülüyor | 4× |
 | **G21** | Açılır menü | Menünün başında **kimlik bloğu** bulunur: avatar + ad, altında (varsa) kullanıcı adı. Blok **bağlantı taşımaz** ve dört markada aynı yerde, aynı ölçüdedir. Ölçü: kap `padding:8px 11px 12px` · `gap:11px`; avatar 42×42 daire (harf avatarında yazı 17px); ad 14.5px/700 `--slate`; kullanıcı adı 12px/500 `--muted`. | Ö · `dd-shell.css:512` · `:513` · `:515` · `:516` · `:488`; markup `dd-shell.js:741-744` · **karar §Y‑17, 2026-08-28**. ⚠ Kaynak **Diet'in gerçek kabuğudur**, önizleme değil — önizlemenin menü render'ında kimlik bloğu hiç yok. | `js:` ilk `.acct-div`'den önceki parçada `a` sayısı `=== 0` ve içinde avatar + `b` var; beş ölçünün eşitliği | 4× |
@@ -902,6 +958,83 @@ markup'tır.
 
 ---
 
+## Ö · DESTEK MERKEZİ — Ekran M
+
+**Yeni bölüm (v1.10.0, karar Beyar 2026-08-29).** Taban **Diet**'tir: dört
+markanın içinde en olgun yüzey odur ve bu bölümün her kuralı oradan
+**ölçülmüştür**. Harf seçimi tesadüf değil — `Ö` alfabede kullanılmamış tek
+uygun harftir ve bölüm `O`dan sonra, `P`den önce durur (§W5: numara geri
+dönüştürülmez, yeni bölüm sırasına girer).
+
+> 🔴 **TABAN NEDEN DİET.** Üç ölçüm karar verdi: ① durum süzgeci **sunucu
+> taraflı ve adreslenebilir** (`?durum=`), ② ek dosyası kuralı **tek
+> kaynakta** (`DestekEki::kurali()`, `accept` niteliği aynı listeden türer),
+> ③ mesaj kiti **gönderen/alan ayrımını hem hizayla hem renkle** verir.
+> Kaynak markanın `.tk-msg`i düz satırdır ve ayrımı hiç vermez; §U8'in
+> *"iyileştirme kaynakta yapılır"* kuralı burada **tabanı Diet yapar**,
+> çünkü iyileştirme zaten Diet'te.
+
+**Ölçülen taban (Diet, 2026-08-29, 1440px)**
+
+| Ne | Ölçülen değer |
+|---|---|
+| Rota kümesi | 4 GET + 4 POST — `hesabim.destek` · `.cozum-merkezi` · `.olustur` · `.talep` · `.kaydet` · `.yanitla` · `.kapat` · `.yeniden-ac` |
+| Controller | `app/Http/Controllers/Diet/DestekController.php` — 8 metot |
+| Durum | `SupportStatus` enum, **4 case** · `SupportCategory` **13 case** |
+| Sayfalama | **10/sayfa**, `withQueryString()` |
+| Kapılar | `tests/Feature/Destek/` — 9 dosya, **75 test** |
+
+| # | Kapsam | Kural | Değer · kaynak | Doğrulama | Marka |
+|---|---|---|---|---|---|
+| **Ö1** | Destek merkezi | Yüzeyin kökü **`/hesabim/destek`**tir ve **kullanıcı alanı modülüdür**, kimlik yüzeyi değil — yani önekli dillerde de yayınlanır. | Ö · `routes/diet.php`in kendi ölçümü: `/hesabim` 7 rota, önekli dilde karşılığı YOK; `/hesabim/destek` çok dilli | `sh:` dört depoda rota + `/en/…` karşılığı | 4× |
+| **Ö2** | Destek merkezi | Kabuk **modül sayfası kalıbıdır (§F)**: `.sec.below-header` → `.wrap.sheet` → kimlik kartı → sekme şeridi. **Banner ailesi (§R) DEĞİL.** | Ö‑tar · Diet'te üç ekranda da ölçüldü: `.pf-head` **1**, `.pf-banner` **1**, banner ailesi kiti (`.nt-top` benzeri) **0** | `js:` `.pf-head` sayısı `=== 1`; banner kiti `=== 0` | 4× |
+| **Ö3** | Destek merkezi | Bölüm şeridi **üç kalemdir**: **Destek Taleplerim · Yeni Destek Talebi · Çözüm Merkezi**. Kit `.pf-tabbar > nav.pf-tabs`, kalem `a.dt`, aktif olan `aria-current="page"` taşır (§F2 ile aynı). | Ö‑tar · Diet'te ölçüldü | `js:` `.dt` metin dizisi ve `[aria-current=page]` sayısı `=== 1` | 4× |
+| **Ö4** | Talep listesi | Durum süzgeci **İKİNCİ bir `.pf-tabbar > .pf-tabs`**tir ve **beş kalem** taşır: Tümü · Açık talep · Yanıt bekleyen · Çözülen · Kapatılan. Her kalem sayacını `<span class="muted">` ile basar. | Ö‑tar · Diet'te ölçüldü: 3 + 5 = 8 `.dt` | `js:` ikinci şeritte kalem sayısı `=== 5` | 4× |
+| **Ö5** | Talep listesi | **Süzme SUNUCU tarafındadır ve ADRESLENEBİLİRDİR**: her kalem `?durum=<deger>`e giden bir `<a>`dır. Tanınmayan değer sessizce "Tümü"ye düşer. | Ö · `DestekController::durum()` beyaz listesi · ölçüldü: `?durum=cozulen` listeyi daraltıyor | `js:` `?durum=` ile satır sayısı daralır; geçersiz değer 200 döner | 4× |
+| **Ö6** | Talep listesi | Sayaçlar **süzgeçten bağımsızdır** — "Çözülen" sekmesindeyken de "Açık talep 4" görünür. | Ö · `TalepSayfalandirmaTest::test_sekme_sayaclari_sayfadan_etkilenmez` | akış testi | 4× |
+| **Ö7** | Talep listesi | Liste kiti **`.pnl-card > .pc-body > .set-list > a.set-row`**'dur (§C10). **Tablo (`.ptable`) KULLANILMAZ** — §C1'in sekiz kart tipi içinde tablo yoktur ve `.ptable` bir yönetim kitidir. | Ö‑tar · **Diet'te düzeltildi 2026-08-29**; öncesi `.ptable` idi. Ölçüldü: dolgu `17px 2px` · gap 16px · ikon 40×40 `radius:12px` · başlık 14px · alt metin 12.5px `margin-top:2px` `line-height:18.125px` — §C10 birebir | `js:` `.ptable` sayısı `=== 0`; `.set-row` §C10 değerlerini taşır | 4× |
+| **Ö8** | Talep listesi | **Satırın TAMAMI bağlantıdır** (`<a class="set-row">`), yalnız başlık değil. | Ö‑tar · ölçüldü: satır kökü `A`, satırdan taşan öğe **0** | `js:` `.set-row` `tagName === "A"` | 4× |
+| **Ö9** | Talep listesi | Satırın alt metni sabit sıradadır: **referans · kategori · son hareket · mesaj sayısı** (+ varsa okunmamış yanıt sayısı). | Ö · Diet'in satırı | `js:` alt metin parça sırası | 4× |
+| **Ö10** | Talep listesi | Sayfalama **10/sayfa**'dır ve süzgeci **taşır** (`withQueryString()`). Taşımasaydı 2. sayfa `?page=2` ile süzgeci sessizce düşürür, üye "çözülen" sekmesindeyken tüm talepleri görürdü. | Ö · `paginate(10)->withQueryString()` · kapı `TalepSayfalandirmaTest` (6 test) | `js:` 2. sayfada `?durum=` korunur | 4× |
+| **Ö11** | Talep listesi | Sayfalama bileşeni **deponun kendi pager'ıdır** (`.pagi`/`.pg`, R28 standardı); çıplak `->links()` kullanılmaz — o, çerçevenin Tailwind varsayılanına düşer ve kabuğun kiti dışına çıkar. | Ö · `diet/_p/pagination.blade.php`in kendi şerhi | `sh:` `->links()` araması → `0` | 4× |
+| **Ö12** | Talep listesi | Liste kartının **üstünde açık talep özeti** durur ve o özet **sayfalanmaz** — akışta kalan işi gösterir, arşivi değil. | Ö · Diet'te ölçüldü: özet `.set-list` + sayfalanan `.set-list` ayrı | `js:` iki ayrı `.set-list` | 4× |
+| **Ö13** | Talep açma | Alan seti sabittir: **kategori\* · konu\* · açıklama\* · ilgili randevu · ilgili ödeme referansı · ek dosya**. | Ö · `DestekController::store()` doğrulaması + ekranda ölçüldü | `js:` alan adı dizisi | 4× |
+| **Ö14** | Talep açma | Doğrulama değerleri: `category` **beyaz liste**; `subject` `min:3` `max:160`; `body` `min:10` `max:5000`; `related_payment_reference` `max:64`; ilgili randevu **sahiplik kontrolünden** geçer. | Ö · `store()` kuralları | akış testi | 4× |
+| **Ö15** | Talep açma · yanıt | **Ek dosyası kuralı TEK KAYNAKTADIR.** Sunucu kuralı, `accept` niteliği ve yönetim ucu aynı listeden türer; markup kendi mime dizgisini yazmaz. | Ö · `DestekEki::kurali()` · `::kabulNiteligi()` · kapı `DestekEkiSozluguTest` | `sh:` blade'de elle yazılmış mime dizgisi → `0` | 4× |
+| **Ö16** | Talep açma · yanıt | Ek dosyası **private diske** yazılır ve **imzalı URL** ile açılır; `download` niteliği verilmez (mime'a tarayıcı karar verir). | Ö · `MediaService` + `signedUrl()` · `CLAUDE.md §3.3` md.4 | `sh:` public disk yazımı → `0` | 4× |
+| **Ö17** | Talep detayı | Kart sırası sabittir: ① **acil durum uyarı kartı** ② talep bilgileri ③ **Yazışma**. | Ö‑tar · Diet'te ölçüldü: `.pc-title` dizisi | `js:` üç kartın DOM sırası | 4× |
+| **Ö18** | Talep detayı | **Acil sağlık durumu uyarısı BASILIR** ve destek kanalının acil durumlar için kullanılmadığını söyler. Bu kart isteğe bağlı değildir. | Ö · Diet'in kendi kartı · kapı `AcilDurumBildirimiTest` | `js:` uyarı kartı sayısı `=== 1` | 4× |
+| **Ö19** | Yazışma | Mesaj kiti **`.bub`**'dır: `max-width:68%` · dolgu `10px 14px` · 13.5px/1.5 · `radius-md`, karşı köşe `radius-sm`. **Düz satır listesi kullanılmaz.** | Ö · `planim.css:672-677` · **karar Beyar, 2026-08-29**: kaynak markanın `.tk-msg`i düz satırdır ve gönderen ayrımını vermez; Diet'in kiti kanon seçildi | `js:` altı değerin eşitliği | 4× |
+| **Ö20** | Yazışma | Gönderen ayrımı **HEM HİZA HEM RENKLE** verilir: gelen `.bub.in` **sola** (`align-self:flex-start`, zemin `--bg` + 1px `--line`), giden `.bub.out` **sağa** (`align-self:flex-end`, zemin marka fısıltısı). Yalnız biriyle yetinilmez. | Ö · `planim.css:675-676` · karar Beyar, 2026-08-29 | `js:` iki yönde `alignSelf` ve `backgroundColor` farklı | 4× |
+| **Ö21** | Yazışma | Mesaj meta satırı **`.bt`**'dir: 11.5px, `--muted`; giden mesajda derin marka tonu. Gönderen adı (**"Sen" / "Destek ekibi"**) ve tarih taşır. | Ö · `planim.css:673-674` + `.bt` içeriği | `js:` üç değerin eşitliği | 4× |
+| **Ö22** | Boş durum | Boş durum **§D2'nin `.pnl-empty` kitini** kullanır, kartın içinde yaşar (§D1) ve **tek eylem düğmesi** taşır (§D5). | Ö · Diet'te ölçüldü: `.pnl-empty` 1, içindeki `button, a` sayısı 1 | `js:` §D2'nin sekiz değeri + düğme sayısı `=== 1` | 4× |
+| **Ö23** | Boş durum | **SÜZGEÇ BOŞ DÖNDÜĞÜNDE DE BASILIR** ve metni "hiç talebin yok"tan **ayrıdır**: talebi olan ama o durumda olmayan üyeye "ilk talebini aç" denmez. | Ö · Diet'in iki dallı boş durumu (`$toplam === 0` ayrımı). ⚠ Kaynak marka da bu iki dalı ayırıyor — **kusur ölçülmedi**, kural yine de yazıldı çünkü ayrım kolayca kaybolur | `js:` `?durum=` ile boş sonuçta `.pnl-empty` sayısı `=== 1` ve metin farklı | 4× |
+| **Ö24** | Durum rozeti | Rozet **§C11'in `.pstat` kitidir**: 11.5px/700 · dolgu `4px 10px` · `radius` 8px · 6px nokta. Ayrı bir rozet biçimi üretilmez. | Ö‑tar · Diet'te ölçüldü, dört değer de birebir | `js:` dört değerin eşitliği | 4× |
+| **Ö25** | Durum rozeti | **DÖRT DURUM DÖRT AYRI SINIF TAŞIR**: `Açık` → `wait` · `Yanıt bekleyen` → `warm` · `Çözülen` → `ok` · `Kapatılan` → `off`. İki durum aynı rozeti paylaşamaz. | Ö‑tar · **Diet'te düzeltildi 2026-08-29**; öncesi `Açık` ve `Yanıt bekleyen` ikisi de `wait` idi ve dört durum ekranda **üç renk** gösteriyordu. Ayrım anlamdan gelir: `wait` top destekte, `warm` top üyede (kitin kayıtlı *"gecikmiş"* anlamı) | `js:` dört rozet sınıfı kümesi **dört ayrı değer** | 4× |
+| **Ö26** | Durum makinesi | Durum **dörttür ve enum'dadır**: `acik` · `yanit-bekleyen` · `cozulen` · `kapatilan`. Geçişler, etiket, ikon ve rozet sınıfı **aynı enum'dan** okunur; ikinci bir harita yazılmaz. | Ö · `SupportStatus` + `ChangeSupportTicketStatus` · karar **K8** (DadaDiet pilot) | `sh:` durum dizgisi arayan ikinci harita → `0` | 4× |
+| **Ö27** | Durum makinesi | **Kapatma ÜYENİN FİİLİDİR**: üye talebi kapatabilir ve yeniden açabilir. Yüzey iki uç taşır (`kapat` · `yeniden-ac`) ve kapalı talepte yanıt formu yerine kilit şerhi basılır. | Ö · `close()` · `reopen()` · kapı `TalepDurumGecisleriTest` | akış testi: iki geçiş de üye oturumuyla çalışır | 4× |
+| **Ö28** | Yetki | Talep sahipliği **ilişkiyle** kapılır; başkasının talebine erişim 404 verir. Ayrı bir policy yazılmaz. | Ö · kapı `TalepSahipligiTest` | akış testi: başkasının id'siyle istek `404` | 4× |
+
+### Ö29 · Kaynak markada ölçülen iki sapma — §U8 kalemi
+
+Taban Diet seçildikten sonra kaynak marka (Gastro) ölçüldü ve **iki kit
+sapması** bulundu. İkisi de §U8'in yolunu izler: şartnameye yazıldı, kaynakta
+düzeltilecek, sonra dörde birden inecek.
+
+| Ne | Şartnamenin bağladığı | Gastro'da ölçülen | Not |
+|---|---|---|---|
+| **Boş durum kiti** | §D2 · §Ö22 — `.pnl-empty` | `<x-empty-state>` bileşeni **`.pf-empty`** basıyor (`components/empty-state.blade.php:5`) | §Ç15a'nın kaydettiği eksiğin aynısı; orada *"üye tarafında `.pnl-empty` yok"* diye ölçülmüştü |
+| **Durum rozeti** | §C11 · §Ö24 — `.pstat` | **`.status-chip`** kullanılıyor (`destek/index.blade.php:30,101` · `show.blade.php:148`): `radius-pill` · `.8rem`/800 · kenarlıklı — §C11'in dört değerinin **hiçbiri** tutmuyor | ⚠ Gastro'da `.pstat` **ZATEN VAR** (`portal.css:507`, değerleri §C11 ile birebir); yani sahip olduğu iki kitten yanlışını kullanıyor |
+
+⚠ **Üçüncü bir kusur iddiası DOĞRULANAMADI.** *"Süzgeç sonucu boşken hiçbir
+boş durum basılmıyor"* diye raporlanan kalem ölçüldü ve **öyle çıkmadı**:
+Gastro `$durum === 'tumu'` dalıyla iki ayrı metin basıyor
+(`destek/index.blade.php:72-82`), Diet de aynı ayrımı yapıyor. §U3 gereği
+kayda geçti; kural (**Ö23**) yine de yazıldı, çünkü ayrım kolayca kaybolur
+ve kaybolduğu gün sessiz kalır.
+
+---
+
 ## P · HERKESE AÇIK PROFİL — Ekran J
 
 Önizleme bölüm 19. Taban **Gastro**'dur: tek sayfa, iki hâl.
@@ -1160,8 +1293,8 @@ boyutu karşılaştırılır ve **beklenmedik küçülme alarm sayılır**.
 
 ### Z1 · Sürüm
 
-- **Bu sürüm:** `v1.8.1` · 2026-08-29
-- **Damga:** dosyanın ilk satırı — `sartname v1.8.1 · 2026-08-29`
+- **Bu sürüm:** `v1.11.0` · 2026-08-29
+- **Damga:** dosyanın ilk satırı — `sartname v1.11.0 · 2026-08-29`
 - **Dört depodaki yol:** `docs/arayuz-sartnamesi.md`
 - **Emsal:** `dadadiet/docs/hesap-sozlesmesi.md` (v2.6, md5
   `558208c924ed04655759990e6ff3b7ee`) — bu belge onun yerine geçmez,

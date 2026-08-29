@@ -55,7 +55,12 @@
    `max-width`/`margin` KALDI: sayfa sütununun genişliği kart kitinin değil,
    sayfanın kararıdır ve Diet'in kitinde de karşılığı yoktur (ölçüldü —
    `planim.css`te hiçbir sütun genişliği tanımlı değil). */
-.hs-col{max-width:900px;margin:0 auto}
+/* §B1 (2026-08-29, Dalga 4) — 900px'lik okuma sütunu KALKTI. Ölçülen kusur:
+   kapak 132 · kimlik kartı 160 · sekme şeridi 132 · ilk kart 270 — dört ayrı
+   sol kenar. Şartname beşini tek kapta ve 28px'te birleştiriyor; 28px sayısı
+   kimlik kartının kendi `margin:-78px 28px 0`'ından gelir (§E6 · §E11). */
+.hs-col{margin:0 28px}
+.hs-rail{margin-left:28px;margin-right:28px}
 
 /* bölüm — çapa hedefi.
    DİKKAT — sabit header payı BURADA TEKRARLANMAZ: kabuk zaten
@@ -78,7 +83,7 @@
 .hs-sec>h2 .hs-no{flex:none;width:24px;height:24px;border-radius:var(--radius-circle);background:var(--fit-wash);color:var(--fit-deep);font-size:11.5px;font-weight:800;display:grid;place-items:center}
 
 /* bölüm rayı — kabuk .pf-tabbar/.pf-tabs/.dt kiti, kalemler <a> */
-.hs-rail{margin-bottom:22px}
+/* .hs-rail alt boşluğu §S1 gereği kabuğa geçti (.pf-tabbar 24/22). */
 .hs-rail .dt{text-decoration:none}
 
 /* =====================================================================
@@ -148,7 +153,11 @@
   display:flex;align-items:center;justify-content:space-between;gap:14px;
   padding:18px 22px;border-bottom:1px solid var(--line);
 }
-.pc-title{font-size:16px;font-weight:700;color:var(--slate);display:flex;align-items:center;gap:10px}
+/* §C2 · kart başlığı 16px/700 · gap 10px · line-height 1.55 · letter-spacing
+   NORMAL. Son ikisi ayrıca yazılır: `.pc-title` burada gerçek bir <h2> ve
+   kabuğun `h1,h2,h3,h4{line-height:1.12;letter-spacing:-.02em}` kuralını
+   miras alıyordu (ölçüldü: 1.12 / -0.32px). */
+.pc-title{font-size:16px;font-weight:700;color:var(--slate);display:flex;align-items:center;gap:10px;line-height:1.55;letter-spacing:normal}
 .pc-title i{color:var(--fit);font-size:15px}
 .pc-body{padding:22px}
 .pc-body.flush{padding:0}
@@ -192,7 +201,10 @@
 .fk-grid .fk-field{margin-bottom:0}
 .fk-grid.c2{grid-template-columns:1fr 1fr}
 .fk-grid.c3{grid-template-columns:repeat(3,1fr)}
-.fk-grid+.fk-grid{margin-top:18px}
+/* §C18 · alanlar arası boşluk 22px'tir. Izgara↔ızgara geçişi 18px'ti —
+   ölçülen sapma; ızgara↔alan geçişi (aşağıda) zaten 22 idi, ikisi tek
+   ritme indi. Izgara İÇİ 0, ızgara boşluğu `16px 18px` — ikisi de kalır. */
+.fk-grid+.fk-grid{margin-top:22px}
 .fk-grid+.fk-field,.fk-field+.fk-grid{margin-top:22px}
 /* R5/K18 · fatura bilgileri modalı — kabuğun `.fb-*` kabuğu, sayfa ölçüsü.
    `#agModal` kalıbının aynısı: kapalıyken yerleşimden çıkar (odak sırasına
@@ -636,8 +648,7 @@
         <a class="dt" role="tab" id="tab-guvenlik" href="#guvenlik" aria-controls="guvenlik" aria-selected="false" tabindex="-1"><i class="fa-solid fa-lock"></i> Güvenlik</a>
         <a class="dt" role="tab" id="tab-dil" href="#dil" aria-controls="dil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-globe"></i> Dil ve Bölge</a>
         <a class="dt" role="tab" id="tab-diger" href="#diger" aria-controls="diger" aria-selected="false" tabindex="-1"><i class="fa-solid fa-shield-halved"></i> Diğer Modüller</a>
-        <a class="dt" role="tab" id="tab-dondur" href="#dondur" aria-controls="dondur" aria-selected="false" tabindex="-1"><i class="fa-solid fa-circle-pause"></i> Dondurma</a>
-        <a class="dt" role="tab" id="tab-sil" href="#sil" aria-controls="sil" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-xmark"></i> Hesap Silme</a>
+        <a class="dt" role="tab" id="tab-veri" href="#veri" aria-controls="veri" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-shield"></i> Veri ve izinler</a>
       </nav>
     </div>
 
@@ -1605,8 +1616,13 @@
        çalışmaz ve uyarı yalnız renkle değil ikon + "Uyarı:" metni +
        kilitli düğme durumu ile verilir.
        ============================================================ -->
-      <section class="hs-sec" id="dondur" role="tabpanel" tabindex="0" aria-labelledby="tab-dondur">
-        <div class="pnl-card warn-card">
+      <!-- §E15 · §E20 (Dalga 4) — "Dondurma" ve "Hesap Silme" AYRI SEKME
+           olmaktan çıktı; ikisi de "Veri ve izinler" bölmesinin içinde.
+           Kartların `id`leri KORUNDU: 47 sayfadan gelen
+           `hesabim-v1.html#dondur` / `#sil` derin bağlantıları
+           kırılmasın diye ALIAS ikisini de bu bölmeye çözüyor. -->
+      <section class="hs-sec" id="veri" role="tabpanel" tabindex="0" aria-labelledby="tab-veri">
+        <div class="pnl-card warn-card" id="dondur">
           <div class="pc-head">
             <div>
               <h2 id="dondurH" class="pc-title"><i class="fa-solid fa-circle-pause"></i> Hesabı Dondurma</h2>
@@ -1661,7 +1677,6 @@
           </form>
           </div>
         </div>
-      </section>
 
       <!-- ============================================================
        10 · HESABIMI SİL  (§5 · §20 · kabuk çapası #sil)
@@ -1669,8 +1684,7 @@
        ifadesini elle yazmak zorunda. Uyarı ikon + "Uyarı:" metni +
        kilitli düğme + durum satırıyla verilir, renkle değil.
        ============================================================ -->
-      <section class="hs-sec" id="sil" role="tabpanel" tabindex="0" aria-labelledby="tab-sil">
-        <div class="pnl-card danger-card">
+        <div class="pnl-card danger-card" id="sil">
           <div class="pc-head">
             <div>
               <h2 id="silH" class="pc-title"><i class="fa-solid fa-user-xmark"></i> Hesabımı Sil</h2>
@@ -2012,7 +2026,9 @@
     uyelik:'uyelik', abonelik:'uyelik', abonelikler:'uyelik', uyelikler:'uyelik',
     kartlarim:'odeme', odeme:'odeme',
     adreslerim:'fatura', fatura:'fatura',
-    dil:'dil', diger:'diger', dondur:'dondur', sil:'sil'
+    dil:'dil', diger:'diger',
+    /* §E20 — iki eski sekme tek bölmeye indi; derin bağlantılar korunur. */
+    veri:'veri', dondur:'veri', sil:'veri'
   };
 
   function panelBul(id){
@@ -2055,6 +2071,9 @@
   function adresten(){
     var h = (location.hash || '').slice(1);
     if(h && panelBul(h)) return h;
+    /* Hash bir PANEL değilse ALIAS'a bakılır: `#dondur`/`#sil` artık kart
+       çapasıdır, panel değil — §E20 sonrası ikisi de `veri` bölmesini açar. */
+    if(h && ALIAS[h] && panelBul(ALIAS[h])) return ALIAS[h];
     var t = new URLSearchParams(location.search).get('tab');
     if(t && ALIAS[t] && panelBul(ALIAS[t])) return ALIAS[t];
     return VARSAYILAN;

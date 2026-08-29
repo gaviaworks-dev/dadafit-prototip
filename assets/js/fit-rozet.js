@@ -43,19 +43,49 @@
   var SURUM = 1;
 
   /* ==================================================================
-     1 · HAREKET YOLCULUĞU — sekiz basamak, tek ölçü: AKTİF GÜN SAYISI
-     Eşikler `rozetler-v1.html`den birebir taşındı (uydurulmadı).
+     1 · KADEME MERDİVENİ — sekiz kademe, İKİ ÖLÇÜT
+     ------------------------------------------------------------------
+     EMSAL ÖLÇÜLDÜ (yerel Gastro deposu, yalnız okundu):
+       database/seeders/CommunityTierSeeder.php → 30 kademe, 8 segment
+       app/Domain/Gastro/Support/TierLadder.php:24-27 → üye, `threshold_points`
+       VE `min_recipes` VE `min_tips` barajlarını birlikte geçtiği EN YÜKSEK
+       kademeye yerleşir. Yani kademe tek ölçütle atlanmıyor: puan bir
+       baraj, üretim ikinci baraj.
+     Gastro'da kademe iki yerde görünüyor: `rozetlerim/show.blade.php`
+       (tam merdiven + rank-now paneli) ve `tarifler/_chef-card.blade.php:56`
+       (yazar adının yanında `.sc-deg` unvan rozeti).
+
+     🔴 KADEME ≠ PAKET. Paket satın alınır (Ücretsiz · Pro · Pro Max),
+     kademe KAZANILIR. İkisi aynı anda görünür ve birbirinin yerine geçmez.
+
+     DADAFİT UYARLAMASI
+       · Adlar hareket ve gelişim temalı (mutfak dili yok).
+       · Gastro'nun `min_recipes`/`min_tips` barajının Fit karşılığı
+         AKTİF GÜN: puan hızlı toplanabilir, gün toplanamaz. Böylece
+         kademe "çok rozet açtım" ile değil, "sürdürdüm" ile yükselir.
+       · `minGun` eşikleri eski Hareket Yolculuğu basamaklarından BİREBİR
+         taşındı (1·7·20·45·90·180·365·500) — uydurulmadı.
+       · `minPuan` eşikleri katalogun GERÇEK tavanına göre ölçeklendi:
+         50 rozet toplam 4.170 puan, ölçülebilir olanlar 3.945 (ölçüldü).
+         Son kademe 3.800 puanla erişilebilir kalıyor; ulaşılamayan bir
+         merdiven, merdiven değildir.
+       · `key` değerleri DEĞİŞMEDİ: rozetlerin `basamak` alanı bunlara
+         bakıyor ve galeri süzgeci bu eşleşmeyle çalışıyor. (Gastro bu
+         eşleşmeyi kuramamıştı — rozetin kademesi yoktu; Fit'te var.)
      ================================================================== */
-  var BASAMAKLAR = [
-    { key: 'baslangic',   ad: 'Başlangıç',   esik: 1,   ico: 'fa-solid fa-shoe-prints' },
-    { key: 'ilk-hafta',   ad: 'İlk Hafta',   esik: 7,   ico: 'fa-solid fa-calendar-week' },
-    { key: 'ilk-ay',      ad: 'İlk Ay',      esik: 20,  ico: 'fa-solid fa-calendar-days' },
-    { key: 'uc-ay',       ad: 'Üç Ay',       esik: 45,  ico: 'fa-solid fa-person-walking' },
-    { key: 'alti-ay',     ad: 'Altı Ay',     esik: 90,  ico: 'fa-solid fa-person-running' },
-    { key: 'bir-yil',     ad: 'Bir Yıl',     esik: 180, ico: 'fa-solid fa-mountain' },
-    { key: 'iki-yil',     ad: 'İki Yıl',     esik: 365, ico: 'fa-solid fa-mountain-sun' },
-    { key: 'kendi-yolun', ad: 'Kendi Yolun', esik: 500, ico: 'fa-solid fa-route' }
+  var KADEMELER = [
+    { key: 'baslangic',   ad: 'Yeni Başlayan',  minPuan: 0,    minGun: 1,   ico: 'fa-solid fa-shoe-prints' },
+    { key: 'ilk-hafta',   ad: 'İlk Adım',       minPuan: 100,  minGun: 7,   ico: 'fa-solid fa-calendar-week' },
+    { key: 'ilk-ay',      ad: 'Düzenli',        minPuan: 300,  minGun: 20,  ico: 'fa-solid fa-calendar-days' },
+    { key: 'uc-ay',       ad: 'Kararlı',        minPuan: 650,  minGun: 45,  ico: 'fa-solid fa-person-walking' },
+    { key: 'alti-ay',     ad: 'Dayanıklı',      minPuan: 1200, minGun: 90,  ico: 'fa-solid fa-person-running' },
+    { key: 'bir-yil',     ad: 'Güçlü',          minPuan: 1900, minGun: 180, ico: 'fa-solid fa-mountain' },
+    { key: 'iki-yil',     ad: 'Usta',           minPuan: 2800, minGun: 365, ico: 'fa-solid fa-mountain-sun' },
+    { key: 'kendi-yolun', ad: 'Kendi Yolunda',  minPuan: 3800, minGun: 500, ico: 'fa-solid fa-route' }
   ];
+  /* Eski ad korunuyor: `esik` alanına bakan çağıran kalmadı ama dizinin
+     kendisine `BASAMAKLAR` diye bakan olabilir. */
+  var BASAMAKLAR = KADEMELER;
 
   /* ==================================================================
      2 · AİLELER — her ailenin TEK ölçülebilir kaynağı vardır
@@ -140,9 +170,9 @@
     /* --- Mesafe ve adım ---------------------------------------------- */
     { slug:'km-10',    ad:'İlk 10 km',    aile:'mesafe', ico:'fa-solid fa-route',        basamak:'ilk-hafta', puan:25,  olcut:'km',   hedef:10,     nasil:'Ölçülmüş toplam mesafen 10 kilometreye ulaşsın.' },
     { slug:'km-100',   ad:'100 km',       aile:'mesafe', ico:'fa-solid fa-road',         basamak:'ilk-ay',    puan:100, olcut:'km',   hedef:100,    nasil:'Ölçülmüş toplam mesafen 100 kilometreye ulaşsın.' },
-    { slug:'km-500',   ad:'500 km',       aile:'mesafe', ico:'fa-solid fa-flag',         basamak:'uc-ay',     puan:250, olcut:'km',   hedef:500,    nasil:'Ölçülmüş toplam mesafen 500 kilometreye ulaşsın.' },
+    { slug:'km-500',   ad:'500 km',       aile:'mesafe', ico:'fa-solid fa-flag',         basamak:'kendi-yolun', puan:250, olcut:'km', hedef:500,    nasil:'Ölçülmüş toplam mesafen 500 kilometreye ulaşsın.' },
     { slug:'adim-100k',ad:'100.000 Adım', aile:'mesafe', ico:'fa-solid fa-shoe-prints',  basamak:'ilk-ay',    puan:100, olcut:'adim', hedef:100000, nasil:'Cihazdan gelen toplam adımın 100.000’e ulaşsın.' },
-    { slug:'adim-1m',  ad:'1 Milyon Adım',aile:'mesafe', ico:'fa-solid fa-person-hiking',basamak:'alti-ay',   puan:250, olcut:'adim', hedef:1000000,nasil:'Cihazdan gelen toplam adımın 1.000.000’e ulaşsın.' },
+    { slug:'adim-1m',  ad:'1 Milyon Adım',aile:'mesafe', ico:'fa-solid fa-person-hiking',basamak:'iki-yil',   puan:250, olcut:'adim', hedef:1000000,nasil:'Cihazdan gelen toplam adımın 1.000.000’e ulaşsın.' },
 
     /* --- Su (R15/7) — ölçü FIT_SU'dan, seri challenge motorunun alışkanlık
            hesabından. Hedef antrenman yapılan günde yükseldiği için "tuttu"
@@ -390,22 +420,74 @@
     };
   }
 
-  /* Yolculuk — aktif gün sayısına göre basamak. */
-  function yolculuk() {
-    var m = olcular(), i = -1;
-    BASAMAKLAR.forEach(function (b, ix) { if (m.aktifGun >= b.esik) i = ix; });
-    var simdiki = i >= 0 ? BASAMAKLAR[i] : null;
-    var sonraki = BASAMAKLAR[i + 1] || null;
-    var alt = simdiki ? simdiki.esik : 0;
-    var ust = sonraki ? sonraki.esik : (simdiki ? simdiki.esik : 1);
-    var oran = sonraki ? Math.min(100, Math.round((m.aktifGun - alt) / (ust - alt) * 100)) : 100;
+  /* ==================================================================
+     KADEME — iki ölçütlü, Gastro'nun TierLadder::resolve deseni
+     ------------------------------------------------------------------
+     Üye, PUAN eşiğini VE AKTİF GÜN barajını birlikte geçtiği EN YÜKSEK
+     kademeye yerleşir. Tek ölçüt yeterli olsaydı kademe "çok rozet
+     açtım" ile atlanırdı; ikinci baraj onu sürdürmeye bağlıyor.
+
+     `kademe()` KABUĞUN OKUDUĞU YÜZEYDİR (profil kartı · hesabım).
+     Döndürdüğü şekil sabittir; alan adı değiştirilmez.
+     ================================================================== */
+  function kademe() {
+    var m = olcular(), p = puan(), i = -1;
+    KADEMELER.forEach(function (k, ix) {
+      if (p >= k.minPuan && m.aktifGun >= k.minGun) i = ix;
+    });
+    var simdiki = i >= 0 ? KADEMELER[i] : null;
+    var sonraki = KADEMELER[i + 1] || null;
+
+    /* İlerleme İKİ EKSENLİ olduğu için tek bir yüzde YALAN olurdu:
+       puanı tamamlamış ama günü tamamlamamış biri "%100" görürdü.
+       Yüzde, iki eksenin DÜŞÜK olanıdır — asıl engel hangisiyse o. */
+    var puanOran = 100, gunOran = 100;
+    if (sonraki) {
+      var altP = simdiki ? simdiki.minPuan : 0, altG = simdiki ? simdiki.minGun : 0;
+      puanOran = sonraki.minPuan > altP ? Math.min(100, Math.round((p - altP) / (sonraki.minPuan - altP) * 100)) : 100;
+      gunOran  = sonraki.minGun  > altG ? Math.min(100, Math.round((m.aktifGun - altG) / (sonraki.minGun - altG) * 100)) : 100;
+      if (puanOran < 0) puanOran = 0;
+      if (gunOran  < 0) gunOran  = 0;
+    }
+    var kalanPuan = sonraki ? Math.max(0, sonraki.minPuan - p) : 0;
+    var kalanGun  = sonraki ? Math.max(0, sonraki.minGun - m.aktifGun) : 0;
+
     return {
-      basamaklar: BASAMAKLAR, indeks: i, simdiki: simdiki, sonraki: sonraki,
-      aktifGun: m.aktifGun, oran: oran,
-      kalan: sonraki ? Math.max(0, sonraki.esik - m.aktifGun) : 0,
-      toplamDk: m.toplamDk, puan: puan()
+      ad: simdiki ? simdiki.ad : 'Kademesiz',
+      key: simdiki ? simdiki.key : null,
+      ico: simdiki ? simdiki.ico : 'fa-solid fa-medal',
+      sira: i + 1,                       /* 1 tabanlı; kademesizse 0 */
+      toplam: KADEMELER.length,
+      puan: p,
+      aktifGun: m.aktifGun,
+      sonraki: sonraki ? { ad: sonraki.ad, key: sonraki.key, ico: sonraki.ico,
+                           minPuan: sonraki.minPuan, minGun: sonraki.minGun } : null,
+      kalanPuan: kalanPuan,
+      kalanGun: kalanGun,
+      oran: sonraki ? Math.min(puanOran, gunOran) : 100,
+      puanOran: puanOran, gunOran: gunOran,
+      /* Sonraki kademeye engel olan eksen — ekran hangisini söyleyeceğini
+         tahmin etmesin diye burada karara bağlanıyor. */
+      engel: !sonraki ? null : (kalanPuan > 0 && kalanGun > 0) ? 'ikisi'
+             : kalanPuan > 0 ? 'puan' : kalanGun > 0 ? 'gun' : null,
+      kademeler: KADEMELER
     };
   }
+
+  /* Yolculuk — kademe merdiveninin ekran görünümü. Geriye dönük ad. */
+  /* Yolculuk — aktif gün sayısına göre basamak. */
+  function yolculuk() {
+    var k = kademe(), m = olcular();
+    return {
+      basamaklar: KADEMELER, kademeler: KADEMELER,
+      indeks: k.sira - 1, simdiki: k.key ? KADEMELER[k.sira - 1] : null,
+      sonraki: k.sonraki ? KADEMELER[k.sira] : null,
+      aktifGun: m.aktifGun, oran: k.oran,
+      kalan: k.kalanGun, kalanPuan: k.kalanPuan, engel: k.engel,
+      toplamDk: m.toplamDk, puan: k.puan
+    };
+  }
+
 
   /* ==================================================================
      8 · LİDERLİK — 🔴 MAKET, dürüstçe işaretli
@@ -482,9 +564,9 @@
   }
 
   kok.FIT_ROZET = {
-    KATALOG: KATALOG, AILELER: AILELER, BASAMAKLAR: BASAMAKLAR,
+    KATALOG: KATALOG, AILELER: AILELER, BASAMAKLAR: BASAMAKLAR, KADEMELER: KADEMELER,
     olcular: olcular, degerlendir: degerlendir, liste: liste, ozet: ozet,
-    puan: puan, yolculuk: yolculuk, liderlik: liderlik,
+    puan: puan, kademe: kademe, yolculuk: yolculuk, liderlik: liderlik,
     gorulduIsaretle: gorulduIsaretle, dinle: dinle, oku: oku,
     temizle: function () { try { kok.localStorage.removeItem(KEY); } catch (e) {} yaz(bos()); }
   };

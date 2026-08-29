@@ -1517,7 +1517,11 @@ if(_modul){
      Alan ileride gelirse burası onu okur; gelene kadar paketsiz hesabın
      doğru kademesi Ücretsiz'dir (K6 geri alındıktan sonra iki kademe var:
      Ücretsiz · Pro). Sayı uydurulmadı, varsayılan durum yazıldı. */
-  var mKademe = (function(){
+  /* ⚠ ADLANDIRMA DÜZELTİLDİ: bu rozet PAKETİ gösteriyor, kademeyi değil.
+     Değişken `mKademe` adını taşıyordu ve yanına gerçek kademe rozeti
+     gelince iki ayrı şey aynı adı paylaşacaktı — Beyar'ın açıkça uyardığı
+     karışıklık ("paket satın alınır, kademe kazanılır"). */
+  var mPaket = (function(){
     try{
       var u = JSON.parse(localStorage.getItem('dm_user')||'null');
       return {pro:'Pro', pro_max:'Pro Max'}[u && u.paket] || 'Ücretsiz';
@@ -1550,7 +1554,15 @@ if(_modul){
    '    <div class="fp-kimlik">\n'+
    '      <span class="fp-ava2" style="background-image:url(\''+AVA+'\')"></span>\n'+
    '      <div class="fp-kimlik-id">\n'+
-   '        <h1>'+FIT_USER.ad+' <span class="fp-badge is-kademe"><i class="fa-solid fa-medal" aria-hidden="true"></i> '+mKademe+'</span></h1>\n'+
+   /* İKİ AYRI ROZET, YAN YANA:
+        paket  — satın alınır, `dm_user.paket`ten okunur, ikon fa-crown
+        kademe — kazanılır, `FIT_ROZET.kademe()`den gelir, ikon kendi ailesinden
+      Kademe burada BOŞ basılıyor ve motor yüklenince aşağıdaki blok
+      dolduruyor: `fit-rozet.js` kabuktan SONRA yükleniyor, burada
+      okumaya çalışmak her sayfada "Kademesiz" yazdırırdı. */
+   '        <h1>'+FIT_USER.ad+
+   ' <span class="fp-badge is-paket"><i class="fa-solid fa-crown" aria-hidden="true"></i> '+mPaket+'</span>'+
+   ' <span class="fp-badge is-kademe" data-kademe hidden></span></h1>\n'+
    '        <span class="fp-handle2"><span class="fp-uad">'+FIT_USER.handle+'</span></span>\n'+
    '        <div class="fp-kimlik-meta">\n'+
    '          <span><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Üyelik tarihi '+YOK+'</span>\n'+
@@ -1595,6 +1607,18 @@ if(_modul){
         var meta = document.querySelector('.fp-kimlik-meta span:last-child');
         if(meta && R.ozet) meta.innerHTML =
           '<i class="fa-solid fa-award" aria-hidden="true"></i> Rozet ' + R.ozet().kazanildi;
+
+        /* KADEME ROZETİ — paket rozetinin YANINA. Kademesizken (sira 0)
+           basılmıyor: olmayan bir kademeyi rozetle göstermek yalan olurdu. */
+        var kb = document.querySelector('[data-kademe]');
+        if(kb && R.kademe){
+          var k = R.kademe();
+          if(k && k.sira){
+            kb.innerHTML = '<i class="'+(k.ico||'fa-solid fa-ranking-star')+'" aria-hidden="true"></i> '+k.ad;
+            kb.setAttribute('title', k.ad+' — '+k.sira+'/'+k.toplam+' kademe');
+            kb.hidden = false;
+          } else { kb.hidden = true; }
+        }
       }catch(e){}
     }
     rozetBas();
@@ -3020,8 +3044,17 @@ setTimeout(function(){
     randevuAl:function(r){
       var s=read();
       s.randevular = s.randevular || [];
+      /* R15 · Ajan 5'in ölçümü: `durum` gelse bile YOK SAYILIYORDU, her
+         randevu sabit 'onay-bekliyor' oluyordu. Sonuç: "Onaylandı" ya da
+         "Tamamlandı" hiçbir zaman doğal yoldan doğmuyor, ancak
+         `randevuDurum(i,d)` ile elle kuruluyordu — yani ekranlar tek bir
+         hâli gösterebiliyordu. Çağıran artık söyleyebilir; söylemezse
+         varsayılan yine 'onay-bekliyor'. Bilinmeyen bir dizge kabul
+         edilmiyor: uydurma bir durum, olmayan bir rozet demek olurdu. */
+      var DURUMLAR = ['onay-bekliyor','onaylandi','tamamlandi','iptal','ertelendi','gelmedi'];
+      var d = (r && DURUMLAR.indexOf(r.durum) > -1) ? r.durum : 'onay-bekliyor';
       s.randevular.unshift({antrenor:r.antrenor, slug:r.slug, hizmet:r.hizmet, fiyat:r.fiyat,
-                            tarih:r.tarih, saat:r.saat, durum:'onay-bekliyor'});
+                            tarih:r.tarih, saat:r.saat, durum:d});
       return write(s);
     },
     randevuDurum:function(i,d){ var s=read(); if(s.randevular&&s.randevular[i])s.randevular[i].durum=d; return write(s); },

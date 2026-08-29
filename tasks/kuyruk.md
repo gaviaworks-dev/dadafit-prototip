@@ -67,7 +67,15 @@ Ayrıca üç sayfada düğme 96×43 → **96×45** (1px dokunma hedefi eksiğiyd
 6. **Ölü CSS** — `fit-planim.css`teki `.fpx-kol-*` kuralları koleksiyon
    kalkınca ölü kaldı. Regex denemesi dosyayı kırdı, geri alındı; düzgün bir
    CSS ayrıştırıcısıyla alınmalı.
-7. **`h1` semantiği** — modül sayfalarında `<h1>` sayfa adı değil kullanıcı adı
+7. **Kit boşluğu — `.fk-*` form kiti kabukta değil.** Ölçüldü: `.fk-cc*`
+   kuralları üç sayfada tekrarlanıyor (`giris-v1` 36 · `hesabim-v1` 32 ·
+   `odemelerim-v1` 30 geçiş). VERİ tek kaynakta (`fit-ulke.js`) ama GÖRÜNÜM
+   değil — bir ölçü düzeltilince üç dosya birden değişmesi gerekiyor.
+   Ajan 2 kabuğa yazamadığı için kopyalamak zorunda kaldı. `.fk-*` ·
+   `.form-card` · `.cc-*` · `.sub-tier-*` ailesiyle birlikte
+   `assets/css/fit-shell.css`e taşınmalı.
+   ⚠ Taşırken `docs/fit-kit.md` §7'yi de güncelle.
+8. **`h1` semantiği** — modül sayfalarında `<h1>` sayfa adı değil kullanıcı adı
    (kasıtlı). Sayfa adı breadcrumb, `<title>` ve sekme şeridinde.
 
 ---

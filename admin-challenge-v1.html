@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Challenge'lar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Kalıbın hiçbir parçası burada
+   tanımlanmaz; liste · süzgeç · tablo · sayfalama fit-admin.css'te. */
+.chf-alan{display:none}
+.chf-alan.is-on{display:block}
+</style>
+</head>
+<body class="adm-body" data-adm="challenge">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Challenge'lar</h2>
+        <p>Üç tip: süreli hedef, egzersiz serisi ve alışkanlık. Tip seçimi hedef
+           alanlarını değiştirir — üç ayrı form değil, tek form.</p>
+      </div>
+      <div class="h-acts">
+        <button class="btn btn-primary" type="button" id="chYeni"><i class="fa-solid fa-plus"></i> Yeni challenge</button>
+      </div>
+    </div>
+
+    <div id="chKaynak"></div>
+
+    <!-- ============ LİSTE (K1) ============ -->
+    <div class="adm-card" id="chListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-trophy"></i> Katalog</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="chAra">Challenge ara</label>
+          <input class="fk-input" type="search" id="chAra" placeholder="Ad ya da slug ara" style="min-width:230px" />
+        </div>
+      </div>
+
+      <!-- Süzgeç: kabuğun ORTAK bileşeni. Sayfa yalnız .fgroup yazar,
+           açılır menüyü ve aktif çip şeridini kabuk kurar. -->
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="chSuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="chBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="aktif"><i class="fa-solid fa-play"></i> Aktife al</button>
+          <button class="btn btn-ghost" type="button" data-toplu="yaklasan"><i class="fa-regular fa-clock"></i> Yaklaşana al</button>
+          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="chTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Challenge</th><th>Tip</th><th class="num">Süre</th>
+                <th>Hedef</th><th class="num">Ödül</th><th>Durum</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="chGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="chSay">0</b> challenge · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FORM (K4) — tip seçimi hedef alanlarını değiştirir ============ -->
+    <div class="adm-card" id="chForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="chFormBaslik">Yeni challenge</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="chKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="chF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="cfAd">Ad <span class="req">*</span></label>
+              <input class="fk-input" id="cfAd" name="ad" required maxlength="80" placeholder="30 Günde Hareket Alışkanlığı" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="cfSlug">Slug <span class="req">*</span></label>
+              <input class="fk-input" id="cfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="hareket-aliskanligi" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız küçük harf, rakam ve tire. Adres bundan üretilir.</span>
+            </div>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="cfTip">Tip <span class="req">*</span></label>
+              <select class="fk-select" id="cfTip" name="tip" required></select>
+              <span class="fk-help" id="cfTipNot"><i class="fa-solid fa-circle-info"></i> —</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="cfGun">Süre (gün) <span class="req">*</span></label>
+              <input class="fk-input" id="cfGun" name="gun" type="number" min="1" max="365" required placeholder="30" />
+            </div>
+          </div>
+
+          <!-- HEDEF ALANLARI — tipe göre. Üç tip üç ayrı şey ölçtüğü için tek
+               alan kümesi yetmez; motorun TIP tablosu bunu zaten söylüyor. -->
+          <div class="chf-alan" data-tip="sureli">
+            <div class="fk-grid c2">
+              <div class="fk-field">
+                <label class="fk-label" for="cfBirim">Ölçü birimi <span class="req">*</span></label>
+                <select class="fk-select" id="cfBirim" name="birim">
+                  <option value="tekrar">tekrar</option>
+                  <option value="set">set</option>
+                  <option value="dk">dakika</option>
+                  <option value="kg">kilogram (hacim)</option>
+                </select>
+                <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız uygulamanın gerçekten ölçtüğü birimler listelenir.</span>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="cfDeger">Hedef değer <span class="req">*</span></label>
+                <input class="fk-input" id="cfDeger" name="deger" type="number" min="1" placeholder="1000" />
+              </div>
+            </div>
+          </div>
+
+          <div class="chf-alan" data-tip="seri">
+            <div class="fk-field">
+              <label class="fk-label" for="cfAdimlar">Adımlar <span class="req">*</span></label>
+              <textarea class="fk-textarea" id="cfAdimlar" name="adimlar" rows="5"
+                        placeholder="kopru&#10;superman&#10;hava-squat"></textarea>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Her satıra bir egzersiz slug'ı. Sıra korunur: bir adım, kendinden
+                öncekiler kapanmadan kapanmaz. Slug'lar hareket kütüphanesinde
+                bulunmak zorundadır.</span>
+            </div>
+          </div>
+
+          <div class="chf-alan" data-tip="aliskanlik">
+            <div class="fk-field">
+              <span class="fk-label">Hedef</span>
+              <p style="font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">
+                Alışkanlık challenge'ında ayrı bir hedef alanı yoktur — hedef,
+                yukarıdaki <b>süre</b> kadar günü işaretlemektir. Telafi hakkı
+                motorda tanımlıdır (<b id="cfTelafi">—</b> gün/ay) ve challenge
+                başına değişmez.
+              </p>
+            </div>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="cfPuan">Ödül puanı <span class="req">*</span></label>
+              <input class="fk-input" id="cfPuan" name="puan" type="number" min="0" required placeholder="250" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="cfDurum">Durum <span class="req">*</span></label>
+              <select class="fk-select" id="cfDurum" name="durum" required>
+                <option value="aktif">Aktif</option>
+                <option value="yaklasan">Yaklaşan</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="cfOzet">Kısa özet <span class="req">*</span></label>
+            <textarea class="fk-textarea" id="cfOzet" name="ozet" rows="3" required maxlength="180"
+                      placeholder="Kart üstünde görünen tek cümle."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <div class="c-acts" style="margin-left:0">
+          <button class="btn btn-primary" type="button" id="chKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-challenge.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · CHALLENGE'LAR   (R16/2)   — K1 liste + K4 form referansı
+   ---------------------------------------------------------------------
+   Bu ekran kalıbın referansıdır; kalan liste ekranları bunu kopyalar.
+
+   VERİ GERÇEK. Katalog `fit-challenge.js`ten okunuyor — ikinci bir kopya
+   tutulmuyor. Şartname "challenge'ı admin oluşturur" diyor; bu ekran o
+   yazma ucunun YÜZEYİ, arkası henüz yok ve bunu dürüstçe söylüyor.
+
+   FORM TEK, ALANLAR TİPE GÖRE. Motorun `TIP` tablosu üç tipin ne ölçtüğünü
+   zaten tanımlıyor: `sureli` → metrik + değer, `seri` → adım listesi,
+   `aliskanlik` → gün. Üç ayrı form yazmak, o tabloyu dördüncü kez
+   tekrarlamak olurdu.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, C = window.FIT_CHALLENGE;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  document.getElementById('chKaynak').innerHTML = A.kaynak('canli',
+    '<b>Liste gerçek.</b> Katalog <code>fit-challenge.js</code>ten okunuyor — ' +
+    'sitedeki üç challenge sayfası da aynı diziden besleniyor, burada ikinci bir ' +
+    'kopya yok. <b>Yazma yüzeyi maket:</b> form doğrulanır ama kayıt gitmez, ' +
+    'bu prototipte sunucu yok. Panel gerçek yazmayı getirdiğinde bu şerit kalkar.');
+
+  if (!C) {
+    document.getElementById('chGovde').innerHTML = '<tr><td colspan="8">' +
+      A.bos('fa-trophy', 'Challenge motoru yüklenmedi',
+            'Katalog fit-challenge.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
+    return;
+  }
+
+  /* ---------- süzgeç: katalogdan doğar (challenge-merkezi ile aynı desen) ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('chSuzgec');
+    var tipler = [], durumlar = [];
+    C.KATALOG.forEach(function (k) {
+      if (tipler.indexOf(k.tip) < 0) tipler.push(k.tip);
+      if (durumlar.indexOf(k.durum) < 0) durumlar.push(k.durum);
+    });
+    var DURUM_AD = { aktif:'Aktif', yaklasan:'Yaklaşan' };
+    var DURUM_IKO = { aktif:'fa-solid fa-play', yaklasan:'fa-regular fa-clock' };
+    kok.innerHTML =
+      '<div class="fgroup" data-group="tip" role="group" aria-label="Tip filtresi">' +
+        '<span class="lbl">Tip</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        tipler.map(function (t) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(t) + '">' +
+                 '<i class="' + C.TIP[t].ikon + '"></i> ' + esc(C.TIP[t].etiket) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        durumlar.map(function (d) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(d) + '">' +
+                 '<i class="' + DURUM_IKO[d] + '"></i> ' + esc(DURUM_AD[d] || d) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { tip:new Set(), durum:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+
+  function suz(sec){
+    var say = 0;
+    document.querySelectorAll('#chGovde tr[data-slug]').forEach(function (tr) {
+      var ok = (!sec.tip.size   || sec.tip.has(tr.getAttribute('data-tip'))) &&
+               (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('chSay').textContent = say;
+  }
+
+  /* ---------- liste ---------- */
+  function listeBas(){
+    document.getElementById('chGovde').innerHTML = C.KATALOG.map(function (k) {
+      var t = C.TIP[k.tip];
+      var hedef = k.tip === 'sureli' ? n(k.hedef.deger) + ' ' + esc(k.hedef.ad)
+                : k.tip === 'seri'   ? k.adimlar.length + ' adım'
+                : k.gun + ' gün işaretle';
+      var d = k.durum === 'aktif' ? A.rozet('ok', 'Aktif', 'fa-play')
+                                  : A.rozet('wait', 'Yaklaşan', 'fa-clock');
+      return '<tr data-slug="' + esc(k.slug) + '" data-tip="' + esc(k.tip) + '" data-durum="' + esc(k.durum) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(k.ad) + ' seç" /></td>' +
+        '<td><b>' + esc(k.ad) + '</b><small>' + esc(k.slug) + '</small></td>' +
+        '<td><i class="' + t.ikon + '" aria-hidden="true"></i> ' + esc(t.etiket) + '</td>' +
+        '<td class="num">' + k.gun + ' gün</td>' +
+        '<td>' + hedef + '</td>' +
+        '<td class="num">+' + k.odul.puan + '</td>' +
+        '<td>' + d + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="challenge-v1.html?slug=' + esc(k.slug) + '" target="_blank" rel="noopener" aria-label="Sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(k.slug) + '" aria-label="Düzenle"><i class="fa-solid fa-pen"></i></button>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('chSay').textContent = C.KATALOG.length;
+    A.secimKur(document.getElementById('chListe'));
+    A.aramaKur(document.getElementById('chAra'), document.getElementById('chTablo'), document.getElementById('chSay'));
+  }
+
+  /* ---------- form ---------- */
+  var form = document.getElementById('chForm');
+  var tipSec = document.getElementById('cfTip');
+  tipSec.innerHTML = Object.keys(C.TIP).map(function (t) {
+    return '<option value="' + t + '">' + esc(C.TIP[t].etiket) + '</option>';
+  }).join('');
+  document.getElementById('cfTelafi').textContent = C.TELAFI_HAKKI;
+
+  function tipUygula(){
+    var t = tipSec.value;
+    document.querySelectorAll('.chf-alan').forEach(function (el) {
+      el.classList.toggle('is-on', el.getAttribute('data-tip') === t);
+      /* Gizli alan ZORUNLU KALMAZ — gizli-zorunlu bir alan formu sessizce
+         kilitler ve kullanıcı neyin eksik olduğunu göremez. */
+      el.querySelectorAll('input,select,textarea').forEach(function (g) {
+        g.required = (el.getAttribute('data-tip') === t) && g.hasAttribute('data-zorunlu');
+      });
+    });
+    document.getElementById('cfTipNot').innerHTML =
+      '<i class="fa-solid fa-circle-info"></i> ' + esc(C.TIP[t].aciklama + ' ' + C.TIP[t].kanit);
+  }
+  document.querySelectorAll('[data-tip="sureli"] input,[data-tip="sureli"] select,[data-tip="seri"] textarea')
+    .forEach(function (g) { g.setAttribute('data-zorunlu', '1'); });
+  tipSec.addEventListener('change', tipUygula);
+
+  function formAc(slug){
+    var k = slug ? C.bul(slug) : null;
+    document.getElementById('chFormBaslik').textContent = k ? ('Düzenle: ' + k.ad) : 'Yeni challenge';
+    document.getElementById('cfAd').value   = k ? k.ad : '';
+    document.getElementById('cfSlug').value = k ? k.slug : '';
+    document.getElementById('cfGun').value  = k ? k.gun : '';
+    document.getElementById('cfPuan').value = k ? k.odul.puan : '';
+    document.getElementById('cfOzet').value = k ? k.ozet : '';
+    document.getElementById('cfDurum').value = k ? k.durum : 'aktif';
+    tipSec.value = k ? k.tip : 'aliskanlik';
+    if (k && k.tip === 'sureli') {
+      document.getElementById('cfBirim').value = k.hedef.birim;
+      document.getElementById('cfDeger').value = k.hedef.deger;
+    }
+    if (k && k.tip === 'seri') {
+      document.getElementById('cfAdimlar').value = k.adimlar.map(function (a) { return a.slug; }).join('\n');
+    }
+    tipUygula();
+    form.hidden = false;
+    form.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  document.getElementById('chYeni').addEventListener('click', function () { formAc(null); });
+  document.getElementById('chKapat').addEventListener('click', function () { form.hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (b) formAc(b.getAttribute('data-duzenle'));
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (t) {
+      var s = document.querySelectorAll('#chGovde input[type=checkbox]:checked').length;
+      var not = document.getElementById('chBulk').querySelector('.b-acts');
+      var v = not.querySelector('.adm-maket-not');
+      if (!v) {
+        v = document.createElement('span'); v.className = 'adm-maket-not';
+        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        not.appendChild(v);
+      }
+      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+  A.maketKaydet(document.getElementById('chKaydet'), 'challenge');
+
+  suzgecKur();
+  listeBas();
+  tipUygula();
+})();
+</script>
+</body>
+</html>

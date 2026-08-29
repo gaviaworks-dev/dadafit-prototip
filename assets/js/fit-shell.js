@@ -2307,6 +2307,14 @@ document.addEventListener('click',function(e){
   var overlay=document.getElementById('drawerOverlay');
   var burger=document.getElementById('hamburger');
   var closeBtn=document.getElementById('drawerClose');
+  /* R16/2 · PUBLIC KABUK YUVASIZ SAYFADA SESSİZCE ÇEKİLİR.
+     ÖLÇÜLEN KUSUR: yönetim paneli bu dosyayı YALNIZ ortak filtre bileşeni
+     (`.ff`) için yüklüyor; header/footer'ı basmıyor, dolayısıyla `#drawer`
+     ailesi yok. Blok onların varlığını varsayıyordu ve `null.addEventListener`
+     ile PATLIYORDU — dosyanın geri kalanı hiç koşmuyor, `FIT_SHELL.filtreKur`
+     hiç tanımlanmıyordu (ölçüldü: admin sayfasında facet düğmesi 0).
+     Bir kabuk, kendi bağlanacağı düğümü bulamadığında hata atmaz; çekilir. */
+  if(!drawer || !overlay || !burger || !closeBtn) return;
   /* durum korumalı aç/kapa — kilit sayacı yalnız gerçek geçişte hareket eder */
   var releaseFocus = null;                      /* §20 odak tuzağı bırakma işi */
   function open(){

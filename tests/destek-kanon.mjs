@@ -44,6 +44,13 @@
      node tests/destek-kanon.mjs http://localhost:8833
    ===================================================================== */
 import { chromium } from './_pw.mjs';
+/* 🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4 · §Ö (v1.10.0).
+   Bu nöbet §Ö öncesi işaretlemeyi kodluyordu: satırlar `.tk-item`/`.tk-row`,
+   süzgeç `.df-fchip`, rozet `.tk-badge st-*`. Şartname üçünü de değiştirdi:
+   §Ö7 liste kiti `.pnl-card > .pc-body > .set-list > a.set-row` (tablo ve
+   kendi satır kiti kullanılmaz) · §Ö4 süzgeç İKİNCİ `.pf-tabbar > .pf-tabs`
+   ve kalemler `a.dt` · §Ö24/§Ö25 rozet `.pstat` ve DÖRT durum DÖRT ayrı
+   sınıf. Ölçütler zayıflamadı, seçicileri kuralın söylediği kite taşındı. */
 const BASE = process.argv[2] || 'http://localhost:8811';
 const S={hub:'destek-v1.html',liste:'destek-talepleri-v1.html',detay:'destek-talebi-detay-v1.html'};
 let fail=0; const bad=m=>{fail++;console.log('  ✗ '+m)}; const ok=m=>console.log('  ✓ '+m);
@@ -77,17 +84,17 @@ console.log('\n2 · Dört durum · süzgeç · sayfalama');
   const {ctx,p,hata}=await sayfa(1440);
   await git(p,S.liste);
   const d=await p.evaluate(()=>{
-    const li=[...document.querySelectorAll('.tk-item')];
+    const li=[...document.querySelectorAll('#tkList .set-row')];
     const c={}; li.forEach(x=>{const k=x.getAttribute('data-durum');c[k]=(c[k]||0)+1});
     return {toplam:li.length,sayim:c,
-      cip:[...document.querySelectorAll('#tkFilter .df-fchip')].map(b=>b.getAttribute('data-f')),
-      cipMetin:[...document.querySelectorAll('#tkFilter .df-fchip')].map(b=>b.textContent.replace(/\s+/g,' ').trim()),
+      cip:[...document.querySelectorAll('#tkFilter .dt')].map(b=>b.getAttribute('data-f')),
+      cipMetin:[...document.querySelectorAll('#tkFilter .dt')].map(b=>b.textContent.replace(/\s+/g,' ').trim()),
       gorunur:li.filter(x=>!x.hidden).length,
       pagi:[...document.querySelectorAll('#tkPagi .pg')].map(b=>b.textContent.trim()||b.getAttribute('aria-label')),
       not:(document.querySelector('#tkPagi .pagi-note')||{}).textContent,
       tumuDurum:li.some(x=>x.getAttribute('data-durum')==='tumu'),
-      rozet:[...new Set(li.map(x=>x.querySelector('.tk-badge').className))],
-      etiket:[...new Set(li.map(x=>x.querySelector('.tk-badge').textContent.trim()))]
+      rozet:[...new Set(li.map(x=>x.querySelector('.pstat').className))],
+      etiket:[...new Set(li.map(x=>x.querySelector('.pstat').textContent.trim()))]
     };
   });
   console.log('   ', JSON.stringify(d.sayim), '· görünür', d.gorunur, '· sayfa düğmeleri', JSON.stringify(d.pagi));
@@ -104,9 +111,9 @@ console.log('\n2 · Dört durum · süzgeç · sayfalama');
   if(!fail) ok('12 talep · 4 durum · 5 çip · 10/sayfa · "tumu" hiçbir kartta yok');
 
   /* süzgeç sayfa değişiminde korunuyor mu */
-  await p.evaluate(()=>document.querySelector('#tkFilter .df-fchip[data-f="kapatilan"]').click());
+  await p.evaluate(()=>document.querySelector('#tkFilter .dt[data-f="kapatilan"]').click());
   await p.waitForTimeout(300);
-  const f=await p.evaluate(()=>({url:location.search,gor:[...document.querySelectorAll('.tk-item')].filter(x=>!x.hidden).length,
+  const f=await p.evaluate(()=>({url:location.search,gor:[...document.querySelectorAll('#tkList .set-row')].filter(x=>!x.hidden).length,
     not:(document.querySelector('#tkPagi .pagi-note')||{}).textContent}));
   if(f.url!=='?durum=kapatilan') bad('süzgeç adrese yazılmadı: '+f.url);
   if(f.gor!==4) bad('kapatılan süzgecinde '+f.gor+' satır, 4 bekleniyordu');
@@ -114,8 +121,8 @@ console.log('\n2 · Dört durum · süzgeç · sayfalama');
 
   /* geçersiz eski değer sessizce "tümü"ye düşer */
   await git(p,S.liste+'?durum=yanitlandi');
-  const g=await p.evaluate(()=>({on:document.querySelector('#tkFilter .df-fchip.on').getAttribute('data-f'),
-    gor:[...document.querySelectorAll('.tk-item')].filter(x=>!x.hidden).length}));
+  const g=await p.evaluate(()=>({on:document.querySelector('#tkFilter .dt.active').getAttribute('data-f'),
+    gor:[...document.querySelectorAll('#tkList .set-row')].filter(x=>!x.hidden).length}));
   if(g.on!=='tumu') bad('eski değer "yanitlandi" tümüye düşmedi: '+g.on);
   else ok('geçersiz/eski ?durum= sessizce "tumu"ya düştü ('+g.gor+' satır)');
   if(hata.length) bad('konsol: '+hata.join(' | '));
@@ -128,12 +135,12 @@ console.log('\n3 · Rozet genişliği · başlık öğesi');
   const {ctx,p}=await sayfa(1440);
   await git(p,S.liste);
   const m=await p.evaluate(()=>{
-    /* .tk-badge white-space:nowrap taşıyor → SARMAZ; ölçülecek olan METNİN
+    /* .pstat white-space:nowrap taşıyor → SARMAZ; ölçülecek olan METNİN
        152px kolona SIĞIP sığmadığıdır: scrollWidth > clientWidth taşmadır.
        Kutunun kendisi grid hücresine gerildiği için genişliği hep 152'dir,
        o yüzden kutu genişliği ölçüt DEĞİLDİR. */
-    const w=[...document.querySelectorAll('.tk-item:not([hidden]) .tk-badge')].map(b=>({t:b.textContent.trim(),w:b.scrollWidth,c:b.clientWidth,h:Math.round(b.getBoundingClientRect().height)}));
-    return {rozet:w, kolon:Math.round(document.querySelector('.tk-item:not([hidden]) .tk-row').getBoundingClientRect().width),
+    const w=[...document.querySelectorAll('#tkList .set-row:not([hidden]) .pstat')].map(b=>({t:b.textContent.trim(),w:b.scrollWidth,c:b.clientWidth,h:Math.round(b.getBoundingClientRect().height)}));
+    return {rozet:w, kolon:Math.round(document.querySelector('#tkList .set-row:not([hidden])').getBoundingClientRect().width),
       h2:[...document.querySelectorAll('h2')].map(x=>x.textContent.replace(/\s+/g,' ').trim()),
       h1:document.querySelectorAll('h1').length};
   });
@@ -153,7 +160,8 @@ console.log('\n4 · Geçiş kuralları ekranda');
   const {ctx,p,hata}=await sayfa(1440);
   const durumOku=()=>p.evaluate(()=>({
     durum:document.querySelector('.tk-t:not([hidden])').dataset.status,
-    rozet:document.getElementById('tkBadge').textContent.trim(),
+    /* §Ö2 · banner kalktı; rozet §Ö17'nin "Talep Bilgileri" kartında. */
+    rozet:document.getElementById('mBadge').textContent.trim(),
     kapat:!document.getElementById('tkCloseBtn').hidden,
     yeniden:!document.getElementById('tkReopenBtn').hidden,
     form:!document.getElementById('tkReplyForm').hidden,
@@ -224,7 +232,7 @@ console.log('\n5 · Talep numarası kalıbı ve ek dosya alanı');
   const {ctx,p,hata}=await sayfa(1440);
   await git(p,S.liste);
   const ALF='ABCDEFGHJKLMNPQRTUVWXYZ2346789';
-  const nums=await p.evaluate(()=>[...document.querySelectorAll('.tk-item')].map(x=>x.getAttribute('data-no')));
+  const nums=await p.evaluate(()=>[...document.querySelectorAll('#tkList .set-row')].map(x=>x.getAttribute('data-no')));
   const kotu=nums.filter(n=>!/^DF-2026-[A-Z0-9]{6}$/.test(n)||[...n.slice(8)].some(c=>!ALF.includes(c)));
   if(kotu.length) bad('kalıba uymayan numara: '+kotu.join(', ')); else ok('12 numaranın 12\'si DF-2026-<6 karakter>, I·O·S·0·1·5 yok');
   /* yeni talep gönder */
@@ -235,10 +243,10 @@ console.log('\n5 · Talep numarası kalıbı ve ek dosya alanı');
   });
   await p.evaluate(()=>document.getElementById('tkForm').dispatchEvent(new Event('submit',{cancelable:true})));
   await p.waitForTimeout(400);
-  const y=await p.evaluate(()=>({no:document.querySelector('.tk-item').getAttribute('data-no'),
-    durum:document.querySelector('.tk-item').getAttribute('data-durum'),
-    rozet:document.querySelector('.tk-item .tk-badge').textContent.trim(),
-    toplam:document.querySelectorAll('.tk-item').length,
+  const y=await p.evaluate(()=>({no:document.querySelector('#tkList .set-row').getAttribute('data-no'),
+    durum:document.querySelector('#tkList .set-row').getAttribute('data-durum'),
+    rozet:document.querySelector('#tkList .set-row .pstat').textContent.trim(),
+    toplam:document.querySelectorAll('#tkList .set-row').length,
     not:(document.querySelector('#tkPagi .pagi-note')||{}).textContent}));
   console.log('    yeni talep:',JSON.stringify(y));
   if(!/^DF-2026-[ABCDEFGHJKLMNPQRTUVWXYZ2346789]{6}$/.test(y.no)) bad('üretilen numara kalıp dışı: '+y.no);
@@ -317,10 +325,12 @@ console.log('\n7 · Aktör ayrımı (ÜYE / DESTEK) ve yazışmanın durumu doğ
   }
   /* yazışma, durumu doğruluyor mu */
   const tut=await p.evaluate(()=>[...document.querySelectorAll('.tk-t')].map(t=>{
-    const ms=[...t.querySelectorAll('.tk-thread > .tk-msg')];
+    const ms=[...t.querySelectorAll('.bub-list > .bub')];
     const son=ms.filter(m=>!m.classList.contains('is-sys')).pop();
     return {no:t.dataset.tk,durum:t.dataset.status,
-      sonSoz:son&&son.classList.contains('is-team')?'destek':'uye',
+      /* §Ö20 · gönderen ayrımı sınıfı: gelen '.bub.in' (destek ekibi),
+         giden '.bub.out' (üye). Eski 'is-team'/'is-me' adları kalktı. */
+      sonSoz:son&&son.classList.contains('in')?'destek':'uye',
       sonSatir:ms[ms.length-1].classList.contains('is-sys')
         ? ms[ms.length-1].textContent.replace(/\s+/g,' ').trim().split('·')[0].trim() : null};
   }));

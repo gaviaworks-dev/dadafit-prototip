@@ -77,7 +77,11 @@ const BANNER = [
      zemin rgb(27,25,19) · `body[data-fit-over="1"]` · header at-top şeffaf.
      İkisi de hâlâ fotoğrafsız düz koyu banner (`--lib-img:none`) — BANNER'a
      eklendi. `hesabim-v1.html` aşağıdaki PLAIN listesinde. */
-  'destek-v1.html',
+  /* 🔴 destek-v1.html BURADAN ÇIKTI — Dalga 4 · §Ö2 (v1.10.0): destek
+     merkezinin kabuğu MODÜL SAYFASI kalıbıdır, banner ailesi DEĞİL.
+     `.lib-top` söküldü, over-mode kendiliğinden düştü ve header katı
+     kaldı — `hesabim-v1`/`profil-v1` ile aynı kalıp. Sayfa denetimsiz
+     bırakılmadı: aşağıdaki PLAIN listesine, iki kardeşiyle birlikte geçti. */
   'pro-v1.html'
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
@@ -91,7 +95,12 @@ const PLAIN = [
      ölçüldü (@1440): `.lib-top` YOK · `.fp-profil` VAR ·
      `body[data-fit-over]` null · header solid beyaz — over-mode kendiliğinden
      düştü, ayrı bir kabuk değişikliği gerekmedi. `profil-v1`/K23 kalıbı. */
-  'hesabim-v1.html'
+  'hesabim-v1.html',
+  /* §Ö2 · destek merkezinin üç ekranı da modül sayfası kalıbına geçti;
+     banner taşımazlar, header katı kalır. */
+  'destek-v1.html',
+  'destek-talepleri-v1.html',
+  'destek-talebi-detay-v1.html'
 ];
 
 const TRANSPARENT = /rgba\(0,\s*0,\s*0,\s*0\)|transparent/;

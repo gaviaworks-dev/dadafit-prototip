@@ -18,8 +18,11 @@
       İki ad iki AYRI sayfaya dağıldı; hesap menüsünün "Destek Merkezi"
       kalemi artık aynı adı taşıyan sayfaya iniyor. Kayıt güncellendi,
       testin kendisi zayıflatılmadı.
-   2  SEKME RAYI iki sayfada da var: tam 2 sekme, hedefleri iki akış,
-      tam 1 tanesi aktif ve aktif olanda aria-current="page".
+   2  SEKME RAYI iki sayfada da var. 🔴 ŞARTNAMEYE ÇEKİLDİ — §Ö3 (v1.10.0):
+      ray ÜÇ kalemdir (Destek Taleplerim · Yeni Destek Talebi · Çözüm
+      Merkezi), iki değil. Üçüncü kalem Fit'te `sss-v1.html`e iner — ad
+      kanonu 2026-08-26'da "Çözüm Merkezi"ni oraya bağlamıştı, yeni ekran
+      üretilmedi. Aktiflik ölçütü DEĞİŞMEDİ: tam 1 aktif + aria-current.
    3  İSKELET EŞİTLİĞİ — destek-v1'in konu kartı, kardeş markadan
       taşınmış sss-v1.html'in kartıyla BİREBİR aynı computed değerleri
       taşır: .qa dolgu/yuvarlaklık/kenarlık/zemin, .qa-head dolgu +
@@ -102,24 +105,30 @@ console.log('\n2 · Sekme rayı — iki akış arasında geçiş');
   for(const s of [HUB, LISTE]){
     await git(p, s);
     const t = await p.evaluate(()=>{
+      /* §Ö3 · bölüm şeridi kabuktan gelir ve kalemleri `.fit-tab`tır;
+         durum süzgeci (§Ö4) İKİNCİ bir .pf-tabbar'dır ve o sayılmaz. */
       const bar = document.querySelector('.pf-tabbar');
       if(!bar) return null;
-      return [...bar.querySelectorAll('.dt')].map(a=>({
-        href:a.getAttribute('href'), aktif:a.classList.contains('active'),
+      return [...bar.querySelectorAll('.fit-tab, .dt')].map(a=>({
+        href:a.getAttribute('href'),
+        /* §F2/§Ö3 · aktiflik `aria-current="page"` ile verilir; kabuğun
+           ürettiği şeritte `.active` sınıfı yok, `aria-selected` var. */
+        aktif:a.getAttribute('aria-current')==='page',
         cur:a.getAttribute('aria-current'),
         metin:a.textContent.replace(/\s+/g,' ').trim()
       }));
     });
     if(!t){ rec(`2 · ${s}`, '.pf-tabbar YOK'); continue; }
-    if(t.length !== 2){ rec(`2 · ${s}`, `${t.length} sekme var, 2 bekleniyordu`); continue; }
+    if(t.length !== 3){ rec(`2 · ${s}`, `${t.length} sekme var, §Ö3 gereği 3 bekleniyordu`); continue; }
     const hedefler = t.map(x=>x.href).sort().join(' ');
-    if(hedefler !== [HUB, LISTE].sort().join(' '))
-      rec(`2 · ${s}`, `sekme hedefleri "${hedefler}" — beklenen "${[HUB,LISTE].sort().join(' ')}"`);
+    const beklenen = [HUB, LISTE, SSS].sort().join(' ');
+    if(hedefler !== beklenen)
+      rec(`2 · ${s}`, `sekme hedefleri "${hedefler}" — beklenen "${beklenen}"`);
     const aktifler = t.filter(x=>x.aktif);
     if(aktifler.length !== 1) rec(`2 · ${s}`, `aktif sekme sayısı ${aktifler.length}, 1 bekleniyordu`);
     else if(aktifler[0].href !== s) rec(`2 · ${s}`, `aktif sekme "${aktifler[0].href}" — bulunduğun sayfa değil`);
     else if(aktifler[0].cur !== 'page') rec(`2 · ${s}`, 'aktif sekmede aria-current="page" yok');
-    else ok(`${s} · 2 sekme · aktif "${aktifler[0].metin}" · aria-current=page`);
+    else ok(`${s} · 3 sekme (§Ö3) · aktif "${aktifler[0].metin}" · aria-current=page`);
   }
   await ctx.close();
 }
@@ -153,7 +162,13 @@ console.log('\n3 · Kart iskeleti · dolgu · tipografi — sss-v1 ile birebir')
   const b = await olc(SSS, '.faq-sec',  '.faq-cta-sec');
 
   /* İSKELET (kutu geometrisi) → kardeş markadan taşınmış sss-v1 ile birebir. */
-  const ISKELET = ['bandPad','tabPad','bodyPad','ctaPad','wrap','kart','kartAgac','basPad','govPad','cta','ico'];
+  /* 🔴 ŞARTNAMEYE ÇEKİLDİ — §Ö2 (v1.10.0). `bandPad` listeden ÇIKTI:
+     destek-v1 artık MODÜL SAYFASIDIR ve banner ailesi taşımaz, sss-v1 ise
+     herkese açık BELGE sayfası olarak banner'ını korur (§Ö3 onu yalnız
+     şeritten bağlar, kabuğunu değiştirmez). İki farklı kabuğun banner
+     dolgusunu kıyaslamak artık anlamsız. Kalan on ölçüt — kart kiti,
+     tipografi, gövde ve CTA dolguları — DEĞİŞMEDİ. */
+  const ISKELET = ['tabPad','bodyPad','ctaPad','wrap','kart','kartAgac','basPad','govPad','cta','ico'];
   for(const k of ISKELET){
     if(a[k] === 'YOK') { rec(`3 · ${HUB}`, `${k}: seçici bulunamadı`); continue; }
     if(a[k] !== b[k]) rec('3 · iskelet', `${k}: destek-v1 "${a[k]}" ≠ sss-v1 "${b[k]}"`);

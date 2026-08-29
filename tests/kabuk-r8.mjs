@@ -16,7 +16,7 @@
    3    Hareket dropdown'ında .dd-group (divider) 0; panel kalem sayısı 5.
    4    hareket-merkezi-v1.html'e giden bağlantı 0 (DOM'da, tüm sayfalarda)
         ve sayfa HTTP 404.
-   36   `.fp-gate` prototip uyarısı 0, misafir giriş CTA'sı 14/14 duruyor
+   36   `.fp-gate` prototip uyarısı 0, misafir giriş CTA'sı 17/17 duruyor
         (R9 · K66 — `fit-test-sonuclarim-v1` eklendi, bkz. §36 bloğu),
         data-lg-only iki durumda da doğru.
    5    Sayfa altı dipnot kutusu (.hr-note) kendi içerik kolonunu dolduruyor:
@@ -401,14 +401,16 @@ for (const w of [1440, 390]) {
       if (m.ov > 1) tasma++;
     }
     const et = `@${w}·auth=${auth}`;
-    /* data-lg-only: misafirde ON DÖRT sayfada görünür, girişte HİÇBİRİNDE.
-       R9 · K66 — sayı 13 → 14. Sebep gerileme değil, YENİ SAYFA:
-       `fit-test-sonuclarim-v1.html` üretildi ve açılır menüye bağlandı
-       (belge §2 "Fit Test Sonuçlarım"). Planım ailesinin bir üyesi olarak
-       kardeşleriyle aynı misafir kapısını taşıyor. Ölçüldü — 67 sayfa
-       gezildi, `.fp-gate` taşıyan tam 14 sayfanın hepsi Planım/Enerji
-       Defteri ailesinden; aile dışı hiçbir sayfaya gate sızmadı. */
-    const bek = auth === 0 ? 14 : 0;
+    /* data-lg-only: misafirde ON YEDİ sayfada görünür, girişte HİÇBİRİNDE.
+       R9 · K66 — sayı 13 → 14 (yeni sayfa `fit-test-sonuclarim-v1.html`).
+       🔴 ŞARTNAMEYE ÇEKİLDİ — Dalga 4 · §Ö2: sayı 14 → 17. Sebep yine
+       gerileme değil, KABUK DEĞİŞİMİ: üç destek ekranı (`destek-v1` ·
+       `destek-talepleri-v1` · `destek-talebi-detay-v1`) banner ailesinden
+       MODÜL SAYFASI kalıbına geçti. §Ö1 destek merkezini "kullanıcı alanı
+       modülü" sayar, yani misafire kapalıdır ve kardeşleriyle aynı giriş
+       kapısını taşır. Ölçüt zayıflamadı: girişte hâlâ SIFIR bekleniyor ve
+       aile dışı sayfaya gate sızmadığı kontrolü yerinde duruyor. */
+    const bek = auth === 0 ? 17 : 0;
     if (kutu !== bek) rec(`36 ${et}`, `.fp-gate görünür ${kutu}, beklenen ${bek}`);
     else ok(`${et} .fp-gate görünür ${kutu}`);
     if (ornek) rec(`36 ${et}`, `"veriler örnektir" cümlesi hâlâ var: ${ornek} sayfa`);

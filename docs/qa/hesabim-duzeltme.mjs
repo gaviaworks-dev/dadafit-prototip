@@ -216,3 +216,67 @@ await tarayici.close();
 console.log('\n╔══ HESABIM DÜZELTME ÖLÇÜMÜ ══╗');
 for (const [a, b] of sonuc) console.log('  ' + String(a).padEnd(56) + ' → ' + b);
 console.log('\n  konsol/sayfa hatası: ' + hatalar.length + (hatalar.length ? '\n    ' + hatalar.join('\n    ') : ''));
+
+/* ============ 5 · KİMLİK KARTI ROZETLERİ (paket + kademe) ============ */
+{
+  const tarayici2 = await chromium.launch();
+  const yerel = [];
+  /* 6 antrenmanlık gerçek geçmiş — motor `tarihISO` okuyor (ölçüldü:
+     `tarih` alanıyla aktifGun 0 kalıyor ve kademe basılmıyordu). */
+  const gecmisYaz = () => {
+    const bugun = new Date(), gecmis = [];
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(bugun); d.setDate(d.getDate() - i);
+      gecmis.push({ slug: 'hareket-' + i, ad: 'Antrenman ' + (i + 1), dk: 35, tarihISO: d.toISOString(), kaynak: 'beyan' });
+    }
+    localStorage.setItem('dm_fit', JSON.stringify({ gecmis, arsiv: [], program: null }));
+  };
+
+  const oku = p => p.evaluate(() => {
+    const pb = document.querySelector('[data-paket]'), kb = document.querySelector('[data-kademe]');
+    const rp = pb.getBoundingClientRect(), rk = kb.getBoundingClientRect();
+    const k = window.FIT_ROZET ? FIT_ROZET.kademe() : null;
+    const d = document.documentElement;
+    return {
+      paket: pb.textContent.trim(),
+      kademe: kb.hidden ? '(basılmıyor)' : kb.textContent.trim(),
+      sira: k ? k.sira + '/' + k.toplam : '-',
+      puan: k ? k.puan : '-',
+      ayniSatir: kb.hidden ? null : Math.abs(rp.top - rk.top) < 3,
+      aralik: kb.hidden ? null : Math.round(rk.left - rp.right),
+      rozetMeta: (document.querySelector('[data-rozet-sayi]') || {}).innerText,
+      tasma: d.scrollWidth - d.clientWidth
+    };
+  });
+
+  for (const w of [390, 768, 1440]) {
+    const ctx = await tarayici2.newContext({ viewport: { width: w, height: 1000 } });
+    const p = await ctx.newPage();
+    p.on('pageerror', e => yerel.push(`rozet @${w} · pageerror · ${e.message}`));
+    p.on('console', m => { if (m.type() === 'error') yerel.push(`rozet @${w} · ${m.text()}`); });
+
+    await p.goto(BASE, { waitUntil: 'networkidle' });
+    await p.evaluate(() => localStorage.setItem('dm_fit_login', '1'));
+    await p.reload({ waitUntil: 'networkidle' });
+    await p.waitForTimeout(400);
+    const bos = await oku(p);
+    yaz(`rozet @${w} · PUAN YOK`,
+      `paket "${bos.paket}" · kademe ${bos.kademe} · sıra ${bos.sira} · meta "${bos.rozetMeta}" · taşma ${bos.tasma}px`);
+
+    await p.evaluate(gecmisYaz);
+    await p.reload({ waitUntil: 'networkidle' });
+    await p.waitForTimeout(600);
+    const dolu = await oku(p);
+    yaz(`rozet @${w} · 6 ANTRENMAN`,
+      `paket "${dolu.paket}" · kademe "${dolu.kademe}" ${dolu.sira} · puan ${dolu.puan}` +
+      ` · yan yana ${dolu.ayniSatir}${dolu.ayniSatir ? ' (aralık ' + dolu.aralik + 'px)' : ' — h1 flex-wrap ile alt satıra sarıyor'}` +
+      ` · meta "${dolu.rozetMeta}" · taşma ${dolu.tasma}px`);
+    await ctx.close();
+  }
+  await tarayici2.close();
+  hatalar.push(...yerel);
+}
+
+console.log('\n╔══ KİMLİK KARTI ROZETLERİ ══╗');
+for (const [a, b] of sonuc.slice(-6)) console.log('  ' + String(a).padEnd(30) + ' → ' + b);
+console.log('\n  bu bölümün hataları dahil toplam: ' + hatalar.length);

@@ -799,12 +799,26 @@
         <button type="button" class="fp-ava-edit" data-photo-edit="avatar" aria-label="Profil fotoğrafını değiştir" title="JPG veya PNG, en az 200×200 px, en çok 5 MB. Kare kırpılır."><i class="fa-solid fa-camera" aria-hidden="true"></i></button>
       </span>
       <div class="fp-kimlik-id">
-        <h1>Elif Şahin</h1>
+        <!-- 🔴 İKİ AYRI ROZET, YAN YANA — kabuğun kimlik kartıyla birebir
+             (fit-shell.js:1564). KARIŞTIRILMAZLAR:
+               paket  SATIN ALINIR → `dm_user.paket`, ikon fa-crown
+               kademe KAZANILIR    → `FIT_ROZET.kademe()`, ikon kendi ailesinden
+             Kademe rozeti BOŞ ve `hidden` basılıyor; `fit-rozet.js` kabuktan
+             SONRA yüklendiği için burada okumaya çalışmak "Kademesiz"
+             yazdırırdı. Sayfa sonundaki sürücü motor gelince dolduruyor.
+             ⚠ `fit-rozet.js` KABUK TARAFINDAN yükleniyor; bu sayfaya ayrıca
+             <script> eklenmedi (çift yükleme olurdu). -->
+        <h1>Elif Şahin
+          <span class="fp-badge is-paket" data-paket><i class="fa-solid fa-crown" aria-hidden="true"></i> Ücretsiz</span>
+          <span class="fp-badge is-kademe" data-kademe hidden></span></h1>
         <span class="fp-handle2">@elifsahin</span>
         <p class="fp-lead2">Profilin, bildirim tercihlerin, güvenlik ve birim tercihlerin burada; hesabını dondurma ve silme de. Paketin ve kademeler <a href="paketlerim-v1.html">Paketlerim</a>'de, abonelik · antrenör ödemeleri · faturalar · kartlar · iade talepleri <a href="odemelerim-v1.html">Ödemelerim</a>'de. Prototipte hesap gerçekten güncellenmez; isim ve tarihler ekran akışını göstermek için konmuş örneklerdir.</p>
+        <!-- Paket satırı meta'dan KALKTI: artık başlıktaki rozet onu
+             gösteriyor, aynı kartta iki kez yazmak tekrardı. Yerine
+             kabuğun kimlik kartındaki gibi rozet sayısı geldi. -->
         <div class="fp-kimlik-meta">
-          <span><i class="fa-solid fa-crown"></i> DadaFit Pro · aktif üyelik</span>
           <span><i class="fa-solid fa-calendar-days"></i> Üyelik başlangıcı: Mart 2026</span>
+          <span data-rozet-sayi><i class="fa-solid fa-award"></i> Rozet —</span>
         </div>
       </div>
     </div>
@@ -2169,6 +2183,65 @@
 })();
 
 /* =====================================================================
+ KİMLİK KARTI ROZETLERİ — paket + kademe
+ ---------------------------------------------------------------------
+ Kabuğun kimlik kartındaki desenin aynısı (fit-shell.js:1600-1628); bu
+ sayfa kendi kartını bastığı için sürücüsü de burada.
+
+ 🔴 PAKET ≠ KADEME. Paket SATIN ALINIR (`dm_user.paket` → Ücretsiz ·
+ Pro · Pro Max), kademe KAZANILIR (`FIT_ROZET.kademe()`). İkisi yan yana
+ ve aynı görsel dilde duruyor ama ayrı sınıf taşıyor.
+ ⚠ `dm_user` şemasında `paket` alanı henüz YOK; alan gelene kadar
+ paketsiz hesabın doğru kademesi "Ücretsiz"dir (Beyar onayladı). Sayı
+ ya da kademe uydurulmaz.
+ ⚠ `sira` 0 iken kademe rozeti BASILMAZ: olmayan bir kademeyi rozetle
+ göstermek yalan olurdu.
+ ⚠ `fit-rozet.js` kabuktan SONRA yükleniyor — bu yüzden kart boş basılıp
+ motor geldiğinde dolduruluyor: `fit-rozet-degisti` · `fit:state` ·
+ `window load` üçlüsü ve bir turluk `setTimeout`.
+ ===================================================================== */
+(function(){
+  var kb = document.querySelector('[data-kademe]'),
+      pb = document.querySelector('[data-paket]'),
+      rz = document.querySelector('[data-rozet-sayi]');
+  if(!kb && !pb) return;
+
+  /* Paket: bu sayfanın `?paket=` maket anahtarı ÖNCE gelir (ekranın
+     hangi personayı çizdiği URL'de görünsün), yoksa `dm_user.paket`. */
+  function paketAdi(){
+    var q = new URLSearchParams(location.search).get('paket');
+    var esle = {ucretsiz:'Ücretsiz', pro:'Pro', promax:'Pro Max', pro_max:'Pro Max'};
+    if(q && esle[q]) return esle[q];
+    try{
+      var u = JSON.parse(localStorage.getItem('dm_user')||'null');
+      return {pro:'Pro', pro_max:'Pro Max'}[u && u.paket] || 'Ücretsiz';
+    }catch(e){ return 'Ücretsiz'; }
+  }
+  if(pb) pb.innerHTML = '<i class="fa-solid fa-crown" aria-hidden="true"></i> ' + paketAdi();
+
+  function rozetBas(){
+    var R = window.FIT_ROZET; if(!R) return;
+    try{
+      if(kb && R.kademe){
+        var k = R.kademe();
+        if(k && k.sira){
+          kb.innerHTML = '<i class="'+(k.ico||'fa-solid fa-ranking-star')+'" aria-hidden="true"></i> '+k.ad;
+          kb.setAttribute('title', k.ad+' — '+k.sira+'/'+k.toplam+' kademe');
+          kb.hidden = false;
+        } else { kb.hidden = true; }
+      }
+      if(rz && R.ozet) rz.innerHTML =
+        '<i class="fa-solid fa-award" aria-hidden="true"></i> Rozet ' + R.ozet().kazanildi;
+    }catch(e){}
+  }
+  rozetBas();
+  window.addEventListener('fit-rozet-degisti', rozetBas);
+  document.addEventListener('fit:state', rozetBas);
+  if(!window.FIT_ROZET) setTimeout(rozetBas, 0);
+  window.addEventListener('load', rozetBas);
+})();
+
+/* =====================================================================
  DOĞUM TARİHİ TAKVİMİ — .fk-tar sürücüsü
  ---------------------------------------------------------------------
  Alan yine yazılabilir; takvim onun YERİNE değil, YANINA geliyor.
@@ -2331,18 +2404,19 @@
  dönem/yenileme/iptal yüzeyi HİÇ BASILMAZ, sadece gizlenmez.
  --------------------------------------------------------------------- */
 (function(){
-  var free = document.getElementById('uyFree'), pro = document.getElementById('uyPro');
-  if(!free || !pro) return;
-  var ucretsiz = new URLSearchParams(location.search).get('paket') === 'ucretsiz';
-  if(!ucretsiz) return;
-  free.hidden = false;
-  pro.hidden = true;
-  var b = document.querySelector('#uyelik .pc-head p');
-  if(b) b.innerHTML = '<b>Platform paketin</b> — şu an ücretsiz kademedesin. ' +
-    'Ücretsiz kademe kalıcıdır, süresi dolmaz ve tahsilat yapılmaz. ' +
-    'Antrenör paketlerin <b>ayrı bir kutuda</b>, bu bölümün altında.';
-  var badge = document.querySelector('.fp-kimlik-meta span');
-  if(badge) badge.innerHTML = '<i class="fa-solid fa-user"></i> DadaFit Ücretsiz · aktif kademe';
+  /* ⚠ ÖNCEKİ HÂLİ SÖKÜLEN BÖLÜMLERE BAĞLIYDI: `#uyFree`/`#uyPro`
+     bulunamayınca erken dönüyordu ve `?paket=ucretsiz` artık hiçbir şeyi
+     değiştirmiyordu (üyelik bölümü bu sayfadan kalktı). Persona anahtarı
+     kartın kendisine bağlandı; paket rozetini yukarıdaki sürücü zaten
+     `?paket=`ten okuyor, burada yalnız kartın tanıtım cümlesi
+     kademeye göre konuşuyor. */
+  var q = new URLSearchParams(location.search).get('paket');
+  if(q !== 'ucretsiz') return;
+  var lead = document.querySelector('.fp-kimlik-id .fp-lead2');
+  if(lead) lead.innerHTML = 'Ücretsiz kademedesin — tahsilat yapılmaz, iptal edilecek bir abonelik yoktur. ' +
+    'Profilin, bildirim tercihlerin, güvenlik ve birim tercihlerin burada. ' +
+    'Kademeleri <a href="paketlerim-v1.html#karsilastir">Paketlerim</a>\u2019de karşılaştırır, ' +
+    'yükseltmeyi <a href="pro-odeme-v1.html?plan=pro">ödeme ekranından</a> başlatırsın.';
 })();
 
 /* ---------------------------------------------------------------------

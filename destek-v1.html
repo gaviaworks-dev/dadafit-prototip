@@ -124,6 +124,12 @@
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E7E7E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 15px center;padding-right:40px}
 .fk-select:invalid{color:#6f6f6f}
+/* R15 · dokunma hedefi (WCAG 2.5.8) — KURAL KABUĞA TAŞINDI.
+   ÖLÇÜLDÜ: aynı `padding:13px 15px` kuralını paylaşan `.fk-input` 45px
+   kapıyor ama `.fk-select` 42px — açılır listenin iç satır kutusu metin
+   girdisininkinden alçak. Yerel `min-height:45px` silindi; ölçü artık
+   `fit-shell.css`in `.fk-input,.fk-select,.fk-textarea{min-height:44px}`
+   kuralından geliyor (kit §7'nin kendi ölçüsü). Dolgu değiştirilmedi. */
 /* ⚠ `display:flex` — İÇERİKTEKİ HER DÜĞÜM AYRI FLEX KALEMİDİR. İçinde
    bağlantı geçen yardım satırının metni TEK <span>e alınmalı; alınmazsa
    "metin · <a> · metin" üç ayrı kalem olur ve tek satırda yan yana dizilir
@@ -133,6 +139,11 @@
 .fk-help i{color:var(--fit-deep);font-size:12px;margin-top:2px;flex:none}
 .fk-grid{display:grid;gap:16px 18px;grid-template-columns:1fr 1fr;margin-bottom:20px}
 .fk-grid .fk-field{margin-bottom:0}
+/* Koşullu alan grubu `hidden` ile kapanır. Kural şart: `.fk-grid`in kendi
+   `display:grid`i (0,1,0) tarayıcının `[hidden]{display:none}` kuralıyla
+   (0,1,0) eşit özgüllükte ve SONRA geldiği için onu eziyordu — gizli grup
+   ekranda kalırdı. `.fk-err[hidden]` satırındaki desenin aynısı. */
+.fk-grid[hidden]{display:none}
 
 /* ---- HATA GÖSTERİMİ (belge §20: hata yalnız renkle anlatılmaz) ----------
  Hatalı alan ÜÇ kanaldan birden bildirilir: (1) alanın altında ikonlu METİN,
@@ -765,17 +776,27 @@
                   data-msg="Bir konu seç — talebin doğru ekibe düşsün."
                   aria-describedby="tkKategoriHelp tkKategoriErr">
             <option value="" selected disabled>Konu seç</option>
-            <option>DadaFit Pro ve ödeme</option>
-            <option>Üyelik ve fatura</option>
+            <!-- `data-alan` · hangi konunun hangi bağlam alanını açtığı BURADA
+                 yazılıdır, JS'te seçenek metniyle eşleşme aranmaz: metin
+                 değişince eşleşme sessizce kopardı. Boş/eksik öznitelik =
+                 bağlam alanı yok. -->
+            <option data-alan="odeme">DadaFit Pro ve ödeme</option>
+            <option data-alan="odeme">Üyelik ve fatura</option>
             <option>Aktivite ve cihaz bağlantıları</option>
               <option>Programlar ve planım</option>
-            <option>Antrenör ve randevu</option>
+            <option data-alan="randevu">Antrenör ve randevu</option>
             <option>Hesap ve giriş</option>
             <option>Uygulama hatası</option>
             <option>Diğer</option>
           </select>
-          <p class="fk-help" id="tkKategoriHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Konu seçimi talebi yönlendirir; yanlış seçersen destek ekibi taşır.</p>
+          <p class="fk-help" id="tkKategoriHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Konu seçimi talebi yönlendirir; yanlış seçersen destek ekibi taşır. Bazı konular aşağıda ek bir alan açar.</p>
           <p class="fk-err" id="tkKategoriErr" hidden><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></p>
+          <!-- Açılan alan formun DÖRT alan aşağısında beliriyor; ekran
+               okuyucu kullanıcısı sekmeyle oraya varana kadar bunu görmez.
+               Duyuru satırı bu yüzden KATEGORİNİN yanında ve her zaman
+               ağaçta duruyor — `hidden` bir bölgeye sonradan `aria-live`
+               vermek duyuruyu kaçırır. -->
+          <p class="sr-only" id="tkAlanDuyuru" role="status" aria-live="polite"></p>
         </div>
 
         <div class="fk-field">
@@ -807,23 +828,40 @@
              ⚠ Fit statik HTML — sunucu sözleşmesi yok; `name` nitelikleri
              MAKET DÜZEYİNDE, şartnamenin alan adlarıyla yazıldı. İlgili
              randevunun SAHİPLİK kontrolü (§Ö14) sunucu kalemidir, burada
-             karşılığı yok: seçenekler üyenin kendi randevularıdır. -->
-        <div class="fk-grid c2">
-          <div class="fk-field">
+             karşılığı yok: seçenekler üyenin kendi randevularıdır.
+
+             KOŞULLU GÖRÜNÜRLÜK (bu tur). İki alan her konuda birden
+             açıktı; ödeme sorununu yazan üyeye randevu seçici, randevu
+             sorununu yazana ödeme kutusu gösteriliyordu. Artık grup
+             `hidden` ile kapalı doğar ve seçilen konunun `data-alan`
+             değeri neyi açacağını söyler.
+
+             SEÇENEKLER ARTIK UYDURMA DEĞİL. Buradaki üç randevu satırı
+             (RND-…) ve ödeme yer tutucusu (ODM-…) bu depoda hiçbir yerde
+             geçmiyordu; kimse o numaraları hiçbir ekranda göremezdi.
+             Randevu seçeneği `FIT_SHELL.state.read().randevular`dan,
+             ödeme önerisi `FIT_FATURA.defter`den okunuyor — ikisi de
+             başka ekranların (Antrenörüm · Ödemelerim) bastığı kayıtlar.
+             Randevu kaydında NUMARA ALANI YOK: seçeneğin değeri de
+             etiketin kendisidir, uydurma bir referans üretilmedi. -->
+        <div class="fk-grid c2" id="tkBaglam" hidden>
+          <div class="fk-field" id="tkRandevuAlan" hidden>
             <label class="fk-label" for="tkRandevu">İlgili randevu <span class="opt">(isteğe bağlı)</span></label>
-            <select class="fk-select" id="tkRandevu" name="ilgili_randevu">
+            <select class="fk-select" id="tkRandevu" name="ilgili_randevu" aria-describedby="tkRandevuHelp">
               <option value="">Seçme</option>
-              <option value="RND-2026-0841">14 Ağustos 2026 · Selin Aksoy · Değerlendirme</option>
-              <option value="RND-2026-0796">2 Ağustos 2026 · Selin Aksoy · Takip seansı</option>
-              <option value="RND-2026-0712">19 Temmuz 2026 · Kaan Demir · Fit test</option>
             </select>
-            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Talep bir randevuyla ilgiliyse seçersen destek ekibi kaydı hemen görür.</p>
+            <p class="fk-help" id="tkRandevuHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Seçenekler <a href="egzersizlerim-v1.html#antrenorum">Planım &rsaquo; Antrenörüm</a> ekranındaki kendi randevularından gelir.</span></p>
           </div>
-          <div class="fk-field">
+          <div class="fk-field" id="tkOdemeAlan" hidden>
             <label class="fk-label" for="tkOdeme">İlgili ödeme referansı <span class="opt">(isteğe bağlı)</span></label>
             <input type="text" class="fk-input" id="tkOdeme" name="ilgili_odeme_referansi" maxlength="64"
-                   placeholder="Ör. ODM-2026-4417" />
-            <p class="fk-help"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Ödeme ve fatura konularında referansı <a href="odemelerim-v1.html#faturalar">Faturaların</a> bölümünden kopyalayabilirsin.</span></p>
+                   list="tkOdemeListe" autocomplete="off"
+                   placeholder="Fatura numarası" aria-describedby="tkOdemeHelp" />
+            <!-- `datalist`, `input`ın kendisi DEĞİLDİR: serbest metin yazma
+                 hakkı duruyor (referans e-postadan da gelebilir), liste
+                 yalnız üyenin kendi fatura numaralarını önerir. -->
+            <datalist id="tkOdemeListe"></datalist>
+            <p class="fk-help" id="tkOdemeHelp"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Kendi <a href="odemelerim-v1.html#faturalar">fatura kayıtlarından</a> seçebilir ya da elindeki referansı yazabilirsin.</span></p>
           </div>
         </div>
 
@@ -1328,6 +1366,10 @@
 <script src="assets/js/fit-plan-kayit.js"></script>
 <!-- KAYIT (favori) SÖZLEŞMESİ — kart düğmeleri ve Kaydettiklerim buradan okur -->
 <script src="assets/js/fit-kayit.js"></script>
+<!-- FATURA DEFTERİ — yeni talep formundaki "ilgili ödeme referansı" önerisi
+     buradan okur. Ödemelerim ekranıyla AYNI kaynak: iki yerde iki farklı
+     fatura numarası olamaz. Salt veri modülü, DOM'a dokunmaz. -->
+<script src="assets/js/fit-fatura.js"></script>
 <script>
 /* ===== DESTEK TALEPLERİM — durum süzgeci ============================
  · Süzgeç GERÇEKTEN süzer: satırlar hidden ile gizlenir, sayaç ve boş
@@ -1568,6 +1610,97 @@
     });
   }
 
+  /* ---- KOŞULLU BAĞLAM ALANLARI --------------------------------------
+     Hangi konu neyi açar: seçeneğin kendi `data-alan` özniteliği söyler
+     (boşluklu liste, birden çok alan destekli). Eşleşme METİNLE
+     yapılmıyor — seçenek metni bir gün değişirse eşleşme sessizce
+     kopar ve alan bir daha hiç açılmazdı.
+
+     GİZLEYİNCE DEĞER DE SİLİNİR. Kapanan alanın değeri DOM'da kalsaydı
+     "ödeme referansını yazdım, sonra konuyu Hesap ve giriş yaptım"
+     senaryosunda üye görmediği bir veriyi göndermiş olurdu.
+
+     `required` ÜZERİNE NOT: bu iki alanın ikisi de isteğe bağlıdır
+     (ölçüldü: formdaki `[required]` sayısı 3 — kategori · başlık ·
+     talep metni). Bu yüzden "gizli zorunlu alan formu kilitler" tuzağı
+     burada doğmuyor; alan bir gün zorunlu olursa `hidden` ile birlikte
+     `required` de kaldırılmalıdır.
+     ------------------------------------------------------------------- */
+  var baglam    = document.getElementById('tkBaglam');
+  var kategori  = document.getElementById('tkKategori');
+  var duyuru    = document.getElementById('tkAlanDuyuru');
+  var ALANLAR   = {
+    randevu: { kutu: document.getElementById('tkRandevuAlan'), ctrl: document.getElementById('tkRandevu'), ad: 'İlgili randevu' },
+    odeme:   { kutu: document.getElementById('tkOdemeAlan'),   ctrl: document.getElementById('tkOdeme'),   ad: 'İlgili ödeme referansı' }
+  };
+
+  /* --- randevu seçeneği: üyenin KENDİ randevuları (kabuk deposu) ---
+     Kayıtta referans numarası yok; değer de etiketin kendisidir.
+     Randevusu olmayan üyeye dolu görünen sahte bir seçici gösterilmez:
+     seçici kapalı doğar ve nereden dolacağı yazıyla söylenir. */
+  function randevuKur(){
+    var sel = ALANLAR.randevu.ctrl;
+    var yardim = document.getElementById('tkRandevuHelp');
+    if(!sel) return;
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    var kayit = (S && S.read().randevular) || [];
+    sel.innerHTML = '';
+    if(!kayit.length){
+      sel.disabled = true;
+      sel.appendChild(new Option('Kayıtlı randevun yok', ''));
+      if(yardim) yardim.querySelector('span').innerHTML =
+        'Kayıtlı randevun yok. <a href="antrenorler-v1.html">Antrenörler</a> ' +
+        'sayfasından randevu aldığında bu liste kendiliğinden dolar; ' +
+        'randevusuz da talebini gönderebilirsin.';
+      return;
+    }
+    sel.disabled = false;
+    sel.appendChild(new Option('Seçme', ''));
+    kayit.forEach(function(r){
+      var et = [r.tarih, r.saat].filter(Boolean).join(' · ') + ' · ' + r.antrenor +
+               ' — ' + r.hizmet + ' (' + S.randevuEtiket(r.durum) + ')';
+      sel.appendChild(new Option(et, et));
+    });
+  }
+
+  /* --- ödeme önerisi: üyenin KENDİ fatura kayıtları (FIT_FATURA) ---
+     `datalist` öneridir, kısıt değil: liste boş kalsa bile alan serbest
+     metin olarak çalışmayı sürdürür. */
+  function odemeKur(){
+    var liste = document.getElementById('tkOdemeListe');
+    if(!liste || !window.FIT_FATURA) return;
+    liste.innerHTML = '';
+    window.FIT_FATURA.defter.forEach(function(f){
+      var o = document.createElement('option');
+      o.value = f.no; o.label = f.tarihKisa + ' · ' + f.konu;
+      liste.appendChild(o);
+    });
+  }
+
+  function baglamBoya(){
+    if(!baglam || !kategori) return;
+    var sec = kategori.selectedOptions && kategori.selectedOptions[0];
+    var acik = ((sec && sec.dataset.alan) || '').split(/\s+/).filter(Boolean);
+    var acilan = [];
+    Object.keys(ALANLAR).forEach(function(ad){
+      var a = ALANLAR[ad];
+      if(!a.kutu || !a.ctrl) return;
+      var gorunsun = acik.indexOf(ad) > -1;
+      a.kutu.hidden = !gorunsun;
+      if(gorunsun) acilan.push(a.ad);
+      else if(a.ctrl.value) a.ctrl.value = '';   /* kapanan alan veri taşımaz */
+    });
+    baglam.hidden = acilan.length === 0;
+    if(duyuru) duyuru.textContent = acilan.length
+      ? acilan.join(' ve ') + (acilan.length > 1 ? ' alanları' : ' alanı') + ' eklendi.'
+      : '';
+  }
+
+  randevuKur();
+  odemeKur();
+  if(kategori) kategori.addEventListener('change', baglamBoya);
+  baglamBoya();
+
   /* ---- ek dosya: seçilen dosyanın adı YAZIYLA gösterilir (renk tek sinyal
          değil), "Kaldır" ile geri alınır. Mesaj başına TEK dosya olduğu için
          input `multiple` taşımaz. ---- */
@@ -1664,6 +1797,10 @@
     form.reset();
     fields.forEach(function(el){ delete el.dataset.seen; mark(el, ''); });
     if(mc) mc.textContent = '0';
+    /* `reset()` kategoriyi yer tutucuya döndürür ama `change` OLAYINI
+       ATMAZ — çağrılmazsa bağlam grubu açık kalır ve konusuz bir forma
+       "İlgili randevu" alanı asılı durur. */
+    baglamBoya();
     ekYaz();
     if(okBox){ okBox.setAttribute('tabindex','-1'); try{ okBox.focus({preventScroll:true}); }catch(err){ okBox.focus(); } }
   });

@@ -270,6 +270,28 @@ değer, alternatif adı `ED_VERI`den.
 8. **`h1` semantiği** — modül sayfalarında `<h1>` sayfa adı değil kullanıcı adı
    (kasıtlı). Sayfa adı breadcrumb, `<title>` ve sekme şeridinde.
 
+9. 🔴 **Rail İKİ KEZ tanımlı.** R17'de ölçüldü: `assets/css/fit-shell.css` §N
+   (satır 1473+) rail'i zaten kurmuş — 2026-08-29 dalgası, public operasyon
+   paneli için (`body[data-fit-rail="1"]`), o zaman yönetim paneli yoktu.
+   `assets/css/fit-admin.css` §1 aynı bileşeni yönetim kabuğu için yeniden
+   kuruyor. **Değerler çakışmıyor, ÖRTÜŞÜYOR** — iki bağımsız ölçüm de
+   Gastro'dan `--sa-rail-w:76px` ve `--rail-bg:#19160F` okumuş; bu, ölçümün
+   doğruluğunun kanıtı ama iki tanım tek bileşen için fazladır.
+   **Somut zarar ölçüldü:** `fit-shell.css:1531`in `.sa-rail-foot a,
+   .sa-rail-foot span{width:38px;height:38px}` kuralı (özgüllük 0-2-1)
+   admin'in `.sa-sig`ini (0-1-0) eziyordu ve dokunma hedefini 44'ün altına
+   düşürüyordu; `admin-icerik-olcum.mjs` yakaladı, `fit-admin.css`te
+   özgüllük yükseltilerek geçildi — kök neden duruyor.
+   **Yapılacak:** tek tanıma indir. Hangisinin kalacağı bir karar: rail
+   public operasyon panelinde de kullanılıyorsa `fit-shell.css` kalır ve
+   admin yalnız kendi farkını yazar. 60 public sayfayı ilgilendirdiği için
+   R17'de yapılmadı.
+10. **`admin-destek-v1`de kimlik hücresi yok.** Öteki üç operasyon ekranı
+   `.u-cell` (38px avatar + ad/e-posta) kullanıyor; destek kuyruk kartı
+   (`.set-row`) tablo değil, üye adı satır açıklamasında düz metin.
+   Kalıbı zorlamak bileşeni yeniden kurgulamak olurdu (Ajan 3 ölçüp durdu).
+   Kuyruk kartına kimlik hücresi gerekiyor mu — ürün kararı.
+
 ---
 
 ## SONRAKİ OTURUM: ADMİN PANEL

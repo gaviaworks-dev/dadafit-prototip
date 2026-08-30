@@ -102,6 +102,8 @@ html,body{overflow-x:clip}
 .apt-success .ok{width:64px;height:64px;border-radius:var(--radius-circle);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:27px;margin:0 auto 16px}
 .apt-success h4{font-size:19px;margin-bottom:8px}
 .apt-success p{font-size:13.5px;color:var(--muted);font-weight:500;max-width:380px;margin:0 auto;line-height:1.6}
+.apt-success .btn{margin-top:18px}
+.apt-note{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:10px;line-height:1.5}
 
 /* ---- HERO: koyu+yeşil gradient + desatüre görsel + cam kimlik kartı ---- */
 .cp-top{
@@ -272,7 +274,7 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
 .cp-actions .cta-row .btn{flex:1;padding:12px 16px;font-size:13.5px}
 .cp-mini{flex:none;width:46px;padding:0;display:grid;place-items:center;background:var(--paper);border:1px solid var(--line);color:var(--slate);border-radius:var(--radius-md);cursor:pointer;font-size:15px;transition:.2s var(--ease)}
 .cp-mini:hover{border-color:var(--fit);color:var(--fit-deep)}
-.cp-mini.on{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.cp-mini.is-on{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
 /* ODAK HALKASI — kabuktan geliyor; sayfa kuralı YOK ve olmamalı.
    YANLIŞ ALARM KAYDI (R9): hesaplanan `outline-color` bu düğmelerde
    rgb(255,255,255) okunuyor ve "beyaz kartta beyaz halka, görünmez" diye
@@ -630,6 +632,8 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
+<!-- Yorum ve değerlendirme bölümü (dört sayfanın TEK kaynağı) -->
+<link rel="stylesheet" href="assets/css/fit-yorum.css" />
 </head>
 <body data-brand="fit" data-fit-page="antrenor-detay-v1">
 
@@ -707,7 +711,11 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
         <button class="btn btn-fit" id="ctaBook" type="button"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Randevu Al</button>
         <div class="cta-row">
           <button class="btn btn-ghost" id="ctaMsg" type="button"><i class="fa-regular fa-comment" aria-hidden="true"></i> Mesaj</button>
-          <button class="cp-mini" id="ctaSave" type="button" aria-label="Antrenörü kaydet"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+          <button class="cp-mini" id="ctaSave" type="button" data-kaydet aria-pressed="false"
+                  data-tur="antrenor" data-slug="selin-aksoy" data-ad="Selin Aksoy"
+                  data-href="antrenor-detay-v1.html?slug=selin-aksoy"
+                  data-gorsel="https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=560&amp;q=80&amp;auto=format&amp;fit=crop&amp;exp=7&amp;gam=6&amp;sat=-12"
+                  data-meta="Egzersiz ve spor bilimleri uzmanı" aria-label="Antrenörü kaydet"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>
@@ -742,7 +750,7 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
              referanstaki gibi Hakkında'nın HEMEN SONRASINDA. Fiyat bu panelde. -->
         <button class="fit-tab" type="button" data-tab="seanslar"><i class="fa-solid fa-stopwatch"></i> Seanslar <span class="cnt">3</span></button>
         <button class="fit-tab" type="button" data-tab="programlar"><i class="fa-solid fa-dumbbell"></i> Antrenörün Programları <span class="cnt">3</span></button>
-        <button class="fit-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
+        <button class="fit-tab" type="button" data-tab="yorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt" id="atRevCnt">0</span></button>
         <!-- R8 · KALEM 39 — challenge sekmesi. Sayaç YOK: bu antrenöre
              bağlı challenge kaydı yok (challenge-merkezi-v1'deki üç
              challenge'ın hiçbirinde antrenör alanı bulunmuyor), sahte
@@ -917,62 +925,20 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
       </div>
     </div>
 
-    <!-- ===== DANIŞAN YORUMLARI ===== -->
+    <!-- ===== DANIŞAN YORUMLARI =====
+         R19/A15 · Elle yazılmış üç `.rev-card` `assets/js/fit-yorum-veri.js`e
+         TAŞINDI (ad · metin · puan birebir; at-1/at-2/at-3 kimlikleri
+         profil-v1'inkilerle aynı, faydalı oyları geçerli kalır). Görünüm
+         Gastro'nun yorum kalıbına çekildi: puan özeti + yazma formu +
+         filtre çipleri + faydalı/bildir + yanıt. Sabit "120 değerlendirme"
+         ve "%96'sı önerir" rakamları KALDIRILDI — artık ikisi de
+         `FIT_YORUM.ozet()`ten geliyor, uydurma sayı basılmıyor. -->
     <div class="fit-pane" data-pane="yorumlar" hidden>
-      <div class="rev-layout">
-        <aside class="rev-summary">
-          <div class="rev-score"><b>4.9</b><span>/ 5</span></div>
-          <div class="rev-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-          <div class="rev-count">120 danışan değerlendirmesi</div>
-          <div class="rev-bars">
-            <div class="rev-bar"><span class="lbl">5★</span><span class="track"><span class="fill" style="width:88%"></span></span><span class="pct">88%</span></div>
-            <div class="rev-bar"><span class="lbl">4★</span><span class="track"><span class="fill" style="width:9%"></span></span><span class="pct">9%</span></div>
-            <div class="rev-bar"><span class="lbl">3★</span><span class="track"><span class="fill" style="width:2%"></span></span><span class="pct">2%</span></div>
-            <div class="rev-bar"><span class="lbl">2★</span><span class="track"><span class="fill" style="width:1%"></span></span><span class="pct">1%</span></div>
-            <div class="rev-bar"><span class="lbl">1★</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="pct">0%</span></div>
-          </div>
-          <p class="rev-tagline">Danışanların <b>%96'sı</b> Selin'i bir arkadaşına önereceğini söylüyor.</p>
-        </aside>
-
-        <div class="rev-list">
-          <article class="rev-card">
-            <div class="rev-top">
-              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
-              <div class="rev-who"><b>Pınar G.</b><span>4 aydır birlikte çalışıyor</span></div>
-              <span class="rev-when">2 hafta önce</span>
-            </div>
-            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-            <p>Spor salonuna adım atmaya çekinen biriydim. Selin her şeyi evimde, kendi tempomda yapabileceğim şekilde kurdu. Hiç yargılanmadığımı hissettim — bu benim için en önemlisiydi.</p>
-            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Düzenli hareket alışkanlığı kurdu</span>
-          </article>
-
-          <article class="rev-card">
-            <div class="rev-top">
-              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
-              <div class="rev-who"><b>Mert A.</b><span>6 aydır birlikte çalışıyor</span></div>
-              <span class="rev-when">1 ay önce</span>
-            </div>
-            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-            <p>Masa başı işten dolayı sürekli yorgundum. Plan her hafta yenileniyor, sıkılmama izin vermiyor. Mesaj attığımda hep hızlı dönüyor; kendimi yalnız hissetmedim.</p>
-            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Enerji ve uyku düzeni iyileşti</span>
-          </article>
-
-          <article class="rev-card">
-            <div class="rev-top">
-              <span class="rev-ava" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9')"></span>
-              <div class="rev-who"><b>Elif D.</b><span>3 aydır birlikte çalışıyor</span></div>
-              <span class="rev-when">1 ay önce</span>
-            </div>
-            <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-            <p>Daha önce denediğim her şey beni kötü hissettirip bırakmama neden olmuştu. Selin'in beden-pozitif yaklaşımı sayesinde ilk kez tartı yerine kendime odaklandım. Diyetisyeniyle de beraber çalışması büyük artı.</p>
-            <span class="rev-result"><i class="fa-solid fa-arrow-trend-up"></i> Beslenme ve hareketi birlikte dengeledi</span>
-          </article>
-
-          <div class="rev-more">
-            <button class="btn-more" type="button" id="revMore"><i class="fa-solid fa-circle-down"></i> Daha fazla yorum göster</button>
-          </div>
-        </div>
-      </div>
+      <div class="fy-sec"
+           data-fit-yorum="antrenor"
+           data-yorum-slug="selin-aksoy"
+           data-yorum-baslik="Bu antrenörü değerlendir"
+           data-yorum-sayac="#atRevCnt"></div>
     </div>
 
     <!-- ===== CHALLENGE'LAR ===== -->
@@ -1098,6 +1064,7 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
       <button class="apt-close" id="aptClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="apt-body" id="aptBody">
+      <div id="aptForm">
       <div class="apt-block">
         <div class="apt-lbl"><i class="fa-solid fa-dumbbell"></i> Seans türü</div>
         <div class="apt-svc" id="aptSvc">
@@ -1105,6 +1072,7 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
           <label><input type="radio" name="svc" data-price="1600" /><span class="rd"></span><span class="si"><b>Aylık Paket</b><span>4 seans / ay · haftalık takip</span></span><span class="sp">₺1.600</span></label>
           <label><input type="radio" name="svc" data-price="0" /><span class="rd"></span><span class="si"><b>Tanışma Görüşmesi</b><span>15 dk · hedef belirleme</span></span><span class="sp">Ücretsiz</span></label>
         </div>
+        <p class="apt-note">Ücretli seanslar önce paket hakkından düşer; hakkın yoksa kayıtlı kartından (Visa •••• 4242) tahsil edilir ve fatura defterine düşer.</p>
       </div>
       <div class="apt-block">
         <div class="apt-lbl"><i class="fa-solid fa-calendar-days"></i> Gün seç</div>
@@ -1136,6 +1104,13 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
         <div class="apt-sum">Seçilen<b id="aptSum">Seans türü, gün ve saat seç</b></div>
         <button class="btn btn-fit apt-confirm" id="aptConfirm" type="button"><i class="fa-solid fa-check"></i> Randevuyu Onayla</button>
       </div>
+      </div>
+      <div class="apt-success" id="aptSuccess" hidden>
+        <span class="ok"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+        <h4>Randevun alındı</h4>
+        <p id="aptSuccessTxt">Antrenörüne bildirim gitti; onay bekliyor.</p>
+        <button class="btn btn-primary" type="button" id="aptSuccessOk">Tamam</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1149,6 +1124,10 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
      fit-shell.js'ten SONRA yüklenir: scroll kilidini FIT_SHELL sayacına
      devrediyor, o yüzden FIT_SHELL önce tanımlı olmalı. -->
 <script src="assets/js/fit-modal.js"></script>
+<!-- Kaydet düğmesinin (`.kyt-btn` sözleşmesi) tek kaynağı -->
+<script src="assets/js/fit-kayit.js"></script>
+<!-- Fatura defterinin tek kaynağı — K8: randevu/paket ödemesi burada faturaya düşer -->
+<script src="assets/js/fit-fatura.js"></script>
 <script>
 /* ===== FAZ 4 — antrenör slug + randevu yaşam döngüsü (belge §10.2 · §11 · §13) ===== */
 (function(){
@@ -1193,6 +1172,22 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
   }
   document.title = A.ad + ' — DadaFit Onaylı Antrenör | DadaFit';
 
+  /* EK GÖREV B · kaydet düğmesinin data-* alanları slug'a göre güncellenir
+     (HTML'deki değerler yalnız varsayılan persona içindir). Görsel FAZ 4'ün
+     kendi `.cp-ava` yer tutucusundan okunur — yeni bir görsel uydurulmadı. */
+  (function(){
+    var kaydetBtn = document.getElementById('ctaSave');
+    if(!kaydetBtn) return;
+    var ava = document.querySelector('.cp-ava');
+    var avaBg = ava ? getComputedStyle(ava).backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '') : '';
+    kaydetBtn.setAttribute('data-slug', slug);
+    kaydetBtn.setAttribute('data-ad', A.ad);
+    kaydetBtn.setAttribute('data-href', 'antrenor-detay-v1.html?slug=' + slug);
+    kaydetBtn.setAttribute('data-meta', A.unvan);
+    if(avaBg) kaydetBtn.setAttribute('data-gorsel', avaBg);
+    if(window.FIT_KAYIT) FIT_KAYIT.tazele();
+  })();
+
   /* ===== RANDEVU ÖZETİ + ONAY (belge §11 adım 5–6) ================
      ÖLÇÜLEN KUSUR (Beyar, R15): "Seçilen" başlığının altında
      "Randevu isteğin alındı — Fit Planım › Randevularım" yazıyordu —
@@ -1235,20 +1230,89 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
     if(e.target && e.target.closest && e.target.closest('#aptSvc')) ozetYaz();
   });
 
+  /* K6/K8/K9 · paket hakkı — antrenör slug'u başına {kalan,toplam}.
+     Şema Ajan 4 (lead) ile paylaşılıyor: dm_fit_paket_hakki_v1. */
+  var HAKKI_ANAHTAR = 'dm_fit_paket_hakki_v1';
+  function hakkiOku(){
+    try{
+      var d = JSON.parse(localStorage.getItem(HAKKI_ANAHTAR)||'null');
+      if(d && d.surum===1 && d.paketler) return d;
+    }catch(e){}
+    return {surum:1, paketler:{}, guncelleme:new Date().toISOString()};
+  }
+  function hakkiYaz(d){
+    d.guncelleme = new Date().toISOString();
+    try{ localStorage.setItem(HAKKI_ANAHTAR, JSON.stringify(d)); }catch(e){}
+  }
+
   var confirmBtn = document.getElementById('aptConfirm');
   if(S && confirmBtn){
     confirmBtn.addEventListener('click', function(){
+      /* giriş yapılmamışsa BURADA hiçbir kayıt yazılmaz; giriş kapısı
+         aşağıdaki SAYFA JS bloğundaki ikinci dinleyicide açılıyor. Eskiden
+         bu dinleyici capture fazında önce çalışıp randevuyu SESSİZCE
+         yazıyordu — giriş kapısı sonradan açılsa bile kayıt kalıyordu. */
+      if(!document.body.classList.contains('is-auth')) return;
       var slot = document.querySelector('.apt-slot.sel');
       var day  = document.querySelector('.apt-day.sel');
       if(!slot || !day) return;                    /* eksik seçimde onay yok */
       var svc = document.querySelector('#aptSvc input:checked');
       var ad  = svc ? svc.closest('label').querySelector('.si b').textContent : 'Seans';
       var fi  = svc ? svc.closest('label').querySelector('.sp').textContent : A.fiyat;
+      var kurus = svc ? (parseInt(svc.getAttribute('data-price'), 10) || 0) * 100 : 0;
+
+      /* K6 — ücretli hizmet: önce paket hakkından düş, hakkı yoksa
+         kayıtlı karttan tahsil et ve faturaya düşür (K8). "Aylık Paket"in
+         kendisi bir hak alımı olduğu için hakkından değil kartından
+         tahsil edilir; onayladığı randevu paketin ilk kullanımıdır. */
+      var H = hakkiOku(), hak = H.paketler[slug], hakUlandi = false, odemeNotu = '';
+      if(kurus > 0 && ad !== 'Aylık Paket' && hak && hak.kalan > 0){
+        hak.kalan -= 1;
+        hakkiYaz(H);
+        hakUlandi = true;
+      }
+
       S.randevuAl({antrenor:A.ad, slug:slug, hizmet:ad, fiyat:fi,
                    tarih:((day.querySelector('span')||{}).textContent||'').trim()+' '+((day.querySelector('b')||{}).textContent||'').trim(),
                    saat: slot.textContent.trim()});
+
+      if(kurus > 0){
+        if(hakUlandi){
+          odemeNotu = 'Paket hakkından düşüldü — ' + slug + ' paketinde ' + H.paketler[slug].kalan + ' seans hakkın kaldı.';
+        } else {
+          if(window.FIT_FATURA){
+            FIT_FATURA.ekle({
+              tur:'antrenor',
+              donem: ad === 'Aylık Paket' ? '4 seans / ay' : 'Tek seferlik',
+              konu: 'Antrenör ' + (ad==='Aylık Paket' ? 'paketi' : 'seansı') + ' — ' + A.ad + ' · ' + ad,
+              kalem: [[ 'Antrenör ' + (ad==='Aylık Paket'?'paketi':'seansı') + ' — ' + A.ad, ad, 1, kurus ]]
+            });
+          }
+          if(ad === 'Aylık Paket'){
+            H.paketler[slug] = { kalan: 3, toplam: 4 };  /* bu randevu ilk seansı kullanır */
+            hakkiYaz(H);
+          }
+          odemeNotu = fi + ' kayıtlı kartından (Visa •••• 4242) tahsil edildi ve faturana düştü.';
+        }
+      } else {
+        odemeNotu = 'Tanışma görüşmesi ücretsizdir.';
+      }
+
       if(sumEl) sumEl.textContent = 'Randevu isteğin alındı — Fit Planım › Randevularım';
+      var succTxt = document.getElementById('aptSuccessTxt');
+      if(succTxt) succTxt.textContent = 'Antrenörüne bildirim gitti; onay bekliyor. ' + odemeNotu;
+      var aForm = document.getElementById('aptForm'), aSucc = document.getElementById('aptSuccess');
+      if(aForm) aForm.hidden = true;
+      if(aSucc) aSucc.hidden = false;
     }, true);
+  }
+  var aptSuccessOk = document.getElementById('aptSuccessOk');
+  if(aptSuccessOk){
+    aptSuccessOk.addEventListener('click', function(){
+      var m = document.getElementById('aptModal');
+      if(window.__aptClose) window.__aptClose();
+      else if(m){ m.classList.remove('show'); document.getElementById('aptOverlay').classList.remove('show'); document.body.style.overflow=''; }
+    });
   }
 
   /* Modal her açıldığında özet, sonuç mesajından SEÇİME geri döner. */
@@ -1294,32 +1358,15 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
     });
   });
 
- // kaydet ikonu — toggle (mockup)
-  var save=document.getElementById('ctaSave');
-  if(save){
-    save.addEventListener('click',function(){
-      if(!document.body.classList.contains('is-auth')){
-        gate('Kaydetmek için giriş yap','Bu antrenörü kaydetmek için DadaFit hesabına giriş yapman gerekiyor.');
-        return;
-      }
-      var on=save.classList.toggle('on');
-      save.innerHTML=on?'<i class="fa-solid fa-bookmark"></i>':'<i class="fa-regular fa-bookmark"></i>';
-    });
-  }
+ // kaydet ikonu — EK GÖREV B: artık `[data-kaydet]` sözleşmesiyle GERÇEKTEN
+ // kaydediyor (assets/js/fit-kayit.js, tür=antrenor). data-* alanları
+ // slug'a göre yukarıdaki FAZ 4 bloğunda dolduruluyor; ikon/aria-pressed
+ // durumu FIT_KAYIT'in kendi delegasyonundan geliyor, burada elle
+ // dokunulmaz (sitedeki 34 kaydet düğmesiyle aynı desen, giriş şartı yok).
 
- // yorum "daha fazla" — mockup: ilk 3 yorumu klonla
-  var revMore=document.getElementById('revMore');
-  if(revMore){
-    var loaded=false;
-    revMore.addEventListener('click',function(){
-      if(loaded){revMore.parentElement.style.display='none';return;}
-      var list=document.querySelector('.rev-list');
-      var cards=list.querySelectorAll('.rev-card');
-      cards.forEach(function(c){list.insertBefore(c.cloneNode(true),revMore.parentElement);});
-      loaded=true;
-      revMore.innerHTML='<i class="fa-solid fa-check"></i> Tüm yorumlar gösteriliyor';
-    });
-  }
+ // "daha fazla yorum" ARTIK KLONLAMIYOR: liste `FIT_YORUM`dan gelir ve
+ // düğmeyi modülün kendi sürücüsü basar (fit-yorum-veri.js). Eski blok
+ // ilk üç kartı kopyalayıp aynı yorumu iki kez gösteriyordu.
 
   /* ---- RANDEVU MODALI (seans slot seçici) ---- */
   var aptModal=document.getElementById('aptModal'),aptOv=document.getElementById('aptOverlay');
@@ -1354,7 +1401,16 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
 
   var aptH=(window.FIT_MODAL&&FIT_MODAL.kur({
       kap:aptModal, panel:'.apt-panel', ortu:aptOv, kapat:'#aptClose',
-      acilinca:function(){ if(window.__bnUpdate)window.__bnUpdate(); },
+      /* K6/K9 · modal her açıldığında sonuç ekranından seçim ekranına
+         dönülür — yoksa bir sonraki açılışta hâlâ "Randevun alındı"
+         görünürdü. Kapanışta değil AÇILIŞTA sıfırlanır ki kapanma
+         animasyonu sırasında içerik göz önünde değişmesin. */
+      acilinca:function(){
+        if(window.__bnUpdate)window.__bnUpdate();
+        var aForm=document.getElementById('aptForm'), aSucc=document.getElementById('aptSuccess');
+        if(aForm) aForm.hidden = false;
+        if(aSucc) aSucc.hidden = true;
+      },
       kapaninca:function(){ if(window.__bnUpdate)window.__bnUpdate(); }
     }))||null;
     /* iskelet yoksa sayfa patlamasın — eski davranışa düşer */
@@ -1364,6 +1420,7 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
     function closeApt(){
       if(aptH){aptH.kapat();return;}
       aptModal.classList.remove('show');aptOv.classList.remove('show');document.body.style.overflow='';if(window.__bnUpdate)window.__bnUpdate();}
+    window.__aptClose = closeApt;
     var ctaBook=document.getElementById('ctaBook');
     if(ctaBook)ctaBook.addEventListener('click',function(){openApt(ctaBook);});
 
@@ -1438,6 +1495,17 @@ body[data-fit-over="1"] section.cp-top{height:auto !important;min-height:var(--b
 
 
 
+
+<!-- YORUM SÖZLEŞMESİ — modül + bu sayfanın slug'ı -->
+<script src="assets/js/fit-yorum-veri.js"></script>
+<script>
+(function(){
+  var kap = document.querySelector('[data-fit-yorum]');
+  if(!kap) return;
+  var sl = new URLSearchParams(location.search).get('slug');
+  if(sl) kap.setAttribute('data-yorum-slug', sl);
+})();
+</script>
 
 </body>
 </html>

@@ -331,6 +331,8 @@
 
 /* ---- BENZER / ALTERNATİF HAREKETLER ŞERİDİ (hub full-görsel kart dili) ---- */
 .ed-alt{padding:var(--sec-pad) 0 var(--sec-pad);background:var(--bg-cream);border-top:1px solid var(--line)}
+
+.ed-yorum{padding:var(--sec-pad) 0 var(--sec-pad);background:var(--bg-cream);border-top:1px solid var(--line)}
 .ed-alt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 .ed-altcard-fig{position:relative;aspect-ratio:4/5;background-size:cover;background-position:center;background-color:#211E16}
 .ed-altcard-fig::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,30,22,0) 38%,rgba(15,13,9,.84))}
@@ -384,6 +386,8 @@
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
+<!-- Yorum ve değerlendirme bölümü (dört sayfanın TEK kaynağı) -->
+<link rel="stylesheet" href="assets/css/fit-yorum.css" />
 </head>
 <body data-brand="fit" data-fit-page="egzersiz-detay-v1">
 
@@ -619,7 +623,21 @@
   </div>
 </section>
 
-<!-- ===== 3 · BENZER HAREKETLER ŞERİDİ ===== -->
+<!-- ===== 3 · YORUM VE DEĞERLENDİRME =====
+     Bölümün tamamını `assets/js/fit-yorum-veri.js` basar; markup burada
+     TEKRARLANMAZ (dört sayfa aynı sözleşmeyi okur). Slug aşağıdaki küçük
+     blokta URL'den çözülüp `data-yorum-slug`a yazılır.
+     GERÇEKTEN KAYDEDER: yazılan yorum localStorage'a gider, yenilemede durur. -->
+<section class="ed-yorum" id="yorumlar">
+  <div class="wrap">
+    <div class="fy-sec"
+         data-fit-yorum="egzersiz"
+         data-yorum-slug="goblet-squat"
+         data-yorum-baslik="Bu hareketi değerlendir"></div>
+  </div>
+</section>
+
+<!-- ===== 4 · BENZER HAREKETLER ŞERİDİ ===== -->
 <section class="ed-alt">
   <div class="wrap">
     <div class="sec-head sec-fit">
@@ -1761,6 +1779,19 @@
     });
   });
   if(location.search.indexOf('pg=1')>-1){open();}
+})();
+</script>
+
+<!-- YORUM SÖZLEŞMESİ — modül + bu sayfanın slug'ı -->
+<script src="assets/js/fit-yorum-veri.js"></script>
+<script>
+/* Slug'ı sayfanın kendi çözümünden alır (yukarıdaki blok body'ye
+   `data-ex-slug` yazıyor) — ikinci bir slug haritası doğmasın diye. */
+(function(){
+  var kap = document.querySelector('[data-fit-yorum]');
+  if(!kap) return;
+  var sl = document.body.getAttribute('data-ex-slug');
+  if(sl) kap.setAttribute('data-yorum-slug', sl);
 })();
 </script>
 

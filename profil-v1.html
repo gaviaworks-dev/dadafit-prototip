@@ -163,6 +163,14 @@ body.pf-public .pf-act-public{display:inline-flex}
 
 .pf-ava-edit:hover{background:var(--fit-deep)}
 
+/* K16 · dosya seçildikten sonra görünen dürüstlük şeridi — kapak/avatar
+   önizlemesinin altında, kimlik kartından hemen önce */
+.pf-photo-note{display:flex;align-items:center;gap:8px;margin:14px 28px 0;font-size:12.5px;font-weight:600;color:var(--muted)}
+.pf-photo-note i{color:var(--fit)}
+/* [hidden] açıkça yazılmalı — UA kuralı yazar kuralına eziliyor (aynı tuzak,
+   destek-talebi-detay-v1.html'in .tk-badge dersiyle aynı). */
+.pf-photo-note[hidden]{display:none}
+
 body.pf-public .pf-edit-aff{display:none}
 
 /* kısıtlı sekme + pane (Kaydedilenler·Denedikleri·Favorileri) — public'te gizli */
@@ -428,6 +436,14 @@ body.pf-public .pf-hzown{display:none}
 .hz-stat.off{background:var(--bg);color:var(--muted)}
 
 .hz-cancel{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s var(--ease)}
+
+/* Danışan satırındaki "Mesaj" bağlanamadı (K16): sohbet motoru yalnız
+   üye → antrenör yönünü destekler (randevudan türeyen slug), bu tablo ise
+   TERSİ yönü (antrenör → danışan) gösterir. Gerçek bir hedefi olmayan
+   düğme sahte tıklanabilirlik üretirdi; span + aria-disabled + gerekçe
+   footer kitinin "Yakında" deseniyle aynı (fit-kit.md §14/1). */
+.hz-cancel[aria-disabled="true"]{cursor:not-allowed;opacity:.55}
+.hz-cancel[aria-disabled="true"]:hover{color:var(--muted)}
 
 .hz-cancel:hover{color:var(--fit)}
 
@@ -1406,6 +1422,14 @@ body[data-roles~="isletme"] .pf-crumb-own .pf-crumb-op{display:inline}
 
 .rev-help:hover{color:var(--green)}
 
+/* R19/A15 · dokunma hedefi — düğmenin görsel yazısı 12.5px kalır, tıklama
+   kutusu kitin 44px kapısına çıkar (kit §5/§6/§10 ile aynı yöntem). */
+button.rev-help{min-height:44px}
+
+/* K16 · "Faydalı" artık gerçek bir sayaç (dm_fit_faydali_v1) — basılı
+   durum dolu ikonla ve aynı yeşille işaretlenir, tekrar basınca geri alınır. */
+button.rev-help.is-voted{color:var(--green)}
+
 .rev-reply{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.6;margin-top:13px;padding:14px 16px;background:rgba(59,183,126,.06);border:1px solid rgba(59,183,126,.18);border-radius:var(--radius-md)}
 
 .rev-reply b{color:var(--green-deep);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;margin-bottom:5px}
@@ -1746,6 +1770,7 @@ body.pf-public[data-roles~="antrenor"] .pf-atband.pf-rl-at{display:flex !importa
 .pf-at-pane .rev-badge{color:var(--c-green-deep);background:var(--c-green-tint)}
 
 .pf-at-pane .rev-help:hover{color:var(--c-green)}
+.pf-at-pane button.rev-help.is-voted{color:var(--c-green)}
 
 .pf-at-pane .rev-reply{background:var(--c-green-tint);border-color:var(--c-green-soft)}
 
@@ -1891,6 +1916,8 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
+<!-- Yorum ve değerlendirme bölümü (dört sayfanın TEK kaynağı) -->
+<link rel="stylesheet" href="assets/css/fit-yorum.css" />
 </head>
 <body data-brand="fit" data-fit-page="profil">
 
@@ -1917,14 +1944,15 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
     </nav>
 
     <!-- banner (div+bg, overlay .3-.4) -->
-    <div class="pf-banner" style="background-image:url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')">
+    <div class="pf-banner" id="pfBanner" style="background-image:url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1600&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')">
       <span class="pf-mark"><i class="fa-solid fa-book-open"></i> Elif&rsquo;in Hareket Defteri</span>
-      <button class="pf-cover-edit pf-edit-aff" type="button"><i class="fa-solid fa-camera"></i> Kapağı Değiştir</button>
+      <button class="pf-cover-edit pf-edit-aff" type="button" id="pfCoverBtn"><i class="fa-solid fa-camera"></i> Kapağı Değiştir</button>
+      <input type="file" accept="image/*" id="pfCoverFile" class="sr-only" tabindex="-1" />
     </div>
 
     <!-- kimlik kartı — banner'a biner -->
     <div class="pf-head">
-      <div class="pf-ava" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"><button class="pf-ava-edit pf-edit-aff" type="button" aria-label="Fotoğrafı değiştir"><i class="fa-solid fa-camera"></i></button><span class="pf-on pf-rl-dyt" title="Şu an müsait"></span><span class="pf-on pf-rl-at" title="Yeni danışan alıyor"></span></div>
+      <div class="pf-ava" id="pfAva" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"><button class="pf-ava-edit pf-edit-aff" type="button" aria-label="Fotoğrafı değiştir" id="pfAvaBtn"><i class="fa-solid fa-camera"></i></button><input type="file" accept="image/*" id="pfAvaFile" class="sr-only" tabindex="-1" /><span class="pf-on pf-rl-dyt" title="Şu an müsait"></span><span class="pf-on pf-rl-at" title="Yeni danışan alıyor"></span></div>
       <div class="pf-id">
         <h1>Elif Şahin <span class="tbadge t-dada"><i class="fa-solid fa-medal"></i> İleri Seviye</span> <span class="pf-verify pf-rl-dyt"><i class="fa-solid fa-circle-check"></i> Doğrulanmış Uzman</span> <span class="pf-verify pf-rl-at"><i class="fa-solid fa-shield-halved"></i> DadaFit Onaylı</span> <span class="pf-verify pf-rl-isl"><i class="fa-solid fa-store"></i> Salon Sahibi</span></h1>
         <span class="pf-handle">@elifsahin</span>
@@ -1971,6 +1999,11 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
       </div>
     </div>
 
+    <!-- K16 · kapak/fotoğraf değiştirme dürüstlük şeridi — yalnız dosya
+         seçildikten sonra görünür, yalnız own görümde ("Kaydedildi" YAZMAZ,
+         bu turda sunucuya yükleme yok). -->
+    <p class="pf-photo-note pf-edit-aff" id="pfPhotoNote" hidden><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Önizleme — bu ekran maket, seçtiğin görsel sunucuya yüklenmiyor; sayfayı yenileyince eski görsele döner.</p>
+
     <!-- sayaç şeridi (TD künye kartı dili) — diyetisyen profesyonel şerit (rol-koşullu) -->
     <div class="pf-stats pf-rl-dyt">
       <div class="pfs"><i class="fa-solid fa-user-group"></i><div><span>Danışan</span><b>1.240+</b></div></div>
@@ -2016,7 +2049,7 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
              antrenör şeridine taşındı: Fit'te ücretli üretici yalnız
              antrenördür. Kök üye sekmelerinde artık ücretli kalem yok. -->
         <button class="dt pf-rl-at" type="button" data-tab="athizmet"><i class="fa-solid fa-hand-holding-dollar"></i> Hizmetler <span class="cnt">2</span></button>
-        <button class="dt pf-rl-at" type="button" data-tab="atyorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt">120</span></button>
+        <button class="dt pf-rl-at" type="button" data-tab="atyorumlar"><i class="fa-solid fa-comment-dots"></i> Danışan Yorumları <span class="cnt" id="pfAtRevCnt">0</span></button>
         <button class="dt active" type="button" data-tab="hareketler"><i class="fa-solid fa-dumbbell"></i> Hareketleri <span class="cnt">128</span></button>
         <button class="dt" type="button" data-tab="ipuclari"><i class="fa-solid fa-lightbulb"></i> Form İpuçları <span class="cnt">36</span></button>
         <button class="dt pf-fgate" type="button" data-tab="kaydedilenler"><i class="fa-solid fa-bookmark"></i> Kaydedilenler <span class="cnt">86</span><i class="fa-solid fa-lock pf-tlock"></i></button>
@@ -2458,28 +2491,28 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
                 <td>Kuvvet Temeli &mdash; Aylık</td>
                 <td>12 Mar 2026</td>
                 <td><span class="hz-stat ok">Aktif</span></td>
-                <td style="text-align:right"><button class="hz-cancel" type="button">Mesaj</button></td>
+                <td style="text-align:right"><span class="hz-cancel" aria-disabled="true" title="Danışan sohbeti bu turda kurulmadı — mesajlaşma yalnız üyenin randevu aldığı antrenörle çalışır">Mesaj</span></td>
               </tr>
               <tr>
                 <td><div class="hz-sub-user"><span class="av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=80&auto=format&fit=crop')"></span><div><b>Caner Yıldız</b><small>@caneryildiz</small></div></div></td>
                 <td>Birebir Online Seans</td>
                 <td>3 Şub 2026</td>
                 <td><span class="hz-stat ok">Aktif</span></td>
-                <td style="text-align:right"><button class="hz-cancel" type="button">Mesaj</button></td>
+                <td style="text-align:right"><span class="hz-cancel" aria-disabled="true" title="Danışan sohbeti bu turda kurulmadı — mesajlaşma yalnız üyenin randevu aldığı antrenörle çalışır">Mesaj</span></td>
               </tr>
               <tr>
                 <td><div class="hz-sub-user"><span class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80&auto=format&fit=crop')"></span><div><b>Zeynep Kaya</b><small>@zeynepk</small></div></div></td>
                 <td>Kuvvet Temeli &mdash; Aylık</td>
                 <td>28 Oca 2026</td>
                 <td><span class="hz-stat ok">Aktif</span></td>
-                <td style="text-align:right"><button class="hz-cancel" type="button">Mesaj</button></td>
+                <td style="text-align:right"><span class="hz-cancel" aria-disabled="true" title="Danışan sohbeti bu turda kurulmadı — mesajlaşma yalnız üyenin randevu aldığı antrenörle çalışır">Mesaj</span></td>
               </tr>
               <tr>
                 <td><div class="hz-sub-user"><span class="av" style="background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80&auto=format&fit=crop')"></span><div><b>Burak Demir</b><small>@burakdemir</small></div></div></td>
                 <td>Kuvvet Temeli &mdash; Aylık</td>
                 <td>15 Oca 2026</td>
                 <td><span class="hz-stat off">Dönem sonunda bitiyor</span></td>
-                <td style="text-align:right"><button class="hz-cancel" type="button">Mesaj</button></td>
+                <td style="text-align:right"><span class="hz-cancel" aria-disabled="true" title="Danışan sohbeti bu turda kurulmadı — mesajlaşma yalnız üyenin randevu aldığı antrenörle çalışır">Mesaj</span></td>
               </tr>
             </tbody>
           </table>
@@ -3014,8 +3047,8 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
           <div class="rev-tags"><span class="rev-tag">Kilo Yönetimi</span><span class="rev-tag">Online</span></div>
           <div class="rev-reply"><b><i class="fa-solid fa-reply"></i> Uzmanın yanıtı</b>Bu yorumu paylaştığınız için teşekkürler Merve! Sürdürülebilir ilerlemeniz harika 👏</div>
           <div class="rev-foot">
-            <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-            <span class="rev-help" style="cursor:default">18 değerlendirme faydalı buldu</span>
+            <button class="rev-help" type="button" data-review-id="dyt-1" data-base-oy="18" aria-pressed="false"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
+            <span class="rev-help" style="cursor:default" data-review-count="dyt-1">18 değerlendirme faydalı buldu</span>
           </div>
         </article>
         <article class="rev-item">
@@ -3027,8 +3060,8 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
           <p class="rev-text">Spor performansım için başvurdum. Antrenman günlerime özel beslenme planı çıkardı, kreatin/protein zamanlamasını netleştirdi. Maraton hazırlığımda fark yarattı.</p>
           <div class="rev-tags"><span class="rev-tag">Sporcu Beslenmesi</span></div>
           <div class="rev-foot">
-            <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-            <span class="rev-help" style="cursor:default">11 değerlendirme faydalı buldu</span>
+            <button class="rev-help" type="button" data-review-id="dyt-2" data-base-oy="11" aria-pressed="false"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
+            <span class="rev-help" style="cursor:default" data-review-count="dyt-2">11 değerlendirme faydalı buldu</span>
           </div>
         </article>
         <article class="rev-item">
@@ -3040,8 +3073,8 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
           <p class="rev-text">PCOS sürecimde çok destekleyici. İnsülin direncine yönelik plan işe yaradı, düzenli görüşmeler motivasyonumu koruyor. Tek eksik bazen randevu bulmak zor oluyor, çok talep görüyor.</p>
           <div class="rev-tags"><span class="rev-tag">Hormonal Denge</span><span class="rev-tag">PCOS</span></div>
           <div class="rev-foot">
-            <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-            <span class="rev-help" style="cursor:default">7 değerlendirme faydalı buldu</span>
+            <button class="rev-help" type="button" data-review-id="dyt-3" data-base-oy="7" aria-pressed="false"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
+            <span class="rev-help" style="cursor:default" data-review-count="dyt-3">7 değerlendirme faydalı buldu</span>
           </div>
         </article>
           </div>
@@ -3155,76 +3188,21 @@ body[data-roles~="antrenor"] .pf-actions > .pf-panel{
     </div>
 
     <!-- ===== ANTRENÖR DANIŞAN YORUMLARI (diyetisyen yorumlar markup REUSE) ===== -->
+    <!-- ===== ANTRENÖR · DANIŞAN YORUMLARI =====
+         R19/A15 · Elle yazılmış üç `.rev-item` `assets/js/fit-yorum-veri.js`e
+         TAŞINDI — ad · metin · puan · etiket · yanıt · faydalı taban sayısı
+         BİREBİR, `data-review-id` kimlikleri (at-1/at-2/at-3) da aynı, yani
+         daha önce verilmiş faydalı oyları geçerli kalır. Görünüm Gastro'nun
+         yorum kalıbına çekildi; kazanılanlar: puan özeti (dağılım + tavsiye
+         oranı), yazma formu, filtre çipleri, denetim durumu, "Bildir",
+         profil sahibine "Yanıtla". Sabit "120 değerlendirme" rakamı
+         KALDIRILDI — sayı artık `FIT_YORUM.ozet()`ten geliyor. -->
     <div class="pf-pane pf-at-pane" data-pane="atyorumlar" hidden>
-      <div class="rev-layout">
-        <aside class="rev-summary">
-          <div class="rev-big">
-            <b>4.9</b>
-            <div class="rev-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-            <span>120 danışan değerlendirmesi</span>
-          </div>
-          <div class="rs-bars">
-            <div class="rs-bar"><span class="rl">5 <i class="fa-solid fa-star"></i></span><span class="rs-track"><span class="rs-fill" style="width:88%"></span></span><span class="rn">106</span></div>
-            <div class="rs-bar"><span class="rl">4 <i class="fa-solid fa-star"></i></span><span class="rs-track"><span class="rs-fill" style="width:9%"></span></span><span class="rn">11</span></div>
-            <div class="rs-bar"><span class="rl">3 <i class="fa-solid fa-star"></i></span><span class="rs-track"><span class="rs-fill" style="width:2%"></span></span><span class="rn">2</span></div>
-            <div class="rs-bar"><span class="rl">2 <i class="fa-solid fa-star"></i></span><span class="rs-track"><span class="rs-fill" style="width:1%"></span></span><span class="rn">1</span></div>
-            <div class="rs-bar"><span class="rl">1 <i class="fa-solid fa-star"></i></span><span class="rs-track"><span class="rs-fill" style="width:0%"></span></span><span class="rn">0</span></div>
-          </div>
-        </aside>
-        <div class="rev-main">
-          <div class="rev-filter chips">
-            <span class="lbl">Filtrele:</span>
-            <button class="chip active" type="button">Tümü</button>
-            <button class="chip" type="button">Evde Antrenman</button>
-            <button class="chip" type="button">Kilo Yönetimi</button>
-            <button class="chip" type="button">Başlangıç</button>
-            <button class="chip" type="button">Online</button>
-          </div>
-          <div class="rev-list">
-            <article class="rev-item">
-              <div class="rev-top">
-                <div class="rev-av" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></div>
-                <div class="rev-who"><b>Pınar G. <span class="rev-badge"><i class="fa-solid fa-circle-check"></i> Doğrulanmış danışan</span></b><span>Online danışan · 4 ay</span></div>
-                <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              </div>
-              <p class="rev-text">Spor salonuna adım atmaya çekinen biriydim. Her şeyi evimde, kendi tempomda yapabileceğim şekilde kurdu. Hiç yargılanmadığımı hissettim — bu benim için en önemlisiydi.</p>
-              <div class="rev-tags"><span class="rev-tag">Evde Antrenman</span><span class="rev-tag">Başlangıç</span></div>
-              <div class="rev-reply"><b><i class="fa-solid fa-reply"></i> Antrenörün yanıtı</b>Bu kadar yol katettiğin için tebrikler Pınar! Düzenli alışkanlığın harika 👏</div>
-              <div class="rev-foot">
-                <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-                <span class="rev-help" style="cursor:default">14 değerlendirme faydalı buldu</span>
-              </div>
-            </article>
-            <article class="rev-item">
-              <div class="rev-top">
-                <div class="rev-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></div>
-                <div class="rev-who"><b>Mert A. <span class="rev-badge"><i class="fa-solid fa-circle-check"></i> Doğrulanmış danışan</span></b><span>Online danışan · 6 ay</span></div>
-                <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              </div>
-              <p class="rev-text">Masa başı işten dolayı sürekli yorgundum. Plan her hafta yenileniyor, sıkılmama izin vermiyor. Mesaj attığımda hep hızlı dönüyor; kendimi yalnız hissetmedim.</p>
-              <div class="rev-tags"><span class="rev-tag">Kilo Yönetimi</span><span class="rev-tag">Online</span></div>
-              <div class="rev-foot">
-                <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-                <span class="rev-help" style="cursor:default">9 değerlendirme faydalı buldu</span>
-              </div>
-            </article>
-            <article class="rev-item">
-              <div class="rev-top">
-                <div class="rev-av" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-9&high=8&vib=5')"></div>
-                <div class="rev-who"><b>Elif D. <span class="rev-badge"><i class="fa-solid fa-circle-check"></i> Doğrulanmış danışan</span></b><span>Hibrit danışan · 3 ay</span></div>
-                <div class="rev-rate"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              </div>
-              <p class="rev-text">Daha önce denediğim her şey beni kötü hissettirip bırakmama neden olmuştu. Beden-pozitif yaklaşımı sayesinde ilk kez tartı yerine kendime odaklandım. Diyetisyeniyle ortak çalışması büyük artı.</p>
-              <div class="rev-tags"><span class="rev-tag">Başlangıç</span><span class="rev-tag">Beslenme</span></div>
-              <div class="rev-foot">
-                <button class="rev-help" type="button"><i class="fa-regular fa-thumbs-up"></i> Faydalı</button>
-                <span class="rev-help" style="cursor:default">8 değerlendirme faydalı buldu</span>
-              </div>
-            </article>
-          </div>
-          <div class="rev-more"><button class="btn btn-ghost" type="button"><i class="fa-solid fa-arrow-down"></i> Daha fazla yorum (117)</button></div>
-        </div>
-      </div>
+      <div class="fy-sec"
+           data-fit-yorum="antrenor"
+           data-yorum-slug="selin-aksoy"
+           data-yorum-baslik="Bu antrenörü değerlendir"
+           data-yorum-sayac="#pfAtRevCnt"></div>
     </div>
 
     <!-- ===== ANTRENÖR ALT CTA BANDI (cp-cta-band → pf-atband; rol-koşullu) ===== -->
@@ -4293,6 +4271,104 @@ window.__bottomStrips=window.__bottomStrips||[];
   if(q.get('role') === 'antrenor' && q.get('view') === 'public'){
     var slug = q.get('slug') || 'selin-aksoy';
     location.replace('antrenor-detay-v1.html?slug=' + slug);
+  }
+})();
+</script>
+
+<!-- YORUM SÖZLEŞMESİ — modül (aşağıdaki bağlayıcı bloktan ÖNCE yüklenmeli) -->
+<script src="assets/js/fit-yorum-veri.js"></script>
+<script>
+/* Profil sahibi kendi sayfasındaysa (public kip DEĞİL) yanıt verebilir —
+   Gastro'nun kuralı: yalnız içerik sahibi yanıtlar (ReviewPolicy.php:69). */
+(function(){
+  var kap = document.querySelector('[data-fit-yorum]');
+  if(kap && !document.body.classList.contains('pf-public')) kap.setAttribute('data-yorum-sahip','1');
+})();
+</script>
+<script>
+/* =====================================================================
+   K16 · "Faydalı" sayaç motoru — R19/A15'te MODÜLE TAŞINDI.
+   Motor artık `assets/js/fit-yorum-veri.js` içindedir; bu blok yalnız
+   diyetisyen panelinin ELLE YAZILMIŞ kartlarını o motora bağlar.
+   ⚠ İKİNCİ BİR DEPO DOĞMADI: anahtar aynı (`dm_fit_faydali_v1`), biçim
+   aynı ({surum,oylar,guncelleme}), kimlikler aynı (dyt-1…3 · at-1…3) —
+   daha önce verilmiş oylar geçerli kalır. Antrenör panelinin kartlarını
+   modülün kendi sürücüsü basıyor ve kendi düğmelerini kendisi bağlıyor;
+   burada YALNIZ `[data-review-id]` taşıyan eski markup ele alınır.
+   Taban sayı depoda tutulmaz, HTML'in kendi sayısıdır (`data-base-oy`).
+   ===================================================================== */
+(function(){
+  var btnler = document.querySelectorAll('.rev-help[data-review-id]');
+  if(!btnler.length) return;
+  var Y = window.FIT_YORUM;
+  if(!Y){ return; }   /* modül yoksa sessiz kal — sahte sayaç basma */
+
+  function boya(btn){
+    var id = btn.getAttribute('data-review-id');
+    var taban = parseInt(btn.getAttribute('data-base-oy'), 10) || 0;
+    var oyVerildi = Y.faydaliMi(id);
+    var toplam = taban + (oyVerildi ? 1 : 0);
+    btn.setAttribute('aria-pressed', oyVerildi ? 'true' : 'false');
+    btn.classList.toggle('is-voted', oyVerildi);
+    var ikon = btn.querySelector('i');
+    if(ikon) ikon.className = oyVerildi ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
+    var sayac = document.querySelector('[data-review-count="' + id + '"]');
+    if(sayac) sayac.textContent = toplam + ' değerlendirme faydalı buldu';
+  }
+
+  Array.prototype.forEach.call(btnler, function(btn){
+    boya(btn);
+    btn.addEventListener('click', function(){
+      if(Y.faydali(btn.getAttribute('data-review-id')) === null){
+        btn.setAttribute('title', 'Tarayıcı depolaması kapalı — oy tutulamıyor');
+        return;
+      }
+      boya(btn);
+    });
+  });
+})();
+</script>
+<script>
+/* =====================================================================
+   K16 · Kapak/fotoğraf değiştir — GERÇEK dosya seçici + önizleme.
+   ÖLÇÜLEN KUSUR: iki düğmenin de JS karşılığı yoktu. Sunucu bu depoda
+   yok; dosya hiçbir yere YÜKLENMEZ, yalnız `FileReader` ile o an açık
+   sekmede önizlenir ve bu ekran bunu bir satırla söyler (#pfPhotoNote).
+   Sayfa yenilenince eski görsele döner — hiçbir yerde kalıcı yazma yok.
+   ===================================================================== */
+(function(){
+  var not = document.getElementById('pfPhotoNote');
+  function onizle(hedefEl, dosya){
+    if(!hedefEl || !dosya || !/^image\//.test(dosya.type)) return;
+    var okuyucu = new FileReader();
+    okuyucu.onload = function(){
+      hedefEl.style.backgroundImage = "url('" + okuyucu.result + "')";
+      if(not) not.hidden = false;
+    };
+    okuyucu.readAsDataURL(dosya);
+  }
+
+  var kapakBtn = document.getElementById('pfCoverBtn');
+  var kapakDosya = document.getElementById('pfCoverFile');
+  var kapakHedef = document.getElementById('pfBanner');
+  if(kapakBtn && kapakDosya){
+    kapakBtn.addEventListener('click', function(){ kapakDosya.click(); });
+    kapakDosya.addEventListener('change', function(){
+      onizle(kapakHedef, kapakDosya.files && kapakDosya.files[0]);
+    });
+  }
+
+  var avaBtn = document.getElementById('pfAvaBtn');
+  var avaDosya = document.getElementById('pfAvaFile');
+  var avaHedef = document.getElementById('pfAva');
+  if(avaBtn && avaDosya){
+    avaBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      avaDosya.click();
+    });
+    avaDosya.addEventListener('change', function(){
+      onizle(avaHedef, avaDosya.files && avaDosya.files[0]);
+    });
   }
 })();
 </script>

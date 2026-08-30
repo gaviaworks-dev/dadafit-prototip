@@ -557,6 +557,8 @@
 <!-- Metin yaslama katmani (tek kaynak) — sayfa stillerinden SONRA yuklenir,
      boylece sayfa ici text-align kurallari yaslamayi geri alamaz -->
 <link rel="stylesheet" href="assets/css/fit-type.css" />
+<!-- Yorum ve değerlendirme bölümü (dört sayfanın TEK kaynağı) -->
+<link rel="stylesheet" href="assets/css/fit-yorum.css" />
 </head>
 <body data-brand="fit" data-fit-page="program-detay-v1">
 
@@ -1193,7 +1195,20 @@
   </div>
 </section>
 
-<!-- ===== 5 · KAPANIŞ CTA ===== -->
+<!-- ===== 5 · YORUM VE DEĞERLENDİRME =====
+     Bölümü `assets/js/fit-yorum-veri.js` basar; markup burada TEKRARLANMAZ.
+     Slug sayfanın kendi çözümünden (window.PD_PROGRAM) gelir.
+     GERÇEKTEN KAYDEDER: yazılan yorum localStorage'a gider, yenilemede durur. -->
+<section class="sec sec-fit" id="yorumlar" style="background:var(--bg-cream);border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="fy-sec"
+         data-fit-yorum="program"
+         data-yorum-slug="4-hafta-ev-antrenmani"
+         data-yorum-baslik="Bu programı değerlendir"></div>
+  </div>
+</section>
+
+<!-- ===== 6 · KAPANIŞ CTA ===== -->
 <section class="sec df-cta">
   <div class="wrap">
     <span class="eyebrow"><i class="fa-solid fa-bolt"></i> Hazırsan</span>
@@ -1685,6 +1700,19 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
 
 
 
+
+<!-- YORUM SÖZLEŞMESİ — modül + bu sayfanın slug'ı -->
+<script src="assets/js/fit-yorum-veri.js"></script>
+<script>
+/* Slug'ı sayfanın kendi çözümünden alır (window.PD_PROGRAM) — ikinci bir
+   slug haritası doğmasın diye. */
+(function(){
+  var kap = document.querySelector('[data-fit-yorum]');
+  if(!kap) return;
+  var sl = (window.PD_PROGRAM && window.PD_PROGRAM.slug) || null;
+  if(sl) kap.setAttribute('data-yorum-slug', sl);
+})();
+</script>
 
 </body>
 </html>

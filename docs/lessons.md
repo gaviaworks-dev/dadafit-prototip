@@ -688,3 +688,185 @@ pencereye alınır.
 bir kusur genelde bir kısmında görünür; **hepsi** düşüyorsa ölçüm körlüğüdür.
 Ekrana bak, katmanı bul, kaldır, yeniden ölç. (docs/lessons.md §2'nin footer
 tarafındaki tekrarı — sonda körlüğü bu depoda üçüncü kez çıktı.)
+
+---
+
+## §32 · Belgeye yazılan ders, kapıya yazılmadıkça bir sonraki dosyada geri gelir
+
+**Tur:** R19 · **Bulan:** B5 ajanı, yol üstünde · **Etkilenen:** 6 yeni dosya
+
+### Kusur
+
+```html
+<input pattern="[a-z0-9-]+">
+```
+
+Chromium `pattern` özniteliğini **`v` bayrağıyla** derliyor ve orada karakter
+sınıfının **sonundaki çıplak `-`** geçersiz. Ölçüldü:
+
+```
+[a-z0-9-]+              u: geçerli    v: GEÇERSİZ  (Invalid regular expression)
+[a-z0-9\-]+             u: geçerli    v: geçerli
+[a-z0-9]+(-[a-z0-9]+)*  u: geçerli    v: geçerli
+```
+
+### Neden sinsi
+
+Kusur **yükleme anında görünmez** — pattern ancak doğrulama sırasında derlenir.
+Yani ekran açılır, ölçüm "konsol 0" der, kapı yeşil yanar. Kırmızı ancak
+kullanıcı **Kaydet'e bastığında** düşer ve tam o anda:
+
+`reportValidity()` istisna atar → **form doğrulanmaz** → ama `maketKaydet`
+yine de **"Form doğrulandı"** notunu basar. Boş zorunlu alanla da basar.
+
+Bu, bu depoda en çok kovalanan şeyin ta kendisidir: **maket olanı gerçekmiş
+gibi göstermek** — ve bunu yapan, dürüstlük yardımcısının kendisi.
+
+### 🔴 Asıl ders bu değil
+
+**Bu ders zaten yazılıydı.** `admin-challenge-v1.html`in kendi yorum bloğu,
+önceki bir turda, tam olarak bu kusuru ve çözümünü anlatıyordu:
+
+> *"🔴 TİRE KAÇIŞLI OLMAK ZORUNDA: `[a-z0-9-]` Chromium'un `pattern`
+> derleyicisinde İSTİSNA ATIYOR… Sonucu sessiz ve tam da bu turda
+> kovaladığımız yalandı."*
+
+Yorum doğruydu, yerindeydi, ayrıntılıydı — ve **altı yeni dosyanın altısında
+da tekrarlandı.** Çünkü bir yorum yalnız o dosyayı okuyanı korur; yeni dosya
+yazan onu okumaz.
+
+**Kural: bir ders bir dosyanın yorumunda yaşıyorsa henüz öğrenilmemiştir.**
+Tekrar edebilen her kusur bir **ölçüm kapısına** yazılır; kapı yoksa ders
+sonraki turda geri gelir. Bu depoda üçüncü kez oldu (kaydet düğmesinin yeri,
+liste aramasının yeri, şimdi bu).
+
+### Ne yapıldı
+
+`docs/qa/admin-form-kalibi.mjs` artık her `pattern` özniteliğini tarayıcıda
+**`v` bayrağıyla derliyor** ve derlenmeyeni kırmızıya çeviriyor.
+Ölçüldü: **19 pattern · v-kipinde geçersiz 0.**
+
+Doğru kalıplar (baştaki/sondaki tireyi de yasaklar — slug için zaten doğru):
+
+| Kullanım | Kalıp |
+|---|---|
+| slug | `[a-z0-9]+(-[a-z0-9]+)*` |
+| isteğe bağlı slug | `([a-z0-9]+(-[a-z0-9]+)*)?` |
+| büyük harfli kod | `[A-Z0-9]+(-[A-Z0-9]+)*` |
+
+---
+
+## §33 · HTML'den grep'lenen sayı ölçüm değil tahmindir
+
+**Tur:** R19 · **Bulan:** B3 ajanı, kendi brifingini denetlerken · **Doğrulayan:** lead
+
+### Ne oldu
+
+Bir ölçüm ajanı `docs/gastro-olcum/fit-yonetilmeyenler.md`i yazdı; belge altı
+yapıcı ajanın brifingi oldu. B3, kendi maddesinin üç sayısını **yeniden ölçtü**
+ve üçü de yanlış çıktı:
+
+| Belgede | Gerçek | Neden |
+|---|---|---|
+| *"`ORDER` 11 ilan ediyor, `L` 10 tanımlıyor — `veri-izin` eksik"* | **11 / 11, kesişim tam. Kusur YOK.** | `L`'nin anahtarları eksik sayılmış |
+| S.S.S. **30** kayıt | **24** | `data-kat` özniteliğini kategori **sekme düğmeleri** de taşıyor (6 tane) |
+| Rehber **177** `<li>` | **153** | `grep -o '<li'` deseni **`<link>`** etiketlerini yakalıyor (sayfa başına 4) |
+
+### Denetimin ortaya çıkardığı desen
+
+Lead belgenin **öteki bütün başlık sayılarını** yeniden ölçtü. Sonuç keskin:
+
+> **Yanlış çıkan üç sayının üçü de HTML'den grep'lenmişti.
+> Veri modülünden okunan hiçbir sayı yanlış çıkmadı.**
+
+Doğru çıkanlar: 254 terim × 9 alan (`sozluk-veri.js`) · 31 kas · 12 hareket ·
+4 harita (`anatomi-veri.js`) · 50 rozet · 9 aile · 8 kademe (`fit-rozet.js`) ·
+10 fatura (`fit-fatura.js`) · 100 adım + 100 ipucu (`VERI` bloğu **ayrıştırıldı**,
+grep'lenmedi) · 54 sayfa · 38 boş açıklama · 54 boş canonical (`fit-admin-veri.js`).
+
+### Kural
+
+1. **Veri bir modülde duruyorsa modül okunur.** `node -e` ile `eval` edip
+   `.length` saymak, düzine satırlık bir grep'ten hem kısa hem doğrudur.
+2. Modül yoksa desen **sınır karakteriyle** yazılır (`<li[ >]`, `'<li'` değil)
+   **ve bir örnek elle sayılarak doğrulanır.**
+3. Bir sayı bir ajanın brifingine girecekse **iki bağımsız yolla** ölçülür.
+
+### 🔴 Ve asıl kural
+
+**Olmayan bir kusuru ekrana basmak, olan bir kusuru kaçırmaktan daha kötüdür.**
+Brief B3'e "yasal listedeki tutarsızlığı uyarı rozetiyle görünür kıl" diyordu.
+B3 ölçtü, tutarsızlık **yoktu**, ve **çizmedi** — talimatı körlemesine
+uygulamak yerine ölçümü söyledi. Doğru davranış budur: bu depoda kanıt sayıdır,
+ve talimat da kanıtın önüne geçmez.
+
+Yerine gerçek eksiği bastı: 11 belgenin 11'inde de **sürüm ve yürürlük tarihi
+alanı yok.**
+
+---
+
+## §34 · Yarım uygulanan eş-ad sözleşmesi, hiç olmamasından kötüdür
+
+**Tur:** R19 · **Bulan:** B2 ajanı · **Etkilenen:** kabuk, 4 kart bileşeni
+
+### Sözleşme
+
+R17'de kabuk şu kuralı koydu (`fit-admin.css` §0): *"Gastro'nun adı kanon,
+`.adm-*` onun eş anlamlısı; ikisi de aynı pikseli basar."* 21 ekranın markup'ını
+elemek yerine her kural iki seçiciye birden yazıldı.
+
+### Kusur
+
+Yazılış şöyleydi:
+
+```css
+.adm-card .c-body, .pnl-card .pc-body { padding:22px }
+```
+
+Yani her **iç** ad yalnız **bir** dış adla eşleşiyordu. Dört birleşimden
+**ikisi** hiçbir kurala düşmüyordu: `.adm-card .pc-body` ve `.pnl-card .c-body`.
+
+**Somut zarar ölçüldü:** referans form ekranı `.adm-card` içinde dört yerde
+`.pc-body` kullanıyordu → `getComputedStyle` **`0px`** okudu. Yan kartların ve
+sekme şeridinin dolgusu yoktu.
+
+### Niye kimse görmedi
+
+Çünkü kart **yine de duruyor** görünüyordu. Kenarlık, yarıçap ve gölge
+`.adm-card`tan geliyordu; eksik olan yalnız iç dolguydu ve ekran "sıkışık ama
+bozuk değil" duruyordu. Kapılar da göremezdi: `admin-kalip-denetim.mjs`
+`.adm-card .c-head` dolgusunu ölçüyordu — **var olan** birleşimi.
+
+**Bir eş-ad sözleşmesi kurulduğunda çapraz birleşimlerin hepsi kurulur.**
+Yarısı kurulursa, yazan kişi "iki addan biri" seçme özgürlüğü olduğunu sanır ve
+yanlış yarıyı seçtiğinde kural sessizce düşer.
+
+### Ne yapıldı
+
+`:is()` ile tam çapraz:
+
+```css
+:is(.adm-card,.pnl-card) :is(.c-body,.pc-body){padding:22px}
+```
+
+Özgüllük değişmiyor — `:is()` argümanlarının en yükseğini alır, hepsi sınıf
+(0-2-0), eskisiyle aynı. Aynı düzeltme `c-head`/`pc-head`, `c-foot`/`pc-foot`,
+başlık ve eylem şeridi ile `@media(max-width:640px)` bloğuna da uygulandı.
+
+Ölçüldü: 21 ekran · kabuk sapması **0** · kalıp sapması **0** ·
+16 form sayfası · kusur **0**.
+
+### Yan ders — yedek yol sessiz olmaz
+
+Aynı ajan aynı turda ikinci bir kusur buldu ve sınıfı aynıydı:
+referans formun `kasKatalog()`u `ANATOMI_VERI.kaslar.length`e bakıyordu; o bir
+**dizi değil nesne**, `.length` `undefined`, koşul sessizce düşüyor ve katalog
+hareket kayıtlarından türetiliyordu. Menüde 31 yerine **38** ad çıkıyordu ve
+alanın altındaki *"Anatomi haritasındaki 31 kas kaydından seçilir"* ipucu
+**ekranda yalan söylüyordu**.
+
+Bu, bu depoda üçüncü kez aynı sınıf (`maketKaydet`in form bulamama hâli ·
+`.fit-tabs.is-center`in ölü kalması · şimdi bu):
+**çalışan bir yedek yol, kusuru görünmez kılar.**
+Kural: yedek yola düşen kod **konsola yazar**, ve ekranda sayı ilan
+edilmez — **sayılır** (ipucu artık `kaslar.length` basıyor).

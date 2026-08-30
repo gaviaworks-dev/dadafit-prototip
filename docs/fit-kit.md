@@ -422,3 +422,121 @@ için dolgu olmadan kırpılır.
 
 **Kalemler kabuktan okunur, uydurulmaz** — `NAV`ın dört modülü + Enerji
 Defteri + Diğer. Nöbet: `docs/qa/gorus-cip-serit.mjs` (3 sayfa × 3 genişlik).
+
+---
+
+## 16 · Yönetim paneli ortak bileşen katmanı — R19 (2026-08-30)
+
+🔴 **Yalnız admin sayfalarında.** `assets/css/fit-admin.css` §20–§21 +
+`assets/js/fit-admin.js` "ORTAK BİLEŞEN KATMANI".
+Kaynak ölçümü: **`docs/gastro-olcum/ortak-bilesenler.md`** (1062 satır,
+`dadagastro-profil` salt okuma). Buradaki her sayı oradan geldi.
+
+### Gastro'nun ölçülen üç kusuru TEKRARLANMADI
+
+| Gastro'da | Ölçüm | Fit'te |
+|---|---|---|
+| `.sa-modal` CSS'i **üç kopya** (`sa-ui.css` · `sa-shell.css` · `sa-confirm.css`) | dosyanın kendi yorumu borç olarak işaretliyor | **tek tanım** |
+| `.sa-flash.danger` için **CSS kuralı yok**; hata şeridi 6 satırlık inline stil olarak kopyalanmış | **en az 5 blade** | dört tip de CSS'te: `.is-ok` `.is-error` `.is-warn` `.is-note` |
+| Sıralama **merkezî değil**; her ekran kendi `Sortable.create`ini basıyor + `defer` tuzağı ayrı ayrı çözülmüş | **15 çağrı / 6 ekran**, tuzak 5 formda | tek sürücü `FIT_ADMIN.sirala` |
+
+### Gastro'dan birebir taşınan sabitler
+
+| Sabit | Değer |
+|---|---|
+| Onay modalı genişliği | `420px` · ikon `46×46/13px` · dolgu `26px 26px 22px` |
+| Onay kapanış animasyonu | `220 ms` |
+| Toast görünme / çıkış | `2600 ms` / `260 ms` · gövde **her tipte koyu** (`--slate`), tip yalnız **ikon rengini** değiştirir |
+| Token menüsü | `max-height 248px` · yerel liste **40** kayıt |
+| Yükleme kutusu | `240px` · galeri döşemesi `148×92` (mobil `104×70`) |
+| Sıralanabilir kart | `.st-card` dolgu `16px` · `.st-num` `38px` daire · `.ie-drag` görsel `13px` · `.ie-del` görsel `30px` |
+| **z-index merdiveni** | token menüsü **60** < onay modalı **200** < kırpma **205** < toast **210** |
+
+### Gastro'dan bilerek sapılan üç eksen
+
+1. **Dokunma hedefi 44px.** `.sa-modal-acts .btn` Gastro'da 40px; dolgu
+   Gastro'nunki kaldı, `min-height:44px` eklendi (kit §5/§6'nın üç kez verdiği
+   kararla aynı yöntem). `.ie-del` görsel 30px kaldı, hedefi `::before` ile 44.
+2. **Renk.** Gastro'nun `--tomato`su Fit'te yok; yıkıcı eylem rengi kitin kendi
+   `--hs-danger` ailesidir (§1). **Yeni renk üretilmedi.**
+3. **Klavye.** Gastro'nun sıralaması yalnız fare; `FIT_ADMIN.sirala` tutamak
+   odaktayken **↑ / ↓** ile de taşır. Faresiz kullanıcı sırayı hiç
+   değiştiremiyordu — bu bir eksikti, kopyalanmadı.
+
+### `FIT_ADMIN.*` — çağrı listesi
+
+| Çağrı | Bileşen | Gastro karşılığı |
+|---|---|---|
+| `.toast(metin,{tip,ms})` | `.sa-toast` | `saToast` |
+| `.onay({yikici,baslik,metin,onayla,onay})` | `.sa-modal` | `saConfirm` |
+| `data-yikici="Ad" data-fiil="sil\|arsiv\|yayin\|reddet\|iade"` | **capture fazlı yıkıcı-eylem delegesi** | `sa-ui.js:76-118` |
+| `.flash(tip,metin,kap)` | `.sa-flash` | `.sa-flash` (97 kullanım) |
+| `.etiket(sel,{katalog,ad,ico,serbest,tekli,secili})` | `.ms-*` | `_token-field.blade.php` |
+| `.sirala(sel,{oge,tutamak,degisti})` | `.st-card` DnD + klavye | SortableJS 1.15.2 |
+| `.tekrar({liste,ekle,sablon,enAz,enCok})` | repeater | `.st-list` + `.add-row` |
+| `.editor(ta,'varsayilan'\|'satir'\|'govde')` | `.adm-ed` | TinyMCE 7.9.3 (3 profil) |
+| `.medya({tekli,sec})` | `.mk-*` modal | **YOK — üstüne inşa edildi** |
+| `.yukle(sel,{cok,enCok,not,degisti})` | `.iu-*` | `<x-admin.image-upload>` |
+| `.seo(form,kutu)` | `.seo-score` + 6 ölçüt | `publish-sidebar` skoru |
+
+### 🔴 Native `confirm()` YASAK
+
+Gastro'da doğrulandı: `resources/views/admin/**` altında **sıfır** çağrı;
+bulunan tüm isabetler kaldırıldığını anlatan yorumlar. Fit'te de yasak —
+yıkıcı eylem `data-yikici` taşır, kabuk onay modalını kendiliğinden açar.
+
+### `.ms-search` ve dokunma hedefi — ölçülmüş not
+
+Token kutusundaki arama girdisi **28px**tir, 44 değil. Hedef girdi değil
+**`.ms-box`**tur: `min-height:44px`, `cursor:text`, tıklama girdiyi odaklıyor.
+`.kyt-btn` deseninin (§10: "hedef 44, göz 26") aynısı. Girdiyi 44'e çıkarmak
+kutuyu 62px yapardı ve çipler arası dikey ritim bozulurdu.
+
+---
+
+## 17 · Form sayfası kalıbı — `.form-layout` (R19)
+
+Kaynak: **`docs/gastro-olcum/form-kalibi.md`** §1 — Gastro'nun **sekiz** içerik
+formunun sekizinde de aynı yedi parça, aynı sırayla.
+Referans uygulama: **`admin-hareket-form-v1.html`** (ölçüldü, çalışıyor).
+
+| Parça | Ölçü | Gastro kaynağı |
+|---|---|---|
+| `.form-layout` | `grid: minmax(0,1fr) minmax(280px,360px)` · `gap:24px` | `sa-icerik-form.css:25` |
+| `.side-card` | `position:sticky; top:calc(var(--pnl-top-h) + 28px)` · ≤900px `static` | `sa-ui.css:144`, `:153` |
+| `.sa-form-tabs` / `.sa-form-panel` | form **içi** sekme | `sa-ui.css:176-186` |
+| `.form-sec` | `18px 22px` · alt çizgi, sonuncuda yok | `:20-21` |
+| `.frow` / `.finput` `.fselect` `.ftext` | alan `44px` · dolgu `0 14px` · `.ftext` `min-height:96px` | `:13-18` |
+| `.slug-wrap` / `.slug-pre` | ön ekli adres alanı | `:31-34` |
+| `.toggle` | `40×22` anahtar, hedef `44px` | `:87-92` |
+| `.form-actions` | `justify-content:flex-end` — **kaydet SAĞDA** | 9 sayfa CSS'inde birebir |
+
+**İki ad, tek kural** (kabuğun kendi sözleşmesi): Gastro'nun `.frow`/`.finput`
+ailesi **kanon**; bu deponun `.fk-*` kiti (§7, 60 public sayfa) onun eş
+anlamlısıdır. Yeni ekran Gastro'nun adını yazar; 21 eski ekranın markup'ı
+elenmez.
+
+🔴 **Dil sekmesi GELMEDİ.** Gastro'da 24 ekranda var; Fit tek dillidir
+(`<html lang="tr">`) ve "Diller kalemi dört markadan da kalkar" kararı duruyor.
+Boş bir TR sekmesi basmak, olmayan bir yüzeyi vaat etmektir.
+
+🔴 **Create ve edit AYNI dosyadır** (Gastro `form.blade.php` kanonu):
+`?<anahtar>=<slug>` varsa düzenleme, yoksa yeni.
+
+### `FIT_SHELL.menu()` — kabuğun menü verisi (R19)
+
+Public kabuğun **on** menü dizisini **derin kopya** olarak döndürür; yönetim
+panelinin "Menü ve Navigasyon" ekranı buradan okur, kendi kopyasını tutmaz.
+
+| Aile | Kalem (ölçüldü, `dadafit-hub-v1.html`) |
+|---|---|
+| `NAV` | 4 (alt menüleriyle) |
+| `BOTTOM` | 5 |
+| `ACCOUNT` | 13 |
+| `FOOTER_COLS` · `FOOTER_CORP` · `FOOTER_LEGAL` | 3 · 8 · 6 |
+| `PLAN_TABS` · `PLAN_EXTRA` · `DESTEK_TABS` | 4 · 3 · 3 |
+| `RAIL` | 6 |
+
+🔴 **Dizinin kendisi dışa açılmaz.** 60 public sayfa aynı kabuğu yüklüyor;
+canlı diziyi `window`a asmak bir sayfa scriptinin header'ı sessizce bozmasına
+izin verirdi. Fonksiyon çağrılmadıkça maliyet doğurmaz.

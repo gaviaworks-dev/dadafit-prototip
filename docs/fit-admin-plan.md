@@ -389,3 +389,136 @@ karıştırıldı ve ölçümle düzeltildi.
    (`<html lang="tr">`), üstelik devir belgesi §10'da "Diller kalemi dört
    markadan da kalkar" kararı var. Panelde dil sekmesi **yok**.
 
+
+---
+
+## 11 · R19 KARARLARI — teknik ve görsel, gerekçesiyle
+
+> Bu turda Beyar'ın verdiği çerçeve: *"Gastro taban, tavan değil. Gastro'da bir
+> şey eksikse orada durma — üstüne inşa et."* Aşağıdaki her karar bir ölçümün
+> ardından verildi; ölçümler `docs/gastro-olcum/` altında (5 belge).
+
+### D1 · TinyMCE'nin KENDİSİ gelmedi, SÖZLEŞMESİ geldi
+
+**Ölçüm:** Gastro TinyMCE **7.9.3** self-hosted, merkezî config
+(`public/vendor/tinymce-config.js`, 158 satır), **3 profil**, 36 kullanım /
+14 ekran.
+
+**Karar:** Fit'e `.adm-ed` — `contenteditable` tabanlı kendi editörü.
+Araç çubuğu düğme listesi, **sırası**, ayraç yerleri, üç profil ve
+`block_formats` Gastro'nun config'inden **birebir**.
+
+**Gerekçe:**
+1. Bu depo **buildless** ve tek dış bağımlılığı Font Awesome CDN'idir. TinyMCE 7
+   community ~700 KB + yüzlerce skin dosyası; vendorlamak deponun kendi kararını
+   bozar, "araç eklemek için DUR ve sor" kuralına girer.
+2. Maketin editörü **gerçek olmalı, TinyMCE olmak zorunda değil**. `.adm-ed`
+   gerçekten biçimlendiriyor — yalan söylemiyor.
+3. **Sözleşme taşındığı için backend turu bedavaya devralır:** aynı düğme
+   listesi, aynı profiller, aynı `block_formats`. `<textarea>` yerinde duruyor
+   ve değeri her `input`ta yazılıyor (Gastro'nun `triggerSave` borcu yok).
+
+**Gastro'nun iki kararı da taşındı:** gövde-blok profilinde `underline`
+**bilerek yok** (purifier `span`a izin vermediği için altı çizgi sessizce
+kayboluyordu — "editör kullanıcıya yalan söylerdi"); yapıştırma **düz metin**.
+
+**Üstüne inşa:** Gastro'da editörden görsel yükleme yolu **yok**
+(`images_upload_url` tanımsız, yalnız URL yapıştırma). Fit'te editörün `image`
+düğmesi **medya kütüphanesine** bağlı.
+
+### D2 · SortableJS gelmedi, merkezî `FIT_ADMIN.sirala` kuruldu
+
+**Ölçüm:** Gastro SortableJS 1.15.2'yi CDN'den alıyor ama **merkezî değil** —
+altı ekran kendi satırını basıyor (**15 `Sortable.create` çağrısı**) ve `defer`
+tuzağı **beş formda ayrı ayrı** çözülmüş (`whenSortableReady`).
+
+**Karar:** kütüphanesiz, HTML5 sürükle-bırak + **klavye**, tek sürücü.
+**Gerekçe:** iki kusur birden kalkıyor (dağınıklık + `defer` tuzağı), CDN
+bağımlılığı eklenmiyor, ve **klavyeyle sıralama** doğuyor — Gastro'nunkinde yok,
+faresiz kullanıcı sırayı hiç değiştiremiyordu.
+
+### D3 · Medya kütüphanesi — Gastro'da YOK, kuruldu
+
+**Ölçüm:** `media-library|MediaLibrary|media.index` → **0 isabet** ·
+`alt_text` → **0** · klasörleme **yok**. Gastro'da görsel yalnız formun içindeki
+yükleme kutusundan gelir; bir daha bulunamaz.
+
+**Karar:** `admin-medya-v1.html` (ekran) + `FIT_ADMIN.medya()` (form
+alanlarından çağrılan modal). Klasör · arama · alt metin · yeniden kullanım ·
+tekli/çoklu seçim · **nerede kullanıldığı**.
+
+**Katalog uydurulmadı, sayıldı:** `tools/medya-veri-uret.mjs` 75 HTML +
+`assets/js`i tarıyor → `assets/js/fit-medya-veri.js`, **85 görsel, 9 klasör**,
+her kaydın `kullanim` sayısı ve `sayfa` listesi gerçek. `paylasik:true` olan
+**79** görsel birden çok modülde geçiyor; ekran "bunu değiştirirsen başka yer de
+değişir" diye uyarıyor.
+
+⚠ **Klasör bir dosya yolu değil, kullanım bağlamıdır** — uzak görselin (Unsplash)
+klasörü olmaz; onu en çok kullanan modül klasör sayılır.
+
+### D4 · Onay modalı tek kaynak, native `confirm()` yasak
+
+Gastro'da `.sa-modal` CSS'i **üç kopya**; Fit'te tek. Yıkıcı-eylem delegesi
+(capture fazlı, belge geneli) taşındı: `data-yikici="Ad" data-fiil="…"` yazan
+her düğme kendiliğinden onay ister; ekran başına `onclick` yazılmaz.
+Native `confirm()` yasağı Gastro'da doğrulandı (admin blade'lerinde **0** çağrı).
+
+### D5 · Flash'ın dört tipi de CSS'te
+
+Gastro'da `.sa-flash.danger` için **kural yok**; hata şeridi altı satırlık inline
+stil olarak **en az beş blade'de** kopyalanmış. Fit'te dördü de CSS'te:
+`.is-ok` · `.is-error` · `.is-warn` · `.is-note`.
+
+### D6 · Form sayfası ayrı dosyadır, gömülü kart değil
+
+**Ölçüm** (`fit-yonetilmeyenler.md` D bölümü): 21 ekranın 6'sında "Yeni …"
+düğmesi vardı, 5'i gerçek form açıyordu; formlar **9–14 alan** taşıyordu.
+Gastro'nun aynı formu (tarif) **1430 satır**.
+
+**Karar:** Gastro'nun kanonu — create ve edit **aynı dosya**
+(`form.blade.php` deseni), liste ekranından ayrı. Gömülü kartlar söküldü;
+iki yazma yüzeyi bırakmak bu depoda üç kez temizlenen "aynı soruya iki cevap"
+kusurudur.
+
+### D7 · İl listesi modüle çıkarıldı
+
+**Ölçüm:** Türkiye'nin 81 ili hiçbir veri modülünde değildi —
+`odemelerim-v1.html`in fatura adresi alanına `<option>` olarak gömülüydü.
+Panelin il alanı için ikinci bir elle-yazılmış kopya üretmek yerine üreteçle
+**çıkarıldı**: `tools/il-veri-uret.mjs` → `assets/js/fit-il-veri.js`.
+**Public sayfa değişmedi.** İlçe listesi (973 kayıt) hâlâ yok; alan serbest
+metin kalıyor ve ekran bunu söylüyor (kuyruk kalemi 2).
+
+### D8 · Paket yönetimi Gastro'nun ÜSTÜNE inşa
+
+**Ölçüm** (`para-abonelik-menu-ayarlar.md` §1.3): Gastro'nun plan⇄özellik
+yüzeyi **7 sabit boolean**; özellik ekleme/çıkarma yüzeyi, `features` tablosu,
+karşılaştırma tablosu yönetimi ve plan **CREATE/DELETE** yok. Yani Beyar'ın
+1. maddesi Gastro'da da eksik.
+
+**Karar:** Gastro'nun form ve liste **dilini** kullan, yüzeyi **genişlet** —
+kademe CRUD · grup CRUD · modül CRUD · kapsam metni sözlüğü · karşılaştırma
+tablosu yönetimi. K14 "Fit'in hesap yüzeyinin TAMAMI doğru kurguyla" diyor;
+"Gastro'da da yok" bir gerekçe değil, bir ölçümdür.
+
+### D9 · Kabuğun menü verisi salt-okuma ucuyla açıldı
+
+**Ölçüm (B5 ajanı, doğrulandı):** `fit-shell.js` tek IIFE; `NAV` · `BOTTOM` ·
+`ACCOUNT` · `FOOTER_COLS` · `FOOTER_CORP` · `FOOTER_LEGAL` · `PLAN_TABS` ·
+`PLAN_EXTRA` · `DESTEK_TABS` · `RAIL` hepsi içeride `var` ile tanımlı. Dışa açık
+**on ucun hiçbiri** menü verisi vermiyordu. Bu yüzden `admin-menu-v1.html`
+**kendi 46 satırlık kopyasını** tutuyordu ve dosyanın kendi notu bunu borç
+olarak işaretliyordu (C-10); gerçek menü on dizide **73 kalem**.
+
+**Karar:** `FIT_SHELL.menu()` — dizilerin kendisi değil, **derin kopya döndüren
+bir fonksiyon**.
+
+**Gerekçe:** dizileri `window`a asmak 60 public sayfada kabuğun **canlı**
+verisini yazılabilir kılardı; bir sayfa scripti kalemi değiştirse header'ı
+sessizce bozardı. Fonksiyon çağrılmadıkça maliyet sıfır, çağrıldığında panel
+okur ve kabuk korunur.
+
+**⚠ Ters tırnak yasağı uygulandı** (`docs/lessons.md` §30): blokta hiç backtick
+yok, yorumda bile. `node --check` **yeterli değil** — kırık bir template literal
+rastlantıyla geçerli JS üretebiliyor; tarayıcıda `pageerror` sayıldı:
+`kabuk-r18-nobet.mjs` → **98/98 sayfa · konsol 0 · taşma 0 · footer basıldı**.

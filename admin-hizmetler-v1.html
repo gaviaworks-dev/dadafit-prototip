@@ -19,11 +19,23 @@
 
 /* Para parametreleri — K13. Değerler ALAN olarak durur, cümle olarak
    DEĞİL; okunur ama buradan düzenlenmez (sahibi Ayarlar ekranı). */
+/* 🔴 ÖLÇÜLEN KUSUR — `@media` SIDEBAR'I GÖREMİYOR (admin-menu'de bulunan
+   sınıfın aynısı). Eşik `@media (max-width:1240px)` idi, yani EKRAN
+   genişliğine bakıyordu; oysa rail açık/kapalı içerik genişliğini
+   264 px değiştiriyor (ölçüldü: 1440px ekranda `.adm-page` rail AÇIKKEN
+   1100px, KAPALIYKEN 1364px). Sonuç: 1280px ekranda rail açıkken içerik
+   940px'e düşüyor ama sorgu 1240'ı geçmediği için dört kolon ayakta
+   kalıyor ve dört para alanı 196px'e iniyordu (ölçüldü).
+   Doğrusu kabı sormak: `container-type:inline-size` + `@container`.
+   Kaynak desen `admin-menu-v1.html:45-49,134-137` — orada ölçülüp
+   kanıtlandı, burada tekrarlandı. Kabuğa dokunulmadı.
+   EŞİK: dört alan okunabilmek için ≥200px ister → 4×200 + 3×18 = 854. */
+#hzParKap{container-type:inline-size}
 .hz-par{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
 .hz-par .fk-field{margin-bottom:0}
 .hz-par .fk-input,.hz-par .fk-select{background:var(--bg);font-weight:700}
-@media (max-width:1240px){ .hz-par{grid-template-columns:repeat(2,minmax(0,1fr))} }
-@media (max-width:560px){ .hz-par{grid-template-columns:minmax(0,1fr)} }
+@container (max-width:860px){ .hz-par{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@container (max-width:420px){ .hz-par{grid-template-columns:minmax(0,1fr)} }
 
 /* Tablo altı toplam şeridi — kolonlarla aynı hizada değil, ÖZET olduğu
    için ayrı bir satır: sayı yığınının sonunda okunur. `.fit-pane` artık
@@ -109,7 +121,7 @@
           <a class="btn btn-ghost" href="admin-ayarlar-v1.html"><i class="fa-solid fa-sliders"></i> Ayarlarda düzenle</a>
         </div>
       </div>
-      <div class="c-body">
+      <div class="c-body" id="hzParKap">
         <div class="hz-par">
           <div class="fk-field">
             <label class="fk-label" for="hzKomisyon">Hizmet komisyonu (%)</label>

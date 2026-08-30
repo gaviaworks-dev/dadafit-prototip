@@ -77,6 +77,7 @@
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin-abonelik-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -95,7 +96,7 @@
    ===================================================================== */
 (function () {
   'use strict';
-  var A = window.FIT_ADMIN, F = window.FIT_FATURA;
+  var A = window.FIT_ADMIN, F = window.FIT_FATURA, AB = window.FIT_ADMIN_ABONELIK;
   if (!A) return;
   var esc = A.esc, n = A.n;
 
@@ -153,8 +154,31 @@
   var satir = function (etiket, deger) {
     return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
   };
+  /* ---------- BAĞLI ABONELİK — GASTRO'YA HİZALAMA (B3) ----------
+     Gastro'nun `V/admin/faturalar/show.blade.php` künyesi "Açıklama"
+     satırında `$invoice->subscription?->subscribable?->name` basar (:44),
+     yani belge kendi aboneliğini TANIR. Fit'te `fit-fatura.js` fatura
+     başına abonelik alanı taşımıyor; ilişki TERSTEN, var olan veriden
+     türetiliyor: abonelik kayıtlarının olay geçmişinde belge numarası
+     yazılı (`fit-admin-abonelik-veri.js`), eşleşen kayıt bulunuyor.
+     Uydurulan bir bağ yok — eşleşme yoksa satır bunu söylüyor.
+     Ters yön (abonelik → fatura) `admin-abonelik-detay-v1.html`in iade
+     geçmişinde zaten kurulu; bağ artık iki yönlü. */
+  var bagliAbn = null;
+  if (AB && AB.LISTE) {
+    bagliAbn = AB.LISTE.filter(function (a) {
+      return a.gecmis.some(function (g) { return g[1].indexOf(f.no) >= 0; });
+    })[0] || null;
+  }
+
   document.getElementById('faKunye').innerHTML =
     satir('Fatura no', '<b>' + esc(f.no) + '</b>') +
+    satir('Abonelik', bagliAbn
+      ? '<a href="admin-abonelik-detay-v1.html?abn=' + encodeURIComponent(bagliAbn.no) + '">' +
+        esc(bagliAbn.no) + ' — ' + esc(bagliAbn.uye) + '</a>' +
+        '<small>Bağ, abonelik kaydının olay geçmişindeki belge numarasından kuruldu.</small>'
+      : '<span class="fa-yok">—</span><small>Bu belgeyi anan bir abonelik kaydı yok. ' +
+        'Fatura⇄abonelik bağı sunucu turunda alan olarak doğar; burada uydurulmadı.</small>') +
     satir('ETTN', '<code>' + esc(f.ettn) + '</code><small>Örnek değer — gerçek bir e-Arşiv kaydına karşılık gelmez.</small>') +
     satir('Tür', A.rozet(t.rz, t.ad, t.ico)) +
     satir('Durum', A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle')) +

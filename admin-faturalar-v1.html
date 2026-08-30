@@ -217,9 +217,46 @@
     document.getElementById('faSay').textContent = DEFTER.length;
     document.getElementById('faRozet').textContent =
       DEFTER.length + ' belge · ' + esc(A.tl(brut)) + ' toplam';
-    A.aramaKur(document.getElementById('faAra'),
-               document.getElementById('faTablo'),
-               document.getElementById('faSay'));
+    document.getElementById('faAra').addEventListener('input', uygula);
+    uygula();
+  }
+
+  /* ---------- SÜZGEÇ + ARAMA: TEK GEÇİŞ (B3) ----------
+     ÖLÇÜLEN KUSUR 1: arama (`FIT_ADMIN.aramaKur`) ile tür/durum çipleri
+     aynı `tr.hidden` alanına yazıp birbirini eziyordu — "zzzzzzzz"
+     araması 0 satır bırakırken bir çipe basınca 6 satır geri geliyor,
+     arama kutusu hâlâ dolu duruyordu.
+     ÖLÇÜLEN KUSUR 2: iki çip birlikte 0 sonuç verebiliyor
+     ("Antrenör hizmeti + İade sürecinde" → 0 satır) ve boş durum
+     basılmıyordu.
+     Gastro'da ikisi de yok: ölçütler aynı query string'de BİRLEŞİR (arama
+     formu `status`/`from`/`to`yu gizli input olarak taşır, çip
+     bağlantıları `q`yu korur — `V/admin/faturalar/index.blade.php:63-94`)
+     ve boş sonuç `pnl-empty` basar (`:136-142`). İkisi de kuruldu.
+     ⚠ `aramaKur` çağrılmıyor: kendi dinleyicisiyle bu geçişi ezerdi.
+     Kalıcı yeri kabuk (`fit-admin.js`) — bu turda o dosya kapalı. */
+  var SEC = { tur:new Set(), durum:new Set() };
+  var bosSatir = null;
+  function uygula(){
+    var q = (document.getElementById('faAra').value || '').trim().toLocaleLowerCase('tr');
+    var n = 0;
+    document.querySelectorAll('#faGovde tr[data-fatura]').forEach(function (tr) {
+      var ok = (!SEC.tur.size   || SEC.tur.has(tr.getAttribute('data-tur'))) &&
+               (!SEC.durum.size || SEC.durum.has(tr.getAttribute('data-durum'))) &&
+               (!q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+      tr.hidden = !ok; if (ok) n++;
+    });
+    document.getElementById('faSay').textContent = n;
+    if (!bosSatir){
+      bosSatir = document.createElement('tr');
+      bosSatir.innerHTML = '<td colspan="' +
+        document.querySelectorAll('#faTablo thead th').length + '">' +
+        A.bos('fa-file-invoice', 'Bu süzgeçle fatura bulunamadı',
+              'Seçtiğin tür, durum ve aramaya uyan belge yok. Süzgeci gevşet ya da arama kutusunu boşalt.') +
+        '</td>';
+      document.getElementById('faGovde').appendChild(bosSatir);
+    }
+    bosSatir.hidden = (n > 0);
   }
 
   /* ---------- süzgeç: tür + durum ---------- */
@@ -247,33 +284,23 @@
         }).join('') + '</div>';
     if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
 
-    var sec = { tur:new Set(), durum:new Set() };
     kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
       var grup = g.getAttribute('data-group');
       g.querySelectorAll('.df-fchip').forEach(function (b) {
         b.addEventListener('click', function () {
           var v = b.getAttribute('data-val');
-          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          if (v === 'all') { SEC[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
           else {
-            var ac = !sec[grup].has(v);
-            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            var ac = !SEC[grup].has(v);
+            if (ac) SEC[grup].add(v); else SEC[grup].delete(v);
             b.classList.toggle('on', ac);
             var all = g.querySelector('.df-fchip[data-val="all"]');
-            if (all) all.classList.toggle('on', sec[grup].size === 0);
+            if (all) all.classList.toggle('on', SEC[grup].size === 0);
           }
-          suz(sec);
+          uygula();
         });
       });
     });
-  }
-  function suz(sec){
-    var s = 0;
-    document.querySelectorAll('#faGovde tr[data-fatura]').forEach(function (tr) {
-      var ok = (!sec.tur.size   || sec.tur.has(tr.getAttribute('data-tur'))) &&
-               (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum')));
-      tr.hidden = !ok; if (ok) s++;
-    });
-    document.getElementById('faSay').textContent = s;
   }
 
   /* ---------- detay ----------

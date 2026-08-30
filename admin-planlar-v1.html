@@ -241,9 +241,41 @@
     document.getElementById('plSay').textContent = KADEMELER.length;
     document.getElementById('plRozet').textContent =
       KADEMELER.length + ' plan · ' + bekleyen + ' tutar bekliyor';
-    A.aramaKur(document.getElementById('plAra'),
-               document.getElementById('plTablo'),
-               document.getElementById('plSay'));
+    document.getElementById('plAra').addEventListener('input', uygula);
+    uygula();
+  }
+
+  /* ---------- SÜZGEÇ + ARAMA: TEK GEÇİŞ (B3) ----------
+     ÖLÇÜLEN KUSUR: arama (`FIT_ADMIN.aramaKur`) ile durum çipi aynı
+     `tr.hidden` alanına yazıp birbirini eziyordu — "zzzzzzzz" araması 0
+     satır bırakırken bir çipe basınca 2 satır geri geliyor, kutu hâlâ
+     dolu duruyordu. Ayrıca çip 0 sonuç verdiğinde boş durum basılmıyordu.
+     Gastro'da ölçütler BİRLEŞİR (arama formu durum filtresini gizli input
+     olarak taşır, `V/admin/faturalar/index.blade.php:63-85`) ve her liste
+     `pnl-empty` taşır. İkisi de burada tek `uygula()`ya bağlandı.
+     ⚠ `aramaKur` çağrılmıyor: kendi dinleyicisiyle bu geçişi ezerdi.
+     Kalıcı yeri kabuk (`fit-admin.js`) — bu turda o dosya kapalı. */
+  var SEC = new Set();
+  var bosSatir = null;
+  function uygula(){
+    var q = (document.getElementById('plAra').value || '').trim().toLocaleLowerCase('tr');
+    var n = 0;
+    document.querySelectorAll('#plGovde tr[data-plan]').forEach(function (tr) {
+      var ok = (!SEC.size || SEC.has(tr.getAttribute('data-durum'))) &&
+               (!q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+      tr.hidden = !ok; if (ok) n++;
+    });
+    document.getElementById('plSay').textContent = n;
+    if (!bosSatir){
+      bosSatir = document.createElement('tr');
+      bosSatir.innerHTML = '<td colspan="' +
+        document.querySelectorAll('#plTablo thead th').length + '">' +
+        A.bos('fa-layer-group', 'Bu süzgeçle plan bulunamadı',
+              'Seçili duruma ve aramaya uyan plan yok. Süzgeci gevşet ya da arama kutusunu boşalt.') +
+        '</td>';
+      document.getElementById('plGovde').appendChild(bosSatir);
+    }
+    bosSatir.hidden = (n > 0);
   }
 
   /* ---------- süzgeç — kabuğun ortak bileşeni ---------- */
@@ -265,31 +297,22 @@
       '</div>';
     if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
 
-    var sec = new Set();
     kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
       g.querySelectorAll('.df-fchip').forEach(function (b) {
         b.addEventListener('click', function () {
           var v = b.getAttribute('data-val');
-          if (v === 'all') { sec.clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          if (v === 'all') { SEC.clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
           else {
-            var ac = !sec.has(v);
-            if (ac) sec.add(v); else sec.delete(v);
+            var ac = !SEC.has(v);
+            if (ac) SEC.add(v); else SEC.delete(v);
             b.classList.toggle('on', ac);
             var all = g.querySelector('.df-fchip[data-val="all"]');
-            if (all) all.classList.toggle('on', sec.size === 0);
+            if (all) all.classList.toggle('on', SEC.size === 0);
           }
-          suz(sec);
+          uygula();
         });
       });
     });
-  }
-  function suz(sec){
-    var say = 0;
-    document.querySelectorAll('#plGovde tr[data-plan]').forEach(function (tr) {
-      var ok = !sec.size || sec.has(tr.getAttribute('data-durum'));
-      tr.hidden = !ok; if (ok) say++;
-    });
-    document.getElementById('plSay').textContent = say;
   }
 
   /* ---------- silme: onay kabuktan, sonuç dürüstçe söyleniyor ---------- */

@@ -29,6 +29,35 @@ const MUAF = {
   'admin':               'Genel Bakış varlık yönetmez; KPI ve kuyruk özeti taşır.',
   'admin-uyeler':       'Üye kendi kaydolur; panelden üye YARATMAK yanlış olurdu.',
   'admin-uye-detay':    'Detay ekranı; ekleme listede.',
+  /* R21 · Bu turda doğan üç `show` sayfası. Gastro'nun karşılıkları TEK TEK
+     ölçüldü (B3 · B2) ve ikisi ayrı sonuç verdi — muafiyet metinleri o
+     ölçümü taşıyor, "detay sayfasıdır" gibi genel bir gerekçe değil.
+
+     ⚠ `admin-abonelik-detay` için ilk şerh YANLIŞTI: dosya "Gastro'nun show
+     sayfası da işlem yapmaz, yalnız gösterir" diyordu. Ölçüldü —
+     `abonelikler/show.blade.php` 198 satır, **5 form · 4 alan · 5 @can**
+     taşıyor. Gerçek eksiklikti, beş yüzey kuruldu. */
+  'admin-abonelik-detay': 'Detay ekranı; aboneliği üye başlatır. Yazma yüzeyi VAR — Gastro '
+                        + 'abonelikler/show.blade.php:62/66/71/99/125 karşılığı: iptal · devam · '
+                        + 'dondur · istisnai iade · anında sonlandır.',
+  /* Gastro `faturalar/show.blade.php` 53 satır: 0 form · 0 alan · 0 buton ·
+     0 @can. Gövde tek salt-okunur `<dl class="kv">`; iki `<a>`nın biri geri
+     bağlantısı, öteki "PDF İndir". Dosyanın kendi başlığı da yazıyor
+     (`:3-4`): "salt-okunur; PDF indirme audit'li". Yani Fit'te yazma yüzeyi
+     olmaması eksiklik DEĞİL, Gastro'ya uygunluk. PDF düğmesi bilerek yok:
+     belge üretimi sunucu işi, çalışmayan düğme konmadı (kit §14/1). */
+  'admin-fatura-detay':   'Fatura değişmez belge; salt okunur. Gastro faturalar/show.blade.php '
+                        + 'da 0 form · 0 alan taşıyor — uygunluk, eksiklik değil.',
+  /* Gastro'da bu ekranın karşılığı YOK: `ChefApplicationStatus` enum'u var
+     ama ekranı yok (B2 ölçtü, tek referans raporlar/_moderasyon.blade.php:2).
+     En yakın desen `uyeler/show.blade.php:233-256` — başvuru kararı yan
+     kolondaki `.detail-acts` içinde verilir, ayrı bir "Yeni" düğmesi yoktur.
+     Başvuruyu üye yapar; panel yaratmaz, karar verir. */
+  'admin-antrenor-basvuru': 'Başvuruyu üye yapar; panel karar verir. Karar formu yan kolonda '
+                          + '(Gastro uyeler/show.blade.php:233-256 deseni).',
+  /* Talebi üye açar — `admin-destek` muafiyetinin aynı gerekçesi, bir
+     seviye aşağıda. Yanıt ve durum değiştirme yüzeyi ekranda VAR. */
+  'admin-destek-talep':  'Talebi üye açar; panel yanıtlar ve durumunu değiştirir.',
   'admin-moderasyon':   'Kuyruk ekranı — bildirimi üye üretir, yönetici karar verir.',
   'admin-destek':       'Kuyruk ekranı — talebi üye açar.',
   'admin-log':          'Log kaydı sistemce yazılır; elle eklenmez.',

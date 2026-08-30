@@ -232,9 +232,45 @@
     document.getElementById('kpSay').textContent = KUPON.length;
     document.getElementById('kpRozet').textContent =
       KUPON.length + ' kupon · ' + say('aktif') + ' aktif';
-    A.aramaKur(document.getElementById('kpAra'),
-               document.getElementById('kpTablo'),
-               document.getElementById('kpSay'));
+    document.getElementById('kpAra').addEventListener('input', uygula);
+    uygula();
+  }
+
+  /* ---------- SÜZGEÇ + ARAMA: TEK GEÇİŞ (B3) ----------
+     ÖLÇÜLEN KUSUR 1: arama (`FIT_ADMIN.aramaKur`) ile durum/tip çipleri
+     aynı `tr.hidden` alanına yazıp birbirini eziyordu — "zzzzzzzz"
+     araması 0 satır bırakırken bir çipe basınca 3 satır geri geliyor,
+     arama kutusu hâlâ dolu duruyordu.
+     ÖLÇÜLEN KUSUR 2: "Aktif + Tutar" ikilisi 0 satır bırakıyor ve boş
+     durum basılmıyordu. Gastro'nun karşılığında hem `pnl-empty` hem de
+     boş durumun kendi CTA'sı var (`V/admin/kuponlar/index.blade.php:95-100`
+     — `pe-tag` "Yeni Kupon Ekle"); o CTA da alındı.
+     ⚠ `aramaKur` çağrılmıyor: kendi dinleyicisiyle bu geçişi ezerdi.
+     Kalıcı yeri kabuk (`fit-admin.js`) — bu turda o dosya kapalı. */
+  var SEC = { durum:new Set(), tip:new Set() };
+  var bosSatir = null;
+  function uygula(){
+    var q = (document.getElementById('kpAra').value || '').trim().toLocaleLowerCase('tr');
+    var n = 0;
+    document.querySelectorAll('#kpGovde tr[data-kupon]').forEach(function (tr) {
+      var ok = (!SEC.durum.size || SEC.durum.has(tr.getAttribute('data-durum'))) &&
+               (!SEC.tip.size   || SEC.tip.has(tr.getAttribute('data-tip'))) &&
+               (!q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+      tr.hidden = !ok; if (ok) n++;
+    });
+    document.getElementById('kpSay').textContent = n;
+    if (!bosSatir){
+      bosSatir = document.createElement('tr');
+      bosSatir.innerHTML = '<td colspan="' +
+        document.querySelectorAll('#kpTablo thead th').length + '">' +
+        A.bos('fa-ticket', 'Bu süzgeçle kupon bulunamadı',
+              'Seçtiğin duruma, tipe ve aramaya uyan kupon yok. Süzgeci gevşet ya da yeni bir kupon tanımla.',
+              '<a class="btn btn-primary" href="admin-kupon-form-v1.html">' +
+              '<i class="fa-solid fa-plus"></i> Yeni kupon ekle</a>') +
+        '</td>';
+      document.getElementById('kpGovde').appendChild(bosSatir);
+    }
+    bosSatir.hidden = (n > 0);
   }
 
   /* ---------- süzgeç: durum + tip ---------- */
@@ -256,33 +292,23 @@
       '</div>';
     if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
 
-    var sec = { durum:new Set(), tip:new Set() };
     kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
       var grup = g.getAttribute('data-group');
       g.querySelectorAll('.df-fchip').forEach(function (b) {
         b.addEventListener('click', function () {
           var v = b.getAttribute('data-val');
-          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          if (v === 'all') { SEC[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
           else {
-            var ac = !sec[grup].has(v);
-            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            var ac = !SEC[grup].has(v);
+            if (ac) SEC[grup].add(v); else SEC[grup].delete(v);
             b.classList.toggle('on', ac);
             var all = g.querySelector('.df-fchip[data-val="all"]');
-            if (all) all.classList.toggle('on', sec[grup].size === 0);
+            if (all) all.classList.toggle('on', SEC[grup].size === 0);
           }
-          suz(sec);
+          uygula();
         });
       });
     });
-  }
-  function suz(sec){
-    var s = 0;
-    document.querySelectorAll('#kpGovde tr[data-kupon]').forEach(function (tr) {
-      var ok = (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum'))) &&
-               (!sec.tip.size   || sec.tip.has(tr.getAttribute('data-tip')));
-      tr.hidden = !ok; if (ok) s++;
-    });
-    document.getElementById('kpSay').textContent = s;
   }
 
   /* ---------- silme: onay kabuktan, sonuç dürüstçe söyleniyor ---------- */

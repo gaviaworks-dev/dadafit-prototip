@@ -70,9 +70,16 @@
         <div class="adm-tw">
           <table class="adm-table" id="abTablo">
             <thead>
+              <!-- 🔴 KOLON KÜMESİ GASTRO'YA HİZALANDI (B3).
+                   Gastro `V/admin/abonelikler/index.blade.php:88-94` BEŞ kolon
+                   taşıyor: Üye · Plan/Tier · Durum · Dönem Sonu · (eylem).
+                   Fit'te YEDİ vardı; fazlalık "Başlangıç" ve "Ödeme yöntemi"
+                   ölçülebilir bir bedel ödetiyordu: 1440px'te rail AÇIKKEN
+                   tablo kabı 48px taşıyordu (rail kapalıyken 0). İkisi de
+                   detay ekranının künyesinde zaten duruyor, veri kaybı yok. -->
               <tr>
-                <th>Üye</th><th>Plan</th><th>Başlangıç</th><th>Yenileme</th>
-                <th>Ödeme yöntemi</th><th>Durum</th><th class="act">İşlem</th>
+                <th>Üye</th><th>Plan</th><th>Durum</th><th>Yenileme</th>
+                <th class="act">İşlem</th>
               </tr>
             </thead>
             <tbody id="abGovde"></tbody>
@@ -201,11 +208,9 @@
             ? '<b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
               '<small>' + esc(P.fiyatMetni(k.key)) + ' ' + esc(k.birim) + '</small>'
             : '<span class="ab-yok">—</span>') + '</td>' +
-        '<td class="ab-tar">' + esc(tarih(a.basla)) + '</td>' +
+        '<td class="ab-durum">' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
         '<td class="ab-tar">' + (a.yenile ? esc(tarih(a.yenile))
                            : '<span class="ab-yok">— <small>yenileme yok</small></span>') + '</td>' +
-        '<td class="ab-ode"><i class="' + esc(a.marka) + '" aria-hidden="true"></i> ' + esc(a.kart) + '</td>' +
-        '<td class="ab-durum">' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
         '<td class="act">' +
           '<a class="adm-ico-btn" href="admin-abonelik-detay-v1.html?abn=' + esc(a.no) + '" ' +
             'aria-label="' + esc(a.uye) + ' aboneliğinin detayını aç"><i class="fa-solid fa-eye"></i></a>' +
@@ -225,9 +230,54 @@
     document.getElementById('abSay').textContent = ABONELIK.length;
     document.getElementById('abRozet').textContent =
       ABONELIK.length + ' kayıt · ' + say('aktif') + ' aktif';
-    A.aramaKur(document.getElementById('abAra'),
-               document.getElementById('abTablo'),
-               document.getElementById('abSay'));
+    document.getElementById('abAra').addEventListener('input', uygula);
+    uygula();
+  }
+
+  /* =====================================================================
+     SÜZGEÇ + ARAMA — TEK GEÇİŞ                                     (B3)
+     ---------------------------------------------------------------------
+     🔴 ÖLÇÜLEN KUSUR 1 — İKİSİ BİRBİRİNİ EZİYORDU. Arama
+     `FIT_ADMIN.aramaKur` ile, durum çipi de kendi `suz()`üyle AYNI
+     `tr.hidden` alanına yazıyordu. Ölçüm: arama kutusuna "zzzzzzzz"
+     yazılınca 0 satır kalıyor, ardından bir durum çipine basılınca
+     5 satır geri geliyordu — arama kutusu hâlâ "zzzzzzzz" yazarken.
+     Ekran, süzmediği bir şeyi süzülmüş gibi gösteriyordu.
+     Gastro'da bu kusur YOK, çünkü orada ölçütler BİRLEŞİR: arama formu
+     durum/tarih filtrelerini gizli input olarak taşır
+     (`V/admin/faturalar/index.blade.php:63-85`), çip bağlantıları da
+     `q`yu korur (`:87-94`). Burada aynı davranışı tek `uygula()` verir.
+
+     🔴 ÖLÇÜLEN KUSUR 2 — ÇİP 0 SONUÇ VERİNCE BOŞ DURUM YOKTU. Arama
+     yolunda vardı (kabuğun `aramaKur`ı basıyor), çip yolunda yoktu.
+     Gastro'nun karşılığında var (`abonelikler/index.blade.php:125-129`,
+     `pnl-empty`). Artık iki yolda da kit §9 boş durumu basılır.
+
+     ⚠ `FIT_ADMIN.aramaKur` ARTIK ÇAĞRILMIYOR: kendi `input` dinleyicisini
+     kurup bu birleşik geçişi yeniden ezerdi. Kalıcı çözümün yeri kabuktur
+     (`fit-admin.js`), o dosya bu turda bu ajana kapalı — lead'e bildirildi.
+     ===================================================================== */
+  var SEC = new Set();
+  var bosSatir = null;
+  function uygula(){
+    var q = (document.getElementById('abAra').value || '').trim().toLocaleLowerCase('tr');
+    var n = 0;
+    document.querySelectorAll('#abGovde tr[data-abn]').forEach(function (tr) {
+      var ok = (!SEC.size || SEC.has(tr.getAttribute('data-durum'))) &&
+               (!q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+      tr.hidden = !ok; if (ok) n++;
+    });
+    document.getElementById('abSay').textContent = n;
+    if (!bosSatir){
+      bosSatir = document.createElement('tr');
+      bosSatir.innerHTML = '<td colspan="' +
+        document.querySelectorAll('#abTablo thead th').length + '">' +
+        A.bos('fa-repeat', 'Bu süzgeçle abonelik bulunamadı',
+              'Seçili duruma ve aramaya uyan abonelik yok. Süzgeci gevşet ya da arama kutusunu boşalt.') +
+        '</td>';
+      document.getElementById('abGovde').appendChild(bosSatir);
+    }
+    bosSatir.hidden = (n > 0);
   }
 
   /* ---------- süzgeç — dört durum, Gastro'nun ölçülen kırılımı ---------- */
@@ -244,31 +294,22 @@
       '</div>';
     if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
 
-    var sec = new Set();
     kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
       g.querySelectorAll('.df-fchip').forEach(function (b) {
         b.addEventListener('click', function () {
           var v = b.getAttribute('data-val');
-          if (v === 'all') { sec.clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          if (v === 'all') { SEC.clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
           else {
-            var ac = !sec.has(v);
-            if (ac) sec.add(v); else sec.delete(v);
+            var ac = !SEC.has(v);
+            if (ac) SEC.add(v); else SEC.delete(v);
             b.classList.toggle('on', ac);
             var all = g.querySelector('.df-fchip[data-val="all"]');
-            if (all) all.classList.toggle('on', sec.size === 0);
+            if (all) all.classList.toggle('on', SEC.size === 0);
           }
-          suz(sec);
+          uygula();
         });
       });
     });
-  }
-  function suz(sec){
-    var s = 0;
-    document.querySelectorAll('#abGovde tr[data-abn]').forEach(function (tr) {
-      var ok = !sec.size || sec.has(tr.getAttribute('data-durum'));
-      tr.hidden = !ok; if (ok) s++;
-    });
-    document.getElementById('abSay').textContent = s;
   }
 
   /* ---------- detay ----------

@@ -17,6 +17,12 @@
 /* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
 .ab-yok{color:var(--muted);font-weight:600}
 .ab-dl th{width:220px}
+/* Operasyon çubuğu — Gastro'nun `.sa-actionbar`ı (show.blade.php:61):
+   yan yana duran, kartın kendi dolgusunu kullanan eylem sırası. */
+.ab-ops{display:flex;gap:10px;flex-wrap:wrap}
+/* İki kart yalnız süper yöneticide açıktır (Gastro `@can('refund')` /
+   `@can('terminate')`, show.blade.php:94 ve :120) — rozet bunu söyler. */
+.ab-yetki{margin-left:auto}
 </style>
 </head>
 <body class="adm-body" data-adm="abonelikler">
@@ -34,7 +40,10 @@
         <h1 id="abBaslik">Abonelik detayı</h1>
         <div class="ph-sub" id="abAlt">—</div>
       </div>
-      <div class="h-acts" id="abEylem"></div>
+      <!-- 🔴 BAŞLIKTA EYLEM YOK — Gastro'nun `abonelikler/show.blade.php`
+           `page-head`i (satır 46-54) yalnız ad + durum + dönem sonu taşır;
+           beş operasyonun beşi de gövdedeki kartlardadır. Yapı ona
+           hizalandı: eylemler aşağıdaki üç kartta. -->
     </div>
 
     <div id="abKaynak"></div>
@@ -47,6 +56,109 @@
             <caption class="sr-only">Abonelik künyesi</caption>
             <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
             <tbody id="abDetayGovde"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ OPERASYONLAR ============
+         Gastro `abonelikler/show.blade.php` satır 56-92 (`@can('operate')`):
+         "İptal (dönem sonu)" · "Devam" bir `sa-actionbar` içinde, "Dondur"
+         ayrı bir `fk-form`da süre alanıyla. Üçü de buraya alındı. -->
+    <div class="adm-card" id="abOpsKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-sliders"></i> Operasyonlar</h3>
+      </div>
+      <div class="c-body">
+        <p class="fk-help" style="margin:0 0 14px"><i class="fa-solid fa-circle-info"></i>
+          <span>İptal <b>dönem sonunda</b> devreye girer, erişimi anında kesmez;
+          “Devam” hem iptali hem donmayı geri alır.</span></p>
+        <div class="ab-ops" id="abOps"></div>
+        <form id="abDondurForm" novalidate style="margin-top:18px">
+          <div class="fk-field" style="max-width:280px">
+            <label class="fk-label" for="abDondurAy">Dondur — süre (ay) <span class="req">*</span></label>
+            <input class="fk-input" id="abDondurAy" name="ay" type="number" min="1" step="1"
+                   inputmode="numeric" placeholder="Kaç ay" required />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              <span id="abDondurNot">—</span></span>
+          </div>
+          <button class="btn btn-ghost" type="button" id="abDondur">
+            <i class="fa-solid fa-circle-pause"></i> Dondur</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ İSTİSNAİ İADE ============
+         Gastro `show.blade.php` satır 94-118 (`@can('refund')`, super-only):
+         `amount_minor` (kuruş, required) + `reason` (required) + danger düğme. -->
+    <div class="adm-card" id="abIadeKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-rotate-left"></i> İstisnai iade</h3>
+        <div class="c-acts ab-yetki"><span class="fp-badge off"><i class="fa-solid fa-user-shield"></i> Süper yönetici</span></div>
+      </div>
+      <div class="c-body">
+        <p class="fk-help" style="margin:0 0 14px"><i class="fa-solid fa-triangle-exclamation"></i>
+          <span>İade ödeme sağlayıcısı üzerinden yapılır; kart verisi bu platformda tutulmaz.
+          <b>K5: iade olursa komisyon geri gitmez.</b></span></p>
+        <form class="fk-grid c2" id="abIadeForm" novalidate>
+          <div class="fk-field">
+            <label class="fk-label" for="abIadeTutar">Tutar (kuruş) <span class="req">*</span></label>
+            <input class="fk-input" id="abIadeTutar" name="tutar" type="number" min="1" step="1"
+                   inputmode="numeric" required />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              <span id="abIadeIpucu">—</span></span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="abIadeGerekce">Gerekçe <span class="req">*</span></label>
+            <input class="fk-input" id="abIadeGerekce" name="gerekce" type="text" maxlength="500" required />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              <span>Gerekçe zorunludur ve iade kaydına yazılır.</span></span>
+          </div>
+        </form>
+        <button class="btn btn-danger" type="button" id="abIadeEt" style="margin-top:16px">
+          <i class="fa-solid fa-rotate-left"></i> İade et</button>
+      </div>
+    </div>
+
+    <!-- ============ ANINDA SONLANDIR ============
+         Gastro `show.blade.php` satır 120-137 (`@can('terminate')`, super-only):
+         `reason` (required) + "Erişimi Hemen Kes" danger düğmesi. -->
+    <div class="adm-card" id="abKesKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-ban"></i> Anında sonlandır</h3>
+        <div class="c-acts ab-yetki"><span class="fp-badge off"><i class="fa-solid fa-user-shield"></i> Süper yönetici</span></div>
+      </div>
+      <div class="c-body">
+        <p class="fk-help" style="margin:0 0 14px"><i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Erişim <b>hemen</b> kesilir, dönem sonu beklenmez. Geri alınamaz —
+          “dönem sonunda bitir” ile karıştırma.</span></p>
+        <form id="abKesForm" novalidate>
+          <div class="fk-field" style="max-width:520px">
+            <label class="fk-label" for="abKesGerekce">Gerekçe <span class="req">*</span></label>
+            <input class="fk-input" id="abKesGerekce" name="gerekce" type="text" maxlength="500" required />
+          </div>
+        </form>
+        <button class="btn btn-danger" type="button" id="abKes" style="margin-top:16px">
+          <i class="fa-solid fa-ban"></i> Erişimi hemen kes</button>
+      </div>
+    </div>
+
+    <!-- ============ İADE GEÇMİŞİ ============
+         Gastro `show.blade.php` satır 139-163: `$refunds` boş değilse
+         Tutar · Gerekçe · Tarih tablosu. Fit'te iade kayıtları ayrı bir
+         dizide durmuyor — olay geçmişinden SÜZÜLÜYOR ve tutar fatura
+         defterinden okunuyor (uydurulmuyor). -->
+    <div class="adm-card" id="abIadeGecmisKart" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> İade geçmişi</h3>
+        <div class="c-acts"><span class="fp-badge" id="abIadeSay">—</span></div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table">
+            <caption class="sr-only">Bu abonelikte yapılmış iadeler</caption>
+            <thead><tr><th class="num">Tutar</th><th>Gerekçe</th><th>Belge</th><th>Tarih</th></tr></thead>
+            <tbody id="abIadeGovde"></tbody>
           </table>
         </div>
       </div>
@@ -70,6 +182,7 @@
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-fatura.js"></script>
 <script src="assets/js/fit-admin-abonelik-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
@@ -84,14 +197,21 @@
    `refunds` veriyor. Bu ekran o kalıba çekildi.
 
    VERİ TEK KAYNAKTAN: `fit-admin-abonelik-veri.js`. Liste ekranı da aynı
-   dosyayı okur — kayıt iki yerde yaşamaz. İptal/devam eylemleri liste
-   satırında KALDI (K5 iş akışı orada daha hızlı); bu ekran yalnız
-   GÖRÜNTÜLEMEYİ üstlendi — Gastro'nun show sayfası da işlem yapmaz,
-   yalnız gösterir ve iade listesini döker.
+   dosyayı okur — kayıt iki yerde yaşamaz.
+
+   🔴 R20/B3 DÜZELTMESİ — ÖNCEKİ ŞERH YANLIŞTI. Burada "Gastro'nun show
+   sayfası da işlem yapmaz, yalnız gösterir" yazıyordu; ölçüm bunun tersini
+   söylüyor: `V/admin/abonelikler/show.blade.php` DÖRT yazma yüzeyi taşır
+   (:56 operate · :94 refund · :120 terminate · :139 iade geçmişi) ve
+   `admin.subscriptions.{cancel,resume,pause,refund,terminate}` rotalarına
+   POST eder. Fit'te bu ekran 0 form · 0 alan · 0 yıkıcı eylemle duruyordu
+   — `admin-ekleme-kapisi` bunu kırmızı yakmakta haklıydı. Beş operasyonun
+   beşi de aşağıda kuruldu.
    ===================================================================== */
 (function () {
   'use strict';
-  var A = window.FIT_ADMIN, P = window.FIT_PAKET, AB = window.FIT_ADMIN_ABONELIK;
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET, AB = window.FIT_ADMIN_ABONELIK,
+      F = window.FIT_FATURA;
   if (!A) return;
   var esc = A.esc, tarih = A.tarih;
 
@@ -151,22 +271,84 @@
     satir('Faturalar', '<a href="admin-faturalar-v1.html">Fatura defterinde ara</a>' +
           '<small>Defter tek üyenin defteri; abonelik⇄fatura bağı sunucu turunda kurulur.</small>');
 
+  /* Olay metnindeki belge numarası TIKLANABİLİR: `admin-fatura-detay`
+     `?fatura=` parametresiyle açılır. Numara zaten metnin içindeydi ve
+     ölü duruyordu; ters yön (fatura → abonelik) da kuruldu. */
   document.getElementById('abGecmisGovde').innerHTML = a.gecmis.map(function (g) {
-    return '<tr><td>' + esc(tarih(g[0])) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
+    var olay = esc(g[1]).replace(/(DFT-[0-9-]+)/g, function (no) {
+      return '<a href="admin-fatura-detay-v1.html?fatura=' + encodeURIComponent(no) + '">' + no + '</a>';
+    });
+    return '<tr><td>' + esc(tarih(g[0])) + '</td><td><b>' + olay + '</b></td><td>' + esc(g[2]) + '</td></tr>';
   }).join('');
 
-  /* ---------- başlıktaki eylemler — liste satırıyla AYNI mantık ---------- */
-  var eylem = document.getElementById('abEylem');
-  var parcalar = [];
-  if (!bitti) {
-    parcalar.push('<button class="btn btn-ghost" type="button" id="abIptal">' +
-      '<i class="fa-solid fa-ban"></i> Dönem sonunda bitir</button>');
+  /* =====================================================================
+     OPERASYONLAR — R20/B3, GASTRO'YA HİZALAMA
+     ---------------------------------------------------------------------
+     ÖLÇÜLEN FARK: bu ekranda 0 form · 0 düzenlenebilir alan · 0 yıkıcı
+     eylem vardı; Gastro'nun karşılığı `V/admin/abonelikler/show.blade.php`
+     ise DÖRT yazma yüzeyi taşıyor (ölçüldü, dosya:satır):
+       :56-92   @can('operate')   → İptal (dönem sonu) · Devam · Dondur(ay)
+       :94-118  @can('refund')    → tutar (kuruş) + gerekçe, super-only
+       :120-137 @can('terminate') → gerekçe, super-only
+       :139-163 iade geçmişi tablosu (Tutar · Gerekçe · Tarih)
+     Beşi de kuruldu. Eski hâlde yalnız iptal/devam vardı ve ikisi de
+     BAŞLIKTAYDI; Gastro'da başlık eylemsizdir, hepsi gövdededir.
+
+     🔴 NATIVE confirm() YOK (D4). Yıkıcı fiillerden yalnız "iade" kabuğun
+     hazır metnine uyuyor (`fit-admin.js:895`) — iade düğmesi `data-yikici`
+     ile gidiyor. "Dönem sonunda bitir", "dondur" ve "erişimi kes"in
+     kabukta karşılığı YOK ve `sil` metni ("kalıcı olarak silinecek, geri
+     alınamaz") üçü için de yalan olurdu; onlar `A.onay`la doğru cümleyle
+     çağrılıyor. Aynı gerekçe liste ekranında da yazılı.
+
+     🔴 SAYI UYDURULMADI. Gastro'da dondurma tavanı
+     `PauseSubscription::maxMonths()`ten gelir (show.blade.php:78) —
+     Fit'te böyle bir ayar alanı YOK. Bu yüzden alan üst sınırsız duruyor
+     ve altındaki not eksikliği söylüyor; "maks. 3 ay" diye bir sayı
+     yazmak, olmayan bir kararı varmış gibi göstermek olurdu.
+     ===================================================================== */
+
+  document.getElementById('abOps').innerHTML =
+    (bitti ? '' :
+      '<button class="btn btn-ghost" type="button" id="abIptal">' +
+      '<i class="fa-solid fa-clock"></i> İptal (dönem sonu)</button>') +
+    '<button class="btn btn-primary" type="button" id="abDevam">' +
+      '<i class="fa-solid fa-play"></i> Devam</button>';
+
+  document.getElementById('abDondurNot').textContent =
+    'Üst sınır bir panel ayarıdır ve bu depoda henüz alanı yok ' +
+    '(Gastro’da PauseSubscription::maxMonths()). Sayı uydurulmadı.';
+
+  /* Kuruş ipucu: plan tutarı motordan okunuyor, buraya YAZILMIYOR (K13). */
+  document.getElementById('abIadeIpucu').textContent = k && k.fiyat
+    ? ('Kuruş tamsayısı. Bu planın bir dönemi ' + (k.fiyat * 100) + ' kuruş (' + A.tl(k.fiyat * 100) + ').')
+    : 'Kuruş tamsayısı — 100 kuruş = 1,00 ₺. Bu planın tutarı verilmediği için ipucu yok.';
+
+  /* İade geçmişi: ayrı bir dizi yok, olay geçmişinden süzülüyor; tutar
+     fatura defterinden okunuyor (belge numarası olayın metninde). */
+  var iadeler = a.gecmis.filter(function (g) { return /iade/i.test(g[1]); });
+  if (iadeler.length) {
+    document.getElementById('abIadeGecmisKart').hidden = false;
+    document.getElementById('abIadeSay').textContent = iadeler.length + ' iade';
+    document.getElementById('abIadeGovde').innerHTML = iadeler.map(function (g) {
+      var m = /(DFT-[0-9-]+)/.exec(g[1]);
+      var fat = (m && F && F.bul) ? F.bul(m[1]) : null;
+      var tut = fat ? F.toplamlar(fat).genel : null;
+      return '<tr>' +
+        /* Defter iadeyi EKSİ tutarlı bir belge olarak tutar; bu tablo iade
+           TUTARINI gösterir, bu yüzden mutlak değer basılıyor — Gastro'nun
+           `$fmt($refund->amount_minor)`ı da pozitif bir tutardır
+           (show.blade.php:154). İşaret belgenin kendisinde durur. */
+        '<td class="num">' + (tut === null ? '<span class="ab-yok">—</span>'
+              : '<b>' + esc(A.tl(Math.abs(tut))) + '</b>') + '</td>' +
+        '<td>' + esc(g[2]) + '</td>' +
+        '<td>' + (m ? '<a href="admin-fatura-detay-v1.html?fatura=' + encodeURIComponent(m[1]) + '">' +
+                      esc(m[1]) + '</a>'
+                    : '<span class="ab-yok">— defterde belge yok</span>') + '</td>' +
+        '<td>' + esc(tarih(g[0])) + '</td>' +
+      '</tr>';
+    }).join('');
   }
-  if (a.durum === 'donemsonu' || a.durum === 'iptal') {
-    parcalar.push('<button class="btn btn-primary" type="button" id="abDevam">' +
-      '<i class="fa-solid fa-rotate-right"></i> Devam ettir</button>');
-  }
-  eylem.innerHTML = parcalar.join('');
 
   var iptalBtn = document.getElementById('abIptal');
   if (iptalBtn) iptalBtn.addEventListener('click', function () {
@@ -198,6 +380,82 @@
       }
     });
   });
+
+  /* ---------- Dondur — Gastro show.blade.php:71-90 ---------- */
+  var dondurForm = document.getElementById('abDondurForm');
+  document.getElementById('abDondur').addEventListener('click', function () {
+    if (!dondurForm.reportValidity()) return;
+    var ay = document.getElementById('abDondurAy').value;
+    A.onay({
+      ico: 'fa-circle-pause',
+      baslik: 'Abonelik dondurulsun mu?',
+      metin: '"' + a.uye + '" için erişim ' + ay + ' ay boyunca duraklatılır; ' +
+             'bu sürede tahsilat yapılmaz ve dönem sonu ' + ay + ' ay ileri kayar. ' +
+             '"Devam" ile geri alınır.',
+      onayla: 'Dondur',
+      onay: function () {
+        A.toast('Abonelik maket düzeyinde dondurulmadı — sunucu yok. ' +
+                'Form doğrulandı: ' + ay + ' ay.', { tip:'info', ms:4400 });
+      }
+    });
+  });
+
+  /* ---------- İstisnai iade — Gastro show.blade.php:94-118 ----------
+     🔴 NEDEN `data-yikici` DEĞİL — ÖLÇÜLDÜ. Kabuğun yıkıcı delegesi
+     (`fit-admin.js:886`) belge düzeyinde ve CAPTURE fazında çalışır:
+     `preventDefault()` + `stopPropagation()` ile tıklamayı daha hedefe
+     varmadan yutar. Yani onay modalı, zorunlu alanlar sınanmadan ÖNCE
+     açılırdı — boş tutarla "İade edilsin mi?" diye sorardı.
+     Gastro tam bu tuzağı yazılı olarak çözüyor (show.blade.php:165-169):
+     "Butonlar type=submit KALDI — native HTML5 required-alan doğrulaması
+     submit event'inden önce tarayıcı tarafından garantili." Aynı sıra
+     burada da korundu: önce `reportValidity()`, sonra `A.onay`. Native
+     confirm() yine YASAK; kullanılan yine kabuğun kendi modalı. */
+  var iadeForm = document.getElementById('abIadeForm');
+  document.getElementById('abIadeEt').addEventListener('click', function () {
+    if (!iadeForm.reportValidity()) return;
+    var kurus = parseInt(document.getElementById('abIadeTutar').value, 10) || 0;
+    var gerekce = document.getElementById('abIadeGerekce').value;
+    A.onay({
+      yikici: true, ico: 'fa-rotate-left',
+      baslik: 'Bu tutar iade edilsin mi?',
+      metin: '"' + a.uye + '" için ' + A.tl(kurus) + ' iade başlatılacak. ' +
+             'İşlem ödeme sağlayıcısı üzerinden yapılır; kart verisi platformda tutulmaz. ' +
+             'K5 gereği komisyon geri gitmez.',
+      onayla: 'İade et',
+      onay: function () {
+        A.toast('İade maket düzeyinde işlenmedi — sunucu yok. Form doğrulandı: ' +
+                A.tl(kurus) + ' · "' + gerekce + '".', { tip:'info', ms:5000 });
+      }
+    });
+  });
+
+  /* ---------- Anında sonlandır — Gastro show.blade.php:120-137 ---------- */
+  var kesForm = document.getElementById('abKesForm');
+  document.getElementById('abKes').addEventListener('click', function () {
+    if (!kesForm.reportValidity()) return;
+    A.onay({
+      yikici: true, ico: 'fa-ban',
+      baslik: 'Erişim HEMEN kesilsin mi?',
+      metin: '"' + a.uye + '" için erişim bu an kesilir; dönem sonu beklenmez ve ' +
+             'işlem geri alınamaz. Dönem sonuna kadar erişimin sürmesini istiyorsan ' +
+             '"İptal (dönem sonu)" kullan.',
+      onayla: 'Erişimi kes',
+      onay: function () {
+        A.toast('Abonelik maket düzeyinde sonlandırılmadı — sunucu yok. ' +
+                'Form doğrulandı: "' + document.getElementById('abKesGerekce').value + '".',
+                { tip:'info', ms:4600 });
+      }
+    });
+  });
+
+  /* İptal edilmiş abonelikte dondurma ve sonlandırma anlamsızdır. */
+  if (bitti) {
+    dondurForm.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; });
+    document.getElementById('abDondurNot').textContent =
+      'Abonelik bitmiş; dondurulacak bir dönem yok.';
+    document.getElementById('abKesKart').hidden = true;
+  }
 })();
 </script>
 </body>

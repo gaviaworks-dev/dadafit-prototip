@@ -22,9 +22,34 @@
 /* Parametre ızgarası kabuğun `.fk-grid`idir; yalnız kolon sayısı bu
    ekrana özgü (dört parametre yan yana okunur). ≤900'de kabuğun kendi
    iki-kolonuna, ≤640'ta tek kolona iner. */
+/* 🔴 ÖLÇÜLEN KUSUR — `@media` SIDEBAR'I DA, YARIM KOLONU DA GÖREMİYOR.
+   Eski eşik `@media (max-width:900px)` EKRAN genişliğine bakıyordu; bu
+   kart ise `.adm-cols` içinde YARIM genişlikte duruyor ve rail açık/kapalı
+   içerik genişliğini 264px değiştiriyor (ölçüldü: `.adm-page` 1440px
+   ekranda rail AÇIKKEN 1100px, KAPALIYKEN 1364px). Sonuç ölçüldü: 1440px
+   ekranda dört para alanı 133px, 1280px'te 109px genişliğindeydi — sorgu
+   900'e hiç inmediği için dört kolon hep ayaktaydı.
+   Doğrusu kabı sormak (`admin-menu-v1.html:45-49,134-137` deseni).
+   Eşikler kardeş ekran `admin-hizmetler-v1.html` ile BİREBİR aynı: aynı
+   dört parametre, aynı okunabilirlik sınırı (4×200 + 3×18 = 854). */
+#pyParamKap{container-type:inline-size}
 #pyParam{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media (max-width:900px){ #pyParam{grid-template-columns:repeat(2,minmax(0,1fr))} }
-@media (max-width:640px){ #pyParam{grid-template-columns:minmax(0,1fr)} }
+@container (max-width:860px){ #pyParam{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@container (max-width:420px){ #pyParam{grid-template-columns:minmax(0,1fr)} }
+
+/* 🔴 ÖLÇÜLEN KUSUR — DÖNEM SEÇİCİ HER GENİŞLİKTE ALT SATIRA DÜŞÜYORDU.
+   Kabuğun `.adm-head .h-acts`i `flex:none` + `flex-wrap:wrap`
+   (fit-admin.css:328). Kap kendi genişliğini ögelerin KÜÇÜLMÜŞ hâlinden
+   hesaplıyor: ölçüldü, kap 325.64px ama ögeler yayıldığında
+   135.64 + 10 + 219.98 = 365.64px istiyor — fark tam bir satır. Seçici
+   alt satıra düşüp 326px'e yayılıyordu; 1440'ta da, 768'de de.
+   Kabuğa DOKUNULMADI: kural yalnız bu ekranda ve yalnız kabuğun kendi
+   ≤900 kırılımının (fit-admin.css:756, orada `h-acts` zaten tam satır
+   oluyor) ÜSTÜNDE geçerli. */
+@media (min-width:901px){
+  .adm-head .h-acts{flex-wrap:nowrap}
+  #pyDonem{flex:0 0 auto;width:200px}
+}
 
 /* Parametre alanı OKUNUR, yazılmaz: değer buradan değil Ayarlar'dan
    gelir. `readonly` görsel olarak da söylensin diye zemin gövde zeminine
@@ -105,7 +130,7 @@
             <a class="btn btn-ghost" href="admin-ayarlar-v1.html"><i class="fa-solid fa-pen"></i> Ayarlar'da düzenle</a>
           </div>
         </div>
-        <div class="c-body">
+        <div class="c-body" id="pyParamKap">
           <div class="fk-grid" id="pyParam"></div>
         </div>
       </div>

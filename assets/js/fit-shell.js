@@ -1243,6 +1243,38 @@ function footerHtml(){
 }
 
 /* ============================================================
+ 3b · MENÜ VERİSİNİN SALT-OKUNUR UCU                    (R19)
+ ------------------------------------------------------------
+ NEDEN VAR. Yönetim panelinin "Menü ve Navigasyon" ekranı bu
+ dizileri yönetmek zorunda ama hepsi bu IIFE'nin İÇİNDE `var`
+ ile tanımlı ve dışarıdan görünmüyorlardı (ölçüldü: dışa açık
+ on ucun hiçbiri menü verisi vermiyor). Ekran bu yüzden KENDİ
+ 46 satırlık KOPYASINI tutuyordu ve dosyanın kendi notu bunu
+ borç olarak işaretliyordu; gerçek menü ise on dizide 73 kalem.
+ Kopya sessizce ayrışır — bu depoda üç kez temizlenen kusur.
+
+ NİYE FONKSİYON, NİYE NESNE DEĞİL. Dizilerin kendisini `window`a
+ asmak, 60 public sayfada kabuğun canlı verisini yazılabilir
+ kılardı; bir sayfa scripti kalemi değiştirse header'ı sessizce
+ bozardı. `menu()` çağrıldığında DERİN KOPYA döner: panel okur,
+ kabuk korunur, çağrılmadıkça hiçbir maliyet doğmaz.
+
+ ⚠ Bu blokta ters tırnak (`) KULLANILMAZ — kabuğun template
+ literal sabitlerini erken kapatıp 78 sayfada footer'ı düşüren
+ kusur budur (docs/lessons.md §30). Yorum da dahil.
+ ============================================================ */
+window.FIT_SHELL = window.FIT_SHELL || {};
+window.FIT_SHELL.menu = function(){
+  var kaynak = {
+    NAV: NAV, BOTTOM: BOTTOM, ACCOUNT: ACCOUNT,
+    FOOTER_COLS: FOOTER_COLS, FOOTER_CORP: FOOTER_CORP, FOOTER_LEGAL: FOOTER_LEGAL,
+    PLAN_TABS: PLAN_TABS, PLAN_EXTRA: PLAN_EXTRA, DESTEK_TABS: DESTEK_TABS, RAIL: RAIL
+  };
+  try { return JSON.parse(JSON.stringify(kaynak)); }
+  catch(e){ return kaynak; }   /* döngüsel referans yoktur; yine de sayfa patlamasin */
+};
+
+/* ============================================================
  4 · MOUNT — kabuk markup'i sayfaya basilir
  ============================================================ */
 var _top = document.getElementById('fitShellTop');

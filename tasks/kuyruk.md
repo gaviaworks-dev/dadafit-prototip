@@ -91,7 +91,13 @@ Tüm site: **81 sayfa · konsol 0 · taşma 0 · 460 bağlantı · ölü 0**.
    0 sonuç veriyor), kas **10 / 9** (`onkol` boş).
 8. **SEO:** 60 public sayfanın 43'ünde meta description yok, 0'ında canonical,
    16 başlık 60 karakteri aşıyor. (60/60 `noindex` kasıtlı, kusur değil.)
-9. **`hesabim-v1`de 10 ölü seçici** (`.sub-inv-*` · `.sub-free*` · `.hs-save`) —
+9. **Liste aramasının yeri — 21 ekranlık tek elden süpürme.** Gastro'da arama
+   sayfa üstünde değil, kartın **filtre şeridinde solda**; bizde kart
+   başlığının sağında. Ajan F kendi beş ekranında taşımayı **bilerek
+   yapmadı**: yalnız 5'ini taşımak 21 ekranın 5'ini ötekilerden ayırırdı —
+   kuralın önlemek istediği şeyin ta kendisi. Ya hepsi ya hiçbiri; aynı
+   `<input>` düğümü `.c-head`den filtre şeridine taşınacak.
+10. **`hesabim-v1`de 10 ölü seçici** (`.sub-inv-*` · `.sub-free*` · `.hs-save`) —
    form kiti taşımasından önce de ölüydü, dokunulmadı.
 
 🔴 **Panel yazma yüzeyi MAKET.** Formlar doğrulanır, kayıt gitmez; her ekran

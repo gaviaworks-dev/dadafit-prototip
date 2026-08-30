@@ -289,7 +289,7 @@
                 <b id="pfBant">0</b> test bandından da düşer.</div>
               <button class="btn btn-ghost" type="button" id="pfSil"
                       data-yikici="Program" data-fiil="sil"
-                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                      style="width:100%;color:var(--hs-danger);border-color:var(--hs-danger-line)">
                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Programı sil</button>
             </div>
           </div>
@@ -665,6 +665,28 @@
   document.getElementById('pfKaydet').addEventListener('click', eksigeGit);
   A.maketKaydet(document.getElementById('pfKaydet'), 'program', form);
   document.getElementById('pfTaslak').addEventListener('click', eksigeGit);
+  /* 🔴 TASLAK DÜĞMESİ DURUM ALANINI YAZAR — Gastro sözleşmesi.
+     Kaynak: `admin/tarifler/form.blade.php:57-58` — "Taslak Kaydet"/"Yayınla"
+     düğmeleri *status alanını set edip* formu gönderir. Gastro'nun 24 form
+     bladeʼinin 23ʼünde taslak düğmesi HİÇ yok; taslak, yan kartın Durum
+     seçicisidir. Tek istisna tarif formudur, orada da düğme seçiciyi YAZAR.
+     ÖLÇÜLDÜ (R19 kıyası): `FIT_ADMIN.maketKaydet` Durum alanına hiç
+     dokunmuyordu — "Taslak kaydet" on ekranda, Durum "Yayında"da dururken
+     taslak kaydettiğini söylüyordu: aynı sorunun iki cevabı.
+
+     ⚠ NEDEN `document` ÜZERİNDE VE YAKALAMA EVRESİNDE: ilk denemem düğmeye
+     doğrudan dinleyici bağlamaktı ve ÖLÇÜM ÜÇ EKRANDA (`program` · `sozluk`
+     · `test`) yalanladı — 7/10 yazdı, 3'ü yazmadı. Sebep: o üç ekran daha
+     ÖNCE kendi zorunluluk denetimini bağlıyor ve eksik alanda
+     `stopImmediatePropagation()` çağırıyor; aynı düğmedeki sonraki
+     dinleyiciler hiç çalışmıyor. Yakalama evresi düğmeye inmeden önce
+     koştuğu için sıra tartışması bitiyor: kullanıcı "Taslak kaydet"e
+     bastıysa niyet, form geçerli olsa da olmasa da kayda geçer. */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('#pfTaslak')) return;
+    var td = document.getElementById('pfDurum');
+    if (td) td.value = 'taslak';
+  }, true);
   A.maketKaydet(document.getElementById('pfTaslak'), 'taslak', form);
 })();
 </script>

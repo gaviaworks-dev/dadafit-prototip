@@ -19,6 +19,19 @@
 /* Kaynağı olmayan alan: kabuk "—" basıyor; burada yalnız hizası
    sayısal kolonlarla tutuluyor, yeni renk yok. */
 .yl-yok{color:var(--muted);font-weight:600}
+/* Dokuz sütunlu tablo, rail AÇIKKEN 1440px'te 1042px kaba sığmaya
+   çalışıyordu: "Belge" hücresi 342px'ten 176px'e eziliyor, satır 90px'ten
+   149px'e çıkıyordu (ölçüldü). Gastro bu durumda sütunu ezmez, kabı
+   kaydırır — `public/css/admin-loglar.css:45-47`: "dar ekranda sığdırma
+   işi .ptable-wrap'in kendi yatay kaydırmasına bırakılır". Taban genişlik
+   verilince tablo kaptan taşar ve `.adm-tw` kaydırır; satır 90px'te kalır.
+   Panel emsali: admin-rozetler-v1 `.rz-kademe{min-width:154px}`. */
+.yl-belge{min-width:300px}
+/* İkincil tarih sütunu dar ekranda düşer — Gastro
+   `sa-rozetler.css:36-38` ve `sa-abonelikler.css:41-43` ile aynı sınıf,
+   aynı eşik. Sürüm ve yürürlük sütunları DÜŞMEZ: bu ekranın söylediği
+   kusur ("hiçbir belgede sürüm damgası yok") onlarda görünüyor. */
+@media(max-width:640px){ .adm-table .col-date{display:none} }
 </style>
 </head>
 <body class="adm-body" data-adm="yasal">
@@ -75,10 +88,10 @@
             <thead>
               <tr>
                 <th>Sıra</th>
-                <th>Belge</th>
+                <th class="yl-belge">Belge</th>
                 <th>Sürüm</th>
                 <th>Yürürlük tarihi</th>
-                <th>Son güncelleme</th>
+                <th class="col-date">Son güncelleme</th>
                 <th class="num">Gövde</th>
                 <th class="num">Bağlantı</th>
                 <th>Durum</th>
@@ -230,8 +243,8 @@
          sessizce ORDER[0]'a düşer. Satır BASILIR ki kusur görünsün. */
       return '<tr data-slug="' + A.esc(slug) + '" data-uyari="0" data-surumsuz="1">' +
         '<td><div class="yl-ord"><span class="st-num">' + (i + 1) + '</span></div></td>' +
-        '<td><b>' + A.esc(slug) + '</b><small>dizinde ilan edilmiş, gövdesi tanımlı değil</small></td>' +
-        '<td class="yl-yok">—</td><td class="yl-yok">—</td><td class="yl-yok">—</td>' +
+        '<td class="yl-belge"><b>' + A.esc(slug) + '</b><small>dizinde ilan edilmiş, gövdesi tanımlı değil</small></td>' +
+        '<td class="yl-yok">—</td><td class="yl-yok">—</td><td class="yl-yok col-date">—</td>' +
         '<td class="num yl-yok">—</td><td class="num yl-yok">—</td>' +
         '<td>' + A.rozet('stop', 'Gövdesi yok', 'fa-triangle-exclamation') + '</td>' +
         '<td class="act"><span class="adm-ico-btn" aria-disabled="true" ' +
@@ -246,11 +259,11 @@
           '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
         '<input type="hidden" data-field="position" value="' + i + '">' +
       '</div></td>' +
-      '<td><b>' + A.esc(d.baslik) + '</b><small><code>?metin=' + A.esc(d.slug) + '</code> · ' +
+      '<td class="yl-belge"><b>' + A.esc(d.baslik) + '</b><small><code>?metin=' + A.esc(d.slug) + '</code> · ' +
         A.esc(d.kisa) + (d.uyari ? ' · sağlık uyarısı taşır' : '') + '</small></td>' +
       '<td class="yl-yok">—</td>' +
       '<td class="yl-yok">—</td>' +
-      '<td>' + A.tarih(DOSYA_TARIH) + '</td>' +
+      '<td class="col-date">' + A.tarih(DOSYA_TARIH) + '</td>' +
       '<td class="num">' + A.n(d.karakter) + '</td>' +
       '<td class="num">' + d.bag + '</td>' +
       '<td>' + A.rozet('ok', 'Yayında', 'fa-circle-check') +

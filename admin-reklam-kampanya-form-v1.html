@@ -218,7 +218,7 @@
                 düşer; yuvalar boşalır ve doluluk oranı yeniden hesaplanır.</div>
               <button class="btn btn-ghost" type="button" id="kfSil"
                       data-yikici="Bu kampanya" data-fiil="sil"
-                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                      style="width:100%;color:var(--hs-danger);border-color:var(--hs-danger-line)">
                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kampanyayı sil</button>
             </div>
           </div>
@@ -524,6 +524,28 @@
   });
 
   A.maketKaydet(document.getElementById('kfKaydet'), 'kampanya', form);
+  /* 🔴 TASLAK DÜĞMESİ DURUM ALANINI YAZAR — Gastro sözleşmesi.
+     Kaynak: `admin/tarifler/form.blade.php:57-58` — "Taslak Kaydet"/"Yayınla"
+     düğmeleri *status alanını set edip* formu gönderir. Gastro'nun 24 form
+     bladeʼinin 23ʼünde taslak düğmesi HİÇ yok; taslak, yan kartın Durum
+     seçicisidir. Tek istisna tarif formudur, orada da düğme seçiciyi YAZAR.
+     ÖLÇÜLDÜ (R19 kıyası): `FIT_ADMIN.maketKaydet` Durum alanına hiç
+     dokunmuyordu — "Taslak kaydet" on ekranda, Durum "Yayında"da dururken
+     taslak kaydettiğini söylüyordu: aynı sorunun iki cevabı.
+
+     ⚠ NEDEN `document` ÜZERİNDE VE YAKALAMA EVRESİNDE: ilk denemem düğmeye
+     doğrudan dinleyici bağlamaktı ve ÖLÇÜM ÜÇ EKRANDA (`program` · `sozluk`
+     · `test`) yalanladı — 7/10 yazdı, 3'ü yazmadı. Sebep: o üç ekran daha
+     ÖNCE kendi zorunluluk denetimini bağlıyor ve eksik alanda
+     `stopImmediatePropagation()` çağırıyor; aynı düğmedeki sonraki
+     dinleyiciler hiç çalışmıyor. Yakalama evresi düğmeye inmeden önce
+     koştuğu için sıra tartışması bitiyor: kullanıcı "Taslak kaydet"e
+     bastıysa niyet, form geçerli olsa da olmasa da kayda geçer. */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('#kfTaslak')) return;
+    var td = document.getElementById('kfDurum');
+    if (td) td.value = 'taslak';
+  }, true);
   A.maketKaydet(document.getElementById('kfTaslak'), 'taslak', form);
 
   /* 3. adım — doğrulama bittikten sonra paneli yerine koy. */

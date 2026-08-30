@@ -57,24 +57,27 @@
             <div class="form-sec">
               <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
               <div class="form-grid">
-                <div class="frow two">
-                  <div class="frow">
-                    <label for="pfAd">Plan adı <span class="req">*</span></label>
-                    <input class="finput" id="pfAd" name="ad" type="text" required maxlength="60"
-                           placeholder="Örn. Pro Max" />
-                    <span class="fsay" data-say-for="pfAd">0 / 60</span>
+                <div class="frow">
+                  <label for="pfAd">Plan adı <span class="req">*</span></label>
+                  <input class="finput" id="pfAd" name="ad" type="text" required maxlength="60"
+                         placeholder="Örn. Pro Max" />
+                  <span class="fsay" data-say-for="pfAd">0 / 60</span>
+                </div>
+                <!-- Adres satırı TAM GENİŞLİK — Gastro `sayfalar/form.blade.php:125`
+                     ve `icerik/form.blade.php:166` slug'ı kendi `.frow`una koyuyor,
+                     `.frow.two`ya DEĞİL. ÖLÇÜLDÜ (1280px, rail açık): yarım kolonda
+                     `.slug-pre` 176px yer kaplıyor, girdiye 42px kalıyordu; 1180px'te
+                     28px'e düşüyordu. Tam genişlikte ~300px. -->
+                <div class="frow">
+                  <label for="pfSlug">Adres (slug) <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">pro-odeme-v1.html?plan=</span>
+                    <input class="finput" id="pfSlug" name="slug" type="text" required
+                           pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="promax" />
                   </div>
-                  <div class="frow">
-                    <label for="pfSlug">Adres (slug) <span class="req">*</span></label>
-                    <div class="slug-wrap">
-                      <span class="slug-pre">pro-odeme-v1.html?plan=</span>
-                      <input class="finput" id="pfSlug" name="slug" type="text" required
-                             pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="promax" />
-                    </div>
-                    <div class="fhint">Yalnız küçük harf, rakam ve tire. Motorun <code>key</code>
-                      alanıyla aynı değerdir; yayımlandıktan sonra değişirse eski abonelik
-                      kayıtlarının planı kopar.</div>
-                  </div>
+                  <div class="fhint">Yalnız küçük harf, rakam ve tire. Motorun <code>key</code>
+                    alanıyla aynı değerdir; yayımlandıktan sonra değişirse eski abonelik
+                    kayıtlarının planı kopar.</div>
                 </div>
                 <div class="frow two">
                   <div class="frow">
@@ -282,7 +285,7 @@
                 yenileme yapılmaz.</div>
               <button class="btn btn-ghost" type="button" id="pfSil"
                       data-yikici="Bu plan" data-fiil="sil"
-                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                      style="width:100%;color:var(--hs-danger);border-color:var(--hs-danger-line)">
                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Planı sil</button>
             </div>
           </div>
@@ -495,6 +498,28 @@
   /* ---- kaydet ---- */
   var form = document.getElementById('pfForm');
   A.maketKaydet(document.getElementById('pfKaydet'), 'plan', form);
+  /* 🔴 TASLAK DÜĞMESİ DURUM ALANINI YAZAR — Gastro sözleşmesi.
+     Kaynak: `admin/tarifler/form.blade.php:57-58` — "Taslak Kaydet"/"Yayınla"
+     düğmeleri *status alanını set edip* formu gönderir. Gastro'nun 24 form
+     bladeʼinin 23ʼünde taslak düğmesi HİÇ yok; taslak, yan kartın Durum
+     seçicisidir. Tek istisna tarif formudur, orada da düğme seçiciyi YAZAR.
+     ÖLÇÜLDÜ (R19 kıyası): `FIT_ADMIN.maketKaydet` Durum alanına hiç
+     dokunmuyordu — "Taslak kaydet" on ekranda, Durum "Yayında"da dururken
+     taslak kaydettiğini söylüyordu: aynı sorunun iki cevabı.
+
+     ⚠ NEDEN `document` ÜZERİNDE VE YAKALAMA EVRESİNDE: ilk denemem düğmeye
+     doğrudan dinleyici bağlamaktı ve ÖLÇÜM ÜÇ EKRANDA (`program` · `sozluk`
+     · `test`) yalanladı — 7/10 yazdı, 3'ü yazmadı. Sebep: o üç ekran daha
+     ÖNCE kendi zorunluluk denetimini bağlıyor ve eksik alanda
+     `stopImmediatePropagation()` çağırıyor; aynı düğmedeki sonraki
+     dinleyiciler hiç çalışmıyor. Yakalama evresi düğmeye inmeden önce
+     koştuğu için sıra tartışması bitiyor: kullanıcı "Taslak kaydet"e
+     bastıysa niyet, form geçerli olsa da olmasa da kayda geçer. */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('#pfTaslak')) return;
+    var td = document.getElementById('pfDurum');
+    if (td) td.value = 'taslak';
+  }, true);
   A.maketKaydet(document.getElementById('pfTaslak'), 'plan taslağı', form);
 
   /* 🔴 AÇILIŞTA SAYFA BAŞTAN BAŞLAR. `FIT_ADMIN.tekrar`ın `ekle()`si yeni

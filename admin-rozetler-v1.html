@@ -24,6 +24,20 @@
    değeri değil, o kesişimde rozet OLMADIĞI bilgisidir. */
 .rz-mx .z{color:var(--muted)}
 .rz-mx tfoot td{font-weight:800;color:var(--slate);background:var(--bg);border-top:1px solid var(--line)}
+/* On sütunlu matris, rail AÇIKKEN 1280px'te 882px kaba sığmaya çalışıyor:
+   aile hücresi 115px'e eziliyor, satır 108px'ten 187px'e çıkıyordu
+   (ölçüldü). Gastro bu durumda sütunu ezmez, kabı kaydırır —
+   `public/css/admin-loglar.css:45-47`. Aynı ekranın kendi emsali:
+   `.rz-kademe{min-width:154px}` (yukarıda). */
+.rz-mx th:first-child,.rz-mx td:first-child{min-width:196px}
+/* Dar ekranda ikincil kolonlar düşer — Gastro'nun KENDİ rozet ekranından
+   birebir port. `admin/rozetler/index.blade.php:49` başlık satırında
+   `<th class="col-cat">Kategori</th>` ve `<th class="col-date">Durum</th>`
+   taşıyor (gövde :59 ve :61), `sa-rozetler.css:36-38` ikisini ≤640'ta
+   gizliyor. Fit'te "Kategori"nin karşılığı "Aile"dir; "Durum" aynı adda.
+   Sınıf adı, kolon seçimi ve eşik Gastro'dan — burada seçilmedi.
+   ÖLÇÜLDÜ: rzTablo 640px'te 131px, 390px'te 381px kaydırıyordu. */
+@media(max-width:640px){ #rzTablo .col-cat,#rzTablo .col-date{display:none} }
 .rz-ax{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 /* Uydurulmuş inline metin stili yerine — kabukta karşılığı olmayan tek
    kalem: kart başlığı altındaki açıklama paragrafı. */
@@ -56,9 +70,21 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Rozetler ve Kademeler</h1>
+        <!-- Kayıt sayacı `.ph-sub`ın SONUNDA. ÖLÇÜLDÜ — Gastro bu ekranı İKİ
+             rotaya bölüyor ve İKİSİ DE sayaç taşıyor: `admin/rozetler/index
+             .blade.php:24` (rozet) ve `admin/kademeler/index.blade.php:22`
+             (kademe). Fit ikisini tek ekranda topladığı için iki sayı da
+             yazılır — tek sayı seçmek "hangisi ekranın sayısı" belirsizliğini
+             üretiyordu, iki sayı yazınca belirsizlik kalmıyor.
+             ÜÇÜNCÜ tablonun (aile ⇄ kademe matrisi) sayısı YAZILMADI:
+             o Fit'in kendi eki, Gastro'da karşılığı yok.
+             Sayılar `FIT_ROZET.KATALOG` ve `FIT_ROZET.KADEMELER`den okunur —
+             katalog tablosunu, kademe tablosunu ve matrisi basan AYNI iki
+             dizi; ikinci bir sayım yapılmıyor. -->
         <div class="ph-sub">Rozet kataloğu, puan değerleri ve sekiz kademenin eşikleri. Kademe
            <b>iki eşiklidir</b>: puan da aktif gün de geçilmeden atlanmaz —
-           puan hızlı toplanır, gün toplanmaz.</div>
+           puan hızlı toplanır, gün toplanmaz.
+           · <b id="rzBasRozet">0</b> rozet · <b id="rzBasKademe">0</b> kademe</div>
       </div>
       <!-- Düğme sırası ölçülmüş: ikincil `btn-ghost` SOLDA, birincil CTA en
            SAĞDA (Gastro `tarifler/index.blade.php:56-67` yorumu, ölçüm §1.1).
@@ -247,8 +273,8 @@
                    Gastro'nun rozet listesinde de satır içi alan yok, tek eylem
                    `Düzenle` (ölçüm §3.1). -->
               <tr>
-                <th>Rozet</th><th>Aile</th><th>Kademe</th>
-                <th>Ölçüt ve hedef</th><th class="num">Puan</th><th>Durum</th>
+                <th>Rozet</th><th class="col-cat">Aile</th><th>Kademe</th>
+                <th>Ölçüt ve hedef</th><th class="num">Puan</th><th class="col-date">Durum</th>
                 <th class="act">Aksiyon</th>
               </tr>
             </thead>
@@ -326,6 +352,8 @@
   }
 
   var KATALOG = R.KATALOG, KADEMELER = R.KADEMELER, AILELER = R.AILELER;
+  document.getElementById('rzBasRozet').textContent = KATALOG.length;
+  document.getElementById('rzBasKademe').textContent = KADEMELER.length;
 
   function aileBul(key){
     for (var i = 0; i < AILELER.length; i++) if (AILELER[i].key === key) return AILELER[i];
@@ -490,11 +518,11 @@
       return '<tr data-slug="' + esc(r.slug) + '" data-aile="' + esc(r.aile) + '"' +
              ' data-durum="' + (olculu ? 'olculu' : 'olcusuz') + '">' +
         '<td><b><i class="' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</b><small>' + esc(r.slug) + '</small></td>' +
-        '<td>' + esc(a ? a.ad : r.aile) + '</td>' +
+        '<td class="col-cat">' + esc(a ? a.ad : r.aile) + '</td>' +
         '<td>' + esc(k ? k.ad : r.basamak) + '<small>' + n(k ? k.minPuan : 0) + ' puan · ' + n(k ? k.minGun : 0) + ' gün</small></td>' +
         '<td>' + olcutHucre + '</td>' +
         '<td class="num"><b>' + n(r.puan) + '</b></td>' +
-        '<td>' + durum + '</td>' +
+        '<td class="col-date">' + durum + '</td>' +
         '<td class="act">' +
           '<a class="adm-ico-btn" href="' + duzenleAdres + '" aria-label="' + esc(r.ad) + ' rozetini düzenle" title="Düzenle">' +
             '<i class="fa-solid fa-pen" aria-hidden="true"></i></a>' +

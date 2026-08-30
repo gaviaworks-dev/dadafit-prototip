@@ -61,17 +61,20 @@
             <div class="form-sec">
               <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Kimlik</h3>
               <div class="form-grid">
-                <div class="frow two">
-                  <div class="frow">
-                    <label for="anAd">Ad soyad <span class="req">*</span></label>
-                    <input class="finput" id="anAd" name="ad" type="text" required maxlength="60" />
-                  </div>
-                  <div class="frow">
-                    <label for="anSlug">Adres <span class="req">*</span></label>
-                    <div class="slug-wrap">
-                      <span class="slug-pre">antrenor-detay-v1.html?a=</span>
-                      <input class="finput" id="anSlug" name="slug" type="text" required pattern="[a-z0-9\-]+" />
-                    </div>
+                <div class="frow">
+                  <label for="anAd">Ad soyad <span class="req">*</span></label>
+                  <input class="finput" id="anAd" name="ad" type="text" required maxlength="60" />
+                </div>
+                <!-- Adres satırı TAM GENİŞLİK — Gastro `sayfalar/form.blade.php:125`
+                     ve `icerik/form.blade.php:166` slug'ı kendi `.frow`una koyuyor,
+                     `.frow.two`ya DEĞİL. ÖLÇÜLDÜ (1280px, rail açık): yarım kolonda
+                     `.slug-pre` 181px yer kaplıyor, girdiye 37px kalıyordu; 1180px'te
+                     28px'e düşüyordu. Tam genişlikte ~300px. -->
+                <div class="frow">
+                  <label for="anSlug">Adres <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">antrenor-detay-v1.html?a=</span>
+                    <input class="finput" id="anSlug" name="slug" type="text" required pattern="[a-z0-9\-]+" />
                   </div>
                 </div>
                 <div class="frow">
@@ -273,7 +276,7 @@
                 sahibini de düşürür.</div>
               <button class="btn btn-ghost" type="button" id="anSil"
                       data-yikici="Bu antrenör profili" data-fiil="arsiv"
-                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                      style="width:100%;color:var(--hs-danger);border-color:var(--hs-danger-line)">
                 <i class="fa-solid fa-box-archive" aria-hidden="true"></i> Profili arşivle</button>
             </div>
           </div>
@@ -545,6 +548,28 @@
   A.seo('#anForm', '#anSeo');
   var form = document.getElementById('anForm');
   A.maketKaydet(document.getElementById('anKaydet'), 'antrenör profili', form);
+  /* 🔴 TASLAK DÜĞMESİ DURUM ALANINI YAZAR — Gastro sözleşmesi.
+     Kaynak: `admin/tarifler/form.blade.php:57-58` — "Taslak Kaydet"/"Yayınla"
+     düğmeleri *status alanını set edip* formu gönderir. Gastro'nun 24 form
+     bladeʼinin 23ʼünde taslak düğmesi HİÇ yok; taslak, yan kartın Durum
+     seçicisidir. Tek istisna tarif formudur, orada da düğme seçiciyi YAZAR.
+     ÖLÇÜLDÜ (R19 kıyası): `FIT_ADMIN.maketKaydet` Durum alanına hiç
+     dokunmuyordu — "Taslak kaydet" on ekranda, Durum "Yayında"da dururken
+     taslak kaydettiğini söylüyordu: aynı sorunun iki cevabı.
+
+     ⚠ NEDEN `document` ÜZERİNDE VE YAKALAMA EVRESİNDE: ilk denemem düğmeye
+     doğrudan dinleyici bağlamaktı ve ÖLÇÜM ÜÇ EKRANDA (`program` · `sozluk`
+     · `test`) yalanladı — 7/10 yazdı, 3'ü yazmadı. Sebep: o üç ekran daha
+     ÖNCE kendi zorunluluk denetimini bağlıyor ve eksik alanda
+     `stopImmediatePropagation()` çağırıyor; aynı düğmedeki sonraki
+     dinleyiciler hiç çalışmıyor. Yakalama evresi düğmeye inmeden önce
+     koştuğu için sıra tartışması bitiyor: kullanıcı "Taslak kaydet"e
+     bastıysa niyet, form geçerli olsa da olmasa da kayda geçer. */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('#anTaslak')) return;
+    var td = document.getElementById('anDurum');
+    if (td) td.value = 'taslak';
+  }, true);
   A.maketKaydet(document.getElementById('anTaslak'), 'taslak', form);
 })();
 </script>

@@ -1342,6 +1342,13 @@ button.ptk-h[aria-pressed="true"]{box-shadow:0 0 0 2px var(--slate) inset;border
 <script src="assets/js/fit-plan-kayit.js"></script>
 <!-- KAYIT (favori) SÖZLEŞMESİ — kart düğmeleri ve Kaydettiklerim buradan okur -->
 <script src="assets/js/fit-kayit.js"></script>
+<!-- 🔴 R18 · SU DEFTERİ MODÜLÜ. Bu kart suyu kabuğun `dm_fit.bugun.su`
+     alanından okuyordu; su o alandan `dm_fit_su_v1`e TAŞINDI
+     (assets/js/fit-su.js — göç bir kez yapılıp eski alan bırakıldı).
+     Kart geride kalmıştı: Enerji Defteri 3 bardak gösterirken bu kart 0
+     diyordu ve düğmesi ölü bir alana yazıyordu (ölçüldü,
+     tests/bugunku-antrenman.mjs). Modül buraya da yüklendi. -->
+<script src="assets/js/fit-su.js"></script>
 <script>
 /* ===== FPX — Fit Planım ailesi · ortak yardımcı (REVİZYON 6 · madde 19) =====
    DEPOLAMA SÖZLEŞMESİ: assets/js/fit-plan-kayit.js (window.FIT_PLAN) tek
@@ -1940,13 +1947,15 @@ var FPX = (function () {
   var btn = document.getElementById('fpxSuEkle'); if (!btn) return;
   var kutu = btn.closest('.fp-card'); if (!kutu) return;
   var gunler = kutu.querySelector('.fp-days'), rozet = kutu.querySelector('.fp-badge');
-  var S = window.FIT_SHELL && window.FIT_SHELL.state;
-  if (!gunler || !rozet || !S) return;
+  /* R18 — TEK KAYNAK `FIT_SU`. Kabuk durumu artık suyu tutmuyor. */
+  var SU = window.FIT_SU;
+  if (!gunler || !rozet || !SU) return;
 
   var SU_HEDEF = 8;
 
   function boya() {
-    var su = Math.max(0, (S.read().bugun || {}).su || 0);
+    /* `bardak` kesirli dönebilir (ml / bardak boyu) — kutucuk sayısı tam sayıdır. */
+    var su = Math.max(0, Math.floor(SU.bugun().bardak || 0));
     var dolu = Math.min(su, SU_HEDEF);
     var h = '';
     for (var i = 1; i <= SU_HEDEF; i++) h += '<span class="fp-day' + (i <= dolu ? ' on' : '') + '">' + i + '</span>';
@@ -1961,9 +1970,10 @@ var FPX = (function () {
       ? '<i class="fa-solid fa-check"></i> Günlük hedefin tamam'
       : '<i class="fa-solid fa-plus"></i> Bir bardak ekle';
   }
-  btn.addEventListener('click', function () { S.suEkle(1); boya(); });
+  btn.addEventListener('click', function () { SU.bardakEkle(1); boya(); });
   document.addEventListener('fit:state', boya);
-  boya();
+  /* Su defteri kendi olayını yayar; iki yüzey aynı anda açıkken de eşleşsin. */
+  if (SU.dinle) SU.dinle(boya); else boya();
 })();
 
 /* ===== Gün ve tarih (belge §3.1) =====

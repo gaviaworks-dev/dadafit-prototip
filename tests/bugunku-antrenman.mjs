@@ -287,13 +287,29 @@ console.log('\n4 · Su takibi kalıcı ve iki sayfada aynı');
   const { ctx, page } = await ctxAc(true);
   await page.goto(`${BASE}/${SU}`, { waitUntil:'domcontentloaded', timeout:30000 });
   await page.waitForTimeout(500);
-  const btn = await page.$('#suEkle');
-  if (!btn) rec('"Bardak Ekle" eylemi yok', `${SU} içinde #suEkle bulunamadı — sayaç hâlâ bağlanmamış`);
+  /* 🔴 R18 · SEÇİCİ DÜZELTİLDİ — `#suEkle` HİÇ VAR OLMADI.
+     Nöbet bu turdan ÖNCE de kırmızıydı ve kimse görmedi: ölçüldü,
+     `git show 3f988c3^:enerji-defteri-su-v1.html | grep suEkle` → 0 isabet.
+     Yani gate sayfanın taşınmasından değil, en baştan yanlış id'den düşüyordu
+     ve "Bardak Ekle eylemi yok" diye YANLIŞ bir kusur bildiriyordu.
+     Gerçek denetim `[data-su="bardak"]` — su sisteminin kendi sözleşmesi
+     (`assets/js/fit-su.js`, `data-su` eylem adları). Nöbet gevşetilmedi:
+     aşağıdaki üç şart (depoya yazıldı · ekranda göründü · yenilemeden sonra
+     durdu) aynen duruyor. */
+  const SU_EKLE = '[data-su="bardak"]';
+  const btn = await page.$(SU_EKLE);
+  if (!btn) rec('"Bardak Ekle" eylemi yok', `${SU} içinde ${SU_EKLE} bulunamadı — sayaç hâlâ bağlanmamış`);
   else {
-    await page.click('#suEkle'); await page.click('#suEkle'); await page.click('#suEkle');
+    await page.click(SU_EKLE); await page.click(SU_EKLE); await page.click(SU_EKLE);
     await page.waitForTimeout(300);
-    esit(await page.evaluate(() => (JSON.parse(localStorage.getItem('dm_fit')||'{}').bugun||{}).su), 3,
-         'üç tıklama dm_fit.bugun.su\'ya yazıldı');
+    /* 🔴 R18 · DEPO SÖZLEŞMESİ GÜNCELLENDİ. Nöbet `dm_fit.bugun.su` alanını
+       okuyordu; su o alandan `dm_fit_su_v1`e TAŞINDI (assets/js/fit-su.js:63
+       — eski alan bir kez göç ettirilip bırakıldı, dosyanın kendi başlığı
+       bunu yazıyor). Yani nöbet artık YAZILMAYAN bir alanı denetliyordu ve
+       bardak sayısı doğru kaydedilirken "yazılmadı" diyordu.
+       Şart gevşemedi, kaynağa çekildi: sayı modülün kendi API'sinden okunuyor. */
+    esit(await page.evaluate(() => (window.FIT_SU && FIT_SU.bugun() || {}).bardak), 3,
+         'üç tıklama su defterine (dm_fit_su_v1) yazıldı');
     esit(await gorunur(page, '#suBardaklar .glass.full'), 3, 'dolu bardak sayısı ekranda');
 
     await page.reload({ waitUntil:'domcontentloaded' });
@@ -369,10 +385,11 @@ console.log('\n6 · Girişsiz kullanıcı: kapı açılıyor, sessiz yazım yok'
   await page.goto(`${BASE}/${SU}`, { waitUntil:'domcontentloaded', timeout:30000 });
   await page.waitForTimeout(500);
   const once = await page.evaluate(() => localStorage.getItem('dm_fit'));
-  const btn = await page.$('#suEkle');
-  if (!btn) rec('"Bardak Ekle" eylemi yok', '#suEkle bulunamadı');
+  const SU_EKLE2 = '[data-su="bardak"]';   /* R18 — yukarıdaki gerekçe */
+  const btn = await page.$(SU_EKLE2);
+  if (!btn) rec('"Bardak Ekle" eylemi yok', SU_EKLE2 + ' bulunamadı');
   else {
-    await page.click('#suEkle');
+    await page.click(SU_EKLE2);
     await page.waitForTimeout(600);
     esit(await gorunur(page, '#lgGate'), 1, 'girişsizde kabuk kapısı açıldı');
     const sonra = await page.evaluate(() => localStorage.getItem('dm_fit'));

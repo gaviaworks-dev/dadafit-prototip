@@ -45,7 +45,11 @@
 .hz-karar{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);padding:18px;margin:16px 22px 0}
 .hz-karar h4{font-size:14px;font-weight:800;color:var(--slate);margin:0 0 4px;display:flex;align-items:center;gap:9px}
 .hz-karar h4 i{color:var(--fit-deep);font-size:13px}
-.hz-karar .sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
+/* 🔴 SINIF ADI ÇAKIŞMASI — ölçüldü (R19). Bu satır `.sec` adını taşıyordu;
+   `.sec` KABUĞUN public bölüm sınıfıdır (`fit-shell.css:205` →
+   `padding:var(--sec-pad) 0`) ve karar kutusunun alt satırı sessizce 74px
+   dolgu alıyordu. Ad ekranın kendi ön ekine çekildi. */
+.hz-karar .hz-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
 .adm-table tbody tr.is-sec td{background:var(--fit-tint)}
 @media (max-width:640px){
   .hz-toplam{padding-left:16px;padding-right:16px}
@@ -73,8 +77,8 @@
       <div class="h-txt">
         <h1>Hizmetler ve Satışlar</h1>
         <div class="ph-sub">Üye antrenörden hizmet paketi satın alır — bu, platformun kendi
-           abonelik ürününden ayrı bir akıştır (bkz. Kazançlar ve ödemeler). Bu ekran üç
-           işi tutar: hangi paketler satışta, kim ne aldı, kim iade istedi.</div>
+           abonelik ürününden ayrı bir akıştır (bkz. Kazançlar ve ödemeler). Bu ekran dört
+           işi tutar: hangi paket onay bekliyor, hangileri satışta, kim ne aldı, kim iade istedi.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="admin-odemeler-v1.html"><i class="fa-solid fa-money-bill-wave"></i> Kazançlar ve ödemeler</a>
@@ -119,25 +123,70 @@
             <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Üstünde fatura istenir.</span>
           </div>
         </div>
+        <!-- `.fk-help` flex kaptır (fit-shell.css:4831); ikon dışındaki her
+             düğüm ayrı flex ögesi olur ve cümle sütunlara bölünür (ölçüldü).
+             Metin bu yüzden tek `<span>` içinde. -->
         <p class="fk-help" style="margin-top:16px"><i class="fa-solid fa-lock"></i>
-          Dört değer de <b>Ayarlar</b> ekranından yönetilir; bu ekran onları
+          <span>Dört değer de <b>Ayarlar</b> ekranından yönetilir; bu ekran onları
           yalnız okur. Aşağıdaki komisyon ve antrenör payı kolonları aynı
-          değerlerden hesaplanır — hiçbiri satıra elle yazılmaz.</p>
+          değerlerden hesaplanır — hiçbiri satıra elle yazılmaz.</span></p>
       </div>
     </div>
 
-    <!-- ============ ÜÇ SEKME (K1) ============ -->
+    <!-- ============ DÖRT SEKME (K1) ============ -->
     <div class="adm-card" id="hzKart" data-fit-tabs-scope>
       <div class="c-head">
         <nav class="fit-tabs" data-fit-tabs="hizmetler" aria-label="Hizmet bölümleri">
-          <button class="fit-tab active" type="button" data-tab="paketler"><i class="fa-solid fa-box-open"></i> Hizmet paketleri <span class="cnt" data-cnt="paketler"></span></button>
+          <button class="fit-tab active" type="button" data-tab="onay"><i class="fa-solid fa-gavel"></i> Paket onayları <span class="cnt" data-cnt="onay"></span></button>
+          <button class="fit-tab" type="button" data-tab="paketler"><i class="fa-solid fa-box-open"></i> Hizmet paketleri <span class="cnt" data-cnt="paketler"></span></button>
           <button class="fit-tab" type="button" data-tab="alimlar"><i class="fa-solid fa-receipt"></i> Satın alımlar <span class="cnt" data-cnt="alimlar"></span></button>
           <button class="fit-tab" type="button" data-tab="iadeler"><i class="fa-solid fa-rotate-left"></i> İade talepleri <span class="cnt" data-cnt="iadeler"></span></button>
         </nav>
       </div>
 
-      <!-- ---------- 1 · HİZMET PAKETLERİ ---------- -->
-      <div class="fit-pane" data-pane="paketler">
+      <!-- ---------- 1 · PAKET ONAY KUYRUĞU ----------
+           Gastro'nun karşılığı "Creator Planları" (§1.4): bir GÖZETİM/ONAY
+           kuyruğudur, düzenleme ekranı değil. Ölçüldü: admin creator planının
+           İÇERİĞİNE dokunmaz — fiyat/özellik düzenleme yolu yoktur, yalnız
+           ilk yayın onayını verir ya da reddeder. Fit'te de aynı: paketin
+           sahibi antrenördür, platform yalnız vitrine çıkmasına karar verir. -->
+      <div class="fit-pane" data-pane="onay">
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="hzOnAra">Onay kuyruğunda ara</label>
+            <input type="search" id="hzOnAra" placeholder="Paket ya da antrenör ara" />
+          </div>
+        </div>
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="hzOnTablo">
+              <thead>
+                <tr>
+                  <th>Paket</th><th>Antrenör</th><th>Tip</th><th>Süre</th>
+                  <th class="num">Fiyat / komisyon</th><th>Gönderim</th><th>Durum</th><th class="act">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="hzOnGovde"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i>
+          <span>Onay yalnız <b>vitrine çıkma</b> kararıdır. Paketin adı, süresi ve fiyatı
+          antrenörün kendi kaydıdır ve buradan düzenlenmez — reddedilen paket
+          antrenöre gerekçesiyle döner, düzeltip yeniden gönderebilir.</span></p>
+        <div class="adm-pager">
+          <div class="p-info"><b id="hzOnSay">0</b> paket · tümü tek sayfada</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- 2 · HİZMET PAKETLERİ ---------- -->
+      <div class="fit-pane" data-pane="paketler" hidden>
         <div class="filter-bar">
           <div class="fb-search">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -155,7 +204,7 @@
               <thead>
                 <tr>
                   <th>Paket</th><th>Antrenör</th><th>Tip</th><th>Süre</th>
-                  <th class="num">Fiyat</th><th class="num">30 günde satış</th><th>Durum</th><th class="act">İşlem</th>
+                  <th class="num">Fiyat / komisyon</th><th class="num">30 günde satış</th><th>Durum</th><th class="act">İşlem</th>
                 </tr>
               </thead>
               <tbody id="hzPkGovde"></tbody>
@@ -172,7 +221,7 @@
         </div>
       </div>
 
-      <!-- ---------- 2 · SATIN ALIMLAR ---------- -->
+      <!-- ---------- 3 · SATIN ALIMLAR ---------- -->
       <div class="fit-pane" data-pane="alimlar" hidden>
         <div class="filter-bar">
           <div class="fb-search">
@@ -209,7 +258,7 @@
         </div>
       </div>
 
-      <!-- ---------- 3 · İADE TALEPLERİ ---------- -->
+      <!-- ---------- 4 · İADE TALEPLERİ ---------- -->
       <div class="fit-pane" data-pane="iadeler" hidden>
         <div class="filter-bar">
           <div class="fb-search">
@@ -235,16 +284,16 @@
         </div>
 
         <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-triangle-exclamation"></i>
-          İade onaylanırsa üyeye paket tutarı döner ama <b>komisyon geri
+          <span>İade onaylanırsa üyeye paket tutarı döner ama <b>komisyon geri
           gitmez</b> — kesilen komisyon markada kalır, iade tutarı antrenörün
           bakiyesinden düşülür. Bu yüzden "Üyeye dönen" kolonu tutarın
-          tamamıdır, antrenörün payı değil.</p>
+          tamamıdır, antrenörün payı değil.</span></p>
 
         <!-- Karar kutusu: seçilen talep buraya düşer. Ayrı bir ekran
              açmıyoruz — iade kararı iki satırlık bir iş. -->
         <div class="hz-karar" id="hzIaKarar" hidden>
           <h4><i class="fa-solid fa-gavel"></i> İade kararı</h4>
-          <p class="sec" id="hzIaSecili">—</p>
+          <p class="hz-sec" id="hzIaSecili">—</p>
           <form id="hzIaForm">
             <div class="fk-grid c2">
               <div class="fk-field">
@@ -289,7 +338,7 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · HİZMETLER VE SATIŞLAR   (R16/3)   — K1 liste × 3 sekme
+   ADMIN · HİZMETLER VE SATIŞLAR   (R19)   — K1 liste × 4 sekme
    ---------------------------------------------------------------------
    K6 · FİT'TE ABONELİK VE HİZMET SATIŞI BİR ARADA YAŞAR (2026-08-30
    güncellemesi). Bu ekran yalnız HİZMET tarafını yönetir: üye antrenörden
@@ -309,6 +358,20 @@
 
    K5 · İADEDE KOMİSYON GERİ GİTMEZ. İade tablosunun "Üyeye dönen"
    kolonu tutarın TAMAMIDIR; kesilen komisyon markada kalır.
+
+   ---------------------------------------------------------------------
+   R19'DA EKLENEN — ölçülmüş eksiğin karşılığı
+   (`docs/gastro-olcum/fit-yonetilmeyenler.md`): eski ekranda hizmet
+   paketi üzerinde HİÇ karar yüzeyi yoktu; tek form iade kararıydı ve
+   yedi alanının dördü salt-okunurdu. Bu turda gelenler:
+     · PAKET ONAY KUYRUĞU — Gastro'nun "Creator Planları" ekranının (§1.4)
+       karşılığı: gözetim/onay kuyruğu, düzenleme ekranı DEĞİL. Onayla
+       (sayfa modalı) · Reddet (`data-yikici` + `data-fiil="reddet"` →
+       onayı KABUK açar). Fiyat/içerik düzenleme yolu bilerek yok:
+       paketin sahibi antrenördür (K4).
+     · Komisyon kırılımı her paket satırında — tutar · kesilen komisyon ·
+       antrenöre kalan, üçü de PARAM'dan hesaplanır.
+     · İade kararı artık ONAY MODALINDAN geçiyor ve modal K5'i söylüyor.
    ===================================================================== */
 (function () {
   'use strict';
@@ -332,13 +395,13 @@
   function komisyon(kurus){ return Math.round(kurus * PARAM.komisyonYuzde / 100); }
 
   document.getElementById('hzKaynak').innerHTML = A.kaynak('ornek',
-    '<b>Paket, satış ve iade verisi örnektir.</b> Bu prototipte sunucu ve ödeme ' +
+    '<b>Paket, onay, satış ve iade verisi örnektir.</b> Bu prototipte sunucu ve ödeme ' +
     'sağlayıcısı yok. Paket tipleri uydurulmadı — <code>antrenor-detay-v1.html</code>' +
     '\u2019in "Seanslar" sekmesindeki üç seçenektir. <b>Para parametreleri alan olarak ' +
     'durur:</b> komisyon, ödeme dönemi, alt sınır ve fatura eşiği yukarıdaki ' +
     'kutularda okunur ve komisyon kolonu her satırda oradan hesaplanır; ekranda ' +
     'sabit sayı yazılmaz. Sahibi Ayarlar ekranıdır, buradan düzenlenmez. ' +
-    '<b>Yazma yüzeyi maket:</b> iade kararı doğrulanır ama kaydedilmez.');
+    '<b>Yazma yüzeyi maket:</b> paket onayı, reddi ve iade kararı doğrulanır ama kaydedilmez.');
 
   /* ==================================================================
      1 · HİZMET PAKETLERİ
@@ -348,10 +411,15 @@
     seans:   { ad:'Birebir seans', ico:'fa-dumbbell' },
     aylik:   { ad:'Aylık paket', ico:'fa-calendar-days' }
   };
+  /* Paket hâlleri — Gastro'nun creator planı beş hâlinin (§1.4) Fit
+     karşılığı. `onay` bir KUYRUKtur: kuyruk sayacı da onu sayar.
+     `red` terminal değildir — antrenör düzeltip yeniden gönderebilir. */
   var PK_DURUM = {
+    onay:    { ad:'Onay bekliyor', rz:'wait', ico:'fa-hourglass-half' },
     yayinda: { ad:'Yayında',  rz:'ok',   ico:'fa-circle-check' },
     durdu:   { ad:'Satış kapalı', rz:'off', ico:'fa-pause' },
-    taslak:  { ad:'Taslak',   rz:'wait', ico:'fa-pen' }
+    taslak:  { ad:'Taslak',   rz:'wait', ico:'fa-pen' },
+    red:     { ad:'Reddedildi', rz:'stop', ico:'fa-circle-xmark' }
   };
 
   var PAKET = [
@@ -368,7 +436,13 @@
     { id:'p-441', ad:'Birebir Seans',     ant:'Can Aydın',   slug:'can-aydin',   tip:'seans',   sure:'60 dk', fiyat:50000,  satis:0,  durum:'durdu' },
     { id:'p-451', ad:'Birebir Seans',     ant:'Elif Şahin',  slug:'elif-sahin',  tip:'seans',   sure:'60 dk', fiyat:44000,  satis:2,  durum:'yayinda' },
     { id:'p-452', ad:'Aylık Paket',       ant:'Elif Şahin',  slug:'elif-sahin',  tip:'aylik',   sure:'4 seans / ay', fiyat:160000, satis:0, durum:'taslak' },
-    { id:'p-461', ad:'Birebir Seans',     ant:'Ayşe Kaplan', slug:'ayse-kaplan', tip:'seans',   sure:'60 dk', fiyat:39000,  satis:6,  durum:'yayinda' }
+    { id:'p-461', ad:'Birebir Seans',     ant:'Ayşe Kaplan', slug:'ayse-kaplan', tip:'seans',   sure:'60 dk', fiyat:39000,  satis:6,  durum:'yayinda' },
+    /* --- onay kuyruğu: antrenörün gönderdiği, henüz vitrine çıkmamış paketler --- */
+    { id:'p-471', ad:'Aylık Paket',        ant:'Can Aydın',   slug:'can-aydin',   tip:'aylik',   sure:'4 seans / ay', fiyat:175000, satis:0, durum:'onay', gonderim:'2026-08-28' },
+    { id:'p-472', ad:'Tanışma Görüşmesi',  ant:'Ayşe Kaplan', slug:'ayse-kaplan', tip:'tanisma', sure:'15 dk',        fiyat:0,      satis:0, durum:'onay', gonderim:'2026-08-27' },
+    { id:'p-473', ad:'Birebir Seans',      ant:'Mert Uysal',  slug:'mert-uysal',  tip:'seans',   sure:'60 dk',        fiyat:60000,  satis:0, durum:'onay', gonderim:'2026-08-24' },
+    { id:'p-462', ad:'Aylık Paket',        ant:'Ayşe Kaplan', slug:'ayse-kaplan', tip:'aylik',   sure:'4 seans / ay', fiyat:210000, satis:0, durum:'red',  gonderim:'2026-08-11',
+      redNot:'Paket içeriği tanıtım metninde açıklanmamış; seans sayısı ve kapsam yazılmalı.' }
   ];
 
   /* ==================================================================
@@ -489,24 +563,91 @@
     });
   }
 
+  /* Fiyat hücresi komisyon KIRILIMINI taşır: tutar, kesilen komisyon ve
+     antrenöre kalan. Üçü de PARAM'dan hesaplanır, hiçbiri satıra yazılı
+     değil — oran değişince üçü birden değişir. */
+  function fiyatHucre(kurus){
+    if (!kurus) return '<td class="num">Ücretsiz<small>komisyon yok</small></td>';
+    var k = komisyon(kurus);
+    return '<td class="num">' + tl(kurus) +
+      '<small>komisyon −' + tl(k) + ' · antrenöre ' + tl(kurus - k) + '</small></td>';
+  }
+
+  /* Satır eylemleri: onay kuyruğundaki paket ONAYLANIR ya da REDDEDİLİR.
+     Reddet yıkıcıdır ve onayını KABUKTAN alır — `data-yikici` + `data-fiil`
+     taşıyan her düğme onay modalını kendiliğinden açar, sayfa kendi
+     modalını yazmaz (native confirm bu depoda yasak). */
+  function pkEylem(p){
+    var gor = '<a class="adm-ico-btn" href="antrenor-detay-v1.html?slug=' + esc(p.slug) +
+      '" target="_blank" rel="noopener" aria-label="' + esc(p.ad) + ' paketini sitede gör">' +
+      '<i class="fa-solid fa-arrow-up-right-from-square"></i></a>';
+    if (p.durum !== 'onay') return gor;
+    return gor +
+      '<button class="adm-ico-btn" type="button" data-pk-onay="' + esc(p.id) +
+        '" aria-label="' + esc(p.ad) + ' paketini onayla"><i class="fa-solid fa-check"></i></button>' +
+      '<button class="adm-ico-btn" type="button" data-pk-red="' + esc(p.id) +
+        '" data-yikici="' + esc(p.ad + ' — ' + p.ant) + '" data-fiil="reddet"' +
+        ' aria-label="' + esc(p.ad) + ' paketini reddet"><i class="fa-solid fa-xmark"></i></button>';
+  }
+
+  function pkSatir(p){
+    var t = TIP[p.tip], d = PK_DURUM[p.durum];
+    return '<tr data-id="' + esc(p.id) + '" data-tip="' + esc(p.tip) + '" data-durum="' + esc(p.durum) + '">' +
+      '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.id) + '</small></td>' +
+      '<td>' + esc(p.ant) + '</td>' +
+      '<td><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i> ' + esc(t.ad) + '</td>' +
+      '<td>' + esc(p.sure) + '</td>' +
+      fiyatHucre(p.fiyat) +
+      '<td class="num">' + (p.satis ? n(p.satis) : '—') + '</td>' +
+      '<td>' + A.rozet(d.rz, d.ad, d.ico) +
+        (p.redNot ? '<small>' + esc(p.redNot) + '</small>' : '') + '</td>' +
+      '<td class="act">' + pkEylem(p) + '</td></tr>';
+  }
+
   function pkBas(){
-    document.getElementById('hzPkGovde').innerHTML = PAKET.map(function (p) {
-      var t = TIP[p.tip], d = PK_DURUM[p.durum];
-      return '<tr data-id="' + esc(p.id) + '" data-tip="' + esc(p.tip) + '" data-durum="' + esc(p.durum) + '">' +
-        '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.id) + '</small></td>' +
-        '<td>' + esc(p.ant) + '</td>' +
-        '<td><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i> ' + esc(t.ad) + '</td>' +
-        '<td>' + esc(p.sure) + '</td>' +
-        '<td class="num">' + (p.fiyat ? tl(p.fiyat) : 'Ücretsiz') + '</td>' +
-        '<td class="num">' + (p.satis ? n(p.satis) : '—') + '</td>' +
-        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
-        '<td class="act">' +
-          '<a class="adm-ico-btn" href="antrenor-detay-v1.html?slug=' + esc(p.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(p.ad) + ' paketini sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
-        '</td></tr>';
-    }).join('');
+    document.getElementById('hzPkGovde').innerHTML = PAKET.map(pkSatir).join('');
     document.getElementById('hzPkSay').textContent = PAKET.length;
     sayacBas('paketler', PAKET.length);
     A.aramaKur(document.getElementById('hzPkAra'), document.getElementById('hzPkTablo'), document.getElementById('hzPkSay'));
+  }
+
+  /* ---- onay kuyruğu ---- */
+  function onBas(){
+    var kuyruk = PAKET.filter(function (p) { return p.durum === 'onay' || p.durum === 'red'; });
+    document.getElementById('hzOnGovde').innerHTML = kuyruk.length
+      ? kuyruk.map(function (p) {
+          var t = TIP[p.tip], d = PK_DURUM[p.durum];
+          return '<tr data-id="' + esc(p.id) + '">' +
+            '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.id) + '</small></td>' +
+            '<td>' + esc(p.ant) + '</td>' +
+            '<td><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i> ' + esc(t.ad) + '</td>' +
+            '<td>' + esc(p.sure) + '</td>' +
+            fiyatHucre(p.fiyat) +
+            '<td>' + tarih(p.gonderim) + '</td>' +
+            '<td>' + A.rozet(d.rz, d.ad, d.ico) +
+              (p.redNot ? '<small>' + esc(p.redNot) + '</small>' : '') + '</td>' +
+            '<td class="act">' + pkEylem(p) + '</td></tr>';
+        }).join('')
+      : '<tr><td colspan="8">' + A.bos('fa-circle-check', 'Onay kuyruğu boş',
+          'Antrenörlerden gelen, vitrine çıkmayı bekleyen paket yok. Yeni paket gönderildiğinde satır burada belirir.',
+          '<a class="btn btn-ghost" href="admin-antrenorler-v1.html">' +
+          '<i class="fa-solid fa-user-check"></i> Antrenörler</a>') + '</td></tr>';
+    document.getElementById('hzOnSay').textContent = kuyruk.length;
+    /* Sekme sayacı KARAR BEKLEYENİ sayar, kuyruğun tamamını değil. */
+    sayacBas('onay', PAKET.filter(function (p) { return p.durum === 'onay'; }).length);
+    A.aramaKur(document.getElementById('hzOnAra'), document.getElementById('hzOnTablo'), document.getElementById('hzOnSay'));
+  }
+
+  /* Karar uygulanır: bellekte, maket. İki tablo da yeniden basılır ki
+     kuyruk sayacı ile liste tek gerçeği göstersin. */
+  function pkKarar(id, yeniDurum, not){
+    var p = PAKET.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    p.durum = yeniDurum;
+    if (not) p.redNot = not; else delete p.redNot;
+    pkBas(); onBas(); pkSuz();
+    A.toast(p.ad + ' — ' + PK_DURUM[yeniDurum].ad +
+            '. KAYDEDİLMEDİ, bu prototipte sunucu yok.', { tip:'info', ms:3600 });
   }
 
   /* ---- satın alımlar: komisyon PARAM'dan hesaplanır ---- */
@@ -590,6 +731,32 @@
       return;
     }
 
+    /* --- paket ONAYI: yıkıcı değil, o yüzden modalı sayfa açar --- */
+    var on = e.target.closest('[data-pk-onay]');
+    if (on) {
+      var pid = on.getAttribute('data-pk-onay');
+      var pk = PAKET.filter(function (x) { return x.id === pid; })[0];
+      A.onay({
+        baslik: 'Bu paket yayına alınsın mı?',
+        metin: '"' + pk.ad + ' — ' + pk.ant + '" antrenörün vitrininde satışa çıkar. ' +
+               'Paketin adı, süresi ve fiyatı antrenörün kaydıdır; onay yalnız vitrine ' +
+               'çıkma kararıdır.',
+        onayla: 'Yayına al', ico: 'fa-check',
+        onay: function () { pkKarar(pid, 'yayinda', null); }
+      });
+      return;
+    }
+
+    /* --- paket REDDİ: yıkıcı; onay modalını KABUK açtı, buraya
+           yalnız onaylanmış tıklama düşer (delege `__onaylandi` ile
+           ikinci kez yakalamıyor). --- */
+    var rd = e.target.closest('[data-pk-red]');
+    if (rd) {
+      pkKarar(rd.getAttribute('data-pk-red'), 'red',
+        'Reddedildi — gerekçe antrenöre iletildi. Düzeltip yeniden gönderebilir.');
+      return;
+    }
+
     var sf = e.target.closest('[data-suzgec-sifirla]');
     if (sf) {
       pkSec.tip.clear(); pkSec.durum.clear();
@@ -603,10 +770,44 @@
     }
   });
 
-  A.maketKaydet(document.getElementById('hzIaKaydet'), 'iade kararı');
+  /* İADE KARARI — önce doğrula, sonra ONAY MODALI, sonra dürüst not.
+     🔴 Sıra bilinçli: `data-yikici` delegesi capture fazında çalışır ve
+     formu doğrulamadan modalı açardı; boş zorunlu alanla onay sorulup
+     ardından doğrulamanın patlaması kötü bir akış olurdu. Bu yüzden
+     modal burada elle açılıyor ve K5'in cümlesi kararın türüne göre
+     yazılıyor — kabuğun `data-fiil="iade"` metniyle aynı şeyi söylüyor. */
+  var iaForm = document.getElementById('hzIaForm');
+  document.getElementById('hzIaKaydet').addEventListener('click', function () {
+    if (!iaForm.reportValidity()) return;
+    var karar = document.getElementById('hzIaKararSec').value;
+    var onayli = (karar === 'onayla');
+    A.onay({
+      yikici: onayli,
+      baslik: onayli ? 'İade edilsin mi?' : 'İade reddedilsin mi?',
+      metin: onayli
+        ? 'Üyeye paket tutarının TAMAMI döner. K5 gereği platform komisyonu geri gitmez — ' +
+          'kesilen komisyon markada kalır ve iade tutarı antrenörün bakiyesinden düşülür.'
+        : 'Talep reddedilecek ve gerekçe üyeye iletilecek. Üye aynı talebi yeniden açabilir.',
+      onayla: onayli ? 'İade et' : 'Reddet',
+      ico: onayli ? 'fa-rotate-left' : 'fa-circle-xmark',
+      onay: function () {
+        var not = document.querySelector('#hzIaForm .adm-maket-not');
+        if (!not) {
+          not = document.createElement('span');
+          not.className = 'adm-maket-not';
+          not.style.cssText = 'font-size:12.5px;font-weight:600;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px;margin-left:12px';
+          document.getElementById('hzIaKaydet').parentNode.appendChild(not);
+        }
+        not.innerHTML = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+          'Form doğrulandı — iade kararı KAYDEDİLMEDİ. Bu prototipte sunucu yok.';
+        A.toast('İade kararı doğrulandı — kaydedilmedi, sunucu yok.', { tip:'info' });
+      }
+    });
+  });
 
   pkSuzgecKur();
   pkBas();
+  onBas();
   saBas();
   iaBas();
 })();

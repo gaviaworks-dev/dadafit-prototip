@@ -23,6 +23,33 @@
 .dk-tabwrap{padding:14px 20px;border-bottom:1px solid var(--line)}
 @media (max-width:640px){ .dk-tabwrap{padding:14px} }
 
+/* 🔴 KİMLİK HÜCRESİ — kuyruk kartının ölçülmüş eksiği (kuyruk kalemi 10).
+   Panelin öteki üç operasyon ekranı (üyeler · antrenörler · log) "bu satır
+   kimin" sorusuna kabuğun `.u-cell`iyle cevap veriyordu; destek kuyruğu
+   üyenin adını meta satırının ORTASINDA, konu ve tarihin arasında düz metin
+   olarak taşıyordu. Kimlik burada bir DETAY değil, satırın kendisi.
+   Kart tabloya ÇEVRİLMEDİ: `.set-row` korundu, aralarına kabuğun kendi
+   kimlik hücresi girdi. Görünüm `.u-cell`/`.u-ava`/`.u-info` üçlüsünden
+   (fit-admin.css §19); burada yalnız hücrenin kart içindeki genişliği var. */
+.dk-kim{flex:none;width:210px;min-width:0}
+/* ⚠ ÖLÇÜLDÜ: `.u-name`/`.u-email` kabukta blok DEĞİL; geniş bir tablo
+   hücresinde bu görünmüyor ama dar bir kart hücresinde ad ve e-posta aynı
+   satıra binip yan kolonun üstüne taşıyordu (1440'ta ekran görüntüsüyle
+   yakalandı). Kabuğa dokunmak yerine iki satır burada bloklandı. */
+.dk-kim .u-name,.dk-kim .u-email{display:block}
+/* ⚠ ÖLÇÜLDÜ (390 ve 768, ekran görüntüsüyle): kabuk `.set-row`ı yalnız
+   640 altında sarıyor ve orada bile `.sr-txt` `flex:1` kaldığı için,
+   yanındaki geniş atama kutusu talebin BAŞLIĞINI ~60px'lik bir sütuna
+   sıkıştırıyordu — başlık harf harf alt alta iniyordu. Kimlik hücresi
+   eklenince sıkışma 900'e kadar çıktı. Bu yüzden dar ekranda üç parça da
+   kendi satırına iniyor: kimlik → başlık → atama. Kart bozulmuyor, yalnız
+   sırası dikeye dönüyor. */
+@media (max-width:900px){
+  .set-row{flex-wrap:wrap;gap:10px 14px}
+  .dk-kim{flex:1 1 100%;width:auto;order:-1}
+  .set-row .sr-txt{flex:1 1 100%}
+}
+
 /* Satır içi atama: kabuğun dar `.set-row .fk-select` kuralını kullanır,
    yalnız etiketiyle birlikte dikey hizalanır. */
 .dk-ata{display:flex;align-items:center;gap:9px}
@@ -51,6 +78,14 @@
         <div class="ph-sub">Dört durum, tek kuyruk. <b>Açık</b> talep ekipten yanıt bekler;
            <b>yanıt bekleyen</b> talepte top üyededir. <b>Çözülen</b> talep
            kapanışa hazırdır, <b>kapatılan</b> talebe yeni yanıt yazılmaz.</div>
+      </div>
+      <!-- Destek iki yüzeyden oluşur: TALEP (bu ekran) ve S.S.S. Bir talebin
+           yanıtı çoğu zaman zaten yazılmış bir S.S.S. maddesidir; iki ekran
+           bu yüzden birbirine bağlı durur. S.S.S. yönetimi ayrı ekrandır
+           çünkü talepler kuyruk, S.S.S. ise katalogtur — biri tükenir, öteki
+           büyür. -->
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-sss-v1.html"><i class="fa-solid fa-circle-question"></i> S.S.S. yönetimi</a>
       </div>
     </div>
 
@@ -207,7 +242,7 @@
    VERİ ÖRNEK. On bir talebin numarası, başlığı, konusu, durumu ve son
    hareket tarihi `destek-v1.html`in maket listesinden BİREBİR alındı —
    aynı talep iki yüzeyde farklı görünmesin diye. Üye adı, atanan temsilci
-   ve mesaj sayısı bu ekranın kendi örnek alanlarıdır; sunucu yok.
+   e-postası ve mesaj sayısı bu ekranın kendi örnek alanlarıdır; sunucu yok.
    ===================================================================== */
 (function () {
   'use strict';
@@ -232,27 +267,27 @@
 
   /* ---- talepler: numara/başlık/konu/durum/tarih destek-v1'den ------ */
   var TALEP = [
-    { no:'DF-2026-B4TXN2', durum:'acik',           uye:'Elif Şahin',    konu:'Aktivite ve cihaz bağlantıları',
+    { no:'DF-2026-B4TXN2', durum:'acik',           uye:'Elif Şahin', mail:'elif.sahin@eposta.com',    konu:'Aktivite ve cihaz bağlantıları',
       baslik:'Apple Health adım verisi iki gündür aktarılmıyor', son:'2026-08-11', mesaj:3, atanan:'Ece Demir' },
-    { no:'DF-2026-T6NGX4', durum:'acik',           uye:'Kaan Erdem',    konu:'Uygulama hatası',
+    { no:'DF-2026-T6NGX4', durum:'acik',           uye:'Kaan Erdem', mail:'kaan.erdem@eposta.com',    konu:'Uygulama hatası',
       baslik:'Challenge rozetim tamamlandığı hâlde düşmedi', son:'2026-07-23', mesaj:3, atanan:'Atanmadı' },
-    { no:'DF-2026-QW3JZ8', durum:'yanit-bekleyen', uye:'Zeynep Aydın',  konu:'Programlar ve planım',
+    { no:'DF-2026-QW3JZ8', durum:'yanit-bekleyen', uye:'Zeynep Aydın', mail:'zeynep.aydin@eposta.com',  konu:'Programlar ve planım',
       baslik:'Programını Bul sonucundaki program planıma eklenmedi', son:'2026-07-29', mesaj:3, atanan:'Barış Yıldırım' },
-    { no:'DF-2026-M2VYP7', durum:'yanit-bekleyen', uye:'Burak Toprak',  konu:'Aktivite ve cihaz bağlantıları',
+    { no:'DF-2026-M2VYP7', durum:'yanit-bekleyen', uye:'Burak Toprak', mail:'burak.toprak@eposta.com',  konu:'Aktivite ve cihaz bağlantıları',
       baslik:'Antrenman geçmişimde iki günlük boşluk görünüyor', son:'2026-07-27', mesaj:3, atanan:'Ece Demir' },
-    { no:'DF-2026-A8RUC3', durum:'yanit-bekleyen', uye:'Merve Çelik',   konu:'Antrenör ve randevu',
+    { no:'DF-2026-A8RUC3', durum:'yanit-bekleyen', uye:'Merve Çelik', mail:'merve.celik@eposta.com',   konu:'Antrenör ve randevu',
       baslik:'Antrenör randevumu ertelemek istiyorum', son:'2026-07-21', mesaj:3, atanan:'Nur Aslan' },
-    { no:'DF-2026-K7WQ9M', durum:'cozulen',        uye:'Onur Kılıç',    konu:'DadaFit Pro ve ödeme',
+    { no:'DF-2026-K7WQ9M', durum:'cozulen',        uye:'Onur Kılıç', mail:'onur.kilic@eposta.com',    konu:'DadaFit Pro ve ödeme',
       baslik:'Pro üyeliğim yenilendi ama paket ücretsize düştü', son:'2026-08-14', mesaj:3, atanan:'Barış Yıldırım' },
-    { no:'DF-2026-U2FZR8', durum:'cozulen',        uye:'İpek Yalçın',   konu:'Uygulama hatası',
+    { no:'DF-2026-U2FZR8', durum:'cozulen',        uye:'İpek Yalçın', mail:'ipek.yalcin@eposta.com',   konu:'Uygulama hatası',
       baslik:'Enerji defterinde su takibi her gün sıfırlanıyor', son:'2026-06-26', mesaj:3, atanan:'Ece Demir' },
-    { no:'DF-2026-Z4KMD9', durum:'kapatilan',      uye:'Tolga Demirci', konu:'Üyelik ve fatura',
+    { no:'DF-2026-Z4KMD9', durum:'kapatilan',      uye:'Tolga Demirci', mail:'tolga.demirci@eposta.com', konu:'Üyelik ve fatura',
       baslik:'Fatura adresimi güncellemek istiyorum', son:'2026-07-22', mesaj:3, atanan:'Nur Aslan' },
-    { no:'DF-2026-P7XBW2', durum:'kapatilan',      uye:'Ayşe Korkmaz',  konu:'Antrenör ve randevu',
+    { no:'DF-2026-P7XBW2', durum:'kapatilan',      uye:'Ayşe Korkmaz', mail:'ayse.korkmaz@eposta.com',  konu:'Antrenör ve randevu',
       baslik:'Antrenör randevum takvimde iki kez göründü', son:'2026-07-17', mesaj:3, atanan:'Nur Aslan' },
-    { no:'DF-2026-E3QHT6', durum:'kapatilan',      uye:'Cem Uysal',     konu:'Hesap ve giriş',
+    { no:'DF-2026-E3QHT6', durum:'kapatilan',      uye:'Cem Uysal', mail:'cem.uysal@eposta.com',     konu:'Hesap ve giriş',
       baslik:'Bildirim tercihlerim her girişte sıfırlanıyor', son:'2026-07-10', mesaj:3, atanan:'Barış Yıldırım' },
-    { no:'DF-2026-N9GVJ4', durum:'kapatilan',      uye:'Deniz Arda',    konu:'Uygulama hatası',
+    { no:'DF-2026-N9GVJ4', durum:'kapatilan',      uye:'Deniz Arda', mail:'deniz.arda@eposta.com',    konu:'Uygulama hatası',
       baslik:'Egzersiz kütüphanesinde ekipman süzgeci boş sonuç döndürüyor', son:'2026-07-03', mesaj:3, atanan:'Ece Demir' }
   ];
 
@@ -265,8 +300,15 @@
     '<b>Talep verisi örnektir.</b> On bir talebin numarası, başlığı, konusu, durumu ve ' +
     'son hareket tarihi <code>destek-v1.html</code>in maket listesinden birebir alındı — ' +
     'aynı talep iki yüzeyde farklı görünmesin diye. Üye adı, atanan temsilci ve mesaj ' +
-    'sayısı bu ekranın kendi örnek alanlarıdır. <b>Yazma yüzeyi maket:</b> atama ' +
+    'sayısı — ve <b>e-posta adresi</b> — bu ekranın kendi örnek alanlarıdır. ' +
+    '<b>Yazma yüzeyi maket:</b> atama ' +
     'değişmez, yanıt gönderilmez, durum geçmez — bu prototipte sunucu yok.');
+
+  /* Ad baş harfleri — avatar görseli olmayan üye için (kabuk `.u-ava.initials`). */
+  function basHarf(x){
+    return String(x || '').trim().split(/\s+/).slice(0, 2)
+      .map(function (p) { return p.charAt(0); }).join('').toLocaleUpperCase('tr');
+  }
 
   function bul(no){ for (var i=0;i<TALEP.length;i++) if (TALEP[i].no===no) return TALEP[i]; return null; }
   function sayi(id){ return TALEP.filter(function(t){ return t.durum===id; }).length; }
@@ -294,15 +336,29 @@
   };
 
   function satir(t){
-    var d = durumBul(t.durum);
     var yas = gunFarki(t.son);
     return '<div class="set-row" data-no="' + esc(t.no) + '" data-ara="' +
-        esc((t.no + ' ' + t.uye + ' ' + t.konu + ' ' + t.baslik).toLocaleLowerCase('tr')) + '">' +
-      '<span class="sr-ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
+        esc((t.no + ' ' + t.uye + ' ' + t.mail + ' ' + t.konu + ' ' + t.baslik).toLocaleLowerCase('tr')) + '">' +
+      /* 🔴 DURUM İKONU (`.sr-ico`) SÖKÜLDÜ. Her satırda aynı ikonu basıyordu:
+         satırlar zaten durum sekmesine göre ayrılmış paneller içinde duruyor
+         ve panelin kendi başlığı da o ikonu taşıyor. Aynı bilgiyi üçüncü kez
+         basmak, kimlik hücresinin yanında ikinci bir yuvarlak üretiyordu.
+         Durum ikonu duruyor — panel başlığında ve detay künyesinde. */
+      /* KİMLİK HÜCRESİ — kabuğun `.u-cell`i, panelin öteki üç operasyon
+         ekranıyla (üyeler · antrenörler · log) aynı bileşen. Avatar görseli
+         yok — üye fotoğrafı bu depoda hiç tutulmuyor — bu yüzden kitin
+         `initials` kipi: uydurulmuş bir yüz basmaktansa baş harf. */
+      '<span class="u-cell dk-kim">' +
+        '<span class="u-ava initials" aria-hidden="true">' + esc(basHarf(t.uye)) + '</span>' +
+        '<span class="u-info">' +
+          '<b class="u-name">' + esc(t.uye) + '</b>' +
+          '<small class="u-email">' + esc(t.mail) + '</small>' +
+        '</span>' +
+      '</span>' +
       '<span class="sr-txt">' +
         '<b>' + esc(t.baslik) + '</b>' +
         '<span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(t.no) +
-        ' · ' + esc(t.uye) + ' · ' + esc(t.konu) +
+        ' · ' + esc(t.konu) +
         ' · son hareket <time datetime="' + esc(t.son) + '">' + esc(A.tarih(t.son)) + '</time>' +
         ' (' + yas + ' gün önce) · ' + t.mesaj + ' mesaj</span>' +
         '<span class="dk-not" data-not><i class="fa-solid fa-circle-info" aria-hidden="true"></i>' +
@@ -398,7 +454,7 @@
     var d = durumBul(t.durum);
     document.getElementById('dkDetayBaslik').textContent = t.no + ' · ' + t.baslik;
     document.getElementById('dkKunye').innerHTML = [
-      ['fa-user',          'Üye',            t.uye],
+      ['fa-user',          'Üye',            t.uye + ' · ' + t.mail],
       ['fa-tag',           'Konu',           t.konu],
       ['fa-circle-half-stroke','Durum',      d.ad + ' — ' + d.yon],
       ['fa-clock',         'Son hareket',    A.tarih(t.son) + ' · ' + gunFarki(t.son) + ' gün önce'],

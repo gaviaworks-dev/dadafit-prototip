@@ -15,73 +15,16 @@
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi.
-   Liste · süzgeç · tablo · sayfalama · kart · sekme fit-admin.css ve
-   fit-shell.css'te; burada YALNIZ K3 detayının kendi parçaları var ve
-   hepsi kitin tokenleriyle kuruldu — yeni renk, yeni ölçü üretilmedi. */
+   Liste · süzgeç · tablo · sayfalama · kart · kimlik hücresi kabukta;
+   burada yalnız satır adının bağlantı hâli var. Yeni renk üretilmedi. */
 
-/* Satır adı: tıklanabilir ve KLAVYEYLE ULAŞILABİLİR olmak zorunda.
-   Yalnız `tr` üstünde click dinleseydik satır fareyle açılır, Tab ile
-   açılmazdı. Düğme kimlik hücresinin (`.u-cell`) tamamını kaplar; böylece
-   dokunma hedefi 44px'in altına düşmüyor. Kimliğin GÖRÜNÜMÜ kabuğun
-   `.u-cell`/`.u-ava`/`.u-info` üçlüsü (fit-admin.css §19) — burada yalnız
-   düğme sıfırlaması var, renk/ölçü yok. */
-.uy-ad{
-  min-height:44px;width:100%;padding:0;border:0;background:none;
-  font:inherit;cursor:pointer;
-}
+/* Satır adı artık bir DÜĞME değil, gerçek bir BAĞLANTI: detay ayrı bir
+   sayfada yaşıyor (D/8). Bağlantı olması üç şeyi bedavaya getiriyor —
+   yeni sekmede açma, adresi kopyalama ve klavyeyle gezinme. Kimliğin
+   GÖRÜNÜMÜ kabuğun `.u-cell`/`.u-ava`/`.u-info` üçlüsü (fit-admin.css §19). */
+.uy-ad{min-height:44px;width:100%;color:inherit;text-decoration:none}
 .uy-ad:hover .u-name{color:var(--fit-deep);text-decoration:underline}
 .uy-ad:focus-visible{outline:3px solid var(--fit);outline-offset:2px;border-radius:var(--radius-sm)}
-.adm-table tbody tr.is-sec td{background:var(--fit-tint)}
-
-/* Kimlik başlığı (K3) */
-.uy-kim{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.uy-kim .av{
-  width:52px;height:52px;flex:none;border-radius:50%;
-  background:var(--fit-tint);color:var(--fit-deep);
-  display:grid;place-items:center;font-size:17px;font-weight:800;
-}
-.uy-kim .who{min-width:0}
-.uy-kim .who b{display:block;font-size:17px;font-weight:800;color:var(--slate);letter-spacing:-.01em}
-.uy-kim .who small{display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px}
-.uy-kim .rz{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto}
-
-/* Veri sayfası — etiket/değer satırları */
-.uy-dl{display:grid;grid-template-columns:170px minmax(0,1fr);gap:0}
-.uy-dl dt,.uy-dl dd{
-  margin:0;padding:11px 0;border-bottom:1px solid var(--line);
-  font-size:13.5px;line-height:1.5;
-}
-.uy-dl dt{font-weight:700;color:var(--muted);font-size:12.5px}
-.uy-dl dd{font-weight:600;color:var(--slate)}
-.uy-dl dt:last-of-type,.uy-dl dd:last-of-type{border-bottom:0}
-@media (max-width:520px){
-  .uy-dl{grid-template-columns:minmax(0,1fr)}
-  .uy-dl dt{padding-bottom:0;border-bottom:0}
-}
-
-/* Kademe merdiveni — GERÇEK veri (fit-rozet.js) */
-.uy-mer{display:flex;flex-direction:column;gap:8px}
-.uy-kad{
-  display:flex;align-items:center;gap:12px;padding:11px 13px;
-  border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper);
-}
-.uy-kad .ico{
-  width:36px;height:36px;flex:none;border-radius:var(--radius-md);
-  background:var(--bg);color:var(--muted);display:grid;place-items:center;font-size:14px;
-}
-.uy-kad .ad{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--slate)}
-.uy-kad .ad small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
-.uy-kad.is-now{border-color:var(--fit-line);background:var(--fit-tint)}
-.uy-kad.is-now .ico{background:var(--fit);color:#fff}
-.uy-kad.is-now .ad{color:var(--fit-ink)}
-.uy-kad.is-gecti .ico{background:var(--fit-tint);color:var(--fit-deep)}
-
-/* Yan kolon özeti */
-.uy-ozet{display:flex;flex-direction:column;gap:0}
-.uy-ozet .s{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
-.uy-ozet .s:last-child{border-bottom:0}
-.uy-ozet .s span{font-size:12.5px;font-weight:600;color:var(--muted)}
-.uy-ozet .s b{margin-left:auto;font-size:15px;font-weight:800;color:var(--slate);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body class="adm-body" data-adm="uyeler">
@@ -94,9 +37,8 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Üyeler ve Yetki</h1>
-        <div class="ph-sub">Kim üye, kim antrenör, kim yönetici. Satırdaki ada bas — üyenin
-           profili, kademesi, satın aldığı hizmetler ve işlem geçmişi aynı
-           ekranda açılır.</div>
+        <div class="ph-sub">Kim üye, kim antrenör, kim yönetici. Satırdaki ada bas — üyenin künyesi,
+           aboneliği, kademesi ve işlem geçmişi kendi sayfasında açılır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="admin-rozetler-v1.html"><i class="fa-solid fa-medal"></i> Kademe merdiveni</a>
@@ -105,7 +47,12 @@
 
     <div id="uyKaynak"></div>
 
-    <!-- ============ LİSTE (K1) ============ -->
+    <!-- ============ LİSTE (K-LİSTE) ============
+         🔴 "Yeni üye" düğmesi BİLEREK YOK. Üye kendi kaydolur; panelden
+         hesap açmak, sahibi olmadığın bir e-postayla kimlik yaratmaktır.
+         Gastro'da bu düğme var ama orada `@can('assign-roles')` ile
+         koşullu ve gerekçesi ekip hesabı; Fit'te ekip hesabı rol
+         değişikliğiyle kurulur, yeni kayıtla değil. -->
     <div class="adm-card" id="uyListe">
       <div class="filter-bar">
         <div class="fb-search">
@@ -124,7 +71,7 @@
             <thead>
               <tr>
                 <th>Üye</th><th>Rol</th><th>Durum</th><th>Kademe</th>
-                <th class="num">Puan</th><th>Kayıt</th><th class="act">İşlem</th>
+                <th class="num">Puan</th><th class="act">İşlem</th>
               </tr>
             </thead>
             <tbody id="uyGovde"></tbody>
@@ -142,227 +89,70 @@
       </div>
     </div>
 
-    <!-- ============ DETAY (K3) ============
-         Sekme şeridi ve panelleri MARKUP'TA durur; kabuğun sekme bileşeni
-         ([data-fit-tabs]) sayfa yüklenirken rolleri kurar. Panellerin İÇİ
-         seçilen üyeye göre JS ile yazılır — sonradan üretilen bir şerit
-         bileşene hiç uğramazdı. -->
-    <div class="adm-card" id="uyDetay" hidden data-fit-tabs-scope>
-      <div class="c-head">
-        <div class="uy-kim" style="flex:1">
-          <span class="av" id="udAv">—</span>
-          <div class="who">
-            <b id="udAd">—</b>
-            <small id="udMail">—</small>
-          </div>
-          <div class="rz" id="udRozet"></div>
-        </div>
-      </div>
-
-      <div class="c-head">
-        <nav class="fit-tabs" data-fit-tabs="uyeDetay" aria-label="Üye detayı bölümleri">
-          <button class="fit-tab active" type="button" data-tab="profil"><i class="fa-solid fa-id-card"></i> Profil</button>
-          <button class="fit-tab" type="button" data-tab="kademe"><i class="fa-solid fa-medal"></i> Kademe ve puan</button>
-          <button class="fit-tab" type="button" data-tab="alim"><i class="fa-solid fa-basket-shopping"></i> Satın alımlar</button>
-          <button class="fit-tab" type="button" data-tab="gecmis"><i class="fa-solid fa-clock-rotate-left"></i> İşlem geçmişi</button>
-        </nav>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="udKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-
-      <div class="c-body">
-        <div class="adm-cols">
-          <div>
-            <div class="fit-pane" data-pane="profil"><dl class="uy-dl" id="udProfil"></dl></div>
-
-            <div class="fit-pane" data-pane="kademe" hidden>
-              <p style="font-size:13px;font-weight:600;color:var(--fit-ink);background:var(--fit-tint);border:1px solid var(--fit-line);border-radius:var(--radius-md);padding:11px 14px;margin:0 0 16px;line-height:1.55">
-                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                Merdivenin kendisi <b>gerçek</b>: sekiz kademe, puan ve aktif gün
-                eşikleriyle <code>fit-rozet.js</code>’ten okunuyor. Üyenin puanı ve
-                aktif günü <b>örnek</b>; kademe o iki sayıdan motorun kuralıyla
-                türetiliyor — elle yazılmıyor.
-              </p>
-              <div class="uy-mer" id="udMerdiven"></div>
-            </div>
-
-            <div class="fit-pane" data-pane="alim" hidden>
-              <div class="adm-tw">
-                <table class="adm-table" id="udAlimTablo">
-                  <thead><tr><th>Tarih</th><th>Antrenör</th><th>Hizmet</th><th class="num">Tutar</th><th>Durum</th></tr></thead>
-                  <tbody id="udAlim"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="fit-pane" data-pane="gecmis" hidden>
-              <div class="adm-tw">
-                <table class="adm-table" id="udGecmisTablo">
-                  <thead><tr><th>Tarih</th><th>İşlem</th><th>Yapan</th></tr></thead>
-                  <tbody id="udGecmis"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- yan bilgi kolonu -->
-          <div>
-            <div class="adm-card" style="box-shadow:none">
-              <div class="c-head"><h3><i class="fa-solid fa-chart-simple"></i> Özet</h3></div>
-              <div class="c-body"><div class="uy-ozet" id="udOzet"></div></div>
-            </div>
-            <div class="adm-card" style="box-shadow:none">
-              <div class="c-head"><h3><i class="fa-solid fa-user-shield"></i> Yetki</h3></div>
-              <div class="c-body">
-                <div class="fk-field">
-                  <label class="fk-label" for="udRol">Rol</label>
-                  <select class="fk-select" id="udRol"></select>
-                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Rol, üyenin panelde ve sitede neyi görebildiğini belirler. Antrenör rolü yalnız başvurusu onaylanmış üyeye verilir.</span>
-                </div>
-                <div class="fk-field">
-                  <label class="fk-label" for="udDurum">Hesap durumu</label>
-                  <select class="fk-select" id="udDurum">
-                    <option value="aktif">Aktif</option>
-                    <option value="askida">Askıda</option>
-                    <option value="kapali">Kapatılmış</option>
-                  </select>
-                </div>
-                <button class="btn btn-primary" type="button" id="udKaydet"><i class="fa-solid fa-check"></i> Yetkiyi kaydet</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-admin-uye-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · ÜYELER VE YETKİ   (R16/3)   — K1 liste + K3 detay
+   ADMIN · ÜYELER VE YETKİ   (R19)   — K-LİSTE
    ---------------------------------------------------------------------
-   NE GERÇEK, NE ÖRNEK
-   · Kademe merdiveni GERÇEK: `FIT_ROZET.KADEMELER` — sekiz kademe, her
-     birinde `minPuan` VE `minGun` eşiği. Ekran ikinci bir kopya tutmuyor.
-   · Üye satırları ÖRNEK: bu prototipte sunucu ve üye veritabanı yok.
-   · Üyenin kademesi UYDURULMUYOR, türetiliyor: motorun kuralı "iki barajı
-     birden geçtiği EN YÜKSEK kademe" (fit-rozet.js §1, Gastro TierLadder
-     emsali). Aynı kural burada da uygulanıyor; bir satıra elle "Usta"
-     yazılsaydı merdiven değişince ekran yalan söylerdi.
+   🔴 R19'DA DEĞİŞEN: gömülü `#uyDetay` kartı SÖKÜLDÜ. İki alanlık
+   (Rol, Hesap durumu) o kart D/8'in ölçtüğü eksiğin ta kendisiydi;
+   üyenin künyesi, aboneliği, içeriği, rozeti ve destek geçmişi artık
+   kendi sayfasında: `admin-uye-detay-v1.html?uye=<üye no>`.
+   Liste ekranı yalnız LİSTE olur; detay ekranı yalnız DETAY.
 
-   ÜYELİK TARİHİ — AÇIK KALEM
-   Genel Bakış'ın "veri bekleyen alanlar" listesi bunu zaten söylüyor:
-   hiçbir şemada kayıt tarihi alanı yok, profil kartında "—" duruyor.
-   Buradaki tarihler örnek veri; gerçek şema doğduğunda alan aynı adla
-   okunur. Kaynak şeridi bunu ayrıca yazıyor.
+   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-uye-veri.js`. Detay ekranı da
+   aynı dosyayı okur — kayıt iki yerde yaşamaz.
+
+   NE GERÇEK, NE ÖRNEK
+   · Kademe merdiveni GERÇEK: `FIT_ROZET.KADEMELER`, her kademede
+     `minPuan` VE `minGun` eşiği. Ekran ikinci bir kopya tutmuyor.
+   · Üye satırları ÖRNEK: bu prototipte sunucu ve üye veritabanı yok.
+   · Üyenin kademesi UYDURULMUYOR, TÜRETİLİYOR (motorun kuralı).
+
+   🔴 "KAYIT" KOLONU KALDIRILDI. Kolon örnek tarihler basıyordu, oysa
+   `dm_user` şemasında üyelik tarihi alanı YOK (ölçüldü). Bir kolonu
+   uydurulmuş tarihle doldurmak yerine kolon söküldü; alanın yokluğu
+   detay ekranında, ait olduğu yerde ve gerekçesiyle yazılı.
    ===================================================================== */
 (function () {
   'use strict';
-  var A = window.FIT_ADMIN, R = window.FIT_ROZET;
+  var A = window.FIT_ADMIN, U = window.FIT_ADMIN_UYE, R = window.FIT_ROZET;
   if (!A) return;
-  var esc = A.esc, n = A.n, tl = A.tl, tarih = A.tarih;
+  var esc = A.esc, n = A.n;
 
-  /* ---------- kaynak şeridi: iki cümle, iki ayrı gerçek ---------- */
+  var govde = document.getElementById('uyGovde');
+
   document.getElementById('uyKaynak').innerHTML = A.kaynak('ornek',
-    '<b>Üye satırları örnektir.</b> Bu prototipte sunucu ve üye veritabanı yok; ' +
-    'aşağıdaki 14 kayıt maket veridir ve kayıt tarihleri de örnektir — kayıt ' +
-    'tarihi hiçbir şemada tanımlı değil (Genel Bakış · veri bekleyen alanlar). ' +
-    '<b>Kademe verisi gerçektir:</b> sekiz kademe ve eşikleri ' +
-    '<code>fit-rozet.js</code>\u2019ten okunuyor, üyenin kademesi puan ve aktif gün ' +
-    'sayısından motorun kuralıyla türetiliyor. <b>Yazma yüzeyi maket:</b> rol ve ' +
-    'durum değişikliği doğrulanır ama kayıt gitmez.');
+    '<b>Üye satırları örnektir.</b> Bu prototipte sunucu ve üye veritabanı yok; kayıtlar ' +
+    '<code>fit-admin-uye-veri.js</code>ten okunuyor ve üye detayı da aynı dosyayı okur. ' +
+    '<b>Kademe verisi gerçektir:</b> kademeler ve eşikleri <code>fit-rozet.js</code>’ten ' +
+    'geliyor, üyenin kademesi puan ve aktif gün sayısından motorun kuralıyla türetiliyor. ' +
+    '<b>Üyelik tarihi kolonu yok:</b> <code>dm_user</code> şemasında kayıt tarihi alanı ' +
+    'tanımlı değil (ölçüldü), uydurulmuş tarihle kolon doldurulmadı. ' +
+    '<b>Yazma yüzeyi maket:</b> rol ve durum değişikliği detay ekranında doğrulanır, kayıt gitmez.');
 
+  if (!U) {
+    govde.innerHTML = '<tr><td colspan="6">' +
+      A.bos('fa-user-slash', 'Üye verisi yüklenmedi',
+            'Kayıtlar assets/js/fit-admin-uye-veri.js dosyasından okunur; bu sayfada yüklenemedi.') +
+      '</td></tr>';
+    return;
+  }
   if (!R) {
-    document.getElementById('uyGovde').innerHTML = '<tr><td colspan="7">' +
+    govde.innerHTML = '<tr><td colspan="6">' +
       A.bos('fa-medal', 'Kademe motoru yüklenmedi',
-            'Kademe merdiveni fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
+            'Kademe merdiveni fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+            'Kademe uydurulmadı — motor konuşmadan kademe yazılmaz.') + '</td></tr>';
     return;
   }
 
-  /* ==================================================================
-     ROL VE DURUM SÖZLÜĞÜ
-     Dört rol var çünkü Fit'te dördü de gerçekten ayrı bir yüzey görüyor:
-     antrenör adayı başvuru kuyruğunda bekler (admin-antrenorler), antrenör
-     hizmet satar (admin-hizmetler), yönetici bu paneli açar.
-     ================================================================== */
-  var ROL = {
-    uye:       { ad:'Üye',            ico:'fa-user' },
-    aday:      { ad:'Antrenör adayı', ico:'fa-user-clock' },
-    antrenor:  { ad:'Antrenör',       ico:'fa-user-check' },
-    yonetici:  { ad:'Yönetici',       ico:'fa-user-shield' }
-  };
-  var DURUM = {
-    aktif:  { ad:'Aktif',        rz:'ok',   ico:'fa-circle-check' },
-    askida: { ad:'Askıda',       rz:'wait', ico:'fa-pause' },
-    kapali: { ad:'Kapatılmış',   rz:'off',  ico:'fa-circle-minus' }
-  };
-
-  /* ==================================================================
-     ÖRNEK ÜYELER
-     Adlar uydurulmadı: antrenör olanlar sitedeki antrenör dizininin
-     (antrenor-detay-v1.html · VERI haritası) kendi adlarıdır; panel ile
-     public yüzey aynı kişiyi iki farklı adla göstermesin.
-     `puan` ve `gun` örnek; `kademe` bu ikisinden TÜRETİLİR.
-     ================================================================== */
-  var UYELER = [
-    { id:'u-1041', ad:'Selin Aksoy',   mail:'selin.aksoy@eposta.com',   kul:'@selinaksoyfit', rol:'antrenor', durum:'aktif',  puan:3120, gun:402, kayit:'2024-03-11', giris:'2026-08-29', sehir:'İstanbul', tel:'0(532) 214 88 09',
-      alim:[], gecmis:[['2026-05-02','Antrenör başvurusu onaylandı','Yasin Yavuz'],['2024-03-11','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1088', ad:'Burak Demir',   mail:'burak.demir@eposta.com',   kul:'@burakdemir', rol:'antrenor', durum:'aktif',  puan:2410, gun:300, kayit:'2024-06-02', giris:'2026-08-30', sehir:'Ankara', tel:'0(533) 118 45 20',
-      alim:[], gecmis:[['2026-04-18','Antrenör başvurusu onaylandı','Yasin Yavuz'],['2024-06-02','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1120', ad:'Merve Tan',     mail:'merve.tan@eposta.com',     kul:'@mervetan', rol:'antrenor', durum:'aktif',  puan:1450, gun:120, kayit:'2025-01-19', giris:'2026-08-28', sehir:'İzmir', tel:'0(542) 903 77 14',
-      alim:[], gecmis:[['2026-06-09','Antrenör başvurusu onaylandı','Yasin Yavuz'],['2025-01-19','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1207', ad:'Naz Erdem',     mail:'naz.erdem@eposta.com',     kul:'@nazerdem', rol:'aday', durum:'aktif',  puan:210,  gun:24,  kayit:'2026-07-30', giris:'2026-08-30', sehir:'Bursa', tel:'0(536) 442 10 63',
-      alim:[['2026-08-12','Selin Aksoy','Tanışma Görüşmesi',0,'tamam']],
-      gecmis:[['2026-08-28','Antrenör başvurusu alındı','Naz Erdem'],['2026-07-30','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0912', ad:'Ahmet Yıldırım',mail:'ahmet.yildirim@eposta.com',kul:'@ahmety', rol:'uye', durum:'aktif',  puan:680,  gun:52,  kayit:'2025-11-04', giris:'2026-08-30', sehir:'İstanbul', tel:'0(505) 771 32 08',
-      alim:[['2026-08-21','Burak Demir','Aylık Paket',160000,'tamam'],['2026-07-19','Burak Demir','Birebir Seans',52000,'tamam']],
-      gecmis:[['2026-08-21','Hizmet satın alındı · Aylık Paket','Ahmet Yıldırım'],['2025-11-04','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0977', ad:'Ceren Aktaş',   mail:'ceren.aktas@eposta.com',   kul:'@cerenaktas', rol:'uye', durum:'aktif',  puan:320,  gun:26,  kayit:'2026-02-14', giris:'2026-08-27', sehir:'Antalya', tel:'0(537) 620 91 45',
-      alim:[['2026-08-05','Merve Tan','Birebir Seans',46000,'tamam']],
-      gecmis:[['2026-08-05','Hizmet satın alındı · Birebir Seans','Ceren Aktaş'],['2026-02-14','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1015', ad:'Emre Şen',      mail:'emre.sen@eposta.com',      kul:'@emresen', rol:'uye', durum:'askida', puan:95,   gun:6,   kayit:'2026-06-21', giris:'2026-08-11', sehir:'Kocaeli', tel:'0(544) 300 18 72',
-      alim:[],
-      gecmis:[['2026-08-14','Hesap askıya alındı · yorum kuralı ihlali','Yasin Yavuz'],['2026-06-21','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0854', ad:'Gizem Polat',   mail:'gizem.polat@eposta.com',   kul:'@gizempolat', rol:'uye', durum:'aktif',  puan:1980, gun:195, kayit:'2025-02-27', giris:'2026-08-30', sehir:'İstanbul', tel:'0(539) 812 55 30',
-      alim:[['2026-08-18','Selin Aksoy','Aylık Paket',160000,'tamam'],['2026-06-11','Selin Aksoy','Aylık Paket',160000,'tamam'],['2026-05-03','Selin Aksoy','Birebir Seans',45000,'iade']],
-      gecmis:[['2026-08-18','Hizmet satın alındı · Aylık Paket','Gizem Polat'],['2026-05-09','İade talebi açıldı','Gizem Polat'],['2025-02-27','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1156', ad:'Hakan Uçar',    mail:'hakan.ucar@eposta.com',    kul:'@hakanucar', rol:'uye', durum:'kapali', puan:40,   gun:3,   kayit:'2026-05-08', giris:'2026-05-30', sehir:'Adana', tel:'0(546) 271 04 19',
-      alim:[],
-      gecmis:[['2026-06-02','Hesap kullanıcı isteğiyle kapatıldı','Hakan Uçar'],['2026-05-08','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0703', ad:'İpek Doğan',    mail:'ipek.dogan@eposta.com',    kul:'@ipekdogan', rol:'uye', durum:'aktif',  puan:3850, gun:520, kayit:'2023-09-15', giris:'2026-08-30', sehir:'İzmir', tel:'0(532) 664 27 81',
-      alim:[['2026-08-02','Zeynep Arı','Aylık Paket',160000,'tamam'],['2026-04-14','Zeynep Arı','Birebir Seans',41000,'tamam']],
-      gecmis:[['2026-08-02','Hizmet satın alındı · Aylık Paket','İpek Doğan'],['2023-09-15','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1183', ad:'Kerem Aslan',   mail:'kerem.aslan@eposta.com',   kul:'@keremaslan', rol:'uye', durum:'aktif',  puan:130,  gun:11,  kayit:'2026-07-12', giris:'2026-08-29', sehir:'Ankara', tel:'0(535) 108 63 27',
-      alim:[['2026-08-24','Merve Tan','Tanışma Görüşmesi',0,'tamam']],
-      gecmis:[['2026-08-24','Tanışma görüşmesi alındı','Kerem Aslan'],['2026-07-12','Hesap açıldı','Kayıt formu']] },
-    { id:'u-1231', ad:'Leyla Şimşek',  mail:'leyla.simsek@eposta.com',  kul:'@leylasimsek', rol:'uye', durum:'aktif',  puan:0,    gun:1,   kayit:'2026-08-29', giris:'2026-08-30', sehir:'Eskişehir', tel:'0(541) 559 76 02',
-      alim:[],
-      gecmis:[['2026-08-29','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0888', ad:'Zeynep Arı',    mail:'zeynep.ari@eposta.com',    kul:'@zeynepari', rol:'antrenor', durum:'aktif', puan:2900, gun:380, kayit:'2024-01-22', giris:'2026-08-30', sehir:'İzmir', tel:'0(538) 447 20 96',
-      alim:[],
-      gecmis:[['2026-03-05','Antrenör başvurusu onaylandı','Yasin Yavuz'],['2024-01-22','Hesap açıldı','Kayıt formu']] },
-    { id:'u-0001', ad:'Yasin Yavuz',   mail:'yasin.yavuz@eposta.com',   kul:'@yasinyavuz', rol:'yonetici', durum:'aktif', puan:750, gun:60, kayit:'2023-05-02', giris:'2026-08-30', sehir:'İstanbul', tel:'0(530) 000 00 00',
-      alim:[],
-      gecmis:[['2023-05-02','Hesap açıldı · yönetici','Sistem']] }
-  ];
-
-  /* ==================================================================
-     KADEME TÜRETİMİ — motorun kuralı, ikinci bir kopya değil
-     Üye, `minPuan` VE `minGun` barajlarını BİRLİKTE geçtiği en yüksek
-     kademeye yerleşir (fit-rozet.js §1). Tek ölçütle atlanmaz.
-     ================================================================== */
-  function kademeBul(puan, gun){
-    var son = R.KADEMELER[0];
-    R.KADEMELER.forEach(function (k) {
-      if (puan >= k.minPuan && gun >= k.minGun) son = k;
-    });
-    return son;
-  }
+  var ROL = U.ROL, DURUM = U.DURUM, UYELER = U.UYELER;
 
   /* ---------- süzgeç: kabuğun ortak bileşeni ---------- */
   var sec = { rol:new Set(), durum:new Set(), kademe:new Set() };
@@ -371,8 +161,8 @@
     var kok = document.getElementById('uySuzgec');
     var kademeler = [];
     UYELER.forEach(function (u) {
-      var k = kademeBul(u.puan, u.gun).key;
-      if (kademeler.indexOf(k) < 0) kademeler.push(k);
+      var k = U.kademeBul(u.puan, u.gun);
+      if (k && kademeler.indexOf(k.key) < 0) kademeler.push(k.key);
     });
     function grup(ad, etiket, liste){
       return '<div class="fgroup" data-group="' + ad + '" role="group" aria-label="' + etiket + '">' +
@@ -417,7 +207,6 @@
      "0 üye" yazıp tabloyu boş bırakmak kusurdur (kit §9). */
   var bosSatir = null;
   function suz(){
-    var govde = document.getElementById('uyGovde');
     var say = 0;
     govde.querySelectorAll('tr[data-id]').forEach(function (tr) {
       var ok = (!sec.rol.size    || sec.rol.has(tr.getAttribute('data-rol'))) &&
@@ -428,7 +217,7 @@
     if (say === 0) {
       if (!bosSatir) {
         bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="7">' +
+        bosSatir.innerHTML = '<td colspan="6">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle üye kalmadı',
                 'Seçili rol, durum ve kademe birleşimine uyan kayıt yok. Bir çipi kapat ya da süzgeci sıfırla.',
                 '<button class="btn btn-primary" type="button" data-suzgec-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') + '</td>';
@@ -441,138 +230,33 @@
 
   /* ---------- liste ---------- */
   function bas(){
-    document.getElementById('uyGovde').innerHTML = UYELER.map(function (u) {
-      var k = kademeBul(u.puan, u.gun);
+    govde.innerHTML = UYELER.map(function (u) {
+      var k = U.kademeBul(u.puan, u.gun);
       var d = DURUM[u.durum], r = ROL[u.rol];
-      return '<tr data-id="' + esc(u.id) + '" data-rol="' + esc(u.rol) + '" data-durum="' + esc(u.durum) + '" data-kademe="' + esc(k.key) + '">' +
-        '<td><button class="uy-ad u-cell" type="button" data-ac="' + esc(u.id) + '">' +
-          '<span class="u-ava initials" aria-hidden="true">' + esc(bas2(u.ad)) + '</span>' +
+      var hedef = 'admin-uye-detay-v1.html?uye=' + encodeURIComponent(u.id);
+      return '<tr data-id="' + esc(u.id) + '" data-rol="' + esc(u.rol) + '" data-durum="' + esc(u.durum) +
+             '" data-kademe="' + esc(k ? k.key : '') + '" data-href="' + esc(hedef) + '">' +
+        '<td><a class="uy-ad u-cell" href="' + esc(hedef) + '">' +
+          '<span class="u-ava initials" aria-hidden="true">' + esc(U.basHarf(u.ad)) + '</span>' +
           '<span class="u-info"><b class="u-name">' + esc(u.ad) + '</b><small class="u-email">' + esc(u.mail) + '</small></span>' +
-        '</button></td>' +
+        '</a></td>' +
         '<td><span class="role-pill ' + esc(u.rol) + '"><i class="fa-solid ' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</span></td>' +
         '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
-        '<td><i class="' + k.ico + '" aria-hidden="true"></i> ' + esc(k.ad) + '</td>' +
+        '<td>' + (k ? '<i class="' + k.ico + '" aria-hidden="true"></i> ' + esc(k.ad) : '—') + '</td>' +
         '<td class="num">' + n(u.puan) + '</td>' +
-        '<td>' + tarih(u.kayit) + '</td>' +
         '<td class="act">' +
-          '<button class="adm-ico-btn" type="button" data-ac="' + esc(u.id) + '" aria-label="' + esc(u.ad) + ' detayını aç"><i class="fa-solid fa-chevron-right"></i></button>' +
+          '<a class="adm-ico-btn" href="' + esc(hedef) + '" aria-label="' + esc(u.ad) + ' detayını aç">' +
+          '<i class="fa-solid fa-chevron-right"></i></a>' +
         '</td></tr>';
     }).join('');
     document.getElementById('uySay').textContent = UYELER.length;
     A.aramaKur(document.getElementById('uyAra'), document.getElementById('uyTablo'), document.getElementById('uySay'));
   }
 
-  /* ==================================================================
-     DETAY (K3)
-     ================================================================== */
-  var detay = document.getElementById('uyDetay');
-  document.getElementById('udRol').innerHTML = Object.keys(ROL).map(function (r) {
-    return '<option value="' + r + '">' + esc(ROL[r].ad) + '</option>';
-  }).join('');
-
-  function bas2(x){ return String(x).trim().split(/\s+/).slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toLocaleUpperCase('tr'); }
-
-  function detayAc(id){
-    var u = UYELER.filter(function (x) { return x.id === id; })[0];
-    if (!u) return;
-    var k = kademeBul(u.puan, u.gun);
-    var d = DURUM[u.durum], r = ROL[u.rol];
-
-    document.querySelectorAll('#uyGovde tr').forEach(function (tr) {
-      tr.classList.toggle('is-sec', tr.getAttribute('data-id') === id);
-    });
-
-    document.getElementById('udAv').textContent = bas2(u.ad);
-    document.getElementById('udAd').textContent = u.ad;
-    document.getElementById('udMail').textContent = u.mail + ' · ' + u.kul;
-    document.getElementById('udRozet').innerHTML =
-      A.rozet('off', r.ad, r.ico) + A.rozet(d.rz, d.ad, d.ico) + A.rozet('ok', k.ad, k.ico.replace('fa-solid ', ''));
-
-    /* --- profil --- */
-    var satir = [
-      ['Üye no', u.id],
-      ['Ad Soyad', u.ad],
-      ['Kullanıcı adı', u.kul],
-      ['E-posta', u.mail],
-      ['Telefon', u.tel],
-      ['Şehir', u.sehir],
-      ['İlçe', '—'],
-      ['Kayıt tarihi', tarih(u.kayit) + ' (örnek)'],
-      ['Son giriş', tarih(u.giris)],
-      ['Doğum tarihi', '—']
-    ];
-    document.getElementById('udProfil').innerHTML = satir.map(function (s) {
-      return '<dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd>';
-    }).join('');
-
-    /* --- kademe merdiveni: GERÇEK --- */
-    document.getElementById('udMerdiven').innerHTML = R.KADEMELER.map(function (kk, i) {
-      var simdi = (kk.key === k.key);
-      var gecti = (u.puan >= kk.minPuan && u.gun >= kk.minGun);
-      return '<div class="uy-kad' + (simdi ? ' is-now' : (gecti ? ' is-gecti' : '')) + '">' +
-        '<span class="ico"><i class="' + kk.ico + '" aria-hidden="true"></i></span>' +
-        '<span class="ad">' + (i + 1) + ' · ' + esc(kk.ad) +
-          '<small>' + n(kk.minPuan) + ' puan · ' + n(kk.minGun) + ' aktif gün</small></span>' +
-        (simdi ? A.rozet('ok', 'Şu an burada', 'fa-location-dot')
-               : (gecti ? A.rozet('off', 'Geçildi', 'fa-check') : A.rozet('off', 'Eşik açık', 'fa-lock'))) +
-        '</div>';
-    }).join('');
-
-    /* --- satın alımlar --- */
-    var alim = document.getElementById('udAlim');
-    if (!u.alim.length) {
-      alim.innerHTML = '<tr><td colspan="5">' +
-        A.bos('fa-basket-shopping', 'Henüz hizmet satın almamış',
-              'Bu üye bir antrenörden hizmet paketi almadığı için burada gösterilecek kayıt yok. Aldığı ilk pakette satır kendiliğinden düşer.') +
-        '</td></tr>';
-    } else {
-      alim.innerHTML = u.alim.map(function (s) {
-        var dz = s[4] === 'iade' ? A.rozet('stop', 'İade edildi', 'fa-rotate-left')
-                                 : A.rozet('ok', 'Tamamlandı', 'fa-circle-check');
-        return '<tr><td>' + tarih(s[0]) + '</td><td>' + esc(s[1]) + '</td><td><b>' + esc(s[2]) + '</b></td>' +
-          '<td class="num">' + (s[3] ? tl(s[3]) : 'Ücretsiz') + '</td><td>' + dz + '</td></tr>';
-      }).join('');
-    }
-
-    /* --- işlem geçmişi --- */
-    document.getElementById('udGecmis').innerHTML = u.gecmis.map(function (g) {
-      return '<tr><td>' + tarih(g[0]) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
-    }).join('');
-
-    /* --- yan kolon --- */
-    var harcama = u.alim.reduce(function (t, s) { return t + (s[4] === 'iade' ? 0 : s[3]); }, 0);
-    var ozet = [
-      ['Kademe', k.ad],
-      ['Toplam puan', n(u.puan)],
-      ['Aktif gün', n(u.gun)],
-      ['Satın alım', n(u.alim.length)],
-      ['Toplam harcama', harcama ? tl(harcama) : '—'],
-      ['Açık destek talebi', '—']
-    ];
-    document.getElementById('udOzet').innerHTML = ozet.map(function (o) {
-      return '<div class="s"><span>' + esc(o[0]) + '</span><b>' + esc(o[1]) + '</b></div>';
-    }).join('');
-
-    document.getElementById('udRol').value = u.rol;
-    document.getElementById('udDurum').value = u.durum;
-
-    detay.hidden = false;
-    detay.scrollIntoView({ behavior:'smooth', block:'start' });
-  }
-
-  document.getElementById('udKapat').addEventListener('click', function () {
-    detay.hidden = true;
-    document.querySelectorAll('#uyGovde tr.is-sec').forEach(function (tr) { tr.classList.remove('is-sec'); });
-  });
-
+  /* Satırın herhangi bir yerine basmak da detayı açar — ama satırın kendi
+     bağlantı ve düğmeleri hariç, yoksa aynı tıklama iki kez yürürdü. */
   document.addEventListener('click', function (e) {
     if (!e.target.closest) return;
-    var b = e.target.closest('[data-ac]');
-    if (b) { detayAc(b.getAttribute('data-ac')); return; }
-    /* Satırın herhangi bir yerine basmak da açar — ama kendi düğmeleri hariç. */
-    var tr = e.target.closest('#uyGovde tr[data-id]');
-    if (tr && !e.target.closest('input,button,a')) { detayAc(tr.getAttribute('data-id')); return; }
-
     var sf = e.target.closest('[data-suzgec-sifirla]');
     if (sf) {
       sec.rol.clear(); sec.durum.clear(); sec.kademe.clear();
@@ -584,9 +268,9 @@
       suz();
       return;
     }
+    var tr = e.target.closest('#uyGovde tr[data-href]');
+    if (tr && !e.target.closest('a,button,input')) location.href = tr.getAttribute('data-href');
   });
-
-  A.maketKaydet(document.getElementById('udKaydet'), 'yetki değişikliği');
 
   suzgecKur();
   bas();

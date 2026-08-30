@@ -16,8 +16,8 @@
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi.
    Kalıbın hiçbir parçası burada tanımlanmaz: kart · tablo · süzgeç ·
-   sayfalama · form alanı · çubuk, hepsi kabukta. Burada iki şey var ve
-   ikisi de yalnız YERLEŞİMDİR — yeni renk, yeni ölçü, yeni token yok. */
+   sayfalama · form alanı · çubuk · sekme, hepsi kabukta. Buradakiler
+   yalnız YERLEŞİMDİR — yeni renk, yeni ölçü, yeni token yok. */
 
 /* Parametre ızgarası kabuğun `.fk-grid`idir; yalnız kolon sayısı bu
    ekrana özgü (dört parametre yan yana okunur). ≤900'de kabuğun kendi
@@ -32,13 +32,31 @@
 .py-par .fk-input[readonly]{background:var(--bg);color:var(--slate);cursor:default}
 .py-par .fk-input[readonly]:focus{border-color:var(--line);box-shadow:none}
 
-/* Ödeme koşulu satırı: onay kutusu + düğme aynı hizada. */
-/* Eylem çubuğu SAĞA yaslı — Gastro admin form CSS'i ölçüldü:
-   `.form-actions{justify-content:flex-end}`, birincil eylem en sağda.
-   Onay kutusu bir eylem değil KOŞULdur, bu yüzden düğmenin solunda durur. */
-.py-run{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap}
-.py-onay{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--slate-2);min-height:44px;cursor:pointer}
-.py-onay input{width:18px;height:18px;accent-color:var(--fit);cursor:pointer;flex:none}
+/* Dönem kapanışı: tek alan + tek düğme, aynı hizada. Kart gövdesinin
+   kendi dolgusunu kullanır, ek boşluk üretmez. */
+.py-kapa{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.py-kapa .fk-field{margin-bottom:0;min-width:200px}
+.py-kapa .btn{flex:none}
+
+/* Satır işlemi paneli — `.fit-pane` kartın DOĞRUDAN çocuğu olduğu için
+   kendi yatay marjını taşır (Sponsorluk ve Reklam ekranının kanonu ile
+   aynı; ölçüler `.c-body`nin 22px/16px kırılımından). */
+.py-islem{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);padding:18px;margin:16px 22px 0}
+.py-islem h4{font-size:14px;font-weight:800;color:var(--slate);margin:0 0 4px;display:flex;align-items:center;gap:9px}
+.py-islem h4 i{color:var(--fit-deep);font-size:13px}
+/* 🔴 SINIF ADI ÇAKIŞMASI — ÖLÇÜLDÜ, TEKRARLANMASIN.
+   Bu satır önce `.sec` adıyla yazılmıştı; `.sec` KABUĞUN public bölüm
+   sınıfıdır (`fit-shell.css:205` → `padding:var(--sec-pad) 0`) ve panelin
+   alt satırı 74px dolgu alıyordu (ölçüldü: `padding-top:74px`, yükseklik
+   16 yerine 167px). Panel sınıfları artık ekranın kendi ön ekini taşıyor. */
+.py-islem .pi-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
+.py-islem .form-actions{margin-top:16px}
+.adm-table tbody tr.is-sec td{background:var(--fit-tint)}
+@media (max-width:640px){ .py-islem{margin-left:16px;margin-right:16px} }
+
+/* Grafik şeridi pane'in doğrudan çocuğu; kart kenarıyla hizalanır. */
+.py-grafik{border-top:1px solid var(--line);padding:16px 22px 4px}
+@media (max-width:640px){ .py-grafik{padding-left:16px;padding-right:16px} }
 </style>
 </head>
 <body class="adm-body" data-adm="odemeler">
@@ -53,10 +71,12 @@
         <h1>Kazançlar ve Ödemeler</h1>
         <div class="ph-sub">Üye antrenörden hizmet satın alır; platform komisyonunu keser, kalanı
            dönem sonunda antrenöre öder. Alt sınırı geçmeyen bakiye ödenmez,
-           bir sonraki döneme devreder.</div>
+           bir sonraki döneme devreder. <b>Bu ekran para göndermez</b> — liste çıkarır,
+           transfer elle yapılır, sonra satır tek tek işaretlenir.</div>
       </div>
       <div class="h-acts">
-        <select class="fk-select" id="pyDonem" aria-label="Ödeme dönemi" style="min-width:190px"></select>
+        <a class="btn btn-ghost" href="admin-faturalar-v1.html"><i class="fa-solid fa-file-invoice"></i> Fatura defteri</a>
+        <select class="fk-select" id="pyDonem" aria-label="Ödeme dönemi" style="min-width:180px"></select>
       </div>
     </div>
 
@@ -65,95 +85,200 @@
     <!-- ============ SAYAÇLAR (K6) ============ -->
     <div class="adm-kpi" id="pyKpi"></div>
 
-    <!-- ============ PARA PARAMETRELERİ (K13) ============
-         🔴 Dört sayı da ALAN olarak durur, cümle olarak DEĞİL. Değerin
-         kaynağı her alanın altında yazılı ve tek yerden okunuyor; ekranın
-         hiçbir yerinde "komisyon %10" diye basılı bir metin yoktur. -->
-    <div class="adm-card py-par">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-sliders"></i> Para parametreleri</h3>
-        <div class="c-acts">
-          <a class="btn btn-ghost" href="admin-ayarlar-v1.html"><i class="fa-solid fa-pen"></i> Ayarlar'da düzenle</a>
+    <div class="adm-cols">
+      <!-- ============ PARA PARAMETRELERİ (K13) ============
+           🔴 Dört sayı da ALAN olarak durur, cümle olarak DEĞİL. Değerin
+           kaynağı her alanın altında yazılı ve tek yerden okunuyor; ekranın
+           hiçbir yerinde "komisyon %10" diye basılı bir metin yoktur.
+           Alanların SAHİBİ Ayarlar ekranıdır — burada yalnız okunurlar.
+           Gastro da aynısını yapıyor (§2.2: "Yürürlükteki Kurallar" kartı
+           parametreyi GÖSTERİR, düzenleme yolu Ayarlar'a gider). -->
+      <div class="adm-card py-par">
+        <div class="c-head">
+          <h3><i class="fa-solid fa-sliders"></i> Yürürlükteki para parametreleri</h3>
+          <div class="c-acts">
+            <a class="btn btn-ghost" href="admin-ayarlar-v1.html"><i class="fa-solid fa-pen"></i> Ayarlar'da düzenle</a>
+          </div>
+        </div>
+        <div class="c-body">
+          <div class="fk-grid" id="pyParam"></div>
         </div>
       </div>
-      <div class="c-body">
-        <div class="fk-grid" id="pyParam"></div>
+
+      <!-- ============ DÖNEM KAPANIŞI ============
+           Ödeme listesi elle seçimle değil, DÖNEM KAPANIŞIYLA doğar: kapanış
+           o dönemin defterini dondurur, alt sınırı geçen bakiyeyi ödeme
+           satırına çevirir, geçmeyeni bir sonraki döneme devreder (K5). -->
+      <div class="adm-card">
+        <div class="c-head">
+          <h3><i class="fa-solid fa-calendar-check"></i> Dönem kapanışı</h3>
+        </div>
+        <div class="c-body">
+          <form class="py-kapa" id="pyKapaForm" novalidate>
+            <div class="fk-field">
+              <label class="fk-label" for="pyKapaAy">Kapatılacak dönem <span class="req">*</span></label>
+              <input class="fk-input" id="pyKapaAy" name="donem" type="text" required
+                     pattern="\d{4}-\d{2}" placeholder="YYYY-AA" inputmode="numeric" />
+            </div>
+            <button class="btn btn-primary" type="button" id="pyKapat">
+              <i class="fa-solid fa-lock"></i> Dönemi kapat</button>
+          </form>
+          <p class="fk-help" style="margin-top:14px" id="pyKapaNot"></p>
+        </div>
       </div>
     </div>
 
-    <!-- ============ ÖDEME LİSTESİ (K1) ============ -->
-    <div class="adm-card" id="pyListe">
+    <!-- ============ İKİ SEKME: DEFTER · ÖDEME LİSTESİ ============
+         Gastro'nun kazanç ekranı da iki sekmelidir (§2.4): defter kazancın
+         KAYDIDIR, ödeme listesi o kayıtların dönem sonunda toplanmış
+         hâlidir. İkisi ayrı tablo, ayrı durum kümesi. -->
+    <div class="adm-card" id="pyKart" data-fit-tabs-scope>
       <div class="c-head">
-        <h3><i class="fa-solid fa-money-bill-wave"></i> <span id="pyListeBaslik">Ödeme listesi</span></h3>
+        <nav class="fit-tabs" data-fit-tabs="odemeler" aria-label="Kazanç bölümleri">
+          <button class="fit-tab active" type="button" data-tab="defter"><i class="fa-solid fa-book"></i> Kazanç defteri <span class="cnt" data-cnt="defter"></span></button>
+          <button class="fit-tab" type="button" data-tab="odeme"><i class="fa-solid fa-money-bill-wave"></i> Ödeme listesi <span class="cnt" data-cnt="odeme"></span></button>
+        </nav>
+        <div class="c-acts"><span class="fp-badge off" id="pyDonemRoz">—</span></div>
       </div>
 
-      <div class="filter-bar">
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <label class="sr-only" for="pyAra">Antrenör ara</label>
-          <input type="search" id="pyAra" placeholder="Antrenör ara" />
+      <!-- ---------- 1 · KAZANÇ DEFTERİ ---------- -->
+      <div class="fit-pane" data-pane="defter">
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="pyDfAra">Defterde ara</label>
+            <input type="search" id="pyDfAra" placeholder="Antrenör, üye ya da fatura no ara" />
+          </div>
+          <div class="fb-sel">
+            <div class="ff" id="pyDfSuzgec" data-ff></div>
+          </div>
         </div>
-        <div class="fb-sel">
-          <div class="ff" id="pySuzgec" data-ff></div>
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="pyDfTablo">
+              <thead>
+                <tr>
+                  <th>Antrenör</th><th>Kimden</th><th class="num">Brüt / Komisyon</th>
+                  <th>Durum</th><th>Dönem</th><th class="num">Net</th>
+                </tr>
+              </thead>
+              <tbody id="pyDfGovde"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      <!-- 🔴 TOPLU EYLEM ÇUBUĞU YOK — ve bu bir eksik değil, bir karar.
-           Gastro'da ölçüldü: 47 kalemden yalnız birinde (yorum moderasyonu)
-           var. Burada olsaydı K5'i çiğnerdi: ödeme listesi KURAL ile doğar
-           (alt sınırı geçen öder, geçmeyen devreder), elle seçimle değil.
-           "Seçilenleri ödemeye al" düğmesi, yöneticiye alt sınırı elle delme
-           yetkisi vermek olurdu — oysa K5 "oran tüm kullanıcılar için aynı"
-           diyor. Satır seçim kutuları da bu yüzden kalktı. -->
-
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="pyTablo">
-            <thead>
-              <tr>
-                <th>Antrenör</th>
-                <th class="num">Satış</th>
-                <th class="num">Brüt</th>
-                <th class="num">Komisyon</th>
-                <th class="num">Net</th>
-                <th class="num">Devreden</th>
-                <th class="num">Ödenecek</th>
-                <th>Durum</th>
-              </tr>
-            </thead>
-            <tbody id="pyGovde"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Dönem dağılımı — GRAFİK. Kütüphane yok: kabuğun kendi
-           `.fpx-gunbar` satırı + `.fp-bar` çubuğu (fit-planim.css ·
-           fit-shell.css). Yeni ölçü üretilmedi. -->
-      <div class="c-body" style="border-top:1px solid var(--line)">
-        <div class="fpx-gunbar" id="pyGrafik"></div>
-      </div>
-
-      <div class="adm-pager">
-        <!-- Sayfalama Gastro kalıbı: SOLDA sayaç metni, SAĞDA düğmeler. Ölçüldü,
-             33 ekranda birebir. Sol blok atlanırsa kalıp eksik olur. -->
-        <div class="p-info"><b id="pySay">0</b> sonuçtan <b id="pyAralik">0</b> gösteriliyor</div>
-        <div class="p-btns">
-          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
-          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
-          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="adm-pager">
+          <div class="p-info"><b id="pyDfSay">0</b> kayıttan <b id="pyDfAralik">0</b> gösteriliyor</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
         </div>
       </div>
 
-      <!-- Ödeme koşulu bir FORMDUR: dönem kilidi ve kontrol onayı olmadan
-           ödeme başlamaz. Maket olduğu düğmeye basınca yazıyla söylenir. -->
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <form class="py-run" id="pyForm">
-          <label class="py-onay">
-            <input type="checkbox" id="pyKontrol" required />
-            Listeyi kontrol ettim; bu dönem için ödeme başlatılsın
-          </label>
-          <button class="btn btn-primary" type="button" id="pyBaslat"><i class="fa-solid fa-paper-plane"></i> Ödemeyi başlat</button>
-        </form>
+      <!-- ---------- 2 · ÖDEME LİSTESİ ---------- -->
+      <div class="fit-pane" data-pane="odeme" hidden>
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="pyAra">Antrenör ara</label>
+            <input type="search" id="pyAra" placeholder="Antrenör ara" />
+          </div>
+          <div class="fb-sel">
+            <div class="ff" id="pySuzgec" data-ff></div>
+          </div>
+        </div>
+
+        <!-- 🔴 TOPLU EYLEM ÇUBUĞU YOK — ve bu bir eksik değil, bir karar.
+             Gastro'da ölçüldü (§2.5): ödeme işaretleme TEK TEK yapılır,
+             checkbox ve toplu düğme yoktur. Gerekçe K5'in kendisi: ödeme
+             listesi KURAL ile doğar (alt sınırı geçen öder, geçmeyen
+             devreder), elle seçimle değil. "Seçilenleri ödemeye al"
+             düğmesi yöneticiye alt sınırı elle delme yetkisi verirdi. -->
+
+        <div class="c-body flush">
+          <div class="adm-tw">
+            <table class="adm-table" id="pyTablo">
+              <thead>
+                <tr>
+                  <th>Antrenör</th>
+                  <th class="num">Satış</th>
+                  <th class="num">Brüt</th>
+                  <th class="num">Komisyon</th>
+                  <th class="num">Devreden</th>
+                  <th class="num">Ödenecek</th>
+                  <th>IBAN</th>
+                  <th>Durum</th>
+                  <th class="act">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="pyGovde"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- IBAN kolonu her satırda "Kayıt yok" der; gerekçe SATIRDA DEĞİL
+             burada, bir kez yazılı — aynı cümleyi her hücrede tekrarlamak
+             tabloyu okunmaz yapıyordu (ölçüldü: hücre üç satıra sarıyordu). -->
+        <!-- `.fk-help` bir flex kaptır (fit-shell.css:4831) ve ikon dışındaki
+             her düğüm ayrı bir flex ögesi olur; metni tek `<span>`e sarmadan
+             yazınca cümle iki sütuna bölünüyordu (ölçüldü). -->
+        <p class="fk-help" style="margin:14px 22px 0"><i class="fa-solid fa-triangle-exclamation"></i>
+          <span><b>Antrenörlerin ödeme bilgisi (IBAN, hesap sahibi, fatura kesebilme)
+          bu depoda hiç tutulmuyor</b> — kolon uydurulmuş bir numara basmıyor,
+          eksikliği söylüyor. Ödeme bilgisi olmayan satır elle transfer edilemez;
+          alan doğduğunda maskeli IBAN buraya düşer.</span></p>
+
+        <!-- Satır işlemi paneli: dört eylem de aynı kutuya düşer, alanları
+             eyleme göre değişir. Ayrı bir ekran açmıyoruz — ödeme
+             işaretlemesi iki satırlık bir iştir. Uygula → ONAY MODALI. -->
+        <div class="py-islem" id="pyIslem" hidden>
+          <h4><i class="fa-solid fa-pen-to-square"></i> <span id="pyIslemBaslik">Satır işlemi</span></h4>
+          <p class="pi-sec" id="pyIslemSecili">—</p>
+          <form id="pyIslemForm" novalidate>
+            <div class="form-grid">
+              <div class="frow" id="pyIslemTutarRow" hidden>
+                <label for="pyIslemTutar">Düzeltilmiş ödeme tutarı (₺) <span class="req">*</span></label>
+                <input class="finput" id="pyIslemTutar" name="tutar" type="number" min="0" step="0.01" />
+                <div class="fhint">Hesaplanan tutar bir kural sonucudur; düzeltme onu <b>ezer</b>.
+                  Gerekçe zorunlu, çünkü kuralın dışına çıkan her satır sonradan okunabilmeli.</div>
+              </div>
+              <div class="frow" id="pyIslemDekontRow" hidden>
+                <label>Dekont görseli</label>
+                <div id="pyIslemDekont"></div>
+                <div class="fhint">Banka transferi bu ekranın dışında yapılır; dekont yalnız
+                  <b>kaydın kanıtıdır</b>, bir ödeme emri değildir.</div>
+              </div>
+              <div class="frow">
+                <label for="pyIslemNot"><span id="pyIslemNotEtiket">Not</span> <span class="req" id="pyIslemNotReq" hidden>*</span></label>
+                <textarea class="ftext" id="pyIslemNot" name="not" maxlength="500"
+                          placeholder="Bu satırda ne yapıldığı — kayıt defterine aynen geçer."></textarea>
+                <span class="fsay" data-say-for="pyIslemNot">0 / 500</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" type="button" id="pyIslemIptal">Vazgeç</button>
+              <button class="btn btn-primary" type="button" id="pyIslemUygula"><i class="fa-solid fa-check"></i> Uygula</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Dönem dağılımı — GRAFİK. Kütüphane yok: kabuğun kendi
+             `.fpx-gunbar` satırı + `.fp-bar` çubuğu (fit-planim.css ·
+             fit-shell.css). Yeni ölçü üretilmedi. -->
+        <div class="py-grafik">
+          <div class="fpx-gunbar" id="pyGrafik"></div>
+        </div>
+
+        <div class="adm-pager">
+          <!-- Sayfalama Gastro kalıbı: SOLDA sayaç metni, SAĞDA düğmeler. -->
+          <div class="p-info"><b id="pySay">0</b> sonuçtan <b id="pyAralik">0</b> gösteriliyor</div>
+          <div class="p-btns">
+            <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+            <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -185,7 +310,7 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · KAZANÇLAR VE ÖDEMELER   (R16/2)   — K1 liste + K6 rapor
+   ADMIN · KAZANÇLAR VE ÖDEMELER   (R19)   — K1 liste × 2 sekme + K6 rapor
    ---------------------------------------------------------------------
    PARA KURUŞ TAMSAYISIDIR. Tek bir `Number` bölme işlemi yok; komisyon
    `Math.round(brut * oran / 100)` ile kuruşta hesaplanır, net ondan
@@ -196,7 +321,8 @@
    VERİ YARISI GERÇEK. Brüt tutarlar `fit-fatura.js` defterinden okunur:
    `tur:'antrenor'` satırları hizmet satışıdır, `tur:'iade'` olup kalemi
    "Antrenör…" ile başlayanlar iade sürecidir. Antrenör adı kalem
-   açıklamasından ayrıştırılır — ikinci bir kopya tutulmuyor.
+   açıklamasından ayrıştırılır — ikinci bir kopya tutulmuyor. Ödeyen üye
+   `FIT_FATURA.alici()`den gelir.
    ⚠ Defter TEK ÜYENİN faturalarıdır; gerçek platform cirosu değildir.
    Şerit bunu söylüyor.
 
@@ -207,8 +333,28 @@
    nesneden hesaplanır. Panel doğduğunda tek nesne değişir, ekran değil.
 
    K5 — Oran tüm antrenörler için aynı · ödeme ay sonu · alt sınır
-   altındaki bakiye BİRİKİR · iade olursa komisyon GERİ GİTMEZ. Üçü de
-   burada hesaplanır, dördüncüsü iade kartında yazılıdır.
+   altındaki bakiye BİRİKİR · iade olursa komisyon GERİ GİTMEZ.
+
+   ---------------------------------------------------------------------
+   R19'DA EKLENEN — ölçülmüş eksiğin karşılığı
+   (`docs/gastro-olcum/fit-yonetilmeyenler.md` C-11):
+   Eski ekranda ödeme satırı başına HİÇ eylem yoktu; tek etkileşim bir
+   toplu "Ödemeyi başlat" düğmesiydi. Gastro'da ölçüldü (§2.5): işaretleme
+   TEK TEK yapılır, toplu düğme ve checkbox yoktur. Bu turda gelenler:
+     · dönem kapanışı formu (§2.3) — devir K5'e göre burada doğar
+     · iki sekme (§2.4): kazanç defteri (5 durum) + ödeme listesi (3 durum)
+     · satır eylemleri: ödendi işaretle · beklet · düzelt · dekont ekle
+     · her eylem ONAY MODALIYLA (`FIT_ADMIN.onay`) — native confirm YASAK
+     · fatura defterine bağlantı (`admin-faturalar-v1.html`)
+   Değişmeyen: dört para parametresi `readonly` kalır. Bu bir kusur değil
+   bir karar (C-11 de öyle ölçtü) — K13 parametrelerin tek yerde durmasını
+   istiyor ve o yer Ayarlar ekranıdır.
+
+   ⚠ ÜÇÜNCÜ BİR ÖDEME HÂLİ ("gönderildi" / "işlemde") YOK, "beklemede"
+   VAR ve ikisi aynı şey değil. Gastro'nun şerhi (`CreatorPayoutStatus`)
+   "gönderildi"yi reddediyor çünkü o hâl bir BANKA ENTEGRASYONU varsayar
+   ve burada banka yok. "Beklemede" ise yöneticinin kendi kararıdır:
+   satır elde tutuluyor (ör. fatura beklenirken). Banka değil, insan.
    ===================================================================== */
 (function () {
   'use strict';
@@ -231,8 +377,9 @@
     'bir kopya yok. <b>Ama defter tek üyenin faturalarıdır</b>, platformun gerçek ' +
     'cirosu değil; antrenör başına toplamlar bu yüzden <b>örnek ölçektedir</b>. ' +
     'Para parametreleri panelin (<code>Ayarlar → Para parametreleri</code>) yerine ' +
-    'geçen tek yer tutucudan okunur. <b>Yazma yüzeyi maket:</b> ödeme başlatılmaz, ' +
-    'bu prototipte sunucu yok.');
+    'geçen tek yer tutucudan okunur. <b>Antrenörlerin IBAN kaydı bu depoda hiç yok</b> ' +
+    '— kolon uydurulmadı, eksikliği rozetle söylüyor. <b>Yazma yüzeyi maket:</b> ' +
+    'dönem kapanmaz, satır işaretlenmez, dekont yüklenmez — bu prototipte sunucu yok.');
 
   if (!F) {
     document.getElementById('pyGovde').innerHTML = '<tr><td colspan="9">' +
@@ -257,7 +404,7 @@
     paramAlan('pmSinir',  'Ödeme alt sınırı',  tl(PARAM.altSinirKurus),
               'Ayarlar → Para parametreleri · altındaki bakiye devreder') +
     paramAlan('pmFatura', 'Fatura eşiği',      tl(PARAM.faturaEsigiKurus),
-              'Ayarlar → Para parametreleri · yıllık brüt bunu geçen antrenör fatura keser');
+              'Ayarlar → Para parametreleri · yıllık brütü bunu geçen antrenör fatura keser');
 
   /* ---- defterden okuma -------------------------------------------- */
   var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
@@ -265,7 +412,7 @@
 
   function antrenorAdi(f){
     var ad = f.kalem[0][0];
-    if (ad.indexOf('Antrenör') !== 0) return null;   /* üyelik/iade satırı değil */
+    if (ad.indexOf('Antrenör') !== 0) return null;   /* üyelik satırı değil */
     var p = ad.split('—');
     return p.length > 1 ? p[1].trim() : null;
   }
@@ -279,21 +426,29 @@
     var t = 0; f.kalem.forEach(function (k) { t += k[2] * k[3]; }); return t;
   }
 
+  var UYE = (F.alici && F.alici().ad) || '—';
+
   var satislar = [], iadeler = [];
   F.defter.forEach(function (f) {
     var ad = antrenorAdi(f), d = donemi(f);
     if (!ad || !d) return;
-    var kayit = { ad:ad, d:d, tutar:tutari(f), no:f.no, konu:f.konu, durumAd:f.durumAd, tarih:f.tarihKisa };
+    var kayit = { ad:ad, d:d, tutar:tutari(f), no:f.no, konu:f.konu,
+                  durumAd:f.durumAd, tarih:f.tarihKisa, alt:f.kalem[0][1] || '' };
     if (f.tur === 'antrenor') satislar.push(kayit);
     else if (f.tur === 'iade') iadeler.push(kayit);
   });
 
+  /* İade edilen satış: aynı antrenör + aynı tutar. Defterde iade ayrı bir
+     fatura olarak duruyor, satışa geri işaret etmiyor — eşleştirme burada
+     yapılıyor ve eşleşmeyen iade sessizce yutulmuyor (aşağıdaki kartta
+     hepsi listeleniyor). */
+  function iadeEdildiMi(s){
+    return iadeler.some(function (i) { return i.ad === s.ad && i.tutar === s.tutar; });
+  }
+
   /* ---- ödeme motoru: dönemler KRONOLOJİK, devir taşınır (K5) -------
      Devir bir görüntü değil, hesabın kendisidir: bir dönem ödenmezse
-     bakiye sıfırlanmaz, ertesi dönemin üstüne biner. Bu yüzden dönemler
-     eskiden yeniye taranır ve her dönemin görüntüsü o anki devirle
-     birlikte SAKLANIR — dönem seçici geçmişe baktığında o günkü rakamı
-     görür, bugünkü devri değil. */
+     bakiye sıfırlanmaz, ertesi dönemin üstüne biner. */
   var kom = function (brut) { return Math.round(brut * PARAM.komisyonOran / 100); };
 
   var anahtar = [];
@@ -316,7 +471,7 @@
       var ode = odenebilir >= PARAM.altSinirKurus;
       devir[ad] = ode ? 0 : odenebilir;
       kumul[ad] = (kumul[ad] || 0) + brut;
-      return { ad:ad, adet:kendi.length, brut:brut, kom:k, net:net,
+      return { ad:ad, adet:kendi.length, brut:brut, kom:k, net:net, kayit:kendi,
                onceki:onceki, odenebilir:odenebilir, ode:ode, kumul:kumul[ad] };
     });
 
@@ -328,21 +483,66 @@
   var sirali = anahtar.slice().reverse();          /* yeniden eskiye */
   var secili = sirali[0];
 
+  /* ---- dönem kapanışı: en yeni dönem AÇIK, geçmişler kapalı --------
+     Kapanış, bir defter kaydının "dönem içinde" mi yoksa "ödenebilir /
+     devretti" mi olduğunu belirleyen tek anahtardır. Maket: bellekte
+     yaşar, sunucuya gitmez. */
+  var kapali = {};
+  sirali.forEach(function (k, i) { kapali[k] = (i > 0); });
+
+  /* ---- ödeme satırı hâlleri (bellekte, maket) ----------------------
+     `hazir` → ödemeye hazır · `odendi` → terminal · `beklet` → yönetici
+     satırı elde tutuyor. Bir de `duzelt` bir hâl DEĞİL, tutarı ezen bir
+     kayıttır; hâl `hazir` kalır. */
+  var ODEME = {};                              /* "dönem|antrenör" → {durum, not, tutar, dekont} */
+  function odemeAnahtar(key, ad){ return key + '|' + ad; }
+  function odemeHal(key, ad){ return ODEME[odemeAnahtar(key, ad)] || null; }
+
+  var HAL = {
+    hazir:  { ad:'Ödemeye hazır',    rz:'ok',   ico:'fa-paper-plane' },
+    odendi: { ad:'Ödendi',           rz:'ok',   ico:'fa-circle-check' },
+    beklet: { ad:'Beklemeye alındı', rz:'wait', ico:'fa-hand' },
+    birik:  { ad:'Alt sınırın altında — devreder', rz:'wait', ico:'fa-layer-group' }
+  };
+
+  /* Defter kaydı hâlleri — Gastro'nun `CreatorEarningStatus` 5 hâli
+     (§2.4). Geçişleri burada bir tablo yönetmiyor; hâl, dönemin kapanma
+     durumundan ve satırın alt sınırı geçip geçmediğinden TÜRETİLİYOR —
+     yani iki yerde iki farklı gerçek olamaz. */
+  var DF_HAL = {
+    beklemede:  { ad:'Dönem içinde',           rz:'wait', ico:'fa-hourglass-half' },
+    devredildi: { ad:'Devretti',               rz:'off',  ico:'fa-layer-group' },
+    odenebilir: { ad:'Ödenebilir',             rz:'ok',   ico:'fa-paper-plane' },
+    odendi:     { ad:'Ödendi',                 rz:'ok',   ico:'fa-circle-check' },
+    iptal:      { ad:'İade ile geri alındı',   rz:'stop', ico:'fa-rotate-left' }
+  };
+
   document.getElementById('pyDonem').innerHTML = sirali.map(function (k) {
     return '<option value="' + esc(k) + '">' + esc(DONEM[k].ad) + '</option>';
   }).join('');
+  document.getElementById('pyKapaAy').value = sirali.filter(function (k) { return !kapali[k]; })[0] || sirali[0];
+  document.getElementById('pyKapaNot').innerHTML =
+    '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> Defterde <b>' + sirali.length +
+    '</b> dönem var; en yenisi <b>açık</b>, kalan <b>' + (sirali.length - 1) + '</b> dönem kapalı. ' +
+    'Kapanış bir dönemin defterini dondurur — alt sınırı geçen bakiye ödeme satırına döner, ' +
+    'geçmeyen bir sonraki döneme devreder (K5).';
 
-  /* ---- süzgeç (kabuğun ORTAK bileşeni) ----------------------------- */
-  var sec = { odeme:new Set() };
-  (function suzgecKur(){
-    var kok = document.getElementById('pySuzgec');
-    kok.innerHTML =
-      '<div class="fgroup" data-group="odeme" role="group" aria-label="Ödeme durumu filtresi">' +
-        '<span class="lbl">Ödeme</span>' +
+  /* ==================================================================
+     SÜZGEÇLER — kabuğun ORTAK bileşeni (`FIT_SHELL.filtreKur`)
+     ================================================================== */
+  function suzgecKur(kokId, gruplar, uygula){
+    var kok = document.getElementById(kokId);
+    var sec = {};
+    kok.innerHTML = gruplar.map(function (g) {
+      sec[g.ad] = new Set();
+      return '<div class="fgroup" data-group="' + g.ad + '" role="group" aria-label="' + esc(g.etiket) + '">' +
+        '<span class="lbl">' + esc(g.lbl) + '</span>' +
         '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
-        '<button class="df-fchip" type="button" data-val="ode"><i class="fa-solid fa-paper-plane"></i> Ödenecek</button>' +
-        '<button class="df-fchip" type="button" data-val="birik"><i class="fa-solid fa-layer-group"></i> Birikiyor</button>' +
-      '</div>';
+        g.secenek.map(function (o) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(o[0]) + '">' +
+            '<i class="fa-solid ' + o[2] + '"></i> ' + esc(o[1]) + '</button>';
+        }).join('') + '</div>';
+    }).join('');
     if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
     kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
       var grup = g.getAttribute('data-group');
@@ -357,36 +557,100 @@
             var all = g.querySelector('.df-fchip[data-val="all"]');
             if (all) all.classList.toggle('on', sec[grup].size === 0);
           }
-          suz();
+          uygula(sec);
         });
       });
     });
-  })();
+    return sec;
+  }
 
-  function suz(){
-    var say = 0;
-    document.querySelectorAll('#pyGovde tr[data-ad]').forEach(function (tr) {
-      var ok = !sec.odeme.size || sec.odeme.has(tr.getAttribute('data-odeme'));
+  var dfSec = suzgecKur('pyDfSuzgec', [{
+    ad:'hal', lbl:'Durum', etiket:'Kazanç kaydı durumu filtresi',
+    secenek: Object.keys(DF_HAL).map(function (k) { return [k, DF_HAL[k].ad, DF_HAL[k].ico]; })
+  }], function (s) { dfSuz(s); });
+
+  var odSec = suzgecKur('pySuzgec', [{
+    ad:'odeme', lbl:'Ödeme', etiket:'Ödeme durumu filtresi',
+    secenek: [['hazir','Ödemeye hazır','fa-paper-plane'], ['odendi','Ödendi','fa-circle-check'],
+              ['beklet','Beklemede','fa-hand'], ['birik','Birikiyor','fa-layer-group']]
+  }], function (s) { odSuz(); });
+
+  var dfBos = null;
+  function dfSuz(){
+    var govde = document.getElementById('pyDfGovde');
+    var say = 0, toplam = 0;
+    govde.querySelectorAll('tr[data-hal]').forEach(function (tr) {
+      toplam++;
+      var ok = !dfSec.hal.size || dfSec.hal.has(tr.getAttribute('data-hal'));
       tr.hidden = !ok; if (ok) say++;
     });
-    sayacGuncelle();
+    document.getElementById('pyDfSay').textContent = toplam;
+    document.getElementById('pyDfAralik').textContent = say ? ('1–' + say) : '0';
+    if (say === 0) {
+      if (!dfBos) {
+        dfBos = document.createElement('tr');
+        dfBos.innerHTML = '<td colspan="6">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle kazanç kaydı kalmadı',
+          'Seçili durumlara düşen defter satırı yok. Bir çipi kapat ya da başka bir dönem seç.',
+          '<button class="btn btn-primary" type="button" data-ff-sifirla="pyDfSuzgec">' +
+          '<i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(dfBos);
+      }
+      dfBos.hidden = false;
+    } else if (dfBos) dfBos.hidden = true;
   }
 
-  /* Sayfalama sayacı İKİ BLOKLUdur (Gastro kalıbı): solda "toplamdan
-     kaçı gösteriliyor", sağda düğmeler. Tek sayı yazmak kalıbı yarım
-     bırakır — okur süzgecin kaç satırı sakladığını göremez. */
-  function sayacGuncelle(){
-    var satir = document.querySelectorAll('#pyGovde tr[data-ad]');
-    var gorunen = 0;
-    Array.prototype.forEach.call(satir, function (tr) { if (!tr.hidden) gorunen++; });
-    document.getElementById('pySay').textContent = satir.length;
-    document.getElementById('pyAralik').textContent = gorunen ? ('1–' + gorunen) : '0';
+  var odBos = null;
+  function odSuz(){
+    var govde = document.getElementById('pyGovde');
+    var say = 0, toplam = 0;
+    govde.querySelectorAll('tr[data-ad]').forEach(function (tr) {
+      toplam++;
+      var ok = !odSec.odeme.size || odSec.odeme.has(tr.getAttribute('data-odeme'));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('pySay').textContent = toplam;
+    document.getElementById('pyAralik').textContent = say ? ('1–' + say) : '0';
+    if (say === 0) {
+      if (!odBos) {
+        odBos = document.createElement('tr');
+        odBos.innerHTML = '<td colspan="9">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle ödeme satırı kalmadı',
+          'Seçili ödeme durumlarına düşen antrenör yok. Bir çipi kapat ya da başka bir dönem seç.',
+          '<button class="btn btn-primary" type="button" data-ff-sifirla="pySuzgec">' +
+          '<i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(odBos);
+      }
+      odBos.hidden = false;
+    } else if (odBos) odBos.hidden = true;
   }
 
-  /* ---- ekranı bas -------------------------------------------------- */
+  /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur: "Tümü" çiplerine
+     döner. Çipler programatik tıklanır ki kabuğun kendi aktif-çip şeridi
+     de temizlensin — durum iki yerde tutulmuyor. */
+  document.addEventListener('click', function (e) {
+    var s = e.target.closest && e.target.closest('[data-ff-sifirla]');
+    if (!s) return;
+    document.querySelectorAll('#' + s.getAttribute('data-ff-sifirla') + ' .df-fchip[data-val="all"]')
+      .forEach(function (c) { c.click(); });
+  });
+
+  /* ==================================================================
+     EKRANI BAS
+     ================================================================== */
+  function sayacBas(ad, deger){
+    var c = document.querySelector('.fit-tab .cnt[data-cnt="' + ad + '"]');
+    if (!c) return;
+    c.textContent = deger || '';          /* sıfırsa boş — "0" bir bilgi değil */
+  }
+
   function bas(){
     var D = DONEM[secili];
-    document.getElementById('pyListeBaslik').textContent = D.ad + ' ödeme listesi';
+    var acik = !kapali[secili];
+
+    document.getElementById('pyDonemRoz').innerHTML =
+      '<i class="fa-solid ' + (acik ? 'fa-lock-open' : 'fa-lock') + '" aria-hidden="true"></i> ' +
+      esc(D.ad + ' · ' + (acik ? 'dönem açık' : 'dönem kapandı'));
 
     var brutT = 0, komT = 0, netT = 0, odeT = 0, birikT = 0, adetT = 0, birikSay = 0;
     D.satir.forEach(function (r) {
@@ -394,11 +658,7 @@
       if (r.ode) odeT += r.odenebilir; else { birikT += r.odenebilir; birikSay++; }
     });
 
-    /* --- sayaçlar (K6) — hiçbir K13 sayısı metin olarak geçmez ---
-       Trend satırı k[4]/k[5] sınıf+ikon. Metin (k[3]) aynı kalır,
-       uydurulmadı. İlk üçü fatura defterinden gerçekten okunan/hesaplanan
-       tutarlar → doğrulanmış (flat + check). Devreden bakiye henüz
-       ödenmemiş, bekleyen bir iş → dikkat (down + clock). */
+    /* --- sayaçlar (K6) — hiçbir K13 sayısı metin olarak geçmez --- */
     var kpi = [
       ['fa-solid fa-cash-register', tl(brutT), 'Brüt hizmet cirosu',
        adetT + ' satış · fatura defterinden okundu', 'flat', 'fa-check'],
@@ -415,24 +675,80 @@
         '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('');
 
-    /* --- tablo (K1) --- */
+    /* --- 1 · KAZANÇ DEFTERİ --- */
+    var dfSatir = [];
+    D.satir.forEach(function (r) {
+      r.kayit.forEach(function (s) {
+        var hal = iadeEdildiMi(s) ? 'iptal'
+                : acik            ? 'beklemede'
+                : !r.ode          ? 'devredildi'
+                : (odemeHal(secili, r.ad) && odemeHal(secili, r.ad).durum === 'odendi') ? 'odendi'
+                : 'odenebilir';
+        var k = kom(s.tutar);
+        dfSatir.push({ ad:r.ad, s:s, hal:hal, kom:k, net:s.tutar - k });
+      });
+    });
+    document.getElementById('pyDfGovde').innerHTML = dfSatir.length
+      ? dfSatir.map(function (x) {
+          var h = DF_HAL[x.hal];
+          return '<tr data-hal="' + esc(x.hal) + '">' +
+            '<td><b>' + esc(x.ad) + '</b><small>Hizmet satışı · ' + esc(x.s.no) + '</small></td>' +
+            '<td>' + esc(UYE) + '<small>' + esc(x.s.tarih) + '</small></td>' +
+            '<td class="num">' + esc(tl(x.s.tutar)) + '<small>komisyon −' + esc(tl(x.kom)) + '</small></td>' +
+            '<td>' + A.rozet(h.rz, h.ad, h.ico) +
+              (x.hal === 'iptal' ? '<small>Komisyon geri gitmez (K5)</small>' : '') + '</td>' +
+            '<td>' + esc(secili) + '</td>' +
+            '<td class="num"><b>' + esc(tl(x.net)) + '</b></td></tr>';
+        }).join('')
+      : '<tr><td colspan="6">' + A.bos('fa-book', 'Bu dönemde kazanç kaydı yok',
+          'Seçili dönemde hizmet satışı bulunmuyor; defter boş.',
+          '<a class="btn btn-ghost" href="admin-hizmetler-v1.html">' +
+          '<i class="fa-solid fa-basket-shopping"></i> Hizmetler ve satışlar</a>') + '</td></tr>';
+    sayacBas('defter', dfSatir.length);
+    dfSuz();
+
+    /* --- 2 · ÖDEME LİSTESİ --- */
     document.getElementById('pyGovde').innerHTML = D.satir.map(function (r) {
+      var kayit = odemeHal(secili, r.ad);
+      var durumKod = !r.ode ? 'birik' : (kayit ? kayit.durum : 'hazir');
+      var h = HAL[durumKod];
       var esikGecti = r.kumul >= PARAM.faturaEsigiKurus;
-      var durum = r.ode
-        ? A.rozet('ok', 'Ödenecek', 'fa-paper-plane')
-        : A.rozet('wait', 'Alt sınırın altında — devreder', 'fa-layer-group');
-      return '<tr data-ad="' + esc(r.ad) + '" data-odeme="' + (r.ode ? 'ode' : 'birik') + '">' +
-        '<td><b>' + esc(r.ad) + '</b><small>Yıl brütü ' + esc(tl(r.kumul)) + ' · fatura eşiğinin ' +
-          (esikGecti ? 'üstünde' : 'altında') + '</small></td>' +
+      var tutar = (kayit && typeof kayit.tutar === 'number') ? kayit.tutar : r.odenebilir;
+
+      /* Satır eylemleri yalnız ÖDENECEK satırda vardır; devreden bakiyenin
+         işaretlenecek bir ödemesi yok. `odendi` terminaldir (Gastro:
+         `odendi → hazir` geçişi YOK) — orada da eylem basılmaz. */
+      var eylem;
+      if (!r.ode) {
+        eylem = '<span class="adm-ico-btn" aria-hidden="true" style="opacity:.35"><i class="fa-solid fa-layer-group"></i></span>';
+      } else if (durumKod === 'odendi') {
+        eylem = '<span class="adm-ico-btn" aria-hidden="true" style="opacity:.35"><i class="fa-solid fa-lock"></i></span>';
+      } else {
+        eylem =
+          '<button class="adm-ico-btn" type="button" data-py-ey="odendi" data-py-ad="' + esc(r.ad) + '" aria-label="' + esc(r.ad) + ' — ödendi işaretle"><i class="fa-solid fa-circle-check"></i></button>' +
+          '<button class="adm-ico-btn" type="button" data-py-ey="beklet" data-py-ad="' + esc(r.ad) + '" aria-label="' + esc(r.ad) + ' — beklemeye al"><i class="fa-solid fa-hand"></i></button>' +
+          '<button class="adm-ico-btn" type="button" data-py-ey="duzelt" data-py-ad="' + esc(r.ad) + '" aria-label="' + esc(r.ad) + ' — tutarı düzelt"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="adm-ico-btn" type="button" data-py-ey="dekont" data-py-ad="' + esc(r.ad) + '" aria-label="' + esc(r.ad) + ' — dekont ekle"><i class="fa-solid fa-receipt"></i></button>';
+      }
+
+      return '<tr data-ad="' + esc(r.ad) + '" data-odeme="' + esc(durumKod) + '">' +
+        '<td><b>' + esc(r.ad) + '</b><small>' + r.adet + ' kayıt · yıl brütü ' + esc(tl(r.kumul)) +
+          ' · fatura eşiğinin ' + (esikGecti ? 'üstünde' : 'altında') + '</small></td>' +
         '<td class="num">' + r.adet + '</td>' +
         '<td class="num">' + esc(tl(r.brut)) + '</td>' +
         '<td class="num">−' + esc(tl(r.kom)) + '</td>' +
-        '<td class="num">' + esc(tl(r.net)) + '</td>' +
         '<td class="num">' + (r.onceki ? esc(tl(r.onceki)) : '—') + '</td>' +
-        '<td class="num"><b>' + esc(tl(r.odenebilir)) + '</b></td>' +
-        '<td>' + durum + '</td></tr>';
+        '<td class="num"><b>' + esc(tl(tutar)) + '</b>' +
+          (kayit && typeof kayit.tutar === 'number' ? '<small>düzeltildi · hesaplanan ' + esc(tl(r.odenebilir)) + '</small>' : '') + '</td>' +
+        '<td>' + A.rozet('stop', 'Kayıt yok', 'fa-triangle-exclamation') + '</td>' +
+        '<td>' + A.rozet(h.rz, h.ad, h.ico) +
+          (esikGecti ? '<small>Fatura bekleniyor — yıllık brüt eşiği aştı</small>' : '') +
+          (kayit && kayit.not ? '<small>' + esc(kayit.not) + '</small>' : '') +
+          (kayit && kayit.dekont ? '<small>Dekont eklendi</small>' : '') + '</td>' +
+        '<td class="act">' + eylem + '</td></tr>';
     }).join('');
-    sayacGuncelle();
+    sayacBas('odeme', D.satir.filter(function (r) { return r.ode; }).length);
+    odSuz();
 
     /* --- grafik: kütüphane YOK, kabuğun kendi çubuğu --- */
     var enBuyuk = D.satir.reduce(function (m, r) { return Math.max(m, r.brut); }, 0) || 1;
@@ -476,23 +792,192 @@
       : A.bos('fa-circle-check', 'Bu dönemde iade yok',
               'Seçili dönemde iade sürecine giren hizmet satışı bulunmuyor. İade açıldığında satır burada belirir ve komisyonun ne olduğu yazılır.');
 
-    suz();
   }
 
-  /* `aramaKur` yalnız tek sayacı yazar; aralık metnini kendi dinleyicim
-     tazeler. Sırası önemli: aramaKur'un dinleyicisi ÖNCE eklendi, yani
-     önce o koşar, sonra bu üstüne yazar. */
-  var araKutu = document.getElementById('pyAra');
-  A.aramaKur(araKutu, document.getElementById('pyTablo'), document.getElementById('pySay'));
-  araKutu.addEventListener('input', sayacGuncelle);
+  /* Arama BİR KEZ bağlanır. `aramaKur` tbody düğümünü yakalar; ben yalnız
+     `innerHTML`i değiştirdiğim için düğüm aynı kalıyor ve dinleyici her
+     basımda taze satırları buluyor. Her `bas()`ta yeniden bağlamak aynı
+     girdiye üst üste dinleyici yığardı. Kendi aralık sayacım ONUN üstüne
+     yazar: sıra önemli, önce aramaKur eklenir. */
+  function aramaBagla(){
+    var d = document.getElementById('pyDfAra'), o = document.getElementById('pyAra');
+    A.aramaKur(d, document.getElementById('pyDfTablo'), document.getElementById('pyDfSay'));
+    A.aramaKur(o, document.getElementById('pyTablo'), document.getElementById('pySay'));
+    d.addEventListener('input', dfSuz);
+    o.addEventListener('input', odSuz);
+  }
+
   document.getElementById('pyDonem').addEventListener('change', function () {
-    secili = this.value; bas();
-    A.aramaKur(araKutu, document.getElementById('pyTablo'), document.getElementById('pySay'));
-    araKutu.addEventListener('input', sayacGuncelle);
+    secili = this.value;
+    islemKapat();
+    bas();
   });
 
-  A.maketKaydet(document.getElementById('pyBaslat'), 'ödeme dönemi');
+  /* ==================================================================
+     DÖNEM KAPANIŞI — K5'in devri burada doğar
+     ================================================================== */
+  var kapaForm = document.getElementById('pyKapaForm');
+  document.getElementById('pyKapat').addEventListener('click', function () {
+    if (!kapaForm.reportValidity()) return;
+    var ay = document.getElementById('pyKapaAy').value.trim();
+    if (!DONEM[ay]) {
+      A.flash('warn', ay + ' defterde hiç kayıt taşımıyor — kapatılacak bir şey yok.',
+              document.querySelector('.adm-page'));
+      return;
+    }
+    if (kapali[ay]) {
+      A.flash('note', ay + ' zaten kapalı. Kapanmış dönem yeniden kapatılmaz.',
+              document.querySelector('.adm-page'));
+      return;
+    }
+    A.onay({
+      baslik: ay + ' dönemi kapatılsın mı?',
+      metin: 'Kapanan dönemin defteri dondurulur: alt sınırı geçen bakiye ödeme satırına ' +
+             'çevrilir, geçmeyen bakiye bir sonraki döneme devreder. Geri alınamaz.',
+      onayla: 'Dönemi kapat',
+      onay: function () {
+        kapali[ay] = true;
+        var D = DONEM[ay];
+        var odenen = D.satir.filter(function (r) { return r.ode; }).length;
+        var devreden = D.satir.length - odenen;
+        document.getElementById('pyKapaNot').innerHTML =
+          '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+          '<b>' + odenen + '</b> ödeme satırı hazırlandı, <b>' + devreden +
+          '</b> antrenörün bakiyesi devretti. ' +
+          '<b>Kayıt gitmedi</b> — bu prototipte sunucu yok, kapanış yalnız bu sekmede yaşar.';
+        A.toast(ay + ' kapatıldı — ' + odenen + ' ödeme satırı hazır.', { tip:'ok' });
+        bas();
+      }
+    });
+  });
+
+  /* ==================================================================
+     SATIR EYLEMLERİ — tek tek, her biri onay modalıyla
+     ================================================================== */
+  var EYLEM = {
+    odendi: { baslik:'Ödendi işaretle',  ico:'fa-circle-check',
+              notEtiket:'Ödeme notu', notZorunlu:false, tutar:false, dekont:false,
+              onayBaslik:'Bu satır ödendi olarak işaretlensin mi?',
+              onayMetin:'"Ödendi" bir KAYITTIR, bir transfer değil — para bu ekrandan gitmez. ' +
+                        'İşaretlenen satır bir daha "ödemeye hazır"a dönmez.',
+              onayla:'Ödendi işaretle' },
+    beklet: { baslik:'Beklemeye al',     ico:'fa-hand',
+              notEtiket:'Bekletme gerekçesi', notZorunlu:true, tutar:false, dekont:false,
+              onayBaslik:'Satır beklemeye alınsın mı?',
+              onayMetin:'Satır bu dönemin ödeme listesinde kalır ama ödenmiş sayılmaz. ' +
+                        'Gerekçe kayda geçer.',
+              onayla:'Beklemeye al' },
+    duzelt: { baslik:'Tutarı düzelt',    ico:'fa-pen',
+              notEtiket:'Düzeltme gerekçesi', notZorunlu:true, tutar:true, dekont:false,
+              onayBaslik:'Ödeme tutarı düzeltilsin mi?',
+              onayMetin:'Hesaplanan tutar kuralın sonucudur; düzeltme onu ezer ve satırda ' +
+                        '"düzeltildi" olarak görünür. Komisyon oranı değişmez (K5).',
+              onayla:'Tutarı düzelt' },
+    dekont: { baslik:'Dekont ekle',      ico:'fa-receipt',
+              notEtiket:'Dekont notu', notZorunlu:false, tutar:false, dekont:true,
+              onayBaslik:'Dekont bu satıra eklensin mi?',
+              onayMetin:'Dekont ödemenin KANITIDIR, ödeme emri değil. Banka transferi bu ' +
+                        'ekranın dışında yapılır.',
+              onayla:'Dekont ekle' }
+  };
+
+  var islemPanel = document.getElementById('pyIslem');
+  var islemForm = document.getElementById('pyIslemForm');
+  var aktifEylem = null, aktifAd = null, dekontAlan = null;
+
+  function islemKapat(){
+    islemPanel.hidden = true;
+    aktifEylem = null; aktifAd = null;
+    document.querySelectorAll('#pyGovde tr').forEach(function (tr) { tr.classList.remove('is-sec'); });
+  }
+
+  function islemAc(ey, ad){
+    var E = EYLEM[ey];
+    var r = DONEM[secili].satir.filter(function (x) { return x.ad === ad; })[0];
+    if (!E || !r) return;
+    aktifEylem = ey; aktifAd = ad;
+
+    document.querySelectorAll('#pyGovde tr').forEach(function (tr) {
+      tr.classList.toggle('is-sec', tr.getAttribute('data-ad') === ad);
+    });
+
+    document.getElementById('pyIslemBaslik').textContent = E.baslik;
+    document.getElementById('pyIslemSecili').innerHTML =
+      '<b>' + esc(ad) + '</b> · ' + esc(DONEM[secili].ad) + ' · ' + r.adet + ' kayıt · ödenecek ' +
+      esc(tl(r.odenebilir));
+
+    var tutarRow = document.getElementById('pyIslemTutarRow');
+    var tutarAlan = document.getElementById('pyIslemTutar');
+    tutarRow.hidden = !E.tutar;
+    tutarAlan.required = !!E.tutar;
+    tutarAlan.value = E.tutar ? (r.odenebilir / 100).toFixed(2) : '';
+
+    var dekontRow = document.getElementById('pyIslemDekontRow');
+    dekontRow.hidden = !E.dekont;
+    if (E.dekont && !dekontAlan) {
+      dekontAlan = A.yukle('#pyIslemDekont', { cok:false,
+        not:'Tek dekont görseli. Kütüphaneden seç ya da sürükle.' });
+    }
+
+    document.getElementById('pyIslemNotEtiket').textContent = E.notEtiket;
+    document.getElementById('pyIslemNotReq').hidden = !E.notZorunlu;
+    var notAlan = document.getElementById('pyIslemNot');
+    notAlan.required = !!E.notZorunlu;
+    notAlan.value = '';
+    notAlan.dispatchEvent(new Event('input'));
+
+    islemPanel.hidden = false;
+    islemPanel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  document.getElementById('pyIslemIptal').addEventListener('click', islemKapat);
+
+  document.getElementById('pyIslemUygula').addEventListener('click', function () {
+    if (!aktifEylem || !aktifAd) return;
+    if (!islemForm.reportValidity()) return;
+    var E = EYLEM[aktifEylem], ey = aktifEylem, ad = aktifAd;
+    A.onay({
+      baslik: E.onayBaslik, metin: E.onayMetin, onayla: E.onayla, ico: E.ico,
+      onay: function () {
+        var k = odemeAnahtar(secili, ad);
+        var kayit = ODEME[k] || { durum:'hazir' };
+        var not = document.getElementById('pyIslemNot').value.trim();
+        if (ey === 'odendi') kayit.durum = 'odendi';
+        if (ey === 'beklet') kayit.durum = 'beklet';
+        if (ey === 'duzelt') kayit.tutar = Math.round(parseFloat(document.getElementById('pyIslemTutar').value || '0') * 100);
+        if (ey === 'dekont') kayit.dekont = dekontAlan && dekontAlan.deger().length ? dekontAlan.deger()[0].ad : 'dekont';
+        if (not) kayit.not = E.baslik + ': ' + not;
+        ODEME[k] = kayit;
+        islemKapat();
+        bas();
+        A.toast(ad + ' · ' + E.baslik + ' uygulandı — KAYDEDİLMEDİ, bu prototipte sunucu yok.',
+                { tip:'info', ms:3600 });
+      }
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-py-ey]');
+    if (!b) return;
+    islemAc(b.getAttribute('data-py-ey'), b.getAttribute('data-py-ad'));
+  });
+
+  /* ---- karakter sayacı (referans formun deseni) ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele(){
+      var n2 = el.value.length;
+      s.textContent = n2 + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n2 > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
   bas();
+  aramaBagla();
 })();
 </script>
 </body>

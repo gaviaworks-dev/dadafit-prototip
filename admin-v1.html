@@ -92,6 +92,20 @@
 
       <!-- SAĞ: sistem durumu -->
       <div>
+        <!-- 🔴 R19 · HIZLI İŞLEM — kitin `.qa-item`i ilk kez GEZİNME kipinde.
+             Bugüne kadar bu ekranda `.qa-item.is-static` idi (bilgi satırı,
+             imleç ve hover kapalı) çünkü gidilecek bir yer yoktu: panelde
+             ayrı form sayfası yoktu, "yeni kayıt" gömülü bir karttı.
+             R19'da 16 form sayfası doğdu; artık her satırın gerçek bir
+             hedefi var. Gastro'nun dashboard'unda da bu liste gezinir
+             (`admin-dashboard/sa-dashboard.css` "hızlı aksiyon listesi"). -->
+        <div class="adm-card">
+          <div class="c-head"><h3><i class="fa-solid fa-bolt"></i> Hızlı işlem</h3></div>
+          <div class="c-body flush">
+            <div class="qa-list" id="gbHizli"></div>
+          </div>
+        </div>
+
         <div class="adm-card">
           <div class="c-head"><h3><i class="fa-solid fa-database"></i> Veri kaynakları</h3></div>
           <div class="c-body flush">
@@ -240,6 +254,27 @@
       '<span class="qa-ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
       '<div class="qa-info"><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
   }).join('');
+  /* ---------- hızlı işlem ----------
+     Kalemler UYDURULMADI: kabuğun kendi `MENU` dizisi taranıp, diskte
+     karşılığı olan form sayfası bulunan modüller listelendi. Yeni bir form
+     sayfası doğduğunda buraya elle satır yazılmaz — eşleme kuralı tektir.
+     Hedefi olmayan hiçbir satır basılmaz (kit §14/1: ölü bağlantı yok). */
+  var HIZLI = [
+    ['hareket',   'Yeni hareket',   'Künye, adımlar, ipuçları ve medya tek formda', 'fa-dumbbell',        'admin-hareket-form-v1.html'],
+    ['challenge', 'Yeni challenge', 'Tip seçimi hedef alanlarını değiştirir',       'fa-trophy',          'admin-challenge-form-v1.html'],
+    ['program',   'Yeni program',   'Künye; kurgu ayrı ekranda',                    'fa-clipboard-list',  'admin-program-form-v1.html'],
+    ['test',      'Yeni fit testi', 'Adımlar, ekipman ve üç sonuç bandı',           'fa-stopwatch',       'admin-test-form-v1.html'],
+    ['sozluk',    'Yeni sözlük terimi', '254 terimlik spor sözlüğüne ekle',         'fa-book',            'admin-sozluk-form-v1.html'],
+    ['rozet',     'Yeni rozet',     'Dokuz alan, kapalı ölçüt listesi',             'fa-medal',           'admin-rozet-form-v1.html'],
+    ['medya',     'Medya kütüphanesi', 'Görsel yükle, alt metin yaz, kullanımı gör','fa-photo-film',      'admin-medya-v1.html']
+  ];
+  document.getElementById('gbHizli').innerHTML = HIZLI.map(function (h) {
+    return '<a class="qa-item" href="' + esc(h[4]) + '">' +
+      '<span class="qa-ico"><i class="fa-solid ' + h[3] + '" aria-hidden="true"></i></span>' +
+      '<span class="qa-info"><b>' + esc(h[1]) + '</b><span>' + esc(h[2]) + '</span></span>' +
+      '<i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i></a>';
+  }).join('');
+
 })();
 </script>
 </body>

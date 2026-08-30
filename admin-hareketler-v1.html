@@ -15,14 +15,13 @@
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi. Liste · süzgeç · tablo ·
-   sayfalama · form kabuğu fit-admin.css'te; burada tekrarlanmaz. */
+   sayfalama fit-admin.css'te; burada tekrarlanmaz. Bu ekranda form yok
+   (R19: gömülü kart söküldü, künye `admin-hareket-form-v1.html`de). */
 
 /* Kas/ekipman kodu ile insan adını aynı hücrede taşıyan küçük etiket.
    Yeni renk üretilmedi: `.fp-badge`in nötr kipi zaten var, bu yalnız
    kod parçasını monospace yapıyor. */
 .hk-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted)}
-/* Alternatif slug listesi — form içinde, satır satır okunur. */
-.hk-alt{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 </style>
 </head>
 <body class="adm-body" data-adm="hareketler">
@@ -41,7 +40,12 @@
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="egzersiz-kutuphane-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Kütüphaneyi gör</a>
-        <button class="btn btn-primary" type="button" id="hkYeni"><i class="fa-solid fa-plus"></i> Yeni hareket</button>
+        <!-- 🔴 TEK YAZMA YÜZEYİ. Burada eskiden gömülü `#hkForm` kartını açan bir
+             <button> vardı; hareketin tam künyesi artık `admin-hareket-form-v1.html`de
+             (30+ alan: adımlar, ipuçları, medya, SEO, yayın). O kart 11 alan taşıyordu
+             ve aynı kayda iki farklı cevap veriyordu — bu depoda üç kez temizlenen
+             kusur. Create ve edit AYNI dosyadır: `?h=<slug>` varsa düzenleme. -->
+        <a class="btn btn-primary" href="admin-hareket-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni hareket</a>
       </div>
     </div>
 
@@ -94,108 +98,6 @@
       </div>
     </div>
 
-    <!-- ============ FORM (K4) ============ -->
-    <div class="adm-card" id="hkForm" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="hkFormBaslik">Yeni hareket</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="hkKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <div class="c-body">
-        <form id="hkF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="hfAd">Ad <span class="req">*</span></label>
-              <input class="fk-input" id="hfAd" name="ad" required maxlength="80" placeholder="Goblet Squat" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Kütüphane kartındaki ad ile birebir aynı olmalı; ayrışırsa kart
-                ile detay sayfası farklı hareketi anlatır.</span>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hfSlug">Slug <span class="req">*</span></label>
-              <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
-                   derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
-                   geçersiz. `[a-z0-9-]+` yazıldığında `reportValidity()`
-                   İSTİSNA ATIYOR — form doğrulanmıyor, konsola hata düşüyor ve
-                   "doğrulandı" diyen dürüstlük notu güvenilmez oluyor.
-                   Ölçüldü: /^(?:[a-z0-9-]+)$/v → "Invalid character class". -->
-              <input class="fk-input" id="hfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="goblet-squat" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız küçük harf, rakam ve tire. Detay adresi bundan üretilir.</span>
-            </div>
-          </div>
-
-          <div class="fk-grid c3">
-            <div class="fk-field">
-              <label class="fk-label" for="hfKas">Kas bölgesi <span class="req">*</span></label>
-              <select class="fk-select" id="hfKas" name="kas" required></select>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hfEkipman">Ekipman <span class="req">*</span></label>
-              <select class="fk-select" id="hfEkipman" name="ekipman" required></select>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hfSeviye">Seviye <span class="req">*</span></label>
-              <select class="fk-select" id="hfSeviye" name="seviye" required></select>
-            </div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="hfBolge">Bölge metni</label>
-              <input class="fk-input" id="hfBolge" name="bolge" maxlength="60" placeholder="Bacak &amp; Kalça" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Detay sayfasının serbest metni. Süzgeç bunu değil yukarıdaki
-                <b>kas bölgesi</b> kodunu kullanır — ikisi ayrı alandır.</span>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hfSure">Tahmini süre</label>
-              <input class="fk-input" id="hfSure" name="sure" maxlength="20" placeholder="~8 dk" />
-            </div>
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="hfKategori">Kategori</label>
-            <input class="fk-input" id="hfKategori" name="kategori" maxlength="60" placeholder="Alt vücut · Kuvvet" />
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="hfAlt">Alternatif hareketler</label>
-            <textarea class="fk-textarea" id="hfAlt" name="alternatif" rows="4"
-                      placeholder="hava-squat&#10;bulgar-split-squat"></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Her satıra bir slug. Katalogda bulunmayan slug detay sayfasında
-              sessizce Goblet Squat'a düşer — bu yüzden çözülemeyenler aşağıda
-              işaretlenir.</span>
-            <div class="hk-alt" id="hfAltRozet"></div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="hfBirincil">Birincil kaslar</label>
-              <input class="fk-input" id="hfBirincil" name="birincil" placeholder="Quadriceps, Gluteus" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hfIkincil">İkincil kaslar</label>
-              <input class="fk-input" id="hfIkincil" name="ikincil" placeholder="Hamstring, Core" />
-            </div>
-          </div>
-
-        </form>
-      </div>
-      <div class="c-foot">
-        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
-             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
-             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
-             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
-             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
-             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="hkKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 
@@ -204,7 +106,7 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · HAREKET KÜTÜPHANESİ   (R16/2)   — K1 liste + K4 form
+   ADMIN · HAREKET KÜTÜPHANESİ   (R19)   — YALNIZ K-LİSTE
    ---------------------------------------------------------------------
    VERİ GERÇEK AMA KOPYA — ve ekran bunu söylüyor.
    25 satır `fit-admin-veri.js`ten okunuyor; o dosya da
@@ -239,7 +141,9 @@
     'içinden <b>' + esc(V ? V.OLCUM_TARIHI : '—') + '</b> tarihinde makineyle çıkarıldı — hiçbir satır ' +
     'uydurulmadı, ama bu kayıtların kaynağı değil kopyasıdır. Ayrışma ' +
     '<code>docs/qa/hareket-katalog-esitlik.mjs</code> ile ölçülür. ' +
-    '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
+    '<b>Bu ekran salt listedir:</b> yazma yüzeyi ' +
+    '<a href="admin-hareket-form-v1.html">hareket formunda</a> — orada da sunucu yok, ' +
+    'form doğrular, kaydetmez.');
 
   if (!V || !V.HAREKET || !V.HAREKET.length) {
     document.getElementById('hkGovde').innerHTML = '<tr><td colspan="7">' +
@@ -415,63 +319,28 @@
           (oluSay ? ' ' + A.rozet('stop', oluSay + ' ölü', 'fa-link-slash') : '') + '</td>' +
         '<td class="act">' +
           '<a class="adm-ico-btn" href="egzersiz-detay-v1.html?slug=' + esc(h.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(h.ad) + ' sayfasını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
-          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(h.slug) + '" aria-label="' + esc(h.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></button>' +
+          '<a class="adm-ico-btn" href="admin-hareket-form-v1.html?h=' + esc(h.slug) + '" aria-label="' + esc(h.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></a>' +
         '</td></tr>';
     }).join('');
     document.getElementById('hkSay').textContent = H.length;
     A.aramaKur(document.getElementById('hkAra'), document.getElementById('hkTablo'), document.getElementById('hkSay'));
   }
 
-  /* ---------- form ---------- */
-  var form = document.getElementById('hkForm');
-  function secDoldur(id, grup) {
-    document.getElementById(id).innerHTML = S[grup].map(function (t) {
-      return '<option value="' + esc(t.kod) + '">' + esc(t.ad) + '</option>';
-    }).join('');
-  }
-  secDoldur('hfKas', 'kas'); secDoldur('hfEkipman', 'ekipman'); secDoldur('hfSeviye', 'seviye');
+  /* ---------- form ARTIK BU EKRANDA DEĞİL ----------------------------
+     🔴 Gömülü `#hkForm` kartı SÖKÜLDÜ (R19). Kart 11 alan taşıyordu:
+     ad · slug · kas · ekipman · seviye · bolge · sure · kategori ·
+     alternatif · birincil · ikincil. `admin-hareket-form-v1.html` aynı
+     kayıt için 30+ alan getiriyor — kapak, adımlar, ipuçları, güvenlik
+     uyarısı, galeri, video, SEO, yayın kartı. İki yazma yüzeyi bırakmak
+     "aynı soruya iki cevap" kusurudur ve bu depoda üç kez temizlendi:
+     hangisinin kazandığı belirsiz kalır, biri ötekini sessizce eskitir.
 
-  function altRozet() {
-    var satir = document.getElementById('hfAlt').value.split('\n')
-      .map(function (s) { return s.trim(); }).filter(Boolean);
-    document.getElementById('hfAltRozet').innerHTML = satir.length
-      ? satir.map(function (s) {
-          return slugVar(s) ? A.rozet('ok', s, 'fa-check')
-                            : A.rozet('stop', s + ' — katalogda yok', 'fa-link-slash');
-        }).join('')
-      : '';
-  }
-  document.getElementById('hfAlt').addEventListener('input', altRozet);
-
-  function formAc(slug) {
-    var h = slug ? V.hareket(slug) : null;
-    document.getElementById('hkFormBaslik').textContent = h ? ('Düzenle: ' + h.ad) : 'Yeni hareket';
-    document.getElementById('hfAd').value       = h ? h.ad : '';
-    document.getElementById('hfSlug').value     = h ? h.slug : '';
-    document.getElementById('hfBolge').value    = h ? h.bolge : '';
-    document.getElementById('hfSure').value     = h ? h.sure : '';
-    document.getElementById('hfKategori').value = h ? h.kategori : '';
-    document.getElementById('hfAlt').value      = h ? h.alternatif.join('\n') : '';
-    document.getElementById('hfBirincil').value = h ? h.birincil.join(', ') : '';
-    document.getElementById('hfIkincil').value  = h ? h.ikincil.join(', ') : '';
-    document.getElementById('hfKas').value      = h ? h.kas : S.kas[0].kod;
-    document.getElementById('hfEkipman').value  = h ? h.ekipmanKod : S.ekipman[0].kod;
-    document.getElementById('hfSeviye').value   = h ? String(h.lv) : '1';
-    altRozet();
-    form.hidden = false;
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  document.getElementById('hkYeni').addEventListener('click', function () { formAc(null); });
-  document.getElementById('hkKapat').addEventListener('click', function () { form.hidden = true; });
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-duzenle]');
-    if (b) formAc(b.getAttribute('data-duzenle'));
-  });
-  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
-     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
-     doğrulama sessizce atlanırdı. */
-  A.maketKaydet(document.getElementById('hkKaydet'), 'hareket', document.getElementById('hkF'));
+     Satır eylemi ve "Yeni hareket" düğmesi artık o forma <a> ile gidiyor;
+     create/edit tek dosyadır (`?h=<slug>` varsa düzenleme). Bu yüzden
+     `formAc` · `secDoldur` · `altRozet` ve `maketKaydet` çağrısı da
+     kalktı — sayfada yazma yüzeyi kalmadığı için doğrulanacak form yok.
+     `slugVar()` KALDI: alternatif slug'ların ölü olup olmadığını hâlâ
+     tablo ve KPI şeridi sayıyor. */
 
   kpi();
   suzgecKur();

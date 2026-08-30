@@ -60,8 +60,14 @@
            <b>iki eşiklidir</b>: puan da aktif gün de geçilmeden atlanmaz —
            puan hızlı toplanır, gün toplanmaz.</div>
       </div>
+      <!-- Düğme sırası ölçülmüş: ikincil `btn-ghost` SOLDA, birincil CTA en
+           SAĞDA (Gastro `tarifler/index.blade.php:56-67` yorumu, ölçüm §1.1).
+           Gastro'nun rozet ekranındaki "Dışa Aktar" düğmesi ALINMADI: orada
+           `disabled` + "bu dilimde henüz aktif değil" ile duruyor, burada
+           karşılığı olmayan bir düğme olurdu (brif §0/7). -->
       <div class="h-acts">
         <a class="btn btn-ghost" href="rozetlerim-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+        <a class="btn btn-primary" href="admin-rozet-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni rozet</a>
       </div>
     </div>
 
@@ -113,6 +119,82 @@
       </div>
     </div>
 
+    <!-- ============ ROZET AİLELERİ — CRUD ============
+         C-8'in ikinci yarısı: aile kayıtları bu ekranda SALT OKUNUR bir
+         matristi (9 kayıt × 4 alan). Artık dördü de düzenlenebiliyor,
+         yeni aile eklenebiliyor, aile silinebiliyor ve sıra tutamakla
+         ya da ↑/↓ ile değişiyor. Sıra kozmetik değil: galeri aileleri bu
+         dizinin sırasıyla basıyor. -->
+    <div class="adm-card" id="rzAile">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-layer-group"></i> Rozet aileleri</h3>
+        <div class="c-acts"><span class="fp-badge" id="rzAileSay">—</span></div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p class="rz-desc mb">
+          Her ailenin <b>tek ölçülebilir kaynağı</b> vardır ve ölçü cümlesi üyeye
+          galeride başlık altında gösterilir. Anahtar, rozetin <code>aile</code>
+          alanının baktığı değerdir — değiştirilirse o aileye bağlı rozetler
+          sahipsiz kalır, bu yüzden satırda kaç rozetin bağlı olduğu yazıyor.
+        </p>
+      </div>
+      <div class="c-body">
+        <div class="st-list" id="rzAileListe"></div>
+        <button class="add-row" type="button" id="rzAileEkle">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Aile ekle</button>
+        <div class="fhint" style="margin-top:10px">Tutamağı sürükleyerek ya da odaktayken
+          ↑ / ↓ ile taşı.</div>
+      </div>
+      <div class="c-body">
+        <div class="form-actions">
+          <button class="btn btn-primary" type="button" id="rzAileKaydet"><i class="fa-solid fa-check"></i> Aileleri kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aile satırı şablonu — `FIT_ADMIN.tekrar` bunu çoğaltır. -->
+    <template id="rzAileSablon">
+      <div class="st-card">
+        <span class="st-num">1</span>
+        <div class="st-body">
+          <span class="cb-kind"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Aile</span>
+          <div class="form-grid">
+            <div class="frow two">
+              <div class="frow">
+                <label for="rzAK{i}">Anahtar</label>
+                <input class="finput" id="rzAK{i}" type="text" name="aile_key[]" data-field="key"
+                       pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="24" placeholder="kuvvet" />
+              </div>
+              <div class="frow">
+                <label for="rzAA{i}">Görünen ad</label>
+                <input class="finput" id="rzAA{i}" type="text" name="aile_ad[]" data-field="ad"
+                       maxlength="40" placeholder="Kuvvet" />
+              </div>
+            </div>
+            <div class="frow">
+              <label for="rzAI{i}">İkon sınıfı</label>
+              <input class="finput" id="rzAI{i}" type="text" name="aile_ico[]" data-field="ico"
+                     maxlength="60" placeholder="fa-solid fa-dumbbell" />
+            </div>
+            <div class="frow">
+              <label for="rzAO{i}">Ölçü cümlesi</label>
+              <input class="finput" id="rzAO{i}" type="text" name="aile_olcu[]" data-field="olcu"
+                     maxlength="120" placeholder="Bu ailenin rozetleri neyi ölçüyor?" />
+              <div class="fhint" data-field="bagli">Yeni aile — henüz bağlı rozet yok.</div>
+            </div>
+          </div>
+          <input type="hidden" data-field="position" value="0" />
+        </div>
+        <div class="st-side">
+          <button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala"
+                  aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">
+            <i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>
+          <button class="ie-del" type="button" title="Aileyi sil" aria-label="Aileyi sil">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </template>
+
     <!-- ============ AİLE ⇄ KADEME MATRİSİ (K5) ============ -->
     <div class="adm-card" id="rzMatris">
       <div class="c-head">
@@ -159,9 +241,15 @@
         <div class="adm-tw">
           <table class="adm-table" id="rzTablo">
             <thead>
+              <!-- Son kolon "Aksiyon" — K-LİSTE kalıbı. Satır içi kademe/puan
+                   düzenleyicileri KALDIRILDI: dokuz alanın ikisini listede,
+                   yedisini formda düzenlemek iki ayrı yazma yüzeyi demekti.
+                   Gastro'nun rozet listesinde de satır içi alan yok, tek eylem
+                   `Düzenle` (ölçüm §3.1). -->
               <tr>
                 <th>Rozet</th><th>Aile</th><th>Kademe</th>
                 <th>Ölçüt ve hedef</th><th class="num">Puan</th><th>Durum</th>
+                <th class="act">Aksiyon</th>
               </tr>
             </thead>
             <tbody id="rzGovde"></tbody>
@@ -178,15 +266,9 @@
         </div>
       </div>
 
-      <!-- Kaydet çubuğu SAĞDA — Gastro admin form CSS'i ölçüldü:
-           `.form-actions{justify-content:flex-end}`, birincil eylem en
-           sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir belgesi
-           §1), admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-      <div class="c-body">
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="rzKaydet"><i class="fa-solid fa-check"></i> Katalogu kaydet</button>
-        </div>
-      </div>
+      <!-- "Katalogu kaydet" çubuğu KALDIRILDI: kaydedecek satır içi alan
+           kalmadı, rozetin dokuz alanı `admin-rozet-form-v1.html`de
+           düzenleniyor. Kaydetmeyen bir kaydet düğmesi kalıbın kusurudur. -->
     </div>
 
   </div>
@@ -228,11 +310,15 @@
   document.getElementById('rzKaynak').innerHTML = A.kaynak('canli',
     '<b>Katalog, kademeler ve aileler gerçek.</b> Üçü de <code>fit-rozet.js</code>ten ' +
     'okunuyor — <code>rozetlerim-v1.html</code> ve kabuğun profil kartı da aynı ' +
-    'dizilerden besleniyor, burada ikinci bir kopya yok. <b>Yazma yüzeyi maket:</b> ' +
-    'eşikler ve kademe seçimleri doğrulanır ama kayıt gitmez, bu prototipte sunucu yok.');
+    'dizilerden besleniyor, burada ikinci bir kopya yok. Rozetin dokuz alanı ' +
+    '<code>admin-rozet-form-v1.html</code>de düzenleniyor; bu ekranda kademe eşikleri ve ' +
+    'aile kayıtları var. <b>“Kaç üye kazandı” sayacı YOK ve uydurulmadı:</b> motorun mühür ' +
+    'defteri (<code>dm_fit_rozet_v1</code>) yalnız <b>bu tarayıcının</b> kaydını tutuyor, üye ' +
+    'sayısı ölçen bir kaynak yok. <b>Yazma yüzeyi maket:</b> eşikler ve aile alanları ' +
+    'doğrulanır ama kayıt gitmez, bu prototipte sunucu yok.');
 
   if (!R) {
-    document.getElementById('rzGovde').innerHTML = '<tr><td colspan="6">' +
+    document.getElementById('rzGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-medal', 'Rozet motoru yüklenmedi',
             'Katalog, kademeler ve aileler fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi.') +
       '</td></tr>';
@@ -342,17 +428,53 @@
       AILELER.length + ' × ' + KADEMELER.length + ' = ' + (AILELER.length * KADEMELER.length) + ' hücre';
   }
 
+  /* ---------- AİLE CRUD — dört alan da düzenlenebilir ----------
+     Satırlar kabuğun tekrar (repeater) bileşeniyle kuruluyor: sürükle-bırak
+     ve ↑/↓ taşıma, silme ve ekleme oradan geliyor; bu ekran ikinci bir
+     sıralama motoru yazmıyor. */
+  function aileBas(){
+    var liste = document.getElementById('rzAileListe');
+    var sablon = document.getElementById('rzAileSablon');
+    var r = A.tekrar({
+      liste: liste, ekle: document.getElementById('rzAileEkle'), sablon: sablon,
+      enAz: 1, enCok: 20, degisti: aileSay
+    });
+    AILELER.forEach(function (a) {
+      var kart = r.ekle();
+      kart.querySelector('[data-field="key"]').value = a.key;
+      kart.querySelector('[data-field="ad"]').value = a.ad;
+      kart.querySelector('[data-field="ico"]').value = a.ico;
+      kart.querySelector('[data-field="olcu"]').value = a.olcu;
+      var bagli = KATALOG.filter(function (x) { return x.aile === a.key; }).length;
+      var puan = KATALOG.filter(function (x) { return x.aile === a.key; })
+        .reduce(function (t, x) { return t + x.puan; }, 0);
+      kart.querySelector('[data-field="bagli"]').innerHTML =
+        '<b>' + n(bagli) + '</b> rozet bu aileye bağlı, toplam <b>' + n(puan) + '</b> puan. ' +
+        'Anahtar değişirse o rozetler sahipsiz kalır.';
+      /* Yıkıcı eylem onayı kabuğun delegesinden gelir; ad satırdan okunur
+         ki modal hangi ailenin silineceğini söylesin. */
+      var sil = kart.querySelector('.ie-del');
+      sil.setAttribute('data-yikici', a.ad + ' ailesi (' + bagli + ' rozet bağlı)');
+      sil.setAttribute('data-fiil', 'sil');
+    });
+    aileSay();
+    /* İlk odak alanı kendiliğinden odaklanmasın — 9 satır basılırken
+       sayfa en alttaki alana kayıyordu. */
+    if (document.activeElement && document.activeElement.closest &&
+        document.activeElement.closest('#rzAileListe')) document.activeElement.blur();
+    window.scrollTo(0, 0);
+  }
+  function aileSay(){
+    var say = document.getElementById('rzAileListe').querySelectorAll('.st-card').length;
+    document.getElementById('rzAileSay').textContent = say + ' aile · 4 alan';
+  }
+
   /* ---------- katalog listesi ---------- */
   function listeBas(){
     document.getElementById('rzGovde').innerHTML = KATALOG.map(function (r, i) {
       var a = aileBul(r.aile);
+      var k = kademeBul(r.basamak);
       var olculu = !!r.olcut;
-
-      var kademeSec = '<label class="sr-only" for="rzK' + i + '">' + esc(r.ad) + ' kademesi</label>' +
-        '<select class="fk-select rz-kademe" id="rzK' + i + '">' +
-        KADEMELER.map(function (k) {
-          return '<option value="' + esc(k.key) + '"' + (k.key === r.basamak ? ' selected' : '') + '>' + esc(k.ad) + '</option>';
-        }).join('') + '</select>';
 
       var olcutHucre = olculu
         ? '<b>' + esc(r.olcut) + '</b><small>hedef: ' + n(r.hedef) + '</small>'
@@ -363,15 +485,23 @@
         : A.rozet('wait', 'Ölçü bekliyor', 'fa-clock') +
           '<small>' + esc(r.kaynakEkranAd || '—') + ' kaydetmeye başlayınca çalışır.</small>';
 
+      var duzenleAdres = 'admin-rozet-form-v1.html?rozet=' + encodeURIComponent(r.slug);
+
       return '<tr data-slug="' + esc(r.slug) + '" data-aile="' + esc(r.aile) + '"' +
              ' data-durum="' + (olculu ? 'olculu' : 'olcusuz') + '">' +
         '<td><b><i class="' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</b><small>' + esc(r.slug) + '</small></td>' +
         '<td>' + esc(a ? a.ad : r.aile) + '</td>' +
-        '<td>' + kademeSec + '</td>' +
+        '<td>' + esc(k ? k.ad : r.basamak) + '<small>' + n(k ? k.minPuan : 0) + ' puan · ' + n(k ? k.minGun : 0) + ' gün</small></td>' +
         '<td>' + olcutHucre + '</td>' +
-        '<td class="num"><label class="sr-only" for="rzPu' + i + '">' + esc(r.ad) + ' puanı</label>' +
-          '<input class="fk-input rz-puan" id="rzPu' + i + '" type="number" min="0" step="5" value="' + r.puan + '" /></td>' +
+        '<td class="num"><b>' + n(r.puan) + '</b></td>' +
         '<td>' + durum + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="' + duzenleAdres + '" aria-label="' + esc(r.ad) + ' rozetini düzenle" title="Düzenle">' +
+            '<i class="fa-solid fa-pen" aria-hidden="true"></i></a>' +
+          '<button class="adm-ico-btn danger" type="button" data-yikici="' + esc(r.ad) + '" data-fiil="sil" ' +
+            'aria-label="' + esc(r.ad) + ' rozetini sil" title="Sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</td>' +
       '</tr>';
     }).join('');
     document.getElementById('rzSay').textContent = KATALOG.length;
@@ -433,7 +563,7 @@
     if (say === 0) {
       if (!bosSatir) {
         bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="6">' +
+        bosSatir.innerHTML = '<td colspan="7">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle rozet kalmadı',
                 'Seçili aile ve ölçü durumunun kesişiminde katalogda rozet yok.',
           '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
@@ -454,10 +584,25 @@
       .forEach(function (c) { c.click(); });
   });
 
+  /* ---------- silme: onay kabuktan, sonuç dürüstçe söyleniyor ----------
+     Kabuğun `data-yikici` delegesi capture fazında yakalayıp yayılımı
+     durduruyor; bu dinleyici yalnız ONAYLANMIŞ tıklamada koşar. Onaydan
+     sonra sessiz kalmak, silinmiş sanılmasına yol açardı. */
+  document.getElementById('rzGovde').addEventListener('click', function (e) {
+    var s = e.target.closest && e.target.closest('button[data-yikici]');
+    if (!s) return;
+    var tr = s.closest('tr');
+    var slug = tr ? tr.getAttribute('data-slug') : '';
+    A.toast('“' + s.getAttribute('data-yikici') + '” silinmedi — sunucu yok. Gerçek silmede ' +
+            'katalogdan düşer ama üyenin mühür defterindeki “' + slug + '” kaydı durur.',
+            { tip:'info', ms:4600 });
+  });
+
   A.maketKaydet(document.getElementById('rzKademeKaydet'), 'kademe eşikleri');
-  A.maketKaydet(document.getElementById('rzKaydet'), 'rozet kataloğu');
+  A.maketKaydet(document.getElementById('rzAileKaydet'), 'rozet aileleri');
 
   kademeBas();
+  aileBas();
   matrisBas();
   listeBas();
   suzgecKur();

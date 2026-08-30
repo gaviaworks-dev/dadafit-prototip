@@ -14,29 +14,149 @@
 <link rel="stylesheet" href="assets/css/fit-planim.css" />
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
-/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
-.mn-sira{max-width:76px}
-.mn-gor{min-width:158px}
-.mn-hedef{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+/* =====================================================================
+   SAYFA CSS — yalnız bu ekranın işi. Yeni renk / yarıçap / gölge
+   ÜRETİLMEDİ; her değer kabuğun değişkeninden geliyor.
 
-/* `.ff` süzgeci filtre şeridine girince gereken iki düzeltme (alt boşluk +
-   public sticky konumu) KABUĞA taşındı — `fit-admin.css` §8. Süzgeci olan
-   her ekranda doğacak bir kusurdu; sayfa başına yamamak 21 yama olurdu. */
+   SINIF DİLİ GASTRO'DAN. Ölçüm `para-abonelik-menu-ayarlar.md` §3.8:
+   `.mb-switch .mb-layout .tree .tree-head .tree-list .node .node-grip
+   .node-ico .node-label .node-target .node-tag .node-ctrl .nc-btn
+   .pool-list .pool-item .pool-ico .pool-add .side-stack .nav-prev
+   .np-bar .np-link .np-empty` — adlar birebir korundu ki backend turu
+   iki ekranı yan yana okuyabilsin.
+   ===================================================================== */
+.mb-switch{display:flex;flex-wrap:wrap;gap:8px}
+.mb-switch .ms{
+  display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:9px 14px;
+  font-size:13px;font-weight:700;font-family:inherit;color:var(--slate-2);
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  cursor:pointer;transition:.16s var(--ease);
+}
+.mb-switch .ms:hover{border-color:var(--acc);color:var(--acc-deep)}
+.mb-switch .ms.is-on{border-color:var(--acc);background:rgba(var(--acc-rgb),.10);color:var(--acc-deep)}
+.mb-switch .ms .ms-n{
+  font-size:10.5px;font-weight:800;min-width:18px;height:18px;padding:0 5px;
+  display:grid;place-items:center;border-radius:var(--radius-pill);
+  background:rgba(var(--acc-rgb),.15);color:var(--acc-deep);
+}
 
-/* ---------------------------------------------------------------------
-   🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
-   ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
-   kaydırma kabı; ama kaydırılabilir içeriği BELGEYE sızıyor —
-   `window.scrollTo(9999,0)` sonrası `window.scrollX` bu ekranlarda
-   sırasıyla 133 · 122 · 68 px okundu (referans `admin-challenge-v1`
-   0 okuyor, çünkü onun tablosu dar). `min-width:0`, `max-width:100%`,
-   `contain:inline-size` ve `html{overflow-x:clip}` denendi, DÖRDÜ DE
-   sızıntıyı kesmedi; `contain:paint` kesti (ölçüldü: dört ekranda 0).
-   Kural KABUĞUN kuralıdır ve yeri `assets/css/fit-admin.css`tir; oraya
-   yazmak bu ajanın işi değil, bu yüzden yalnız bu ekranın gövdesine
-   özgüllükle bağlandı. Kabuğa taşınınca bu blok silinir.
-   --------------------------------------------------------------------- */
-.adm-body[data-adm] .adm-tw{contain:paint}
+.mb-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:20px}
+.side-stack{display:flex;flex-direction:column;gap:16px}
+
+.tree{container-type:inline-size}
+.tree-head{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.th-tt{font-size:14px;font-weight:800;color:var(--slate)}
+.tree-count{font-size:12.5px;color:var(--muted)}
+.tree-list{display:flex;flex-direction:column;gap:8px}
+
+.node{
+  display:flex;align-items:flex-start;gap:10px;padding:12px;
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+}
+.node.is-dragging{opacity:.45}
+.node.is-over{box-shadow:0 0 0 2px var(--acc) inset}
+.node.is-child{margin-left:26px;background:var(--paper)}
+.node.is-gizli .node-label{color:var(--muted);text-decoration:line-through}
+.node-grip{
+  color:#c9c9c9;cursor:grab;font-size:13px;border:0;background:none;
+  min-width:44px;min-height:44px;display:grid;place-items:center;touch-action:none;flex:none;
+}
+.node-grip:focus-visible{outline:3px solid var(--acc);outline-offset:-3px;border-radius:var(--radius-sm)}
+.node-ico{
+  width:34px;height:34px;flex:none;display:grid;place-items:center;margin-top:5px;
+  border-radius:var(--radius-sm);background:var(--paper);border:1px solid var(--line);
+  color:var(--muted);font-size:14px;
+}
+.node-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:6px}
+.node-label{font-size:13.5px;font-weight:700;color:var(--slate);line-height:1.35}
+.node-target{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.node-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.node-tag{
+  font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--radius-sm);
+  background:var(--cream-2);color:var(--slate-2);border:1px solid var(--line);
+}
+.node-ctrl{display:flex;flex-wrap:wrap;gap:2px;flex:none;justify-content:flex-end}
+.nc-btn{
+  min-width:44px;min-height:44px;display:grid;place-items:center;
+  border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;
+  border-radius:var(--radius-sm);transition:.16s var(--ease);
+}
+.nc-btn:hover:not(:disabled){color:var(--acc-deep);background:rgba(var(--acc-rgb),.08)}
+.nc-btn.danger:hover:not(:disabled){color:var(--hs-danger);background:var(--hs-danger-tint)}
+.nc-btn:disabled{opacity:.3;cursor:not-allowed}
+.nc-btn:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
+
+/* 🔴 KIRILIM YAMASI — ÖLÇÜLDÜ, ve kırılım noktası EKRANIN DEĞİL SATIRIN
+   genişliğine bağlandı.
+   Gastro'da aynı kusur ölçülüp yamanmış (§3.7: 981–1165px arasında altı
+   düğmelik `.node-ctrl` 268px yiyip havuzun üstüne biniyordu; çözüm beş
+   bildirimlik bir `@media` bloğu). Fit'te düğme sayısı SEKİZ (indent ·
+   outdent · panel eklendi) ve 44px dokunma tabanıyla şerit 352px.
+   ÖLÇÜM: 1440px'te rail açıkken ağaç sütunu 530px kalıyor; şeritten
+   sonra etikete 130px düşüyordu ve hedef adres iki satıra kırılıyordu —
+   yani Gastro'nun kusuru `@media` ile ÇÖZÜLMÜYOR, çünkü sorun ekran
+   genişliği değil SÜTUN genişliği (rail açık/kapalı, iki sütun/tek sütun,
+   hepsi aynı ekran genişliğinde farklı sütun üretiyor).
+   Bu yüzden kap sorgusu: ağaç sütunu 820px altına düştüğünde düğme şeridi
+   satırın ALTINA iner. Ekran genişliğinden bağımsız, her durumda doğru. */
+/* Kap `.tree`tir (yukarıda `container-type:inline-size`); sorgu onun
+   satır-içi genişliğini okur ve içindeki `.node`ları biçimler. */
+@media (max-width:1240px){
+  .mb-layout{grid-template-columns:minmax(0,1fr)}
+}
+@container (max-width:820px){
+  .node{flex-wrap:wrap}
+  .node-main{flex-basis:100%;order:3;padding-top:0}
+  .node-ctrl{order:4;flex-basis:100%;justify-content:flex-start;border-top:1px solid var(--line);padding-top:4px}
+}
+
+.pool-search{margin-bottom:10px}
+.pool-list{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto;padding-right:2px}
+.pool-item{
+  display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 10px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  font-family:inherit;text-align:left;cursor:pointer;transition:.16s var(--ease);
+}
+.pool-item:hover{border-color:var(--acc);background:rgba(var(--acc-rgb),.06)}
+.pool-item:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.pool-ico{
+  width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--radius-sm);
+  background:var(--bg);color:var(--muted);font-size:12px;
+}
+.pool-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pool-ad{font-size:12.5px;font-weight:700;color:var(--slate);line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pool-url{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pool-add{flex:none;color:var(--acc);font-size:12px}
+
+.nav-prev{display:flex;flex-direction:column;gap:6px}
+.np-bar{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--fit-dark);border-radius:var(--radius-md)}
+.np-link{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  color:var(--on-dark);padding:6px 9px;border-radius:var(--radius-sm);
+}
+.np-link.is-child{opacity:.7;font-weight:500;margin-left:10px}
+.np-empty{font-size:12.5px;color:var(--muted);padding:12px;text-align:center}
+.mn-not{font-size:13px;color:var(--slate-2);line-height:1.65;margin:0}
+.mn-not b{color:var(--slate)}
+.mn-not code{font-size:12px}
+
+/* MİNİ MODAL — Gastro'nun "Düzenle" mini-modalı (§3.4). Kabuğun
+   `.sa-modal` primitifleri; yalnız genişlik ve bölümleme burada. */
+.sa-modal.mn-modal{width:min(460px,100%);padding:0;max-height:88vh;display:flex;flex-direction:column}
+.mnm-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.mnm-head h3{margin:0;font-size:17px}
+.mnm-grp{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-deep)}
+.mnm-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;
+  color:var(--muted);font-size:15px;cursor:pointer;border-radius:var(--radius-sm)}
+.mnm-x:hover{color:var(--slate);background:var(--bg)}
+.mnm-body{padding:20px 22px;overflow-y:auto}
+.mnm-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body class="adm-body" data-adm="menu">
@@ -49,9 +169,9 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Menü ve Navigasyon</h1>
-        <div class="ph-sub">Üst menü, mobil alt çubuk, footer kolonları ve hesap menüsü tek listede.
-           Bir kalemin sırası ve görünürlüğü buradan değişir; hedefi bir sayfaya
-           bağlıdır, sayfa silinirse kalem de kalkar.</div>
+        <div class="ph-sub">Kabuğun on menü ailesi tek ekranda: üst menü ve açılır panelleri,
+           mobil alt çubuk, hesap çekmecesi, footer kolonları, Fit Planım ve destek rayları,
+           ekosistem rayı. Sıra, görünürlük, hedef ve ikon buradan değişir.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="dadafit-hub-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Menüyü sitede gör</a>
@@ -65,48 +185,58 @@
     <div class="adm-card" id="mnListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-bars"></i> Menü kalemleri</h3>
+        <div class="c-acts"><span class="fp-badge" id="mnRozet">—</span></div>
       </div>
 
-      <div class="filter-bar">
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <label class="sr-only" for="mnAra">Menü kalemi ara</label>
-          <input type="search" id="mnAra" placeholder="Kalem adı ya da hedef ara" />
-        </div>
-        <div class="fb-sel">
-          <div class="ff" id="mnSuzgec" data-ff></div>
+      <div class="c-body" style="padding-bottom:0">
+        <p class="mn-not" id="mnAileNot">—</p>
+      </div>
+
+      <div class="c-body" style="padding-bottom:0">
+        <div class="mb-switch" id="mnSwitch" role="tablist" aria-label="Menü ailesi"></div>
+      </div>
+
+      <div class="c-body">
+        <div class="mb-layout">
+
+          <div class="tree">
+            <div class="tree-head">
+              <span class="th-tt">Ağaç</span>
+              <span class="tree-count"><b id="mnSay">0</b> kalem</span>
+            </div>
+            <div class="tree-list" id="mnAgac"></div>
+          </div>
+
+          <aside class="side-stack">
+            <div class="adm-card">
+              <div class="c-head"><h2>Öğe ekle</h2></div>
+              <div class="pc-body">
+                <label class="sr-only" for="mnHavuzAra">Sayfa ara</label>
+                <input class="finput pool-search" id="mnHavuzAra" type="search"
+                       placeholder="Sayfa adı ya da adres ara…" />
+                <div class="pool-list" id="mnHavuz"></div>
+                <div class="fhint" style="margin-top:10px">Hedef havuzu depodaki
+                  <b id="mnSayfaSay">0</b> public sayfadır — serbest adres yalnız
+                  <b>Özel URL</b> kalemiyle girilir. Gastro'nun kuralı da bu (17 elemanlı
+                  sabit havuz); ölü bağlantıyı en baştan imkânsız kılıyor.</div>
+              </div>
+            </div>
+
+            <div class="adm-card">
+              <div class="c-head"><h2>Canlı önizleme</h2></div>
+              <div class="pc-body">
+                <div class="nav-prev" id="mnOnizle"></div>
+              </div>
+            </div>
+          </aside>
+
         </div>
       </div>
 
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="mnTablo">
-            <thead>
-              <tr>
-                <th class="num">Sıra</th><th>Kalem</th><th>Hedef</th>
-                <th>Konum</th><th>Görünürlük</th><th class="act">İşlem</th>
-              </tr>
-            </thead>
-            <tbody id="mnGovde"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="adm-pager">
-        <div class="p-info"><b id="mnSay">0</b> kalem · tümü tek sayfada</div>
-        <div class="p-btns">
-          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
-          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
-          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-      </div>
-
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
-     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
-     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
-     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
-     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
+      <!-- Kaydetme TOPLU ve REPLACE-ALL — Gastro ölçümü §3.6: satır satır
+           CRUD ucu yok, tek "Menüyü Kaydet" düğmesi o konumun tüm satırlarını
+           silip sıralı listeyi yeniden yazıyor. Kaydet çubuğu SAĞDA. -->
+      <div class="c-body">
         <div class="form-actions">
           <button class="btn btn-primary" type="button" id="mnKaydet"><i class="fa-solid fa-check"></i> Menüyü kaydet</button>
         </div>
@@ -117,236 +247,738 @@
 </main>
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · MENÜ VE NAVİGASYON   (R16/4)   — K1 liste
+   ADMIN · MENÜ VE NAVİGASYON   (R19)   — kopya SİLİNDİ, kabuktan okunuyor
    ---------------------------------------------------------------------
-   🔴 VERİ ÖRNEK — ama uydurma değil. Kabuğun menüsü `fit-shell.js` içinde
-   `NAV` · `BOTTOM` · `FOOTER_COLS` · `HESAP` dizilerinde duruyor ve bu
-   diziler `window`a AÇILMIYOR (ölçüldü: dosyanın tamamı tek IIFE, dışa
-   yalnız `FIT_SHELL.state`, `.eco`, `.filtreKur` gibi uçlar çıkıyor).
-   Bu yüzden ekran onları OKUYAMIYOR; aşağıdaki satırlar o dizilerden
-   ELLE kopyalanmış bir örnektir.
+   ESKİ HÂL (ölçüldü, `fit-yonetilmeyenler.md` C-10): bu ekran kabuğun
+   menüsünü OKUMUYORDU; kendi 46 satırlık `var KALEMLER` kopyasını
+   tutuyordu ve dosyanın kendi notu bunu borç olarak işaretliyordu.
+   Kapsanmayan 25 kalem vardı: NAV açılır menüleri, PLAN_TABS,
+   PLAN_EXTRA, DESTEK_TABS, RAIL. Düzenlenebilen alan yalnız `sira` ve
+   `görünürlük`ti; ad, href, ikon düzenlenemiyor, ekleme/silme yoktu.
 
-   Kopya olduğu için iki kural: (1) hedefler gerçek sayfalara bağlı —
-   listedeki her adres bu depoda var, ölü bağlantı yok; (2) kaynak şeridi
-   bunun canlı olmadığını açıkça söylüyor. Kabuk dizileri dışa açıldığı
-   gün bu dosyadaki `KALEMLER` silinir ve yerine tek satır okuma gelir.
+   ŞİMDİ: kabuk `FIT_SHELL.menu()` ucunu açtı ve kopya SİLİNDİ. On ailenin
+   onu da buradan okunuyor; ikinci bir liste bu dosyada YOK.
 
-   YAZMA YÜZEYİ MAKET: sıra ve görünürlük doğrulanır, kayıt gitmez.
+   🔴 DÖNEN NESNE BİR KOPYADIR (kabuk JSON round-trip ile derin kopya
+   veriyor). Bu ekranda yapılan hiçbir değişiklik kabuğu etkilemez ve
+   ETKİLEMEMELİDİR — canlı diziyi yazılabilir kılmak, bir sayfa scriptinin
+   header'ı sessizce bozabilmesi demekti. Kaydet düğmesi bunu dürüstçe
+   söyler: doğrular, kaydetmez.
+
+   GASTRO TABANI — `para-abonelik-menu-ayarlar.md` §3, birebir alınanlar:
+   · `.mb-switch` menü seçici + `.mb-layout` iki sütun: solda ağaç, sağda
+     "Öğe Ekle" havuzu ve "Canlı Önizleme" (§3.1-3.2).
+   · Kalem ekleme SERBEST FORM DEĞİL, SABİT HAVUZDAN SEÇİM (§3.3).
+     Gastro'da havuz 17 elemanlı sabit dizi; Fit'te `FIT_ADMIN_VERI.SAYFA`
+     — yani deponun kendi sayfaları. Ölü bağlantı üretmesi imkânsız.
+   · Sürükle-bırak VAR ve tutamak GERÇEK tutamaç; ayrıca up · down ·
+     indent · outdent düğme yolları korunuyor. `indent` yalnız bir önceki
+     kalem top-level ise etkin, `outdent` yalnız child'da (§3.5).
+   · 🔴 İç içe TAM 2 SEVİYE. `child` bir boolean, derinlik sayısı değil;
+     üçüncü seviye kurulamaz (§3.5).
+   · Düzenleme MİNİ MODALDA ve sunucuya ayrı istek atmaz, yalnız durumu
+     günceller; gerçek kaydetme tek düğmede (§3.4/§3.6).
+   · Kaydetme TOPLU, REPLACE-ALL (§3.6).
+   · Silmede onay: "Menü öğesini kaldır" / "«etiket» öğesi bu menüden
+     kaldırılacak." (§3.6, metin birebir).
+
+   GASTRO'DA OLMAYIP FİT'E EKLENENLER — K14 "Fit'in yüzeyi TAM yönetilir":
+   1. **Hedef düzenleme.** Gastro'da `tgt` havuzdan gelir ve düzenlenemez
+      (§3.4). Fit'te hedef mini modalda değiştirilebiliyor — ama yine
+      havuzdan seçimle; ikinci seçenek "Özel URL"dir ve elle yazılır.
+      Gerekçe: Fit'in menüsünde `yasal-v1.html?metin=kvkk` gibi PARAMETRELİ
+      hedefler var (ölçüldü, 5 kalem) ve bunlar sabit havuza sığmıyor.
+   2. **İkon düzenleme.** Gastro'da `ic` havuzdan gelir, düzenlenemez.
+      Fit'te on ailenin dokuzu ikon taşıyor (ölçüldü) ve ikon menünün
+      görünen yarısı; yönetilmeyen bir görsel alan bırakılmadı.
+   3. **"Yeni sekmede aç".** Gastro'da alan YOK. Fit'te RAIL ailesi kardeş
+      markaların DIŞ adreslerine gidiyor (ölçüldü: 3 dış adres) ve dış
+      bağlantının aynı sekmede açılması menüden çıkış demek.
+   4. **Görünürlük üç değerli**, Gastro'da `hidden` boolean (§3.4).
+      Gerekçe veride: `BOTTOM`un "Programlarım" kalemi `cls:"bn-plan"`
+      taşıyor ve yalnız oturum açmış üyeye görünüyor; `ACCOUNT` ailesinin
+      tamamı çekmecenin içinde, yani üyeye özel. İki değerli bir alan bu
+      üçüncü hâli anlatamaz ve kalem ya herkese ya kimseye açılırdı.
+   5. **"Panel" bayrağı** — Gastro'nun `mega` bayrağının Fit karşılığı:
+      NAV'ın açılır paneli. Yalnız NAV'ın üst kalemlerinde etkin.
+
+   SAYIM YÖNTEMİ (bir daha tartışılmasın): "kalem" = HEDEFİ ya da kilidi
+   olan satır. `ACCOUNT`un grup başlıkları (`{grup:"…"}`, 4 tane) ve footer
+   kolon başlıkları kalem DEĞİL, yapı; ağaçta üst düğüm olarak görünür ama
+   sayaçta ayrı sayılır.
    ===================================================================== */
 (function () {
   'use strict';
-  var A = window.FIT_ADMIN;
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI || {};
   if (!A) return;
   var esc = A.esc, n = A.n;
+  var $ = function (id) { return document.getElementById(id); };
 
-  var KONUM = {
-    header:  { ad:'Üst menü',        ico:'fa-solid fa-window-maximize' },
-    alt:     { ad:'Mobil alt çubuk', ico:'fa-solid fa-mobile-screen' },
-    footer:  { ad:'Footer',          ico:'fa-solid fa-window-minimize' },
-    hesap:   { ad:'Hesap menüsü',    ico:'fa-solid fa-user' }
-  };
-
-  /* Görünürlük üç değerlidir, iki değil: bir kalem "gizli" olmadan da
-     yalnız oturum açmış üyeye görünebilir (alt çubuktaki Programlarım
-     bugün öyle çalışıyor — `cls:'bn-plan'`). İki değerli bir alan bu
-     üçüncü hâli anlatamaz ve kalem ya herkese ya kimseye açılırdı. */
-  var GORUNURLUK = [
-    { key:'herkes', ad:'Herkese görünür' },
-    { key:'uye',    ad:'Yalnız üyeye' },
-    { key:'gizli',  ad:'Gizli' }
-  ];
-
-  var KALEMLER = [
-    /* --- üst menü: kabuğun NAV dizisi --- */
-    { konum:'header', sira:1, ad:'Hareket',      href:'egzersiz-kutuphane-v1.html', gor:'herkes', not:'Panelli — beş alt kalem' },
-    { konum:'header', sira:2, ad:'Programlar',   href:'programlar-merkezi-v1.html', gor:'herkes', not:'Panelli — dört alt kalem' },
-    { konum:'header', sira:3, ad:'Challenge',    href:'challenge-merkezi-v1.html',  gor:'herkes', not:'Panelsiz düz bağlantı' },
-    { konum:'header', sira:4, ad:'Antrenörler',  href:'antrenorler-v1.html',        gor:'herkes', not:'Panelsiz düz bağlantı (K10)' },
-
-    /* --- mobil alt çubuk: beşten fazla sabit öğe olamaz --- */
-    { konum:'alt', sira:1, ad:'Ana Sayfa',    href:'dadafit-hub-v1.html',        gor:'herkes' },
-    { konum:'alt', sira:2, ad:'Hareketler',   href:'egzersiz-kutuphane-v1.html', gor:'herkes' },
-    { konum:'alt', sira:3, ad:'Programlar',   href:'programlar-merkezi-v1.html', gor:'herkes', not:'Ortadaki kalem' },
-    { konum:'alt', sira:4, ad:'Programlarım', href:'programlarim-v1.html',       gor:'uye' },
-    { konum:'alt', sira:5, ad:'Profil',       href:'giris-v1.html',              gor:'herkes', not:'Oturum açıkken hesaba düşer' },
-
-    /* --- footer · Hareket ve Öğren --- */
-    { konum:'footer', sira:1, ad:'DadaFit Egzersizleri', href:'egzersiz-kutuphane-v1.html',  gor:'herkes', kol:'Hareket ve Öğren' },
-    { konum:'footer', sira:2, ad:'Hareket Rehberi',      href:'hareket-rehberi-v1.html',     gor:'herkes', kol:'Hareket ve Öğren' },
-    { konum:'footer', sira:3, ad:'Spor Sözlüğü',         href:'sozluk-v1.html',              gor:'herkes', kol:'Hareket ve Öğren' },
-    { konum:'footer', sira:4, ad:'Anatomi Haritası',     href:'anatomi-v1.html',             gor:'herkes', kol:'Hareket ve Öğren' },
-    { konum:'footer', sira:5, ad:'Antrenman Oluşturucu', href:'antrenman-olusturucu-v1.html',gor:'herkes', kol:'Hareket ve Öğren' },
-
-    /* --- footer · Programlar ve Uzman Desteği --- */
-    { konum:'footer', sira:6,  ad:'Tüm Programlar', href:'program-liste-v1.html',      gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-    { konum:'footer', sira:7,  ad:'Programını Bul', href:'programini-bul-v1.html',     gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-    { konum:'footer', sira:8,  ad:'Fit Testleri',   href:'fit-testleri-v1.html',       gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-    { konum:'footer', sira:9,  ad:'Challenge',      href:'challenge-merkezi-v1.html',  gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-    { konum:'footer', sira:10, ad:'Antrenörler',    href:'antrenorler-v1.html',        gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-    { konum:'footer', sira:11, ad:'Antrenör Ol',    href:'antrenor-ol-v1.html',        gor:'herkes', kol:'Programlar ve Uzman Desteği' },
-
-    /* --- footer · Enerji ve Denge --- */
-    { konum:'footer', sira:12, ad:'Enerji Defteri',                   href:'egzersizlerim-v1.html#defter',          gor:'uye', kol:'Enerji ve Denge' },
-    { konum:'footer', sira:13, ad:'Su Takibi',                        href:'egzersizlerim-v1.html#defter-su',       gor:'uye', kol:'Enerji ve Denge' },
-    { konum:'footer', sira:14, ad:'Haftalık Özet',                    href:'egzersizlerim-v1.html#defter-haftalik', gor:'uye', kol:'Enerji ve Denge' },
-
-    /* --- footer · Kurumsal ve Destek --- */
-    { konum:'footer', sira:15, ad:'Hakkımızda',                    href:'hakkimizda-v1.html',   gor:'herkes', kol:'Kurumsal' },
-    { konum:'footer', sira:16, ad:'İletişim',                      href:'iletisim-v1.html',     gor:'herkes', kol:'Kurumsal' },
-    { konum:'footer', sira:17, ad:'Çözüm Merkezi',                 href:'destek-v1.html',       gor:'herkes', kol:'Kurumsal' },
-    { konum:'footer', sira:18, ad:'Reklam ve Marka İş Birlikleri', href:'reklam-ver-v1.html',   gor:'herkes', kol:'Kurumsal' },
-
-    /* --- footer · Yasal ve Sağlık --- */
-    { konum:'footer', sira:19, ad:'Kullanım Koşulları',    href:'yasal-v1.html?metin=kullanim',  gor:'herkes', kol:'Yasal ve Sağlık' },
-    { konum:'footer', sira:20, ad:'Gizlilik ve KVKK',      href:'yasal-v1.html?metin=kvkk',      gor:'herkes', kol:'Yasal ve Sağlık' },
-    { konum:'footer', sira:21, ad:'Çerez Politikası',      href:'yasal-v1.html?metin=cerez',     gor:'herkes', kol:'Yasal ve Sağlık' },
-    { konum:'footer', sira:22, ad:'Sağlık Bilgilendirmesi',href:'saglik-bilgilendirme-v1.html',  gor:'herkes', kol:'Yasal ve Sağlık', not:'Kaldırılamaz — sağlık uyarısı zorunlu' },
-    { konum:'footer', sira:23, ad:'Veri ve İzin Politikası',href:'yasal-v1.html?metin=veri-izin',gor:'herkes', kol:'Yasal ve Sağlık' },
-
-    /* --- hesap menüsü --- */
-    { konum:'hesap', sira:1,  ad:'Hesabım',           href:'hesabim-v1.html',           gor:'uye' },
-    { konum:'hesap', sira:2,  ad:'Profilim',          href:'profil-v1.html',            gor:'uye' },
-    { konum:'hesap', sira:3,  ad:'Egzersizlerim',     href:'egzersizlerim-v1.html',     gor:'uye' },
-    { konum:'hesap', sira:4,  ad:'Programlarım',      href:'programlarim-v1.html',      gor:'uye' },
-    { konum:'hesap', sira:5,  ad:"Challenge'larım",   href:'challengelarim-v1.html',    gor:'uye' },
-    { konum:'hesap', sira:6,  ad:'Rozetlerim',        href:'rozetlerim-v1.html',        gor:'uye' },
-    { konum:'hesap', sira:7,  ad:'Paketlerim',        href:'paketlerim-v1.html',        gor:'uye' },
-    { konum:'hesap', sira:8,  ad:'Ödemelerim',        href:'odemelerim-v1.html',        gor:'uye' },
-    { konum:'hesap', sira:9,  ad:'Mesajlarım',        href:'mesajlarim-v1.html',        gor:'uye' },
-    { konum:'hesap', sira:10, ad:'Bildirimler',       href:'bildirimler-v1.html',       gor:'uye' },
-    { konum:'hesap', sira:11, ad:'Bağlı Uygulamalar', href:'bagli-uygulamalar-v1.html', gor:'uye' },
-    { konum:'hesap', sira:12, ad:'Veri ve İzinlerim', href:'fit-planim-veri-izin-v1.html', gor:'uye' },
-    { konum:'hesap', sira:13, ad:'Veri İşlem Kaydı',  href:'veri-islem-kaydi-v1.html',  gor:'uye' },
-    { konum:'hesap', sira:14, ad:'Destek',            href:'destek-v1.html',            gor:'uye' }
-  ];
-
-  document.getElementById('mnKaynak').innerHTML = A.kaynak('ornek',
-    '<b>Satırlar örnek.</b> Kabuğun gerçek menüsü <code>fit-shell.js</code> içindeki ' +
-    '<code>NAV</code> · <code>BOTTOM</code> · <code>FOOTER_COLS</code> · <code>HESAP</code> ' +
-    'dizileridir ve bu diziler <code>window</code>a açılmıyor (ölçüldü) — ekran onları ' +
-    'okuyamadığı için satırlar buraya elle kopyalandı. <b>Hedefler gerçek:</b> listedeki ' +
-    'her adres bu depoda var. <b>Yazma yüzeyi maket:</b> sıra ve görünürlük kaydedilmez.');
-
-  /* ---------- sayaçlar ---------- */
-  function konumSay(k){ return KALEMLER.filter(function (x) { return x.konum === k; }).length; }
-  document.getElementById('mnKpi').innerHTML = Object.keys(KONUM).map(function (k) {
-    var gizliUye = KALEMLER.filter(function (x) { return x.konum === k && x.gor === 'uye'; }).length;
-    var noteIco = gizliUye ? 'fa-clock' : 'fa-check';
-    return '<div class="k"><span class="ico"><i class="' + KONUM[k].ico + '"></i></span><div>' +
-      '<b>' + n(konumSay(k)) + '</b><span>' + esc(KONUM[k].ad) + '</span>' +
-      '<span class="note kpi-delta flat"><i class="fa-solid ' + noteIco + '" aria-hidden="true"></i> ' +
-      (gizliUye ? n(gizliUye) + ' kalem yalnız oturum açmış üyeye görünüyor.' :
-                  'Hepsi herkese açık; oturum şartı taşıyan kalem yok.') + '</span>' +
-      '</div></div>';
-  }).join('');
-
-  /* ---------- liste ---------- */
-  function listeBas(){
-    document.getElementById('mnGovde').innerHTML = KALEMLER.map(function (x, i) {
-      var rozet = x.gor === 'gizli' ? A.rozet('off', 'Gizli', 'fa-eye-slash')
-                : x.gor === 'uye'   ? A.rozet('wait', 'Yalnız üyeye', 'fa-user')
-                                    : A.rozet('ok', 'Görünür', 'fa-eye');
-      return '<tr data-konum="' + esc(x.konum) + '" data-gor="' + esc(x.gor) + '">' +
-        '<td class="num"><label class="sr-only" for="mnS' + i + '">' + esc(x.ad) + ' sırası</label>' +
-          '<input class="fk-input mn-sira" id="mnS' + i + '" type="number" min="1" value="' + x.sira + '" /></td>' +
-        '<td><b>' + esc(x.ad) + '</b>' + (x.not ? '<small>' + esc(x.not) + '</small>' : '') + '</td>' +
-        '<td><span class="mn-hedef">' + esc(x.href) + '</span></td>' +
-        '<td>' + esc(KONUM[x.konum].ad) + (x.kol ? '<small>' + esc(x.kol) + '</small>' : '') + '</td>' +
-        '<td>' +
-          '<label class="sr-only" for="mnG' + i + '">' + esc(x.ad) + ' görünürlüğü</label>' +
-          '<select class="fk-select mn-gor" id="mnG' + i + '">' +
-          GORUNURLUK.map(function (g) {
-            return '<option value="' + g.key + '"' + (g.key === x.gor ? ' selected' : '') + '>' + esc(g.ad) + '</option>';
-          }).join('') + '</select>' +
-          '<small>' + rozet + '</small>' +
-        '</td>' +
-        '<td class="act"><a class="adm-ico-btn" href="' + esc(x.href) + '" target="_blank" rel="noopener" ' +
-          'aria-label="' + esc(x.ad) + ' sayfasını aç"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></td>' +
-      '</tr>';
-    }).join('');
-    document.getElementById('mnSay').textContent = KALEMLER.length;
-    A.aramaKur(document.getElementById('mnAra'), document.getElementById('mnTablo'), document.getElementById('mnSay'));
+  var M = (window.FIT_SHELL && FIT_SHELL.menu) ? FIT_SHELL.menu() : null;
+  if (!M) {
+    $('mnAgac').innerHTML = A.bos('fa-bars', 'Kabuk menüsü okunamadı',
+      'Menü aileleri FIT_SHELL.menu() ucundan okunur; bu sayfada yüklenemedi. ' +
+      'fit-shell.js yüklü mü, uç açık mı?');
+    $('mnKaynak').innerHTML = A.kaynak('ornek',
+      'Kabuğun <code>FIT_SHELL.menu()</code> ucu bu sayfada bulunamadı — liste boş.');
+    return;
   }
 
-  /* ---------- süzgeç ---------- */
-  function suzgecKur(){
-    var kok = document.getElementById('mnSuzgec');
-    kok.innerHTML =
-      '<div class="fgroup" data-group="konum" role="group" aria-label="Konum filtresi">' +
-        '<span class="lbl">Konum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
-        Object.keys(KONUM).map(function (k) {
-          return '<button class="df-fchip" type="button" data-val="' + k + '">' +
-                 '<i class="' + KONUM[k].ico + '"></i> ' + esc(KONUM[k].ad) + '</button>';
-        }).join('') + '</div>' +
-      '<div class="fgroup" data-group="gor" role="group" aria-label="Görünürlük filtresi">' +
-        '<span class="lbl">Görünürlük</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
-        '<button class="df-fchip" type="button" data-val="herkes"><i class="fa-solid fa-eye"></i> Herkese</button>' +
-        '<button class="df-fchip" type="button" data-val="uye"><i class="fa-solid fa-user"></i> Yalnız üyeye</button>' +
-        '<button class="df-fchip" type="button" data-val="gizli"><i class="fa-solid fa-eye-slash"></i> Gizli</button>' +
-      '</div>';
-    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+  var SAYFA = V.SAYFA || [];
 
-    var sec = { konum:new Set(), gor:new Set() };
-    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
-      var grup = g.getAttribute('data-group');
-      g.querySelectorAll('.df-fchip').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var v = b.getAttribute('data-val');
-          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
-          else {
-            var ac = !sec[grup].has(v);
-            if (ac) sec[grup].add(v); else sec[grup].delete(v);
-            b.classList.toggle('on', ac);
-            var all = g.querySelector('.df-fchip[data-val="all"]');
-            if (all) all.classList.toggle('on', sec[grup].size === 0);
-          }
-          suz(sec);
-        });
+  /* ==================================================================
+     1 · AİLE TANIMLARI — ad, ikon, iç içe destekliyor mu, varsayılan
+     görünürlük ve o ailenin ne olduğunu anlatan not.
+     ================================================================== */
+  var AILELER = [
+    { key:'NAV', ad:'Üst menü', ico:'fa-solid fa-window-maximize', icice:true, gor:'herkes',
+      not:'Header\'ın ana menüsü. Panelli başlık da GERÇEK bağlantıdır: panel hover ile ' +
+          'açılır, başlığa tıklanınca kendi merkez sayfasına gidilir. Alt kalemler ' +
+          'panelin içeriğidir — kabukta <code>dd</code> dizisi.' },
+    { key:'BOTTOM', ad:'Mobil alt çubuk', ico:'fa-solid fa-mobile-screen', icice:false, gor:'herkes',
+      not:'Mobilde ekranın altında duran çubuk. Beşten fazla kalem taşımaz: altıncı kalem ' +
+          'dokunma hedefini 44px altına indirir.' },
+    { key:'ACCOUNT', ad:'Hesap çekmecesi', ico:'fa-solid fa-user', icice:true, gor:'uye',
+      not:'Oturum açmış üyenin çekmecesi. Grup başlıkları (Modüllerim · Gelişimim · ' +
+          'Hesabım · Oturum) kalem değil, ayraçtır — ağaçta üst düğüm olarak durur.' },
+    { key:'FOOTER_COLS', ad:'Footer kolonları', ico:'fa-solid fa-table-columns', icice:true, gor:'herkes',
+      not:'Footer\'ın başlıklı kolonları. Kolon başlığı üst düğüm, bağlantılar alt düğümdür — ' +
+          'iç içe iki seviye tam da bu.' },
+    { key:'FOOTER_CORP', ad:'Footer · kurumsal', ico:'fa-solid fa-building', icice:false, gor:'herkes',
+      not:'Footer\'ın kurumsal bandı — başlıksız düz bağlantı listesi.' },
+    { key:'FOOTER_LEGAL', ad:'Footer · yasal', ico:'fa-solid fa-scale-balanced', icice:false, gor:'herkes',
+      not:'Yasal ve sağlık bandı. 🔴 Sağlık Bilgilendirmesi kaldırılamaz — sağlık uyarısı ' +
+          'zorunludur; kalem silinirse public tarafta zorunlu bir bağlantı kaybolur.' },
+    { key:'PLAN_TABS', ad:'Fit Planım rayı', ico:'fa-solid fa-list-check', icice:false, gor:'uye',
+      not:'Fit Planım sayfalarının üstündeki sekme rayı. C-10\'da bu ailenin ekranda ' +
+          'satırı bile yoktu.' },
+    { key:'PLAN_EXTRA', ad:'Planım · ray dışı', ico:'fa-solid fa-diagram-project', icice:false, gor:'uye',
+      not:'Raydan indirilmiş ama SİLİNMEMİŞ Planım sayfaları: kabuğu (banner, geri dönüş) ' +
+          'kullanır, sekmede görünmezler.' },
+    { key:'DESTEK_TABS', ad:'Destek rayı', ico:'fa-solid fa-headset', icice:false, gor:'herkes',
+      not:'Destek merkezinin sekme rayı. Hedefler aynı sayfanın çapalarıdır (<code>#</code> ' +
+          'parçalı), ayrı sayfa değil.' },
+    { key:'RAIL', ad:'Ekosistem rayı', ico:'fa-solid fa-grip-vertical', icice:false, gor:'herkes',
+      not:'Kardeş markalara giden sol ray. Adresler kabuğun <code>ECO</code> nesnesinden ' +
+          'gelir; gerçek servis adresi belirlendiğinde tek satır değişir. Kilitli iki kalem ' +
+          '(DadaAkademi · DadaStore) hedefi olmadığı için bağlantı DEĞİL, işaretli durur.' }
+  ];
+
+  /* ==================================================================
+     2 · KABUK KOPYASINI DÜZ AĞACA ÇEVİR
+     Her ailenin kendi şekli var (dizi · başlıklı kolon · gruplu liste);
+     ekran tek bir düğüm tipi görsün diye burada normalleştiriliyor.
+     Alan adları KABUKTAN geliyor, uydurulmuş alan yok:
+       label|ad · href · icon|ikon · desc · dd · links · title · grup ·
+       cls · kilit · center
+     ================================================================== */
+  function dugum(o) {
+    return {
+      ad: o.ad || '', href: o.href || '', ico: o.ico || '', desc: o.desc || '',
+      child: !!o.child, gizli: false, yeniSekme: !!o.yeniSekme,
+      panel: !!o.panel, kilit: !!o.kilit, baslik: !!o.baslik,
+      gor: o.gor || 'herkes', tip: o.tip || (o.href ? 'sayfa' : 'yok')
+    };
+  }
+  function dis(href) { return /^https?:\/\//i.test(href || ''); }
+
+  var DURUM = {};
+  (function normalize() {
+    DURUM.NAV = [];
+    M.NAV.forEach(function (x) {
+      DURUM.NAV.push(dugum({ ad:x.label, href:x.href, ico:x.icon, panel:(x.dd || []).length > 0 }));
+      (x.dd || []).forEach(function (d) {
+        DURUM.NAV.push(dugum({ ad:d.label, href:d.href, ico:d.icon, desc:d.desc, child:true }));
       });
     });
-  }
 
-  var bosSatir = null;
-  function suz(sec){
-    var govde = document.getElementById('mnGovde');
-    var say = 0;
-    govde.querySelectorAll('tr[data-konum]').forEach(function (tr) {
-      var ok = (!sec.konum.size || sec.konum.has(tr.getAttribute('data-konum'))) &&
-               (!sec.gor.size   || sec.gor.has(tr.getAttribute('data-gor')));
-      tr.hidden = !ok; if (ok) say++;
+    DURUM.BOTTOM = M.BOTTOM.map(function (x) {
+      /* `cls:"bn-plan"` kabuğun kendi işareti: kalem yalnız oturum açmış
+         üyeye gösteriliyor. Görünürlüğün üçüncü değeri buradan doğuyor. */
+      return dugum({ ad:x.label, href:x.href, ico:x.icon,
+                     gor: x.cls === 'bn-plan' ? 'uye' : 'herkes' });
     });
-    document.getElementById('mnSay').textContent = say;
-    if (say === 0) {
-      if (!bosSatir) {
-        bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="6">' +
-          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle menü kalemi kalmadı',
-                'Seçili konum ve görünürlüğün kesişiminde menü kalemi yok.',
-          '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
-          '</td>';
-        govde.appendChild(bosSatir);
-      }
-      bosSatir.hidden = false;
-    } else if (bosSatir) bosSatir.hidden = true;
+
+    DURUM.ACCOUNT = M.ACCOUNT.map(function (x) {
+      return x.grup
+        ? dugum({ ad:x.grup, baslik:true, gor:'uye' })
+        : dugum({ ad:x.label, href:x.href, ico:x.icon, desc:x.desc, child:true, gor:'uye' });
+    });
+
+    DURUM.FOOTER_COLS = [];
+    M.FOOTER_COLS.forEach(function (c) {
+      DURUM.FOOTER_COLS.push(dugum({ ad:c.title, baslik:true }));
+      c.links.forEach(function (l) {
+        DURUM.FOOTER_COLS.push(dugum({ ad:l.label, href:l.href, child:true }));
+      });
+    });
+
+    DURUM.FOOTER_CORP = M.FOOTER_CORP.map(function (x) {
+      return dugum({ ad:x.label, href:x.href });
+    });
+
+    DURUM.FOOTER_LEGAL = M.FOOTER_LEGAL.links.map(function (x) {
+      return dugum({ ad:x.label, href:x.href });
+    });
+
+    ['PLAN_TABS', 'PLAN_EXTRA', 'DESTEK_TABS'].forEach(function (k) {
+      DURUM[k] = M[k].map(function (x) {
+        return dugum({ ad:x.label, href:x.href, ico:x.icon, desc:x.desc,
+                       gor: k === 'DESTEK_TABS' ? 'herkes' : 'uye' });
+      });
+    });
+
+    DURUM.RAIL = M.RAIL.map(function (x) {
+      return dugum({ ad:x.ad, href:x.href, ico:x.ikon, kilit:!x.href,
+                     yeniSekme: dis(x.href) });
+    });
+  })();
+
+  function aileBul(k) {
+    for (var i = 0; i < AILELER.length; i++) if (AILELER[i].key === k) return AILELER[i];
+    return AILELER[0];
+  }
+  function kalemSay(k) {
+    return DURUM[k].filter(function (x) { return !x.baslik; }).length;
+  }
+  function baslikSay(k) {
+    return DURUM[k].filter(function (x) { return x.baslik; }).length;
   }
 
-  /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
-     kendi kurduğu süzgecin içinde bırakmamak için "Tümü" çiplerine döner.
-     Çipleri programatik tıklıyoruz ki kabuğun kendi aktif-çip şeridi de
-     temizlensin — durumu iki yerde tutmuyoruz. */
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest || !e.target.closest('[data-ff-sifirla]')) return;
-    document.querySelectorAll('.df-fchip[data-val="all"]')
-      .forEach(function (c) { c.click(); });
+  var aktif = 'NAV';
+
+  /* ---------- kaynak şeridi ---------- */
+  var toplam = 0, baslikToplam = 0, disBaglanti = 0, kilitli = 0;
+  AILELER.forEach(function (a) {
+    toplam += kalemSay(a.key);
+    baslikToplam += baslikSay(a.key);
+    DURUM[a.key].forEach(function (x) {
+      if (dis(x.href)) disBaglanti++;
+      if (x.kilit) kilitli++;
+    });
   });
 
-  A.maketKaydet(document.getElementById('mnKaydet'), 'menü düzeni');
+  $('mnKaynak').innerHTML = A.kaynak('canli',
+    '<b>Menü gerçek — kabuğun kendi verisi.</b> On ailenin onu da ' +
+    '<code>FIT_SHELL.menu()</code> ucundan okunuyor; bu dosyada ikinci bir liste YOK ' +
+    '(eski 46 satırlık kopya silindi). Bugün <b>' + n(toplam) + ' kalem</b> ve ' +
+    '<b>' + n(baslikToplam) + '</b> yapı başlığı var. ' +
+    '<b>Dönen nesne bir kopyadır:</b> burada yaptığın değişiklik kabuğu etkilemez — ' +
+    'canlı diziyi yazılabilir kılmak, bir sayfa scriptinin header\'ı sessizce bozabilmesi ' +
+    'olurdu. <b>Yazma yüzeyi maket:</b> Kaydet doğrular, kaydetmez.');
 
-  listeBas();
-  suzgecKur();
+  /* ---------- sayaçlar ---------- */
+  $('mnKpi').innerHTML = [
+    ['fa-bars', toplam, 'menü kalemi',
+     AILELER.length + ' ailede; hepsi kabuktan okunuyor, kopya tutulmuyor.', 'flat', 'fa-check'],
+    ['fa-layer-group', AILELER.length, 'menü ailesi',
+     'C-10\'da ekranın kapsadığı aile dörttü; altısının satırı bile yoktu.', 'flat', 'fa-check'],
+    ['fa-user', (function () {
+        var c = 0;
+        AILELER.forEach(function (a) {
+          DURUM[a.key].forEach(function (x) { if (!x.baslik && x.gor === 'uye') c++; });
+        });
+        return c;
+      })(), 'yalnız üyeye görünen',
+     'Oturum açmadan bu kalemler basılmaz; görünürlük iki değerli olsaydı anlatılamazdı.',
+     'flat', 'fa-check'],
+    ['fa-arrow-up-right-from-square', disBaglanti, 'dış adres',
+     disBaglanti ? 'Ekosistem rayı kardeş markalara gidiyor; bu kalemler yeni sekmede açılır.'
+                 : 'Her hedef bu depodaki bir sayfa.', 'flat', 'fa-check']
+  ].map(function (k) {
+    return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+      '<div><b>' + n(k[1]) + '</b><span>' + esc(k[2]) + '</span>' +
+      '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+      esc(k[3]) + '</span></div></div>';
+  }).join('');
+
+  /* ---------- aile seçici ---------- */
+  function switchBas() {
+    $('mnSwitch').innerHTML = AILELER.map(function (a) {
+      var on = a.key === aktif;
+      return '<button class="ms' + (on ? ' is-on' : '') + '" type="button" role="tab" ' +
+        'aria-selected="' + (on ? 'true' : 'false') + '" data-aile="' + a.key + '">' +
+        '<i class="' + a.ico + '" aria-hidden="true"></i> ' + esc(a.ad) +
+        '<span class="ms-n">' + kalemSay(a.key) + '</span></button>';
+    }).join('');
+  }
+  $('mnSwitch').addEventListener('click', function (e) {
+    var b = e.target.closest('.ms');
+    if (!b) return;
+    aktif = b.getAttribute('data-aile');
+    switchBas(); agacBas(); onizleBas();
+  });
+
+  /* ==================================================================
+     3 · AĞAÇ
+     ================================================================== */
+  function agacBas() {
+    var a = aileBul(aktif), liste = DURUM[aktif];
+    $('mnAileNot').innerHTML = a.not;
+    $('mnSay').textContent = kalemSay(aktif);
+    $('mnRozet').innerHTML =
+      '<span class="fp-badge off">' + kalemSay(aktif) + ' kalem</span>' +
+      (a.icice ? A.rozet('ok', 'İç içe 2 seviye', 'fa-indent')
+               : A.rozet('off', 'Düz liste', 'fa-minus'));
+
+    if (!liste.length) {
+      $('mnAgac').innerHTML = A.bos('fa-bars', 'Bu menü boş',
+        'Sağdaki havuzdan öğe ekleyerek menüyü oluşturun.');
+      return;
+    }
+
+    $('mnAgac').innerHTML = liste.map(function (x, i) {
+      var oncekiUst = i > 0 && !liste[i - 1].child && !liste[i - 1].baslik;
+      var etiketler = [];
+      if (x.baslik) etiketler.push('Yapı başlığı');
+      else if (x.child) etiketler.push('Alt menü');
+      if (x.panel) etiketler.push('Panelli');
+      if (x.gor === 'uye') etiketler.push('Yalnız üyeye');
+      if (x.gizli) etiketler.push('Gizli');
+      if (x.yeniSekme) etiketler.push('Yeni sekme');
+      if (x.kilit) etiketler.push('Kilitli — hedefi yok');
+
+      /* Hedefi olmayan kalem BAĞLANTI DEĞİL (kit §14/1): kilitli ray
+         kalemi ve yapı başlığı `<span aria-disabled>` olarak basılır. */
+      var hedef = x.kilit || x.baslik
+        ? '<span class="node-target" aria-disabled="true">— hedefi yok</span>'
+        : '<span class="node-target">' + esc(x.href || '—') + '</span>';
+
+      function btn(fiil, ico, baslikMetin, kapali) {
+        return '<button class="nc-btn' + (fiil === 'sil' ? ' danger' : '') + '" type="button" ' +
+          'data-fiil="' + fiil + '" data-ix="' + i + '"' + (kapali ? ' disabled' : '') +
+          ' title="' + baslikMetin + '" aria-label="' + esc(x.ad) + ' — ' + baslikMetin + '">' +
+          '<i class="fa-solid ' + ico + '" aria-hidden="true"></i></button>';
+      }
+
+      return '<div class="node' + (x.child ? ' is-child' : '') + (x.gizli ? ' is-gizli' : '') + '" ' +
+          'data-ix="' + i + '">' +
+        '<button class="node-grip" type="button" data-grip ' +
+          'title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="' + esc(x.ad) + ' — sırala, yukarı ve aşağı ok tuşlarıyla taşınır">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<span class="node-ico"><i class="' + esc(x.ico || 'fa-solid fa-minus') + '" aria-hidden="true"></i></span>' +
+        '<div class="node-main">' +
+          '<span class="node-label">' + esc(x.ad) + '</span>' +
+          hedef +
+          (etiketler.length ? '<span class="node-tags">' + etiketler.map(function (t) {
+            return '<span class="node-tag">' + esc(t) + '</span>';
+          }).join('') + '</span>' : '') +
+        '</div>' +
+        '<div class="node-ctrl">' +
+          btn('yukari', 'fa-chevron-up', 'Yukarı taşı', i === 0) +
+          btn('asagi', 'fa-chevron-down', 'Aşağı taşı', i === liste.length - 1) +
+          btn('indent', 'fa-indent', 'Alt menü yap', !aileBul(aktif).icice || x.child || x.baslik || !oncekiUst) +
+          btn('outdent', 'fa-outdent', 'Üst seviyeye çıkar', !x.child) +
+          (aktif === 'NAV' && !x.child
+            ? btn('panel', x.panel ? 'fa-square-caret-down' : 'fa-square', x.panel ? 'Paneli kapat' : 'Panel aç', false)
+            : '') +
+          btn('gor', x.gizli ? 'fa-eye-slash' : 'fa-eye', x.gizli ? 'Gizli — göster' : 'Görünür — gizle', x.baslik) +
+          btn('duzenle', 'fa-pen', 'Düzenle', false) +
+          btn('sil', 'fa-trash-can', 'Kaldır', false) +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------- düğme yolları — Gastro'nun up/down/indent/outdent'i ---------- */
+  function tasi(i, yon) {
+    var l = DURUM[aktif], j = i + yon;
+    if (j < 0 || j >= l.length) return;
+    var t = l[i]; l[i] = l[j]; l[j] = t;
+    /* İlk satır child olarak kalamaz — Gastro sunucusu da bunu sessizce
+       top-level'a düşürüyor (§3.5). Aynı kural burada, ama görünür. */
+    if (l[0].child) l[0].child = false;
+    agacBas(); onizleBas();
+    var g = $('mnAgac').querySelector('.node[data-ix="' + j + '"] .node-grip');
+    if (g) g.focus();
+  }
+
+  $('mnAgac').addEventListener('click', function (e) {
+    var b = e.target.closest('.nc-btn');
+    if (!b || b.disabled) return;
+    var i = parseInt(b.getAttribute('data-ix'), 10);
+    var fiil = b.getAttribute('data-fiil');
+    var x = DURUM[aktif][i];
+    if (!x) return;
+
+    if (fiil === 'yukari') { tasi(i, -1); return; }
+    if (fiil === 'asagi')  { tasi(i, 1);  return; }
+    if (fiil === 'indent') { x.child = true;  agacBas(); onizleBas(); return; }
+    if (fiil === 'outdent'){ x.child = false; agacBas(); onizleBas(); return; }
+    if (fiil === 'panel')  { x.panel = !x.panel; agacBas(); onizleBas(); return; }
+    if (fiil === 'gor')    { x.gizli = !x.gizli; agacBas(); onizleBas(); return; }
+    if (fiil === 'duzenle'){ modalAc(i); return; }
+    if (fiil === 'sil') {
+      /* Onay metni Gastro'dan birebir (§3.6). Kabuğun `data-yikici`
+         delegesi kullanılmadı: metin "silinecek" değil "bu menüden
+         kaldırılacak" — kalem siliniyor, sayfa durmaya devam ediyor. */
+      A.onay({
+        yikici: true,
+        baslik: 'Menü öğesini kaldır',
+        metin: '“' + x.ad + '” öğesi bu menüden kaldırılacak.' +
+          (x.baslik ? ' Bu bir yapı başlığı: altındaki kalemler bir üst başlığa kayar.' : '') +
+          ' Hedef sayfa silinmez, yalnız menüden çıkar.',
+        onayla: 'Kaldır',
+        onay: function () {
+          DURUM[aktif].splice(i, 1);
+          if (DURUM[aktif].length && DURUM[aktif][0].child) DURUM[aktif][0].child = false;
+          switchBas(); agacBas(); onizleBas();
+          A.toast('“' + x.ad + '” bu ekrandaki kopyadan kaldırıldı — kabuk etkilenmedi, ' +
+                  'sunucu yok. Gerçek kaydetmede menü toptan yeniden yazılır.',
+                  { tip:'info', ms:4600 });
+        }
+      });
+    }
+  });
+
+  /* ---------- klavye: tutamak odaktayken ↑/↓ ---------- */
+  $('mnAgac').addEventListener('keydown', function (e) {
+    var g = e.target.closest && e.target.closest('[data-grip]');
+    if (!g) return;
+    var i = parseInt(g.closest('.node').getAttribute('data-ix'), 10);
+    if (e.key === 'ArrowUp')   { e.preventDefault(); tasi(i, -1); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); tasi(i, 1); }
+  });
+
+  /* ---------- sürükle-bırak — vanilla HTML5, CDN'siz (Gastro §3.5) ---------- */
+  (function surukle() {
+    var kap = $('mnAgac'), suru = null;
+    kap.addEventListener('pointerdown', function (e) {
+      var g = e.target.closest && e.target.closest('[data-grip]');
+      if (!g) return;
+      var nd = g.closest('.node'); if (nd) nd.setAttribute('draggable', 'true');
+    });
+    kap.addEventListener('dragstart', function (e) {
+      var nd = e.target.closest && e.target.closest('.node');
+      if (!nd) return;
+      suru = nd; nd.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', ''); } catch (x) {}
+    });
+    kap.addEventListener('dragover', function (e) {
+      if (!suru) return;
+      e.preventDefault();
+      var nd = e.target.closest && e.target.closest('.node');
+      if (!nd || nd === suru) return;
+      kap.querySelectorAll('.node').forEach(function (x) { x.classList.remove('is-over'); });
+      nd.classList.add('is-over');
+    });
+    kap.addEventListener('drop', function (e) {
+      if (!suru) return;
+      e.preventDefault();
+      var nd = e.target.closest && e.target.closest('.node');
+      if (!nd || nd === suru) return;
+      var from = parseInt(suru.getAttribute('data-ix'), 10);
+      var to = parseInt(nd.getAttribute('data-ix'), 10);
+      var l = DURUM[aktif];
+      var tasinan = l.splice(from, 1)[0];
+      l.splice(to, 0, tasinan);
+      if (l[0].child) l[0].child = false;
+      suru = null;
+      agacBas(); onizleBas();
+    });
+    kap.addEventListener('dragend', function () {
+      if (suru) { suru.classList.remove('is-dragging'); suru.removeAttribute('draggable'); }
+      kap.querySelectorAll('.node').forEach(function (x) { x.classList.remove('is-over'); });
+      suru = null;
+    });
+  })();
+
+  /* ==================================================================
+     4 · HAVUZ — sabit havuzdan seçim (Gastro §3.3)
+     Fit'te havuz deponun KENDİ sayfalarıdır; serbest adres yalnız
+     "Özel URL" kalemiyle girilir ve o kalem elle doğrulanır.
+     ================================================================== */
+  function sayfaAd(s) {
+    return String(s.baslik || s.dosya).split(/\s+[—|]\s+/)[0].trim() || s.dosya;
+  }
+  $('mnSayfaSay').textContent = SAYFA.length;
+
+  function havuzBas(sorgu) {
+    var q = (sorgu || '').toLocaleLowerCase('tr').trim();
+    var bul = SAYFA.filter(function (s) {
+      return !q || (sayfaAd(s) + ' ' + s.dosya).toLocaleLowerCase('tr').indexOf(q) >= 0;
+    });
+    var ozel = '<button class="pool-item" type="button" data-ozel="1">' +
+      '<span class="pool-ico"><i class="fa-solid fa-link" aria-hidden="true"></i></span>' +
+      '<span class="pool-meta"><span class="pool-ad">Özel URL</span>' +
+      '<span class="pool-url">adresi elle yaz — parametreli ve dış adresler için</span></span>' +
+      '<i class="fa-solid fa-plus pool-add" aria-hidden="true"></i></button>';
+    if (!bul.length) {
+      $('mnHavuz').innerHTML = ozel +
+        '<p class="np-empty">Bu aramayla sayfa bulunamadı.</p>';
+      return;
+    }
+    $('mnHavuz').innerHTML = ozel + bul.map(function (s) {
+      return '<button class="pool-item" type="button" data-dosya="' + esc(s.dosya) + '">' +
+        '<span class="pool-ico"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></span>' +
+        '<span class="pool-meta"><span class="pool-ad">' + esc(sayfaAd(s)) + '</span>' +
+        '<span class="pool-url">' + esc(s.dosya) + '</span></span>' +
+        '<i class="fa-solid fa-plus pool-add" aria-hidden="true"></i></button>';
+    }).join('');
+  }
+  $('mnHavuzAra').addEventListener('input', function () { havuzBas(this.value); });
+
+  $('mnHavuz').addEventListener('click', function (e) {
+    var b = e.target.closest('.pool-item');
+    if (!b) return;
+    var a = aileBul(aktif);
+    if (b.hasAttribute('data-ozel')) {
+      DURUM[aktif].push(dugum({ ad:'Yeni kalem', href:'', ico:'fa-solid fa-link', gor:a.gor }));
+    } else {
+      var d = b.getAttribute('data-dosya');
+      var s = SAYFA.filter(function (x) { return x.dosya === d; })[0];
+      DURUM[aktif].push(dugum({ ad:sayfaAd(s), href:d, ico:'fa-solid fa-file-lines', gor:a.gor }));
+    }
+    switchBas(); agacBas(); onizleBas();
+    modalAc(DURUM[aktif].length - 1);
+  });
+
+  /* ==================================================================
+     5 · CANLI ÖNİZLEME (Gastro `.nav-prev`)
+     ================================================================== */
+  function onizleBas() {
+    var gorunur = DURUM[aktif].filter(function (x) { return !x.gizli && !x.baslik; });
+    if (!gorunur.length) {
+      $('mnOnizle').innerHTML = '<p class="np-empty">Görünür kalem yok — menü boş basılır.</p>';
+      return;
+    }
+    $('mnOnizle').innerHTML = '<div class="np-bar">' + gorunur.map(function (x) {
+      return '<span class="np-link' + (x.child ? ' is-child' : '') + '">' +
+        '<i class="' + esc(x.ico || 'fa-solid fa-minus') + '" aria-hidden="true"></i> ' +
+        esc(x.ad) + (x.yeniSekme ? ' <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>' : '') +
+        '</span>';
+    }).join('') + '</div>' +
+    '<p class="mn-not">Gizli kalemler basılmaz. Alt menüler girintili görünür; ' +
+      'gerçek kabukta üst kalemin panelinin içindedirler.</p>';
+  }
+
+  /* ==================================================================
+     6 · MİNİ MODAL — Gastro §3.4
+     Sunucuya AYRI istek atmaz, yalnız durumu günceller; gerçek kaydetme
+     tek düğmede. Alan seti Gastro'nunki + Fit'in dört eki.
+     ================================================================== */
+  var modalKok = null, tetikleyen = null;
+
+  function modalKapat() {
+    if (!modalKok) return;
+    var ov = modalKok; modalKok = null;
+    ov.classList.remove('open');
+    document.removeEventListener('keydown', modalTus, true);
+    setTimeout(function () {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if (tetikleyen && tetikleyen.focus) tetikleyen.focus();
+    }, 180);
+  }
+  function modalTus(e) {
+    if (!modalKok) return;
+    if (e.key === 'Escape') { e.preventDefault(); modalKapat(); return; }
+    if (e.key !== 'Tab') return;
+    var l = Array.prototype.slice.call(
+      modalKok.querySelectorAll('button,input,select,textarea')
+    ).filter(function (x) { return !x.disabled && x.offsetParent !== null; });
+    if (!l.length) return;
+    var ix = l.indexOf(document.activeElement);
+    e.preventDefault();
+    l[(ix + (e.shiftKey ? -1 : 1) + l.length) % l.length].focus();
+  }
+
+  function modalAc(i) {
+    var x = DURUM[aktif][i];
+    if (!x) return;
+    var a = aileBul(aktif);
+    tetikleyen = document.activeElement;
+
+    var havuzda = SAYFA.some(function (s) { return s.dosya === x.href; });
+    var tip = x.baslik || x.kilit ? 'yok' : (havuzda ? 'sayfa' : 'url');
+
+    var ov = document.createElement('div');
+    ov.className = 'sa-ov sa-modal-ov';
+    ov.innerHTML =
+      '<div class="sa-modal mn-modal" role="dialog" aria-modal="true" aria-label="Menü kalemini düzenle">' +
+        '<div class="mnm-head">' +
+          '<h3>Menü kalemi</h3><span class="mnm-grp">' + esc(a.ad) + '</span>' +
+          '<button class="mnm-x" type="button" id="mnmKapat" aria-label="Kapat">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="mnm-body"><form id="mnmForm" novalidate><div class="form-grid">' +
+
+          '<div class="frow">' +
+            '<label for="mnmAd">Etiket <span class="req">*</span></label>' +
+            '<input class="finput" id="mnmAd" type="text" required maxlength="60" ' +
+              'value="' + esc(x.ad) + '" />' +
+            '<div class="fhint">Menüde görünen metin. En çok 60 karakter — Gastro\'nun ' +
+              'sunucu doğrulaması da bu sınırı koyuyor.</div>' +
+          '</div>' +
+
+          (x.baslik ? '<div class="frow"><div class="fhint">Bu bir <b>yapı başlığı</b>: ' +
+            'hedefi, ikonu ve görünürlüğü yoktur; yalnız altındaki kalemleri gruplar.</div></div>' : '') +
+
+          (x.kilit ? '<div class="frow"><div class="fhint">Bu kalem <b>kilitli</b>: hedefi ' +
+            'henüz yok, public tarafta bağlantı değil işaretli bir kutu olarak basılıyor. ' +
+            'Adres verilirse kilit kendiliğinden kalkar.</div></div>' : '') +
+
+          (!x.baslik ?
+          '<div class="frow">' +
+            '<label for="mnmTip">Hedef tipi</label>' +
+            '<select class="fselect" id="mnmTip">' +
+              '<option value="sayfa"' + (tip === 'sayfa' ? ' selected' : '') + '>Sayfa — havuzdan seç</option>' +
+              '<option value="url"' + (tip === 'url' ? ' selected' : '') + '>Özel URL — elle yaz</option>' +
+              '<option value="yok"' + (tip === 'yok' ? ' selected' : '') + '>Hedefi yok — kilitli kalem</option>' +
+            '</select>' +
+            '<div class="fhint">Gastro\'da hedef düzenlenemez, havuzdan gelir (§3.4). Fit\'te ' +
+              'düzenlenebiliyor çünkü menüde <code>yasal-v1.html?metin=kvkk</code> gibi ' +
+              'parametreli hedefler var ve bunlar sabit havuza sığmıyor.</div>' +
+          '</div>' +
+          '<div class="frow" id="mnmSayfaAlan">' +
+            '<label for="mnmSayfa">Sayfa</label>' +
+            '<select class="fselect" id="mnmSayfa">' +
+              SAYFA.map(function (s) {
+                return '<option value="' + esc(s.dosya) + '"' +
+                  (s.dosya === x.href ? ' selected' : '') + '>' + esc(sayfaAd(s)) +
+                  ' — ' + esc(s.dosya) + '</option>';
+              }).join('') +
+            '</select>' +
+          '</div>' +
+          '<div class="frow" id="mnmUrlAlan">' +
+            '<label for="mnmUrl">Adres</label>' +
+            '<input class="finput" id="mnmUrl" type="text" maxlength="255" ' +
+              'value="' + esc(x.href) + '" placeholder="yasal-v1.html?metin=kvkk" />' +
+            '<div class="fhint">Depodaki bir sayfaya (parametre ve <code>#</code> parçası ' +
+              'dahil) ya da tam adresli bir dış bağlantıya işaret etmeli.</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label for="mnmIko">İkon sınıfı</label>' +
+            '<input class="finput" id="mnmIko" type="text" maxlength="60" ' +
+              'value="' + esc(x.ico) + '" placeholder="fa-solid fa-dumbbell" />' +
+            '<div class="fhint">Font Awesome 6.5.2 sınıfı. Boş bırakılırsa kalem yalnız ' +
+              'metinle çıkar.</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label for="mnmDesc">Açıklama <span class="opt">— açılır menü alt metni</span></label>' +
+            '<input class="finput" id="mnmDesc" type="text" maxlength="160" ' +
+              'value="' + esc(x.desc) + '" />' +
+            '<div class="fhint">Yalnız panelli ve çekmeceli ailelerde basılır; düz ray ' +
+              'kaleminde görünmez.</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label for="mnmGor">Görünürlük</label>' +
+            '<select class="fselect" id="mnmGor">' +
+              '<option value="herkes"' + (x.gor === 'herkes' && !x.gizli ? ' selected' : '') + '>Herkese görünür</option>' +
+              '<option value="uye"' + (x.gor === 'uye' && !x.gizli ? ' selected' : '') + '>Yalnız oturum açmış üyeye</option>' +
+              '<option value="gizli"' + (x.gizli ? ' selected' : '') + '>Gizli — hiç basılmaz</option>' +
+            '</select>' +
+            '<div class="fhint">Gastro\'da bu alan iki değerli (<code>hidden</code> boolean). ' +
+              'Fit\'te üç, çünkü veride üçüncü hâl var: alt çubuğun “Programlarım” kalemi ' +
+              '<code>cls:"bn-plan"</code> ile yalnız oturum açmış üyeye görünüyor.</div>' +
+          '</div>' +
+          '<div class="toggle-row">' +
+            '<span>Yeni sekmede aç</span>' +
+            '<label class="toggle"><input type="checkbox" id="mnmSekme"' + (x.yeniSekme ? ' checked' : '') + ' />' +
+              '<span class="toggle-track"></span><span class="toggle-thumb"></span></label>' +
+          '</div>'
+          : '') +
+
+          (aktif === 'NAV' && !x.child ?
+          '<div class="toggle-row">' +
+            '<span>Açılır panel</span>' +
+            '<label class="toggle"><input type="checkbox" id="mnmPanel"' + (x.panel ? ' checked' : '') + ' />' +
+              '<span class="toggle-track"></span><span class="toggle-thumb"></span></label>' +
+          '</div>' : '') +
+
+        '</div></form></div>' +
+        '<div class="mnm-foot">' +
+          '<button class="btn btn-ghost" type="button" id="mnmVazgec">Vazgeç</button>' +
+          '<button class="btn btn-primary" type="button" id="mnmTamam">Uygula</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    modalKok = ov;
+
+    if (window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    requestAnimationFrame(function () {
+      ov.classList.add('open');
+      var ilk = ov.querySelector('#mnmAd'); if (ilk) { ilk.focus(); ilk.select(); }
+    });
+
+    function tipTazele() {
+      var t = ov.querySelector('#mnmTip');
+      if (!t) return;
+      var v = t.value;
+      ov.querySelector('#mnmSayfaAlan').hidden = (v !== 'sayfa');
+      ov.querySelector('#mnmUrlAlan').hidden = (v !== 'url');
+    }
+    if (ov.querySelector('#mnmTip')) {
+      ov.querySelector('#mnmTip').addEventListener('change', tipTazele);
+      tipTazele();
+    }
+
+    ov.querySelector('#mnmKapat').addEventListener('click', modalKapat);
+    ov.querySelector('#mnmVazgec').addEventListener('click', modalKapat);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) modalKapat(); });
+    document.addEventListener('keydown', modalTus, true);
+
+    /* "Uygula" YALNIZ DURUMU günceller — sunucuya ayrı istek yok (§3.4).
+       Gerçek kaydetme tek düğmede, aşağıda. */
+    ov.querySelector('#mnmTamam').addEventListener('click', function () {
+      var ad = ov.querySelector('#mnmAd').value.trim();
+      if (!ad) {
+        A.toast('Etiket boş bırakılamaz.', { tip:'danger' });
+        ov.querySelector('#mnmAd').focus();
+        return;
+      }
+      x.ad = ad;
+      var t = ov.querySelector('#mnmTip');
+      if (t) {
+        var v = t.value;
+        x.tip = v;
+        x.href = v === 'sayfa' ? ov.querySelector('#mnmSayfa').value
+               : v === 'url'   ? ov.querySelector('#mnmUrl').value.trim() : '';
+        x.kilit = (v === 'yok');
+        x.ico = ov.querySelector('#mnmIko').value.trim();
+        x.desc = ov.querySelector('#mnmDesc').value.trim();
+        x.yeniSekme = ov.querySelector('#mnmSekme').checked;
+        var g = ov.querySelector('#mnmGor').value;
+        x.gizli = (g === 'gizli');
+        if (g !== 'gizli') x.gor = g;
+      }
+      var p = ov.querySelector('#mnmPanel');
+      if (p) x.panel = p.checked;
+      modalKapat();
+      agacBas(); onizleBas();
+      A.toast('“' + x.ad + '” güncellendi — henüz kaydedilmedi. Menüyü kaydet düğmesi ' +
+              'bu ailenin tamamını yeniden yazar.', { tip:'info', ms:3600 });
+    });
+  }
+
+  /* ==================================================================
+     7 · KAYDET — toplu, REPLACE-ALL (Gastro §3.6)
+     ================================================================== */
+  $('mnKaydet').addEventListener('click', function () {
+    var l = DURUM[aktif];
+    var bozuk = l.filter(function (x) { return !x.baslik && !x.kilit && !x.href; });
+    if (bozuk.length) {
+      A.toast('Hedefi olmayan ' + bozuk.length + ' kalem var (' + bozuk[0].ad + '…). ' +
+              'Kalem ya bir hedefe bağlanmalı ya kilitli işaretlenmeli — ölü bağlantı üretilmez.',
+              { tip:'danger', ms:5200 });
+      return;
+    }
+    A.toast(aileBul(aktif).ad + ' kaydedilmedi — sunucu yok. Gerçek kaydetmede bu ailenin ' +
+            'tüm satırları silinir ve ' + kalemSay(aktif) + ' kalem sırasıyla yeniden yazılır ' +
+            '(REPLACE-ALL). Kabuğun kendi dizisi bu ekrandan hiç değişmez.',
+            { tip:'info', ms:5200 });
+  });
+
+  switchBas();
+  agacBas();
+  havuzBas('');
+  onizleBas();
 })();
 </script>
 </body>

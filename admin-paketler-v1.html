@@ -15,7 +15,13 @@
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
-.pk-fiyat{max-width:152px}   /* "Onay bekliyor" yer tutucusu 132pxde kırpılıyordu (ölçüldü) */
+/* "Onay bekliyor" yer tutucusu 132pxde kırpılıyordu (ölçüldü). Bu turda
+   satıra İŞLEM kolonu eklendi, kolon daraldı ve yer tutucu YİNE kırpıldı
+   ("Onay bek" okundu, ekran görüntüsüyle yakalandı) — `max-width` tek
+   başına yetmiyor, hücrenin kendisi de taban genişlik istiyor. */
+.pk-fiyat{max-width:152px}
+#pkKademeTablo .pk-tutar{min-width:174px}
+#pkKademeTablo td:first-child{min-width:152px}
 .pk-sec{min-width:190px;width:100%}
 /* Grup başlığı satırı: tablo içinde bir AYRAÇ değil, bir KAPSAM etiketi.
    Zemin kabuğun --bg'si, yazı ölçüsü .adm-table th ile aynı. */
@@ -31,20 +37,25 @@
    kalem: kart başlığı altındaki açıklama paragrafı. */
 .pk-desc{font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;max-width:88ch;margin:0}
 
-/* ---------------------------------------------------------------------
-   🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
-   ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
-   kaydırma kabı; ama kaydırılabilir içeriği BELGEYE sızıyor —
-   `window.scrollTo(9999,0)` sonrası `window.scrollX` bu ekranlarda
-   sırasıyla 133 · 122 · 68 px okundu (referans `admin-challenge-v1`
-   0 okuyor, çünkü onun tablosu dar). `min-width:0`, `max-width:100%`,
-   `contain:inline-size` ve `html{overflow-x:clip}` denendi, DÖRDÜ DE
-   sızıntıyı kesmedi; `contain:paint` kesti (ölçüldü: dört ekranda 0).
-   Kural KABUĞUN kuralıdır ve yeri `assets/css/fit-admin.css`tir; oraya
-   yazmak bu ajanın işi değil, bu yüzden yalnız bu ekranın gövdesine
-   özgüllükle bağlandı. Kabuğa taşınınca bu blok silinir.
-   --------------------------------------------------------------------- */
-.adm-body[data-adm] .adm-tw{contain:paint}
+/* Tekrarlayan satırın gövdesi: kabuğun `.st-card` iskeleti tek sütun
+   varsayıyor; burada satır iki-üç alan taşıyor. Yeni bileşen değil,
+   `.st-body`nin içine bir ızgara. */
+.pk-satir{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px}
+.pk-satir.uc{grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) minmax(0,1fr)}
+.pk-satir.tek{grid-template-columns:minmax(0,1fr)}
+@media(max-width:720px){ .pk-satir,.pk-satir.uc{grid-template-columns:minmax(0,1fr)} }
+/* Önizleme tablosunun hücre işaretleri — kitin durum renkleri, yeni renk yok. */
+.pk-onz .yes{color:var(--fit-deep)}
+.pk-onz .nope{color:var(--muted)}
+/* Kabuk `.adm-table td small`ı blok yapıyor ama `th small`ı yapmıyor; başlıkta
+   ad ile fiyat birbirine yapışıyordu ("ÜCRETSİZ₺0 / AY" okundu). */
+.pk-onz thead th small{
+  display:block;margin-top:4px;font-size:12px;font-weight:600;
+  color:var(--muted);text-transform:none;letter-spacing:0;
+}
+/* Son hücre kabukta SAĞA yaslı — orası AKSİYON kolonu olduğu için. Burada
+   son kolon bir veri kolonu (üçüncü kademe); hizası ötekilerle aynı olmalı. */
+.pk-onz th:last-child,.pk-onz td:last-child{text-align:left}
 </style>
 </head>
 <body class="adm-body" data-adm="paketler">
@@ -57,8 +68,8 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Paketler ve Özellikler</h1>
-        <div class="ph-sub">Hangi özelliğin hangi kademede açık olduğu buradan seçilir. Satır bir
-           modül, kolon bir kademe, hücre o kesişimin değeri. Kademe kartları,
+        <div class="ph-sub">Kademe, grup, modül ve kapsam metni — dördü de buradan kurulur, silinir
+           ve sıralanır. Matris o dört sözlüğün kesişimidir. Kademe kartları,
            karşılaştırma tablosu ve ödeme özeti aynı eşlemeden basılır — üç ekran,
            tek veri.</div>
       </div>
@@ -71,18 +82,22 @@
 
     <div class="adm-kpi" id="pkKpi"></div>
 
-    <!-- ============ KADEME VE FİYAT ALANLARI ============ -->
+    <!-- ============ 1 · KADEME CRUD VE FİYAT ============ -->
     <div class="adm-card" id="pkKademe">
       <div class="c-head">
         <h3><i class="fa-solid fa-tag"></i> Kademeler ve fiyat</h3>
-        <div class="c-acts"><span class="fp-badge" id="pkKademeSay">—</span></div>
+        <div class="c-acts">
+          <span class="fp-badge" id="pkKademeSay">—</span>
+          <button class="btn btn-primary" type="button" id="pkKademeYeni"><i class="fa-solid fa-plus"></i> Yeni kademe</button>
+        </div>
       </div>
       <div class="c-body" style="padding-bottom:0">
         <p class="pk-desc">
           Tutar bir <b>alan</b>dır, ekrana yazılmış bir cümle değil: üye yüzündeki
           fiyat bu alandan okunur. Değeri verilmemiş bir kademede alan
           <b>boş kalır</b> ve etiketi “Fiyat onay bekliyor” olur — uydurma rakam
-          basılmaz, “yakında” yazılmaz.
+          basılmaz, boş bir söz verilmez. Tutar bu tablodan, kalan on bir alan
+          satırın <b>Düzenle</b> düğmesinden değişir.
         </p>
       </div>
       <div class="c-body flush">
@@ -92,7 +107,7 @@
               <tr>
                 <th>Kademe</th><th class="num">Aylık tutar</th><th>Birim</th>
                 <th>Üye yüzünde görünen</th><th class="num">Açık</th>
-                <th class="num">Kapalı</th><th>Durum</th>
+                <th class="num">Kapalı</th><th>Durum</th><th class="act">İşlem</th>
               </tr>
             </thead>
             <tbody id="pkKademeGovde"></tbody>
@@ -104,13 +119,203 @@
            sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir belgesi
            §1), admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
       <div class="c-body">
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="pkFiyatKaydet"><i class="fa-solid fa-check"></i> Tutarları kaydet</button>
-        </div>
+        <form id="pkFiyatF" novalidate>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" id="pkFiyatKaydet"><i class="fa-solid fa-check"></i> Tutarları kaydet</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- ============ KADEME ⇄ ÖZELLİK MATRİSİ (K5) ============ -->
+    <!-- ============ 1b · KADEME FORMU — 12 ALANIN HEPSİ ============
+         Ölçülen eksik (`fit-yonetilmeyenler.md` C-5): 12 alanın 11'i hiçbir
+         ekranda düzenlenemiyordu. Alan adları `fit-paket.js`in KADEMELER
+         kaydından okundu, uydurulmadı. -->
+    <div class="adm-card" id="pkKademeForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="pkKfBaslik">Yeni kademe</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="pkKfKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="pkKfForm" novalidate>
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-id-card"></i> Künye</h3>
+            <div class="form-grid">
+              <div class="frow three">
+                <div class="frow">
+                  <label for="pkKfKey">Anahtar (key) <span class="req">*</span></label>
+                  <input class="finput" id="pkKfKey" name="key" type="text" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="promax" />
+                  <div class="fhint">Kod tarafının kullandığı ad. Yalnız küçük harf, rakam ve tire.
+                    Yayımlandıktan sonra değişirse eski kayıtların kademesi kopar.</div>
+                </div>
+                <div class="frow">
+                  <label for="pkKfAd">Kademe adı <span class="req">*</span></label>
+                  <input class="finput" id="pkKfAd" name="ad" type="text" required maxlength="40" placeholder="Pro Max" />
+                </div>
+                <div class="frow">
+                  <label for="pkKfIkon">İkon <span class="opt">— Font Awesome sınıfı</span></label>
+                  <input class="finput" id="pkKfIkon" name="ikon" type="text" placeholder="fa-solid fa-gem" />
+                </div>
+              </div>
+              <div class="frow two">
+                <div class="frow">
+                  <label for="pkKfKart">Kart sınıfı (kart) <span class="opt">— üye yüzündeki kart teması</span></label>
+                  <input class="finput" id="pkKfKart" name="kart" type="text" pattern="([a-z0-9]+(-[a-z0-9]+)*)?" placeholder="t3" />
+                  <div class="fhint">Kademe kartının renk temasını seçer; değeri
+                    <code>pro-v1.html</code> ve <code>paketlerim-v1.html</code> okur.</div>
+                </div>
+                <div class="frow">
+                  <label>Öne çıkan (one)</label>
+                  <div class="toggle-row">
+                    <span>Üye yüzünde “En popüler” bayrağı taşısın</span>
+                    <label class="toggle"><input type="checkbox" id="pkKfOne" name="one" />
+                      <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                  </div>
+                </div>
+              </div>
+              <div class="frow">
+                <label for="pkKfOzet">Özet <span class="req">*</span></label>
+                <textarea class="ftext" id="pkKfOzet" name="ozet" required maxlength="220"
+                          placeholder="Bir cümleyle: bu kademe kime göre?"></textarea>
+                <span class="fsay" data-say-for="pkKfOzet">0 / 220</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-language"></i> Türkçe çekim ekleri</h3>
+            <div class="form-grid">
+              <div class="frow three">
+                <div class="frow">
+                  <label for="pkKfYon">Yönelme hâli <span class="req">*</span></label>
+                  <input class="finput" id="pkKfYon" name="yonelme" type="text" required placeholder="Pro Max'e" />
+                  <div class="fhint">“… Yükselt” / “… Düş”</div>
+                </div>
+                <div class="frow">
+                  <label for="pkKfBel">Belirtme hâli <span class="req">*</span></label>
+                  <input class="finput" id="pkKfBel" name="belirtme" type="text" required placeholder="Pro Max'i" />
+                  <div class="fhint">“… Seç”</div>
+                </div>
+                <div class="frow">
+                  <label for="pkKfTam">Tamlayan hâli <span class="req">*</span></label>
+                  <input class="finput" id="pkKfTam" name="tamlayan" type="text" required placeholder="Pro Max'in" />
+                  <div class="fhint">“… tamamı”</div>
+                </div>
+              </div>
+              <div class="fhint">Bu üç alan süs değil: “Pro'a Yükselt” ve “Pro'in tamamı” yanlış
+                yazımdır. Ek ada bağlıdır, ad tek yerde durduğu için çekimi de burada durur —
+                her ekran kendi ekini uydurmasın.</div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-lira-sign"></i> Fiyat</h3>
+            <div class="form-grid">
+              <div class="frow three">
+                <div class="frow">
+                  <label for="pkKfFiyat">Aylık tutar <span class="opt">— boş = onay bekliyor</span></label>
+                  <input class="finput" id="pkKfFiyat" name="fiyat" type="number" min="0" step="1" inputmode="numeric" />
+                </div>
+                <div class="frow">
+                  <label for="pkKfFiyatM">Fiyat metni <span class="opt">— üye yüzünde basılan</span></label>
+                  <input class="finput" id="pkKfFiyatM" name="fiyatMetin" type="text" placeholder="₺149" />
+                </div>
+                <div class="frow">
+                  <label for="pkKfBirim">Birim</label>
+                  <input class="finput" id="pkKfBirim" name="birim" type="text" placeholder="/ ay" />
+                </div>
+              </div>
+              <div class="fhint">🔴 K13: tutar koda gömülü bir cümle değil, bir alandır. Değer
+                verilmemişse alan <b>boş bırakılır</b>; ekran o kademede sayı basmaz,
+                “Fiyat onay bekliyor” yazar.</div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-ghost" type="button" id="pkKfIptal">İptal</button>
+            <button class="btn btn-primary" type="button" id="pkKfKaydet"><i class="fa-solid fa-check"></i> Kademeyi kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ 2 · GRUP CRUD ============ -->
+    <div class="adm-card" id="pkGrupKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-folder-tree"></i> Özellik grupları</h3>
+        <div class="c-acts"><span class="fp-badge" id="pkGrupSay">—</span></div>
+      </div>
+      <div class="c-body">
+        <p class="pk-desc">
+          Grup matriste bir kapsam etiketidir, kendi başına bir kademe taşımaz.
+          Sırası <b>karşılaştırma tablosunda aynen görünür</b>: tutamağı sürükle ya da
+          odaktayken ↑ / ↓ ile taşı. Grup silinirse altındaki modüller de eşlemeden düşer.
+        </p>
+        <form id="pkGrupF" novalidate>
+          <div class="st-list" id="pkGrupListe"></div>
+          <button class="add-row" type="button" id="pkGrupEkle">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Grup ekle</button>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" id="pkGrupKaydet"><i class="fa-solid fa-check"></i> Grupları kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ 3 · MODÜL CRUD ============ -->
+    <div class="adm-card" id="pkModKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-list-check"></i> Modüller</h3>
+        <div class="c-acts"><span class="fp-badge" id="pkModSay">—</span></div>
+      </div>
+      <div class="c-body">
+        <p class="pk-desc">
+          Her satır matriste bir modül satırı açar. <b>Nitelik</b> işaretli satır bir
+          avantaj değil bir özelliktir (ör. “Reklam var”) — kartlarda yeşil onay yerine
+          nötr nokta basılır, reklamlı olmak bir kazanım gibi görünmesin diye.
+          Modül silinirse o satırın üç hücresi de eşlemeden düşer.
+        </p>
+        <form id="pkModF" novalidate>
+          <div class="st-list" id="pkModListe"></div>
+          <button class="add-row" type="button" id="pkModEkle">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Modül ekle</button>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" id="pkModKaydet"><i class="fa-solid fa-check"></i> Modülleri kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ 4 · KAPSAM METNİ SÖZLÜĞÜ ============ -->
+    <div class="adm-card" id="pkSozlukKart">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-quote-left"></i> Kapsam metinleri</h3>
+        <div class="c-acts"><span class="fp-badge" id="pkSozlukSay">—</span></div>
+      </div>
+      <div class="c-body">
+        <p class="pk-desc">
+          Matris hücresi üç şey olabilir: <b>Kapalı</b>, <b>Açık</b> ya da bir
+          <b>kapsam metni</b>. Bu liste o metinlerin sözlüğüdür ve matristeki her
+          seçeneği besler. <b>Eskiden</b> seçenekler yalnız o satırın bugün kullandığı
+          değerlerden üretiliyordu — yeni bir kapsam ancak koda satır yazarak
+          doğabiliyordu (ölçülen eksik, C-5). Buraya yazılan metin doksan hücrenin
+          hepsinde seçilebilir olur.
+        </p>
+        <form id="pkSozlukF" novalidate>
+          <div class="st-list" id="pkSozlukListe"></div>
+          <button class="add-row" type="button" id="pkSozlukEkle">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Kapsam metni ekle</button>
+          <div class="form-actions">
+            <button class="btn btn-ghost" type="button" id="pkSozlukUygula"><i class="fa-solid fa-rotate"></i> Matrise uygula</button>
+            <button class="btn btn-primary" type="button" id="pkSozlukKaydet"><i class="fa-solid fa-check"></i> Sözlüğü kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ 5 · KADEME ⇄ ÖZELLİK MATRİSİ ============ -->
     <div class="adm-card" id="pkMatris">
       <div class="c-head">
         <h3><i class="fa-solid fa-table-cells-large"></i> Kademe ⇄ özellik matrisi</h3>
@@ -124,11 +329,9 @@
       </div>
       <div class="c-body" style="padding-bottom:0">
         <p class="pk-desc">
-          Her hücrede üç tür değer olabilir: <b>Kapalı</b> (kademe bu modülü
-          görmez), <b>Açık</b> (tam olarak açık) ya da bir <b>kapsam metni</b>
-          (“Son 7 gün”, “Sınırsız”, “Öncelikli” gibi). Kapsam seçenekleri o satırın
-          bugün kullandığı değerlerden gelir; listede olmayan bir kapsam gerekiyorsa
-          önce eşlemeye eklenmeli.
+          Satır bir modül, kolon bir kademe, hücre o kesişimin değeri. Kapsam
+          seçenekleri yukarıdaki <b>Kapsam metinleri</b> sözlüğünden gelir; sözlüğe
+          eklediğin metin “Matrise uygula” ile buradaki doksan seçeneğe düşer.
         </p>
       </div>
       <div class="c-body flush">
@@ -147,24 +350,43 @@
           <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
       </div>
-      <!-- Kaydet çubuğu SAĞDA — Gastro admin form CSS'i ölçüldü:
-           `.form-actions{justify-content:flex-end}`, birincil eylem en
-           sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir belgesi
-           §1), admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
       <div class="c-body">
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="pkMxKaydet"><i class="fa-solid fa-check"></i> Matrisi kaydet</button>
+        <form id="pkMxF" novalidate>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" id="pkMxKaydet"><i class="fa-solid fa-check"></i> Matrisi kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ 6 · KARŞILAŞTIRMA TABLOSU ÖNİZLEMESİ ============ -->
+    <div class="adm-card" id="pkOnizleme">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-eye"></i> Karşılaştırma tablosu önizlemesi</h3>
+        <div class="c-acts">
+          <a class="btn btn-ghost" href="pro-v1.html#karsilastir" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünde aç</a>
+        </div>
+      </div>
+      <div class="c-body" style="padding-bottom:0">
+        <p class="pk-desc" id="pkOnzNot"></p>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table pk-onz" id="pkOnzTablo">
+            <thead><tr id="pkOnzBaslik"></tr></thead>
+            <tbody id="pkOnzGovde"></tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- ============ ABONELİK DIŞI ÜCRET METNİ ============ -->
+    <!-- ============ 7 · ABONELİK DIŞI ÜCRET METNİ ============ -->
     <div class="adm-card" id="pkAyri">
       <div class="c-head">
         <h3><i class="fa-solid fa-hand-holding-dollar"></i> Abonelik dışı ücret metni</h3>
       </div>
       <div class="c-body">
-        <form id="pkAyriF">
+        <form id="pkAyriF" novalidate>
           <div class="fk-field">
             <label class="fk-label" for="pkAyriMetin">Antrenör seans bedeli açıklaması <span class="req">*</span></label>
             <textarea class="fk-textarea" id="pkAyriMetin" rows="4" required maxlength="400"></textarea>
@@ -172,12 +394,6 @@
               randevu akışında aynen çıkar. Üç sayfada üç farklı cümle olmasın
               diye tek yerde durur; buradan değiştirilir.</span></span>
           </div>
-
-          <!-- Kaydet çubuğu SAĞDA — Gastro admin form CSS'i ölçüldü:
-               `.form-actions{justify-content:flex-end}`, birincil eylem en
-               sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir
-               belgesi §1), admin formunun değil — iki ayrı yüzey, iki ayrı
-               kural. -->
           <div class="form-actions">
             <button class="btn btn-primary" type="button" id="pkAyriKaydet"><i class="fa-solid fa-check"></i> Metni kaydet</button>
           </div>
@@ -192,19 +408,29 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · PAKETLER VE ÖZELLİKLER   (R16/4)   — K5 matris referansı
+   ADMIN · PAKETLER VE ÖZELLİKLER   (R19)   — kademe · grup · modül · kapsam
    ---------------------------------------------------------------------
    VERİ GERÇEK. Kademeler, gruplar, modüller ve hücre değerleri
-   `fit-paket.js`in `KADEMELER` ve `GRUPLAR` dizilerinden okunuyor. O
-   dosyanın kendi notu bu ekranı zaten tarif ediyor:
+   `fit-paket.js`in `KADEMELER` ve `GRUPLAR` dizilerinden okunuyor; paket
+   kartları (`kartlarBas`) ve karşılaştırma tablosu (`tabloBas`) da AYNI
+   diziden basılıyor, burada ikinci bir kopya tutulmuyor.
 
-     "ileride admin panelden yönetilecek — modüller listelenecek, her
-      modülün yanında kademe seçimi olacak."
+   🔴 BU EKRAN GASTRO'NUN ÜSTÜNE İNŞADIR — gerekçe ölçülmüştür.
+   `docs/gastro-olcum/para-abonelik-menu-ayarlar.md` §1.3: Gastro'nun
+   plan⇄özellik yüzeyi **7 sabit boolean anahtar + 1 kota** kutusudur
+   (`duzenle.blade.php:150-168`). Ölçülen eksikleri, o belgenin kendi
+   sözcükleriyle: özellik EKLEME/ÇIKARMA yüzeyi YOK (liste PHP dizisinde
+   sabit, `features` tablosu/modeli yok), karşılaştırma tablosu yönetimi
+   YOK (liste kartı 4 anahtara sabitlenmiş, 3 anahtar admin'de hiç
+   görünmüyor), `plans.features` kolonunun admin yüzeyi YOK (grep 0 satır),
+   "hangi modül hangi kademede açık" seçici YOK, plan CREATE/DELETE YOK.
+   Yani kopyalanacak bir ekran yoktu; kopyalanan şey KALIP oldu
+   (`admin-hareket-form-v1.html` + liste kalıbı), yüzey burada kuruldu.
 
-   Ekran tam olarak bu: satır = modül, kolon = kademe, hücre = seçim.
-   İkinci bir liste TUTULMUYOR; paket kartları (`kartlarBas`) ve
-   karşılaştırma tablosu (`tabloBas`) da aynı diziden basılıyor, o yüzden
-   burada bir hücrenin değişmesi üç ekranda birden değişir.
+   FİT TARAFINDAKİ EKSİK DE ÖLÇÜLDÜ — `fit-yonetilmeyenler.md` C-5:
+   fiyat ve 90 hücrelik matris VARDI; kademe CRUD, grup CRUD, modül CRUD ve
+   kapsam metni sözlüğü YOKTU, 12 kademe alanının 11'i düzenlenemiyordu.
+   Bu turda eklenen tam olarak o dört kalem.
 
    🔴 PRO MAX FİYATI `null`. Beyar tutarı vermedi; motorun notu "bu yüzden
    UYDURULMADI, null bırakıldı" diyor. Ekran o boşluğu boş alan + "Onay
@@ -214,9 +440,17 @@
    🔴 K13. Tutar burada SABİT METİN DEĞİL, ALAN. Ekranda "₺99" diye basılı
    bir cümle yok; alanın değeri var ve değer motordan okunuyor.
 
-   HÜCRE SEÇENEKLERİ NEREDEN GELİYOR: bir satırın kapsam seçenekleri o
-   satırın üç kademesinde bugün kullanılan metinlerdir. Seçenek listesini
-   elle yazmak, eşlemeyi dördüncü kez tekrarlamak olurdu.
+   ⚠ ÖNİZLEME NEDEN `P.tabloBas` ÇAĞIRMIYOR: o fonksiyon `.cmp-table`
+   markup'ı üretiyor ve o sınıfın CSS'i kabukta DEĞİL, iki public sayfanın
+   kendi `<style>` bloğunda duruyor (ölçüldü: `pro-v1.html`,
+   `paketlerim-v1.html`). Buraya üçüncü kopyayı yazmak, kitin dışına
+   çıkmak olurdu. Önizleme admin kabuğunun `.adm-table`ıyla basılıyor —
+   ikinci bir VERİ değil, ikinci bir DERİ; satırlar yine `GRUPLAR`dan
+   geliyor.
+
+   ⚠ YATAY TAŞMA: `.adm-tw{contain:paint}` artık kabukta
+   (`fit-admin.css:488`). Bu dosyadaki yerel yama bu turda SÖKÜLDÜ —
+   kabuğa taşınınca silinir, notu öyle diyordu.
    ===================================================================== */
 (function () {
   'use strict';
@@ -225,9 +459,10 @@
   var esc = A.esc, n = A.n;
 
   document.getElementById('pkKaynak').innerHTML = A.kaynak('canli',
-    '<b>Matris gerçek.</b> Kademeler, gruplar ve hücre değerleri ' +
+    '<b>Dört sözlük de gerçek.</b> Kademeler, gruplar, modüller ve hücre değerleri ' +
     '<code>fit-paket.js</code>ten okunuyor — paket kartları ve karşılaştırma ' +
     'tablosu da aynı diziden basılıyor, burada ikinci bir kopya yok. ' +
+    '<b>Kapsam sözlüğü</b> bugünkü 90 hücrede geçen metinlerden sayıldı, elle yazılmadı. ' +
     '<b>Pro Max tutarı boş:</b> değeri verilmedi, uydurulmadı. ' +
     '<b>Yazma yüzeyi maket:</b> seçimler doğrulanır ama kayıt gitmez, sunucu yok.');
 
@@ -256,6 +491,22 @@
   });
   var nitelikSayisi = moduller.filter(function (x) { return x.m.nitelik; }).length;
 
+  /* ---------- KAPSAM SÖZLÜĞÜ — 90 hücreden SAYILDI, elle yazılmadı ----
+     Eski hâlde seçenekler satır satır türetiliyordu: bir satır kendi üç
+     kademesinde hangi metni kullanıyorsa yalnız onları görüyordu. Sözlük
+     tek yere alınınca "Sınırsız"ı bugün kullanmayan bir satır da onu
+     seçebiliyor — C-5'in "yeni kapsam metni tanımlama YOK" kalemi. */
+  var SOZLUK = (function () {
+    var out = [];
+    moduller.forEach(function (x) {
+      KADEMELER.forEach(function (k) {
+        var v = x.m.k[k.key];
+        if (typeof v === 'string' && v && out.indexOf(v) < 0) out.push(v);
+      });
+    });
+    return out;
+  })();
+
   /* ---------- sayaç kartları ---------- */
   document.getElementById('pkKpi').innerHTML =
     '<div class="k"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><div>' +
@@ -275,7 +526,11 @@
       '<span class="kpi-delta flat"><i class="fa-solid fa-check"></i> ' + n(acikHucre) + ' açık · ' + n(kapsamHucre) + ' kapsam metni · ' + n(kapaliHucre) + ' kapalı.</span>' +
     '</div></div>';
 
-  /* ---------- kademe ve fiyat ---------- */
+  /* ==================================================================
+     1 · KADEME CRUD
+     ================================================================== */
+  var kfDuzenlenen = null;
+
   function kademeBas(){
     document.getElementById('pkKademeGovde').innerHTML = KADEMELER.map(function (k, i) {
       var acik = P.ozellikler(k.key).length;
@@ -290,7 +545,7 @@
       return '<tr data-kademe="' + esc(k.key) + '">' +
         '<td><b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
           '<small>' + esc(k.key) + (k.one ? ' · öne çıkan' : '') + '</small></td>' +
-        '<td class="num"><label class="sr-only" for="pkF' + i + '">' + esc(k.ad) + ' aylık tutarı</label>' +
+        '<td class="num pk-tutar"><label class="sr-only" for="pkF' + i + '">' + esc(k.ad) + ' aylık tutarı</label>' +
           '<input class="fk-input pk-fiyat" id="pkF' + i + '" type="number" min="0" step="1" inputmode="numeric"' +
           (bekliyor ? ' placeholder="Onay bekliyor"' : ' value="' + k.fiyat + '"') + ' /></td>' +
         '<td>' + esc(k.birim) + '</td>' +
@@ -298,25 +553,219 @@
         '<td class="num">' + n(acik) + '</td>' +
         '<td class="num">' + (kapali ? n(kapali) : '—') + '</td>' +
         '<td>' + durum + '</td>' +
+        '<td class="act">' +
+          '<button class="adm-ico-btn" type="button" data-kf-duzenle="' + esc(k.key) + '" ' +
+            'aria-label="' + esc(k.ad) + ' kademesini düzenle"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="adm-ico-btn danger" type="button" data-kf-sil="' + esc(k.key) + '" ' +
+            'data-yikici="' + esc(k.ad) + '" data-fiil="sil" ' +
+            'aria-label="' + esc(k.ad) + ' kademesini sil"><i class="fa-solid fa-trash-can"></i></button>' +
+        '</td>' +
       '</tr>';
     }).join('');
     document.getElementById('pkKademeSay').textContent =
       KADEMELER.length + ' kademe · ' + KADEMELER.filter(function (k) { return k.fiyatMetin === null; }).length + ' tutar bekliyor';
   }
 
-  /* ---------- matris ---------- */
-  /* Bir satırın kapsam seçenekleri: o satırda bugün kullanılan metinler.
-     Elle yazılan bir seçenek listesi, eşlemenin dördüncü kopyası olurdu. */
-  function kapsamlar(m){
-    var out = [];
-    KADEMELER.forEach(function (k) {
-      var v = m.k[k.key];
-      if (typeof v === 'string' && v && out.indexOf(v) < 0) out.push(v);
+  var kfKart = document.getElementById('pkKademeForm');
+  var kfAlan = {
+    key:'pkKfKey', ad:'pkKfAd', ikon:'pkKfIkon', kart:'pkKfKart',
+    ozet:'pkKfOzet', yonelme:'pkKfYon', belirtme:'pkKfBel', tamlayan:'pkKfTam',
+    fiyat:'pkKfFiyat', fiyatMetin:'pkKfFiyatM', birim:'pkKfBirim'
+  };
+
+  function kfAc(key){
+    var k = key ? P.kademe(key) : null;
+    kfDuzenlenen = k ? k.key : null;
+    document.getElementById('pkKfBaslik').textContent = k ? (k.ad + ' — kademeyi düzenle') : 'Yeni kademe';
+    Object.keys(kfAlan).forEach(function (f) {
+      var el = document.getElementById(kfAlan[f]);
+      var v = k ? k[f] : '';
+      el.value = (v === null || v === undefined) ? '' : v;
     });
-    return out;
+    document.getElementById('pkKfOne').checked = !!(k && k.one);
+    kfKart.hidden = false;
+    kfKart.scrollIntoView({ behavior:'smooth', block:'start' });
+    document.getElementById('pkKfAd').focus();
+    sayaclariTazele();
+  }
+  function kfKapat(){ kfKart.hidden = true; kfDuzenlenen = null; }
+
+  document.getElementById('pkKademeYeni').addEventListener('click', function(){ kfAc(null); });
+  document.getElementById('pkKfKapat').addEventListener('click', kfKapat);
+  document.getElementById('pkKfIptal').addEventListener('click', kfKapat);
+
+  document.getElementById('pkKademeGovde').addEventListener('click', function (e) {
+    var d = e.target.closest && e.target.closest('[data-kf-duzenle]');
+    if (d) { kfAc(d.getAttribute('data-kf-duzenle')); return; }
+    var s = e.target.closest && e.target.closest('[data-kf-sil]');
+    /* Onay modalı kabuğun `data-yikici` delegesinden gelir; buraya
+       düşen tıklama ONAYLANMIŞ tıklamadır. Native confirm() yasak. */
+    if (s) {
+      A.toast('“' + s.getAttribute('data-yikici') + '” kademesi maket düzeyinde silindi sayılmadı — ' +
+              'sunucu yok, eşleme dosyada duruyor.', { tip:'info', ms:4200 });
+    }
+  });
+
+  /* ==================================================================
+     2 · GRUP CRUD  —  ad + ikon + sıra
+     ================================================================== */
+  function sablonYap(html){
+    var t = document.createElement('template');
+    t.innerHTML = html;
+    document.body.appendChild(t);
+    return t;
   }
 
-  function hucreSec(m, k, id){
+  var grupSablon = sablonYap(
+    '<div class="st-card">' +
+      '<span class="st-num">1</span>' +
+      '<div class="st-body">' +
+        '<span class="cb-kind"><i class="fa-solid fa-folder" aria-hidden="true"></i> Grup</span>' +
+        '<div class="pk-satir">' +
+          '<input class="finput" type="text" name="grup_ad[]" data-f="ad" required maxlength="60" placeholder="Grup adı — ör. Programlar" aria-label="Grup adı">' +
+          '<input class="finput" type="text" name="grup_ikon[]" data-f="ikon" placeholder="fa-solid fa-dumbbell" aria-label="Grup ikonu">' +
+        '</div>' +
+        '<input type="hidden" data-field="position" name="grup_sira[]" value="0">' +
+      '</div>' +
+      '<div class="st-side">' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<button class="ie-del" type="button" title="Grubu sil" aria-label="Grubu sil">' +
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>');
+
+  var grupListe = document.getElementById('pkGrupListe');
+  var rGrup = A.tekrar({
+    liste: grupListe, ekle: document.getElementById('pkGrupEkle'), sablon: grupSablon,
+    enAz: 1, enCok: 20,
+    degisti: function () {
+      document.getElementById('pkGrupSay').textContent =
+        grupListe.querySelectorAll('.st-card').length + ' grup';
+      grupSecenekleriTazele();
+    }
+  });
+  GRUPLAR.forEach(function (g) {
+    var el = rGrup.ekle();
+    el.querySelector('[data-f="ad"]').value = g.ad;
+    el.querySelector('[data-f="ikon"]').value = g.ikon || '';
+  });
+
+  /* ==================================================================
+     3 · MODÜL CRUD  —  ad + grup + sıra (+ nitelik)
+     ================================================================== */
+  var modSablon = sablonYap(
+    '<div class="st-card">' +
+      '<span class="st-num">1</span>' +
+      '<div class="st-body">' +
+        '<span class="cb-kind"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Modül</span>' +
+        '<div class="pk-satir uc">' +
+          '<input class="finput" type="text" name="modul_ad[]" data-f="ad" required maxlength="120" placeholder="Modül adı — ör. Antrenman takvimi" aria-label="Modül adı">' +
+          '<select class="fselect" name="modul_grup[]" data-f="grup" aria-label="Modülün grubu"></select>' +
+          '<label class="chip-sec"><input type="checkbox" name="modul_nitelik[]" data-f="nitelik"> Nitelik</label>' +
+        '</div>' +
+        '<input type="hidden" data-field="position" name="modul_sira[]" value="0">' +
+      '</div>' +
+      '<div class="st-side">' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<button class="ie-del" type="button" title="Modülü sil" aria-label="Modülü sil">' +
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>');
+
+  var modListe = document.getElementById('pkModListe');
+  var rMod = A.tekrar({
+    liste: modListe, ekle: document.getElementById('pkModEkle'), sablon: modSablon,
+    enAz: 1, enCok: 120,
+    degisti: function () {
+      document.getElementById('pkModSay').textContent =
+        modListe.querySelectorAll('.st-card').length + ' modül';
+    }
+  });
+
+  /* Grup seçeneklerini grup listesinden üretir; seçili değeri korur.
+     Grup adı değişince modül satırının seçeneği de değişsin diye — iki
+     sözlüğü elle eşitlemek, üçüncü bir kopya tutmak olurdu. */
+  function grupSecenekleriTazele(){
+    if (!modListe) return;
+    var adlar = Array.prototype.slice.call(grupListe.querySelectorAll('[data-f="ad"]'))
+      .map(function (i) { return i.value; }).filter(function (v) { return v.trim(); });
+    modListe.querySelectorAll('[data-f="grup"]').forEach(function (s) {
+      var eski = s.value;
+      s.innerHTML = adlar.map(function (a) {
+        return '<option value="' + esc(a) + '">' + esc(a) + '</option>';
+      }).join('');
+      if (adlar.indexOf(eski) >= 0) s.value = eski;
+    });
+  }
+  grupListe.addEventListener('input', function (e) {
+    if (e.target.matches('[data-f="ad"]')) grupSecenekleriTazele();
+  });
+
+  GRUPLAR.forEach(function (g) {
+    g.moduller.forEach(function (m) {
+      var el = rMod.ekle();
+      el.querySelector('[data-f="ad"]').value = m.ad;
+      grupSecenekleriTazele();
+      el.querySelector('[data-f="grup"]').value = g.ad;
+      var nit = el.querySelector('[data-f="nitelik"]');
+      nit.checked = !!m.nitelik;
+      if (nit.checked) nit.closest('.chip-sec').classList.add('is-on');
+    });
+  });
+  modListe.addEventListener('change', function (e) {
+    var l = e.target.closest && e.target.closest('.chip-sec');
+    if (l && e.target.matches('[data-f="nitelik"]')) l.classList.toggle('is-on', e.target.checked);
+  });
+
+  /* ==================================================================
+     4 · KAPSAM METNİ SÖZLÜĞÜ
+     ================================================================== */
+  var sozSablon = sablonYap(
+    '<div class="st-card">' +
+      '<span class="st-num">1</span>' +
+      '<div class="st-body">' +
+        '<span class="cb-kind"><i class="fa-solid fa-quote-left" aria-hidden="true"></i> Kapsam</span>' +
+        '<div class="pk-satir tek">' +
+          '<input class="finput" type="text" name="kapsam[]" data-f="metin" required maxlength="60" placeholder="Kapsam metni — ör. Sınırsız" aria-label="Kapsam metni">' +
+        '</div>' +
+        '<input type="hidden" data-field="position" name="kapsam_sira[]" value="0">' +
+      '</div>' +
+      '<div class="st-side">' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<button class="ie-del" type="button" title="Kapsam metnini sil" aria-label="Kapsam metnini sil">' +
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>');
+
+  var sozListe = document.getElementById('pkSozlukListe');
+  var rSoz = A.tekrar({
+    liste: sozListe, ekle: document.getElementById('pkSozlukEkle'), sablon: sozSablon,
+    enAz: 1, enCok: 60,
+    degisti: function () {
+      document.getElementById('pkSozlukSay').textContent =
+        sozListe.querySelectorAll('.st-card').length + ' kapsam metni';
+    }
+  });
+  SOZLUK.forEach(function (s) {
+    rSoz.ekle().querySelector('[data-f="metin"]').value = s;
+  });
+
+  function sozlukDegerleri(){
+    return Array.prototype.slice.call(sozListe.querySelectorAll('[data-f="metin"]'))
+      .map(function (i) { return i.value.trim(); })
+      .filter(function (v, i, a) { return v && a.indexOf(v) === i; });
+  }
+
+  /* ==================================================================
+     5 · MATRİS — seçenekler artık SÖZLÜKTEN
+     ================================================================== */
+  function hucreSec(m, k, id, sozluk){
     var v = m.k[k.key];
     var secKapali = (v === false || v === null || v === undefined || v === '');
     var secAcik = (v === true);
@@ -324,13 +773,19 @@
       '<select class="fk-select pk-sec" id="' + id + '">' +
       '<option value="__kapali"' + (secKapali ? ' selected' : '') + '>Kapalı</option>' +
       '<option value="__acik"' + (secAcik ? ' selected' : '') + '>Açık</option>';
-    kapsamlar(m).forEach(function (s) {
+    var liste = sozluk.slice();
+    /* Hücrenin bugünkü değeri sözlükten silinmiş olabilir — seçeneği yine
+       basılır, yoksa select sessizce başka bir değere kayar ve ekran
+       olmayan bir seçimi göstermiş olur. */
+    if (typeof v === 'string' && v && liste.indexOf(v) < 0) liste.push(v);
+    liste.forEach(function (s) {
       h += '<option value="' + esc(s) + '"' + (v === s ? ' selected' : '') + '>' + esc(s) + '</option>';
     });
     return h + '</select>';
   }
 
   function matrisBas(){
+    var sozluk = sozlukDegerleri();
     document.getElementById('pkMxBaslik').innerHTML =
       '<th>Modül</th>' +
       KADEMELER.map(function (k) {
@@ -353,7 +808,7 @@
           (m.nitelik ? '<small>Avantaj değil nitelik — kartta onay işareti yerine nötr nokta basılır.</small>' + nit : '') +
           '</td>' +
           KADEMELER.map(function (k, j) {
-            return '<td>' + hucreSec(m, k, 'pkH' + i + '_' + j) + '</td>';
+            return '<td>' + hucreSec(m, k, 'pkH' + i + '_' + j, sozluk) + '</td>';
           }).join('') +
         '</tr>';
       }).join('');
@@ -362,67 +817,157 @@
 
     document.getElementById('pkSay').textContent = moduller.length;
     document.getElementById('pkHucre').textContent = hucreSayisi;
+    bosSatir = null;
   }
 
   /* Arama: grup başlığı satırı, altında görünen modül kalmadıysa gizlenir —
      boş bir kapsam etiketi bırakmak, olmayan bir bölüm vaat etmektir.
      Sonuç 0 ise boş durum basılır (kit §9). */
   var bosSatir = null;
-  function aramaKur(){
+  function aramaUygula(){
     var girdi = document.getElementById('pkAra');
     var govde = document.getElementById('pkMxGovde');
     var sayac = document.getElementById('pkSay');
-    function uygula(){
-      var q = girdi.value.trim().toLocaleLowerCase('tr');
-      var say = 0, grupSatiri = null, grupGorunen = 0;
-      Array.prototype.slice.call(govde.children).forEach(function (tr) {
-        if (tr === bosSatir) return;
-        if (tr.classList.contains('pk-grup')) {
-          if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
-          grupSatiri = tr; grupGorunen = 0;
-          return;
-        }
-        var ok = !q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0 ||
-                 (grupSatiri && grupSatiri.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
-        tr.hidden = !ok;
-        if (ok) { say++; grupGorunen++; }
-      });
-      if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
-      sayac.textContent = say;
-      if (say === 0) {
-        if (!bosSatir) {
-          bosSatir = document.createElement('tr');
-          bosSatir.innerHTML = '<td colspan="' + (KADEMELER.length + 1) + '">' +
-            A.bos('fa-magnifying-glass', 'Bu aramayla modül bulunamadı',
-                  'Eşlemede bu sözcüğü taşıyan bir modül ya da grup yok.',
-                  '<button class="btn btn-ghost" type="button" id="pkAramaSifirla">' +
-                  '<i class="fa-solid fa-rotate-left"></i> Aramayı temizle</button>') +
-            '</td>';
-          govde.appendChild(bosSatir);
-        }
-        bosSatir.hidden = false;
-      } else if (bosSatir) bosSatir.hidden = true;
-    }
-    girdi.addEventListener('input', uygula);
+    var q = girdi.value.trim().toLocaleLowerCase('tr');
+    var say = 0, grupSatiri = null, grupGorunen = 0;
+    Array.prototype.slice.call(govde.children).forEach(function (tr) {
+      if (tr === bosSatir) return;
+      if (tr.classList.contains('pk-grup')) {
+        if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
+        grupSatiri = tr; grupGorunen = 0;
+        return;
+      }
+      var ok = !q || tr.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0 ||
+               (grupSatiri && grupSatiri.textContent.toLocaleLowerCase('tr').indexOf(q) >= 0);
+      tr.hidden = !ok;
+      if (ok) { say++; grupGorunen++; }
+    });
+    if (grupSatiri) grupSatiri.hidden = (grupGorunen === 0);
+    sayac.textContent = say;
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="' + (KADEMELER.length + 1) + '">' +
+          A.bos('fa-magnifying-glass', 'Bu aramayla modül bulunamadı',
+                'Eşlemede bu sözcüğü taşıyan bir modül ya da grup yok.',
+                '<button class="btn btn-ghost" type="button" id="pkAramaSifirla">' +
+                '<i class="fa-solid fa-rotate-left"></i> Aramayı temizle</button>') +
+          '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+  }
+  function aramaKur(){
+    var girdi = document.getElementById('pkAra');
+    var govde = document.getElementById('pkMxGovde');
+    girdi.addEventListener('input', aramaUygula);
     /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
        sonuçsuz bir aramanın içinde bırakmaz. */
     govde.addEventListener('click', function (e) {
       if (!e.target.closest || !e.target.closest('#pkAramaSifirla')) return;
-      girdi.value = ''; uygula(); girdi.focus();
+      girdi.value = ''; aramaUygula(); girdi.focus();
     });
-    uygula();
+    aramaUygula();
+  }
+
+  document.getElementById('pkSozlukUygula').addEventListener('click', function () {
+    var oncekiSay = document.querySelectorAll('#pkMxGovde .pk-sec option').length;
+    matrisBas(); aramaUygula();
+    var sonrakiSay = document.querySelectorAll('#pkMxGovde .pk-sec option').length;
+    A.toast('Sözlük matrise uygulandı — ' + sozlukDegerleri().length + ' kapsam metni, ' +
+            n(sonrakiSay) + ' seçenek (önce ' + n(oncekiSay) + ').', { tip:'ok' });
+  });
+
+  /* ==================================================================
+     6 · KARŞILAŞTIRMA TABLOSU ÖNİZLEMESİ
+     Grup adı/ikonu/sırası yukarıdaki grup kartından yönetilir; burada
+     sonucu görülür. Veri aynı `GRUPLAR` dizisi — ikinci bir liste yok.
+     ================================================================== */
+  function onizlemeBas(){
+    var vurgu = (KADEMELER.filter(function (k) { return k.one; })[0] || {}).key || null;
+    document.getElementById('pkOnzBaslik').innerHTML =
+      '<th>Özellik</th>' +
+      KADEMELER.map(function (k) {
+        return '<th class="pk-kol"><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) +
+               '<small>' + esc(P.fiyatMetni(k.key)) +
+               (k.fiyatMetin === null ? '' : ' ' + esc(k.birim)) + '</small></th>';
+      }).join('');
+
+    function hucre(v){
+      if (v === true) return '<i class="fa-solid fa-check yes" aria-hidden="true"></i><span class="sr-only">var</span>';
+      if (v === false || v === null || v === undefined || v === '')
+        return '<i class="fa-solid fa-xmark nope" aria-hidden="true"></i><span class="sr-only">yok</span>';
+      return esc(v);
+    }
+
+    document.getElementById('pkOnzGovde').innerHTML = GRUPLAR.map(function (g, gi) {
+      return '<tr class="pk-grup"><td colspan="' + (KADEMELER.length + 1) + '">' +
+          '<i class="' + g.ikon + '" aria-hidden="true"></i>' + (gi + 1) + '. ' + esc(g.ad) + '</td></tr>' +
+        g.moduller.map(function (m) {
+          return '<tr><td class="pk-mod"><b>' + esc(m.ad) + '</b></td>' +
+            KADEMELER.map(function (k) { return '<td>' + hucre(m.k[k.key]) + '</td>'; }).join('') +
+          '</tr>';
+        }).join('');
+    }).join('');
+
+    document.getElementById('pkOnzNot').innerHTML =
+      'Üye yüzündeki karşılaştırma tablosunun aynısı: <b>' + n(GRUPLAR.length) + ' grup</b>, ' +
+      '<b>' + n(moduller.length) + ' satır</b>, <b>' + n(hucreSayisi) + ' hücre</b>. ' +
+      'Grup adı, ikonu ve <b>sırası</b> yukarıdaki “Özellik grupları” kartından değişir; ' +
+      'buradaki numaralar o sıranın kendisidir. ' +
+      (vurgu ? 'Öne çıkan sütun: <b>' + esc(P.kademe(vurgu).ad) + '</b>. ' : 'Öne çıkan sütun seçili değil. ') +
+      'Bu önizleme kabuğun tablo derisini kullanır — <code>.cmp-table</code> CSS\'i ' +
+      'kabukta değil, iki public sayfanın kendi <code>&lt;style&gt;</code> bloğunda duruyor ' +
+      've buraya üçüncü kopyası yazılmadı.';
   }
 
   /* ---------- abonelik dışı ücret metni ---------- */
   document.getElementById('pkAyriMetin').value = P.ayriUcret;
 
-  A.maketKaydet(document.getElementById('pkFiyatKaydet'), 'kademe tutarları');
-  A.maketKaydet(document.getElementById('pkMxKaydet'), 'kademe ⇄ özellik matrisi');
-  A.maketKaydet(document.getElementById('pkAyriKaydet'), 'ücret metni');
+  /* ---------- karakter sayaçları ---------- */
+  function yazSayac(s, el){
+    var sinir = parseInt(s.getAttribute('data-sinir'), 10) || 0;
+    s.textContent = el.value.length + ' / ' + sinir;
+    s.classList.toggle('is-over', sinir > 0 && el.value.length > sinir);
+  }
+  function sayaclariTazele(){
+    document.querySelectorAll('[data-say-for]').forEach(function (s) {
+      var el = document.getElementById(s.getAttribute('data-say-for'));
+      if (!el) return;
+      if (!s.getAttribute('data-sinir')) {
+        s.setAttribute('data-sinir', (s.textContent.match(/\/\s*(\d+)/) || [0, 0])[1]);
+        el.addEventListener('input', function () { yazSayac(s, el); });
+      }
+      yazSayac(s, el);
+    });
+  }
+
+  /* ---------- maket kaydetme — her formun KENDİ formu verilir ---------- */
+  A.maketKaydet(document.getElementById('pkFiyatKaydet'),   'kademe tutarları',        document.getElementById('pkFiyatF'));
+  A.maketKaydet(document.getElementById('pkKfKaydet'),      'kademe kaydı',            document.getElementById('pkKfForm'));
+  A.maketKaydet(document.getElementById('pkGrupKaydet'),    'grup listesi',            document.getElementById('pkGrupF'));
+  A.maketKaydet(document.getElementById('pkModKaydet'),     'modül listesi',           document.getElementById('pkModF'));
+  A.maketKaydet(document.getElementById('pkSozlukKaydet'),  'kapsam metni sözlüğü',    document.getElementById('pkSozlukF'));
+  A.maketKaydet(document.getElementById('pkMxKaydet'),      'kademe ⇄ özellik matrisi', document.getElementById('pkMxF'));
+  A.maketKaydet(document.getElementById('pkAyriKaydet'),    'ücret metni',             document.getElementById('pkAyriF'));
 
   kademeBas();
   matrisBas();
   aramaKur();
+  onizlemeBas();
+  sayaclariTazele();
+
+  /* 🔴 AÇILIŞTA SAYFA BAŞTAN BAŞLAR — ölçülmüş kusurun düzeltmesi.
+     `FIT_ADMIN.tekrar`ın `ekle()`si yeni satırın ilk alanına ODAK verir
+     (doğru davranış: elle satır eklendiğinde imleç oraya gitmeli). Ama
+     bu ekran açılışta 7 + 30 + 15 = 52 satırı programla dolduruyor ve
+     odak sonuncusunda kalıyordu; tarayıcı odaklı alanı görünür kılmak
+     için sayfayı kaydırıyor ve ekran ORTASINDAN açılıyordu (ekran
+     görüntüsüyle yakalandı). Kabuk değiştirilmedi — dolgu bitince odak
+     bırakılıyor ve sayfa başına dönülüyor. */
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  window.scrollTo(0, 0);
 })();
 </script>
 </body>

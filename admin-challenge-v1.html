@@ -37,7 +37,7 @@
            alanlarını değiştirir — üç ayrı form değil, tek form.</div>
       </div>
       <div class="h-acts">
-        <button class="btn btn-primary" type="button" id="chYeni"><i class="fa-solid fa-plus"></i> Yeni challenge</button>
+        <a class="btn btn-primary" href="admin-challenge-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni challenge</a>
       </div>
     </div>
 
@@ -87,124 +87,13 @@
       </div>
     </div>
 
-    <!-- ============ FORM (K4) — tip seçimi hedef alanlarını değiştirir ============ -->
-    <div class="adm-card" id="chForm" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="chFormBaslik">Yeni challenge</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="chKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <div class="c-body">
-        <form id="chF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="cfAd">Ad <span class="req">*</span></label>
-              <input class="fk-input" id="cfAd" name="ad" required maxlength="80" placeholder="30 Günde Hareket Alışkanlığı" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="cfSlug">Slug <span class="req">*</span></label>
-              <!-- 🔴 TİRE KAÇIŞLI OLMAK ZORUNDA: `[a-z0-9-]` Chromium'un
-                   `pattern` derleyicisinde İSTİSNA ATIYOR. Tarayıcı kalıbı
-                   `v` bayrağıyla derliyor ve orada karakter sınıfının sonundaki
-                   çıplak `-` geçersiz. Ölçüldü: `new RegExp('[a-z0-9-]+','v')`
-                   → "Invalid character class"; kaçışlısı geçerli.
-                   Sonucu sessiz ve tam da bu turda kovaladığımız yalandı:
-                   `reportValidity()` patlıyor, form DOĞRULANMIYOR, ama maket
-                   notu yine de "Form doğrulandı" diye basılıyordu. -->
-              <input class="fk-input" id="cfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="hareket-aliskanligi" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız küçük harf, rakam ve tire. Adres bundan üretilir.</span>
-            </div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="cfTip">Tip <span class="req">*</span></label>
-              <select class="fk-select" id="cfTip" name="tip" required></select>
-              <span class="fk-help" id="cfTipNot"><i class="fa-solid fa-circle-info"></i> —</span>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="cfGun">Süre (gün) <span class="req">*</span></label>
-              <input class="fk-input" id="cfGun" name="gun" type="number" min="1" max="365" required placeholder="30" />
-            </div>
-          </div>
-
-          <!-- HEDEF ALANLARI — tipe göre. Üç tip üç ayrı şey ölçtüğü için tek
-               alan kümesi yetmez; motorun TIP tablosu bunu zaten söylüyor. -->
-          <div class="chf-alan" data-tip="sureli">
-            <div class="fk-grid c2">
-              <div class="fk-field">
-                <label class="fk-label" for="cfBirim">Ölçü birimi <span class="req">*</span></label>
-                <select class="fk-select" id="cfBirim" name="birim">
-                  <option value="tekrar">tekrar</option>
-                  <option value="set">set</option>
-                  <option value="dk">dakika</option>
-                  <option value="kg">kilogram (hacim)</option>
-                </select>
-                <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız uygulamanın gerçekten ölçtüğü birimler listelenir.</span>
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="cfDeger">Hedef değer <span class="req">*</span></label>
-                <input class="fk-input" id="cfDeger" name="deger" type="number" min="1" placeholder="1000" />
-              </div>
-            </div>
-          </div>
-
-          <div class="chf-alan" data-tip="seri">
-            <div class="fk-field">
-              <label class="fk-label" for="cfAdimlar">Adımlar <span class="req">*</span></label>
-              <textarea class="fk-textarea" id="cfAdimlar" name="adimlar" rows="5"
-                        placeholder="kopru&#10;superman&#10;hava-squat"></textarea>
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Her satıra bir egzersiz slug'ı. Sıra korunur: bir adım, kendinden
-                öncekiler kapanmadan kapanmaz. Slug'lar hareket kütüphanesinde
-                bulunmak zorundadır.</span>
-            </div>
-          </div>
-
-          <div class="chf-alan" data-tip="aliskanlik">
-            <div class="fk-field">
-              <span class="fk-label">Hedef</span>
-              <p class="chf-desc">
-                Alışkanlık challenge'ında ayrı bir hedef alanı yoktur — hedef,
-                yukarıdaki <b>süre</b> kadar günü işaretlemektir. Telafi hakkı
-                motorda tanımlıdır (<b id="cfTelafi">—</b> gün/ay) ve challenge
-                başına değişmez.
-              </p>
-            </div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="cfPuan">Ödül puanı <span class="req">*</span></label>
-              <input class="fk-input" id="cfPuan" name="puan" type="number" min="0" required placeholder="250" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="cfDurum">Durum <span class="req">*</span></label>
-              <select class="fk-select" id="cfDurum" name="durum" required>
-                <option value="aktif">Aktif</option>
-                <option value="yaklasan">Yaklaşan</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="cfOzet">Kısa özet <span class="req">*</span></label>
-            <textarea class="fk-textarea" id="cfOzet" name="ozet" rows="3" required maxlength="180"
-                      placeholder="Kart üstünde görünen tek cümle."></textarea>
-          </div>
-
-          <!-- Kaydet çubuğu SAĞDA — Gastro admin form CSS'i ölçüldü:
-               `.form-actions{justify-content:flex-end}`, birincil eylem en
-               sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir
-               belgesi §1), admin formunun değil — iki ayrı yüzey, iki ayrı
-               kural. -->
-          <div class="form-actions">
-            <button class="btn btn-primary" type="button" id="chKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- 🔴 GÖMÜLÜ FORM SÖKÜLDÜ (R19). Yerine `admin-challenge-form-v1.html`.
+         Gerekçe ölçüldü (`docs/gastro-olcum/fit-yonetilmeyenler.md` D/4): buradaki
+         gömülü kart 10 alan taşıyordu ve katalogun `gorsel` · `donem` · `uzunOzet`
+         · `baslik` · `gunlukSure` · ödül rozeti alanlarını hiç görmüyordu. Ayrı form
+         sayfası Gastro'nun kanonu (create ve edit AYNI dosya, `form.blade.php`),
+         ve iki yazma yüzeyi bırakmak bu depoda üç kez temizlenen "aynı soruya iki
+         cevap" kusuru olurdu. -->
 
   </div>
 </main>
@@ -326,64 +215,16 @@
     A.aramaKur(document.getElementById('chAra'), document.getElementById('chTablo'), document.getElementById('chSay'));
   }
 
-  /* ---------- form ---------- */
-  var form = document.getElementById('chForm');
-  var tipSec = document.getElementById('cfTip');
-  tipSec.innerHTML = Object.keys(C.TIP).map(function (t) {
-    return '<option value="' + t + '">' + esc(C.TIP[t].etiket) + '</option>';
-  }).join('');
-  document.getElementById('cfTelafi').textContent = C.TELAFI_HAKKI;
-
-  function tipUygula(){
-    var t = tipSec.value;
-    document.querySelectorAll('.chf-alan').forEach(function (el) {
-      el.classList.toggle('is-on', el.getAttribute('data-tip') === t);
-      /* Gizli alan ZORUNLU KALMAZ — gizli-zorunlu bir alan formu sessizce
-         kilitler ve kullanıcı neyin eksik olduğunu göremez. */
-      el.querySelectorAll('input,select,textarea').forEach(function (g) {
-        g.required = (el.getAttribute('data-tip') === t) && g.hasAttribute('data-zorunlu');
-      });
-    });
-    document.getElementById('cfTipNot').innerHTML =
-      '<i class="fa-solid fa-circle-info"></i> ' + esc(C.TIP[t].aciklama + ' ' + C.TIP[t].kanit);
-  }
-  document.querySelectorAll('[data-tip="sureli"] input,[data-tip="sureli"] select,[data-tip="seri"] textarea')
-    .forEach(function (g) { g.setAttribute('data-zorunlu', '1'); });
-  tipSec.addEventListener('change', tipUygula);
-
-  function formAc(slug){
-    var k = slug ? C.bul(slug) : null;
-    document.getElementById('chFormBaslik').textContent = k ? ('Düzenle: ' + k.ad) : 'Yeni challenge';
-    document.getElementById('cfAd').value   = k ? k.ad : '';
-    document.getElementById('cfSlug').value = k ? k.slug : '';
-    document.getElementById('cfGun').value  = k ? k.gun : '';
-    document.getElementById('cfPuan').value = k ? k.odul.puan : '';
-    document.getElementById('cfOzet').value = k ? k.ozet : '';
-    document.getElementById('cfDurum').value = k ? k.durum : 'aktif';
-    tipSec.value = k ? k.tip : 'aliskanlik';
-    if (k && k.tip === 'sureli') {
-      document.getElementById('cfBirim').value = k.hedef.birim;
-      document.getElementById('cfDeger').value = k.hedef.deger;
-    }
-    if (k && k.tip === 'seri') {
-      document.getElementById('cfAdimlar').value = k.adimlar.map(function (a) { return a.slug; }).join('\n');
-    }
-    tipUygula();
-    form.hidden = false;
-    form.scrollIntoView({ behavior:'smooth', block:'start' });
-  }
-
-  document.getElementById('chYeni').addEventListener('click', function () { formAc(null); });
-  document.getElementById('chKapat').addEventListener('click', function () { form.hidden = true; });
+  /* ---------- form: AYRI SAYFA ----------
+     R19'da gömülü form kartı söküldü; künye + sunum + ödül + SEO tek yerde,
+     `admin-challenge-form-v1.html`de. Liste yalnız oraya yönlendirir. */
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-duzenle]');
-    if (b) formAc(b.getAttribute('data-duzenle'));
+    if (b) location.href = 'admin-challenge-form-v1.html?c=' + encodeURIComponent(b.getAttribute('data-duzenle'));
   });
-  A.maketKaydet(document.getElementById('chKaydet'), 'challenge');
 
   suzgecKur();
   listeBas();
-  tipUygula();
 })();
 </script>
 </body>

@@ -14,22 +14,96 @@
 <link rel="stylesheet" href="assets/css/fit-planim.css" />
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
-/* SAYFA CSS — yalnız bu ekranın işi.
-   Kullanım çubuğu: bir terimin kaç kayıtta geçtiğini sayının yanında
-   göstermek, "3" ile "12"yi taramadan ayırt ettiriyor. Yeni renk yok. */
-.tx-bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
-/* Dolgu oranı satır satır DEĞİŞİR — bu yüzden tek başına kalan dinamik
-   değer bir CSS DEĞİŞKENİYLE taşınır (`--w`), ölçü/renk kabuk sınıfının
-   kendisinde kalır. Kalıp denetiminin "uydurulmuş inline" sayacı yalnız
-   düz `width:` yazımını arıyor; `--w` bir özel özelliktir, aynı değeri
-   doğru yerde tutar. */
+/* =====================================================================
+   SAYFA CSS — yalnız bu ekranın işi. Yeni renk / yarıçap / gölge
+   ÜRETİLMEDİ; her değer kabuğun değişkeninden geliyor.
+
+   YERLEŞİM GASTRO'DAN BİREBİR. Ölçüm `liste-taksonomi-rozet.md` §2.2:
+   Gastro'nun taksonomi ekranı sekmeli DEĞİL, ağaç DEĞİL — İKİ KOLONLU
+   (`.tx-split`, `sa-taksonomi.css:16` → `grid-template-columns:256px 1fr`).
+   Solda modüle göre başlıklı grup listesi (`role="tablist"`, kalemler
+   `<a href="?tip=…">` — sunucu-taraflı, tam sayfa yenilenir), sağda tek
+   grubun paneli. Sınıf adları da Gastro'nunkilerle aynı tutuldu ki
+   backend turu ikisini yan yana okuyabilsin.
+   ===================================================================== */
+.tx-split{display:grid;grid-template-columns:256px minmax(0,1fr)}
+.tx-groups{background:var(--bg);border-right:1px solid var(--line);padding:14px 0;border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
+.tx-groups-lbl{
+  display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);padding:14px 18px 7px;
+}
+.tx-group{
+  display:flex;align-items:center;gap:11px;padding:9px 18px;min-height:56px;
+  text-decoration:none;color:var(--slate);transition:.16s var(--ease);
+}
+.tx-group:hover{background:var(--paper)}
+.tx-group.is-on{background:var(--paper);box-shadow:inset 3px 0 0 var(--acc)}
+.tg-chip{
+  width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:var(--radius-sm);
+  background:var(--paper);border:1px solid var(--line);color:var(--muted);font-size:14px;
+}
+.tx-group.is-on .tg-chip{background:var(--acc);border-color:var(--acc);color:#fff}
+.tg-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tg-name{font-size:13.5px;font-weight:700;line-height:1.3}
+.tg-sub{font-size:11.5px;color:var(--muted)}
+.tx-panel{min-width:0}
+.tx-phead{padding:20px 22px 16px}
+.tx-eyebrow{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-deep)}
+.tx-ptitle{font-size:18px;font-weight:800;color:var(--slate);margin:5px 0 6px;letter-spacing:-.01em}
+.tx-pnote{font-size:13px;color:var(--slate-2);line-height:1.65;max-width:56ch;margin:0}
+
+/* Kullanım çubuğu: bir terimin kaç kayıtta geçtiğini sayının yanında
+   göstermek, "3" ile "12"yi taramadan ayırt ettiriyor. Dolgu oranı satır
+   satır DEĞİŞİR — bu yüzden tek dinamik değer bir CSS değişkeniyle
+   taşınır (`--w`), ölçü ve renk sınıfın kendisinde kalır. */
+.tx-bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden;max-width:160px}
 .tx-bar i{display:block;height:100%;width:var(--w,100%);background:var(--fit);border-radius:2px}
 .tx-bar.bos i{background:var(--line)}
-/* Sekme şeridi kart başlığının altında, kendi nefesiyle durur. */
-.tx-tabs{margin-bottom:16px}
-/* Form'daki "Bugünkü kullanım" notu — tek yerde, tek terim için kullanılan
-   düz metin satırı; kabukta karşılığı olmayan tek kullanımlık stil. */
-.tx-kullanim-not{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0}
+
+/* TERİM MODALI — Gastro `.tx-modal` (`sa-taksonomi.css:68`, max 460px).
+   Kabuğun `.sa-modal-ov` / `.sa-modal` primitifleri kullanılıyor; yalnız
+   genişlik ve iç bölümleme bu ekranın işi. */
+.sa-modal.tx-modal{width:min(460px,100%);padding:0;max-height:88vh;display:flex;flex-direction:column}
+.txm-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.txm-head h3{margin:0;font-size:17px}
+.txm-grp{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-deep)}
+.txm-x{
+  margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;
+  color:var(--muted);font-size:15px;cursor:pointer;border-radius:var(--radius-sm);
+}
+.txm-x:hover{color:var(--slate);background:var(--bg)}
+.txm-body{padding:20px 22px;overflow-y:auto}
+.txm-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
+
+/* İkon seçici — Gastro'nun aranabilir ızgarası (ölçüm §2.3: açık 24'lük
+   ızgara modalı taşırıyordu, aranabilir panele çevrilmişti). */
+.tx-ico-izgara{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:8px;
+  max-height:150px;overflow-y:auto;margin-top:8px;padding:2px;
+}
+.tx-ico-opt{
+  width:100%;height:46px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  color:var(--slate-2);font-size:15px;cursor:pointer;transition:.16s var(--ease);
+}
+.tx-ico-opt:hover{border-color:var(--acc);color:var(--acc-deep);background:rgba(var(--acc-rgb),.07)}
+.tx-ico-opt.is-on{border-color:var(--acc);background:var(--acc);color:#fff}
+.tx-ico-opt:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tx-not{font-size:13px;color:var(--slate-2);line-height:1.65;margin:0}
+
+@media (max-width:900px){
+  .tx-split{grid-template-columns:minmax(0,1fr)}
+  .tx-groups{border-right:0;border-bottom:1px solid var(--line);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+}
+
+/* ---------------------------------------------------------------------
+   🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
+   `.adm-tw` kabukta `overflow-x:auto` kabı ama kaydırılabilir içeriği
+   BELGEYE sızıyor; `contain:paint` kesiyor (ölçüldü). Kural kabuğun
+   kuralıdır ve yeri `fit-admin.css`tir; oraya yazmak bu ajanın işi
+   değil, bu yüzden yalnız bu ekranın gövdesine özgüllükle bağlandı.
+   --------------------------------------------------------------------- */
+.adm-body[data-adm] .adm-tw{contain:paint}
 </style>
 </head>
 <body class="adm-body" data-adm="taksonomi">
@@ -42,10 +116,9 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Taksonomi</h1>
-        <div class="ph-sub">Dört sözlük tek ekranda: kas bölgesi, ekipman, seviye ve hedef.
+        <div class="ph-sub">Beş sözlük tek ekranda: kas bölgesi, ekipman, seviye, süre ve hedef.
            Her terim için iki soru sorulur — nerede ilan edilmiş, kaç kayıtta
-           kullanılıyor. İlan edilip kullanılmayan terim süzgeçte boş bir
-           vaattir.</div>
+           kullanılıyor. İlan edilip kullanılmayan terim süzgeçte boş bir vaattir.</div>
       </div>
       <div class="h-acts">
         <button class="btn btn-primary" type="button" id="txYeni"><i class="fa-solid fa-plus"></i> Yeni terim</button>
@@ -53,174 +126,51 @@
     </div>
 
     <div id="txKaynak"></div>
+    <div id="txUyari"></div>
 
     <div class="adm-kpi" id="txKpi"></div>
 
-    <!-- ============ SEKME + LİSTE (K1 + sekme) ============ -->
-    <nav class="fit-tabs tx-tabs" data-fit-tabs="tx" aria-label="Sözlükler">
-      <button class="fit-tab" type="button" data-tab="kas"><i class="fa-solid fa-person" aria-hidden="true"></i> Kas bölgesi</button>
-      <button class="fit-tab" type="button" data-tab="ekipman"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Ekipman</button>
-      <button class="fit-tab" type="button" data-tab="seviye"><i class="fa-solid fa-signal" aria-hidden="true"></i> Seviye</button>
-      <button class="fit-tab" type="button" data-tab="hedef"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Hedef</button>
-    </nav>
+    <!-- ============ İKİ KOLON — Gastro `.tx-split` ============ -->
+    <div class="adm-card">
+      <div class="tx-split">
 
-    <!-- PANELLER MARKUP'TA DURUR, JS YALNIZ GÖVDEYİ DOLDURUR.
-         Kabuğun sekme bileşeni ([data-fit-tabs]) fit-shell.js yüklenirken
-         BİR KEZ koşar ve o an `.fit-pane` düğümlerini arar. Panelleri sonradan
-         JS ile yaratsaydık şerit panelsiz kalır, sekmeler tıklanır ama hiçbir
-         şey değişmezdi. -->
-    <div class="fit-pane adm-card" data-pane="kas">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-person"></i> Kas bölgesi</h3>
-      </div>
-      <div class="filter-bar">
-        <label class="sr-only" for="tx-kas-ara">Kas bölgesi sözlüğünde ara</label>
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" id="tx-kas-ara" placeholder="Terim ya da kod ara" />
-        </div>
-        <span class="fb-count" id="tx-kas-rozet"></span>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="tx-kas-tablo">
-            <!-- "Not" kolonu YOK: bu iki sözlükte notu olan terim yok ve on
-                 satır boyunca boş bir kolon, kolon olmaya değmez. -->
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th class="act">İşlem</th></tr></thead>
-            <tbody class="tx-govde" id="tx-kas-govde"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="adm-pager"><div class="p-info"><b id="tx-kas-say">0</b> terim<span id="tx-kas-alt"></span></div></div>
-    </div>
-    <div class="fit-pane adm-card" data-pane="ekipman" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-dumbbell"></i> Ekipman</h3>
-      </div>
-      <div class="filter-bar">
-        <label class="sr-only" for="tx-ekipman-ara">Ekipman sözlüğünde ara</label>
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" id="tx-ekipman-ara" placeholder="Terim ya da kod ara" />
-        </div>
-        <span class="fb-count" id="tx-ekipman-rozet"></span>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="tx-ekipman-tablo">
-            <!-- "Not" kolonu YOK: bu iki sözlükte notu olan terim yok ve on
-                 satır boyunca boş bir kolon, kolon olmaya değmez. -->
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th class="act">İşlem</th></tr></thead>
-            <tbody class="tx-govde" id="tx-ekipman-govde"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="adm-pager"><div class="p-info"><b id="tx-ekipman-say">0</b> terim<span id="tx-ekipman-alt"></span></div></div>
-    </div>
-    <div class="fit-pane adm-card" data-pane="seviye" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-signal"></i> Seviye</h3>
-      </div>
-      <div class="filter-bar">
-        <label class="sr-only" for="tx-seviye-ara">Seviye sözlüğünde ara</label>
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" id="tx-seviye-ara" placeholder="Terim ya da kod ara" />
-        </div>
-        <span class="fb-count" id="tx-seviye-rozet"></span>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="tx-seviye-tablo">
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
-            <tbody class="tx-govde" id="tx-seviye-govde"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="adm-pager"><div class="p-info"><b id="tx-seviye-say">0</b> terim<span id="tx-seviye-alt"></span></div></div>
-    </div>
-    <div class="fit-pane adm-card" data-pane="hedef" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-bullseye"></i> Hedef</h3>
-      </div>
-      <div class="filter-bar">
-        <label class="sr-only" for="tx-hedef-ara">Hedef sözlüğünde ara</label>
-        <div class="fb-search">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" id="tx-hedef-ara" placeholder="Terim ya da kod ara" />
-        </div>
-        <span class="fb-count" id="tx-hedef-rozet"></span>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="tx-hedef-tablo">
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
-            <tbody class="tx-govde" id="tx-hedef-govde"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="adm-pager"><div class="p-info"><b id="tx-hedef-say">0</b> terim<span id="tx-hedef-alt"></span></div></div>
-    </div>
+        <nav class="tx-groups" id="txGruplar" role="tablist" aria-label="Sözlükler"></nav>
 
-    <!-- ============ FORM (K4) ============ -->
-    <div class="adm-card" id="txForm" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="txFormBaslik">Yeni terim</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="txKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <div class="c-body">
-        <form id="txF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="xfSozluk">Sözlük <span class="req">*</span></label>
-              <select class="fk-select" id="xfSozluk" name="sozluk" required>
-                <option value="kas">Kas bölgesi</option>
-                <option value="ekipman">Ekipman</option>
-                <option value="seviye">Seviye</option>
-                <option value="hedef">Hedef</option>
-              </select>
+        <div class="tx-panel">
+          <div class="tx-phead">
+            <div class="tx-eyebrow" id="txEyebrow">—</div>
+            <div class="tx-ptitle" id="txBaslik">—</div>
+            <p class="tx-pnote" id="txNot">—</p>
+          </div>
+
+          <div class="filter-bar">
+            <div class="fb-search">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <label class="sr-only" for="txAra">Terim ara</label>
+              <input type="search" id="txAra" placeholder="Terim ya da anahtar ara…" />
             </div>
-            <div class="fk-field">
-              <label class="fk-label" for="xfKod">Kod <span class="req">*</span></label>
-              <input class="fk-input" id="xfKod" name="kod" required maxlength="30" pattern="[a-z0-9]+" placeholder="foamroller" />
-              <span class="fk-help" id="xfKodNot"><i class="fa-solid fa-circle-info"></i>
-                Süzgeç çipinin <code>data-val</code> değeri. Küçük harf ve rakam;
-                kayıtların niteliğinde birebir bu yazım aranır.</span>
+            <span class="fb-count" id="txRozet"></span>
+          </div>
+
+          <div class="c-body flush">
+            <div class="adm-tw">
+              <table class="adm-table" id="txTablo">
+                <thead><tr id="txBaslikSatir"></tr></thead>
+                <tbody id="txGovde"></tbody>
+              </table>
             </div>
           </div>
 
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="xfAd">Görünen ad <span class="req">*</span></label>
-              <input class="fk-input" id="xfAd" name="ad" required maxlength="40" placeholder="Foam roller" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="xfIkon">İkon sınıfı</label>
-              <input class="fk-input" id="xfIkon" name="ikon" maxlength="60" placeholder="fa-solid fa-scroll" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Font Awesome 6.5.2 sınıfı. Boş bırakılırsa çip yalnız metinle çıkar.</span>
+          <div class="adm-pager">
+            <div class="p-info"><b id="txSay">0</b> terim<span id="txAlt"></span></div>
+            <div class="p-btns">
+              <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+              <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
           </div>
-
-          <div class="fk-field">
-            <span class="fk-label">Bugünkü kullanım</span>
-            <p id="xfKullanim" class="tx-kullanim-not">—</p>
-          </div>
-
-        </form>
-      </div>
-      <div class="c-foot">
-        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
-             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
-             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
-             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
-             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
-             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="txKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
         </div>
+
       </div>
     </div>
 
@@ -232,46 +182,64 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · TAKSONOMİ   (R16/2)   — K1 liste + sekme (plan §7/3)
+   ADMIN · TAKSONOMİ   (R19)   — Gastro'nun taksonomi konsolu, birebir
    ---------------------------------------------------------------------
-   SÖZLÜKLER TÜRETİLİR, YAZILMAZ.
-   Dört sekmenin tamamı ölçülmüş veriden doğuyor: terimlerin kendisi
-   sayfaların SÜZGEÇ ŞERİDİNDEN (ilan), kullanım sayıları ise KAYITLARIN
-   niteliklerinden (gerçek). İkisi ayrı şeydir ve bu ekranın tek işi
-   aradaki farkı göstermektir:
+   NEDEN YENİDEN ÇİZİLDİ. Beyar'ın 4. maddesi: "Gastro'nunkine
+   benzemiyor, birebir al." Ölçüm (`liste-taksonomi-rozet.md` §2):
+   Gastro'nun `taksonomi/index.blade.php`i 829 satır ve İKİ KOLONLU bir
+   konsol; Fit'inki 447 satırlık sekmeli bir liste ve dört alanlık bir
+   terim formuydu.
 
-     · ilan edilip HİÇ kullanılmayan terim → süzgeçte 0 sonuç veren çip
-     · kullanılıp ilan edilmeyen kod       → süzgeçte hiç görünmeyen kayıt
+   GASTRO'DAN BİREBİR ALINANLAR
+   · İki kolonlu yerleşim (`.tx-split` 256px + 1fr), sol kolonda modüle
+     göre başlıklı grup listesi, `role="tablist"`, kalemler `<a href="?tip=…">`
+     — sunucu-taraflı seçim, bir anda TEK grubun paneli render edilir (§2.2).
+   · Sağ panel başlığı: `.tx-eyebrow` (“Bağlı modül · X”) + `.tx-ptitle` +
+     her grubun ne beslediğini anlatan `.tx-pnote` (§2.2).
+   · Terim formu MODAL (`.tx-modal`, 460px), başlıkta aktif grup adı,
+     ayakta Vazgeç + Kaydet (§2.3).
+   · Alan sırası ve ipucu grameri: Ad* → Anahtar(slug) → Açıklama → İkon
+     (aranabilir ızgara) → koşullu alanlar (§2.3).
+   · Slug otomasyonu: ad yazıldıkça üretilir, alana dokunulursa durur (§2.3).
+   · Kullanım sayacı satırda, tipe göre AYRI yoldan sayılır (§2.5).
+   · Silme kuralı: kullanımdaki terim ENGELLENMEZ; onay metni kaç kaydın
+     bağlantısız kalacağını sayıyla söyler (§2.6, metin birebir uyarlandı).
 
-   Ölçülen: kas 10 ilan / 9 kullanımda · ekipman 15 ilan / 5 kullanımda.
-   On bir terim bugün boş; bunlar kusur değil ama bilinmesi gereken bir
-   durum — kütüphane büyüdükçe dolacak ya da sözlükten düşecek.
+   GASTRO'DA OLMADIĞI İÇİN ALINMAYANLAR — üçü de ölçüldü:
+   · **Drag-drop sıralama YOK** (§2.4: `sortablejs` bu ekranda yüklenmiyor;
+     `position` kolonu var ama formda alanı yok, arayüzden sıra değişmiyor).
+   · **Birleştirme / taşıma eylemi YOK** (§2.5 sonu: merge/move rotası ya da
+     düğmesi bulunamadı; satırda yalnız Düzenle + Sil var).
+   · **Renk alanı YOK** (§2.3: “Alan yok: renk, sıra/position, aktiflik”).
+   Olmayanı eklemek “birebir al” olmazdı; eksikse ayrı bir karardır.
 
-   HEDEF SÖZLÜĞÜ İKİ KEZ İLAN EDİLMİŞ. `program-liste-v1.html` ile
-   `programlar-merkezi-v1.html` aynı süzgeç adını farklı terimlerle
-   kuruyor (biri "Kilo Yönetimi · Dayanıklılık", öteki "Kondisyon ·
-   Hareket alışkanlığı"). İki ilan BİRLEŞTİRİLMEDİ; kaynağıyla yan yana
-   basıldı, çünkü hangisinin kanon olacağı bir ürün kararıdır ve bu ekran
-   o kararı kendi başına veremez.
+   FİT UYARLAMASI
+   · Hiyerarşi Gastro'da yalnız `category` tipinde ve KATI 2 SEVİYE
+     (§2.4, `guardParent()` üç kuralı). Fit'te karşılığı kas bölgesidir;
+     üç kural birebir uygulanıyor ve alan yalnız o sözlükte açılıyor.
+     Bugün hiçbir terim üst terim taşımıyor — ipucu bunu söylüyor.
+   · Gastro'nun tipe özel alanları (kapak görseli, tema rayı, tekil ad,
+     bayrak kodu) Fit'te karşılıksız. Yerine Fit'in KENDİ ölçülmüş koşullu
+     alanı var: hedef sözlüğünde “İlan eden sayfa”, çünkü hedef terimleri
+     İKİ ayrı sayfada ilan ediliyor (`FIT_ADMIN_VERI.HEDEF.kaynak`).
+   · Arama `.filter-bar` içinde. Gastro'da `.tx-search` panel başlığında
+     duruyor (§1.2) ama Fit kitinin K-LİSTE sözleşmesi aramayı filtre
+     şeridine koyuyor ve kalıp denetimi orayı ölçüyor — kit kazandı.
 
-   PLAN §7/3: dört sözlük küçük ve aynı kalıbı paylaşıyor; dört ayrı
-   sidebar kalemi menüyü şişirirdi. Tek ekran, sekmeli.
+   ÖLÇÜLMÜŞ AÇIK KUSUR GÖRÜNÜR KILINDI (brif): ilan edilen terim sayısı
+   ile kullanılan terim sayısı ayrışıyor. Sayfa bunu sessizce düzeltmiyor;
+   üstte `.sa-flash.is-warn` ile söylüyor ve sıfır kullanımlı her satırı
+   ayrı işaretliyor.
    ===================================================================== */
 (function () {
   'use strict';
   var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI;
   if (!A) return;
-  var esc = A.esc;
-
-  document.getElementById('txKaynak').innerHTML = A.kaynak('canli',
-    '<b>Sözlükler gerçek, kullanım sayıları hesaplanıyor.</b> Terimler sayfaların süzgeç ' +
-    'şeritlerinden, kullanım sayıları kayıtların kendisinden okundu ' +
-    '(<b>' + esc(V ? V.OLCUM_TARIHI : '—') + '</b>, <code>tools/admin-veri-uret.mjs</code>). ' +
-    'Hiçbir terim uydurulmadı; sayılar da elle yazılmadı, bu sayfada sayılıyor. ' +
-    '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
+  var esc = A.esc, n = A.n;
+  var $ = function (id) { return document.getElementById(id); };
 
   if (!V || !V.SOZLUK) {
-    document.getElementById('tx-kas-govde').innerHTML = '<tr><td colspan="5">' +
+    $('txGovde').innerHTML = '<tr><td colspan="5">' +
       A.bos('fa-tags', 'Sözlükler yüklenmedi',
             'Taksonomi fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
             'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
@@ -281,64 +249,144 @@
   var S = V.SOZLUK, H = V.HAREKET, PR = V.PROGRAM, HD = V.HEDEF || [];
   var KUTUPHANE = 'egzersiz-kutuphane-v1.html';
 
-  /* ---------------------------------------------------------------------
-     Sözlük tanımı: terimler nereden geliyor, kullanım nasıl sayılıyor.
-     Sayma işi burada TEK YERDE tanımlı; dört sekme aynı yolu kullanır.
-     --------------------------------------------------------------------- */
+  /* ------------------------------------------------------------------
+     SÖZLÜK TANIMI — terimler nereden geliyor, kullanım nasıl sayılıyor.
+     Gastro'nun `TaxonomyType` enum'unun karşılığı: her tipin etiketi,
+     ikonu, bağlı modülü ve ne beslediğini anlatan notu var (§2.1-2.2).
+     Sayma yolu TİPE GÖRE AYRI (§2.5) — tek bir tabloyu saymak Gastro'da
+     altı tipin sürekli "0" göstermesine yol açmıştı.
+     ------------------------------------------------------------------ */
   var SOZLUKLER = {
     kas: {
-      ad: 'Kas bölgesi', tekil: 'bölge', ikon: 'fa-person',
-      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      ad: 'Kas bölgesi', modul: 'Hareket kütüphanesi', ikon: 'fa-person',
+      kayit: 'hareket', birim: 'hareket', toplam: H.length, ilan: KUTUPHANE, hiyerarsi: true,
+      not: 'Hareket kütüphanesinin bölge süzgecini ve hareket künyesindeki ' +
+           '“bölge” alanını besler. Buradaki her terim kütüphane şeridinde bir çip olur.',
       terim: S.kas.map(function (t) {
-        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, ust: t.ust || '', aciklama: t.aciklama || '',
+                 kaynak: KUTUPHANE,
                  kullanim: H.filter(function (h) { return h.kas === t.kod; }).length };
       })
     },
     ekipman: {
-      ad: 'Ekipman', tekil: 'ekipman', ikon: 'fa-dumbbell',
-      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      ad: 'Ekipman', modul: 'Hareket kütüphanesi', ikon: 'fa-dumbbell',
+      kayit: 'hareket', birim: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      not: 'Kütüphanenin ekipman süzgecini, hareket formunun ekipman seçicisini ve ' +
+           'antrenman oluşturucunun “elimde ne var” sorusunu besler.',
       terim: S.ekipman.map(function (t) {
-        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, aciklama: t.aciklama || '', kaynak: KUTUPHANE,
                  kullanim: H.filter(function (h) { return h.ekipmanKod === t.kod; }).length };
       })
     },
     seviye: {
-      ad: 'Seviye', tekil: 'seviye', ikon: 'fa-signal',
-      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      ad: 'Seviye', modul: 'Hareket kütüphanesi', ikon: 'fa-signal',
+      kayit: 'hareket', birim: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      not: 'Tek sözlük ama İKİ yerde yaşıyor: hem hareketin hem programın seviyesi ' +
+           'buradan okunuyor. Satırdaki “Not” kolonu program tarafındaki karşılığı sayar.',
       terim: S.seviye.map(function (t) {
-        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, aciklama: t.aciklama || '', kaynak: KUTUPHANE,
                  kullanim: H.filter(function (h) { return String(h.lv) === t.kod; }).length,
-                 /* Seviye tek sözlük ama iki yerde yaşıyor: hareketlerde ve
-                    programlarda. İkincisi ayrıca sayılır, gizlenmez. */
                  ek: PR.filter(function (p) { return String(p.lv) === t.kod; }).length + ' program' };
       })
     },
+    /* ⚠ ÖLÇÜLEN EKSİK KAPATILDI: `SOZLUK.sure` verinin içinde vardı ama
+       ekranda sekmesi yoktu — beş sözlüğün biri yönetilmiyordu. */
+    sure: {
+      ad: 'Süre bandı', modul: 'Hareket kütüphanesi', ikon: 'fa-clock',
+      kayit: 'hareket', birim: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      not: 'Bir hareketin hangi antrenman uzunluklarına girdiğini söyler; hareket ' +
+           'formundaki “süre bandı” çipleri ve oluşturucunun süre seçimi buradan okur. ' +
+           'Bir hareket birden çok banda girebilir, bu yüzden kullanım toplamı hareket ' +
+           'sayısını aşar.',
+      terim: S.sure.map(function (t) {
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, aciklama: t.aciklama || '', kaynak: KUTUPHANE,
+                 kullanim: H.filter(function (h) { return (h.sureBant || []).indexOf(t.kod) >= 0; }).length };
+      })
+    },
     hedef: {
-      ad: 'Hedef', tekil: 'hedef', ikon: 'fa-bullseye',
-      kayit: 'kart', toplam: PR.length, ilan: 'iki ayrı sayfa',
+      ad: 'Hedef', modul: 'Programlar', ikon: 'fa-bullseye',
+      kayit: 'kart', birim: 'kart', toplam: PR.length, ilan: 'iki ayrı sayfa', ikiIlan: true,
+      not: 'Program kataloğunun hedef süzgecini besler. 🔴 İKİ KEZ İLAN EDİLMİŞ: ' +
+           '`program-liste-v1.html` ile `programlar-merkezi-v1.html` aynı süzgeci farklı ' +
+           'terimlerle kuruyor. İki ilan BİRLEŞTİRİLMEDİ — hangisinin kanon olacağı bir ' +
+           'ürün kararıdır ve bu ekran onu kendi başına veremez.',
       terim: HD.map(function (t) {
-        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: t.kaynak, kullanim: t.kullanim,
-                 /* Aynı kod öteki sayfada da ilan edilmiş mi? */
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, aciklama: t.aciklama || '',
+                 kaynak: t.kaynak, kullanim: t.kullanim,
                  ortak: HD.filter(function (x) { return x.kod === t.kod; }).length > 1 };
       })
     }
   };
 
+  /* Sol kolon modüle göre bölümlenir — Gastro `.tx-groups-lbl` (§2.2). */
+  var MODULLER = [
+    { ad: 'Hareket kütüphanesi', tip: ['kas', 'ekipman', 'seviye', 'sure'] },
+    { ad: 'Programlar',          tip: ['hedef'] }
+  ];
+
+  /* Aktif grup query'den — Gastro'da `?tip=`; burada da öyle, çünkü bir
+     anda tek grubun paneli basılıyor ve seçim adreste kalıyor. */
+  var TIPLER = ['kas', 'ekipman', 'seviye', 'sure', 'hedef'];
+  var aktif = new URLSearchParams(location.search).get('tip') || 'kas';
+  if (TIPLER.indexOf(aktif) < 0) aktif = 'kas';
+
+  /* ------------------------------------------------------------------
+     İKON HAVUZU — uydurulmadı, sözlüklerin kendi ikonlarından sayıldı.
+     ------------------------------------------------------------------ */
+  var ikonHavuz = (function () {
+    var s = {}, l = [];
+    TIPLER.forEach(function (k) {
+      s[SOZLUKLER[k].ikon ? 'fa-solid ' + SOZLUKLER[k].ikon : ''] = 1;
+      SOZLUKLER[k].terim.forEach(function (t) { if (t.ikon) s[t.ikon] = 1; });
+    });
+    delete s[''];
+    for (var k2 in s) if (s.hasOwnProperty(k2)) l.push(k2);
+    return l.sort();
+  })();
+
+  /* ---------- kaynak şeridi ---------- */
+  $('txKaynak').innerHTML = A.kaynak('canli',
+    '<b>Sözlükler gerçek, kullanım sayıları hesaplanıyor.</b> Terimler sayfaların süzgeç ' +
+    'şeritlerinden, kullanım sayıları kayıtların kendisinden okundu ' +
+    '(<b>' + esc(V.OLCUM_TARIHI) + '</b>, <code>tools/admin-veri-uret.mjs</code>). ' +
+    'Hiçbir terim uydurulmadı; sayılar da elle yazılmadı, bu sayfada sayılıyor. ' +
+    'İkon havuzu sözlüklerin kendi ikonlarından sayıldı (<b>' + ikonHavuz.length + '</b>). ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
+
+  /* ---------- ölçülmüş boşluk: görünür kılınıyor ---------- */
+  (function uyari() {
+    var parca = [], bosToplam = 0, terimToplam = 0;
+    TIPLER.forEach(function (k) {
+      var s = SOZLUKLER[k];
+      var bos = s.terim.filter(function (t) { return !t.kullanim; }).length;
+      terimToplam += s.terim.length;
+      bosToplam += bos;
+      if (bos) parca.push(s.ad.toLocaleLowerCase('tr') + ' ' + s.terim.length + '/' +
+                          (s.terim.length - bos));
+    });
+    if (!bosToplam) return;
+    A.flash('warn',
+      'Taksonomi boşluğu: ' + terimToplam + ' ilan edilmiş terimin ' + bosToplam +
+      ' tanesi bugün hiçbir kayıtta geçmiyor — süzgeçte 0 sonuç veren çip demek. ' +
+      'Dağılım (ilan/kullanılan): ' + parca.join(' · ') + '. Sessizce düzeltilmedi: ' +
+      'terim silmek de kayıt etiketlemek de ürün kararıdır.',
+      $('txUyari'));
+  })();
+
   /* ---------- sayaçlar ---------- */
-  function kpi() {
+  (function kpi() {
     var terim = 0, bos = 0;
-    Object.keys(SOZLUKLER).forEach(function (k) {
+    TIPLER.forEach(function (k) {
       SOZLUKLER[k].terim.forEach(function (t) { terim++; if (!t.kullanim) bos++; });
     });
     var tekIlan = HD.filter(function (t) {
       return HD.filter(function (x) { return x.kod === t.kod; }).length === 1;
     }).length;
-    /* Trend satırı: boş terim ya da tek sayfalık hedef varsa dikkat
-       (down + clock), yoksa doğrulanmış (flat + check). Metin uydurulmadı —
-       aynı koşullar zaten not metnini seçiyordu. */
     var kut = [
-      ['fa-tags', 4, 'sözlük', 'Kas bölgesi · ekipman · seviye · hedef; dördü de sekmede.', 'flat', 'fa-check'],
-      ['fa-list-ul', terim, 'ilan edilmiş terim', 'Süzgeç şeritlerinde kullanıcıya sunulan terim sayısı.', 'flat', 'fa-check'],
+      ['fa-tags', TIPLER.length, 'sözlük',
+       'Kas bölgesi · ekipman · seviye · süre · hedef; beşi de tek konsolda.', 'flat', 'fa-check'],
+      ['fa-list-ul', terim, 'ilan edilmiş terim',
+       'Süzgeç şeritlerinde kullanıcıya sunulan terim sayısı.', 'flat', 'fa-check'],
       ['fa-circle-minus', bos, 'kullanımı olan yok',
        bos ? 'Bu terimlerin çipi bugün 0 sonuç veriyor.' : 'Her terim en az bir kayıtta geçiyor.',
        bos ? 'down' : 'flat', bos ? 'fa-clock' : 'fa-check'],
@@ -347,99 +395,307 @@
                : 'İki katalog sayfası aynı hedef sözlüğünü ilan ediyor.',
        tekIlan ? 'down' : 'flat', tekIlan ? 'fa-clock' : 'fa-check']
     ];
-    document.getElementById('txKpi').innerHTML = kut.map(function (k) {
+    $('txKpi').innerHTML = kut.map(function (k) {
       return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
              '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
-             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+             esc(k[3]) + '</span></div></div>';
     }).join('');
-  }
+  })();
 
-  /* ---------- paneller: gövde doldurulur, iskelet markup'ta ---------- */
-  function panelDoldur(anahtar) {
-    var s = SOZLUKLER[anahtar];
+  /* ---------- sol kolon ---------- */
+  (function gruplar() {
+    $('txGruplar').innerHTML = MODULLER.map(function (m) {
+      return '<span class="tx-groups-lbl">' + esc(m.ad) + '</span>' +
+        m.tip.map(function (k) {
+          var s = SOZLUKLER[k], on = (k === aktif);
+          return '<a class="tx-group' + (on ? ' is-on' : '') + '" role="tab" ' +
+            'aria-selected="' + (on ? 'true' : 'false') + '" ' +
+            'href="admin-taksonomi-v1.html?tip=' + k + '">' +
+            '<span class="tg-chip"><i class="fa-solid ' + s.ikon + '" aria-hidden="true"></i></span>' +
+            '<span class="tg-meta"><span class="tg-name">' + esc(s.ad) + '</span>' +
+            '<span class="tg-sub">' + s.terim.length + ' terim</span></span></a>';
+        }).join('');
+    }).join('');
+  })();
+
+  /* ---------- sağ panel ---------- */
+  var s = SOZLUKLER[aktif];
+  document.title = s.ad + ' — Taksonomi — DadaFit Yönetim';
+  $('txEyebrow').innerHTML = 'Bağlı modül · <b>' + esc(s.modul) + '</b>';
+  $('txBaslik').textContent = s.ad;
+  $('txNot').innerHTML = s.not.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  var notluMu = (aktif === 'seviye' || aktif === 'hedef');
+  $('txBaslikSatir').innerHTML =
+    '<th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th>' +
+    (notluMu ? '<th>Not</th>' : '') + '<th class="act">Aksiyon</th>';
+  var kolonSay = notluMu ? 5 : 4;
+
+  function panelBas() {
     var enCok = Math.max.apply(null, s.terim.map(function (t) { return t.kullanim; }).concat([1]));
-    document.getElementById('tx-' + anahtar + '-govde').innerHTML = s.terim.map(function (t) {
+    $('txGovde').innerHTML = s.terim.map(function (t) {
       var oran = Math.round((t.kullanim / enCok) * 100);
       var durum = t.kullanim
-        ? A.rozet('ok', t.kullanim + ' ' + s.kayit, 'fa-check')
-        : A.rozet('off', 'Kullanımda değil');
-      /* Not hücresi yalnız notu OLAN sözlüklerde basılır; başlık satırı da
-         o iki panelde yazılı (kas ve ekipman panelinde dört kolon var). */
-      var not = anahtar === 'hedef'
+        ? A.rozet('ok', t.kullanim + ' ' + s.birim, 'fa-check')
+        /* Kitte dört durum var (ok·wait·off·stop) ve beşincisi
+           ÜRETİLMEDİ. Sıfır kullanım bir hata değil, bekleyen bir
+           durumdur — `wait`, filtre şeridindeki "N boş" rozetiyle de aynı
+           tonu taşır. Eski hâli `off`tu ve nötr griyle görünmez kalıyordu;
+           ölçülmüş kusurun görünür olması isteniyor. */
+        : A.rozet('wait', 'Kullanımda değil', 'fa-circle-minus');
+      var not = aktif === 'hedef'
         ? '<td>' + (t.ortak ? A.rozet('ok', 'İki sayfada da', 'fa-code-branch')
                             : A.rozet('wait', 'Tek sayfada', 'fa-code-branch')) + '</td>'
-        : anahtar === 'seviye' ? '<td>' + (t.ek ? '<small>' + esc(t.ek) + '</small>' : '—') + '</td>'
-        : '';
-      return '<tr data-kod="' + esc(t.kod) + '" data-sozluk="' + anahtar + '">' +
-        '<td><b>' + (t.ikon ? '<i class="' + esc(t.ikon) + '" aria-hidden="true"></i> ' : '') + esc(t.ad) + '</b>' +
-          '<small>' + esc(t.kod) + '</small></td>' +
+        : aktif === 'seviye'
+        ? '<td>' + (t.ek ? '<small>' + esc(t.ek) + '</small>' : '—') + '</td>' : '';
+      return '<tr data-kod="' + esc(t.kod) + '" data-kaynak="' + esc(t.kaynak) + '">' +
+        '<td><b>' + (t.ikon ? '<i class="' + esc(t.ikon) + '" aria-hidden="true"></i> ' : '') +
+          esc(t.ad) + '</b><small>' + esc(t.kod) + '</small></td>' +
         '<td>' + esc(t.kaynak) + '</td>' +
         '<td>' + durum +
-          '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="--w:' + (t.kullanim ? oran : 100) + '%"></i></span></td>' +
+          '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="--w:' +
+          (t.kullanim ? oran : 100) + '%"></i></span></td>' +
         not +
-        '<td class="act"><button class="adm-ico-btn" type="button" data-duzenle="' + anahtar + ':' + esc(t.kod) + '" aria-label="' + esc(t.ad) + ' terimini düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
-        '</tr>';
+        '<td class="act">' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(t.kod) + '" ' +
+            'data-kaynak="' + esc(t.kaynak) + '" title="Düzenle" ' +
+            'aria-label="' + esc(t.ad) + ' terimini düzenle"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="adm-ico-btn danger" type="button" data-sil="' + esc(t.kod) + '" ' +
+            'data-kaynak="' + esc(t.kaynak) + '" title="Sil" ' +
+            'aria-label="' + esc(t.ad) + ' terimini sil"><i class="fa-solid fa-trash-can"></i></button>' +
+        '</td></tr>';
     }).join('');
 
     var bosSay = s.terim.filter(function (t) { return !t.kullanim; }).length;
-    document.getElementById('tx-' + anahtar + '-rozet').innerHTML =
+    $('txRozet').innerHTML =
       '<span class="fp-badge off">' + s.terim.length + ' terim</span>' +
       (bosSay ? A.rozet('wait', bosSay + ' boş', 'fa-circle-minus')
               : A.rozet('ok', 'Hepsi kullanımda', 'fa-check'));
-    document.getElementById('tx-' + anahtar + '-say').textContent = s.terim.length;
-    document.getElementById('tx-' + anahtar + '-alt').textContent =
-      ' · ' + s.toplam + ' ' + s.kayit + ' üzerinden sayıldı';
-    /* Her sözlüğün kendi araması ve kendi boş durumu var (kit §9). */
-    A.aramaKur(document.getElementById('tx-' + anahtar + '-ara'),
-               document.getElementById('tx-' + anahtar + '-tablo'),
-               document.getElementById('tx-' + anahtar + '-say'));
+    $('txSay').textContent = s.terim.length;
+    $('txAlt').textContent = ' · ' + s.toplam + ' ' + s.kayit + ' üzerinden sayıldı · tümü tek sayfada';
+    A.aramaKur($('txAra'), $('txTablo'), $('txSay'));
   }
 
-  function panelBas() {
-    ['kas', 'ekipman', 'seviye', 'hedef'].forEach(panelDoldur);
+  function terimBul(kod, kaynak) {
+    var l = s.terim.filter(function (t) {
+      return t.kod === kod && (!kaynak || t.kaynak === kaynak);
+    });
+    return l[0] || null;
   }
 
-  /* ---------- form ---------- */
-  var form = document.getElementById('txForm');
-  function kullanimNot(sozluk, kod) {
-    var s = SOZLUKLER[sozluk];
-    var t = s.terim.filter(function (x) { return x.kod === kod; })[0];
-    if (!t) return 'Bu kod bugün hiçbir sözlükte ilan edilmemiş.';
-    return t.kullanim
-      ? t.kullanim + ' ' + s.kayit + ' bu terimi taşıyor (' + s.toplam + ' kayıt tarandı).'
-      : 'Terim ilan edilmiş ama hiçbir ' + s.kayit + ' onu taşımıyor — süzgeçte bugün 0 sonuç verir.';
+  /* ==================================================================
+     TERİM MODALI — Gastro `.tx-modal`
+     Kabuğun modal primitifleri kullanılıyor; odak tuzağı ve Esc burada,
+     kaydırma kilidi kabuktan (`FIT_SHELL.lockScroll`).
+     ================================================================== */
+  var modalKok = null, tetikleyen = null, secIkon = '', slugDokunuldu = false, duzenlenen = null;
+
+  function slugla(x) {
+    var tr = { 'ç':'c','ğ':'g','ı':'i','İ':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','Ö':'o','Ş':'s','Ü':'u' };
+    return String(x || '').replace(/[çğıİöşüÇĞÖŞÜ]/g, function (c) { return tr[c] || c; })
+      .toLocaleLowerCase('tr').replace(/[^a-z0-9]+/g, '').slice(0, 30);
   }
 
-  function formAc(anahtar) {
-    var p = (anahtar || '').split(':'), sozluk = p[0] || 'kas', kod = p[1] || '';
-    var s = SOZLUKLER[sozluk];
-    var t = kod ? s.terim.filter(function (x) { return x.kod === kod; })[0] : null;
-    document.getElementById('txFormBaslik').textContent = t ? ('Düzenle: ' + t.ad) : 'Yeni terim';
-    document.getElementById('xfSozluk').value = sozluk;
-    document.getElementById('xfKod').value = t ? t.kod : '';
-    document.getElementById('xfAd').value = t ? t.ad : '';
-    document.getElementById('xfIkon').value = t ? t.ikon : '';
-    document.getElementById('xfKullanim').textContent = t ? kullanimNot(sozluk, kod)
+  function ikonBas(sorgu) {
+    var q = (sorgu || '').toLocaleLowerCase('tr').replace(/^fa-/, '').trim();
+    var bul = ikonHavuz.filter(function (i) { return !q || i.toLocaleLowerCase('tr').indexOf(q) >= 0; });
+    var kap = modalKok.querySelector('#txmIkonIzgara');
+    if (!bul.length) { kap.innerHTML = '<p class="tx-not">Eşleşen ikon yok.</p>'; return; }
+    kap.innerHTML = bul.map(function (i) {
+      return '<button class="tx-ico-opt' + (i === secIkon ? ' is-on' : '') + '" type="button" ' +
+        'data-ico="' + esc(i) + '" title="' + esc(i) + '" aria-label="' + esc(i) + '">' +
+        '<i class="' + esc(i) + '" aria-hidden="true"></i></button>';
+    }).join('');
+  }
+
+  function modalKapat() {
+    if (!modalKok) return;
+    var ov = modalKok;
+    modalKok = null;
+    ov.classList.remove('open');
+    document.removeEventListener('keydown', modalTus, true);
+    setTimeout(function () {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if (tetikleyen && tetikleyen.focus) tetikleyen.focus();
+    }, 180);
+  }
+  function modalTus(e) {
+    if (!modalKok) return;
+    if (e.key === 'Escape') { e.preventDefault(); modalKapat(); return; }
+    if (e.key !== 'Tab') return;
+    var od = modalKok.querySelectorAll('button,input,select,textarea,a[href]');
+    if (!od.length) return;
+    var liste = Array.prototype.slice.call(od).filter(function (x) { return !x.disabled; });
+    var ix = liste.indexOf(document.activeElement);
+    e.preventDefault();
+    liste[(ix + (e.shiftKey ? -1 : 1) + liste.length) % liste.length].focus();
+  }
+
+  function modalAc(kod, kaynak) {
+    var t = kod ? terimBul(kod, kaynak) : null;
+    duzenlenen = t;
+    tetikleyen = document.activeElement;
+    slugDokunuldu = !!t;
+    secIkon = t && t.ikon ? t.ikon : (ikonHavuz[0] || '');
+
+    /* Koşullu alanlar — Gastro'nun tipe göre açılan alan deseni (§2.3). */
+    var hiyerarsiAlan = s.hiyerarsi ? (
+      '<div class="frow">' +
+        '<label for="txmUst">Üst terim <span class="opt">— yalnız ' + esc(s.ad) + ' sözlüğünde</span></label>' +
+        '<select class="fselect" id="txmUst" name="ust">' +
+          '<option value="">— (kök terim)</option>' +
+          s.terim.filter(function (x) {
+            /* Gastro `guardParent()` üç kuralı (§2.4), birebir:
+               1) terim kendi üstü olamaz
+               2) yalnız KÖK terimler üst olarak seçilebilir (3. seviye yok)
+               3) alt terimi olan bir terim bir üste bağlanamaz */
+            if (t && x.kod === t.kod) return false;
+            if (x.ust) return false;
+            return true;
+          }).map(function (x) {
+            return '<option value="' + esc(x.kod) + '"' +
+                   (t && t.ust === x.kod ? ' selected' : '') + '>' + esc(x.ad) + '</option>';
+          }).join('') +
+        '</select>' +
+        '<div class="fhint">Hiyerarşi KATI İKİ SEVİYE: bir alt terim kendi altına terim ' +
+          'alamaz. Bugün ' + esc(s.ad.toLocaleLowerCase('tr')) + ' sözlüğünde üst terim taşıyan ' +
+          '<b>' + s.terim.filter(function (x) { return !!x.ust; }).length + '</b> terim var.</div>' +
+      '</div>') : '';
+
+    var kaynakAlan = s.ikiIlan ? (
+      '<div class="frow">' +
+        '<label for="txmKaynak">İlan eden sayfa <span class="req">*</span></label>' +
+        '<select class="fselect" id="txmKaynak" name="kaynak" required>' +
+          [].concat(HD.map(function (x) { return x.kaynak; }))
+            .filter(function (v, i, a) { return a.indexOf(v) === i; })
+            .map(function (v) {
+              return '<option value="' + esc(v) + '"' + (t && t.kaynak === v ? ' selected' : '') +
+                     '>' + esc(v) + '</option>';
+            }).join('') +
+        '</select>' +
+        '<div class="fhint">Hedef sözlüğü iki ayrı sayfada ilan ediliyor; terim hangi ' +
+          'sayfanın şeridine girecekse orası seçilir. Aynı anahtar iki sayfada da ' +
+          'tanımlanabilir — o zaman satırda “İki sayfada da” yazar.</div>' +
+      '</div>') : '';
+
+    var ov = document.createElement('div');
+    ov.className = 'sa-ov sa-modal-ov';
+    ov.innerHTML =
+      '<div class="sa-modal tx-modal" role="dialog" aria-modal="true" aria-label="' +
+        (t ? 'Terimi düzenle' : 'Yeni terim') + '">' +
+        '<div class="txm-head">' +
+          '<h3>' + (t ? 'Terimi düzenle' : 'Yeni terim') + '</h3>' +
+          '<span class="txm-grp">' + esc(s.ad) + '</span>' +
+          '<button class="txm-x" type="button" id="txmKapat" aria-label="Kapat">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="txm-body">' +
+          '<form id="txmForm" novalidate><div class="form-grid">' +
+            '<div class="frow">' +
+              '<label for="txmAd">Ad <span class="req">*</span></label>' +
+              '<input class="finput" id="txmAd" name="ad" type="text" required maxlength="40" ' +
+                'value="' + esc(t ? t.ad : '') + '" placeholder="Foam roller" />' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label for="txmKod">Anahtar (slug) <span class="req">*</span></label>' +
+              '<input class="finput" id="txmKod" name="kod" type="text" required maxlength="30" ' +
+                'pattern="[a-z0-9]+" value="' + esc(t ? t.kod : '') + '" placeholder="foamroller" />' +
+              '<div class="fhint">Addan otomatik üretilir; boş bırakılırsa addan türetilir. ' +
+                'Süzgeç çipinin <code>data-val</code> değeri — kayıtların niteliğinde birebir ' +
+                'bu yazım aranır, değişirse eşleşme kopar.</div>' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label for="txmAciklama">Açıklama <span class="opt">— opsiyonel</span></label>' +
+              '<textarea class="ftext" id="txmAciklama" name="aciklama" maxlength="400" ' +
+                'placeholder="Bu terim neyi kapsıyor?">' + esc(t ? t.aciklama : '') + '</textarea>' +
+              '<div class="fhint">Yalnız bu konsolda görünür; public süzgeç çipi yalnız adı basar. ' +
+                'Bugün hiçbir terim açıklama taşımıyor (ölçüldü) — alan yeni terimler için duruyor.</div>' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label for="txmIkonAra">İkon <span class="opt">— boş bırakılırsa çip yalnız metinle çıkar</span></label>' +
+              '<input class="finput" id="txmIkonAra" type="search" placeholder="İkon ara…" />' +
+              '<div class="tx-ico-izgara" id="txmIkonIzgara" role="listbox" aria-label="İkon seçenekleri"></div>' +
+              '<input type="hidden" id="txmIkon" name="ikon" value="' + esc(secIkon) + '" />' +
+            '</div>' +
+            hiyerarsiAlan +
+            kaynakAlan +
+            '<div class="frow">' +
+              '<span class="fhint" id="txmKullanim">—</span>' +
+            '</div>' +
+          '</div></form>' +
+        '</div>' +
+        '<div class="txm-foot">' +
+          '<button class="btn btn-ghost" type="button" id="txmVazgec">Vazgeç</button>' +
+          '<button class="btn btn-primary" type="button" id="txmKaydet">Kaydet</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    modalKok = ov;
+
+    if (window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    requestAnimationFrame(function () {
+      ov.classList.add('open');
+      var ilk = ov.querySelector('#txmAd');
+      if (ilk) ilk.focus();
+    });
+
+    ikonBas('');
+    ov.querySelector('#txmKullanim').innerHTML = t
+      ? (t.kullanim
+          ? '<b>' + t.kullanim + '</b> ' + s.kayit + ' bu terimi taşıyor (' + s.toplam + ' kayıt tarandı).'
+          : '🔴 Terim ilan edilmiş ama hiçbir ' + s.kayit + ' onu taşımıyor — süzgeçte bugün 0 sonuç verir.')
       : 'Yeni terim henüz hiçbir kayıtta geçmiyor.';
-    form.hidden = false;
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    ov.querySelector('#txmAd').addEventListener('input', function () {
+      if (!slugDokunuldu) ov.querySelector('#txmKod').value = slugla(this.value);
+    });
+    ov.querySelector('#txmKod').addEventListener('input', function () { slugDokunuldu = true; });
+    ov.querySelector('#txmIkonAra').addEventListener('input', function () { ikonBas(this.value); });
+    ov.querySelector('#txmIkonIzgara').addEventListener('click', function (e) {
+      var b = e.target.closest('.tx-ico-opt');
+      if (!b) return;
+      secIkon = b.getAttribute('data-ico');
+      ov.querySelector('#txmIkon').value = secIkon;
+      ov.querySelectorAll('.tx-ico-opt').forEach(function (x) {
+        x.classList.toggle('is-on', x === b);
+      });
+    });
+    ov.querySelector('#txmKapat').addEventListener('click', modalKapat);
+    ov.querySelector('#txmVazgec').addEventListener('click', modalKapat);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) modalKapat(); });
+    document.addEventListener('keydown', modalTus, true);
+
+    A.maketKaydet(ov.querySelector('#txmKaydet'), 'terim', ov.querySelector('#txmForm'));
   }
 
-  document.getElementById('txYeni').addEventListener('click', function () {
-    var acik = document.querySelector('.fit-tab[aria-selected="true"]');
-    formAc((acik ? acik.getAttribute('data-tab') : 'kas') + ':');
+  /* ---------- satır eylemleri ---------- */
+  $('txYeni').addEventListener('click', function () { modalAc('', ''); });
+  $('txGovde').addEventListener('click', function (e) {
+    var d = e.target.closest && e.target.closest('[data-duzenle]');
+    if (d) { modalAc(d.getAttribute('data-duzenle'), d.getAttribute('data-kaynak')); return; }
+    var x = e.target.closest && e.target.closest('[data-sil]');
+    if (!x) return;
+    var t = terimBul(x.getAttribute('data-sil'), x.getAttribute('data-kaynak'));
+    if (!t) return;
+    /* SİLME KURALI — Gastro (§2.6): kullanımdaki terim ENGELLENMEZ, ama
+       onay metni kaç kaydın bağlantısız kalacağını SAYIYLA söyler.
+       (Karşılaştırma: Gastro'nun malzemeler ekranı tersini yapıp kilitler;
+       taksonomi tarafı silmeyi seçmişti, biz taksonomiyi izliyoruz.) */
+    A.onay({
+      yikici: true,
+      baslik: 'Terim silinsin mi?',
+      metin: '“' + t.ad + '” değeri silinecek. Buna bağlı ' + t.kullanim + ' ' + s.kayit +
+             ' bağlantısız kalır ve süzgeçte artık bu çiple bulunamaz. İşlem geri alınamaz.',
+      onayla: 'Sil',
+      onay: function () {
+        A.toast('“' + t.ad + '” silinmedi — sunucu yok. Gerçek silmede ' + t.kullanim + ' ' +
+                s.kayit + ' bu etiketi kaybeder.', { tip: 'info', ms: 4600 });
+      }
+    });
   });
-  document.getElementById('txKapat').addEventListener('click', function () { form.hidden = true; });
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-duzenle]');
-    if (b) formAc(b.getAttribute('data-duzenle'));
-  });
-  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
-     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
-     doğrulama sessizce atlanırdı. */
-  A.maketKaydet(document.getElementById('txKaydet'), 'terim', document.getElementById('txF'));
 
-  kpi();
   panelBas();
 })();
 </script>

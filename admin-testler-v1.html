@@ -39,7 +39,7 @@
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="fit-testleri-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Testleri gör</a>
-        <button class="btn btn-primary" type="button" id="tsYeni"><i class="fa-solid fa-plus"></i> Yeni test</button>
+        <a class="btn btn-primary" id="tsYeni" href="admin-test-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni test</a>
       </div>
     </div>
 
@@ -107,79 +107,6 @@
       </div>
     </div>
 
-    <!-- ============ FORM (K4) ============ -->
-    <div class="adm-card" id="tsForm" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="tsFormBaslik">Yeni test</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="tsKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <div class="c-body">
-        <form id="tsF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="tfAd">Ad <span class="req">*</span></label>
-              <input class="fk-input" id="tfAd" name="ad" required maxlength="80" placeholder="Denge Değerlendirmesi" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="tfSlug">Slug <span class="req">*</span></label>
-              <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
-                   derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
-                   geçersiz. `[a-z0-9-]+` yazıldığında `reportValidity()`
-                   İSTİSNA ATIYOR — form doğrulanmıyor, konsola hata düşüyor ve
-                   "doğrulandı" diyen dürüstlük notu güvenilmez oluyor.
-                   Ölçüldü: /^(?:[a-z0-9-]+)$/v → "Invalid character class". -->
-              <input class="fk-input" id="tfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="denge" />
-            </div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="tfKategori">Kategori <span class="req">*</span></label>
-              <input class="fk-input" id="tfKategori" name="kategori" required maxlength="60" placeholder="Denge ve kontrol" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="tfSure">Süre <span class="req">*</span></label>
-              <input class="fk-input" id="tfSure" name="sure" required maxlength="30" placeholder="5–7 dakika" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Isınma ve soğuma dahil, aralık olarak yazılır.</span>
-            </div>
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="tfSoru">Ölçüm sorusu <span class="req">*</span></label>
-            <textarea class="fk-textarea" id="tfSoru" name="soru" rows="2" required maxlength="200"
-                      placeholder="Testin sonunda kullanıcıya sorulan tek soru."></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Bandı bu sorunun yanıtı seçer; soru ile bantlar aynı birimi konuşmalı.</span>
-          </div>
-
-          <!-- ÖLÇÜT BANTLARI — üçü de zorunlu, üçü birlikte tüm sonuç uzayını
-               kaplamalı. Sayı burada üç sabittir çünkü seviye üç: 1·2·3. -->
-          <div class="fk-field">
-            <span class="fk-label">Ölçüt aralıkları <span class="req">*</span></span>
-            <div id="tfBantlar"></div>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Üç bant üç seviyeye karşılık gelir (1 Başlangıç · 2 Orta · 3 İleri)
-              ve her biri bir programa yönlendirir. Boşluk bırakılırsa bazı
-              sonuçlar hiçbir banda düşmez.</span>
-          </div>
-
-        </form>
-      </div>
-      <div class="c-foot">
-        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
-             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
-             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
-             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
-             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
-             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="form-actions">
-          <button class="btn btn-primary" type="button" id="tsKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 
@@ -188,7 +115,7 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · FİT TESTLERİ   (R16/2)   — K1 liste + K4 form
+   ADMIN · FİT TESTLERİ   (R19)   — K-LİSTE; yazma yüzeyi ayrı ekranda
    ---------------------------------------------------------------------
    TANIMLAR GERÇEK. Yedi test ve yirmi bir ölçüt bandı
    `fit-testi-detay-v1.html`in `VERI` tablosundan makineyle okundu; örnek
@@ -217,8 +144,9 @@
     '<b>Tanımlar gerçek.</b> Yedi test ve 21 ölçüt bandı ' +
     '<code>fit-testi-detay-v1.html</code> içinden <b>' + esc(V ? V.OLCUM_TARIHI : '—') +
     '</b> tarihinde makineyle okundu (<code>tools/admin-veri-uret.mjs</code>) — örnek test yok, ' +
-    'ama bu kayıtların kaynağı değil kopyasıdır. <b>Yazma yüzeyi maket:</b> form doğrulanır, ' +
-    'kayıt gitmez — bu prototipte sunucu yok.');
+    'ama bu kayıtların kaynağı değil kopyasıdır. <b>Yazma yüzeyi bu ekrandan çıktı:</b> ' +
+    'test formu <code>admin-test-form-v1.html</code> ekranında — maket, form doğrulanır ' +
+    'kayıt gitmez, bu prototipte sunucu yok.');
 
   if (!V || !V.TEST || !V.TEST.length) {
     document.getElementById('tsGovde').innerHTML = '<tr><td colspan="6">' +
@@ -338,7 +266,7 @@
         '<td>' + bant + '</td>' +
         '<td class="act">' +
           '<a class="adm-ico-btn" href="fit-testi-detay-v1.html?test=' + esc(t.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(t.ad) + ' sayfasını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
-          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(t.slug) + '" aria-label="' + esc(t.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></button>' +
+          '<a class="adm-ico-btn" href="admin-test-form-v1.html?t=' + esc(t.slug) + '" aria-label="' + esc(t.ad) + ' düzenle" title="Düzenle"><i class="fa-solid fa-pen"></i></a>' +
         '</td></tr>';
     }).join('');
     document.getElementById('tsSay').textContent = T.length;
@@ -363,58 +291,14 @@
     document.getElementById('tsBantSay').textContent = n + ' bant';
   }
 
-  /* ---------- form ---------- */
-  var form = document.getElementById('tsForm');
-  function bantAlan(i, b) {
-    var progSec = V.PROGRAM_DETAY.map(function (d) {
-      return '<option value="' + esc(d.slug) + '"' + (b && b.prog === d.slug ? ' selected' : '') + '>' + esc(d.ad) + '</option>';
-    }).join('');
-    return '<div class="fk-grid c3" style="margin-top:' + (i ? '14px' : '0') + '">' +
-      '<div class="fk-field">' +
-        '<label class="fk-label" for="tfBant' + i + '">Bant ' + (i + 1) + ' — ölçüt</label>' +
-        '<input class="fk-input" id="tfBant' + i + '" data-zorunlu="1" value="' + esc(b ? b.olcut : '') + '" placeholder="0–7 tekrar" />' +
-      '</div>' +
-      '<div class="fk-field">' +
-        '<label class="fk-label" for="tfLv' + i + '">Seviye</label>' +
-        '<select class="fk-select" id="tfLv' + i + '">' +
-          [1, 2, 3].map(function (lv) {
-            return '<option value="' + lv + '"' + ((b ? b.lv : i + 1) === lv ? ' selected' : '') + '>' + lv + ' · ' + SEV[lv] + '</option>';
-          }).join('') + '</select>' +
-      '</div>' +
-      '<div class="fk-field">' +
-        '<label class="fk-label" for="tfProg' + i + '">Önerilen program</label>' +
-        '<select class="fk-select" id="tfProg' + i + '">' + progSec + '</select>' +
-      '</div></div>';
-  }
-
-  function formAc(slug) {
-    var t = slug ? T.filter(function (x) { return x.slug === slug; })[0] : null;
-    document.getElementById('tsFormBaslik').textContent = t ? ('Düzenle: ' + t.ad) : 'Yeni test';
-    document.getElementById('tfAd').value = t ? t.ad : '';
-    document.getElementById('tfSlug').value = t ? t.slug : '';
-    document.getElementById('tfKategori').value = t ? t.kategori : '';
-    document.getElementById('tfSure').value = t ? t.sure : '';
-    document.getElementById('tfSoru').value = t ? t.soru : '';
-    document.getElementById('tfBantlar').innerHTML = [0, 1, 2].map(function (i) {
-      return bantAlan(i, t ? t.bant[i] : null);
-    }).join('');
-    /* Bant ölçütü zorunludur ama yalnız GÖRÜNÜR alanlar zorunlu tutulur —
-       gizli-zorunlu bir alan formu sessizce kilitler. */
-    document.querySelectorAll('#tfBantlar [data-zorunlu]').forEach(function (g) { g.required = true; });
-    form.hidden = false;
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  document.getElementById('tsYeni').addEventListener('click', function () { formAc(null); });
-  document.getElementById('tsKapat').addEventListener('click', function () { form.hidden = true; });
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-duzenle]');
-    if (b) formAc(b.getAttribute('data-duzenle'));
-  });
-  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
-     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
-     doğrulama sessizce atlanırdı. */
-  A.maketKaydet(document.getElementById('tsKaydet'), 'test', document.getElementById('tsF'));
+  /* ---------- YAZMA YÜZEYİ BU EKRANDAN ÇIKTI ----------------------
+     Gömülü `#tsForm` kartı SÖKÜLDÜ. O form 14 girdi taşıyordu ve ölçülen
+     11 alan (img · ozet · amac · amacList · uygun · uygunDegil · sureKisa ·
+     sureNot · ekipman · guvenlikEk · adimlar, ayrıca bant özetleri) hiçbir
+     ekranda yoktu. Aynı kayda iki yazma yüzeyi bırakmak "aynı soruya iki
+     cevap" kusurudur; artık tek yer var:
+       admin-test-form-v1.html?t=<slug>
+     ------------------------------------------------------------------ */
 
   kpi();
   suzgecKur();

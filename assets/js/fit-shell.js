@@ -1349,10 +1349,18 @@ function _mesajYukle(){
   document.body.appendChild(sc);
 }
 function _rozetYukle(){ _modulYukle('fit-rozet.js'); }
+/* R20/K10 · SU MODÜLÜ DE KABUKTAN. Ölçüldü: `fit-su.js` yalnız 4 sayfada
+   script satırı taşıyordu; rozet motorunu kullanan 12 sayfanın 9'unda
+   `window.FIT_SU` tanımsız kalıyor ve su rozetleri `simdi:0` görünüyordu.
+   Sonuç kendisiyle çelişen bir karttı: rozetlerim-v1'de mühürlenmiş `su-ilk`
+   "%100 kazanıldı · şimdi 0" diyordu, egzersizlerim-v1'de aynı rozet 1'di.
+   `fit-rozet.js` için AYNI sebeple (R15/6) zaten yapılmış olan şey. */
+function _suYukle(){ _modulYukle('fit-su.js'); }
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', _mesajYukle);
   document.addEventListener('DOMContentLoaded', _rozetYukle);
-} else { _mesajYukle(); _rozetYukle(); }
+  document.addEventListener('DOMContentLoaded', _suYukle);
+} else { _mesajYukle(); _rozetYukle(); _suYukle(); }
 
 /* ---- FİT PLANIM kişisel kabuğu: banner + breadcrumb + sekme rayı ---- */
 /* R11/M17 · plan profilinin kapak görseli — tek yerde, 14 sayfa ortak */
@@ -2132,6 +2140,28 @@ return function release(){
 }
 
 window.FIT_SHELL = window.FIT_SHELL || {};
+/* R20/K14 · TARİH ETİKETİ — TEK BİÇİMLEYİCİ.
+   `gecmis[].tarih` alanı sabit 'bugün' dizgesiydi ve ekrana basılan alan
+   oydu (ölçüldü: 9 gün önce · 3 gün önce · bugün yazılan üç kaydın üçü de
+   "bugün" diyordu). Alan söküldü; okuyan üç ekran artık gerçek tarihi,
+   `tarihISO`yu buradan biçimliyor. Biçim tek yerde durmalı, yoksa üç ekran
+   üç ayrı biçim üretir.
+   Dönen değer: bugün → 'Bugün' · dün → 'Dün' · 7 günden yeni → 'N gün önce' ·
+   ötesi → '14 Ağustos 2026'. Tarih yoksa uydurulmaz, '—' döner. */
+window.FIT_SHELL.tarihEtiket = function(iso){
+  if(!iso) return '—';
+  var d = new Date(iso);
+  if(isNaN(d)) return '—';
+  var bugun = new Date(); bugun.setHours(0,0,0,0);
+  var o = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var fark = Math.round((bugun - o) / 86400000);
+  if(fark === 0) return 'Bugün';
+  if(fark === 1) return 'Dün';
+  if(fark > 1 && fark < 7) return fark + ' gün önce';
+  var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+               'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  return d.getDate() + ' ' + AYLAR[d.getMonth()] + ' ' + d.getFullYear();
+};
 window.FIT_SHELL.eco = ECO;
 window.FIT_SHELL.trapFocus = trapFocus;
 window.FIT_SHELL.lockScroll = lockScroll;
@@ -2847,9 +2877,19 @@ setTimeout(function(){
      ============================================================ */
   var KAYNAKLAR = ['olculdu','video','cihaz','beyan'];
   var BOS = { surum:2, program:null, arsiv:[], bildirimler:[], challenge:null, randevular:[],
-              bugun:{dk:0,kcal:0,tamam:false,su:0,gunSonu:null},
-              gecmis:[], hafta:[62,74,90,96,118,142] };
+              bugun:{tarih:null,dk:0,kcal:0,tamam:false,su:0,gunSonu:null},
+              gecmis:[] };
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  /* R20/K13 · GÜN ANAHTARI — fit-su.js ile AYNI biçim ('YYYY-MM-DD', yerel
+     saat). İki modül aynı güne aynı adı vermezse "bugün" iki yerde iki ayrı
+     gün olur; bu depoda üç kez temizlenen "aynı soruya iki cevap" kusuru. */
+  function bugunAnahtar(d){
+    d = d || new Date();
+    var ay = String(d.getMonth()+1), gn = String(d.getDate());
+    if(ay.length<2) ay='0'+ay;
+    if(gn.length<2) gn='0'+gn;
+    return d.getFullYear()+'-'+ay+'-'+gn;
+  }
 
   /* GÖÇ — v1 kayıtları KIRILMAZ. Eksik alan varsayılanla tamamlanır, var olan
      hiçbir değer ezilmez. Yazma anında değil OKUMA anında yapılıyor: kullanıcı
@@ -2861,6 +2901,43 @@ setTimeout(function(){
        yükseltmek yerine alan bazlı tamamlama: eski kayıt kırılmaz, yeni
        alan her okumada güvenceye alınır. */
     if(!Array.isArray(v.bildirimler)) v.bildirimler = [];
+
+    /* ============================================================
+       R20 · HER OKUMADA KOŞAN ÜÇ DÜZELTME — surum===2 erken dönüşünün
+       ÜSTÜNDE durmak ZORUNDALAR. Aşağıdaki blok yalnız göç turunda koşar;
+       gün dönümü ise her okumada sorulmalı.
+       ============================================================ */
+
+    /* K13 · GÜN DÖNÜMÜ. `bugun` nesnesinin tarih alanı YOKTU ve sıfırlayan
+       kod da yoktu: ölçüldü, üç ayrı güne yazılan 90 dakikanın tamamı ekranda
+       "90 dk bugün hareket" oluyordu. Doğrusu o günün kendi 20 dakikasıydı.
+       Sıfırlama YAZMA anında değil OKUMA anında: kullanıcı depoyu gece
+       kapatıp sabah açtığında araya girecek bir yazma olayı yok.
+       `su` taşınıyor — su artık dm_fit_su_v1'in işi (K20), buradaki alan
+       yalnız fit-su.js'in tek seferlik göç okuması için duruyor. */
+    v.bugun = v.bugun || {dk:0,kcal:0,tamam:false,su:0,gunSonu:null};
+    var _gun = bugunAnahtar();
+    if(v.bugun.tarih !== _gun){
+      v.bugun = {tarih:_gun, dk:0, kcal:0, tamam:false,
+                 su:(typeof v.bugun.su === 'number' ? v.bugun.su : 0),
+                 gunSonu:null};
+    }
+
+    /* K15 · TOHUM HAFTA DİZİSİ SÖKÜLDÜ. `[62,74,90,96,118,142]` BOŞ depoda
+       bile doğuyordu ve yalnız son elemanı artıyordu: hiç antrenman yapmamış
+       kullanıcı "bu haftanın ritmi" grafiğinde beş haftalık düzenli bir geçmiş
+       görüyordu. Dizi artık SAKLANMIYOR, `haftalik()` ile gecmis[].tarihISO'dan
+       TÜRETİLİYOR — veri yoksa grafik boş durumunu basar. */
+    if('hafta' in v) delete v.hafta;
+
+    /* K14 · `gecmis[].tarih` sabit 'bugün' dizgesiydi ve ekrana BASILAN alan
+       oydu; gerçek tarih `tarihISO`da zaten doğru duruyor (rozet motoru onu
+       kullanıyor). Alan siliniyor; okuyan taraf FIT_SHELL.tarihEtiket() ile
+       biçimliyor. Bir alanı yanlış tutmaktansa hiç tutmamak. */
+    var _tarihTemiz = false;
+    (v.gecmis||[]).forEach(function(g){ if(g && 'tarih' in g){ delete g.tarih; _tarihTemiz = true; } });
+    if(_tarihTemiz && v.surum === 2){ try{ localStorage.setItem(KEY, JSON.stringify(v)); }catch(e){} }
+
     if(v.surum === 2) return v;
     v.surum = 2;
     v.bugun = v.bugun || {dk:0,kcal:0,tamam:false};
@@ -2886,16 +2963,78 @@ setTimeout(function(){
     return v;
   }
   function read(){
-    try{ var r=localStorage.getItem(KEY); return r?goc(JSON.parse(r)):clone(BOS); }
-    catch(e){ return clone(BOS); }
+    /* R20/K13 · BOŞ kayıt da `goc`tan geçer. Eskiden `clone(BOS)` doğrudan
+       dönüyordu ve `bugun.tarih` null kalıyordu: ilk antrenman tarihsiz
+       yazılıyor, İKİNCİ okuma bunu gün dönümü sanıp sayacı sıfırlıyordu.
+       Ölçüldü — üç kaydın ilki (40 dk) sessizce uçuyordu. */
+    try{ var r=localStorage.getItem(KEY); return goc(r?JSON.parse(r):clone(BOS)); }
+    catch(e){ return goc(clone(BOS)); }
   }
   function write(v){
     try{ localStorage.setItem(KEY,JSON.stringify(v)); }catch(e){}
     document.dispatchEvent(new CustomEvent('fit:state',{detail:v}));
     return v;
   }
+  /* R20/K11 · K12 · ARŞİV KAYDI TEK YERDEN ÜRETİLİYOR.
+     Üç yer aynı nesneyi ayrı ayrı yazıyordu ve üçü de `dinlenmeler`i
+     DÜŞÜRÜYORDU. Ölçüldü: bir dinlenme günü eklenip yeni program başlatılınca
+     `dinlenme` ölçüsü 1'den 0'a düşüyordu — `dinlenme-5` rozeti ancak TEK bir
+     program içinde 5 dinlenme günü olan kullanıcıya düşebiliyordu, program
+     değiştiren kullanıcının sayacı geri gidiyordu. Dinlenme günleri artık
+     arşiv kaydıyla birlikte taşınıyor; rozet motoru aktif + arşiv toplar. */
+  function _arsivKaydi(p, durum){
+    return {
+      slug:p.slug, ad:p.ad, durum:durum,
+      biten:p.biten||0, kacan:p.kacan||0, toplam:p.toplam||0,
+      baslangic:p.baslangic||null, bitis:new Date().toISOString(),
+      dinlenmeler:(Array.isArray(p.dinlenmeler) ? p.dinlenmeler.slice() : [])
+    };
+  }
+
+  /* R20/K15 · HAFTALIK RİTİM TÜRETİLİYOR, SAKLANMIYOR.
+     Dönen dizi son `n` haftayı ESKİDEN YENİYE verir; her eleman
+     {baslangic:'YYYY-MM-DD', dk:Number, kayit:Number}. Hafta Pazartesi başlar.
+     `veriVar` yanlışsa çağıran boş durum basar — sıfır dolu bir grafik
+     "hiç antrenman yok" demenin dürüst yoludur, uydurma sayı değil. */
+  function haftaBasi(d){
+    var t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var g = t.getDay(); if(g === 0) g = 7;          /* Pazar = 7 */
+    t.setDate(t.getDate() - (g - 1));
+    return t;
+  }
+  function haftalik(n){
+    n = (typeof n === 'number' && n > 0) ? n : 6;
+    var s = read(), kova = [], i, b = haftaBasi(new Date());
+    for(i = n - 1; i >= 0; i--){
+      var t = new Date(b.getFullYear(), b.getMonth(), b.getDate() - i * 7);
+      kova.push({baslangic:bugunAnahtar(t), dk:0, kayit:0, _t:t.getTime()});
+    }
+    var enErken = kova[0]._t;
+    (s.gecmis || []).forEach(function(g){
+      if(!g || !g.tarihISO) return;
+      var d = new Date(g.tarihISO);
+      if(isNaN(d)) return;
+      var hb = haftaBasi(d).getTime();
+      if(hb < enErken) return;
+      for(var j = 0; j < kova.length; j++){
+        if(kova[j]._t === hb){
+          kova[j].kayit++;
+          if(typeof g.dk === 'number') kova[j].dk += g.dk;
+          break;
+        }
+      }
+    });
+    var veriVar = false;
+    kova.forEach(function(k){ delete k._t; if(k.kayit) veriVar = true; });
+    return {haftalar:kova, veriVar:veriVar};
+  }
+
   var API = {
     read:read, write:write, reset:function(){ return write(clone(BOS)); },
+    /* R20/K13 · K15 — ekranların ortak takvim ucu. Gün anahtarı fit-su.js ile
+       aynı biçimde üretilir; iki modül aynı güne aynı adı verir. */
+    bugunAnahtar:bugunAnahtar,
+    haftalik:haftalik,
 
     /* ---- program yaşam döngüsü (belge §8.3 · §11) ---- */
     /* Aktif program varken yenisine başlamak ESKİSİNİ SİLİYORDU: biten, kacan,
@@ -2905,10 +3044,7 @@ setTimeout(function(){
     programArsivle:function(){
       var s=read();
       if(s.program){
-        s.arsiv.unshift({slug:s.program.slug, ad:s.program.ad,
-          durum:s.program.durum, biten:s.program.biten||0, kacan:s.program.kacan||0,
-          toplam:s.program.toplam||0, baslangic:s.program.baslangic||null,
-          bitis:new Date().toISOString()});
+        if(!s.program.arsivlendi) s.arsiv.unshift(_arsivKaydi(s.program, s.program.durum));
         s.program=null;
       }
       return write(s);
@@ -2917,12 +3053,12 @@ setTimeout(function(){
       var s=read();
       /* Üzerine yazmadan önce arşivle. Çağıran ayrıca uyarmalı — bu yalnız
          veriyi kurtarır, kullanıcıya sormanın yerini tutmaz. */
-      if(s.program){
-        s.arsiv.unshift({slug:s.program.slug, ad:s.program.ad,
-          durum:s.program.durum==='tamamlandi'?'tamamlandi':'birakildi',
-          biten:s.program.biten||0, kacan:s.program.kacan||0,
-          toplam:s.program.toplam||0, baslangic:s.program.baslangic||null,
-          bitis:new Date().toISOString()});
+      /* R20/K11 · bayraklı program ikinci kez arşivlenmez: biten program
+         zaten `antrenmanTamamla` anında arşive geçti. Eskiden buradaki
+         koşulsuz arşivleme "İlk Program" rozetini GEÇ düşüren tek yoldu. */
+      if(s.program && !s.program.arsivlendi){
+        s.arsiv.unshift(_arsivKaydi(s.program,
+          s.program.durum==='tamamlandi' ? 'tamamlandi' : 'birakildi'));
       }
       s.program={slug:p.slug,ad:p.ad,durum:'devam',hafta:1,gun:1,
                  toplam:p.toplam||12,biten:0,kacan:0,
@@ -2993,8 +3129,13 @@ setTimeout(function(){
     },
 
     /* §6 — su takibi. D16'da "oturumluk" diye açık kalmıştı; artık kalıcı. */
-    suEkle:function(n){ var s=read(); s.bugun.su=Math.max(0,(s.bugun.su||0)+(n||1)); return write(s); },
-    suSifirla:function(){ var s=read(); s.bugun.su=0; return write(s); },
+    /* R20/K20 · `suEkle` ve `suSifirla` SÖKÜLDÜ. Ölçüldü: çağıranları 0'dı
+       (tek geçiş bir yorum satırıydı) ve `bugun.su` alanını yazan da 0'dı.
+       R18'de su tek kaynağa (`dm_fit_su_v1` · FIT_SU) taşınmış, kabuk tarafı
+       geride kalmıştı. İki uç durdukça bir sonraki geliştiricinin onları
+       çağırıp İKİNCİ bir su deposu doğurma riski vardı.
+       `bugun.su` alanı DURUYOR — fit-su.js'in tek seferlik göç okuması onu
+       hâlâ okuyor; yazan artık yok. */
 
     /* §3.7 — gün sonu. D12'de "şemada yer yok" diye açık kalmıştı.
        Hepsi isteğe bağlı; boş gönderilen alan yazılmaz, silinmez. */
@@ -3054,7 +3195,16 @@ setTimeout(function(){
          Söylemezse 'beyan' yazılır, çünkü söylenmeyen şey ölçülmüş sayılamaz.
          Uydurma bir kademe yazmaktansa zayıf ama doğru olanı yazıyoruz. */
       var kaynak = (a&&a.kaynak && KAYNAKLAR.indexOf(a.kaynak)>=0) ? a.kaynak : 'beyan';
-      s.bugun.dk += (dk||0); s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
+      /* R20/K13 · "BUGÜN" YALNIZ BUGÜNÜ SAYAR. Eskiden sayaç, kaydın TARİHİNE
+         bakmadan artıyordu: geriye dönük ya da cihazdan gelen bir kayıt
+         (9 gün önce, 40 dk) bugünün rakamına giriyordu. Gün dönümü düzeltmesi
+         tek başına yetmez — kaydın kendi tarihi de sorulmak zorunda.
+         `tarihISO` verilmemişse kayıt zaten şimdi doğuyor, bugüne yazılır. */
+      var _kayitISO = (a && a.tarihISO) || null;
+      var _bugunMu = !_kayitISO || bugunAnahtar(new Date(_kayitISO)) === bugunAnahtar();
+      if(_bugunMu){
+        s.bugun.dk += (dk||0); s.bugun.kcal += (kcal||0); s.bugun.tamam = true;
+      }
       /* R15/5 · ÜÇ ALAN EKLENDİ — challenge motorunun tek hunisi.
          Üçü de İSTEĞE BAĞLI; eski kayıtlarda yok ve okuyan taraf yokluğu
          göstermez, uydurmaz (fit-plan-kayit.js v2 şema göçünün deseni).
@@ -3064,17 +3214,36 @@ setTimeout(function(){
          `goc()` DEĞİŞMEDİ, yeni olay kanalı da gerekmedi: `write()` zaten
          `fit:state` yayınlıyor ve `fit-challenge.js` ona abone. */
       s.gecmis.unshift({
-        tarih:'bugün',
+        /* R20/K14 · `tarih:'bugün'` sabiti KALKTI — yazılan her kaydın tarihi
+           harfi harfine "bugün" oluyordu ve ekrana basılan alan oydu. */
         tarihISO:(a && a.tarihISO) || new Date().toISOString(),
         ad:ad,
         slug:(a && a.slug) || null,
         metrik:(a && a.metrik && typeof a.metrik==='object') ? a.metrik : null,
         dk:dk, kcal:kcal, kaynak:kaynak
       });
-      if(s.hafta && s.hafta.length) s.hafta[s.hafta.length-1] += (dk||0);
+      /* R20/K15 · haftalık dizinin son elemanını artıran satır KALKTI:
+         diğer beş değeri yazan kod hiç yoktu, hafta kaydırması da yoktu.
+         Ritim artık `haftalik()` ile gecmis[].tarihISO'dan türetiliyor. */
       if(s.program && s.program.durum==='devam'){
         s.program.biten++;
-        if(s.program.biten>=s.program.toplam){ s.program.durum='tamamlandi'; }
+        if(s.program.biten>=s.program.toplam){
+          s.program.durum='tamamlandi';
+          /* R20/K11 · PROGRAMI BİTİRMEK ROZETİ VERMİYORDU. Ölçüldü: 3 seanslık
+             program 3/3 bitirildi → durum 'tamamlandi', ama `arsiv` boş,
+             `bitenProgram` 0, "İlk Program" rozeti "yolda". Rozet ancak
+             HAFTALAR SONRA alakasız bir program başlatılınca düşüyordu, çünkü
+             arşive yazan tek yol `programBasla`nın içindeki otomatik arşivlemeydi.
+             Artık biten program ANINDA arşive geçiyor.
+             Program NESNESİ SİLİNMİYOR: kutlama ekranı, bitiş kartı ve
+             "Geçmiş programların" aynı anda doğru kalsın diye kayıt hem
+             duruyor hem arşivde. Çift sayımı `arsivlendi` bayrağı önler —
+             `programBasla` bayraklı programı ikinci kez arşivlemez. */
+          if(!s.program.arsivlendi){
+            s.arsiv.unshift(_arsivKaydi(s.program, 'tamamlandi'));
+            s.program.arsivlendi = true;
+          }
+        }
         else { s.program.gun++; if(s.program.gun>7){ s.program.gun=1; s.program.hafta++; } }
       }
       return write(s);

@@ -12,16 +12,22 @@
      dm_fit_planlar_v1    → FIT_PLAN (antrenman planları, gün kararları)
      dm_fit_challenge_v1  → FIT_CHALLENGE (üç tipli challenge motoru)
 
-   🔴 ÖLÇÜSÜ OLMAYAN İKİ EKSEN — UYDURULMADI.
-   Brifte rozet kazanma yolları arasında "test çözmek" ve "antrenörle
-   paylaşılan bilgileri doldurmak" da var. İkisinin de bugün deposu YOK:
-     · fit-testi-detay-v1.html:865 — "Tarama yanıtları bilinçli olarak
-       hiçbir yere yazılmaz" (ürün kararı, bu ajanın işi değil)
-     · antrenörle paylaşılan bilgi için hiçbir dm_fit_* anahtarı yok (ölçüldü)
-   Bu iki ailenin rozetleri KATALOGDA DURUR ama `olcut:null` taşır ve
-   ekranda ÜÇÜNCÜ bir durumla ("Ölçü bekliyor") gösterilir — "yolda" demek,
-   ilerlediğini ima ederdi; ilerlemiyor, çünkü kimse ölçmüyor. Hangi ekranın
-   neyi kaydetmesi gerektiği `kaynakEkran` alanında yazılıdır.
+   ✅ R20/K3 · ÖLÇÜSÜ OLMAYAN İKİ EKSEN AÇILDI — vaadin karşılığı kuruldu.
+   Bu blok daha önce şunu yazıyordu: "test çözmek" ve "antrenörle paylaşılan
+   bilgileri doldurmak" eksenlerinin deposu YOK, rozetleri `olcut:null` taşır
+   ve ekranda "Ölçü bekliyor" görünür. Ölçüldü ki bu, 50 rozetin 4'ünü
+   (225 puan) ömür boyu kazanılamaz kılıyordu.
+   İki depo açıldı ve İKİSİ DE SAĞLIK VERİSİ TAŞIMIYOR:
+     · dm_fit_test_v1 = { surum:1, cozulen:[testSlug…], guncelleme:ISO }
+       Yalnız hangi testin çözüldüğü. Puan, cevap, sonuç YOK —
+       fit-testi-detay-v1.html'in "tarama yanıtları hiçbir yere yazılmaz"
+       kararı olduğu gibi duruyor. Bir sayaç sağlık verisi değildir.
+     · dm_fit_antrenor_bilgi_v1 = { surum:1, toplamAlan:N, doluAlan:M,
+       guncelleme:ISO } — alanların İÇERİĞİ değil, kaçının dolu olduğu.
+   Geriye ÖLÇÜSÜZ rozet kalmadı; "Ölçü bekliyor" durumu (`olcusuz`) motorda
+   DURUYOR — yeni bir rozet ölçüsüz doğarsa ekran onu yine dürüstçe basar.
+   Mesafe/adım ailesi (km · adım) `gecmis[].metrik` üzerinden ölçülüyor ve
+   huniyi `bagli-uygulamalar-v1.html` besliyor (kaynak:'cihaz').
 
    DEPOLAMA
      localStorage['dm_fit_rozet_v1'] = {
@@ -184,22 +190,25 @@
     { slug:'su-seri-7', ad:'7 Gün Üst Üste', aile:'su', ico:'fa-solid fa-faucet-drip',    basamak:'ilk-ay',    puan:50,  olcut:'suSeri', hedef:7,  nasil:'Yedi gün üst üste su hedefini tut.' },
 
     /* --- Test ve bilgi paylaşımı — 🔴 ÖLÇÜ BEKLİYOR ------------------- */
-    { slug:'test-ilk',      ad:'İlk Fit Testi',       aile:'bilgi', ico:'fa-solid fa-clipboard-question', basamak:'baslangic', puan:25, olcut:null, hedef:1,
+    /* R20/K3 · DÖRDÜ DE ÖLÇÜSÜNE BAĞLANDI. Ölçülmüştü: 50 rozetin 9'u hiçbir
+       yoldan kazanılamıyordu (4.170 puanın 950'si) ve dördü buradaki
+       `olcut:null` taşıyanlardı — kart ömür boyu "%0 · yolda" duruyordu.
+       Sağlık verisi kararı KORUNDU: test SONUCU hâlâ hiçbir yere yazılmıyor;
+       yazılan tek şey hangi testin ÇÖZÜLDÜĞÜ (slug listesi). Bir sayaç sağlık
+       verisi değildir. Aynı biçimde antrenörle paylaşılan bilgilerin İÇERİĞİ
+       değil, kaç alanın dolu olduğu ölçülüyor. */
+    { slug:'test-ilk',      ad:'İlk Fit Testi',       aile:'bilgi', ico:'fa-solid fa-clipboard-question', basamak:'baslangic', puan:25, olcut:'test', hedef:1,
       nasil:'Bir Fit testini çöz.',
-      kaynakEkran:'fit-testleri-v1.html', kaynakEkranAd:'Fit Testleri',
-      kaynakNot:'Fit testi ekranı sonucu bilerek hiçbir yere yazmıyor (fit-testi-detay-v1.html:865). Ölçü açılınca bu rozet kendiliğinden çalışır.' },
-    { slug:'test-3',        ad:'Üç Test',             aile:'bilgi', ico:'fa-solid fa-square-poll-vertical', basamak:'ilk-ay',  puan:50, olcut:null, hedef:3,
+      kaynakEkran:'fit-testleri-v1.html', kaynakEkranAd:'Fit Testleri' },
+    { slug:'test-3',        ad:'Üç Test',             aile:'bilgi', ico:'fa-solid fa-square-poll-vertical', basamak:'ilk-ay',  puan:50, olcut:'test', hedef:3,
       nasil:'Üç ayrı Fit testini çöz.',
-      kaynakEkran:'fit-testleri-v1.html', kaynakEkranAd:'Fit Testleri',
-      kaynakNot:'Aynı kayıt eksiği — test sonucu saklanmıyor.' },
-    { slug:'antrenor-bilgi',ad:'Antrenörüne Anlattın', aile:'bilgi', ico:'fa-solid fa-user-doctor',       basamak:'ilk-hafta', puan:50, olcut:null, hedef:1,
-      nasil:'Antrenörünle paylaşılan sağlık ve hedef bilgilerini doldur.',
-      kaynakEkran:'antrenor-detay-v1.html', kaynakEkranAd:'Antrenör sayfası',
-      kaynakNot:'Paylaşılan bilgi formu için hiçbir dm_fit_* anahtarı yok (ölçüldü).' },
-    { slug:'antrenor-tam',  ad:'Eksiksiz Profil',      aile:'bilgi', ico:'fa-solid fa-id-card',           basamak:'ilk-ay',    puan:100, olcut:null, hedef:1,
+      kaynakEkran:'fit-testleri-v1.html', kaynakEkranAd:'Fit Testleri' },
+    { slug:'antrenor-bilgi',ad:'Antrenörüne Anlattın', aile:'bilgi', ico:'fa-solid fa-user-doctor',       basamak:'ilk-hafta', puan:50, olcut:'antrenorBilgi', hedef:1,
+      nasil:'Antrenörünle paylaşılan sağlık ve hedef bilgilerinden en az birini doldur.',
+      kaynakEkran:'antrenor-detay-v1.html', kaynakEkranAd:'Antrenör sayfası' },
+    { slug:'antrenor-tam',  ad:'Eksiksiz Profil',      aile:'bilgi', ico:'fa-solid fa-id-card',           basamak:'ilk-ay',    puan:100, olcut:'antrenorTam', hedef:1,
       nasil:'Antrenörünle paylaşılan bütün alanları doldur.',
-      kaynakEkran:'antrenor-detay-v1.html', kaynakEkranAd:'Antrenör sayfası',
-      kaynakNot:'Aynı kayıt eksiği — paylaşılan bilgiler saklanmıyor.' }
+      kaynakEkran:'antrenor-detay-v1.html', kaynakEkranAd:'Antrenör sayfası' }
   ];
 
   /* ==================================================================
@@ -273,13 +282,25 @@
     }
 
     /* Programlar — kabuk arşivi */
-    var bitenProgram = 0, dinlenme = 0;
+    var bitenProgram = 0, dinlenmeSet = {};
     if (s) {
       (s.arsiv || []).forEach(function (a) {
         if (a.kaynak !== 'plan' && a.durum === 'tamamlandi') bitenProgram++;
+        /* R20/K12 · DİNLENME KÜMÜLATİF. Eskiden ölçü YALNIZ aktif programın
+           `dinlenmeler[]` dizisinden okunuyordu; program değişince sayaç geri
+           gidiyordu (ölçüldü: dinlenme 1 → yeni program → 0). `dinlenme-5`
+           rozeti ancak TEK bir program içinde beş dinlenme günü olan
+           kullanıcıya düşebiliyordu. Arşiv kaydı artık dinlenme günlerini
+           birlikte taşıyor (fit-shell.js `_arsivKaydi`).
+           TARİHE göre tekilleştiriliyor: aynı gün iki kayıtta geçerse
+           (arşivlenmiş program + üstüne binen yeni program) iki kez sayılmaz. */
+        (Array.isArray(a.dinlenmeler) ? a.dinlenmeler : []).forEach(function (t) { dinlenmeSet[t] = 1; });
       });
-      if (s.program && Array.isArray(s.program.dinlenmeler)) dinlenme = s.program.dinlenmeler.length;
+      if (s.program && Array.isArray(s.program.dinlenmeler)) {
+        s.program.dinlenmeler.forEach(function (t) { dinlenmeSet[t] = 1; });
+      }
     }
+    var dinlenme = Object.keys(dinlenmeSet).length;
 
     /* Challenge — FIT_CHALLENGE motoru */
     var bitenChallenge = 0, bitenAliskanlik = 0, bitenSeri = 0, bitenSureli = 0, challengeGun = 0;
@@ -299,6 +320,37 @@
        uydurma bir sayı üretilmez. */
     var su = (kok.FIT_SU && kok.FIT_SU.olcu) ? kok.FIT_SU.olcu() : { suGun: 0, suSeri: 0 };
 
+    /* R20/K3 · TEST SAYACI — dm_fit_test_v1.
+       ŞEMA: { surum:1, cozulen:['denge','esneklik',…], guncelleme:ISO }
+       Yalnız SLUG tutulur; puan, sonuç, cevap ve sağlık verisi YOK ve
+       olmayacak (fit-testi-detay-v1.html'in kendi kararı korunuyor).
+       Aynı test iki kez çözülürse bir kez sayılır — slug dizisi tekildir. */
+    var test = 0;
+    try {
+      var td = JSON.parse(kok.localStorage.getItem('dm_fit_test_v1') || 'null');
+      if (td && Array.isArray(td.cozulen)) {
+        var tset = {};
+        td.cozulen.forEach(function (x) { if (x) tset[x] = 1; });
+        test = Object.keys(tset).length;
+      }
+    } catch (e) {}
+
+    /* R20/K3 · ANTRENÖRLE PAYLAŞILAN BİLGİ — dm_fit_antrenor_bilgi_v1.
+       ŞEMA: { surum:1, toplamAlan:Number, doluAlan:Number, guncelleme:ISO }
+       Alanların İÇERİĞİ bu ölçüye girmez; yalnız kaçının dolu olduğu.
+       `antrenorTam` ancak toplamAlan bilinir VE hepsi doluysa 1 olur —
+       toplamAlan 0 ise ölçü 0 kalır, bilinmeyen bir bütünü "tam" saymayız. */
+    var antrenorBilgi = 0, antrenorTam = 0;
+    try {
+      var ab = JSON.parse(kok.localStorage.getItem('dm_fit_antrenor_bilgi_v1') || 'null');
+      if (ab && typeof ab === 'object') {
+        var dolu = (typeof ab.doluAlan === 'number') ? ab.doluAlan : 0;
+        var top  = (typeof ab.toplamAlan === 'number') ? ab.toplamAlan : 0;
+        antrenorBilgi = dolu > 0 ? 1 : 0;
+        antrenorTam   = (top > 0 && dolu >= top) ? 1 : 0;
+      }
+    } catch (e) {}
+
     return {
       kayit: gecmis.length,
       aktifGun: gunler.length,
@@ -313,6 +365,7 @@
       set: Math.round(set), tekrar: Math.round(tekrar),
       planGun: planGun, bitenPlan: bitenPlan, bitenProgram: bitenProgram,
       dinlenme: dinlenme,
+      test: test, antrenorBilgi: antrenorBilgi, antrenorTam: antrenorTam,
       challengeGun: challengeGun, bitenChallenge: bitenChallenge,
       bitenAliskanlik: bitenAliskanlik, bitenSeri: bitenSeri, bitenSureli: bitenSureli,
       tarihsizKayit: tarihsiz

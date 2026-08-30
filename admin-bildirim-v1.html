@@ -60,10 +60,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Bildirim Şablonları</h2>
-        <p>Uygulamanın üyeye yazdığı her metin burada durur. Bir şablonun iki
+        <h1>Bildirim Şablonları</h1>
+        <div class="ph-sub">Uygulamanın üyeye yazdığı her metin burada durur. Bir şablonun iki
            yüzü vardır — e-posta ve uygulama içi — ve ikisi aynı olayı anlatır,
-           aynı değişkenleri kullanır.</p>
+           aynı değişkenleri kullanır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="bildirimler-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
@@ -78,11 +78,16 @@
     <div class="adm-card" id="bdListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-bell"></i> Şablonlar</h3>
-        <div class="c-acts">
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="bdAra">Şablon ara</label>
-          <input class="fk-input" type="search" id="bdAra" placeholder="Şablon ya da tetikleyici ara" style="min-width:240px" />
+          <input type="search" id="bdAra" placeholder="Şablon ya da tetikleyici ara" />
         </div>
       </div>
+
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="bdTablo">
@@ -358,19 +363,23 @@
   var epostali = SABLONLAR.filter(function (s) { return s.kanal !== 'uygulama'; }).length;
   var uygulamali = SABLONLAR.filter(function (s) { return s.kanal !== 'eposta'; }).length;
 
+  /* Trend satırı: sınıf+ikon eklendi, metin AYNEN korundu. Şablon sayısı
+     ve aktif/kapalı ayrımı sayfanın kendi SABLONLAR dizisinden GERÇEKTEN
+     sayılıyor → doğrulanmış (flat + check); geri kalan üçü sabit kural
+     metni, ne artan ne azalan bir sayı → nötr (flat + minus). */
   document.getElementById('bdKpi').innerHTML =
     '<div class="k"><span class="ico"><i class="fa-solid fa-bell"></i></span><div>' +
       '<b>' + n(SABLONLAR.length) + '</b><span>Şablon</span>' +
-      '<span class="note">' + n(aktif) + ' tanesi aktif; kapalı şablonun metni silinmez, yalnız gönderilmez.</span></div></div>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-check" aria-hidden="true"></i> ' + n(aktif) + ' tanesi aktif; kapalı şablonun metni silinmez, yalnız gönderilmez.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-envelope"></i></span><div>' +
       '<b>' + n(epostali) + '</b><span>E-posta metni</span>' +
-      '<span class="note">Konu ve gövde ayrı alanlardır; konu 90 karakterde kesilir.</span></div></div>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Konu ve gövde ayrı alanlardır; konu 90 karakterde kesilir.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-mobile-screen"></i></span><div>' +
       '<b>' + n(uygulamali) + '</b><span>Uygulama içi metin</span>' +
-      '<span class="note">Listede iki satır görünür; her biri bir sayfaya götürür.</span></div></div>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Listede iki satır görünür; her biri bir sayfaya götürür.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-code"></i></span><div>' +
       '<b>' + n(Object.keys(DEGISKEN).length) + '</b><span>Değişken</span>' +
-      '<span class="note">Listede olmayan bir değişken gönderimde ham metin olarak çıkar.</span></div></div>';
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Listede olmayan bir değişken gönderimde ham metin olarak çıkar.</span></div></div>';
 
   /* ---------- liste ---------- */
   document.getElementById('bdGovde').innerHTML = SABLONLAR.map(function (s) {
@@ -378,7 +387,7 @@
                                 : A.rozet('off', 'Kapalı', 'fa-circle-minus');
     return '<tr data-key="' + esc(s.key) + '">' +
       '<td><b>' + esc(s.ad) + '</b><small>' + esc(s.konu) + '</small></td>' +
-      '<td><code style="font-size:12px">' + esc(s.tetik) + '</code></td>' +
+      '<td><code>' + esc(s.tetik) + '</code></td>' +
       '<td><i class="' + KANAL_IKO[s.kanal] + '" aria-hidden="true"></i> ' + esc(KANAL_AD[s.kanal]) + '</td>' +
       '<td class="num">' + s.dg.length + '</td>' +
       '<td>' + d + '</td>' +

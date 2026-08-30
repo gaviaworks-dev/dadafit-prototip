@@ -34,10 +34,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Hareket Kütüphanesi</h2>
-        <p>Sitedeki 25 hareketin tamamı. Her satır iki kaynağın birleşimidir:
+        <h1>Hareket Kütüphanesi</h1>
+        <div class="ph-sub">Sitedeki 25 hareketin tamamı. Her satır iki kaynağın birleşimidir:
            kütüphane kartı taksonomi kodunu verir, detay sayfası anlatımı ve
-           alternatifleri. İkisi ayrışırsa hareket yanlış süzgeçte görünür.</p>
+           alternatifleri. İkisi ayrışırsa hareket yanlış süzgeçte görünür.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="egzersiz-kutuphane-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Kütüphaneyi gör</a>
@@ -54,16 +54,21 @@
     <div class="adm-card" id="hkListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-dumbbell"></i> Katalog</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="hkAra">Hareket ara</label>
-          <input class="fk-input" type="search" id="hkAra" placeholder="Ad, slug ya da kas ara" style="min-width:230px" />
-        </div>
       </div>
 
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+      <!-- Arama filtre şeridine, SOLA (ajan sözleşmesi §2). Süzgeç kendi
+           çip bileşenidir (`.ff`/`.df-fchip`), kabuğun `.fb-sel`i <select>
+           içindir. Bileşen DEĞİŞMEDİ (public yüzeyle aynı, plan §10/M2);
+           yalnız durduğu yer filtre şeridinin içine alındı ve sağa yaslandı —
+           Gastro'da o şerit TEK satırdır: solda arama, sağında süzgeç. -->
+      <div class="filter-bar">
+        <label class="sr-only" for="hkAra">Hareket ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="hkAra" placeholder="Ad, slug ya da kas ara" />
+        </div>
         <div class="ff" id="hkSuzgec" data-ff></div>
       </div>
-
 
       <div class="c-body flush">
         <div class="adm-tw">
@@ -178,14 +183,14 @@
 
         </form>
       </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+      <div class="c-foot">
         <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
              `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
              çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
              Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
              ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
              kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="hkKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
         </div>
       </div>
@@ -278,20 +283,28 @@
       kas[h.kas] = 1; eki[h.ekipmanKod] = 1; lv[h.lv] = (lv[h.lv] || 0) + 1;
       h.alternatif.forEach(function (a) { if (!slugVar(a)) oluAlt++; });
     });
+    /* Trend satırı gerçek sayıdan doğar: kalan terim boşsa ya da ölü
+       alternatif varsa dikkat (down + clock), tamsa doğrulanmış (flat +
+       check). Uydurulan tek şey yok — aynı koşul metni de belirliyordu. */
+    var kasTam = Object.keys(kas).length === S.kas.length;
+    var ekiTam = Object.keys(eki).length === S.ekipman.length;
     var kut = [
-      ['fa-dumbbell', H.length, 'hareket', 'Kütüphanede yayında olan tüm hareketler.'],
+      ['fa-dumbbell', H.length, 'hareket', 'Kütüphanede yayında olan tüm hareketler.', 'flat', 'fa-check'],
       ['fa-tags', Object.keys(kas).length + '<small>/' + S.kas.length + '</small>',
-       'kas bölgesi kullanımda', 'Süzgeçte ilan edilen ' + S.kas.length + ' terimin kaçına hareket düşüyor.'],
+       'kas bölgesi kullanımda', 'Süzgeçte ilan edilen ' + S.kas.length + ' terimin kaçına hareket düşüyor.',
+       kasTam ? 'flat' : 'down', kasTam ? 'fa-check' : 'fa-clock'],
       ['fa-weight-hanging', Object.keys(eki).length + '<small>/' + S.ekipman.length + '</small>',
-       'ekipman kullanımda', 'Kalan terimler bugün boş; ayrıntı Taksonomi ekranında.'],
+       'ekipman kullanımda', 'Kalan terimler bugün boş; ayrıntı Taksonomi ekranında.',
+       ekiTam ? 'flat' : 'down', ekiTam ? 'fa-check' : 'fa-clock'],
       ['fa-link-slash', oluAlt, 'çözülemeyen alternatif',
        oluAlt ? 'Bu slug katalogda yok; detay sayfası sessizce başka harekete düşer.'
-              : 'Her alternatif slug katalogda karşılık buluyor.']
+              : 'Her alternatif slug katalogda karşılık buluyor.',
+       oluAlt ? 'down' : 'flat', oluAlt ? 'fa-clock' : 'fa-check']
     ];
     document.getElementById('hkKpi').innerHTML = kut.map(function (k) {
       return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
              '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
-             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('');
   }
 

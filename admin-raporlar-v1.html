@@ -31,6 +31,18 @@
    çubuğu yoktur — yalnız çubuk kümesinin ne ölçtüğünü söyler. */
 .rp-gbas{font-size:13px;font-weight:700;color:var(--slate);margin:0 0 14px;line-height:1.5}
 .rp-gbas small{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:3px}
+/* tablo() bir "alt not" (altNot) taşıdığında paragraf çubuk başlığı değil
+   tablo kapanışı olur — üstten boşluk gerekir, alttan değil. */
+.rp-gbas.rp-alt{margin:14px 0 0}
+
+/* tablo() kartın gövdesinde ikinci/üçüncü tablo olduğunda üstten ayrım. */
+.rp-tbl{margin-top:24px}
+
+/* Dönem seçici — kart başlığı yanında dar bir açılır menü kalmasın diye. */
+.adm-head #rpDonem{min-width:180px}
+
+/* KPI trend rengi (`.kpi-delta.up/.down`) KABUKTA düzeltildi — `fit-admin.css`
+   §7. Özgüllük kusuruydu ve 21 ekranın hepsini ilgilendiriyordu. */
 </style>
 </head>
 <body class="adm-body" data-adm="raporlar">
@@ -42,14 +54,14 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Raporlar</h2>
-        <p>Dört eksen: genel kullanım, içerik kataloğu, para akışı ve
+        <h1>Raporlar</h1>
+        <div class="ph-sub">Dört eksen: genel kullanım, içerik kataloğu, para akışı ve
            moderasyon. Her sekme kendi kaynağını söyler — bir kısmı depoda
-           gerçekten çalışan modüllerden okunuyor, bir kısmı örnektir.</p>
+           gerçekten çalışan modüllerden okunuyor, bir kısmı örnektir.</div>
       </div>
       <div class="h-acts">
         <label class="sr-only" for="rpDonem">Rapor dönemi</label>
-        <select class="fk-select" id="rpDonem" style="min-width:180px">
+        <select class="fk-select" id="rpDonem">
           <option value="30">Son 30 gün</option>
           <option value="90">Son 90 gün</option>
           <option value="yil">Bu yıl</option>
@@ -132,11 +144,12 @@
    sekme bunu yazar — dönem seçiciyi sahte biçimde etkiliyormuş gibi
    göstermek, olmayan bir zaman serisi uydurmak olurdu.
 
-   K6 · ⚠ AÇIK ÇELİŞKİ, GİZLENMEDİ. Fatura defterinde `tur:'uyelik'`
-   satırları var ("DadaFit Pro — Aylık · Platform paketi"). K6 "Fit'te
-   abonelik YOKTUR" diyor. Rapor bu satırları ne siliyor ne de hizmet
-   cirosuna karıştırıyor: AYRI kalem olarak gösteriyor ve finansal
-   sekmenin başında ne olduğunu yazıyor. Karar Beyar'ındır.
+   K6 · GÜNCELLENDİ (2026-08-30). Fit'te abonelik VARDIR. Fatura defterindeki
+   `tur:'uyelik'` satırları ("DadaFit Pro — Aylık · Platform paketi") artık bir
+   çelişki değil, platformun kendi ürünüdür (K4: abonelik ve hizmet satışı bir
+   arada yaşar). Rapor bu satırları hizmet cirosuna KARIŞTIRMAZ — abonelik
+   komisyona girmez, yalnız hizmet (antrenör seansı) girer — ama AYRI kalem
+   olarak, uyarı şeridi olmadan gösterir.
    ===================================================================== */
 (function () {
   'use strict';
@@ -160,11 +173,12 @@
   /* ================================================================
      ORTAK ÇİZİCİLER — üç parça: sayaç · çubuk · tablo
      ================================================================ */
+  /* k = [ikon, sayı, etiket, not metni, trend sınıfı (up|down|flat), trend ikonu] */
   function kpi(liste){
     return '<div class="adm-kpi">' + liste.map(function (k) {
       return '<div class="k"><span class="ico"><i class="' + k[0] + '" aria-hidden="true"></i></span>' +
         '<div><b>' + esc(k[1]) + '</b><span>' + esc(k[2]) + '</span>' +
-        '<span class="note">' + esc(k[3]) + '</span></div></div>';
+        '<span class="kpi-delta ' + k[4] + '"><i class="' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('') + '</div>';
   }
 
@@ -187,13 +201,13 @@
   }
 
   function tablo(basliklar, satirlar, altNot){
-    return '<div class="adm-tw" style="margin-top:24px"><table class="adm-table"><thead><tr>' +
+    return '<div class="adm-tw rp-tbl"><table class="adm-table"><thead><tr>' +
       basliklar.map(function (b) {
         return '<th' + (b[1] ? ' class="' + b[1] + '"' : '') + '>' + esc(b[0]) + '</th>';
       }).join('') + '</tr></thead><tbody>' +
       satirlar.map(function (r) { return '<tr>' + r + '</tr>'; }).join('') +
       '</tbody></table></div>' +
-      (altNot ? '<p class="rp-gbas" style="margin:14px 0 0"><small>' + altNot + '</small></p>' : '');
+      (altNot ? '<p class="rp-gbas rp-alt"><small>' + altNot + '</small></p>' : '');
   }
 
   function sekmeNotu(tip, metin){
@@ -224,10 +238,10 @@
       'prototipte yok; sayılar dönem başına yazılmış örnek kümedir. Gerçek kaynak ' +
       'doğduğunda aynı üç parça (sayaç · çubuk · kırılım) aynı yerde durur.') +
       kpi([
-        ['fa-solid fa-users', n(g.uye), 'Toplam üye', 'Dönem içinde ' + n(g.yeni) + ' yeni kayıt'],
-        ['fa-solid fa-user-clock', n(g.aktif), 'Etkin üye', 'Dönemde en az bir antrenman işaretledi'],
-        ['fa-solid fa-dumbbell', n(g.antrenman), 'Tamamlanan antrenman', 'Program, serbest ve challenge birlikte'],
-        ['fa-solid fa-stopwatch', n(g.seans) + ' dk', 'Ortalama seans', 'Antrenman başına geçen süre']
+        ['fa-solid fa-users', n(g.uye), 'Toplam üye', 'Dönem içinde ' + n(g.yeni) + ' yeni kayıt', 'up', 'fa-solid fa-arrow-trend-up'],
+        ['fa-solid fa-user-clock', n(g.aktif), 'Etkin üye', 'Dönemde en az bir antrenman işaretledi', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-dumbbell', n(g.antrenman), 'Tamamlanan antrenman', 'Program, serbest ve challenge birlikte', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-stopwatch', n(g.seans) + ' dk', 'Ortalama seans', 'Antrenman başına geçen süre', 'flat', 'fa-solid fa-minus']
       ]) +
       cubuk('Antrenman hacmi', 'Tamamlanan antrenman sayısı',
         g.hafta.map(function (h) {
@@ -271,10 +285,10 @@
       'üstteki dönem seçici bu sekmeyi etkilemez; etkiliyormuş gibi göstermek olmayan ' +
       'bir geçmişi uydurmak olurdu.') +
       kpi([
-        ['fa-solid fa-dumbbell', n(hareket.length), 'Hareket', V.SOZLUK.kas.length + ' kas bölgesi · ' + V.SOZLUK.ekipman.length + ' ekipman terimi'],
-        ['fa-solid fa-clipboard-list', n(program.length), 'Program', V.PROGRAM_DETAY.length + ' program detay sayfası yayında'],
-        ['fa-solid fa-stopwatch', n(test.length), 'Fit testi', 'Her testin 3 sonuç bandı ve önerilen programı var'],
-        ['fa-solid fa-trophy', n(chSay), "Challenge", C ? Object.keys(C.TIP).length + ' tip · katalogdan okundu' : 'motor yüklenmedi']
+        ['fa-solid fa-dumbbell', n(hareket.length), 'Hareket', V.SOZLUK.kas.length + ' kas bölgesi · ' + V.SOZLUK.ekipman.length + ' ekipman terimi', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-clipboard-list', n(program.length), 'Program', V.PROGRAM_DETAY.length + ' program detay sayfası yayında', 'flat', 'fa-solid fa-check'],
+        ['fa-solid fa-stopwatch', n(test.length), 'Fit testi', 'Her testin 3 sonuç bandı ve önerilen programı var', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-trophy', n(chSay), "Challenge", C ? Object.keys(C.TIP).length + ' tip · katalogdan okundu' : 'motor yüklenmedi', 'flat', 'fa-solid fa-minus']
       ]) +
       cubuk('Hareket kütüphanesi · kas bölgesine göre',
             hareket.length + ' hareket, ' + V.SOZLUK.kas.length + ' bölge sözlüğüne dağılıyor',
@@ -356,17 +370,11 @@
       '<b>kuruş tamsayısı</b> olarak hesaplanıyor; komisyon oranı para parametrelerinden ' +
       '(Kazançlar ve Ödemeler ekranındaki alan) gelir. ⚠ Defter tek üyenin faturalarıdır, ' +
       'platformun gerçek cirosu değildir — <b>ölçek örnektir, aritmetik gerçektir</b>.') +
-      sekmeNotu('ornek',
-      '<b>K6 çelişkisi, gizlenmedi.</b> Defterde <code>tur:"uyelik"</code> satırları var ' +
-      '("DadaFit Pro — Aylık · Platform paketi"). K6 <b>Fit\'te abonelik yoktur</b> diyor. ' +
-      'Rapor bu satırları ne siliyor ne de hizmet cirosuna karıştırıyor: aşağıda <b>ayrı ' +
-      'kalem</b> olarak duruyorlar ve komisyona girmiyorlar. Kalemin kalıp kalkmayacağı ' +
-      'ürün kararıdır, raporun değil.') +
       kpi([
-        ['fa-solid fa-cash-register', tl(hizmetBrut), 'Hizmet cirosu', 'Antrenör hizmeti · komisyona giren tek kalem'],
-        ['fa-solid fa-percent', tl(komisyon), 'Platform komisyonu', 'Oran para parametrelerinden okunur'],
-        ['fa-solid fa-user-check', tl(hakedis), 'Antrenör hakedişi', 'Alt sınır ve devir Kazançlar ekranında hesaplanır'],
-        ['fa-solid fa-rotate-left', tl(iadeTutar), 'İade', 'İade olsa da komisyon geri gitmez']
+        ['fa-solid fa-cash-register', tl(hizmetBrut), 'Hizmet cirosu', 'Antrenör hizmeti · komisyona giren tek kalem', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-percent', tl(komisyon), 'Platform komisyonu', 'Oran para parametrelerinden okunur', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-user-check', tl(hakedis), 'Antrenör hakedişi', 'Alt sınır ve devir Kazançlar ekranında hesaplanır', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-rotate-left', tl(iadeTutar), 'İade', 'İade olsa da komisyon geri gitmez', 'flat', 'fa-solid fa-minus']
       ]) +
       (aySatir.length
         ? cubuk('Hizmet cirosu · aya göre', 'Yalnız antrenör hizmeti; platform paketi dışarıda', aySatir)
@@ -377,7 +385,7 @@
           '<td class="num">' + esc(tl(hizmetBrut)) + '</td>' +
           '<td class="num">−' + esc(tl(komisyon)) + '</td>' +
           '<td class="num"><b>' + esc(tl(hakedis)) + '</b></td>',
-        '<td><b>Platform paketi</b><small>⚠ K6 bu kalemin kalkmasını söylüyor</small></td>' +
+        '<td><b>Platform paketi</b><small>K6 · abonelik hasılatı, komisyona girmez</small></td>' +
           '<td class="num">' + esc(tl(paketBrut)) + '</td>' +
           '<td class="num">—</td>' +
           '<td class="num">—</td>'
@@ -420,10 +428,10 @@
       '⚠ <b>Bugün aynı rakam iki dosyada duruyor</b> — gerçek bildirim kaynağı doğduğunda ' +
       'iki ekran da ondan okumalı, yoksa kopya sessizce ayrışır.') +
       kpi([
-        ['fa-solid fa-flag', n(m.toplam), 'Bildirim', 'Dönemde üyelerin bildirdiği içerik'],
-        ['fa-solid fa-hourglass-half', n(m.bekleyen), 'Karar bekleyen', 'Kuyruk Moderasyon ekranında açılır'],
-        ['fa-solid fa-heart-pulse', n(m.saglik), 'Sağlık riski', 'Kuyruğun başına alınır — zarar potansiyeli var'],
-        ['fa-solid fa-gavel', n(m.karar), 'Karara bağlanan', 'Onaylandı, gizlendi ya da silindi']
+        ['fa-solid fa-flag', n(m.toplam), 'Bildirim', 'Dönemde üyelerin bildirdiği içerik', 'flat', 'fa-solid fa-minus'],
+        ['fa-solid fa-hourglass-half', n(m.bekleyen), 'Karar bekleyen', 'Kuyruk Moderasyon ekranında açılır', 'flat', 'fa-solid fa-clock'],
+        ['fa-solid fa-heart-pulse', n(m.saglik), 'Sağlık riski', 'Kuyruğun başına alınır — zarar potansiyeli var', 'down', 'fa-solid fa-minus'],
+        ['fa-solid fa-gavel', n(m.karar), 'Karara bağlanan', 'Onaylandı, gizlendi ya da silindi', 'up', 'fa-solid fa-arrow-trend-up']
       ]) +
       cubuk('Bildirim sebebi', 'Aynı içerik birden çok üye tarafından bildirilebilir',
         m.sebep.map(function (s) { return { ad:s[0], alt:'', deger:s[1], etiket:n(s[1]) }; })) +

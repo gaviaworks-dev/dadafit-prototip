@@ -21,16 +21,15 @@
 
 /* Satır adı: tıklanabilir ve KLAVYEYLE ULAŞILABİLİR olmak zorunda.
    Yalnız `tr` üstünde click dinleseydik satır fareyle açılır, Tab ile
-   açılmazdı. Düğme iki satırı (ad + e-posta) birden kaplar; böylece
-   dokunma hedefi 44px'in altına düşmüyor. */
+   açılmazdı. Düğme kimlik hücresinin (`.u-cell`) tamamını kaplar; böylece
+   dokunma hedefi 44px'in altına düşmüyor. Kimliğin GÖRÜNÜMÜ kabuğun
+   `.u-cell`/`.u-ava`/`.u-info` üçlüsü (fit-admin.css §19) — burada yalnız
+   düğme sıfırlaması var, renk/ölçü yok. */
 .uy-ad{
-  display:flex;flex-direction:column;justify-content:center;gap:2px;
   min-height:44px;width:100%;padding:0;border:0;background:none;
-  font:inherit;text-align:left;cursor:pointer;color:var(--slate);
+  font:inherit;cursor:pointer;
 }
-.uy-ad b{font-weight:700;color:var(--slate)}
-.uy-ad small{display:block;font-size:12px;color:var(--muted);font-weight:500}
-.uy-ad:hover b{color:var(--fit-deep);text-decoration:underline}
+.uy-ad:hover .u-name{color:var(--fit-deep);text-decoration:underline}
 .uy-ad:focus-visible{outline:3px solid var(--fit);outline-offset:2px;border-radius:var(--radius-sm)}
 .adm-table tbody tr.is-sec td{background:var(--fit-tint)}
 
@@ -94,10 +93,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Üyeler ve Yetki</h2>
-        <p>Kim üye, kim antrenör, kim yönetici. Satırdaki ada bas — üyenin
+        <h1>Üyeler ve Yetki</h1>
+        <div class="ph-sub">Kim üye, kim antrenör, kim yönetici. Satırdaki ada bas — üyenin
            profili, kademesi, satın aldığı hizmetler ve işlem geçmişi aynı
-           ekranda açılır.</p>
+           ekranda açılır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="admin-rozetler-v1.html"><i class="fa-solid fa-medal"></i> Kademe merdiveni</a>
@@ -108,24 +107,14 @@
 
     <!-- ============ LİSTE (K1) ============ -->
     <div class="adm-card" id="uyListe">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-users"></i> Üye listesi</h3>
-        <div class="c-acts">
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="uyAra">Üye ara</label>
-          <input class="fk-input" type="search" id="uyAra" placeholder="Ad, e-posta ya da kullanıcı adı ara" style="min-width:270px" />
+          <input type="search" id="uyAra" placeholder="Ad, e-posta ya da kullanıcı adı ara" />
         </div>
-      </div>
-
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="uySuzgec" data-ff></div>
-      </div>
-
-      <div class="adm-bulk" id="uyBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="aktif"><i class="fa-solid fa-circle-check"></i> Aktife al</button>
-          <button class="btn btn-ghost" type="button" data-toplu="askiya"><i class="fa-solid fa-pause"></i> Askıya al</button>
-          <button class="btn btn-ghost" type="button" data-toplu="rol"><i class="fa-solid fa-user-shield"></i> Rol değiştir</button>
+        <div class="fb-sel">
+          <div class="ff" id="uySuzgec" data-ff></div>
         </div>
       </div>
 
@@ -134,7 +123,6 @@
           <table class="adm-table" id="uyTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Üye</th><th>Rol</th><th>Durum</th><th>Kademe</th>
                 <th class="num">Puan</th><th>Kayıt</th><th class="act">İşlem</th>
               </tr>
@@ -171,7 +159,7 @@
         </div>
       </div>
 
-      <div class="c-head" style="border-bottom:1px solid var(--line)">
+      <div class="c-head">
         <nav class="fit-tabs" data-fit-tabs="uyeDetay" aria-label="Üye detayı bölümleri">
           <button class="fit-tab active" type="button" data-tab="profil"><i class="fa-solid fa-id-card"></i> Profil</button>
           <button class="fit-tab" type="button" data-tab="kademe"><i class="fa-solid fa-medal"></i> Kademe ve puan</button>
@@ -290,7 +278,7 @@
     'durum değişikliği doğrulanır ama kayıt gitmez.');
 
   if (!R) {
-    document.getElementById('uyGovde').innerHTML = '<tr><td colspan="8">' +
+    document.getElementById('uyGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-medal', 'Kademe motoru yüklenmedi',
             'Kademe merdiveni fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
     return;
@@ -440,7 +428,7 @@
     if (say === 0) {
       if (!bosSatir) {
         bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="8">' +
+        bosSatir.innerHTML = '<td colspan="7">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle üye kalmadı',
                 'Seçili rol, durum ve kademe birleşimine uyan kayıt yok. Bir çipi kapat ya da süzgeci sıfırla.',
                 '<button class="btn btn-primary" type="button" data-suzgec-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') + '</td>';
@@ -457,10 +445,11 @@
       var k = kademeBul(u.puan, u.gun);
       var d = DURUM[u.durum], r = ROL[u.rol];
       return '<tr data-id="' + esc(u.id) + '" data-rol="' + esc(u.rol) + '" data-durum="' + esc(u.durum) + '" data-kademe="' + esc(k.key) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(u.ad) + ' seç" /></td>' +
-        '<td><button class="uy-ad" type="button" data-ac="' + esc(u.id) + '">' +
-          '<b>' + esc(u.ad) + '</b><small>' + esc(u.mail) + '</small></button></td>' +
-        '<td><i class="fa-solid ' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</td>' +
+        '<td><button class="uy-ad u-cell" type="button" data-ac="' + esc(u.id) + '">' +
+          '<span class="u-ava initials" aria-hidden="true">' + esc(bas2(u.ad)) + '</span>' +
+          '<span class="u-info"><b class="u-name">' + esc(u.ad) + '</b><small class="u-email">' + esc(u.mail) + '</small></span>' +
+        '</button></td>' +
+        '<td><span class="role-pill ' + esc(u.rol) + '"><i class="fa-solid ' + r.ico + '" aria-hidden="true"></i> ' + esc(r.ad) + '</span></td>' +
         '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
         '<td><i class="' + k.ico + '" aria-hidden="true"></i> ' + esc(k.ad) + '</td>' +
         '<td class="num">' + n(u.puan) + '</td>' +
@@ -470,7 +459,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('uySay').textContent = UYELER.length;
-    A.secimKur(document.getElementById('uyListe'));
     A.aramaKur(document.getElementById('uyAra'), document.getElementById('uyTablo'), document.getElementById('uySay'));
   }
 
@@ -581,9 +569,7 @@
     if (!e.target.closest) return;
     var b = e.target.closest('[data-ac]');
     if (b) { detayAc(b.getAttribute('data-ac')); return; }
-    /* Satırın herhangi bir yerine basmak da açar — ama seçim kutusu ve
-       kendi düğmeleri hariç; kutuya basınca detay açılsaydı toplu seçim
-       yapılamazdı. */
+    /* Satırın herhangi bir yerine basmak da açar — ama kendi düğmeleri hariç. */
     var tr = e.target.closest('#uyGovde tr[data-id]');
     if (tr && !e.target.closest('input,button,a')) { detayAc(tr.getAttribute('data-id')); return; }
 
@@ -597,20 +583,6 @@
       });
       suz();
       return;
-    }
-
-    var t = e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#uyGovde input[type=checkbox]:checked').length;
-      var kap = document.getElementById('uyBulk').querySelector('.b-acts');
-      var not = kap.querySelector('.adm-maket-not');
-      if (!not) {
-        not = document.createElement('span'); not.className = 'adm-maket-not';
-        not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        kap.appendChild(not);
-      }
-      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
     }
   });
 

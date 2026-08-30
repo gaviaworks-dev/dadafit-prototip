@@ -16,6 +16,15 @@
 <link rel="stylesheet" href="assets/css/fit-shell.css" />
 <link rel="stylesheet" href="assets/css/fit-planim.css" />
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi.
+   Sağ kolonun iki listesi (.qa-list > .qa-item) BİLGİ satırı, gezinme
+   eylemi değil — modül durumu ve boşluk uyarısı hiçbir yere gitmiyor.
+   Kalıp Gastro'nun `.qa-item`i ama imleç ve hover kapatıldı; ölçü/renk
+   değişmedi, yalnız tıklanabilirlik izlenimi kaldırıldı. */
+.qa-item.is-static{cursor:default}
+.qa-item.is-static:hover{background:transparent}
+</style>
 </head>
 <body class="adm-body" data-adm="genel">
 
@@ -28,9 +37,9 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Genel Bakış</h2>
-        <p>Panelin giriş ekranı. Sayaçlar ve kuyruklar; dikkat isteyen ne varsa
-           burada görünür, ayrıntı kendi ekranında açılır.</p>
+        <h1>Genel Bakış</h1>
+        <div class="ph-sub">Panelin giriş ekranı. Sayaçlar ve kuyruklar; dikkat isteyen ne varsa
+           burada görünür, ayrıntı kendi ekranında açılır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="admin-raporlar-v1.html"><i class="fa-solid fa-chart-line"></i> Raporlar</a>
@@ -86,19 +95,14 @@
         <div class="adm-card">
           <div class="c-head"><h3><i class="fa-solid fa-database"></i> Veri kaynakları</h3></div>
           <div class="c-body flush">
-            <div class="adm-tw">
-              <table class="adm-table">
-                <thead><tr><th>Modül</th><th>Durum</th></tr></thead>
-                <tbody id="gbKaynaklar"></tbody>
-              </table>
-            </div>
+            <div class="qa-list" id="gbKaynaklar"></div>
           </div>
         </div>
 
         <div class="adm-card">
           <div class="c-head"><h3><i class="fa-solid fa-triangle-exclamation"></i> Veri bekleyen alanlar</h3></div>
-          <div class="c-body">
-            <div class="fp-list" id="gbAcik"></div>
+          <div class="c-body flush">
+            <div class="qa-list" id="gbAcik"></div>
           </div>
         </div>
       </div>
@@ -146,16 +150,22 @@
   var rozetSay = R ? R.KATALOG.length : 0;
   var kademeSay = R ? R.KADEMELER.length : 0;
   var chSay = C ? C.KATALOG.length : 0;
+  /* Trend satırı: k[5]/k[6] sınıf+ikon. Metin (k[4]) aynı kalır, uydurulmadı.
+     "Üye" için gerçek zaman serisi yok → nötr (flat). Challenge/rozet
+     katalogdan canlı okunuyor → doğrulanmış (flat + check). Antrenör
+     kuyruğu bekleyen bir iş → dikkat (down + clock), Gastro'nun
+     "İnceleme gerekiyor" desenindeki gibi. */
   var kpi = [
-    ['fa-solid fa-users', n(1284), '', 'Üye', 'Örnek veri — sunucu yok'],
-    ['fa-solid fa-trophy', chSay, '', 'Challenge', 'Katalogdan okundu · ' + (C ? Object.keys(C.TIP).length : 0) + ' tip'],
-    ['fa-solid fa-medal', rozetSay, '', 'Rozet', kademeSay + ' kademeli merdiven · katalogdan'],
-    ['fa-solid fa-user-check', 3, '', 'Antrenör başvurusu', 'Örnek veri — kuyruk bekliyor']
+    ['fa-solid fa-users', n(1284), '', 'Üye', 'Örnek veri — sunucu yok', 'flat', 'fa-minus'],
+    ['fa-solid fa-trophy', chSay, '', 'Challenge', 'Katalogdan okundu · ' + (C ? Object.keys(C.TIP).length : 0) + ' tip', 'flat', 'fa-check'],
+    ['fa-solid fa-medal', rozetSay, '', 'Rozet', kademeSay + ' kademeli merdiven · katalogdan', 'flat', 'fa-check'],
+    ['fa-solid fa-user-check', 3, '', 'Antrenör başvurusu', 'Örnek veri — kuyruk bekliyor', 'down', 'fa-clock']
   ];
   document.getElementById('gbKpi').innerHTML = kpi.map(function (k) {
     return '<div class="k"><span class="ico"><i class="' + k[0] + '" aria-hidden="true"></i></span>' +
       '<div><b>' + k[1] + (k[2] ? '<small>' + k[2] + '</small>' : '') + '</b>' +
-      '<span>' + esc(k[3]) + '</span><span class="note">' + esc(k[4]) + '</span></div></div>';
+      '<span>' + esc(k[3]) + '</span>' +
+      '<span class="kpi-delta ' + k[5] + '"><i class="fa-solid ' + k[6] + '" aria-hidden="true"></i> ' + esc(k[4]) + '</span></div></div>';
   }).join('');
 
   /* ---- bekleyen işler ---- */
@@ -198,18 +208,23 @@
             'Katalog fit-challenge.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
   }
 
-  /* ---- veri kaynakları: hangi modül gerçekten çalışıyor ---- */
+  /* ---- veri kaynakları: hangi modül gerçekten çalışıyor ----
+     Satır kalıbı Gastro'nun `.qa-list > .qa-item`i (kit §13, ajan sözleşmesi
+     özel notu) — ama bu satırlar gezinmiyor, bilgi veriyor. Sağdaki ok
+     yerine gerçek durum rozeti (`ok`/`off`) durur. */
   var kaynaklar = [
-    ['fit-challenge.js', !!C, C ? C.KATALOG.length + ' challenge · 3 tip' : 'yüklenemedi'],
-    ['fit-rozet.js',     !!R, R ? R.KATALOG.length + ' rozet · ' + R.KADEMELER.length + ' kademe' : 'yüklenemedi'],
-    ['fit-paket.js',     !!window.FIT_PAKET, window.FIT_PAKET ? 'kademe⇄özellik matrisi' : 'yüklenemedi'],
-    ['Sunucu',           false, 'yok — statik prototip'],
-    ['Üye veritabanı',   false, 'yok — örnek veri']
+    ['fit-challenge.js', !!C, C ? C.KATALOG.length + ' challenge · 3 tip' : 'yüklenemedi', 'fa-file-code'],
+    ['fit-rozet.js',     !!R, R ? R.KATALOG.length + ' rozet · ' + R.KADEMELER.length + ' kademe' : 'yüklenemedi', 'fa-file-code'],
+    ['fit-paket.js',     !!window.FIT_PAKET, window.FIT_PAKET ? 'kademe⇄özellik matrisi' : 'yüklenemedi', 'fa-file-code'],
+    ['Sunucu',           false, 'yok — statik prototip', 'fa-server'],
+    ['Üye veritabanı',   false, 'yok — örnek veri', 'fa-database']
   ];
   document.getElementById('gbKaynaklar').innerHTML = kaynaklar.map(function (k) {
-    return '<tr><td><b>' + esc(k[0]) + '</b><small>' + esc(k[2]) + '</small></td>' +
-      '<td>' + (k[1] ? A.rozet('ok', 'Çalışıyor', 'fa-circle-check')
-                     : A.rozet('off', 'Yok', 'fa-circle-minus')) + '</td></tr>';
+    return '<div class="qa-item is-static">' +
+      '<span class="qa-ico"><i class="fa-solid ' + k[3] + '" aria-hidden="true"></i></span>' +
+      '<div class="qa-info"><b>' + esc(k[0]) + '</b><span>' + esc(k[2]) + '</span></div>' +
+      (k[1] ? A.rozet('ok', 'Çalışıyor', 'fa-circle-check') : A.rozet('off', 'Yok', 'fa-circle-minus')) +
+      '</div>';
   }).join('');
 
   /* ---- veri bekleyen alanlar ----
@@ -221,8 +236,9 @@
     ['fa-bell',          'Hatırlatma',       'Su takibinde ayar ekranı gerçek, bildirim gönderimi maket.']
   ];
   document.getElementById('gbAcik').innerHTML = acik.map(function (x) {
-    return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
-      '<span class="txt"><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span></div>';
+    return '<div class="qa-item is-static">' +
+      '<span class="qa-ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
+      '<div class="qa-info"><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
   }).join('');
 })();
 </script>

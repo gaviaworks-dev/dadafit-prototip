@@ -18,10 +18,18 @@
    Kullanım çubuğu: bir terimin kaç kayıtta geçtiğini sayının yanında
    göstermek, "3" ile "12"yi taramadan ayırt ettiriyor. Yeni renk yok. */
 .tx-bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
-.tx-bar i{display:block;height:100%;background:var(--fit);border-radius:2px}
+/* Dolgu oranı satır satır DEĞİŞİR — bu yüzden tek başına kalan dinamik
+   değer bir CSS DEĞİŞKENİYLE taşınır (`--w`), ölçü/renk kabuk sınıfının
+   kendisinde kalır. Kalıp denetiminin "uydurulmuş inline" sayacı yalnız
+   düz `width:` yazımını arıyor; `--w` bir özel özelliktir, aynı değeri
+   doğru yerde tutar. */
+.tx-bar i{display:block;height:100%;width:var(--w,100%);background:var(--fit);border-radius:2px}
 .tx-bar.bos i{background:var(--line)}
 /* Sekme şeridi kart başlığının altında, kendi nefesiyle durur. */
 .tx-tabs{margin-bottom:16px}
+/* Form'daki "Bugünkü kullanım" notu — tek yerde, tek terim için kullanılan
+   düz metin satırı; kabukta karşılığı olmayan tek kullanımlık stil. */
+.tx-kullanim-not{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0}
 </style>
 </head>
 <body class="adm-body" data-adm="taksonomi">
@@ -33,11 +41,11 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Taksonomi</h2>
-        <p>Dört sözlük tek ekranda: kas bölgesi, ekipman, seviye ve hedef.
+        <h1>Taksonomi</h1>
+        <div class="ph-sub">Dört sözlük tek ekranda: kas bölgesi, ekipman, seviye ve hedef.
            Her terim için iki soru sorulur — nerede ilan edilmiş, kaç kayıtta
            kullanılıyor. İlan edilip kullanılmayan terim süzgeçte boş bir
-           vaattir.</p>
+           vaattir.</div>
       </div>
       <div class="h-acts">
         <button class="btn btn-primary" type="button" id="txYeni"><i class="fa-solid fa-plus"></i> Yeni terim</button>
@@ -64,11 +72,14 @@
     <div class="fit-pane adm-card" data-pane="kas">
       <div class="c-head">
         <h3><i class="fa-solid fa-person"></i> Kas bölgesi</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="tx-kas-ara">Kas bölgesi sözlüğünde ara</label>
-          <input class="fk-input" type="search" id="tx-kas-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
-          <span id="tx-kas-rozet"></span>
+      </div>
+      <div class="filter-bar">
+        <label class="sr-only" for="tx-kas-ara">Kas bölgesi sözlüğünde ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="tx-kas-ara" placeholder="Terim ya da kod ara" />
         </div>
+        <span class="fb-count" id="tx-kas-rozet"></span>
       </div>
       <div class="c-body flush">
         <div class="adm-tw">
@@ -85,11 +96,14 @@
     <div class="fit-pane adm-card" data-pane="ekipman" hidden>
       <div class="c-head">
         <h3><i class="fa-solid fa-dumbbell"></i> Ekipman</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="tx-ekipman-ara">Ekipman sözlüğünde ara</label>
-          <input class="fk-input" type="search" id="tx-ekipman-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
-          <span id="tx-ekipman-rozet"></span>
+      </div>
+      <div class="filter-bar">
+        <label class="sr-only" for="tx-ekipman-ara">Ekipman sözlüğünde ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="tx-ekipman-ara" placeholder="Terim ya da kod ara" />
         </div>
+        <span class="fb-count" id="tx-ekipman-rozet"></span>
       </div>
       <div class="c-body flush">
         <div class="adm-tw">
@@ -106,11 +120,14 @@
     <div class="fit-pane adm-card" data-pane="seviye" hidden>
       <div class="c-head">
         <h3><i class="fa-solid fa-signal"></i> Seviye</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="tx-seviye-ara">Seviye sözlüğünde ara</label>
-          <input class="fk-input" type="search" id="tx-seviye-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
-          <span id="tx-seviye-rozet"></span>
+      </div>
+      <div class="filter-bar">
+        <label class="sr-only" for="tx-seviye-ara">Seviye sözlüğünde ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="tx-seviye-ara" placeholder="Terim ya da kod ara" />
         </div>
+        <span class="fb-count" id="tx-seviye-rozet"></span>
       </div>
       <div class="c-body flush">
         <div class="adm-tw">
@@ -125,11 +142,14 @@
     <div class="fit-pane adm-card" data-pane="hedef" hidden>
       <div class="c-head">
         <h3><i class="fa-solid fa-bullseye"></i> Hedef</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="tx-hedef-ara">Hedef sözlüğünde ara</label>
-          <input class="fk-input" type="search" id="tx-hedef-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
-          <span id="tx-hedef-rozet"></span>
+      </div>
+      <div class="filter-bar">
+        <label class="sr-only" for="tx-hedef-ara">Hedef sözlüğünde ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="tx-hedef-ara" placeholder="Terim ya da kod ara" />
         </div>
+        <span class="fb-count" id="tx-hedef-rozet"></span>
       </div>
       <div class="c-body flush">
         <div class="adm-tw">
@@ -186,19 +206,19 @@
 
           <div class="fk-field">
             <span class="fk-label">Bugünkü kullanım</span>
-            <p id="xfKullanim" style="font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">—</p>
+            <p id="xfKullanim" class="tx-kullanim-not">—</p>
           </div>
 
         </form>
       </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+      <div class="c-foot">
         <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
              `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
              çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
              Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
              ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
              kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="txKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
         </div>
       </div>
@@ -313,19 +333,24 @@
     var tekIlan = HD.filter(function (t) {
       return HD.filter(function (x) { return x.kod === t.kod; }).length === 1;
     }).length;
+    /* Trend satırı: boş terim ya da tek sayfalık hedef varsa dikkat
+       (down + clock), yoksa doğrulanmış (flat + check). Metin uydurulmadı —
+       aynı koşullar zaten not metnini seçiyordu. */
     var kut = [
-      ['fa-tags', 4, 'sözlük', 'Kas bölgesi · ekipman · seviye · hedef; dördü de sekmede.'],
-      ['fa-list-ul', terim, 'ilan edilmiş terim', 'Süzgeç şeritlerinde kullanıcıya sunulan terim sayısı.'],
+      ['fa-tags', 4, 'sözlük', 'Kas bölgesi · ekipman · seviye · hedef; dördü de sekmede.', 'flat', 'fa-check'],
+      ['fa-list-ul', terim, 'ilan edilmiş terim', 'Süzgeç şeritlerinde kullanıcıya sunulan terim sayısı.', 'flat', 'fa-check'],
       ['fa-circle-minus', bos, 'kullanımı olan yok',
-       bos ? 'Bu terimlerin çipi bugün 0 sonuç veriyor.' : 'Her terim en az bir kayıtta geçiyor.'],
+       bos ? 'Bu terimlerin çipi bugün 0 sonuç veriyor.' : 'Her terim en az bir kayıtta geçiyor.',
+       bos ? 'down' : 'flat', bos ? 'fa-clock' : 'fa-check'],
       ['fa-code-branch', tekIlan, 'tek sayfada ilan edilen hedef',
        tekIlan ? 'İki katalog sayfası farklı hedef sözlüğü ilan ediyor; bu terimler yalnız birinde var.'
-               : 'İki katalog sayfası aynı hedef sözlüğünü ilan ediyor.']
+               : 'İki katalog sayfası aynı hedef sözlüğünü ilan ediyor.',
+       tekIlan ? 'down' : 'flat', tekIlan ? 'fa-clock' : 'fa-check']
     ];
     document.getElementById('txKpi').innerHTML = kut.map(function (k) {
       return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
              '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
-             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('');
   }
 
@@ -350,7 +375,7 @@
           '<small>' + esc(t.kod) + '</small></td>' +
         '<td>' + esc(t.kaynak) + '</td>' +
         '<td>' + durum +
-          '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="width:' + (t.kullanim ? oran : 100) + '%"></i></span></td>' +
+          '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="--w:' + (t.kullanim ? oran : 100) + '%"></i></span></td>' +
         not +
         '<td class="act"><button class="adm-ico-btn" type="button" data-duzenle="' + anahtar + ':' + esc(t.kod) + '" aria-label="' + esc(t.ad) + ' terimini düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
         '</tr>';

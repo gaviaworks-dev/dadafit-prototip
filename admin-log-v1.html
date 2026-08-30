@@ -43,10 +43,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Log Yönetimi</h2>
-        <p>Yönetici işlem kaydı: kim, ne zaman, hangi kayda ne yaptı. Kayıt
+        <h1>Log Yönetimi</h1>
+        <div class="ph-sub">Yönetici işlem kaydı: kim, ne zaman, hangi kayda ne yaptı. Kayıt
            silinemez ve düzeltilemez — bir logu değiştirebilmek, logu değersiz
-           kılar. Yanlış bir işlem geri alınırsa geri alma da yeni bir satır olur.</p>
+           kılar. Yanlış bir işlem geri alınırsa geri alma da yeni bir satır olur.</div>
       </div>
       <div class="h-acts">
         <button class="btn btn-ghost" type="button" id="lgDisaAktar"><i class="fa-solid fa-file-arrow-down"></i> Dışa aktar</button>
@@ -60,20 +60,16 @@
     <div class="adm-card" id="lgListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-list-check"></i> İşlem kaydı</h3>
-        <div class="c-acts">
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="lgAra">Kayıt ara</label>
-          <input class="fk-input" type="search" id="lgAra" placeholder="Yönetici, kayıt ya da ekran ara" style="min-width:260px" />
+          <input type="search" id="lgAra" placeholder="Yönetici, kayıt ya da ekran ara" />
         </div>
-      </div>
-
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="lgSuzgec" data-ff></div>
-      </div>
-
-      <div class="adm-bulk" id="lgBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="disa"><i class="fa-solid fa-file-arrow-down"></i> Seçilenleri dışa aktar</button>
+        <div class="fb-sel">
+          <div class="ff" id="lgSuzgec" data-ff></div>
         </div>
       </div>
 
@@ -82,7 +78,6 @@
           <table class="adm-table" id="lgTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Zaman</th><th>Yönetici</th><th>İşlem</th>
                 <th>Kayıt</th><th>Ekran</th><th>Kaynak IP</th>
               </tr>
@@ -230,26 +225,29 @@
   var silme = KAYITLAR.filter(function (k) { return k.i === 'sil'; }).length;
   var kisi = {}; KAYITLAR.forEach(function (k) { kisi[k.y] = 1; });
 
+  /* Trend satırı: sınıf+ikon eklendi, metin AYNEN korundu. Veri örnek
+     olduğu için (adm-src) gerçek bir zaman serisi yok — nötr (flat).
+     Tek istisna "bugünkü işlem": metin kendisi "artabilir" diyor, yani
+     gün henüz kapanmadı → dikkat (down + clock). */
   document.getElementById('lgKpi').innerHTML =
     '<div class="k"><span class="ico"><i class="fa-solid fa-list-check"></i></span><div>' +
       '<b>' + n(KAYITLAR.length) + '</b><span>Kayıt · son 30 gün</span>' +
-      '<span class="note">Kayıt silinemez; saklama süresi dolunca panelden düşer, arşive taşınır.</span></div></div>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Kayıt silinemez; saklama süresi dolunca panelden düşer, arşive taşınır.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-calendar-day"></i></span><div>' +
       '<b>' + n(bugun) + '</b><span>Bugünkü işlem</span>' +
-      '<span class="note">Gün ortasındaki hareket; akşam kapanışına kadar artabilir.</span></div></div>' +
+      '<span class="kpi-delta down"><i class="fa-solid fa-clock" aria-hidden="true"></i> Gün ortasındaki hareket; akşam kapanışına kadar artabilir.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-user-shield"></i></span><div>' +
       '<b>' + n(Object.keys(kisi).length) + '</b><span>İşlem yapan yönetici</span>' +
-      '<span class="note">Toplam ' + n(YONETICILER.length) + ' yetkili hesap tanımlı.</span></div></div>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Toplam ' + n(YONETICILER.length) + ' yetkili hesap tanımlı.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-trash"></i></span><div>' +
       '<b>' + n(silme) + '</b><span>Silme işlemi</span>' +
-      '<span class="note">Silme geri alınamaz; bu yüzden ayrı sayılır ve süzgeçte kendi çipi vardır.</span></div></div>';
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Silme geri alınamaz; bu yüzden ayrı sayılır ve süzgeçte kendi çipi vardır.</span></div></div>';
 
   /* ---------- liste ---------- */
   function listeBas(){
     document.getElementById('lgGovde').innerHTML = KAYITLAR.map(function (k) {
       var y = yon(k.y), t = ISLEM[k.i];
       return '<tr data-islem="' + esc(k.i) + '" data-yonetici="' + esc(k.y) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + A.tarih(k.t) + ' kaydını seç" /></td>' +
         '<td class="lg-zaman"><b>' + A.tarih(k.t) + '</b><small>' + saat(k.t) + '</small></td>' +
         '<td><b>' + esc(y.ad) + '</b><small>' + esc(y.rol) + '</small></td>' +
         '<td>' + A.rozet(t.durum, t.ad, t.ico.replace('fa-solid ', '')) + '</td>' +
@@ -260,7 +258,6 @@
       '</tr>';
     }).join('');
     document.getElementById('lgSay').textContent = KAYITLAR.length;
-    A.secimKur(document.getElementById('lgListe'));
     A.aramaKur(document.getElementById('lgAra'), document.getElementById('lgTablo'), document.getElementById('lgSay'));
   }
 
@@ -316,7 +313,7 @@
     if (say === 0) {
       if (!bosSatir) {
         bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="7">' +
+        bosSatir.innerHTML = '<td colspan="6">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle kayıt kalmadı',
                 'Seçili işlem ve yöneticinin kesişiminde son 30 günde bir hareket yok.',
           '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
@@ -331,20 +328,16 @@
   function disaNot(dugme, kap){
     if (!dugme) return;
     dugme.addEventListener('click', function () {
-      var s = document.querySelectorAll('#lgGovde input[type=checkbox]:checked').length;
       var not = kap.querySelector('.adm-maket-not');
       if (!not) {
         not = document.createElement('span'); not.className = 'adm-maket-not';
         not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
         kap.appendChild(not);
       }
-      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
-        (s ? s + ' satır seçili — dosya ÜRETİLMEDİ, sunucu yok.'
-           : 'Dışa aktarma dosyası ÜRETİLMEDİ, sunucu yok.');
+      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> Dışa aktarma dosyası ÜRETİLMEDİ, sunucu yok.';
     });
   }
   disaNot(document.getElementById('lgDisaAktar'), document.querySelector('.adm-head .h-acts'));
-  disaNot(document.querySelector('[data-toplu="disa"]'), document.getElementById('lgBulk').querySelector('.b-acts'));
 
 
   /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı

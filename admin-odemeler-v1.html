@@ -50,10 +50,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Kazançlar ve Ödemeler</h2>
-        <p>Üye antrenörden hizmet satın alır; platform komisyonunu keser, kalanı
+        <h1>Kazançlar ve Ödemeler</h1>
+        <div class="ph-sub">Üye antrenörden hizmet satın alır; platform komisyonunu keser, kalanı
            dönem sonunda antrenöre öder. Alt sınırı geçmeyen bakiye ödenmez,
-           bir sonraki döneme devreder.</p>
+           bir sonraki döneme devreder.</div>
       </div>
       <div class="h-acts">
         <select class="fk-select" id="pyDonem" aria-label="Ödeme dönemi" style="min-width:190px"></select>
@@ -85,14 +85,17 @@
     <div class="adm-card" id="pyListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-money-bill-wave"></i> <span id="pyListeBaslik">Ödeme listesi</span></h3>
-        <div class="c-acts">
-          <label class="sr-only" for="pyAra">Antrenör ara</label>
-          <input class="fk-input" type="search" id="pyAra" placeholder="Antrenör ara" style="min-width:210px" />
-        </div>
       </div>
 
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="pySuzgec" data-ff></div>
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="pyAra">Antrenör ara</label>
+          <input type="search" id="pyAra" placeholder="Antrenör ara" />
+        </div>
+        <div class="fb-sel">
+          <div class="ff" id="pySuzgec" data-ff></div>
+        </div>
       </div>
 
       <!-- 🔴 TOPLU EYLEM ÇUBUĞU YOK — ve bu bir eksik değil, bir karar.
@@ -391,21 +394,25 @@
       if (r.ode) odeT += r.odenebilir; else { birikT += r.odenebilir; birikSay++; }
     });
 
-    /* --- sayaçlar (K6) — hiçbir K13 sayısı metin olarak geçmez --- */
+    /* --- sayaçlar (K6) — hiçbir K13 sayısı metin olarak geçmez ---
+       Trend satırı k[4]/k[5] sınıf+ikon. Metin (k[3]) aynı kalır,
+       uydurulmadı. İlk üçü fatura defterinden gerçekten okunan/hesaplanan
+       tutarlar → doğrulanmış (flat + check). Devreden bakiye henüz
+       ödenmemiş, bekleyen bir iş → dikkat (down + clock). */
     var kpi = [
       ['fa-solid fa-cash-register', tl(brutT), 'Brüt hizmet cirosu',
-       adetT + ' satış · fatura defterinden okundu'],
+       adetT + ' satış · fatura defterinden okundu', 'flat', 'fa-check'],
       ['fa-solid fa-percent', tl(komT), 'Platform komisyonu',
-       'Oran parametre kartındaki alandan okunur'],
+       'Oran parametre kartındaki alandan okunur', 'flat', 'fa-check'],
       ['fa-solid fa-paper-plane', tl(odeT), 'Bu dönem ödenecek',
-       (D.satir.length - birikSay) + ' antrenör alt sınırı geçti'],
+       (D.satir.length - birikSay) + ' antrenör alt sınırı geçti', 'flat', 'fa-check'],
       ['fa-solid fa-layer-group', tl(birikT), 'Devreden bakiye',
-       birikSay + ' antrenör alt sınırın altında — birikiyor']
+       birikSay + ' antrenör alt sınırın altında — birikiyor', 'down', 'fa-clock']
     ];
     document.getElementById('pyKpi').innerHTML = kpi.map(function (k) {
       return '<div class="k"><span class="ico"><i class="' + k[0] + '" aria-hidden="true"></i></span>' +
         '<div><b>' + esc(k[1]) + '</b><span>' + esc(k[2]) + '</span>' +
-        '<span class="note">' + esc(k[3]) + '</span></div></div>';
+        '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('');
 
     /* --- tablo (K1) --- */

@@ -22,8 +22,12 @@
    KARAR veriliyor. Karar için belge listesi, atama ve üç düğme aynı anda
    görünmeli; bunlar bir tablo hücresine sığmaz. (plan §4 · K2) */
 .bv-liste{display:flex;flex-direction:column;gap:12px}
+/* .adm-card kalıbı: aynı zemin, kenarlık, yarıçap VE gölge — dokuz kart da
+   aynı kabukta oturur, yalnız belge sayısı farklı olduğu için yükseklik
+   içerikten değişir. */
 .bv-kart{
   border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--paper);
+  box-shadow:var(--sh-sm);
   padding:16px 18px;display:flex;flex-direction:column;gap:14px;
 }
 .bv-kart.is-sec{border-color:var(--fit-line);background:var(--fit-tint)}
@@ -93,10 +97,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Antrenörler</h2>
-        <p>İki iş, iki bölüm: bekleyen başvuruların belgesi doğrulanır ve
+        <h1>Antrenörler</h1>
+        <div class="ph-sub">İki iş, iki bölüm: bekleyen başvuruların belgesi doğrulanır ve
            karara bağlanır; altta yayında olan antrenörlerin dizini durur.
-           Karar vermeden önce başvuru bir inceleyene atanır.</p>
+           Karar vermeden önce başvuru bir inceleyene atanır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="antrenor-ol-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Başvuru formunu gör</a>
@@ -118,7 +122,7 @@
         </div>
       </div>
 
-      <div class="c-head" style="border-bottom:1px solid var(--line)">
+      <div class="c-head">
         <nav class="fit-tabs" data-fit-tabs="atKuyruk" aria-label="Başvuru durumları">
           <button class="fit-tab active" type="button" data-tab="bekleyen"><i class="fa-solid fa-hourglass-half"></i> Bekleyen <span class="cnt" data-cnt="bekleyen"></span></button>
           <button class="fit-tab" type="button" data-tab="ek-belge"><i class="fa-solid fa-file-circle-question"></i> Ek belge bekleniyor <span class="cnt" data-cnt="ek-belge"></span></button>
@@ -148,7 +152,7 @@
         </div>
       </div>
 
-      <div class="c-head" style="border-bottom:1px solid var(--line)">
+      <div class="c-head">
         <nav class="fit-tabs" data-fit-tabs="atDetay" aria-label="Başvuru detayı bölümleri">
           <button class="fit-tab active" type="button" data-tab="basvuru"><i class="fa-solid fa-file-lines"></i> Başvuru</button>
           <button class="fit-tab" type="button" data-tab="belgeler"><i class="fa-solid fa-file-shield"></i> Belgeler</button>
@@ -239,16 +243,15 @@
 
     <!-- ============ ONAYLI ANTRENÖRLER (K1) ============ -->
     <div class="adm-card" id="atOnayli">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-user-check"></i> Onaylı antrenörler</h3>
-        <div class="c-acts">
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="atAra">Antrenör ara</label>
-          <input class="fk-input" type="search" id="atAra" placeholder="Ad, uzmanlık ya da şehir ara" style="min-width:250px" />
+          <input type="search" id="atAra" placeholder="Ad, uzmanlık ya da şehir ara" />
         </div>
-      </div>
-
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="atSuzgec" data-ff></div>
+        <div class="fb-sel">
+          <div class="ff" id="atSuzgec" data-ff></div>
+        </div>
       </div>
 
       <div class="c-body flush">
@@ -705,7 +708,10 @@
     document.getElementById('atGovde').innerHTML = ANTRENOR.map(function (a) {
       var d = ANT_DURUM[a.durum];
       return '<tr data-slug="' + esc(a.slug) + '" data-sehir="' + esc(a.sehir) + '" data-durum="' + esc(a.durum) + '">' +
-        '<td><b>' + esc(a.ad) + '</b><small>' + esc(a.slug) + '</small></td>' +
+        '<td><span class="u-cell">' +
+          '<span class="u-ava initials" aria-hidden="true">' + esc(bas2(a.ad)) + '</span>' +
+          '<span class="u-info"><b class="u-name">' + esc(a.ad) + '</b><small class="u-email">' + esc(a.slug) + '</small></span>' +
+        '</span></td>' +
         '<td>' + esc(a.unvan) + '</td>' +
         '<td>' + esc(a.sehir) + '</td>' +
         '<td class="num">' + tl(a.ucret) + '</td>' +

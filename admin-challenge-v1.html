@@ -18,6 +18,9 @@
    tanımlanmaz; liste · süzgeç · tablo · sayfalama fit-admin.css'te. */
 .chf-alan{display:none}
 .chf-alan.is-on{display:block}
+/* Uydurulmuş inline metin stili yerine — kabukta karşılığı olmayan tek
+   kalem: alışkanlık tipinin açıklama paragrafı. */
+.chf-desc{font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0}
 </style>
 </head>
 <body class="adm-body" data-adm="challenge">
@@ -29,9 +32,9 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Challenge'lar</h2>
-        <p>Üç tip: süreli hedef, egzersiz serisi ve alışkanlık. Tip seçimi hedef
-           alanlarını değiştirir — üç ayrı form değil, tek form.</p>
+        <h1>Challenge'lar</h1>
+        <div class="ph-sub">Üç tip: süreli hedef, egzersiz serisi ve alışkanlık. Tip seçimi hedef
+           alanlarını değiştirir — üç ayrı form değil, tek form.</div>
       </div>
       <div class="h-acts">
         <button class="btn btn-primary" type="button" id="chYeni"><i class="fa-solid fa-plus"></i> Yeni challenge</button>
@@ -44,24 +47,19 @@
     <div class="adm-card" id="chListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-trophy"></i> Katalog</h3>
-        <div class="c-acts">
+      </div>
+
+      <!-- Filtre şeridi: kartın ilk satırı, arama solda. Süzgeç kabuğun
+           ORTAK bileşeni — sayfa yalnız .fgroup yazar, açılır menüyü ve
+           aktif çip şeridini kabuk kurar. -->
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="chAra">Challenge ara</label>
-          <input class="fk-input" type="search" id="chAra" placeholder="Ad ya da slug ara" style="min-width:230px" />
+          <input type="search" id="chAra" placeholder="Ad ya da slug ara" />
         </div>
-      </div>
-
-      <!-- Süzgeç: kabuğun ORTAK bileşeni. Sayfa yalnız .fgroup yazar,
-           açılır menüyü ve aktif çip şeridini kabuk kurar. -->
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="chSuzgec" data-ff></div>
-      </div>
-
-      <div class="adm-bulk" id="chBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="aktif"><i class="fa-solid fa-play"></i> Aktife al</button>
-          <button class="btn btn-ghost" type="button" data-toplu="yaklasan"><i class="fa-regular fa-clock"></i> Yaklaşana al</button>
-          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+        <div class="fb-sel">
+          <div class="ff" id="chSuzgec" data-ff></div>
         </div>
       </div>
 
@@ -70,7 +68,6 @@
           <table class="adm-table" id="chTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Challenge</th><th>Tip</th><th class="num">Süre</th>
                 <th>Hedef</th><th class="num">Ödül</th><th>Durum</th><th class="act">İşlem</th>
               </tr>
@@ -168,7 +165,7 @@
           <div class="chf-alan" data-tip="aliskanlik">
             <div class="fk-field">
               <span class="fk-label">Hedef</span>
-              <p style="font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">
+              <p class="chf-desc">
                 Alışkanlık challenge'ında ayrı bir hedef alanı yoktur — hedef,
                 yukarıdaki <b>süre</b> kadar günü işaretlemektir. Telafi hakkı
                 motorda tanımlıdır (<b id="cfTelafi">—</b> gün/ay) ve challenge
@@ -196,17 +193,16 @@
             <textarea class="fk-textarea" id="cfOzet" name="ozet" rows="3" required maxlength="180"
                       placeholder="Kart üstünde görünen tek cümle."></textarea>
           </div>
+
+          <!-- Kaydet çubuğu SAĞDA — Gastro admin form CSS'i ölçüldü:
+               `.form-actions{justify-content:flex-end}`, birincil eylem en
+               sağda. "Kaydet solda" kuralı HESAP ekranlarınındır (devir
+               belgesi §1), admin formunun değil — iki ayrı yüzey, iki ayrı
+               kural. -->
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" id="chKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+          </div>
         </form>
-      </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
-     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
-     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
-     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
-     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="chKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-        </div>
       </div>
     </div>
 
@@ -244,7 +240,7 @@
     'bu prototipte sunucu yok. Panel gerçek yazmayı getirdiğinde bu şerit kalkar.');
 
   if (!C) {
-    document.getElementById('chGovde').innerHTML = '<tr><td colspan="8">' +
+    document.getElementById('chGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-trophy', 'Challenge motoru yüklenmedi',
             'Katalog fit-challenge.js dosyasından okunur; bu sayfada yüklenemedi.') + '</td></tr>';
     return;
@@ -315,7 +311,6 @@
       var d = k.durum === 'aktif' ? A.rozet('ok', 'Aktif', 'fa-play')
                                   : A.rozet('wait', 'Yaklaşan', 'fa-clock');
       return '<tr data-slug="' + esc(k.slug) + '" data-tip="' + esc(k.tip) + '" data-durum="' + esc(k.durum) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(k.ad) + ' seç" /></td>' +
         '<td><b>' + esc(k.ad) + '</b><small>' + esc(k.slug) + '</small></td>' +
         '<td><i class="' + t.ikon + '" aria-hidden="true"></i> ' + esc(t.etiket) + '</td>' +
         '<td class="num">' + k.gun + ' gün</td>' +
@@ -328,7 +323,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('chSay').textContent = C.KATALOG.length;
-    A.secimKur(document.getElementById('chListe'));
     A.aramaKur(document.getElementById('chAra'), document.getElementById('chTablo'), document.getElementById('chSay'));
   }
 
@@ -384,19 +378,6 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-duzenle]');
     if (b) formAc(b.getAttribute('data-duzenle'));
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#chGovde input[type=checkbox]:checked').length;
-      var not = document.getElementById('chBulk').querySelector('.b-acts');
-      var v = not.querySelector('.adm-maket-not');
-      if (!v) {
-        v = document.createElement('span'); v.className = 'adm-maket-not';
-        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        not.appendChild(v);
-      }
-      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-    }
   });
   A.maketKaydet(document.getElementById('chKaydet'), 'challenge');
 

@@ -20,34 +20,15 @@
    ARASINDA geziniyor (her sekmenin kendi kart takımı var). */
 .ay-tabbar{margin-bottom:18px}
 
-/* Yan kolon YAPIŞKAN. `top` kabuğun üst çubuğu kadar aşağıda başlar
-   (--adm-top-h) + bir nefes; yeni ölçü üretilmedi, token okundu.
-   ≤1240'ta `.adm-cols` tek kolona düşüyor, orada yapışkanlık kendiliğinden
-   anlamsızlaşıyor — ayrıca kapatmaya gerek yok. */
-.ay-yan{position:sticky;top:calc(var(--adm-top-h) + 16px)}
-@media (max-width:1240px){ .ay-yan{position:static} }
-
-/* Kaydet kartı: sol kolonun ALTINDA ayrı kart. Yapışkan çubuk DEĞİL —
-   yapışkan bir çubuk formun son alanını sürekli örtüyor. */
-.ay-kaydet .c-head{border-bottom:0}
-
+/* Yan kolon, karakter sayacı ve "nerede görünür" listesi kabuğun yeni
+   form kitine taşındı (`fit-admin.css` §21): `.side-card` yapışkanlığı,
+   `.sc-stack`/`.sc-field` değer satırları, `.qa-list`/`.qa-item` bağlantı
+   listesi — üçü de burada uydurulmuyordu, artık kabukta yaşıyor. */
 .ay-ozet{
   background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
   padding:16px 18px;font-size:13.5px;line-height:1.75;color:var(--slate-2);font-weight:500;
 }
 .ay-ozet b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
-
-/* Yan karttaki "değeri yok" satırı: sunucu olmadığı için boş olan alanlar
-   "—" kalır, uydurma tarih basılmaz. */
-.ay-bilgi{list-style:none;margin:0;padding:0}
-.ay-bilgi li{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
-.ay-bilgi li:last-child{border-bottom:0;padding-bottom:0}
-.ay-bilgi .a{color:var(--muted);font-weight:600;flex:none;min-width:118px}
-.ay-bilgi .d{color:var(--slate);font-weight:700;min-width:0}
-.ay-nerede{list-style:none;margin:0;padding:0;font-size:13px}
-.ay-nerede li{padding:9px 0;border-bottom:1px solid var(--line);font-weight:600}
-.ay-nerede li:last-child{border-bottom:0;padding-bottom:0}
-.ay-nerede i{color:var(--fit-deep);width:16px;margin-right:9px}
 
 /* ---------------------------------------------------------------------
    🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
@@ -73,10 +54,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Ayarlar</h2>
-        <p>Markanın kendi bilgileri, para parametreleri ve sağlık uyarı metni.
+        <h1>Ayarlar</h1>
+        <div class="ph-sub">Markanın kendi bilgileri, para parametreleri ve sağlık uyarı metni.
            Buradaki değerler koda gömülü değildir — ekranlar bu alanları okur,
-           alan değişince ekran değişir.</p>
+           alan değişince ekran değişir.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="saglik-bilgilendirme-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Sağlık sayfası</a>
@@ -157,9 +138,9 @@
             </div>
           </div>
 
-          <div class="adm-card ay-kaydet">
-            <div class="c-head">
-              <div class="c-acts">
+          <div class="adm-card">
+            <div class="c-body">
+              <div class="form-actions">
                 <button class="btn btn-ghost" type="button" data-vazgec="ayMarkaF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
                 <button class="btn btn-primary" type="button" id="ayMarkaKaydet"><i class="fa-solid fa-check"></i> Marka ayarlarını kaydet</button>
               </div>
@@ -168,31 +149,31 @@
         </form>
 
         <!-- SAĞ: yapışkan durum kartı -->
-        <div class="ay-yan">
+        <div class="side-card">
           <div class="adm-card">
             <div class="c-head">
-              <h3><i class="fa-solid fa-circle-dot"></i> Durum</h3>
+              <h3><span class="status-dot" id="ayDurumDot" aria-hidden="true"></span> Durum</h3>
             </div>
             <div class="c-body">
-              <div class="fk-field">
-                <label class="fk-label" for="ayYayin">Site durumu <span class="req">*</span></label>
-                <select class="fk-select" id="ayYayin" required>
-                  <option value="yayinda">Yayında</option>
-                  <option value="bakim">Bakım modu</option>
-                </select>
-                <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Bakım modunda yalnız yönetici oturumu siteyi görür.</span></span>
+              <div class="sc-stack">
+                <div class="sc-field">
+                  <label for="ayYayin">Site durumu <span class="req">*</span></label>
+                  <select class="fk-select" id="ayYayin" required>
+                    <option value="yayinda">Yayında</option>
+                    <option value="bakim">Bakım modu</option>
+                  </select>
+                  <span class="fhint">Bakım modunda yalnız yönetici oturumu siteyi görür.</span>
+                </div>
+                <div class="sc-field">
+                  <label for="ayIndeks">Arama motorlarına açık <span class="req">*</span></label>
+                  <select class="fk-select" id="ayIndeks" required>
+                    <option value="acik">Açık</option>
+                    <option value="kapali">Kapalı</option>
+                  </select>
+                </div>
+                <div class="toggle-row"><span>Son güncelleme</span><b id="ayMarkaTarih">—</b></div>
+                <div class="toggle-row"><span>Güncelleyen</span><b id="ayMarkaKisi">—</b></div>
               </div>
-              <div class="fk-field">
-                <label class="fk-label" for="ayIndeks">Arama motorlarına açık <span class="req">*</span></label>
-                <select class="fk-select" id="ayIndeks" required>
-                  <option value="acik">Açık</option>
-                  <option value="kapali">Kapalı</option>
-                </select>
-              </div>
-              <ul class="ay-bilgi">
-                <li><span class="a">Son güncelleme</span><span class="d" id="ayMarkaTarih">—</span></li>
-                <li><span class="a">Güncelleyen</span><span class="d" id="ayMarkaKisi">—</span></li>
-              </ul>
             </div>
           </div>
         </div>
@@ -263,9 +244,9 @@
             </div>
           </div>
 
-          <div class="adm-card ay-kaydet">
-            <div class="c-head">
-              <div class="c-acts">
+          <div class="adm-card">
+            <div class="c-body">
+              <div class="form-actions">
                 <button class="btn btn-ghost" type="button" data-vazgec="ayParaF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
                 <button class="btn btn-primary" type="button" id="ayParaKaydet"><i class="fa-solid fa-check"></i> Para parametrelerini kaydet</button>
               </div>
@@ -273,20 +254,20 @@
           </div>
         </form>
 
-        <div class="ay-yan">
+        <div class="side-card">
           <div class="adm-card">
             <div class="c-head">
               <h3><i class="fa-solid fa-calculator"></i> Bu ayarlarla ne olur</h3>
             </div>
             <div class="c-body">
               <div class="ay-ozet" id="ayOzet">—</div>
-              <span class="fk-help" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i><span>Bu cümle soldaki alanlardan <b>okunuyor</b>, ayrıca yazılmış bir metin
-                değil. Alanı değiştir, cümle değişsin.</span></span>
-              <ul class="ay-bilgi" style="margin-top:14px">
-                <li><span class="a">Yürürlük</span><span class="d">Kaydedildiği andan sonraki satışlar</span></li>
-                <li><span class="a">Son güncelleme</span><span class="d" id="ayParaTarih">—</span></li>
-                <li><span class="a">Güncelleyen</span><span class="d" id="ayParaKisi">—</span></li>
-              </ul>
+              <p class="fhint" style="margin-top:12px">Bu cümle soldaki alanlardan <b>okunuyor</b>, ayrıca yazılmış bir metin
+                değil. Alanı değiştir, cümle değişsin.</p>
+              <div class="sc-stack" style="margin-top:14px">
+                <div class="toggle-row"><span>Yürürlük</span><b>Kaydedildiği andan sonraki satışlar</b></div>
+                <div class="toggle-row"><span>Son güncelleme</span><b id="ayParaTarih">—</b></div>
+                <div class="toggle-row"><span>Güncelleyen</span><b id="ayParaKisi">—</b></div>
+              </div>
             </div>
           </div>
         </div>
@@ -330,9 +311,9 @@
             </div>
           </div>
 
-          <div class="adm-card ay-kaydet">
-            <div class="c-head">
-              <div class="c-acts">
+          <div class="adm-card">
+            <div class="c-body">
+              <div class="form-actions">
                 <button class="btn btn-ghost" type="button" data-vazgec="ayHealthF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
                 <button class="btn btn-primary" type="button" id="ayHealthKaydet"><i class="fa-solid fa-check"></i> Uyarı metinlerini kaydet</button>
               </div>
@@ -340,21 +321,41 @@
           </div>
         </form>
 
-        <div class="ay-yan">
+        <div class="side-card">
           <div class="adm-card">
             <div class="c-head">
               <h3><i class="fa-solid fa-eye"></i> Nerede görünür</h3>
             </div>
-            <div class="c-body">
-              <ul class="ay-nerede">
-                <li><i class="fa-solid fa-person-running"></i> <a href="hareket-yeni-baslayanlar-v1.html" target="_blank" rel="noopener">Yeni başlayanlar rehberi</a></li>
-                <li><i class="fa-solid fa-dumbbell"></i> <a href="hareket-dogru-form-v1.html" target="_blank" rel="noopener">Doğru form rehberi</a></li>
-                <li><i class="fa-solid fa-clipboard-list"></i> <a href="program-detay-v1.html" target="_blank" rel="noopener">Program detayı</a></li>
-                <li><i class="fa-solid fa-stopwatch"></i> <a href="fit-testleri-v1.html" target="_blank" rel="noopener">Fit testleri</a></li>
-                <li><i class="fa-solid fa-file-lines"></i> <a href="saglik-bilgilendirme-v1.html" target="_blank" rel="noopener">Sağlık bilgilendirmesi</a></li>
-              </ul>
-              <span class="fk-help" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><span>Metin tek yerde durur; beş sayfa da buradan okur. İkinci bir sağlık
-                cümlesi yazmak, sitede iki farklı uyarı olması demektir.</span></span>
+            <div class="c-body flush">
+              <div class="qa-list">
+                <a class="qa-item" href="hareket-yeni-baslayanlar-v1.html" target="_blank" rel="noopener">
+                  <span class="qa-ico"><i class="fa-solid fa-person-running"></i></span>
+                  <span class="qa-info"><b>Yeni başlayanlar rehberi</b></span>
+                  <i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i>
+                </a>
+                <a class="qa-item" href="hareket-dogru-form-v1.html" target="_blank" rel="noopener">
+                  <span class="qa-ico"><i class="fa-solid fa-dumbbell"></i></span>
+                  <span class="qa-info"><b>Doğru form rehberi</b></span>
+                  <i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i>
+                </a>
+                <a class="qa-item" href="program-detay-v1.html" target="_blank" rel="noopener">
+                  <span class="qa-ico"><i class="fa-solid fa-clipboard-list"></i></span>
+                  <span class="qa-info"><b>Program detayı</b></span>
+                  <i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i>
+                </a>
+                <a class="qa-item" href="fit-testleri-v1.html" target="_blank" rel="noopener">
+                  <span class="qa-ico"><i class="fa-solid fa-stopwatch"></i></span>
+                  <span class="qa-info"><b>Fit testleri</b></span>
+                  <i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i>
+                </a>
+                <a class="qa-item" href="saglik-bilgilendirme-v1.html" target="_blank" rel="noopener">
+                  <span class="qa-ico"><i class="fa-solid fa-file-lines"></i></span>
+                  <span class="qa-info"><b>Sağlık bilgilendirmesi</b></span>
+                  <i class="fa-solid fa-chevron-right qa-arrow" aria-hidden="true"></i>
+                </a>
+              </div>
+              <p class="fhint" style="padding:0 14px 14px">Metin tek yerde durur; beş sayfa da buradan okur. İkinci bir sağlık
+                cümlesi yazmak, sitede iki farklı uyarı olması demektir.</p>
             </div>
           </div>
         </div>
@@ -459,6 +460,13 @@
 
   function el(id){ return document.getElementById(id); }
 
+  /* Durum noktası (`.status-dot[data-state]`, kit §21) site durumuyla
+     birebir okunur — ayrı bir "yeşil/gri" metni yazılmıyor. */
+  function durumNoktasi(){
+    el('ayDurumDot').setAttribute('data-state', el('ayYayin').value === 'bakim' ? 'draft' : '');
+  }
+  el('ayYayin').addEventListener('change', durumNoktasi);
+
   /* ---------- alanları doldur ---------- */
   function doldur(){
     el('ayAd').value     = BASLANGIC.ad;
@@ -470,6 +478,7 @@
     el('ayAdres').value  = BASLANGIC.adres;
     el('ayYayin').value  = BASLANGIC.yayin;
     el('ayIndeks').value = BASLANGIC.indeks;
+    durumNoktasi();
 
     el('ayKomisyon').value  = BASLANGIC.komisyonYuzde;
     el('ayOdemeGunu').value = BASLANGIC.odemeGunu;

@@ -31,10 +31,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Programlar</h2>
-        <p>Program kataloğu: hafta ve gün kurgusu, hedef, seviye ve erişim
+        <h1>Programlar</h1>
+        <div class="ph-sub">Program kataloğu: hafta ve gün kurgusu, hedef, seviye ve erişim
            kademesi. Her satırın kartı bir detay sayfası açar; açtığı sayfa
-           adını taşımıyorsa satır bunu söyler.</p>
+           adını taşımıyorsa satır bunu söyler.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="program-liste-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Katalogu gör</a>
@@ -50,16 +50,21 @@
     <div class="adm-card" id="pgListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-clipboard-list"></i> Katalog</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="pgAra">Program ara</label>
-          <input class="fk-input" type="search" id="pgAra" placeholder="Ad, hedef ya da slug ara" style="min-width:230px" />
-        </div>
       </div>
 
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+      <!-- Arama filtre şeridine, SOLA (ajan sözleşmesi §2). Süzgeç kendi
+           çip bileşenidir (`.ff`/`.df-fchip`), kabuğun `.fb-sel`i <select>
+           içindir. Bileşen DEĞİŞMEDİ (public yüzeyle aynı, plan §10/M2);
+           yalnız durduğu yer filtre şeridinin içine alındı ve sağa yaslandı —
+           Gastro'da o şerit TEK satırdır: solda arama, sağında süzgeç. -->
+      <div class="filter-bar">
+        <label class="sr-only" for="pgAra">Program ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="pgAra" placeholder="Ad, hedef ya da slug ara" />
+        </div>
         <div class="ff" id="pgSuzgec" data-ff></div>
       </div>
-
 
       <div class="c-body flush">
         <div class="adm-tw">
@@ -173,14 +178,14 @@
 
         </form>
       </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+      <div class="c-foot">
         <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
              `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
              çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
              Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
              ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
              kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="pgKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
         </div>
       </div>
@@ -268,19 +273,23 @@
     }).length;
     var proSay = PR.filter(function (p) { return p.pro; }).length;
     var antrenman = PR.reduce(function (a, p) { return a + toplam(p.plan); }, 0);
+    /* Trend satırı: ayrışma sayısı sıfır değilse (bugün 9/9) dikkat
+       (down + clock) — tam olarak bu sayacın işaret ettiği bulgu.
+       Metin uydurulmadı, aynı koşul zaten `ayrik ? … : …` ile vardı. */
     var kut = [
-      ['fa-clipboard-list', PR.length, 'katalog kartı', 'Programlar sayfasında yayında olan kart sayısı.'],
+      ['fa-clipboard-list', PR.length, 'katalog kartı', 'Programlar sayfasında yayında olan kart sayısı.', 'flat', 'fa-check'],
       ['fa-file-lines', PD.length, 'detay sayfası kaydı',
-       'Dokuz kart bu ' + PD.length + ' kaydı paylaşıyor; kalanların gövdesi henüz ayrışmıyor.'],
+       'Dokuz kart bu ' + PD.length + ' kaydı paylaşıyor; kalanların gövdesi henüz ayrışmıyor.', 'flat', 'fa-check'],
       ['fa-triangle-exclamation', ayrik, 'kart↔sayfa ayrışması',
-       ayrik ? 'Kartın adı, açtığı detay sayfasının adıyla tutmuyor.' : 'Her kart adını taşıyan sayfayı açıyor.'],
+       ayrik ? 'Kartın adı, açtığı detay sayfasının adıyla tutmuyor.' : 'Her kart adını taşıyan sayfayı açıyor.',
+       ayrik ? 'down' : 'flat', ayrik ? 'fa-clock' : 'fa-check'],
       ['fa-calendar-week', A.n(antrenman), 'planlanmış antrenman',
-       proSay + ' program ' + esc(kademeAd(true)) + ' kademesinde.']
+       proSay + ' program ' + esc(kademeAd(true)) + ' kademesinde.', 'flat', 'fa-check']
     ];
     document.getElementById('pgKpi').innerHTML = kut.map(function (k) {
       return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
              '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
-             '<span class="note">' + k[3] + '</span></div></div>';
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + k[3] + '</span></div></div>';
     }).join('');
   }
 

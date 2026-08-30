@@ -32,10 +32,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Fit Testleri</h2>
-        <p>Yedi test tanımı ve ölçüt aralıkları. Her testin üç bandı sonucu
+        <h1>Fit Testleri</h1>
+        <div class="ph-sub">Yedi test tanımı ve ölçüt aralıkları. Her testin üç bandı sonucu
            bir seviyeye ve bir programa bağlar; bant aralıkları boşluk ya da
-           çakışma bırakmamalıdır.</p>
+           çakışma bırakmamalıdır.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="fit-testleri-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Testleri gör</a>
@@ -51,16 +51,21 @@
     <div class="adm-card" id="tsListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-stopwatch"></i> Test tanımları</h3>
-        <div class="c-acts">
-          <label class="sr-only" for="tsAra">Test ara</label>
-          <input class="fk-input" type="search" id="tsAra" placeholder="Ad, kategori ya da slug ara" style="min-width:230px" />
-        </div>
       </div>
 
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+      <!-- Arama filtre şeridine, SOLA (ajan sözleşmesi §2). Süzgeç kendi
+           çip bileşenidir (`.ff`/`.df-fchip`), kabuğun `.fb-sel`i <select>
+           içindir. Bileşen DEĞİŞMEDİ (public yüzeyle aynı, plan §10/M2);
+           yalnız durduğu yer filtre şeridinin içine alındı ve sağa yaslandı —
+           Gastro'da o şerit TEK satırdır: solda arama, sağında süzgeç. -->
+      <div class="filter-bar">
+        <label class="sr-only" for="tsAra">Test ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="tsAra" placeholder="Ad, kategori ya da slug ara" />
+        </div>
         <div class="ff" id="tsSuzgec" data-ff></div>
       </div>
-
 
       <div class="c-body flush">
         <div class="adm-tw">
@@ -162,14 +167,14 @@
 
         </form>
       </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+      <div class="c-foot">
         <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
              `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
              çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
              Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
              ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
              kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="tsKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
         </div>
       </div>
@@ -237,20 +242,25 @@
       prog[b.prog] = 1; if (!progAd(b.prog)) olu++;
     }); });
     var eksik = T.filter(function (t) { return t.bant.length !== 3; }).length;
+    /* Trend satırı: eksik bant ya da ölü yönlendirme varsa dikkat
+       (down + clock), tamsa doğrulanmış (flat + check). Metin uydurulmadı —
+       aynı koşullar zaten not metnini seçiyordu. */
     var kut = [
-      ['fa-stopwatch', T.length, 'test tanımı', 'Fit testleri sayfasında yayında olan test sayısı.'],
+      ['fa-stopwatch', T.length, 'test tanımı', 'Fit testleri sayfasında yayında olan test sayısı.', 'flat', 'fa-check'],
       ['fa-diagram-project', bant, 'ölçüt bandı',
-       'Her test üç bant taşır; ' + (eksik ? eksik + ' testte üç değil.' : 'yedisinde de üç.')],
+       'Her test üç bant taşır; ' + (eksik ? eksik + ' testte üç değil.' : 'yedisinde de üç.'),
+       eksik ? 'down' : 'flat', eksik ? 'fa-clock' : 'fa-check'],
       ['fa-clipboard-list', Object.keys(prog).length, 'yönlendirilen program',
-       'Bantların işaret ettiği benzersiz program sayısı.'],
+       'Bantların işaret ettiği benzersiz program sayısı.', 'flat', 'fa-check'],
       ['fa-link-slash', olu, 'ölü yönlendirme',
        olu ? 'Bant, detay sayfasının tanımadığı bir programa gönderiyor.'
-           : 'Her bandın programı detay sayfasında karşılık buluyor.']
+           : 'Her bandın programı detay sayfasında karşılık buluyor.',
+       olu ? 'down' : 'flat', olu ? 'fa-clock' : 'fa-check']
     ];
     document.getElementById('tsKpi').innerHTML = kut.map(function (k) {
       return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
              '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
-             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' + esc(k[3]) + '</span></div></div>';
     }).join('');
   }
 

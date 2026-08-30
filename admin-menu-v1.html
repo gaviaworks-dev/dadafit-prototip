@@ -19,6 +19,10 @@
 .mn-gor{min-width:158px}
 .mn-hedef{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 
+/* `.ff` süzgeci filtre şeridine girince gereken iki düzeltme (alt boşluk +
+   public sticky konumu) KABUĞA taşındı — `fit-admin.css` §8. Süzgeci olan
+   her ekranda doğacak bir kusurdu; sayfa başına yamamak 21 yama olurdu. */
+
 /* ---------------------------------------------------------------------
    🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
    ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
@@ -44,10 +48,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Menü ve Navigasyon</h2>
-        <p>Üst menü, mobil alt çubuk, footer kolonları ve hesap menüsü tek listede.
+        <h1>Menü ve Navigasyon</h1>
+        <div class="ph-sub">Üst menü, mobil alt çubuk, footer kolonları ve hesap menüsü tek listede.
            Bir kalemin sırası ve görünürlüğü buradan değişir; hedefi bir sayfaya
-           bağlıdır, sayfa silinirse kalem de kalkar.</p>
+           bağlıdır, sayfa silinirse kalem de kalkar.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="dadafit-hub-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Menüyü sitede gör</a>
@@ -61,22 +65,16 @@
     <div class="adm-card" id="mnListe">
       <div class="c-head">
         <h3><i class="fa-solid fa-bars"></i> Menü kalemleri</h3>
-        <div class="c-acts">
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label class="sr-only" for="mnAra">Menü kalemi ara</label>
-          <input class="fk-input" type="search" id="mnAra" placeholder="Kalem adı ya da hedef ara" style="min-width:240px" />
+          <input type="search" id="mnAra" placeholder="Kalem adı ya da hedef ara" />
         </div>
-      </div>
-
-      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-        <div class="ff" id="mnSuzgec" data-ff></div>
-      </div>
-
-      <div class="adm-bulk" id="mnBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="goster"><i class="fa-solid fa-eye"></i> Görünür yap</button>
-          <button class="btn btn-ghost" type="button" data-toplu="gizle"><i class="fa-solid fa-eye-slash"></i> Gizle</button>
-          <button class="btn btn-ghost" type="button" data-toplu="tasi"><i class="fa-solid fa-right-left"></i> Başka konuma taşı</button>
+        <div class="fb-sel">
+          <div class="ff" id="mnSuzgec" data-ff></div>
         </div>
       </div>
 
@@ -85,7 +83,6 @@
           <table class="adm-table" id="mnTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th class="num">Sıra</th><th>Kalem</th><th>Hedef</th>
                 <th>Konum</th><th>Görünürlük</th><th class="act">İşlem</th>
               </tr>
@@ -110,7 +107,7 @@
      birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
      dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
      admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="mnKaydet"><i class="fa-solid fa-check"></i> Menüyü kaydet</button>
         </div>
       </div>
@@ -240,10 +237,12 @@
   function konumSay(k){ return KALEMLER.filter(function (x) { return x.konum === k; }).length; }
   document.getElementById('mnKpi').innerHTML = Object.keys(KONUM).map(function (k) {
     var gizliUye = KALEMLER.filter(function (x) { return x.konum === k && x.gor === 'uye'; }).length;
+    var noteIco = gizliUye ? 'fa-clock' : 'fa-check';
     return '<div class="k"><span class="ico"><i class="' + KONUM[k].ico + '"></i></span><div>' +
       '<b>' + n(konumSay(k)) + '</b><span>' + esc(KONUM[k].ad) + '</span>' +
-      '<span class="note">' + (gizliUye ? n(gizliUye) + ' kalem yalnız oturum açmış üyeye görünüyor.' :
-                                          'Hepsi herkese açık; oturum şartı taşıyan kalem yok.') + '</span>' +
+      '<span class="note kpi-delta flat"><i class="fa-solid ' + noteIco + '" aria-hidden="true"></i> ' +
+      (gizliUye ? n(gizliUye) + ' kalem yalnız oturum açmış üyeye görünüyor.' :
+                  'Hepsi herkese açık; oturum şartı taşıyan kalem yok.') + '</span>' +
       '</div></div>';
   }).join('');
 
@@ -254,7 +253,6 @@
                 : x.gor === 'uye'   ? A.rozet('wait', 'Yalnız üyeye', 'fa-user')
                                     : A.rozet('ok', 'Görünür', 'fa-eye');
       return '<tr data-konum="' + esc(x.konum) + '" data-gor="' + esc(x.gor) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(x.ad) + ' seç" /></td>' +
         '<td class="num"><label class="sr-only" for="mnS' + i + '">' + esc(x.ad) + ' sırası</label>' +
           '<input class="fk-input mn-sira" id="mnS' + i + '" type="number" min="1" value="' + x.sira + '" /></td>' +
         '<td><b>' + esc(x.ad) + '</b>' + (x.not ? '<small>' + esc(x.not) + '</small>' : '') + '</td>' +
@@ -273,7 +271,6 @@
       '</tr>';
     }).join('');
     document.getElementById('mnSay').textContent = KALEMLER.length;
-    A.secimKur(document.getElementById('mnListe'));
     A.aramaKur(document.getElementById('mnAra'), document.getElementById('mnTablo'), document.getElementById('mnSay'));
   }
 
@@ -328,7 +325,7 @@
     if (say === 0) {
       if (!bosSatir) {
         bosSatir = document.createElement('tr');
-        bosSatir.innerHTML = '<td colspan="7">' +
+        bosSatir.innerHTML = '<td colspan="6">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle menü kalemi kalmadı',
                 'Seçili konum ve görünürlüğün kesişiminde menü kalemi yok.',
           '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
@@ -338,22 +335,6 @@
       bosSatir.hidden = false;
     } else if (bosSatir) bosSatir.hidden = true;
   }
-
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (!t) return;
-    var s = document.querySelectorAll('#mnGovde input[type=checkbox]:checked').length;
-    var kap = document.getElementById('mnBulk').querySelector('.b-acts');
-    var v = kap.querySelector('.adm-maket-not');
-    if (!v) {
-      v = document.createElement('span'); v.className = 'adm-maket-not';
-      v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-      kap.appendChild(v);
-    }
-    v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-      ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-  });
-
 
   /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
      kendi kurduğu süzgecin içinde bırakmamak için "Tümü" çiplerine döner.

@@ -18,6 +18,10 @@
 .rk-tabbar{padding:16px 20px 0}
 .rk-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 
+/* `.ff` süzgeci filtre şeridine girince gereken iki düzeltme (alt boşluk +
+   public sticky konumu) KABUĞA taşındı — `fit-admin.css` §8. Süzgeci olan
+   her ekranda doğacak bir kusurdu; sayfa başına yamamak 21 yama olurdu. */
+
 /* ---------------------------------------------------------------------
    🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
    ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
@@ -43,10 +47,10 @@
 
     <div class="adm-head">
       <div class="h-txt">
-        <h2>Sponsorluk ve Reklam</h2>
-        <p>Üç basamak, üç sekme: alan nerede durur, kampanya onu kim kaç güne
+        <h1>Sponsorluk ve Reklam</h1>
+        <div class="ph-sub">Üç basamak, üç sekme: alan nerede durur, kampanya onu kim kaç güne
            kiralar, kreatif o alana ne basar. Bir kreatif önce alanının ölçüsünü
-           tutturur, sonra yayına çıkar.</p>
+           tutturur, sonra yayına çıkar.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="reklam-ver-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Reklam ver sayfası</a>
@@ -71,19 +75,17 @@
         <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
           <h3><i class="fa-solid fa-crop-simple"></i> Reklam alanları</h3>
           <div class="c-acts">
-            <label class="sr-only" for="rkAlanAra">Alan ara</label>
-            <input class="fk-input" type="search" id="rkAlanAra" placeholder="Alan adı ya da sayfa ara" style="min-width:230px" />
             <button class="btn btn-primary" type="button" id="rkAlanYeni"><i class="fa-solid fa-plus"></i> Yeni alan</button>
           </div>
         </div>
-        <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
-          <div class="ff" id="rkAlanSuzgec" data-ff></div>
-        </div>
-        <div class="adm-bulk" id="rkAlanBulk" hidden>
-          <b>0 satır seçildi</b>
-          <div class="b-acts">
-            <button class="btn btn-ghost" type="button" data-toplu="ac"><i class="fa-solid fa-play"></i> Yayına al</button>
-            <button class="btn btn-ghost" type="button" data-toplu="dur"><i class="fa-solid fa-pause"></i> Durdur</button>
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="rkAlanAra">Alan ara</label>
+            <input type="search" id="rkAlanAra" placeholder="Alan adı ya da sayfa ara" />
+          </div>
+          <div class="fb-sel">
+            <div class="ff" id="rkAlanSuzgec" data-ff></div>
           </div>
         </div>
         <div class="c-body flush">
@@ -91,7 +93,6 @@
             <table class="adm-table" id="rkAlanTablo">
               <thead>
                 <tr>
-                  <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                   <th>Alan</th><th>Sayfa ve konum</th><th>Ölçü</th>
                   <th class="num">Kampanya</th><th class="num">Doluluk</th><th>Durum</th>
                 </tr>
@@ -115,9 +116,14 @@
         <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
           <h3><i class="fa-solid fa-bullhorn"></i> Kampanyalar</h3>
           <div class="c-acts">
-            <label class="sr-only" for="rkKamAra">Kampanya ara</label>
-            <input class="fk-input" type="search" id="rkKamAra" placeholder="Kampanya ya da marka ara" style="min-width:230px" />
             <button class="btn btn-primary" type="button" id="rkKamYeni"><i class="fa-solid fa-plus"></i> Yeni kampanya</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="rkKamAra">Kampanya ara</label>
+            <input type="search" id="rkKamAra" placeholder="Kampanya ya da marka ara" />
           </div>
         </div>
         <div class="c-body flush">
@@ -145,9 +151,12 @@
       <div class="fit-pane" data-pane="kreatif" hidden>
         <div class="c-head" style="border-top:1px solid var(--line);margin-top:16px">
           <h3><i class="fa-solid fa-image"></i> Kreatifler</h3>
-          <div class="c-acts">
+        </div>
+        <div class="filter-bar">
+          <div class="fb-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             <label class="sr-only" for="rkKreAra">Kreatif ara</label>
-            <input class="fk-input" type="search" id="rkKreAra" placeholder="Kreatif ya da kampanya ara" style="min-width:230px" />
+            <input type="search" id="rkKreAra" placeholder="Kreatif ya da kampanya ara" />
           </div>
         </div>
         <div class="c-body flush">
@@ -177,7 +186,7 @@
      birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
      dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
      admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
+        <div class="form-actions">
           <button class="btn btn-primary" type="button" id="rkKaydet"><i class="fa-solid fa-check"></i> Değişiklikleri kaydet</button>
         </div>
       </div>
@@ -269,19 +278,20 @@
   var altsiz = KREATIFLER.filter(function (k) { return !k.alt; }).length;
   var ortDoluluk = Math.round(ALANLAR.reduce(function (t, a) { return t + a.doluluk; }, 0) / ALANLAR.length);
 
+  var kre4Cls = altsiz ? 'down' : 'up', kre4Ico = altsiz ? 'fa-clock' : 'fa-check';
   document.getElementById('rkKpi').innerHTML =
     '<div class="k"><span class="ico"><i class="fa-solid fa-crop-simple"></i></span><div>' +
       '<b>' + n(ALANLAR.length) + '</b><span>Reklam alanı</span>' +
-      '<span class="note">' + n(aktifAlan) + ' tanesi yayında; kalanı boş ya da durduruldu.</span></div></div>' +
+      '<span class="note kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> ' + n(aktifAlan) + ' tanesi yayında; kalanı boş ya da durduruldu.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-bullhorn"></i></span><div>' +
       '<b>' + n(aktifKam) + '</b><span>Yayındaki kampanya</span>' +
-      '<span class="note">Toplam ' + n(KAMPANYALAR.length) + ' kampanya kaydı var.</span></div></div>' +
+      '<span class="note kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Toplam ' + n(KAMPANYALAR.length) + ' kampanya kaydı var.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-gauge-high"></i></span><div>' +
       '<b>' + ortDoluluk + '<small>%</small></b><span>Ortalama doluluk</span>' +
-      '<span class="note">Alanların kaç günü satılmış — boş alanlar da ortalamaya giriyor.</span></div></div>' +
+      '<span class="note kpi-delta flat"><i class="fa-solid fa-minus" aria-hidden="true"></i> Alanların kaç günü satılmış — boş alanlar da ortalamaya giriyor.</span></div></div>' +
     '<div class="k"><span class="ico"><i class="fa-solid fa-image"></i></span><div>' +
       '<b>' + n(bekleyenKre) + '</b><span>Onay bekleyen kreatif</span>' +
-      '<span class="note">' + (altsiz ? n(altsiz) + ' kreatifin alt metni eksik — alt metinsiz kreatif yayına çıkamaz.' :
+      '<span class="note kpi-delta ' + kre4Cls + '"><i class="fa-solid ' + kre4Ico + '" aria-hidden="true"></i> ' + (altsiz ? n(altsiz) + ' kreatifin alt metni eksik — alt metinsiz kreatif yayına çıkamaz.' :
                                         'Tüm kreatiflerin alt metni tam.') + '</span></div></div>';
 
   /* ---------- alanlar tablosu ---------- */
@@ -291,7 +301,6 @@
             : a.durum === 'bos'   ? A.rozet('wait', 'Boş', 'fa-inbox')
                                   : A.rozet('off', 'Durduruldu', 'fa-pause');
       return '<tr data-durum="' + esc(a.durum) + '" data-tip="' + esc(a.tip) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(a.ad) + ' seç" /></td>' +
         '<td><b>' + esc(a.ad) + '</b><small class="rk-kod">' + esc(a.kod) + '</small></td>' +
         '<td><a href="' + esc(a.sayfa) + '" target="_blank" rel="noopener">' + esc(a.sayfa) + '</a><small>' + esc(a.konum) + '</small></td>' +
         '<td><i class="' + TIP_IKO[a.tip] + '" aria-hidden="true"></i> ' + esc(a.olcu) + '<small>' + esc(TIP_AD[a.tip]) + '</small></td>' +
@@ -300,7 +309,6 @@
         '<td>' + d + '</td></tr>';
     }).join('');
     document.getElementById('rkAlanSay').textContent = ALANLAR.length;
-    A.secimKur(document.querySelector('.fit-pane[data-pane="alan"]'));
     A.aramaKur(document.getElementById('rkAlanAra'), document.getElementById('rkAlanTablo'), document.getElementById('rkAlanSay'));
   }
 
@@ -352,7 +360,7 @@
     if (say === 0) {
       if (!bosAlan) {
         bosAlan = document.createElement('tr');
-        bosAlan.innerHTML = '<td colspan="7">' +
+        bosAlan.innerHTML = '<td colspan="6">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle alan kalmadı',
                 'Seçili durum ve tipin kesişiminde reklam alanı yok.',
           '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
@@ -408,23 +416,6 @@
     document.getElementById('rkKreSay').textContent = KREATIFLER.length;
     A.aramaKur(document.getElementById('rkKreAra'), document.getElementById('rkKreTablo'), document.getElementById('rkKreSay'));
   }
-
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#rkAlanGovde input[type=checkbox]:checked').length;
-      var kap = document.getElementById('rkAlanBulk').querySelector('.b-acts');
-      var v = kap.querySelector('.adm-maket-not');
-      if (!v) {
-        v = document.createElement('span'); v.className = 'adm-maket-not';
-        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        kap.appendChild(v);
-      }
-      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-    }
-  });
-
 
   /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
      kendi kurduğu süzgecin içinde bırakmamak için "Tümü" çiplerine döner.

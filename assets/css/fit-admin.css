@@ -93,7 +93,9 @@
 .adm-top .t-who small{display:block;font-size:11px;color:var(--muted);font-weight:600}
 
 /* mobil menü düğmesi — ≥1101'de gizli */
-.adm-burger{display:none;width:44px;height:44px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);color:var(--slate);cursor:pointer;place-items:center;font-size:15px}
+/* `flex:none` ŞART — üst çubuk bir flex kabı ve dar ekranda başlık uzunsa
+   düğmeyi 44'ün altına eziyordu (ölçüldü: 390px'te 39×44 ve 32×44). */
+.adm-burger{display:none;flex:none;width:44px;height:44px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);color:var(--slate);cursor:pointer;place-items:center;font-size:15px}
 
 /* ---- sayfa gövdesi ---- */
 .adm-page{padding:26px;flex:1}
@@ -102,6 +104,14 @@
 .adm-head h2{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--slate);margin:0 0 6px}
 .adm-head p{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;max-width:78ch;margin:0}
 .adm-head .h-acts{display:flex;gap:10px;flex-wrap:wrap;flex:none}
+/* 🔴 R16/2 · 390px'te taşma. ÖLÇÜLDÜ (Ajan G): başlıkta iki düğme olan
+   ekranda `.h-acts` 399px istiyor, gövdede 358px var → `body.scrollWidth`
+   415'e çıkıyordu. `flex:none` dar ekranda düğmeleri küçültmeyi de sarmayı
+   da engelliyordu. Kırılımda tam satıra iner. */
+@media (max-width:640px){
+  .adm-head .h-acts{flex:1 1 100%}
+  .adm-head .h-acts .btn{flex:1 1 auto;justify-content:center}
+}
 
 /* ---------------------------------------------------------------------
    2 · KAYNAK ŞERİDİ — `.adm-src`
@@ -165,7 +175,21 @@
 .adm-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .adm-table .act{text-align:right;white-space:nowrap}
 .adm-table .sel{width:44px}
+/* Onay kutusu: görsel 18px, DOKUNMA HEDEFİ 44px (WCAG 2.5.8).
+   `.kyt-btn` deseni — kutu büyümez, tıklanabilir alan büyür. Hücrenin
+   kendisi hedef olur, böylece satırın soluna dokunmak seçer. */
+.adm-table td.sel,.adm-table th.sel{padding:0}
+.adm-table td.sel label,.adm-table th.sel label,
+.adm-table .sel-hit{display:grid;place-items:center;width:44px;height:44px;cursor:pointer;margin:0 auto}
 .adm-table input[type=checkbox]{width:18px;height:18px;accent-color:var(--fit);cursor:pointer}
+/* ⚠ `transform:scale()` DENENDİ VE ÇALIŞMADI. Kutuyu 44px yapıp `scale(.41)`
+   ile geri küçültmek görseli korur ama **hedefi de küçültür** — dönüşüm
+   hem çizimi hem isabet sınamasını ölçekler, `getBoundingClientRect` de 18
+   döner. Ölçüm bunu gösterdi; kayda geçiriyorum ki bir daha denenmesin.
+   ÇALIŞAN ÇÖZÜM: kutu 18px kalır, HÜCRE hedef olur — 44px'in üstünde bir
+   alan ve görsel değişiklik yok. Tıklamayı `FIT_ADMIN.secimKur` bağlar. */
+.adm-table td.sel{cursor:pointer}
+.adm-table td.sel:hover input[type=checkbox]{accent-color:var(--fit-deep)}
 /* Satır eylemi 44px dokunma hedefi (WCAG 2.5.8) — görsel 32px, kalanı şeffaf. */
 .adm-ico-btn{
   width:44px;height:44px;border:0;background:transparent;color:var(--muted);cursor:pointer;

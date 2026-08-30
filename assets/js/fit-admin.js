@@ -333,6 +333,22 @@
       tablo.addEventListener('change', function(e){
         if (e.target.matches('tbody input[type=checkbox]')) tazele();
       });
+      /* HÜCRENİN TAMAMI DOKUNMA HEDEFİ (WCAG 2.5.8).
+         Onay kutusu görsel olarak 18px ve öyle kalmalı — tablo satırında
+         44px'lik bir kutu ritmi bozar. Hedefi büyütmenin CSS'le yolu yok:
+         `transform:scale()` denendi, çizimle birlikte isabet sınamasını da
+         ölçeklediği için hedefi de küçülttü (ölçüldü). Bunun yerine hücre
+         tıklanabilir yapıldı — 44px'in çok üstünde bir alan, görsel
+         değişiklik sıfır. Kutunun kendi tıklaması iki kez tetiklenmesin
+         diye kaynak kutuysa geçilir. */
+      tablo.addEventListener('click', function (e) {
+        var h = e.target.closest && e.target.closest('td.sel, th.sel');
+        if (!h || e.target.matches('input[type=checkbox]')) return;
+        var k = h.querySelector('input[type=checkbox]');
+        if (!k) return;
+        k.checked = !k.checked;
+        k.dispatchEvent(new Event('change', { bubbles: true }));
+      });
       tazele();
     },
 
@@ -368,12 +384,38 @@
 
     /* Maket yazma. Sunucu yok; form doğrulanır, sonra ekran DÜRÜSTÇE
        söyler. Sessizce "kaydedildi" demek bu depodaki en açık yalandır. */
-    maketKaydet: function (dugme, ne){
+    maketKaydet: function (dugme, ne, form){
       if (!dugme) return;
       dugme.addEventListener('click', function (e) {
         e.preventDefault();
-        var f = dugme.closest('form');
-        if (f && !f.reportValidity()) return;
+        /* 🔴 R16/2 · DOĞRULAMA YALANI DÜZELTİLDİ.
+           ÖNCEKİ HÂL: `dugme.closest('form')`. Kaydet düğmesi kartın ALT
+           ÇUBUĞUNDA, `<form>` ise kart GÖVDESİNDE olduğunda `closest` **null**
+           dönüyordu ve `if (f && …)` koşulu sessizce atlanıyordu: ekran hiçbir
+           şey doğrulamadan "Form doğrulandı" diyordu. Boş zorunlu alanla da
+           diyordu — yani bu depoda en çok kovaladığımız şeyi, maket olanı
+           gerçekmiş gibi göstermeyi, tam da dürüstlük yardımcısının kendisi
+           yapıyordu. Ajan H üç ekranda ölçüp yakaladı.
+           YENİ HÂL: form üç yoldan aranır ve BULUNAMAZSA sessizce geçilmez —
+           konsola yazılır, çünkü doğrulanmayan bir form kusurdur, varsayılan
+           değil.
+             1. çağıranın verdiği `form` (en güvenilir)
+             2. düğmenin `form` özniteliği / kendi ata zinciri
+             3. düğmenin bulunduğu kartın içindeki tek `<form>` */
+        var f = form ||
+                (dugme.form) ||
+                dugme.closest('form') ||
+                (function () {
+                  var kart = dugme.closest('.adm-card, .pnl-card, .fp-card');
+                  var hepsi = kart ? kart.querySelectorAll('form') : [];
+                  return hepsi.length === 1 ? hepsi[0] : null;
+                })();
+        if (!f) {
+          console.warn('[FIT_ADMIN.maketKaydet] Doğrulanacak form bulunamadı — ' +
+            'düğmeye üçüncü argüman olarak formu ver. Not basılmadı:', ne);
+          return;
+        }
+        if (!f.reportValidity()) return;
         var not = dugme.parentNode.querySelector('.adm-maket-not');
         if (!not){
           not = document.createElement('span');

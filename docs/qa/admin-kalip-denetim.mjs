@@ -82,9 +82,15 @@ for (const e of EKRAN) {
                 ico: c.querySelectorAll('.pe-ico').length,
                 h4:  c.querySelectorAll('h4').length,
                 p:   c.querySelectorAll('p').length })),
-      // uydurulmuş inline ölçü/renk
-      inline: [...q('[style]')].filter(x => /(?:^|;)\s*(?:color|background|border|padding|margin|font-size|width|height)\s*:/i
-                .test(x.getAttribute('style') || '')).length,
+      /* Uydurulmuş inline ölçü/renk.
+         ⚠ `width:NN%` SAYILMAZ: bir çubuğun uzunluğu onun VERİSİdir
+         (SEO ilerleme çubuğu, rapor grafiği) ve CSS'e taşınamaz — ölçüldü,
+         sayfalar 28 · raporlar 7 tanesi bu. Sayılan şey kitte karşılığı
+         olan bir değeri sayfada yeniden yazan stil: renk, yazı boyu,
+         dolgu, boşluk, sabit piksel genişlik. */
+      inline: [...q('[style]')].map(x => x.getAttribute('style') || '')
+                .filter(v => /(?:^|;)\s*(?:color|background|border|padding|margin|font-size)\s*:/i.test(v) ||
+                             /(?:^|;)\s*(?:width|height)\s*:\s*[\d.]+px/i.test(v)).length,
       tasma:  document.documentElement.scrollWidth > window.innerWidth
                 ? document.documentElement.scrollWidth : 0,
       kucuk:  [...q('.sa-mlink,.adm-item,.adm-ico-btn,.ia-btn,.adm-pg,.pg-btn,.chip,.adm-burger,.btn,a.btn')]

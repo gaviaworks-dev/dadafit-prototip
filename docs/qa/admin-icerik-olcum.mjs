@@ -37,7 +37,12 @@ const GENISLIK = [1440, 1024, 768, 390];
 /* KABUĞUN KENDİ ÖĞELERİ. `fit-shell.css` · `fit-shell.js` · `fit-admin.css` ·
    `fit-admin.js` bu turda yalnız lead'e açık; buradan çıkan kusur sayfanın
    değil kabuğun kusurudur, ayrı raporlanır ve kapıyı kapatmaz. */
-const KABUK_SECICI = ['.adm-top .t-crumb a', '.adm-burger', '.adm-item',
+/* 🔴 R17 · `.adm-top .t-crumb a` KALDIRILDI. Kabuk Gastro'ya çekilince
+   sayfa başlığı ve breadcrumb üst bardan GÖVDEYE taşındı (`.adm-head`);
+   üst bar artık yalnız arama + araçlar taşıyor. Yerine kabuğun yeni
+   kalemleri geldi. */
+const KABUK_SECICI = ['.sa-mlink', '.sa-rail-ico', '.sa-divider', '.pnl-me',
+                      '.adm-burger', '.adm-item',
                       '.ff-open', '.ff-sheet-close', '.ff-btn', '.ff-reset', '.fit-tab'];
 /* Sidebar bugün var olmayan ekranlara da bağlanıyor (menü 21 kalem, ekranlar
    sırayla doğuyor). Bunlar sayfanın ölü bağlantısı değil, kabuğun kuyruğudur. */
@@ -148,7 +153,12 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
      (`#admAra`) da bir `input[type=search]` ve DOM'da önce geliyor — geniş
      seçici onu doldurup listenin aramasına hiç dokunmuyordu (ilk koşuda
      altı ekranda birden yanlış alarm). */
-  const aramaKutusu = await pg.$('.adm-card .c-head input[type="search"]');
+  /* 🔴 R17 · arama artık `.c-head`te DEĞİL. Gastro'nun kalıbında liste
+     araması kartın İLK SATIRI olan `.filter-bar`ın solundadır (ölçüldü:
+     sa-kullanicilar.css:6). Eski seçici null dönüyor ve boş durum sondası
+     hiç koşmuyordu — kapı sessizce "0 blok" deyip kırmızı yanıyordu. */
+  const aramaKutusu = await pg.$('.adm-card .filter-bar input[type="search"], ' +
+                                 '.adm-card .c-head input[type="search"]');
   let bosOlcum = { blok: 0, tam: 0 };
   if (aramaKutusu) {
     await aramaKutusu.fill('zzzqqqxx-boş-durum-sondası');
@@ -180,10 +190,16 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
   /* Kaydet çubuğu SAĞDA: `.c-acts` sağ kenarı kartın sağ kenarına `.c-head`
      dolgusu kadar (20px + 1px kenarlık) uzakta olmalı. Ölçüm KAYDETMEDEN
      ÖNCE alınır — sonrasında notun kendisi çubuğu genişletiyor. */
+  /* 🔴 R17 · çubuğun kabı `.form-actions` oldu (Gastro'nun adı); altı form
+     ekranı da tek ada çekildi. `.c-acts` yedekte kalıyor çünkü kart
+     BAŞLIĞINDAKİ eylem şeridi hâlâ o adı taşıyor. Beklenen mesafe 21 → 23:
+     ayak satırının dolgusu Gastro'nun ölçüsüyle 20 → 22px oldu (+1px kenarlık). */
   form.cubukSag = await pg.evaluate(([f, k]) => {
     const kart = document.querySelector(f).getBoundingClientRect();
-    const cubuk = document.querySelector(k).closest('.c-acts').getBoundingClientRect();
-    return Math.round(kart.right - cubuk.right);
+    const dugme = document.querySelector(k);
+    const kap = dugme.closest('.form-actions, .c-acts, .c-foot');
+    if (!kap) return -1;
+    return Math.round(kart.right - kap.getBoundingClientRect().right);
   }, [formSec, kaySec]);
   await pg.click(kaySec);
   await pg.waitForTimeout(250);
@@ -197,7 +213,7 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
   const dokunOk = olcu.every(([, r]) => r.kucuk.length === 0);
   const aktifOk = y.aktif.length === 1 && y.ariaCurrent === 1;
   const bosOk = bosOlcum.blok > 0 && bosOlcum.tam === bosOlcum.blok;
-  const formOk = form.acildi && form.doluNot && form.cubukSag === 21 &&
+  const formOk = form.acildi && form.doluNot && form.cubukSag === 23 &&
                  (form.bosEngel === null || form.bosEngel === true);
   const gecti = satirOk && tasmaOk && dokunOk && aktifOk && bosOk && formOk &&
                 hata.length === 0 && olu.length === 0 && y.kaynak === 1 && y.yakinda === 0;
@@ -216,7 +232,7 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
   console.log('  K4 form          : ' + (form.acildi ? 'açıldı' : '🔴 AÇILMADI') +
               ' · boş formda doğrulama ' + (form.bosEngel === null ? '(yeni yok)' : form.bosEngel ? 'engelledi' : '🔴 GEÇTİ') +
               ' · dolu formda not ' + (form.doluNot ? 'basıldı' : '🔴 YOK') +
-              ' · kaydet çubuğu kart sağına ' + form.cubukSag + 'px' + (form.cubukSag === 21 ? '' : ' 🔴'));
+              ' · kaydet çubuğu kart sağına ' + form.cubukSag + 'px' + (form.cubukSag === 23 ? '' : ' 🔴'));
   console.log('  konsol hatası    : ' + hata.length + ' (formu sürerken ' + formHatasi + ')' +
               (hata.length ? ' 🔴 ' + hata.slice(0, 3).join(' | ') : ''));
   console.log('  ölü bağlantı     : ' + olu.length + '/' + hrefler.length + (olu.length ? ' 🔴 ' + olu.join(', ') : ''));

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Programlar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Hafta omurgası: katalog kartındaki
+   `.pr-spine` deseninin tablo içindeki küçük karşılığı. Yeni renk yok;
+   dolu hafta `--fit`, boş hafta `--line`. */
+.pg-spine{display:inline-flex;gap:2px;vertical-align:middle;margin-left:8px}
+.pg-spine i{width:5px;height:14px;border-radius:2px;background:var(--line);display:block}
+.pg-spine i.on{background:var(--fit)}
+</style>
+</head>
+<body class="adm-body" data-adm="programlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Programlar</h2>
+        <p>Program kataloğu: hafta ve gün kurgusu, hedef, seviye ve erişim
+           kademesi. Her satırın kartı bir detay sayfası açar; açtığı sayfa
+           adını taşımıyorsa satır bunu söyler.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="program-liste-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Katalogu gör</a>
+        <button class="btn btn-primary" type="button" id="pgYeni"><i class="fa-solid fa-plus"></i> Yeni program</button>
+      </div>
+    </div>
+
+    <div id="pgKaynak"></div>
+
+    <div class="adm-kpi" id="pgKpi"></div>
+
+    <!-- ============ LİSTE (K1) ============ -->
+    <div class="adm-card" id="pgListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-clipboard-list"></i> Katalog</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="pgAra">Program ara</label>
+          <input class="fk-input" type="search" id="pgAra" placeholder="Ad, hedef ya da slug ara" style="min-width:230px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="pgSuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="pgBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="kademe"><i class="fa-solid fa-layer-group"></i> Kademe ata</button>
+          <button class="btn btn-ghost" type="button" data-toplu="yayin"><i class="fa-solid fa-eye-slash"></i> Yayından kaldır</button>
+          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="pgTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Program</th><th>Hedef</th><th>Kurgu</th><th>Seviye</th>
+                <th>Erişim</th><th>Açtığı sayfa</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="pgGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="pgSay">0</b> program · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DETAY SAYFALARI ============ -->
+    <div class="adm-card">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-file-lines"></i> Detay sayfasının tanıdığı programlar</h3>
+        <div class="c-acts"><span class="fp-badge off" id="pgDetaySay">—</span></div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table">
+            <thead><tr><th>Slug</th><th>Ad</th><th>Tür</th><th class="num">Kaç kart açıyor</th></tr></thead>
+            <tbody id="pgDetay"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FORM (K4) ============ -->
+    <div class="adm-card" id="pgForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="pgFormBaslik">Yeni program</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="pgKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="pgF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="pfAd">Ad <span class="req">*</span></label>
+              <input class="fk-input" id="pfAd" name="ad" required maxlength="80" placeholder="8 Haftalık Güç Temeli" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="pfSlug">Detay slug'ı <span class="req">*</span></label>
+              <input class="fk-input" id="pfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="8-hafta-guc-temeli" />
+              <span class="fk-help" id="pfSlugNot"><i class="fa-solid fa-circle-info"></i>
+                Kartın açtığı adres. Bugün detay sayfası yalnız tanıdığı slug'ları
+                açar; tanımadığını sessizce ilk programa düşürür.</span>
+            </div>
+          </div>
+
+          <div class="fk-grid c3">
+            <div class="fk-field">
+              <label class="fk-label" for="pfHedef">Hedef <span class="req">*</span></label>
+              <select class="fk-select" id="pfHedef" name="hedef" required></select>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="pfSeviye">Seviye <span class="req">*</span></label>
+              <select class="fk-select" id="pfSeviye" name="seviye" required></select>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="pfKademe">Erişim kademesi <span class="req">*</span></label>
+              <select class="fk-select" id="pfKademe" name="kademe" required></select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Kademe listesi <code>fit-paket.js</code>ten okunur. Fiyat burada
+                yazılmaz — para parametreleri Ayarlar ekranından okunur (K13).</span>
+            </div>
+          </div>
+
+          <div class="fk-grid c3">
+            <div class="fk-field">
+              <label class="fk-label" for="pfHafta">Süre (hafta) <span class="req">*</span></label>
+              <input class="fk-input" id="pfHafta" name="hafta" type="number" min="1" max="52" required placeholder="8" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="pfGun">Haftada gün <span class="req">*</span></label>
+              <input class="fk-input" id="pfGun" name="gun" type="number" min="1" max="7" required placeholder="3" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="pfToplam">Toplam antrenman</label>
+              <input class="fk-input" id="pfToplam" name="toplam" readonly placeholder="—" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Hafta × gün; elle girilmez.</span>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="pfOzet">Kart özeti <span class="req">*</span></label>
+            <textarea class="fk-textarea" id="pfOzet" name="ozet" rows="3" required maxlength="180"
+                      placeholder="Katalog kartında görünen tek cümle."></textarea>
+          </div>
+
+          <div class="c-acts" style="margin-top:4px">
+            <button class="btn btn-primary" type="button" id="pgKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · PROGRAMLAR   (R16/2)   — K1 liste + K4 form
+   ---------------------------------------------------------------------
+   ÖRNEK VERİ YAZILMADI, ÖLÇÜLEN VERİ BASILDI.
+   Görev kâğıdı bu ekran için "örnek veri" diyordu; ama katalog depoda
+   ZATEN var — `program-liste-v1.html` dokuz kart taşıyor ve her kartın
+   hedefi, süresi, seviyesi, ekipmanı ve plan cümlesi nitelik olarak
+   yazılı. Uydurmak yerine ölçmek hem plan §6'ya (`okunabilen veri
+   gerçekten okunur`) hem "kaynağı olmayan alan — kalır" kuralına uyuyor.
+   Sapma rapora açık geçti.
+
+   EKRANIN İLK GÖRDÜĞÜ ŞEY BİR KUSUR — ve saklanmıyor.
+   Dokuz katalog kartı yalnız DÖRT detay slug'ına gidiyor ve dokuzunun da
+   adı, açtığı sayfanın adıyla tutmuyor ("8 Haftalık Güç Temeli" →
+   `4-hafta-ev-antrenmani` → "4 Hafta Ev Antrenmanı"). Bu, hareket
+   kütüphanesinde bir kez temizlenen K43 kusurunun program tarafındaki eşi.
+   Yönetim ekranının işi bunu göstermektir; "Açtığı sayfa" kolonu tam da
+   bunun için var.
+
+   ERİŞİM KADEMESİ TÜRETİLİR, UYDURULMAZ. Kademe adları `fit-paket.js`ten
+   canlı okunuyor; bir kartın Pro olup olmadığı katalogdaki `.pr-pro`
+   rozetinden geliyor. Fiyat BASILMAZ (K13).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI, P = window.FIT_PAKET;
+  if (!A) return;
+  var esc = A.esc;
+
+  document.getElementById('pgKaynak').innerHTML = A.kaynak('canli',
+    '<b>Katalog gerçek.</b> Dokuz satır <code>program-liste-v1.html</code> kartlarından, ' +
+    'dört detay kaydı <code>program-detay-v1.html</code>dan <b>' + esc(V ? V.OLCUM_TARIHI : '—') +
+    '</b> tarihinde makineyle okundu (<code>tools/admin-veri-uret.mjs</code>) — örnek satır yok, ' +
+    'ama bu kayıtların kaynağı değil kopyasıdır. Erişim kademeleri <code>fit-paket.js</code>ten ' +
+    'canlı geliyor. <b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez.');
+
+  if (!V || !V.PROGRAM || !V.PROGRAM.length) {
+    document.getElementById('pgGovde').innerHTML = '<tr><td colspan="8">' +
+      A.bos('fa-clipboard-list', 'Program kataloğu yüklenmedi',
+            'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+    return;
+  }
+
+  var PR = V.PROGRAM, PD = V.PROGRAM_DETAY;
+  var KADEME = (P && P.kademeler) ? P.kademeler : [];
+
+  function kademeAd(pro) {
+    if (!KADEME.length) return pro ? 'Pro' : 'Ücretsiz';
+    var k = KADEME.filter(function (x) { return x.key === (pro ? 'pro' : 'ucretsiz'); })[0];
+    return k ? k.ad : (pro ? 'Pro' : 'Ücretsiz');
+  }
+  function gunSay(plan) {   /* "8 hafta · haftada 3 gün · 24 antrenman" */
+    var m = plan.match(/haftada (\d+) gün/);
+    return m ? Number(m[1]) : 0;
+  }
+  function toplam(plan) {
+    var m = plan.match(/(\d+) antrenman/);
+    return m ? Number(m[1]) : 0;
+  }
+
+  /* ---------- sayaçlar ---------- */
+  function kpi() {
+    var ayrik = PR.filter(function (p) {
+      var d = V.programDetay(p.slug); return !d || d.ad !== p.ad;
+    }).length;
+    var proSay = PR.filter(function (p) { return p.pro; }).length;
+    var antrenman = PR.reduce(function (a, p) { return a + toplam(p.plan); }, 0);
+    var kut = [
+      ['fa-clipboard-list', PR.length, 'katalog kartı', 'Programlar sayfasında yayında olan kart sayısı.'],
+      ['fa-file-lines', PD.length, 'detay sayfası kaydı',
+       'Dokuz kart bu ' + PD.length + ' kaydı paylaşıyor; kalanların gövdesi henüz ayrışmıyor.'],
+      ['fa-triangle-exclamation', ayrik, 'kart↔sayfa ayrışması',
+       ayrik ? 'Kartın adı, açtığı detay sayfasının adıyla tutmuyor.' : 'Her kart adını taşıyan sayfayı açıyor.'],
+      ['fa-calendar-week', A.n(antrenman), 'planlanmış antrenman',
+       proSay + ' program ' + esc(kademeAd(true)) + ' kademesinde.']
+    ];
+    document.getElementById('pgKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="note">' + k[3] + '</span></div></div>';
+    }).join('');
+  }
+
+  /* ---------- süzgeç ---------- */
+  function suzgecKur() {
+    var kok = document.getElementById('pgSuzgec');
+    function benzersiz(f) {
+      var v = []; PR.forEach(function (p) { var x = f(p); if (v.indexOf(x) < 0) v.push(x); });
+      return v;
+    }
+    var hedefler = benzersiz(function (p) { return p.hedef; }).sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+    var seviyeler = [1, 2, 3].filter(function (lv) { return PR.some(function (p) { return p.lv === lv; }); });
+    var SEV = { 1: 'Başlangıç', 2: 'Orta', 3: 'İleri' };
+    kok.innerHTML =
+      '<div class="fgroup" data-group="hedef" role="group" aria-label="Hedef filtresi">' +
+        '<span class="lbl">Hedef</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        hedefler.map(function (h) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(h) + '">' + esc(h) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="seviye" role="group" aria-label="Seviye filtresi">' +
+        '<span class="lbl">Seviye</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        seviyeler.map(function (lv) {
+          return '<button class="df-fchip" type="button" data-val="' + lv + '">' + SEV[lv] + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="kademe" role="group" aria-label="Erişim filtresi">' +
+        '<span class="lbl">Erişim</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="0"><i class="fa-solid fa-user"></i> ' + esc(kademeAd(false)) + '</button>' +
+        '<button class="df-fchip" type="button" data-val="1"><i class="fa-solid fa-crown"></i> ' + esc(kademeAd(true)) + '</button>' +
+      '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { hedef: [], seviye: [], kademe: [] };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') {
+            sec[grup] = [];
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+          } else {
+            var i = sec[grup].indexOf(v);
+            if (i < 0) sec[grup].push(v); else sec[grup].splice(i, 1);
+            b.classList.toggle('on', i < 0);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].length === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+
+  var suzBos = null;
+  function suz(sec) {
+    var say = 0;
+    document.querySelectorAll('#pgGovde tr[data-slug]').forEach(function (tr) {
+      var ok = (!sec.hedef.length  || sec.hedef.indexOf(tr.getAttribute('data-hedef')) >= 0) &&
+               (!sec.seviye.length || sec.seviye.indexOf(tr.getAttribute('data-lv')) >= 0) &&
+               (!sec.kademe.length || sec.kademe.indexOf(tr.getAttribute('data-pro')) >= 0);
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('pgSay').textContent = say;
+    var govde = document.getElementById('pgGovde');
+    if (say === 0) {
+      if (!suzBos) {
+        suzBos = document.createElement('tr');
+        suzBos.innerHTML = '<td colspan="8">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle program kalmadı',
+          'Seçili hedef, seviye ve erişim birleşimine düşen program yok. Bir çipi kaldır ya da süzgeci sıfırla.',
+          '<button class="btn btn-primary" type="button" id="pgSifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(suzBos);
+      }
+      suzBos.hidden = false;
+    } else if (suzBos) suzBos.hidden = true;
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#pgSifirla')) {
+      document.querySelectorAll('#pgSuzgec .df-fchip[data-val="all"]').forEach(function (b) { b.click(); });
+    }
+  });
+
+  /* ---------- liste ---------- */
+  function omurga(hafta) {
+    var n = Math.min(hafta, 12), out = '';
+    for (var i = 0; i < n; i++) out += '<i' + (i < Math.ceil(n / 4) ? ' class="on"' : '') + '></i>';
+    return '<span class="pg-spine" aria-hidden="true">' + out + '</span>';
+  }
+
+  function listeBas() {
+    var SEV = { 1: 'Başlangıç', 2: 'Orta', 3: 'İleri' };
+    document.getElementById('pgGovde').innerHTML = PR.map(function (p) {
+      var d = V.programDetay(p.slug);
+      var ayrik = !d || d.ad !== p.ad;
+      var sev = p.lv === 1 ? A.rozet('ok', SEV[1]) : p.lv === 2 ? A.rozet('wait', SEV[2]) : A.rozet('off', SEV[3]);
+      return '<tr data-slug="' + esc(p.slug) + '" data-hedef="' + esc(p.hedef) + '"' +
+             ' data-lv="' + p.lv + '" data-pro="' + (p.pro ? 1 : 0) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(p.ad) + ' seç" /></td>' +
+        '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.ozet) + '</small></td>' +
+        '<td>' + esc(p.hedef) + '</td>' +
+        '<td>' + p.hafta + ' hafta' + omurga(p.hafta) +
+          '<small>' + esc(p.plan.replace(/^\d+ hafta · /, '')) + '</small></td>' +
+        '<td>' + sev + '</td>' +
+        '<td>' + (p.pro ? A.rozet('wait', kademeAd(true), 'fa-crown') : A.rozet('off', kademeAd(false))) + '</td>' +
+        '<td>' + (ayrik
+            ? A.rozet('stop', 'Ad tutmuyor', 'fa-triangle-exclamation') +
+              '<small>' + esc(p.slug) + ' → ' + esc(d ? d.ad : 'kayıt yok') + '</small>'
+            : A.rozet('ok', 'Eşleşiyor', 'fa-check') + '<small>' + esc(p.slug) + '</small>') + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="program-detay-v1.html?slug=' + esc(p.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(p.ad) + ' sayfasını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(p.ad) + '" aria-label="' + esc(p.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></button>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('pgSay').textContent = PR.length;
+    A.secimKur(document.getElementById('pgListe'));
+    A.aramaKur(document.getElementById('pgAra'), document.getElementById('pgTablo'), document.getElementById('pgSay'));
+  }
+
+  function detayBas() {
+    document.getElementById('pgDetaySay').textContent = PD.length + ' kayıt';
+    document.getElementById('pgDetay').innerHTML = PD.map(function (d) {
+      var kac = PR.filter(function (p) { return p.slug === d.slug; }).length;
+      return '<tr><td><b>' + esc(d.slug) + '</b></td><td>' + esc(d.ad) + '</td>' +
+             '<td>' + esc(d.tur) + '</td>' +
+             '<td class="num">' + kac + (kac > 1 ? ' ' + A.rozet('wait', 'paylaşımlı') : '') + '</td></tr>';
+    }).join('');
+  }
+
+  /* ---------- form ---------- */
+  var form = document.getElementById('pgForm');
+  var SEV = { 1: 'Başlangıç', 2: 'Orta', 3: 'İleri' };
+  document.getElementById('pfHedef').innerHTML = (function () {
+    var v = []; PR.forEach(function (p) { if (v.indexOf(p.hedef) < 0) v.push(p.hedef); });
+    return v.sort(function (a, b) { return a.localeCompare(b, 'tr'); })
+            .map(function (h) { return '<option>' + esc(h) + '</option>'; }).join('');
+  })();
+  document.getElementById('pfSeviye').innerHTML = [1, 2, 3].map(function (lv) {
+    return '<option value="' + lv + '">' + SEV[lv] + '</option>';
+  }).join('');
+  document.getElementById('pfKademe').innerHTML = (KADEME.length ? KADEME : [{ key: 'ucretsiz', ad: 'Ücretsiz' }])
+    .map(function (k) { return '<option value="' + esc(k.key) + '">' + esc(k.ad) + '</option>'; }).join('');
+
+  function toplamHesap() {
+    var h = Number(document.getElementById('pfHafta').value || 0);
+    var g = Number(document.getElementById('pfGun').value || 0);
+    document.getElementById('pfToplam').value = (h && g) ? (h * g) + ' antrenman' : '';
+  }
+  document.getElementById('pfHafta').addEventListener('input', toplamHesap);
+  document.getElementById('pfGun').addEventListener('input', toplamHesap);
+
+  function slugNot() {
+    var s = document.getElementById('pfSlug').value.trim();
+    var d = s ? V.programDetay(s) : null;
+    document.getElementById('pfSlugNot').innerHTML = !s
+      ? '<i class="fa-solid fa-circle-info"></i> Kartın açtığı adres.'
+      : d ? '<i class="fa-solid fa-circle-check"></i> Detay sayfası bu slug\'ı tanıyor: <b>' + esc(d.ad) + '</b>'
+          : '<i class="fa-solid fa-triangle-exclamation"></i> Detay sayfası bu slug\'ı TANIMIYOR — ' +
+            'bugün açılırsa sessizce ilk programa düşer.';
+  }
+  document.getElementById('pfSlug').addEventListener('input', slugNot);
+
+  function formAc(ad) {
+    var p = ad ? PR.filter(function (x) { return x.ad === ad; })[0] : null;
+    document.getElementById('pgFormBaslik').textContent = p ? ('Düzenle: ' + p.ad) : 'Yeni program';
+    document.getElementById('pfAd').value = p ? p.ad : '';
+    document.getElementById('pfSlug').value = p ? p.slug : '';
+    document.getElementById('pfHafta').value = p ? p.hafta : '';
+    document.getElementById('pfGun').value = p ? gunSay(p.plan) : '';
+    document.getElementById('pfOzet').value = p ? p.ozet : '';
+    document.getElementById('pfHedef').value = p ? p.hedef : '';
+    document.getElementById('pfSeviye').value = p ? String(p.lv) : '1';
+    document.getElementById('pfKademe').value = p && p.pro ? 'pro' : 'ucretsiz';
+    toplamHesap(); slugNot();
+    form.hidden = false;
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('pgYeni').addEventListener('click', function () { formAc(null); });
+  document.getElementById('pgKapat').addEventListener('click', function () { form.hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (b) formAc(b.getAttribute('data-duzenle'));
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (t) {
+      var s = document.querySelectorAll('#pgGovde input[type=checkbox]:checked').length;
+      var kap = document.getElementById('pgBulk').querySelector('.b-acts');
+      var v = kap.querySelector('.adm-maket-not');
+      if (!v) {
+        v = document.createElement('span'); v.className = 'adm-maket-not';
+        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(v);
+      }
+      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+  A.maketKaydet(document.getElementById('pgKaydet'), 'program');
+
+  kpi();
+  suzgecKur();
+  listeBas();
+  detayBas();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sayfalar ve SEO — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi.
+
+   UZUNLUK ÖLÇERİ. SEO'da başlık ve açıklamanın uzunluğu bir tercih değil
+   bir sınır: arama sonucunda kırpılır. Sayının yanında bir bant göstermek,
+   60 satırı tek bakışta taratıyor. Renk üretilmedi — iyi `--fit`, kısa/uzun
+   `--hs-warn`, hiç yok `--line`. */
+.sy-olcer{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.sy-olcer .bar{flex:none;width:56px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.sy-olcer .bar i{display:block;height:100%;border-radius:3px;background:var(--fit)}
+.sy-olcer.kisa .bar i,.sy-olcer.uzun .bar i{background:var(--hs-warn)}
+.sy-olcer.yok{color:var(--muted)}
+/* Önizleme: arama sonucunun kaba taslağı — ne kadarının görüneceğini gösterir. */
+.sy-onizleme{border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px;background:var(--bg)}
+.sy-onizleme .u{font-size:12px;color:var(--muted);font-weight:600}
+.sy-onizleme .t{font-size:16px;font-weight:700;color:var(--fit-deep);margin:3px 0 4px;line-height:1.3}
+.sy-onizleme .d{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.55}
+.sy-onizleme .d.bos{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body class="adm-body" data-adm="sayfalar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Sayfalar ve SEO</h2>
+        <p>Public yüzeydeki her sayfa, başlığı ve açıklamasıyla. Kapsam tanımı
+           dar tutuldu: <code>admin-</code> ön ekli olmayan her sayfa. Yönetim
+           paneli kendi ekranlarını saymaz, yoksa panel büyüdükçe sayı kayardı.</p>
+      </div>
+      <div class="h-acts">
+        <button class="btn btn-primary" type="button" id="syEksik"><i class="fa-solid fa-filter"></i> Açıklaması eksikler</button>
+      </div>
+    </div>
+
+    <div id="syKaynak"></div>
+
+    <div class="adm-kpi" id="syKpi"></div>
+
+    <!-- ============ LİSTE (K1) ============ -->
+    <div class="adm-card" id="syListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-file-lines"></i> Sayfa envanteri</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="syAra">Sayfa ara</label>
+          <input class="fk-input" type="search" id="syAra" placeholder="Dosya adı ya da başlık ara" style="min-width:230px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="sySuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="syBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="index"><i class="fa-solid fa-magnifying-glass"></i> İndekslemeye aç</button>
+          <button class="btn btn-ghost" type="button" data-toplu="canonical"><i class="fa-solid fa-link"></i> Canonical ekle</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="syTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Sayfa</th><th>Başlık uzunluğu</th><th>Açıklama</th>
+                <th>Robots</th><th>Canonical</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="syGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="sySay">0</b> sayfa · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FORM (K4) ============ -->
+    <div class="adm-card" id="syForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="syFormBaslik">Sayfa düzenle</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="syKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="syF">
+          <div class="fk-field">
+            <label class="fk-label" for="sfDosya">Dosya</label>
+            <input class="fk-input" id="sfDosya" name="dosya" readonly />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Dosya adı bu prototipte adresin kendisidir; panelden değiştirilmez.</span>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="sfBaslik">Başlık (<code>&lt;title&gt;</code>) <span class="req">*</span></label>
+            <input class="fk-input" id="sfBaslik" name="baslik" required maxlength="120" />
+            <span class="fk-help" id="sfBaslikNot"><i class="fa-solid fa-circle-info"></i> —</span>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="sfAciklama">Açıklama (<code>meta description</code>)</label>
+            <textarea class="fk-textarea" id="sfAciklama" name="aciklama" rows="3" maxlength="300"></textarea>
+            <span class="fk-help" id="sfAciklamaNot"><i class="fa-solid fa-circle-info"></i> —</span>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="sfRobots">Robots</label>
+              <select class="fk-select" id="sfRobots" name="robots">
+                <option value="noindex, nofollow">noindex, nofollow</option>
+                <option value="index, follow">index, follow</option>
+              </select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Bugün 60 sayfanın 60'ı <code>noindex</code>; bu bir kusur değil,
+                yayına çıkmamış bir prototipin bilinçli kararı.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="sfCanonical">Canonical adres</label>
+              <input class="fk-input" id="sfCanonical" name="canonical" placeholder="Henüz alan adı yok" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Alan adı belirlenmeden canonical yazılamaz — bu yüzden 60 sayfanın
+                hiçbirinde yok ve alan boş bırakılıyor.</span>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <span class="fk-label">Arama sonucu önizlemesi</span>
+            <div class="sy-onizleme" id="sfOnizleme">
+              <div class="u">dadafit.com › <span id="sfOnizYol">—</span></div>
+              <div class="t" id="sfOnizBaslik">—</div>
+              <div class="d" id="sfOnizAciklama">—</div>
+            </div>
+          </div>
+
+          <div class="c-acts" style="margin-top:4px">
+            <button class="btn btn-primary" type="button" id="syKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · SAYFALAR VE SEO   (R16/2)   — K1 liste + K4 form
+   ---------------------------------------------------------------------
+   ENVANTER GERÇEK. Altmış satırın tamamı depodaki dosyalardan okundu:
+   dosya adı, `<title>`, `<meta name="description">`, `<meta name="robots">`
+   ve `<link rel="canonical">` varlığı (`tools/admin-veri-uret.mjs`).
+   Örnek sayfa uydurulmadı.
+
+   KAPSAM TANIMI DAR VE YAZILI: `admin-` ön eki olmayan her `*.html`.
+   Panelin kendi ekranları sayılmaz — sayılsaydı, biz ekran ekledikçe
+   "public sayfa sayısı" büyür ve sayı anlamını yitirirdi.
+
+   BULUNAN DURUM — ekranın asıl söylediği şey:
+     · 60 sayfanın 43'ünde `meta description` YOK.
+     · 60 sayfanın 0'ında `canonical` var.
+     · 60 sayfanın 60'ı `noindex, nofollow`.
+   Üçüncüsü KUSUR DEĞİL: yayına çıkmamış bir prototipin bilinçli kararı ve
+   ekran bunu kusur rozetiyle işaretlemiyor. İlk ikisi ise gerçek eksik ve
+   kuyruk olarak duruyor.
+
+   UZUNLUK SINIRLARI ÖLÇÜ, TERCİH DEĞİL. Başlık ~60, açıklama 120–160
+   karakterde kırpılır; alanlar bunu sayarak söylüyor, "iyi/kötü" demeden.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI;
+  if (!A) return;
+  var esc = A.esc;
+
+  /* Kırpılma eşikleri — tek yerde, sihirli sayı satır aralarına serpilmesin. */
+  var BASLIK_UST = 60, ACIK_ALT = 120, ACIK_UST = 160;
+
+  document.getElementById('syKaynak').innerHTML = A.kaynak('canli',
+    '<b>Envanter gerçek.</b> 60 satır depodaki <code>*.html</code> dosyalarının ' +
+    '<code>&lt;title&gt;</code> ve <code>&lt;meta&gt;</code> etiketlerinden ' +
+    '<b>' + esc(V ? V.OLCUM_TARIHI : '—') + '</b> tarihinde okundu ' +
+    '(<code>tools/admin-veri-uret.mjs</code>) — uydurulmuş sayfa yok. Liste o günün ' +
+    'anlık görüntüsüdür; dosya eklenip çıkarıldığında üreteç yeniden koşulur. ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
+
+  if (!V || !V.SAYFA || !V.SAYFA.length) {
+    document.getElementById('syGovde').innerHTML = '<tr><td colspan="7">' +
+      A.bos('fa-file-lines', 'Sayfa envanteri yüklenmedi',
+            'Envanter fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+    return;
+  }
+
+  var SY = V.SAYFA;
+
+  function olcer(uzunluk, alt, ust) {
+    if (!uzunluk) return '<span class="sy-olcer yok">—<span class="bar"></span></span>';
+    var sinif = uzunluk > ust ? 'uzun' : (alt && uzunluk < alt ? 'kisa' : '');
+    var oran = Math.min(100, Math.round((uzunluk / ust) * 100));
+    return '<span class="sy-olcer ' + sinif + '">' + uzunluk +
+           '<span class="bar"><i style="width:' + oran + '%"></i></span></span>';
+  }
+
+  /* ---------- sayaçlar ---------- */
+  function kpi() {
+    var acikVar = SY.filter(function (s) { return !!s.aciklama; }).length;
+    var canon = SY.filter(function (s) { return s.canonical; }).length;
+    var indeks = SY.filter(function (s) { return !/noindex/.test(s.robots); }).length;
+    var uzunBaslik = SY.filter(function (s) { return s.baslik.length > BASLIK_UST; }).length;
+    var kut = [
+      ['fa-file-lines', SY.length, 'public sayfa', 'admin- ön ekli olmayan her *.html dosyası.'],
+      ['fa-align-left', acikVar + '<small>/' + SY.length + '</small>', 'açıklaması yazılmış',
+       (SY.length - acikVar) + ' sayfada meta description yok; arama sonucunda metni Google seçer.'],
+      ['fa-scissors', uzunBaslik, 'başlık ' + BASLIK_UST + ' karakteri aşıyor',
+       'Aşan başlıklar arama sonucunda kırpılır.'],
+      ['fa-magnifying-glass', indeks + '<small>/' + SY.length + '</small>', 'indekslenebilir',
+       'Prototip kararı: sayfaların tamamı noindex. Canonical yazılı sayfa: ' + canon + '.']
+    ];
+    document.getElementById('syKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+    }).join('');
+  }
+
+  /* ---------- süzgeç ---------- */
+  var sec = { aciklama: [], baslik: [], robots: [] };
+  function suzgecKur() {
+    var kok = document.getElementById('sySuzgec');
+    kok.innerHTML =
+      '<div class="fgroup" data-group="aciklama" role="group" aria-label="Açıklama filtresi">' +
+        '<span class="lbl">Açıklama</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="var"><i class="fa-solid fa-check"></i> Yazılmış</button>' +
+        '<button class="df-fchip" type="button" data-val="yok"><i class="fa-solid fa-xmark"></i> Eksik</button>' +
+      '</div>' +
+      '<div class="fgroup" data-group="baslik" role="group" aria-label="Başlık filtresi">' +
+        '<span class="lbl">Başlık</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="uygun">' + BASLIK_UST + ' karaktere sığan</button>' +
+        '<button class="df-fchip" type="button" data-val="uzun"><i class="fa-solid fa-scissors"></i> Kırpılan</button>' +
+      '</div>' +
+      '<div class="fgroup" data-group="robots" role="group" aria-label="İndeksleme filtresi">' +
+        '<span class="lbl">İndeksleme</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="noindex">noindex</button>' +
+        '<button class="df-fchip" type="button" data-val="index">index</button>' +
+      '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') {
+            sec[grup] = [];
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+          } else {
+            var i = sec[grup].indexOf(v);
+            if (i < 0) sec[grup].push(v); else sec[grup].splice(i, 1);
+            b.classList.toggle('on', i < 0);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].length === 0);
+          }
+          suz();
+        });
+      });
+    });
+  }
+
+  var suzBos = null;
+  function suz() {
+    var say = 0;
+    document.querySelectorAll('#syGovde tr[data-dosya]').forEach(function (tr) {
+      var ok = (!sec.aciklama.length || sec.aciklama.indexOf(tr.getAttribute('data-aciklama')) >= 0) &&
+               (!sec.baslik.length   || sec.baslik.indexOf(tr.getAttribute('data-baslik')) >= 0) &&
+               (!sec.robots.length   || sec.robots.indexOf(tr.getAttribute('data-robots')) >= 0);
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('sySay').textContent = say;
+    var govde = document.getElementById('syGovde');
+    if (say === 0) {
+      if (!suzBos) {
+        suzBos = document.createElement('tr');
+        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle sayfa kalmadı',
+          'Seçili açıklama, başlık ve indeksleme birleşimine düşen sayfa yok. Bir çipi kaldır ya da süzgeci sıfırla.',
+          '<button class="btn btn-primary" type="button" id="sySifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(suzBos);
+      }
+      suzBos.hidden = false;
+    } else if (suzBos) suzBos.hidden = true;
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#sySifirla')) {
+      document.querySelectorAll('#sySuzgec .df-fchip[data-val="all"]').forEach(function (b) { b.click(); });
+    }
+  });
+
+  /* Başlıktaki "Açıklaması eksikler" düğmesi süzgecin kendisini kullanır —
+     ikinci bir süzme yolu yazmak iki farklı sonuç üretme riski demekti. */
+  document.getElementById('syEksik').addEventListener('click', function () {
+    var b = document.querySelector('#sySuzgec .fgroup[data-group="aciklama"] .df-fchip[data-val="yok"]');
+    if (b && !b.classList.contains('on')) b.click();
+    document.getElementById('syListe').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ---------- liste ---------- */
+  function listeBas() {
+    document.getElementById('syGovde').innerHTML = SY.map(function (s) {
+      var uzun = s.baslik.length > BASLIK_UST;
+      var acik = s.aciklama.length;
+      return '<tr data-dosya="' + esc(s.dosya) + '"' +
+             ' data-aciklama="' + (acik ? 'var' : 'yok') + '"' +
+             ' data-baslik="' + (uzun ? 'uzun' : 'uygun') + '"' +
+             ' data-robots="' + (/noindex/.test(s.robots) ? 'noindex' : 'index') + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(s.dosya) + ' seç" /></td>' +
+        '<td><b>' + esc(s.dosya) + '</b><small>' + esc(s.baslik) + '</small></td>' +
+        '<td>' + olcer(s.baslik.length, 0, BASLIK_UST) +
+          (uzun ? '<small>' + (s.baslik.length - BASLIK_UST) + ' karakter kırpılır</small>' : '') + '</td>' +
+        '<td>' + (acik
+            ? olcer(acik, ACIK_ALT, ACIK_UST) +
+              (acik > ACIK_UST ? '<small>' + ACIK_UST + ' karakterden sonrası kırpılır</small>'
+                : acik < ACIK_ALT ? '<small>' + ACIK_ALT + '–' + ACIK_UST + ' arası önerilir</small>' : '')
+            : A.rozet('wait', 'Yazılmamış', 'fa-circle-exclamation')) + '</td>' +
+        '<td>' + esc(s.robots || '—') + '</td>' +
+        '<td>' + (s.canonical ? A.rozet('ok', 'Var', 'fa-check') : '—') + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="' + esc(s.dosya) + '" target="_blank" rel="noopener" aria-label="' + esc(s.dosya) + ' sayfasını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(s.dosya) + '" aria-label="' + esc(s.dosya) + ' SEO alanlarını düzenle"><i class="fa-solid fa-pen"></i></button>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('sySay').textContent = SY.length;
+    A.secimKur(document.getElementById('syListe'));
+    A.aramaKur(document.getElementById('syAra'), document.getElementById('syTablo'), document.getElementById('sySay'));
+  }
+
+  /* ---------- form ---------- */
+  var form = document.getElementById('syForm');
+  function onizleme() {
+    var b = document.getElementById('sfBaslik').value.trim();
+    var d = document.getElementById('sfAciklama').value.trim();
+    document.getElementById('sfOnizBaslik').textContent =
+      b.length > BASLIK_UST ? b.slice(0, BASLIK_UST) + '…' : (b || '—');
+    var oa = document.getElementById('sfOnizAciklama');
+    oa.classList.toggle('bos', !d);
+    oa.textContent = d ? (d.length > ACIK_UST ? d.slice(0, ACIK_UST) + '…' : d)
+                       : 'Açıklama yazılmamış — arama sonucundaki metni arama motoru sayfadan kendisi seçer.';
+    document.getElementById('sfBaslikNot').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
+      b.length + ' karakter · ' + (b.length > BASLIK_UST
+        ? '<b>' + (b.length - BASLIK_UST) + ' karakter kırpılır</b> (' + BASLIK_UST + ' sınırı).'
+        : BASLIK_UST + ' karakter sınırına sığıyor.');
+    document.getElementById('sfAciklamaNot').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
+      (!d.length ? 'Boş. ' + ACIK_ALT + '–' + ACIK_UST + ' karakter arası bir özet önerilir.'
+       : d.length + ' karakter · ' + (d.length > ACIK_UST ? '<b>' + ACIK_UST + ' karakterden sonrası kırpılır.</b>'
+          : d.length < ACIK_ALT ? 'Önerilen aralık ' + ACIK_ALT + '–' + ACIK_UST + '.'
+          : 'Önerilen aralıkta.'));
+  }
+  document.getElementById('sfBaslik').addEventListener('input', onizleme);
+  document.getElementById('sfAciklama').addEventListener('input', onizleme);
+
+  function formAc(dosya) {
+    var s = SY.filter(function (x) { return x.dosya === dosya; })[0];
+    if (!s) return;
+    document.getElementById('syFormBaslik').textContent = 'Düzenle: ' + s.dosya;
+    document.getElementById('sfDosya').value = s.dosya;
+    document.getElementById('sfBaslik').value = s.baslik;
+    document.getElementById('sfAciklama').value = s.aciklama;
+    document.getElementById('sfRobots').value = /noindex/.test(s.robots) ? 'noindex, nofollow' : 'index, follow';
+    document.getElementById('sfCanonical').value = '';
+    document.getElementById('sfOnizYol').textContent = s.dosya;
+    onizleme();
+    form.hidden = false;
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('syKapat').addEventListener('click', function () { form.hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (b) formAc(b.getAttribute('data-duzenle'));
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (t) {
+      var n = document.querySelectorAll('#syGovde input[type=checkbox]:checked').length;
+      var kap = document.getElementById('syBulk').querySelector('.b-acts');
+      var v = kap.querySelector('.adm-maket-not');
+      if (!v) {
+        v = document.createElement('span'); v.className = 'adm-maket-not';
+        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(v);
+      }
+      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + n +
+        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+  A.maketKaydet(document.getElementById('syKaydet'), 'sayfa');
+
+  kpi();
+  suzgecKur();
+  listeBas();
+})();
+</script>
+</body>
+</html>

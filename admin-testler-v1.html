@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fit Testleri — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi.
+   Ölçüt bandı satırı: üç bant bir testin TÜM sonuç uzayını kaplar, bu
+   yüzden yan yana değil alt alta okunur; aradaki sınır çizgi değil boşluk. */
+.ts-bant{display:grid;gap:6px}
+.ts-bant .b{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--slate-2)}
+.ts-bant .b .lv{flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+  font-size:10.5px;font-weight:800;background:var(--fit-tint);color:var(--fit-deep)}
+</style>
+</head>
+<body class="adm-body" data-adm="testler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Fit Testleri</h2>
+        <p>Yedi test tanımı ve ölçüt aralıkları. Her testin üç bandı sonucu
+           bir seviyeye ve bir programa bağlar; bant aralıkları boşluk ya da
+           çakışma bırakmamalıdır.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="fit-testleri-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Testleri gör</a>
+        <button class="btn btn-primary" type="button" id="tsYeni"><i class="fa-solid fa-plus"></i> Yeni test</button>
+      </div>
+    </div>
+
+    <div id="tsKaynak"></div>
+
+    <div class="adm-kpi" id="tsKpi"></div>
+
+    <!-- ============ LİSTE (K1) ============ -->
+    <div class="adm-card" id="tsListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-stopwatch"></i> Test tanımları</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="tsAra">Test ara</label>
+          <input class="fk-input" type="search" id="tsAra" placeholder="Ad, kategori ya da slug ara" style="min-width:230px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="tsSuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="tsBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="yayin"><i class="fa-solid fa-eye-slash"></i> Yayından kaldır</button>
+          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="tsTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Test</th><th>Kategori</th><th class="num">Süre</th>
+                <th class="num">Adım</th><th>Ölçüt bantları</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="tsGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="tsSay">0</b> test · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BANT → PROGRAM ============ -->
+    <div class="adm-card">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-diagram-project"></i> Bant → program yönlendirmesi</h3>
+        <div class="c-acts"><span class="fp-badge off" id="tsBantSay">—</span></div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table">
+            <thead><tr><th>Test</th><th>Ölçüt</th><th>Seviye</th><th>Önerilen program</th><th>Hedef</th></tr></thead>
+            <tbody id="tsBantlar"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FORM (K4) ============ -->
+    <div class="adm-card" id="tsForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="tsFormBaslik">Yeni test</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="tsKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="tsF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="tfAd">Ad <span class="req">*</span></label>
+              <input class="fk-input" id="tfAd" name="ad" required maxlength="80" placeholder="Denge Değerlendirmesi" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="tfSlug">Slug <span class="req">*</span></label>
+              <input class="fk-input" id="tfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="denge" />
+            </div>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="tfKategori">Kategori <span class="req">*</span></label>
+              <input class="fk-input" id="tfKategori" name="kategori" required maxlength="60" placeholder="Denge ve kontrol" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="tfSure">Süre <span class="req">*</span></label>
+              <input class="fk-input" id="tfSure" name="sure" required maxlength="30" placeholder="5–7 dakika" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Isınma ve soğuma dahil, aralık olarak yazılır.</span>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <label class="fk-label" for="tfSoru">Ölçüm sorusu <span class="req">*</span></label>
+            <textarea class="fk-textarea" id="tfSoru" name="soru" rows="2" required maxlength="200"
+                      placeholder="Testin sonunda kullanıcıya sorulan tek soru."></textarea>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Bandı bu sorunun yanıtı seçer; soru ile bantlar aynı birimi konuşmalı.</span>
+          </div>
+
+          <!-- ÖLÇÜT BANTLARI — üçü de zorunlu, üçü birlikte tüm sonuç uzayını
+               kaplamalı. Sayı burada üç sabittir çünkü seviye üç: 1·2·3. -->
+          <div class="fk-field">
+            <span class="fk-label">Ölçüt aralıkları <span class="req">*</span></span>
+            <div id="tfBantlar"></div>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Üç bant üç seviyeye karşılık gelir (1 Başlangıç · 2 Orta · 3 İleri)
+              ve her biri bir programa yönlendirir. Boşluk bırakılırsa bazı
+              sonuçlar hiçbir banda düşmez.</span>
+          </div>
+
+          <div class="c-acts" style="margin-top:4px">
+            <button class="btn btn-primary" type="button" id="tsKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · FİT TESTLERİ   (R16/2)   — K1 liste + K4 form
+   ---------------------------------------------------------------------
+   TANIMLAR GERÇEK. Yedi test ve yirmi bir ölçüt bandı
+   `fit-testi-detay-v1.html`in `VERI` tablosundan makineyle okundu; örnek
+   test uydurulmadı. Kaynak hâlâ o sayfada — burası ölçülmüş kopya.
+
+   BANT, TESTİN ASIL ÜRÜNÜDÜR. Bir fit testinin çıktısı bir puan değil bir
+   YÖNLENDİRMEdir: ölçüt → seviye → program. Bu yüzden bantlar tabloya
+   sıkıştırılmadı, kendi kartında test test açıldı ve her bandın işaret
+   ettiği programın gerçekten var olup olmadığı ölçüldü — işaret ettiği
+   sayfa yoksa test kullanıcıyı boşluğa gönderir.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI;
+  if (!A) return;
+  var esc = A.esc;
+  var SEV = { 1: 'Başlangıç', 2: 'Orta', 3: 'İleri' };
+
+  document.getElementById('tsKaynak').innerHTML = A.kaynak('canli',
+    '<b>Tanımlar gerçek.</b> Yedi test ve 21 ölçüt bandı ' +
+    '<code>fit-testi-detay-v1.html</code> içinden <b>' + esc(V ? V.OLCUM_TARIHI : '—') +
+    '</b> tarihinde makineyle okundu (<code>tools/admin-veri-uret.mjs</code>) — örnek test yok, ' +
+    'ama bu kayıtların kaynağı değil kopyasıdır. <b>Yazma yüzeyi maket:</b> form doğrulanır, ' +
+    'kayıt gitmez — bu prototipte sunucu yok.');
+
+  if (!V || !V.TEST || !V.TEST.length) {
+    document.getElementById('tsGovde').innerHTML = '<tr><td colspan="7">' +
+      A.bos('fa-stopwatch', 'Test tanımları yüklenmedi',
+            'Tanımlar fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+    return;
+  }
+
+  var T = V.TEST;
+  function progAd(slug) {
+    var d = V.programDetay(slug);
+    return d ? d.ad : null;
+  }
+
+  /* ---------- sayaçlar ---------- */
+  function kpi() {
+    var bant = T.reduce(function (a, t) { return a + t.bant.length; }, 0);
+    var olu = 0, prog = {};
+    T.forEach(function (t) { t.bant.forEach(function (b) {
+      prog[b.prog] = 1; if (!progAd(b.prog)) olu++;
+    }); });
+    var eksik = T.filter(function (t) { return t.bant.length !== 3; }).length;
+    var kut = [
+      ['fa-stopwatch', T.length, 'test tanımı', 'Fit testleri sayfasında yayında olan test sayısı.'],
+      ['fa-diagram-project', bant, 'ölçüt bandı',
+       'Her test üç bant taşır; ' + (eksik ? eksik + ' testte üç değil.' : 'yedisinde de üç.')],
+      ['fa-clipboard-list', Object.keys(prog).length, 'yönlendirilen program',
+       'Bantların işaret ettiği benzersiz program sayısı.'],
+      ['fa-link-slash', olu, 'ölü yönlendirme',
+       olu ? 'Bant, detay sayfasının tanımadığı bir programa gönderiyor.'
+           : 'Her bandın programı detay sayfasında karşılık buluyor.']
+    ];
+    document.getElementById('tsKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+    }).join('');
+  }
+
+  /* ---------- süzgeç: kategoriden doğar ---------- */
+  function suzgecKur() {
+    var kok = document.getElementById('tsSuzgec');
+    var kat = [];
+    T.forEach(function (t) { if (kat.indexOf(t.kategori) < 0) kat.push(t.kategori); });
+    kat.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="kategori" role="group" aria-label="Kategori filtresi">' +
+        '<span class="lbl">Kategori</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        kat.map(function (k) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(k) + '">' + esc(k) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = [];
+    kok.querySelectorAll('.df-fchip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-val');
+        if (v === 'all') {
+          sec = [];
+          kok.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+        } else {
+          var i = sec.indexOf(v);
+          if (i < 0) sec.push(v); else sec.splice(i, 1);
+          b.classList.toggle('on', i < 0);
+          var all = kok.querySelector('.df-fchip[data-val="all"]');
+          if (all) all.classList.toggle('on', sec.length === 0);
+        }
+        suz(sec);
+      });
+    });
+  }
+
+  var suzBos = null;
+  function suz(sec) {
+    var say = 0;
+    document.querySelectorAll('#tsGovde tr[data-slug]').forEach(function (tr) {
+      var ok = !sec.length || sec.indexOf(tr.getAttribute('data-kategori')) >= 0;
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('tsSay').textContent = say;
+    var govde = document.getElementById('tsGovde');
+    if (say === 0) {
+      if (!suzBos) {
+        suzBos = document.createElement('tr');
+        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
+          'Bu kategoride test yok',
+          'Seçili kategorilere düşen test tanımı bulunmuyor. Bir çipi kaldır ya da süzgeci sıfırla.',
+          '<button class="btn btn-primary" type="button" id="tsSifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(suzBos);
+      }
+      suzBos.hidden = false;
+    } else if (suzBos) suzBos.hidden = true;
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#tsSifirla')) {
+      document.querySelectorAll('#tsSuzgec .df-fchip[data-val="all"]').forEach(function (b) { b.click(); });
+    }
+  });
+
+  /* ---------- liste ---------- */
+  function listeBas() {
+    document.getElementById('tsGovde').innerHTML = T.map(function (t) {
+      var bant = '<div class="ts-bant">' + t.bant.map(function (b) {
+        return '<span class="b"><span class="lv">' + b.lv + '</span>' + esc(b.olcut) + '</span>';
+      }).join('') + '</div>';
+      return '<tr data-slug="' + esc(t.slug) + '" data-kategori="' + esc(t.kategori) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(t.ad) + ' seç" /></td>' +
+        '<td><b>' + esc(t.ad) + '</b><small>' + esc(t.slug) + '</small></td>' +
+        '<td>' + esc(t.kategori) + '</td>' +
+        '<td class="num">' + esc(t.sureKisa) + '<small>' + esc(t.sure) + '</small></td>' +
+        '<td class="num">' + t.adimSay + '<small>' + t.ekipmanSay + ' ekipman</small></td>' +
+        '<td>' + bant + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="fit-testi-detay-v1.html?test=' + esc(t.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(t.ad) + ' sayfasını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(t.slug) + '" aria-label="' + esc(t.ad) + ' düzenle"><i class="fa-solid fa-pen"></i></button>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('tsSay').textContent = T.length;
+    A.secimKur(document.getElementById('tsListe'));
+    A.aramaKur(document.getElementById('tsAra'), document.getElementById('tsTablo'), document.getElementById('tsSay'));
+  }
+
+  function bantBas() {
+    var n = 0, out = '';
+    T.forEach(function (t) {
+      t.bant.forEach(function (b) {
+        n++;
+        var ad = progAd(b.prog);
+        out += '<tr><td><b>' + esc(t.ad) + '</b><small>' + esc(t.soru) + '</small></td>' +
+          '<td>' + esc(b.olcut) + '</td>' +
+          '<td>' + (b.lv === 1 ? A.rozet('ok', SEV[1]) : b.lv === 2 ? A.rozet('wait', SEV[2]) : A.rozet('off', SEV[3])) + '</td>' +
+          '<td>' + (ad ? esc(ad) : A.rozet('stop', 'Kayıt yok', 'fa-link-slash')) +
+            '<small>' + esc(b.prog) + '</small></td>' +
+          '<td><a class="adm-ico-btn" href="program-detay-v1.html?slug=' + esc(b.prog) + '" target="_blank" rel="noopener" aria-label="' + esc(b.prog) + ' programını aç"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></td></tr>';
+      });
+    });
+    document.getElementById('tsBantlar').innerHTML = out;
+    document.getElementById('tsBantSay').textContent = n + ' bant';
+  }
+
+  /* ---------- form ---------- */
+  var form = document.getElementById('tsForm');
+  function bantAlan(i, b) {
+    var progSec = V.PROGRAM_DETAY.map(function (d) {
+      return '<option value="' + esc(d.slug) + '"' + (b && b.prog === d.slug ? ' selected' : '') + '>' + esc(d.ad) + '</option>';
+    }).join('');
+    return '<div class="fk-grid c3" style="margin-top:' + (i ? '14px' : '0') + '">' +
+      '<div class="fk-field">' +
+        '<label class="fk-label" for="tfBant' + i + '">Bant ' + (i + 1) + ' — ölçüt</label>' +
+        '<input class="fk-input" id="tfBant' + i + '" data-zorunlu="1" value="' + esc(b ? b.olcut : '') + '" placeholder="0–7 tekrar" />' +
+      '</div>' +
+      '<div class="fk-field">' +
+        '<label class="fk-label" for="tfLv' + i + '">Seviye</label>' +
+        '<select class="fk-select" id="tfLv' + i + '">' +
+          [1, 2, 3].map(function (lv) {
+            return '<option value="' + lv + '"' + ((b ? b.lv : i + 1) === lv ? ' selected' : '') + '>' + lv + ' · ' + SEV[lv] + '</option>';
+          }).join('') + '</select>' +
+      '</div>' +
+      '<div class="fk-field">' +
+        '<label class="fk-label" for="tfProg' + i + '">Önerilen program</label>' +
+        '<select class="fk-select" id="tfProg' + i + '">' + progSec + '</select>' +
+      '</div></div>';
+  }
+
+  function formAc(slug) {
+    var t = slug ? T.filter(function (x) { return x.slug === slug; })[0] : null;
+    document.getElementById('tsFormBaslik').textContent = t ? ('Düzenle: ' + t.ad) : 'Yeni test';
+    document.getElementById('tfAd').value = t ? t.ad : '';
+    document.getElementById('tfSlug').value = t ? t.slug : '';
+    document.getElementById('tfKategori').value = t ? t.kategori : '';
+    document.getElementById('tfSure').value = t ? t.sure : '';
+    document.getElementById('tfSoru').value = t ? t.soru : '';
+    document.getElementById('tfBantlar').innerHTML = [0, 1, 2].map(function (i) {
+      return bantAlan(i, t ? t.bant[i] : null);
+    }).join('');
+    /* Bant ölçütü zorunludur ama yalnız GÖRÜNÜR alanlar zorunlu tutulur —
+       gizli-zorunlu bir alan formu sessizce kilitler. */
+    document.querySelectorAll('#tfBantlar [data-zorunlu]').forEach(function (g) { g.required = true; });
+    form.hidden = false;
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('tsYeni').addEventListener('click', function () { formAc(null); });
+  document.getElementById('tsKapat').addEventListener('click', function () { form.hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (b) formAc(b.getAttribute('data-duzenle'));
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (t) {
+      var s = document.querySelectorAll('#tsGovde input[type=checkbox]:checked').length;
+      var kap = document.getElementById('tsBulk').querySelector('.b-acts');
+      var v = kap.querySelector('.adm-maket-not');
+      if (!v) {
+        v = document.createElement('span'); v.className = 'adm-maket-not';
+        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(v);
+      }
+      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+  A.maketKaydet(document.getElementById('tsKaydet'), 'test');
+
+  kpi();
+  suzgecKur();
+  listeBas();
+  bantBas();
+})();
+</script>
+</body>
+</html>

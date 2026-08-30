@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Taksonomi — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi.
+   Kullanım çubuğu: bir terimin kaç kayıtta geçtiğini sayının yanında
+   göstermek, "3" ile "12"yi taramadan ayırt ettiriyor. Yeni renk yok. */
+.tx-bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.tx-bar i{display:block;height:100%;background:var(--fit);border-radius:2px}
+.tx-bar.bos i{background:var(--line)}
+/* Sekme şeridi kart başlığının altında, kendi nefesiyle durur. */
+.tx-tabs{margin-bottom:16px}
+</style>
+</head>
+<body class="adm-body" data-adm="taksonomi">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Taksonomi</h2>
+        <p>Dört sözlük tek ekranda: kas bölgesi, ekipman, seviye ve hedef.
+           Her terim için iki soru sorulur — nerede ilan edilmiş, kaç kayıtta
+           kullanılıyor. İlan edilip kullanılmayan terim süzgeçte boş bir
+           vaattir.</p>
+      </div>
+      <div class="h-acts">
+        <button class="btn btn-primary" type="button" id="txYeni"><i class="fa-solid fa-plus"></i> Yeni terim</button>
+      </div>
+    </div>
+
+    <div id="txKaynak"></div>
+
+    <div class="adm-kpi" id="txKpi"></div>
+
+    <!-- ============ SEKME + LİSTE (K1 + sekme) ============ -->
+    <nav class="fit-tabs tx-tabs" data-fit-tabs="tx" aria-label="Sözlükler">
+      <button class="fit-tab" type="button" data-tab="kas"><i class="fa-solid fa-person" aria-hidden="true"></i> Kas bölgesi</button>
+      <button class="fit-tab" type="button" data-tab="ekipman"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Ekipman</button>
+      <button class="fit-tab" type="button" data-tab="seviye"><i class="fa-solid fa-signal" aria-hidden="true"></i> Seviye</button>
+      <button class="fit-tab" type="button" data-tab="hedef"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Hedef</button>
+    </nav>
+
+    <!-- PANELLER MARKUP'TA DURUR, JS YALNIZ GÖVDEYİ DOLDURUR.
+         Kabuğun sekme bileşeni ([data-fit-tabs]) fit-shell.js yüklenirken
+         BİR KEZ koşar ve o an `.fit-pane` düğümlerini arar. Panelleri sonradan
+         JS ile yaratsaydık şerit panelsiz kalır, sekmeler tıklanır ama hiçbir
+         şey değişmezdi. -->
+    <div class="fit-pane adm-card" data-pane="kas">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-person"></i> Kas bölgesi</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="tx-kas-ara">Kas bölgesi sözlüğünde ara</label>
+          <input class="fk-input" type="search" id="tx-kas-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
+          <span id="tx-kas-rozet"></span>
+        </div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="tx-kas-tablo">
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <tbody class="tx-govde" id="tx-kas-govde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager"><div class="p-info"><b id="tx-kas-say">0</b> terim<span id="tx-kas-alt"></span></div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="ekipman" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-dumbbell"></i> Ekipman</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="tx-ekipman-ara">Ekipman sözlüğünde ara</label>
+          <input class="fk-input" type="search" id="tx-ekipman-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
+          <span id="tx-ekipman-rozet"></span>
+        </div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="tx-ekipman-tablo">
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <tbody class="tx-govde" id="tx-ekipman-govde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager"><div class="p-info"><b id="tx-ekipman-say">0</b> terim<span id="tx-ekipman-alt"></span></div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="seviye" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-signal"></i> Seviye</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="tx-seviye-ara">Seviye sözlüğünde ara</label>
+          <input class="fk-input" type="search" id="tx-seviye-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
+          <span id="tx-seviye-rozet"></span>
+        </div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="tx-seviye-tablo">
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <tbody class="tx-govde" id="tx-seviye-govde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager"><div class="p-info"><b id="tx-seviye-say">0</b> terim<span id="tx-seviye-alt"></span></div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="hedef" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-bullseye"></i> Hedef</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="tx-hedef-ara">Hedef sözlüğünde ara</label>
+          <input class="fk-input" type="search" id="tx-hedef-ara" placeholder="Terim ya da kod ara" style="min-width:210px" />
+          <span id="tx-hedef-rozet"></span>
+        </div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="tx-hedef-tablo">
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <tbody class="tx-govde" id="tx-hedef-govde"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-pager"><div class="p-info"><b id="tx-hedef-say">0</b> terim<span id="tx-hedef-alt"></span></div></div>
+    </div>
+
+    <!-- ============ FORM (K4) ============ -->
+    <div class="adm-card" id="txForm" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-pen-to-square"></i> <span id="txFormBaslik">Yeni terim</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="txKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+      <div class="c-body">
+        <form id="txF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="xfSozluk">Sözlük <span class="req">*</span></label>
+              <select class="fk-select" id="xfSozluk" name="sozluk" required>
+                <option value="kas">Kas bölgesi</option>
+                <option value="ekipman">Ekipman</option>
+                <option value="seviye">Seviye</option>
+                <option value="hedef">Hedef</option>
+              </select>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="xfKod">Kod <span class="req">*</span></label>
+              <input class="fk-input" id="xfKod" name="kod" required maxlength="30" pattern="[a-z0-9]+" placeholder="foamroller" />
+              <span class="fk-help" id="xfKodNot"><i class="fa-solid fa-circle-info"></i>
+                Süzgeç çipinin <code>data-val</code> değeri. Küçük harf ve rakam;
+                kayıtların niteliğinde birebir bu yazım aranır.</span>
+            </div>
+          </div>
+
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="xfAd">Görünen ad <span class="req">*</span></label>
+              <input class="fk-input" id="xfAd" name="ad" required maxlength="40" placeholder="Foam roller" />
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="xfIkon">İkon sınıfı</label>
+              <input class="fk-input" id="xfIkon" name="ikon" maxlength="60" placeholder="fa-solid fa-scroll" />
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Font Awesome 6.5.2 sınıfı. Boş bırakılırsa çip yalnız metinle çıkar.</span>
+            </div>
+          </div>
+
+          <div class="fk-field">
+            <span class="fk-label">Bugünkü kullanım</span>
+            <p id="xfKullanim" style="font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">—</p>
+          </div>
+
+          <div class="c-acts" style="margin-top:4px">
+            <button class="btn btn-primary" type="button" id="txKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · TAKSONOMİ   (R16/2)   — K1 liste + sekme (plan §7/3)
+   ---------------------------------------------------------------------
+   SÖZLÜKLER TÜRETİLİR, YAZILMAZ.
+   Dört sekmenin tamamı ölçülmüş veriden doğuyor: terimlerin kendisi
+   sayfaların SÜZGEÇ ŞERİDİNDEN (ilan), kullanım sayıları ise KAYITLARIN
+   niteliklerinden (gerçek). İkisi ayrı şeydir ve bu ekranın tek işi
+   aradaki farkı göstermektir:
+
+     · ilan edilip HİÇ kullanılmayan terim → süzgeçte 0 sonuç veren çip
+     · kullanılıp ilan edilmeyen kod       → süzgeçte hiç görünmeyen kayıt
+
+   Ölçülen: kas 10 ilan / 9 kullanımda · ekipman 15 ilan / 5 kullanımda.
+   On bir terim bugün boş; bunlar kusur değil ama bilinmesi gereken bir
+   durum — kütüphane büyüdükçe dolacak ya da sözlükten düşecek.
+
+   HEDEF SÖZLÜĞÜ İKİ KEZ İLAN EDİLMİŞ. `program-liste-v1.html` ile
+   `programlar-merkezi-v1.html` aynı süzgeç adını farklı terimlerle
+   kuruyor (biri "Kilo Yönetimi · Dayanıklılık", öteki "Kondisyon ·
+   Hareket alışkanlığı"). İki ilan BİRLEŞTİRİLMEDİ; kaynağıyla yan yana
+   basıldı, çünkü hangisinin kanon olacağı bir ürün kararıdır ve bu ekran
+   o kararı kendi başına veremez.
+
+   PLAN §7/3: dört sözlük küçük ve aynı kalıbı paylaşıyor; dört ayrı
+   sidebar kalemi menüyü şişirirdi. Tek ekran, sekmeli.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI;
+  if (!A) return;
+  var esc = A.esc;
+
+  document.getElementById('txKaynak').innerHTML = A.kaynak('canli',
+    '<b>Sözlükler gerçek, kullanım sayıları hesaplanıyor.</b> Terimler sayfaların süzgeç ' +
+    'şeritlerinden, kullanım sayıları kayıtların kendisinden okundu ' +
+    '(<b>' + esc(V ? V.OLCUM_TARIHI : '—') + '</b>, <code>tools/admin-veri-uret.mjs</code>). ' +
+    'Hiçbir terim uydurulmadı; sayılar da elle yazılmadı, bu sayfada sayılıyor. ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
+
+  if (!V || !V.SOZLUK) {
+    document.getElementById('tx-kas-govde').innerHTML = '<tr><td colspan="5">' +
+      A.bos('fa-tags', 'Sözlükler yüklenmedi',
+            'Taksonomi fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+    return;
+  }
+
+  var S = V.SOZLUK, H = V.HAREKET, PR = V.PROGRAM, HD = V.HEDEF || [];
+  var KUTUPHANE = 'egzersiz-kutuphane-v1.html';
+
+  /* ---------------------------------------------------------------------
+     Sözlük tanımı: terimler nereden geliyor, kullanım nasıl sayılıyor.
+     Sayma işi burada TEK YERDE tanımlı; dört sekme aynı yolu kullanır.
+     --------------------------------------------------------------------- */
+  var SOZLUKLER = {
+    kas: {
+      ad: 'Kas bölgesi', tekil: 'bölge', ikon: 'fa-person',
+      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      terim: S.kas.map(function (t) {
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+                 kullanim: H.filter(function (h) { return h.kas === t.kod; }).length };
+      })
+    },
+    ekipman: {
+      ad: 'Ekipman', tekil: 'ekipman', ikon: 'fa-dumbbell',
+      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      terim: S.ekipman.map(function (t) {
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+                 kullanim: H.filter(function (h) { return h.ekipmanKod === t.kod; }).length };
+      })
+    },
+    seviye: {
+      ad: 'Seviye', tekil: 'seviye', ikon: 'fa-signal',
+      kayit: 'hareket', toplam: H.length, ilan: KUTUPHANE,
+      terim: S.seviye.map(function (t) {
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: KUTUPHANE,
+                 kullanim: H.filter(function (h) { return String(h.lv) === t.kod; }).length,
+                 /* Seviye tek sözlük ama iki yerde yaşıyor: hareketlerde ve
+                    programlarda. İkincisi ayrıca sayılır, gizlenmez. */
+                 ek: PR.filter(function (p) { return String(p.lv) === t.kod; }).length + ' program' };
+      })
+    },
+    hedef: {
+      ad: 'Hedef', tekil: 'hedef', ikon: 'fa-bullseye',
+      kayit: 'kart', toplam: PR.length, ilan: 'iki ayrı sayfa',
+      terim: HD.map(function (t) {
+        return { kod: t.kod, ad: t.ad, ikon: t.ikon, kaynak: t.kaynak, kullanim: t.kullanim,
+                 /* Aynı kod öteki sayfada da ilan edilmiş mi? */
+                 ortak: HD.filter(function (x) { return x.kod === t.kod; }).length > 1 };
+      })
+    }
+  };
+
+  /* ---------- sayaçlar ---------- */
+  function kpi() {
+    var terim = 0, bos = 0;
+    Object.keys(SOZLUKLER).forEach(function (k) {
+      SOZLUKLER[k].terim.forEach(function (t) { terim++; if (!t.kullanim) bos++; });
+    });
+    var tekIlan = HD.filter(function (t) {
+      return HD.filter(function (x) { return x.kod === t.kod; }).length === 1;
+    }).length;
+    var kut = [
+      ['fa-tags', 4, 'sözlük', 'Kas bölgesi · ekipman · seviye · hedef; dördü de sekmede.'],
+      ['fa-list-ul', terim, 'ilan edilmiş terim', 'Süzgeç şeritlerinde kullanıcıya sunulan terim sayısı.'],
+      ['fa-circle-minus', bos, 'kullanımı olan yok',
+       bos ? 'Bu terimlerin çipi bugün 0 sonuç veriyor.' : 'Her terim en az bir kayıtta geçiyor.'],
+      ['fa-code-branch', tekIlan, 'tek sayfada ilan edilen hedef',
+       tekIlan ? 'İki katalog sayfası farklı hedef sözlüğü ilan ediyor; bu terimler yalnız birinde var.'
+               : 'İki katalog sayfası aynı hedef sözlüğünü ilan ediyor.']
+    ];
+    document.getElementById('txKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="note">' + esc(k[3]) + '</span></div></div>';
+    }).join('');
+  }
+
+  /* ---------- paneller: gövde doldurulur, iskelet markup'ta ---------- */
+  function panelDoldur(anahtar) {
+    var s = SOZLUKLER[anahtar];
+    var enCok = Math.max.apply(null, s.terim.map(function (t) { return t.kullanim; }).concat([1]));
+    document.getElementById('tx-' + anahtar + '-govde').innerHTML = s.terim.map(function (t) {
+      var oran = Math.round((t.kullanim / enCok) * 100);
+      var durum = t.kullanim
+        ? A.rozet('ok', t.kullanim + ' ' + s.kayit, 'fa-check')
+        : A.rozet('off', 'Kullanımda değil');
+      var not = anahtar === 'hedef'
+        ? (t.ortak ? A.rozet('ok', 'İki sayfada da', 'fa-code-branch')
+                   : A.rozet('wait', 'Tek sayfada', 'fa-code-branch'))
+        : (t.ek ? '<small>' + esc(t.ek) + '</small>' : '');
+      return '<tr data-kod="' + esc(t.kod) + '" data-sozluk="' + anahtar + '">' +
+        '<td><b>' + (t.ikon ? '<i class="' + esc(t.ikon) + '" aria-hidden="true"></i> ' : '') + esc(t.ad) + '</b>' +
+          '<small>' + esc(t.kod) + '</small></td>' +
+        '<td>' + esc(t.kaynak) + '</td>' +
+        '<td>' + durum +
+          '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="width:' + (t.kullanim ? oran : 100) + '%"></i></span></td>' +
+        '<td>' + not + '</td>' +
+        '<td class="act"><button class="adm-ico-btn" type="button" data-duzenle="' + anahtar + ':' + esc(t.kod) + '" aria-label="' + esc(t.ad) + ' terimini düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
+        '</tr>';
+    }).join('');
+
+    var bosSay = s.terim.filter(function (t) { return !t.kullanim; }).length;
+    document.getElementById('tx-' + anahtar + '-rozet').innerHTML =
+      '<span class="fp-badge off">' + s.terim.length + ' terim</span>' +
+      (bosSay ? A.rozet('wait', bosSay + ' boş', 'fa-circle-minus')
+              : A.rozet('ok', 'Hepsi kullanımda', 'fa-check'));
+    document.getElementById('tx-' + anahtar + '-say').textContent = s.terim.length;
+    document.getElementById('tx-' + anahtar + '-alt').textContent =
+      ' · ' + s.toplam + ' ' + s.kayit + ' üzerinden sayıldı';
+    /* Her sözlüğün kendi araması ve kendi boş durumu var (kit §9). */
+    A.aramaKur(document.getElementById('tx-' + anahtar + '-ara'),
+               document.getElementById('tx-' + anahtar + '-tablo'),
+               document.getElementById('tx-' + anahtar + '-say'));
+  }
+
+  function panelBas() {
+    ['kas', 'ekipman', 'seviye', 'hedef'].forEach(panelDoldur);
+  }
+
+  /* ---------- form ---------- */
+  var form = document.getElementById('txForm');
+  function kullanimNot(sozluk, kod) {
+    var s = SOZLUKLER[sozluk];
+    var t = s.terim.filter(function (x) { return x.kod === kod; })[0];
+    if (!t) return 'Bu kod bugün hiçbir sözlükte ilan edilmemiş.';
+    return t.kullanim
+      ? t.kullanim + ' ' + s.kayit + ' bu terimi taşıyor (' + s.toplam + ' kayıt tarandı).'
+      : 'Terim ilan edilmiş ama hiçbir ' + s.kayit + ' onu taşımıyor — süzgeçte bugün 0 sonuç verir.';
+  }
+
+  function formAc(anahtar) {
+    var p = (anahtar || '').split(':'), sozluk = p[0] || 'kas', kod = p[1] || '';
+    var s = SOZLUKLER[sozluk];
+    var t = kod ? s.terim.filter(function (x) { return x.kod === kod; })[0] : null;
+    document.getElementById('txFormBaslik').textContent = t ? ('Düzenle: ' + t.ad) : 'Yeni terim';
+    document.getElementById('xfSozluk').value = sozluk;
+    document.getElementById('xfKod').value = t ? t.kod : '';
+    document.getElementById('xfAd').value = t ? t.ad : '';
+    document.getElementById('xfIkon').value = t ? t.ikon : '';
+    document.getElementById('xfKullanim').textContent = t ? kullanimNot(sozluk, kod)
+      : 'Yeni terim henüz hiçbir kayıtta geçmiyor.';
+    form.hidden = false;
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('txYeni').addEventListener('click', function () {
+    var acik = document.querySelector('.fit-tab[aria-selected="true"]');
+    formAc((acik ? acik.getAttribute('data-tab') : 'kas') + ':');
+  });
+  document.getElementById('txKapat').addEventListener('click', function () { form.hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-duzenle]');
+    if (b) formAc(b.getAttribute('data-duzenle'));
+  });
+  A.maketKaydet(document.getElementById('txKaydet'), 'terim');
+
+  kpi();
+  panelBas();
+})();
+</script>
+</body>
+</html>

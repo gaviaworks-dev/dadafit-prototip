@@ -95,7 +95,13 @@ yoksa DUR ve sor.**
 - **K3 · Puan.** Puan havuzu ortak değildir; her marka kendi puanını ve merdivenini tutar.
 - **K4 · Para modeli.** Gastro'da üye üyeye abone olur, **Diet ve Fit'te üye üreticiden hizmet satın alır**, Gourmet'te bu turda para ilişkisi yoktur.
 - **K5 · Komisyon kuralları.** Oran tüm kullanıcılar için aynıdır, ödeme ay sonudur, alt sınır altındaki bakiye birikir, iade olursa komisyon geri gitmez.
-- **K6 · Fit aboneliği.** 🔴 **Fit'te abonelik YOKTUR**; maketteki abonelik blokları sökülür ve yerine **antrenör hizmet paketi** gelir.
+- **K6 · Fit aboneliği.** 🔴 **GÜNCELLENDİ (2026-08-30, R16/2): Fit'te abonelik VARDIR.**
+  Eski hâli *"Fit'te abonelik YOKTUR; maketteki abonelik blokları sökülür"* idi ve Beyar bu turda geri aldı.
+  Karar zaten üç yerde çelişki üretiyordu (ölçüldü): `assets/js/fit-fatura.js` defteri `tur:"uyelik"` faturaları tutuyor,
+  `pro-v1.html` ile `pro-odeme-v1.html` public tarafta duruyor, `fit-paket.js` Pro/Pro Max fiyat alanlarıyla çalışıyor.
+  **Abonelik ve hizmet satışı BİR ARADA yaşar:** abonelik platformun kendi ürünü, hizmet ise K4 gereği
+  üyenin üreticiden satın aldığı şey. İkisi ayrı akış, ayrı ekran.
+  Yönetim paneline abonelik ekranları eklenecek (Gastro'nun karşılığı: Planlar · Abonelikler · Faturalar · Kuponlar).
 - **K7 · Şef statüsü.** Tarif veya püf noktası yazan her üye şeftir; ayrı bir başvuru basamağı yoktur (Gastro kavramı).
 - **K8 · Destek.** DadaDiet pilottur; dört durumu (`açık · yanıt bekleyen · çözülen · kapatılan`), iki tablosu ve geçişleri enum'da tutma kararı kanondur — **Fit için ayrı destek tasarımı yapılmaz**.
 - **K9 · Alışveriş.** Sipariş domain'i bu turda kurulmaz (Gastro kalemi).

@@ -24,6 +24,39 @@ destek tek adreste · zebra · 44px dokunma hedefi.
 
 ## SIRADAKİ
 
+### 🔴 1 · ADMİN PANELİNİN GÖRÜNÜMÜ — Gastro'ya birebir çekilecek
+
+**İşlev doğru, arayüz yanlış.** 21 ekran çalışıyor ve bütün ölçüm kapılarını
+geçiyor, ama panelin kabuğu ölçülerek değil **uydurularak** kuruldu ve
+Gastro'nun admin paneline benzemiyor. Beyar kararı: **yalnız görünüm
+değişecek, işlev değişmeyecek.**
+
+**Devir notu: `~/Desktop/dada-fit-admin-handoff.md`** — ölçülen fark tablosu,
+21 ekranın listesi, ne değişecek/ne değişmeyecek orada.
+
+Ölçülen yapısal farklar: ikon rail YOK · sidebar BEYAZ (Gastro'da koyu) ·
+arama dar ve ortada (Gastro'da geniş ve solda) · sayfa başlığı üst barda
+(Gastro'da gövdenin içinde) · KPI kartı yatay (Gastro'da dikey: ikon → sayı →
+etiket → trend) · sağ kolonda tablo (Gastro'da "Hızlı Aksiyonlar" listesi) ·
+daralt düğmesi altta tam genişlik (Gastro'da kenarda yüzen tutamak).
+
+**Marka rengi yeşil kalır** — alınan yapıdır, renk değil.
+İş iki dosyada: `assets/css/fit-admin.css` · `assets/js/fit-admin.js`.
+Kaynak: `~/Developer/Backend Projects/dadagastro-profil` 🔴 salt okuma ·
+`resources/views/admin/layout.blade.php` · `public/reference/…/sa-shell.css`.
+⚠ **KOD ALMA, YAPI AL.**
+
+### 🔴 2 · K6 GERİ ALINDI — Fit'te abonelik VAR
+
+`CLAUDE.md` K6 maddesi güncellendi. Panele abonelik ekranları gelecek
+(Gastro karşılığı: Planlar · Abonelikler · Faturalar · Kuponlar; "Creator
+Planları"nın Fit karşılığı antrenör hizmet paketi onayıdır).
+`admin-hizmetler-v1.html` **kalır** — hizmet satışı abonelikten ayrı akış.
+`fit-fatura.js`teki `tur:"uyelik"` satırları artık çelişki değil, doğru veri;
+raporlardaki uyarı şeridi kalkmalı. Sidebar 21 → ~24–25 ekran.
+
+---
+
 ### 🟢 YÖNETİM PANELİ — R16/2, bu oturumda kuruldu
 
 **Giriş adresi: `http://127.0.0.1:8788/admin-v1.html`**

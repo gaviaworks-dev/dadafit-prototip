@@ -556,3 +556,33 @@ da `hidden`), belge düzeyinde ölçen hiçbir kapı yeterli değildir; kırpma 
 kapıyı kalıcı olarak yeşile boyar. Kaydırma kaplarının **kendi ekseni** ayrıca
 sınanır. Daha genel hâli: bir kapının yeşil yanması, kusurun yokluğunu değil,
 **o kapının kusuru görebildiğini** varsayar — ve bu varsayım da ölçülmelidir.
+
+---
+
+## 29 · Kit uyumu, marka tutarlılığı demek değildir
+
+**Ne oldu (R16/2, yönetim paneli).** Panel sıfırdan kuruldu ve pek çok şey
+**ölçülerek** alındı: bölümleme (Genel Bakış + Ana içerik · Operasyon ·
+Yapılandırma), tek ad kuralı, liste kalıbı, sayfalamanın kartın içinde oluşu,
+kaydet düğmesinin sağda olması. Dördü de Gastro'nun kaynağından okundu ve
+dördü de doğru çıktı.
+
+Ama **kabuğun görünümü ölçülmedi.** Gerekçe makul görünüyordu: *"kit zaten
+var, `docs/fit-kit.md`in tokenlerini kullanırım, yeni renk üretmem."* Öyle de
+oldu — tek bir token bile uydurulmadı, bütün ölçüm kapıları yeşil yandı.
+Beyar iki ekranı yan yana koyunca çıktı: panel **Gastro'ya hiç benzemiyordu**.
+İkon rail yok, sidebar beyaz (Gastro'da koyu), arama dar ve ortada (orada
+geniş ve solda), sayfa başlığı üst barda (orada gövdenin içinde), KPI kartı
+yatay (orada dikey).
+
+**Kural.** Bir tasarım sistemine uymak, o sistemin **değerlerini** kullanmak
+demek değildir; **yapısını** da almaktır. Token listesi "hangi yeşil" sorusunu
+cevaplar, "sidebar koyu mu açık mı", "arama nerede durur", "kart dikey mi
+yatay mı" sorularını cevaplamaz — ve bir paneli tanıdık kılan ikinciler.
+Kardeş bir ürünün karşılığı varsa **kabuğu da ölçülür**, yoksa kit içinde
+kalan ama yabancı duran bir yüzey çıkar.
+
+⚠ Bunun bir alt kuralı da şu: **hiçbir ölçüm kapısı "bu bize benziyor mu"
+sorusunu sormaz.** Taşma, kontrast, dokunma hedefi, ölü bağlantı — hepsi
+geçebilir ve yüzey yine yanlış olabilir. O soruyu soran tek şey, iki ekranı
+yan yana koyup bakmaktır.

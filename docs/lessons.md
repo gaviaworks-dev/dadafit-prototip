@@ -586,3 +586,45 @@ kalan ama yabancı duran bir yüzey çıkar.
 sorusunu sormaz.** Taşma, kontrast, dokunma hedefi, ölü bağlantı — hepsi
 geçebilir ve yüzey yine yanlış olabilir. O soruyu soran tek şey, iki ekranı
 yan yana koyup bakmaktır.
+
+
+---
+
+## §29 · Kit uyumu marka tutarlılığı demek değildir
+
+**R17 · 2026-08-30 · admin paneli görünüm turu**
+
+R16/2'de panelin 21 ekranı kuruldu ve bütün ölçüm kapılarını geçti: yatay taşma
+0, konsol hatası 0, ölü bağlantı 0 (460 bağlantı), 44px altı dokunma hedefi 0,
+kaynak şeridi 21/21, yazma yüzeyi yalanı 0. **Tek bir token bile uydurulmadı.**
+Ve panel Gastro'ya hiç benzemiyordu.
+
+Sebep, turun kendi kaydında yazılı: bölümleme, ad kuralı, kaydet düğmesinin yeri
+ve liste kalıbı Gastro'dan **ölçülerek** alındı ve dördü de doğru çıktı. Ama
+**kabuğun görünümü ölçülmedi** — çünkü "kit zaten var, tokenleri kullanırım"
+diye düşünüldü. Kit kullanmak bir kısıttır, bir tasarım kararı değil: aynı
+tokenlerle birbirine hiç benzemeyen iki kabuk yazılabilir ve yazıldı.
+
+R17'de kaynak okundu ve sekiz sapma ölçüldü — hepsi de "kit içinde" duran,
+hiçbir kuralı çiğnemeyen kararlardı:
+
+| | R16/2 (uydurulmuş) | Gastro (ölçülen) |
+|---|---|---|
+| Sidebar | tek katman, **beyaz** 276px | **iki katman koyu**: 76px rail + 264px menü = 340 |
+| Arama | üst barda **ortada**, 320px | üst barda **solda**, 420px |
+| Sayfa başlığı | **üst barda** (gövdede hiç yok) | **gövdede**, kartların üstünde |
+| Daralt | sidebar'ın altında tam genişlik düğme | menünün **dış kenarında yüzen tutamak** |
+| KPI | ikon + sayı + not | ikon + sayı + etiket + **trend satırı** |
+| Tablo başlığı | gri zeminli | **zeminsiz** |
+| Liste araması | kart **başlığında** | kartın **filtre şeridinde solda** |
+| İkon rail | **yok** | var, 76px, aktif işaretli |
+
+**Kural:** bir yüzeyi bir başkasına benzetecekseniz, benzetilecek şeyin
+**ölçüsünü** alın — sözlüğünü değil. Kit "hangi değerleri kullanabilirim"i
+söyler; **yapı** ayrı bir sorudur ve ayrıca ölçülür.
+
+**Ölçüm kapısı olarak da eksikti:** `admin-denetim.mjs` her ekrana tek tek
+"kendi içinde sağlam mı" diye soruyordu, hiçbir kapı "yirmi bir ekran birbirine
+benziyor mu" diye sormuyordu. R17'de `admin-kalip-denetim.mjs` yazıldı — kabuk
+değerlerini 21 ekranda yan yana koyar ve tek değere inmiyorsa sapan ekranı
+adıyla söyler.

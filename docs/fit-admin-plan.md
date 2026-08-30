@@ -135,31 +135,61 @@ listede sonuç yoksa "veri yok" yazıp bırakmak kusurdur.
 
 ---
 
-## 5 · Kabuk
+## 5 · Kabuk — 🔴 R17'DE ÖLÇÜLEREK YENİDEN YAZILDI
 
 `assets/css/fit-admin.css` + `assets/js/fit-admin.js` — **sayfa kabuğu tek
-kaynak**, tıpkı `fit-shell` gibi. Sayfa yalnız `<div id="fitAdminTop">` yazar ve
-kendi içeriğini basar.
+kaynak**. Sayfa yalnız `<div id="fitAdminTop"></div>` yazar ve kendi içeriğini
+`<main class="adm-main"><div class="adm-page">` içine basar.
+
+⚠ **Bu bölümün R16/2 hâli geçersizdi.** Orada yazan ölçüler (276px beyaz
+sidebar, üst barda sayfa başlığı, sidebar altında tam genişlik daralt düğmesi)
+Gastro'dan **ölçülmemiş**, kitin tokenleriyle **uydurulmuştu**. Sonuç: tek bir
+token bile icat etmeyen, ama Gastro'ya hiç benzemeyen bir panel. R17'de kaynak
+okundu ve kabuk onun yapısına çekildi.
+
+**Kaynak** (salt okuma; kod alınmadı, yapı alındı):
+`dadagastro-profil/public/reference/admin/sa-shell.css` (436 satır) ·
+`sa-rail.css` (90) · `sa-ui.css` (290) ·
+`public/reference/admin-kullanicilar/sa-kullanicilar.css` (liste kalıbı) ·
+`public/reference/admin-dashboard/sa-dashboard.css` (KPI + hızlı aksiyon) ·
+`resources/views/admin/layout.blade.php` (508 satır, kabuk markup'ı).
+
+### Basılan yapı — Gastro'nun iki-katman koyu kabuğu
+
+```
+┌────┬──────────────┬──────────────────────────────────────┐
+│rail│ bölüm menüsü │ üst ince bar (64px, AÇIK)            │
+│76px│    264px     ├──────────────────────────────────────┤
+│#19 │   #211E16    │ sayfa başlığı (h1 + alt satır + eylem)│
+│160F│              │ kaynak şeridi                         │
+│    │  YÖNETİM     │ sayaç kartları (KPI ×4, trend satırlı)│
+│    │  DadaFit     │ kartlar · tablolar · sayfalama        │
+└────┴──────────────┴──────────────────────────────────────┘
+      ╰ sa-divider tutamağı (dikey ortada, dış kenarda)
+```
 
 | Parça | Ölçü | Kaynak |
 |---|---|---|
-| Sidebar genişliği | `276px` | Gastro 340px ölçüldü; Fit'in `--wrap`ı 1240 ve tablo kolonları daha dar — 340 gövdeyi 900'ün altına düşürüyordu. **Karar ve gerekçe §7'de.** |
-| Üst çubuk yüksekliği | `64px` | yeni · kite eklendi |
-| Zemin | `--bg` `#f9f9f9` gövde · `--paper` sidebar | kit §1 |
-| Kart | `.pnl-card` (16px yarıçap, `--sh-sm`) | kit §2 |
-| Tipografi | kit §3 · yeni boyut üretilmez | kit §3 |
-| Düğme | `.btn-primary` · `.btn-ghost` · `.btn-line` | kit §4 |
-| Durum rozeti | `.fp-badge` `.ok/.wait/.off/.stop` | kit §5 |
-| Sekme | `.fit-tabs` panel kipi | kit §6 |
-| Form | `.fk-*` (R16'da kabuğa taşındı) | kit §7 |
-| Süzgeç | `.ff` bileşeni + `FIT_SHELL.filtreKur()` | kabuk |
-| Boş durum | `.fpx-bos` dört parça | kit §9 |
+| İkon rail | `76px` · `#19160F` (en koyu katman) | sa-shell.css:50, :70 |
+| Bölüm menüsü | `264px` · `#211E16` (= kitin `--fit-dark`ı) | :51, :71 |
+| Sidebar toplam | `340px` — gövde aynı değerle içeri itilir | :52, :332 |
+| Üst çubuk | `64px` · `position:fixed` · açık zemin | :53 |
+| Arama | üst barda **SOLDA**, `flex:1` `max-width:420px` | :390 |
+| Sayfa başlığı | **gövdede**, kartların üstünde (`.pnl-page-head`) | dashboard.blade.php:279 |
+| Daralt | menünün **dış kenarında yüzen tutamak**, dikey ortada | sa-shell.css "DIVIDER TAB" |
+| KPI | ikon solda 44px → sayı 26px → etiket → **trend satırı** | :377-390 |
+| Kart | `.pnl-card` 16px yarıçap · başlık `18px 22px` · gövde `22px` | :360-370 |
+| Tablo | `.ptable` th `11.5px/700` `.06em` zeminsiz · ilk hücre 22px | sa-kullanicilar.css:48 |
+| Filtre şeridi | kartın **ilk satırı**, arama solda `max 320px` | sa-kullanicilar.css:6 |
+| Sayfalama | kartın **içinde**, en ayağında | sa-kullanicilar.css:110 |
+| Aksan | `--acc:#009d4f` · `--acc-deep:#007a3d` · `--acc-rgb:0,157,79` | **Gastro'nun kendi sa-shell.css:74'ü**, `body[data-sec="dadafit"]` satırı |
 
-**Yeni kalem (kite eklenecek, §13):** sidebar · üst çubuk · veri tablosu
-(`.adm-table`) · sayfalama · toplu eylem çubuğu. Beşi de admin'e özgüdür ve
-public yüzeyde karşılığı yoktur.
+**Değişen tek şey renk.** Gastro'nun aksanı domates; Fit'inki yeşil ve o üç
+değer Gastro'nun kendi dosyasından, Fit için ayrılmış satırdan alındı — yani
+yeni renk üretilmedi, çeviri bile yapılmadı.
 
----
+**Gastro'dan sapılan tek eksen: dokunma hedefi 44px.** Gerekçe ve yöntem
+`docs/fit-kit.md` §13'te.
 
 ## 6 · Dürüstlük
 
@@ -179,12 +209,15 @@ public yüzeyde karşılığı yoktur.
 
 ## 7 · Kararlar (bu turda lead'in verdiği, gerekçesiyle)
 
-1. **Sidebar 276px, Gastro'nun 340'ı değil.** Gastro'nun gövdesi geniş kartlar
-   basıyor; Fit'in admin ekranlarının çoğu K1 (tablo). 1440'ta 340px sidebar
-   gövdeye 1100 − dolgu ≈ 1040 bırakıyor, ama Fit'in `--wrap`ı zaten 1240 ve
-   tablo 7 kolona kadar çıkıyor. 276 seçildi çünkü kalan gövde `--wrap`ın
-   içinde kalıyor ve kolonlar sıkışmıyor. **Ölçüm kapısı:** 1440'ta en geniş
-   tablo yatay kaydırma üretmemeli.
+1. ~~**Sidebar 276px, Gastro'nun 340'ı değil.**~~ 🔴 **R17'DE GERİ ALINDI.**
+   Gerekçe şuydu: "Fit'in admin ekranlarının çoğu tablo ve 340 kolonları
+   sıkıştırıyor." Ölçüldüğünde yanlış çıktı — Gastro'nun kendi ekranlarının
+   ~30'u da tablo ve orada 340px ile çalışıyorlar; dar kolonun cevabı sidebar'ı
+   kısmak değil, tablo kabının kendi ekseninde kaymasıdır (`.adm-tw` +
+   `contain:paint`, zaten kurulu). 276 sayısı bir ölçüm değil, ölçmemenin
+   kılıfıydı. **Sidebar 340px (76 rail + 264 menü).** Ölçüldü: 21 ekranın
+   21'inde 1440 · 1024 · 390'da yatay taşma 0.
+
 2. **Antrenör paneli birleştirilmiyor.** `antrenor-panelim-v1.html` antrenörün
    kendi paneli; admin paneli ayrı bir yüzeydir ve ayrı kalır. İkisi aynı
    yazma ucunu paylaşmaz. (Devir notunun açık sorusuydu; ayrı olmaları K1
@@ -262,9 +295,13 @@ YAPILANDIRMA  Menü / Navigasyon · Sponsorlar · Reklam Alanları · Reklam Pak
 
 ### Gastro'da olup Fit'e GELMEYENLER
 
-**Planlar · Creator Planları · Abonelikler · Faturalar · Kuponlar** — K6 gereği
-Fit'te abonelik yoktur; üye üreticiden hizmet satın alır. Karşılığı
-**Hizmetler ve Satışlar**tır. **Medya Kuyruğu** ve **Geri Bildirim** bu turda
+~~**Planlar · Creator Planları · Abonelikler · Faturalar · Kuponlar**~~
+🔴 **R16/2'de K6 DEĞİŞTİ (2026-08-30): Fit'te abonelik VARDIR.** Bu beş kalem
+artık "gelmeyen" değil, **sıradaki** iş: Fit'te en az **Planlar · Abonelikler ·
+Faturalar** açılır; `Creator Planları`nın Fit karşılığı antrenör hizmet paketi
+onayıdır. `Hizmetler ve Satışlar` **kalır** — abonelik platformun kendi ürünü,
+hizmet ise K4 gereği üyenin üreticiden satın aldığı şey; ikisi ayrı akış.
+Sidebar 21 kalemden ~24'e çıkar. **Medya Kuyruğu** ve **Geri Bildirim** bu turda
 kapsam dışı: Fit'te ikisinin de arkasında bir yüzey yok, menüye koymak boş ekran
 vaat etmek olurdu.
 
@@ -338,9 +375,10 @@ karıştırıldı ve ölçümle düzeltildi.
 
 ### Gastro'da olup Fit'te karar bekleyenler
 
-1. **K6 çelişkisi:** Abonelik kalemleri Fit'te düşüyor, ama maketde `pro-v1.html`
-   ve `pro-odeme-v1.html` **duruyor**. Panelde abonelik ekranı açılmadı; public
-   taraftaki bu iki sayfa ayrı bir karar kalemi.
+1. ~~**K6 çelişkisi.**~~ ✅ **KARARA BAĞLANDI (2026-08-30):** Fit'te abonelik
+   VARDIR. Çelişki üç yerde ölçülmüştü (`fit-fatura.js` `tur:"uyelik"` faturaları ·
+   public'te duran `pro-v1.html` + `pro-odeme-v1.html` · `fit-paket.js`in Pro/Pro Max
+   fiyat alanları) ve karar geri alındı. Yerine geçen iş: panele abonelik ekranları.
 2. **Antrenör konumu:** Gastro'da şef ayrı kalem değil, **üye detayının sekmesi**.
    Fit'te ayrı kalem yapıldı — public tarafta antrenör kendi dünyası
    (`antrenorler-v1.html`), başvuru kuyruğu üye listesine sıkışmazdı.

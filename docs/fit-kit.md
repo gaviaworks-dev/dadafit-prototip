@@ -251,32 +251,87 @@ düştü: kesişim **1162 px²**, iki sayfada **21 kartın 21'inde**, üç geni�
 
 ---
 
-## 13 · Yönetim paneli kiti — `.adm-*`
+## 13 · Yönetim paneli kiti — `.adm-*` / Gastro kanonu
 
 🔴 **Yalnız admin sayfalarında kullanılır.** Public yüzeyde karşılığı yoktur ve
 `assets/css/fit-admin.css`te yaşar — `fit-shell.css`e karıştırılmaz, çünkü 60
 public sayfanın hiç kullanmayacağı kuralları her ziyarette indirtirdi.
 
-Admin, kitin geri kalanını **aynen** kullanır: kart (`.pnl-card` ölçüleri) ·
-düğme (§4) · rozet (§5) · sekme (§6) · form (§7) · boş durum (§9). Aşağıdakiler
-o kitte karşılığı olmayan, admin'e özgü beş kalemdir.
+🔴 **R17 · BU BÖLÜM YENİDEN ÖLÇÜLDÜ.** R16/2'deki değerler (`--adm-side-w:276px`,
+beyaz sidebar, `--adm-top-h` üst barda sayfa başlığı) **uydurulmuştu** — kit
+uyumluydu ama Gastro'ya hiç benzemiyordu. Kaynak okundu
+(`dadagastro-profil/public/reference/admin/sa-shell.css` · `sa-rail.css` ·
+`sa-ui.css` · `resources/views/admin/layout.blade.php`, salt okuma) ve kabuk
+onun ölçülerine çekildi. Ders: **kit uyumu marka tutarlılığı demek değildir;
+yapı da ölçülür** (`docs/lessons.md` §29).
 
-| Token | Değer | Neden yeni |
-|---|---|---|
-| `--adm-side-w` | `276px` | Gastro'nun sidebar'ı ölçüldü: `340px`. Fit'in admin ekranlarının çoğu tablo ve 340 kolonları sıkıştırıyordu; 276'da kalan gövde `--wrap`ın (1240) içinde kalıyor. Gerekçe: `docs/fit-admin-plan.md` §7/1 |
-| `--adm-top-h` | `64px` | 44px dokunma hedefi + 2×10px nefes |
+Admin, kitin geri kalanını **aynen** kullanır: düğme (§4) · rozet (§5) ·
+sekme (§6) · form alanı (§7) · boş durum (§9).
 
-| Bileşen | Ölçü | Not |
+### Aksan — tek değişen şey
+
+Gastro'nun aksanı domates, Fit'in aksanı yeşil. Bu bir çeviri bile değil:
+Gastro'nun **kendi** `sa-shell.css`i satır 74'te Fit için ayrılmış satırı
+zaten taşıyor ve üç değer oradan alındı — yeni renk üretilmedi.
+
+| Token | Değer | Nereden |
 |---|---|---|
-| `.adm-side` | `276px` · `--paper` · sağ kenarlık `--line` | `position:fixed`; ≤1100px'te çekmeceye döner |
-| `.adm-sec` | `10.5px/800`, `.12em` harf aralığı, `--muted` | Bölüm başlığı **ayraç değildir** — ölçüldü (devir §10): "Gastro bölümleri başlık ile ayırıyor, ayrı bir çizgi öğesi yok" |
-| `.adm-item` | `min-height:44px` · `13.5px/600` · aktifte `--fit-tint` + `--fit-deep` | Kuyruk sayacı `.cnt` **sıfırsa basılmaz** — "0 bekleyen" bilgi değil gürültüdür |
-| `.adm-top` | `64px` · `position:sticky` · `--paper` | Sayfa başlığı ve breadcrumb burada |
-| `.adm-table` | başlık `11px/800` `.07em` uppercase · hücre `13.5px/500` `13px 16px` | Yatay kaydırma **kabın** işi (`.adm-tw`), hücre kırpılmaz. Sayısal kolon `tabular-nums` |
-| `.adm-ico-btn` | `44×44` (WCAG 2.5.8), görsel 32px | Satır eylemi |
-| `.adm-pg` | `min-width:44px · height:44px` | Sayfalama |
-| `.adm-bulk` | `--fit-tint` zemin, `--fit-line` kenarlık | **Seçim yokken `hidden`** — boş bir toplu eylem çubuğu tıklanacak bir şey vaat edip vermez |
-| `.adm-kpi .k` | dolgu `20px` · ikon `44×44` `--radius-md` · sayı `26px/800` · etiket `12.5px` | Devir belgesi §1'den: dört markada da 4 kutu, aynı yerde |
+| `--acc` | `#009d4f` | = `--fit` · Gastro sa-shell.css:74 |
+| `--acc-deep` | `#007a3d` | = `--fit-deep` |
+| `--acc-rgb` | `0,157,79` | `rgba(var(--acc-rgb),…)` için |
+
+### Kabuk ölçüleri — Gastro'dan birebir
+
+| Token | Değer | Nereden |
+|---|---|---|
+| `--sa-rail-w` | `76px` | ikon rail · sa-shell.css:50 |
+| `--sa-menu-w` | `264px` | bölüm menüsü · :51 |
+| `--sa-side-w` | `340px` | rail + menü · :52 |
+| `--pnl-top-h` | `64px` | üst ince bar · :53 |
+| `--rail-bg` | `#19160F` | EN koyu katman · :70 — kitte karşılığı olmayan tek değer |
+| `--menu-bg` | `#211E16` | elevated katman · :71 — kitin `--fit-dark`ı ile **birebir aynı literal** |
+
+Ölçüldü (Playwright · 1440×1100 · 21 ekranın 21'inde tek değer):
+rail `76` · menü `264` @x76 · üst bar `64` @x340 · gövde `margin-left:340`.
+
+### Bileşenler
+
+| Bileşen (eş adı) | Ölçü | Not |
+|---|---|---|
+| `.sa-rail` | `76px` · `--rail-bg` · ikonlar üstten · aktifte `rgba(acc,.2)` + sol 3px aksan çubuğu | Gastro'da **dünya** seçer (beş marka); Fit'te **bölüm** seçer (dört bölüm). Uydurulmuş "yakında" dünyası yok |
+| `.sa-menu` | `264px` · `--menu-bg` · radial aksan yıkaması | Üstünde `.smh-eyebrow` (10px yeşil YÖNETİM) + `.smh-title` (17px DadaFit) |
+| `.sa-msec` (`.adm-sec`) | `10.5px/700` `.16em` · `--on-dark-faint` | Bölüm başlığı **ayraç değildir** (devir §10) |
+| `.sa-mlink` (`.adm-item`) | `min-height:44px` · `14px/500` · aktifte `rgba(acc,.16)` + sol 3px çubuk | Kuyruk sayacı `.pl-cnt` **sıfırsa basılmaz** |
+| `.sa-divider` / `.sa-grip` | `22×54` sekme, menünün **DIŞ** kenarında, dikey ortada | Açık `‹` · katlı `›`. R16/2'nin tam genişlik "Menüyü daralt" düğmesi söküldü |
+| `.pnl-top` (`.adm-top`) | `64px` · `position:fixed` · `left:340` | **Sayfa başlığı burada DEĞİL** |
+| `.pnl-search` | `flex:1` · `max-width:420px` · **SOLDA** · alan `44px` | R16/2'de ortada ve 320px'ti |
+| `.pnl-me` / `.pnl-menu` | yuvarlak harf avatarı (36px, aksan halkalı) + ad/rol + açılır ok | |
+| `.adm-head` (`.pnl-page-head`) | **gövdede**, kartların üstünde · `h1` 24px + `.ph-sub` 13.5px · sağda `.h-acts` | |
+| `.adm-card` (`.pnl-card`) | 16px yarıçap · `--sh-sm` · başlık `18px 22px` · gövde `22px` | |
+| `.filter-bar` | kartın **İLK satırı** · `16px 22px` · arama **SOLDA** `max 320px` | Süzgeç kalemi Fit'te açılır menü (plan §10/M2, bilerek) |
+| `.adm-table` (`.ptable`) | th `11.5px/700` `.06em` uppercase **zeminsiz** · ilk hücre `padding-left:22px` · son hücre sağa yaslı · td `13px 16px` `13.5px` | Yatay kaydırma **kabın** işi (`.adm-tw` + `contain:paint`) |
+| `.adm-ico-btn` (`.ia-btn`) | **görsel 32px** (`::before`), **hedef 44px** | Gastro 32px basıyor, Fit'in kapısı 44 istiyor |
+| `.adm-pg` (`.pg-btn`) | **görsel 34px**, **hedef 44px** | aynı gerekçe |
+| `.adm-pager` (`.pager`) | kartın **İÇİNDE**, en ayağında · solda `.p-info`, sağda `.p-btns` | |
+| `.adm-kpi .k` (`.kpi-card`) | ikon **SOLDA** `44×44` → sağında sayı `26px/700` → etiket `12.5px` → **`.kpi-delta` trend satırı** | Trend satırı R16/2'de yoktu |
+| `.adm-bulk` | seçim yokken `hidden` | **Yalnız `admin-moderasyon`da.** Gastro'da 47 kalemden 1'inde |
+| `.u-cell` / `.u-ava` / `.role-pill` | tablo içi kimlik: 38px yuvarlak avatar + ad/e-posta | dört ekranın aynı sorusu, tek cevap |
+| `.chips` / `.chip` / `.ch-cnt` | durum sekmesi · `min-height:44px` · sayaç rozetli | liste süzgeci DEĞİL |
+| `.form-actions` | `justify-content:flex-end` — **kaydet SAĞDA** | Hesap ekranlarının "kaydet solda" kuralı burada geçmez (ders §27) |
+| `.fhint` | `11.5px` muted | form yardım metni tek standart |
+| `.side-card` / `.toggle-row` / `.status-dot` | sağ `position:sticky` yayın kartı | |
+| `.seo-score` / `.score-ring` / `.seo-checks` | SEO skoru + geçen/kalan ölçüt listesi | |
+| `.sa-form-tabs` / `.sa-form-tab` | form **İÇİ** sekme (İçerik/SEO) | Sayfa geçişi sekmesi kitin `.fit-tabs`ıdır, karıştırılmaz |
+| `.qa-list` / `.qa-item` | hızlı aksiyon: ikon + başlık + alt açıklama + sağ ok | Gastro'nun sağ kolon dili |
+
+### 🔴 Gastro'dan sapılan tek eksen — dokunma hedefi
+
+Gastro `.ia-btn` **32px** · `.pg-btn` **34px** · `.btn-sm` **~40px** basıyor.
+Fit'in kendi ölçüm kapısı (`docs/qa/admin-denetim.mjs:82`) bu ailelerden
+`height >= 44` istiyor (WCAG 2.5.8) ve kit §5/§6/§10 aynı kararı üç kez verdi.
+Çözüm Gastro'yu bozmadan: **görsel Gastro'nunki, hedef 44px** — kutu `::before`
+ile 32/34px çizilir, tıklanabilir alan 44px kalır. Kitin `.kyt-btn` deseninin
+aynısı (§10: "hedef 44, göz 26"). Ölçüldü: görüntü Gastro ile aynı, kapı yeşil.
 
 ### `.adm-src` — kaynak şeridi
 
@@ -286,8 +341,15 @@ hâlidir; her ekranda ayrı ayrı cümle kurulmaz.
 
 | Sınıf | Ne demek | Renk |
 |---|---|---|
-| `.is-canli` | Tarayıcıda gerçekten çalışan bir sözleşme modülünden okunuyor (`fit-challenge` · `fit-rozet` · `fit-paket` · `fit-su` · `fit-fatura`) | `--fit-tint` / `--fit-line` / `--fit-ink` |
+| `.is-canli` | Tarayıcıda gerçekten çalışan bir sözleşme modülünden okunuyor (`fit-challenge` · `fit-rozet` · `fit-paket` · `fit-su` · `fit-fatura`) | aksan yıkaması |
 | `.is-ornek` | Örnek veri; sunucu yok, yazma yüzeyi maket | `--hs-warn-tint` / `--hs-warn-line` / `--hs-warn` |
 
 Bir ekranda ikisi bir aradaysa **ikisi de söylenir** — yarısı gerçek bir ekranın
 "gerçek" demesi, yarısı için yalan olurdu.
+
+### İki ad, tek kural
+
+21 ekran `.adm-*` adlarıyla yazıldı ve işlevleri doğru. Adları değiştirmek 21
+dosyada gövde markup'ı elemek olurdu. Bunun yerine her kural **iki seçiciye
+birden** yazılı: `.adm-card, .pnl-card{…}`. Gastro'nun adı kanon, `.adm-*` onun
+eş anlamlısı; ikisi de aynı pikseli basar.

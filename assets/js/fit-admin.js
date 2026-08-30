@@ -88,14 +88,41 @@
           { id:'sozluk',     ad:'Spor Sözlüğü',     href:'admin-sozluk-v1.html' },
           { id:'anatomi',    ad:'Anatomi Haritası', href:'admin-anatomi-v1.html' }
         ]},
-      { id:'programlar', ad:'Programlar',          ico:'fa-solid fa-clipboard-list',href:'admin-programlar-v1.html' },
+      /* 🔴 R20 · PROGRAMLAR BİR GRUP OLDU — sidebar public'in modül ağacını
+         yansıtır. Ölçüldü (tarayıcıda, `FIT_SHELL.menu()` çıktısından):
+         public NAV'da "Programlar" dropdown'ının ÜÇ kalemi var — Tüm
+         Programlar · Programını Bul · **Fit Testleri** — ve FOOTER_COLS'un
+         "Programlar ve Uzman Desteği" kolonu aynı gruplamayı bağımsız olarak
+         tekrarlıyor. İki kaynak da Fit Testleri'ni Programlar'ın ALTINDA
+         gösteriyordu; yönetim panelinde ise bağımsız düz kalemdi.
+         Desen yeni değil: Hareket Kütüphanesi (yukarıda) ve Abonelikler
+         (Operasyon) aynı kalıbı zaten kullanıyor — üst kalem tıklanabilir
+         `<a>`, chevron açıp kapar, alt[0] parent'la aynı href'i tekrarlar.
+         EKRAN KAYBOLMADI: `admin-testler-v1.html` yalnız yer değiştirdi;
+         benzersiz ekran sayısı 31 → 31, ölü bağlantı 0 → 0. */
+      { id:'programlar', ad:'Programlar',          ico:'fa-solid fa-clipboard-list',href:'admin-programlar-v1.html',
+        alt: [
+          { id:'programlar', ad:'Program Kataloğu', href:'admin-programlar-v1.html' },
+          { id:'testler',    ad:'Fit Testleri',     href:'admin-testler-v1.html' }
+        ]},
       { id:'challenge',  ad:"Challenge'lar",       ico:'fa-solid fa-trophy',        href:'admin-challenge-v1.html' },
-      { id:'testler',    ad:'Fit Testleri',        ico:'fa-solid fa-stopwatch',     href:'admin-testler-v1.html' },
       { id:'taksonomi',  ad:'Taksonomi',           ico:'fa-solid fa-tags',          href:'admin-taksonomi-v1.html' },
-      /* Medya kütüphanesi ORTAK kalemdir (dört markanın hepsinde aynı),
-         markaya özel değil. Gastro'da karşılığı YOK; üstüne inşa edildi
-         (plan §11/D3): grep `media-library|MediaLibrary` → 0 isabet. */
-      { id:'medya',      ad:'Medya Kütüphanesi',   ico:'fa-solid fa-photo-film',    href:'admin-medya-v1.html' },
+      /* 🔴 R20 · MEDYA KÜTÜPHANESİ SİDEBAR'DAN KALKTI — Beyar kararı.
+         R19'da plan §11/D3 bu ekranı "Gastro'da YOK, üstüne inşa et"
+         gerekçesiyle kurmuştu. Beyar bu turda çerçeveyi geri aldı:
+         "Gastro'da olmayan bir şeyi kendin ekleme."
+         D3'ün ölçümü YENİDEN DOĞRULANDI ve kör değildi (R20):
+           · `media-library|MediaLibrary|media.index` → 1 isabet, o da
+             `<meta name="media-max-size">` — yükleme sınırı, kütüphane değil
+           · sidebar'daki tek "medya" satırı `admin.moderation.media.index`,
+             yani MODERASYON KUYRUĞU — kütüphane/arşiv değil, başka kavram
+           · formlarda görsel `<x-admin.image-upload>` ile DOĞRUDAN yükleniyor;
+             "kütüphaneden seç / yeniden kullan / klasörle" kavramı yok
+         Bileşen tarafı DURUYOR: `FIT_ADMIN.medya()` modalı 15 form ekranından
+         çağrılıyor (11'i `yukle()` bileşeninden, 6'sı `.adm-ed` editöründen)
+         ve `assets/js/fit-medya-veri.js` katalogu yerinde. Beyar'ın cümlesi
+         birebir buydu: "sidebar'dan kalksın, form içinde açılan bileşen
+         olarak kalsın." */
       { id:'sayfalar',   ad:'Sayfalar ve SEO',     ico:'fa-solid fa-file-lines',    href:'admin-sayfalar-v1.html' }
     ]},
     { bolum:'Operasyon', ico:'fa-solid fa-headset', kalem: [
@@ -177,39 +204,81 @@
     return null;
   }
 
-  /* Aktif kalemin hangi bölümde olduğunu bul — ikon rail o bölümü işaretler. */
-  function bolumIx(aktif){
-    for (var i = 0; i < MENU.length; i++) {
-      var k = MENU[i].kalem;
-      for (var j = 0; j < k.length; j++) {
-        if (k[j].id === aktif) return i;
-        var a = k[j].alt || [];
-        for (var x = 0; x < a.length; x++) if (a[x].id === aktif) return i;
-      }
-    }
-    return 0;
-  }
+  /* R20 · `bolumIx()` SÖKÜLDÜ — rail artık bölüm değil MARKA taşıyor,
+     aktif bölümü işaretleyecek kimse kalmadı. Çağıranı 0'a düşen bir
+     fonksiyonu bırakmak, bu depoda üç kez temizlenen "ölü API yüzeyi"
+     kusurudur (bkz. docs/fit-spec-kopukluklari.md K20). */
 
-  /* ---- 1) İKON RAIL — 76px, en koyu katman ----------------------------
-     Gastro'da rail dünya seçicisidir (beş marka). Fit tek markadır, ama
-     menüsü aynı dört bölüme ayrılır — rail o dört bölümü seçer ve tıklama
-     menüyü ilgili bölüm başlığına kaydırır. Ölü bağlantı ya da "yakında"
-     kutusu YOK: rail'deki her ikonun arkasında gerçekten var olan bir
-     bölüm duruyor. */
-  function railHtml(bIx){
-    var out = '<aside class="sa-rail" id="saRail" aria-label="Bölümler">' +
+  /* ---- 1) İKON RAIL — 76px, MARKA GEÇİŞİ ------------------------------
+     🔴 R20 · R17'NİN "BÖLÜM SEÇİCİ" KARARI GERİ ALINDI (Beyar).
+     Eski hâli: rail Fit'in menü bölümlerini (Genel Bakış · Ana içerik ·
+     Operasyon · Yapılandırma) seçiyor, tıklama menüyü o başlığa
+     KAYDIRIYORDU. Gerekçesi "Fit tek markadır, uydurulmuş yakında dünyası
+     eklenmez" idi.
+     İki ölçüm o gerekçeyi geçersiz kıldı:
+       1. Gastro'da "rail'den menüye kaydır" diye bir mekanizma YOK —
+          menü zaten hep açık ve `.sa-msec` başlıklarıyla gruplu. Yani
+          kaydırma Gastro'dan alınmamış, Fit'e özgü bir icattı.
+       2. Fit'in PUBLIC rail'i (`fit-shell.js` §N, `RAIL` dizisi) altı
+          markayı zaten taşıyor ve `antrenor-panelim-v1.html`de canlı
+          ölçüldü: 76px · #19160F · 6 ikon · her biri 48×48.
+     Beyar'ın kararı: rail marka geçişi taşır, bölüm kaydırma kalkar.
+
+     ⚠ GASTRO'NUN RAIL'İ BUGÜN EKSİK — ölçüldü (layout.blade.php:89-118):
+     yalnız 3 ikon var (Gastro aktif · DadaStore atıl · DadaAkademi kilitli),
+     Diet ve Gourmet dosyanın kendi "SÖKÜM NOTU (2026-08-20, S4)" yorumuyla
+     kaldırılmış. Beyar bunu bilerek geçti: "Gastro'nun rail'i eksik, sonra
+     düzeltilecek. Fit'te altı olacak." Yani buradaki 6'lı liste bir sapma
+     DEĞİL, kayıt altına alınmış bir karardır.
+
+     ⚠ SINIF ADI `.sa-brand` — `.sa-rail-ico` DEĞİL. Bileşen zaten
+     `fit-shell.css:1545-1570`te Gastro ölçüsüyle tanımlı (48×48 · r14 ·
+     aktif zemin rgba(--acc-rgb,.2) + sol 3px aksan · kilitli
+     rgba(233,226,214,.26) + not-allowed + .sr-lock rozeti) ve admin o
+     dosyayı YÜKLÜYOR. İkinci bir tanım yazmak kuyruk kalemi 9'daki çift
+     tanım kusurunu büyütürdü — tek tanım kullanılıyor.
+
+     ⚠ ADRESLER: `ECO` sabiti `fit-shell.js:52`de yaşıyor ama admin
+     `fit-shell.js`i YÜKLEMİYOR (sayfanın kendi notu: "public kabuk kendi
+     header/footer'ını basar"). Bu yüzden adresler burada tekrar yazılıyor.
+     KANON `fit-shell.js:52`dir; oradaki bir adres değişirse burası da
+     değişmek zorundadır. */
+  var ECO_BASE = 'https://by4r.github.io/dadamutfak-view/v7-6cu356/';
+  var RAIL = [
+    {ad:'Gastro',      ikon:'fa-solid fa-utensils',         href:ECO_BASE + 'anasayfa-portal-v3a.html', acc:'#E14827', rgb:'225,72,39'},
+    {ad:'Diet',        ikon:'fa-solid fa-heart-pulse',      href:ECO_BASE + 'saglik-hub-v1.html',       acc:'#3BB77E', rgb:'59,183,126'},
+    {ad:'Gourmet',     ikon:'fa-solid fa-map-location-dot', href:ECO_BASE + 'kesfet-v1.html',           acc:'#b14fc5', rgb:'177,79,197'},
+    {ad:'Fit',         ikon:'fa-solid fa-dumbbell',         href:'admin-v1.html', acc:'#009d4f', rgb:'0,157,79', aktif:true},
+    {ad:'DadaAkademi', ikon:'fa-solid fa-graduation-cap',   kilit:true},
+    {ad:'DadaStore',   ikon:'fa-solid fa-bag-shopping',     kilit:true}
+  ];
+
+  function railHtml(){
+    var out = '<aside class="sa-rail" id="saRail" aria-label="Marka geçişi">' +
       '<a class="sa-rail-logo" href="admin-v1.html" data-tip="DadaFit Yönetim" aria-label="DadaFit Yönetim">' +
         '<i class="fa-solid fa-bolt" aria-hidden="true"></i></a>' +
       '<div class="sa-rail-div"></div>';
-    MENU.forEach(function (g, i) {
-      var ad = g.bolum || 'Genel Bakış';
-      var n = 0;
-      g.kalem.forEach(function (k) { n += (SAYAC[k.id] || 0); });
-      out += '<button class="sa-rail-ico' + (i === bIx ? ' is-active' : '') + '" type="button"' +
-        ' data-rail="' + i + '" data-tip="' + esc(ad) + '" aria-label="' + esc(ad) + '">' +
-        '<i class="' + g.ico + '" aria-hidden="true"></i>' +
-        (n ? '<span class="pl-cnt">' + n + '</span>' : '') + '</button>';
+    RAIL.forEach(function (r) {
+      /* Kilitli kalem <a href> DEĞİL <span>: hedefi olmayan bir bağlantı
+         ölü bağlantıdır. "Yakında" METNİ yazılmaz — yalnız kilit rozeti
+         (fit-shell.js §N15, aynı kural). */
+      if (r.kilit) {
+        out += '<span class="sa-brand is-locked" aria-disabled="true"' +
+          ' data-tip="' + esc(r.ad) + '" aria-label="' + esc(r.ad) + ' — kilitli">' +
+          '<i class="' + r.ikon + '" aria-hidden="true"></i>' +
+          '<i class="fa-solid fa-lock sr-lock" aria-hidden="true"></i></span>';
+        return;
+      }
+      out += '<a class="sa-brand' + (r.aktif ? ' is-active' : '') + '"' +
+        ' href="' + r.href + '"' +
+        ' style="--acc:' + r.acc + ';--acc-rgb:' + r.rgb + '"' +
+        (r.aktif ? ' aria-current="page"' : '') +
+        (r.aktif ? '' : ' target="_blank" rel="noopener"') +
+        ' data-tip="Dada' + esc(r.ad) + '" aria-label="Dada' + esc(r.ad) + '">' +
+        '<i class="' + r.ikon + '" aria-hidden="true"></i></a>';
     });
+    /* Ayak: Gastro'da YALNIZ Gaviaworks imzası var (ölçüldü) — public
+       rail'in "Siteyi Görüntüle" kalemi buraya taşınmadı. */
     out += '<div class="sa-rail-foot">' +
       '<a class="sa-sig" href="https://gaviaworks.com" target="_blank" rel="noopener" ' +
       'data-tip="Gaviaworks" aria-label="Gaviaworks — gaviaworks.com">' +
@@ -250,24 +319,39 @@
            ÜST BAŞLIĞA TIKLAMAK İLK ALT SAYFAYA GİDER. "Yalnız aç/kapa"
            değil — bu yüzden `<a href>`, `<button>` değil. Chevron'a
            tıklamak yalnız açar/kapar (aşağıdaki dinleyici). */
+        /* 🔴 R20 · SADECE BULUNDUĞUN GRUP AÇIK — Beyar kararı, Gastro davranışı.
+           Ölçülen fark (A9): Gastro'da inaktif bir grubun alt menüsü DOM'da
+           BİLE YOK — `layout.blade.php:326` sunucu tarafında `@if($pricingActive)`
+           ile basıyor. Fit'te ise her grubun alt menüsü daima DOM'daydı,
+           yalnız `hidden` ile gizliydi; chevron her zaman açıyordu, yani
+           kullanıcı o gruba GİRMEDEN içini önizleyebiliyordu. Gastro'da
+           böyle bir önizleme yok.
+           Beyar: *"Yalnız bulunduğun grubun kalemleri görünsün, ötekiler
+           kapalı kalsın. Statik depoda server-render yok — JS ile aynı
+           davranışı kur."* Karşılığı: alt menü YALNIZ açık grup için basılır.
+           Kapalı grupta chevron ÖLÜ DEĞİL — üst başlıkla aynı yere gider
+           (Gastro'nun K-1 kanonu: üst başlığa tıklamak ilk alt sayfaya
+           götürür). Sessiz düğme bırakılmaz; oraya gidince grup zaten açılır. */
         var altId = 'saAlt' + (k.id || '').replace(/[^a-z0-9]/gi, '');
         out += '<a class="sa-mlink adm-item' + (acik ? ' is-open' : '') +
                  ((on || altAktif) ? ' is-active is-on' : '') + '" href="' + esc(k.href) + '"' +
                ' title="' + esc(k.ad) + '" aria-expanded="' + (acik ? 'true' : 'false') + '"' +
-               ' aria-controls="' + altId + '"' +
+               (acik ? ' aria-controls="' + altId + '"' : '') +
                ((on || altAktif) ? ' aria-current="page"' : '') + '>' +
                '<i class="' + k.ico + '" aria-hidden="true"></i>' +
                '<span class="mlink-label">' + esc(k.ad) + '</span>' +
                (n ? '<span class="pl-cnt cnt" aria-label="' + n + ' bekleyen">' + n + '</span>' : '') +
                '<i class="fa-solid fa-chevron-down mlink-caret" aria-hidden="true"></i>' +
                '</a>';
-        out += '<div class="sa-submenu-dark" id="' + altId + '"' + (acik ? '' : ' hidden') + '>' +
-          alt.map(function (a) {
-            var aOn = (a.id === aktif);
-            return '<a class="' + (aOn ? 'is-active' : '') + '" href="' + esc(a.href) + '"' +
-                   ' title="' + esc(a.ad) + '"' + (aOn ? ' aria-current="page"' : '') + '>' +
-                   esc(a.ad) + '</a>';
-          }).join('') + '</div>';
+        if (acik) {
+          out += '<div class="sa-submenu-dark" id="' + altId + '">' +
+            alt.map(function (a) {
+              var aOn = (a.id === aktif);
+              return '<a class="' + (aOn ? 'is-active' : '') + '" href="' + esc(a.href) + '"' +
+                     ' title="' + esc(a.ad) + '"' + (aOn ? ' aria-current="page"' : '') + '>' +
+                     esc(a.ad) + '</a>';
+            }).join('') + '</div>';
+        }
       });
     });
     out += '</div><div class="sa-menu-foot">' +
@@ -325,9 +409,9 @@
     if (!yuva) return;
     var id = aktifId();
     var k = kalemBul(id);
-    var bIx = bolumIx(id);
 
-    yuva.innerHTML = '<div class="sa-app">' + railHtml(bIx) + menuHtml(id) + topHtml() +
+
+    yuva.innerHTML = '<div class="sa-app">' + railHtml() + menuHtml(id) + topHtml() +
                      '<div class="pnl-overlay adm-scrim" id="admScrim"></div></div>';
 
     if (k && !document.title) document.title = k.ad + ' — DadaFit Yönetim';
@@ -355,6 +439,11 @@
       link.classList.toggle('is-open', ac);
       link.setAttribute('aria-expanded', ac ? 'true' : 'false');
     }
+    /* R20 · İki ayrı davranış, çünkü iki ayrı durum var:
+         AÇIK grup (alt menü DOM'da)  → chevron kapatır/açar, ← → çalışır
+         KAPALI grup (alt menü YOK)   → chevron üst başlıkla aynı yere gider
+       İkincisinde "aç" diye bir şey yok: gidilecek yer açılışın kendisidir.
+       Chevron'u ölü bırakmak bu depoda yasak (kit §14/1 · "sessiz düğme"). */
     yuva.querySelectorAll('.sa-mlink[aria-controls]').forEach(function (link) {
       var ok = link.querySelector('.mlink-caret');
       if (ok) ok.addEventListener('click', function (e) {
@@ -366,19 +455,22 @@
         else if (e.key === 'ArrowLeft'){ e.preventDefault(); altAc(link, false); }
       });
     });
-
-    /* ---- rail: bölüm seçici ---- */
-    var mnav = document.getElementById('saMnav');
-    yuva.querySelectorAll('.sa-rail-ico[data-rail]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var i = b.getAttribute('data-rail');
-        var hedef = document.getElementById('saSec' + i);
-        yuva.querySelectorAll('.sa-rail-ico').forEach(function (x) { x.classList.remove('is-active'); });
-        b.classList.add('is-active');
-        if (document.body.classList.contains('sa-collapsed')) daraltUygula(false);
-        if (hedef && mnav) mnav.scrollTo({ top: Math.max(0, hedef.offsetTop - 18), behavior: 'smooth' });
+    yuva.querySelectorAll('.sa-mlink[aria-expanded="false"]:not([aria-controls])')
+        .forEach(function (link) {
+      var ok = link.querySelector('.mlink-caret');
+      if (ok) ok.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var h = link.getAttribute('href');
+        if (h) location.href = h;
       });
     });
+
+    /* ---- R20 · RAIL BÖLÜM KAYDIRMA DİNLEYİCİSİ SÖKÜLDÜ ----
+       Rail artık marka geçişi taşıyor (yukarıdaki `railHtml`e bak); ikonlar
+       `<button data-rail>` değil `<a class="sa-brand">`. Menüyü bölüm
+       başlığına kaydıran davranış Gastro'da yoktu ve Beyar tarafından
+       geri alındı. Menü zaten `.sa-msec` başlıklarıyla gruplu ve hep açık;
+       kaydırmaya gerek yok. */
 
     /* ---- daralt tutamağı ---- */
     var DAR = 'dm_fit_admin_dar';

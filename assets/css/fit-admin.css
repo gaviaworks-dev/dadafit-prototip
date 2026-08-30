@@ -514,8 +514,12 @@
 }
 .adm-table th:first-child,.ptable th:first-child{padding-left:22px}
 .adm-table th:last-child,.ptable th:last-child{padding-right:22px;text-align:right}
+/* R20 · hücre dolgusu 13px → 14px. Gastro'da ölçülen değer dosyaya göre
+   değişiyor (14px 16px → kullanicilar · sayfalar · icerik · sozluk;
+   13px 16px → dashboard · raporlar; 14px 22px → rozetler · abonelikler);
+   Fit AZINLIK değerini tutuyordu. Çoğunluğa çekildi. */
 .adm-table td,.ptable td{
-  padding:13px 16px;border-bottom:1px solid var(--line);
+  padding:14px 16px;border-bottom:1px solid var(--line);
   font-size:13.5px;font-weight:500;color:var(--slate-2);vertical-align:middle;
 }
 .adm-table td:first-child,.ptable td:first-child{padding-left:22px}
@@ -573,8 +577,22 @@
   display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding:14px 22px;border-top:1px solid var(--line);flex-wrap:wrap;
 }
-.adm-pager .p-info,.pager-info{font-size:12.5px;color:var(--muted)}
-.adm-pager .p-btns,.pager-btns{margin-left:auto;display:flex;gap:6px}
+/* 🔴 R20 · EŞ-AD SÖZLEŞMESİ YARIMDI — `docs/lessons.md` §34'ün tam aynı
+   tuzağı, canlı testle doğrulandı. Eski yazılış ASİMETRİKTİ:
+     `.adm-pager .p-info, .pager-info`   ← biri iç içe seçici, öteki çıplak
+   Dört kombinasyonun üçü çalışıyor, biri düşüyordu (ölçüldü, sentetik
+   markup enjekte edilerek):
+     .adm-pager + .p-info      → 12.5px ✅
+     .pager     + .pager-info  → 12.5px ✅
+     .adm-pager + .pager-info  → 12.5px ✅
+     .pager     + .p-info      → 16px   ❌ HİÇ STİLLENMİYOR
+     .pager     + .p-btns      → margin-left auto OLMUYOR ❌
+   Bugün 24 ekranın hepsi `.adm-pager`+`.p-info` kullanıyor, yani canlı bir
+   hata DEĞİL — ama sözleşme "iki ad, tek kural" diye vaat ediyor ve vaadi
+   tutmuyor. `.pnl-card`/`.adm-card` ailesi bunu R19'da `:is()` ile DOĞRU
+   çözmüş (aşağıda, §7); pager'a aynı desen uygulanmamıştı. */
+:is(.adm-pager,.pager) :is(.p-info,.pager-info){font-size:12.5px;color:var(--muted)}
+:is(.adm-pager,.pager) :is(.p-btns,.pager-btns){margin-left:auto;display:flex;gap:6px}
 .adm-pg,.pg-btn{
   position:relative;min-width:44px;height:44px;padding:0 10px;border:0;background:transparent;
   font-family:inherit;font-size:13px;font-weight:700;color:var(--slate-2);
@@ -582,7 +600,18 @@
   transition:color .18s var(--ease);
 }
 .adm-pg::before,.pg-btn::before{
-  content:"";position:absolute;top:5px;right:0;bottom:5px;left:0;   /* görsel 34px yükseklik */
+  /* 🔴 R20 · KUTU KARE DEĞİLDİ — Beyar "sayfa numaraları kötü duruyor" dedi,
+     ölçüm sebebi buldu. Eski hâli `top:5px;right:0;bottom:5px;left:0` idi:
+     dikey inset var, YATAY YOK. Düğme min-width 44 olduğu için görsel kutu
+     44×34 DİKDÖRTGEN çıkıyordu; Gastro'nun `.pg-btn`i 34×34 KARE
+     (`sa-kullanicilar.css:113-119` — min-width:34 · height:34 · padding:0 10px).
+     Aynı dosyadaki `.adm-ico-btn::before` bunu ZATEN doğru yapıyor
+     (dört yandan eşit 6px inset → gerçek 32×32 kare); pager'a aynı desen
+     uygulanmamıştı. Dört yandan 5px inset: 44 hedef → 34 görsel, hem kare
+     hem WCAG 2.5.8 dokunma hedefi korunuyor. Geniş içerikte (çift haneli
+     sayfa) düğme büyür, kutu onunla birlikte büyür — Gastro'nun
+     `padding:0 10px` davranışının karşılığı. */
+  content:"";position:absolute;top:5px;right:5px;bottom:5px;left:5px;   /* görsel 34×34 KARE */
   border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
   transition:border-color .18s var(--ease),background .18s var(--ease);
 }
@@ -598,8 +627,10 @@
    11 · TOPLU EYLEM ÇUBUĞU — seçim yokken YOK
    ===================================================================== */
 .adm-bulk{
-  display:flex;align-items:center;gap:12px;padding:12px 22px;flex-wrap:wrap;
-  background:rgba(var(--acc-rgb),.08);border-bottom:1px solid rgba(var(--acc-rgb),.22);
+  /* R20 · Gastro'nun `.rvw-selbar`ıyla hizalandı (`public/css/admin-moderasyon.css:32`):
+     gap 12→14px, kenarlık alfası .22→.25. Ölçülen sapma küçüktü ama sapmaydı. */
+  display:flex;align-items:center;gap:14px;padding:12px 22px;flex-wrap:wrap;
+  background:rgba(var(--acc-rgb),.08);border-bottom:1px solid rgba(var(--acc-rgb),.25);
 }
 .adm-bulk b{font-size:13px;font-weight:700;color:var(--acc-deep)}
 .adm-bulk .b-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}

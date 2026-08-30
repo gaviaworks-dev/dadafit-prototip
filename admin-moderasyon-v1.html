@@ -53,6 +53,24 @@
 .md-sel input{width:18px;height:18px;accent-color:var(--fit);cursor:pointer}
 /* Çubuk panelin içinde yaşıyor, kartın kenarına dayanmıyor. */
 .fit-pane .adm-bulk{border-radius:var(--radius-md);border-bottom:0;margin-bottom:12px}
+
+/* UYARI MODALI — R20. ÖNCEKİ HÂLİ (`#mdUyar`) sayfanın altında gizli bir
+   kart açıp `scrollIntoView` yapıyordu; Beyar'ın ölçtüğü kusurun aynısı
+   (bkz. abonelikler/faturalar). Alan sayısı üç (kişi salt-okunur ·
+   şablon · metin) — kitin modal eşiği içinde, bu yüzden AYRI SAYFA değil
+   kabuğun `.sa-modal-ov`/`.sa-modal` primitifleri (`admin-taksonomi-v1.html`
+   deseninin aynısı). */
+.sa-modal.md-modal{width:min(520px,100%);padding:0;max-height:88vh;display:flex;flex-direction:column}
+.mdm-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.mdm-head h3{margin:0;font-size:16px;display:flex;align-items:center;gap:9px}
+.mdm-head h3 i{color:var(--hs-warn);font-size:14px}
+.mdm-x{
+  margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;
+  color:var(--muted);font-size:15px;cursor:pointer;border-radius:var(--radius-sm);
+}
+.mdm-x:hover{color:var(--slate);background:var(--bg)}
+.mdm-body{padding:20px 22px;overflow-y:auto}
+.mdm-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body class="adm-body" data-adm="moderasyon">
@@ -82,6 +100,10 @@
           <label class="sr-only" for="mdAra">Bildirim ara</label>
           <input type="search" id="mdAra" placeholder="Yazar, içerik ya da sebep ara" />
         </div>
+        <!-- Tür süzgeci `admin-hareketler-v1.html`teki `.ff`/`.fgroup`/`.df-fchip`
+             kalıbının BİREBİR aynısı — kabuğun `FIT_SHELL.filtreKur`u dar ekranda
+             açılır menüye taşıyor, burada yeniden icat edilmedi. -->
+        <div class="ff" id="mdSuzgec" data-ff></div>
       </div>
       <div class="md-tabwrap">
         <!-- 🔴 ŞERİT VE PANELLER STATİK — destek ekranıyla aynı şerh.
@@ -156,52 +178,6 @@
       </div>
     </div>
 
-    <!-- ============ KULLANICIYI UYAR (K4 ucu) ============ -->
-    <div class="adm-card" id="mdUyar" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-triangle-exclamation"></i> <span id="mdUyarBaslik">Kullanıcıyı uyar</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="mdUyarKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <form id="mdF">
-      <div class="c-body">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="muKisi">Uyarılacak üye</label>
-              <input class="fk-input" id="muKisi" readonly aria-readonly="true" />
-              <span class="fk-help" id="muGecmis"><i class="fa-solid fa-circle-info"></i> —</span>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="muSablon">Uyarı şablonu <span class="req">*</span></label>
-              <select class="fk-select" id="muSablon" name="sablon" required></select>
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Şablon metni aşağıya düşer; göndermeden önce olayı anlatacak şekilde düzenlenir.</span>
-            </div>
-          </div>
-          <div class="fk-field">
-            <label class="fk-label" for="muMetin">Üyeye gidecek metin <span class="req">*</span>
-              <span class="fk-count" id="muSay">0 / 1200</span></label>
-            <textarea class="fk-textarea" id="muMetin" name="metin" rows="6" required maxlength="1200"></textarea>
-          </div>
-      </div>
-      <!-- Kaydet düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
-           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
-           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
-           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
-           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu. -->
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
-     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
-     birincil eylem en sağda. İskelet önce sola yazılmıştı — o hizalama
-     dört markanın HESAP ekranlarının kuralıydı (kaynak: devir belgesi §1),
-     admin formunun değil. İki ayrı yüzey, iki ayrı kural. -->
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="mdUyarGonder"><i class="fa-solid fa-paper-plane"></i> Uyarıyı gönder</button>
-        </div>
-      </div>
-      </form>
-    </div>
-
   </div>
 </main>
 
@@ -227,6 +203,7 @@
 })();
 </script>
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-yorum-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -274,7 +251,13 @@
     'yanlis-bilgi': { ad:'Yanlış bilgi', ico:'fa-circle-exclamation',    rozet:'wait', agir:false },
     'hakaret':      { ad:'Hakaret',      ico:'fa-face-angry',            rozet:'stop', agir:false },
     'reklam':       { ad:'Reklam',       ico:'fa-bullhorn',              rozet:'off',  agir:false },
-    'spam':         { ad:'Spam',         ico:'fa-repeat',                rozet:'off',  agir:false }
+    'spam':         { ad:'Spam',         ico:'fa-repeat',                rozet:'off',  agir:false },
+    /* R20 · Sebepsiz kayıt için GERÇEĞİN ADI. Yorum modülünün bildirim
+       akışı sebep sormuyor (kuyruk 30); gelen kaydı rastgele bir sebebe
+       (eskiden 'spam') düşürmek yanlış şablonla uyarı üretirdi. Ayrıca
+       `SEBEP[null]` dört yerde `.agir` okunuyor — sözlükte karşılığı
+       olmayan bir sebep sayfayı çökertirdi. */
+    'belirtilmedi': { ad:'Sebep belirtilmedi', ico:'fa-circle-question', rozet:'wait', agir:false }
   };
 
   var TUR = {
@@ -282,8 +265,104 @@
     'program':   { ad:'Program yorumu',         ico:'fa-clipboard-list' },
     'challenge': { ad:'Challenge yorumu',       ico:'fa-trophy' },
     'antrenor':  { ad:'Antrenör değerlendirmesi', ico:'fa-user-check' },
-    'mesaj':     { ad:'Üye mesajı',             ico:'fa-comment-dots' }
+    'mesaj':     { ad:'Üye mesajı',             ico:'fa-comment-dots' },
+    /* 6. TÜR — Beyar R21: "moderasyon kuyruğuna altıncı tür, kullanıcı
+       yorumları eklenecek". ÖLÇÜLDÜ (Playwright, bu tur): kapsam olarak
+       verilen üç yüzeyden yalnız BİRİ gerçek — `egzersiz-detay-v1.html` ve
+       `program-detay-v1.html`de hiçbir yorum/değerlendirme düğümü yok (grep
+       + DOM sayımı 0/0), o yüzden buraya sahte satır EKLENMEDİ. Gerçek olan
+       yüzey antrenör profilindeki "Danışan Yorumları" kartlarıdır
+       (`antrenor-detay-v1.html` → 3 `.rev-card`; `profil-v1.html` →
+       3+3 `.rev-item`, rozet 212/120 toplam değerlendirme sayar).
+       `antrenor` türünden FARKI: `antrenor` bir değerlendirmenin antrenörün
+       İTİBARINA yönelik ihlalini taşır (bkz. MOD-2026-0404, hakaret);
+       `yorum` aynı "Danışan Yorumları" yüzeyinde YAZARIN KENDİ METNİNİN
+       ihlal taşıdığı bildirimlerdir (reklam, yanlış bilgi). */
+    'yorum':     { ad:'Danışan yorumu',         ico:'fa-comment' }
   };
+
+  /* ---- "Danışan yorumu" verisi — SAVUNMACI OKUMA (R21/A15 sözleşmesi)
+     A15 ayrı ajanda `assets/js/fit-yorum-veri.js`i kuruyor; bu dosya o
+     modülü YARATMAZ, YÜKLEMEZ (script etiketi eklenmedi — dosya henüz
+     yok, eklemek 404/konsol hatası üretirdi). Yalnız `window.FIT_YORUM`
+     çalışma anında VARSA okur. A15 bitirip modül başka bir yoldan bu
+     sayfaya yüklenince (script etiketi kabuğa ya da bu dosyaya sonradan
+     eklenir) ekran KENDİLİĞİNDEN canlıya geçer — ikinci bir tur gerekmez.
+     Sözleşme (lead'in verdiği, A15 değişebilir):
+       window.FIT_YORUM.hepsi()  → yorum kaydı dizisi
+     Alan adları KESİN DEĞİL — bu yüzden her alan birden çok olası adla,
+     try/catch içinde, koruma altında okunuyor; sözleşme uyuşmazsa
+     (dizi yok/boş/alan adı tutmuyor) sayfa ÇÖKMEZ, örneğe düşer. */
+  var ORNEK_YORUM = [
+    /* Yüzey gerçek: antrenor-detay-v1.html "Danışan Yorumları" sekmesi
+       (bkz. Selin Aksoy · rev-card ×3). Yazar ve içerik uydurma, antrenör
+       kimliği sayfadaki gerçek kayıtla eşleşiyor. */
+    { id:'MOD-2026-0410', durum:'bekleyen', tur:'yorum', sebep:'reklam',
+      yazar:'Buse Kaya', yer:'Antrenör · Selin Aksoy · Danışan Yorumları', bildiren:2, tarih:'2026-08-28',
+      metin:'Selin\'in programını burada değil, benim linkimden %30 indirimle alabilirsiniz, yorumlara yazın mesaj atayım.' },
+    { id:'MOD-2026-0406', durum:'bekleyen', tur:'yorum', sebep:'yanlis-bilgi',
+      yazar:'Onur Ş.', yer:'Antrenör · Selin Aksoy · Danışan Yorumları', bildiren:1, tarih:'2026-08-27',
+      metin:'Selin iyi ama haftada tek gün antrenman hiç fayda etmiyor, her gün ağırlık kaldırmazsan boşuna vakit kaybediyorsun.' }
+  ];
+  function gecerliDurum(v){ for (var i=0;i<DURUM.length;i++) if (DURUM[i].id===v) return true; return false; }
+  /* 🔴 R20 · A15'İN GERÇEK SÖZLEŞMESİNE BAĞLANDI.
+     İlk yazılışta alan adları TAHMİN edilmişti (`r.bildirildi` · `r.rapor` ·
+     `r.bildirenSayisi`) çünkü modül henüz yoktu. Modül gelince ölçüldü ve
+     üçü de YOK: `fit-yorum-veri.js` durumu `durum` alanında tutuyor
+     (`bekliyor · onayli · reddedildi · sikayetli · gizli · kaldirildi`) ve
+     `yazar` düz metin değil NESNE (`{ad,foto,rozet,alt}`). Eski eşleme
+     modülü bulsa bile 0 kayıt süzer, `[object Object]` basar ve sessizce
+     örneğe düşerdi — bu depoda üç kez temizlenen "çalışan yedek yol kusuru
+     görünmez kılar" hatası (docs/lessons.md §34 yan dersi).
+
+     İKİ SÖZLÜK ARASINDAKİ EŞLEME (yorum modülü → moderasyon kuyruğu):
+       sikayetli · bekliyor  → bekleyen   (karar verilmedi)
+       gizli                 → gizlenen
+       reddedildi·kaldirildi → silinen
+       onayli                → kuyruğa GİRMEZ (yayında, moderasyon işi değil)
+
+     `canli` bayrağı MODÜLÜN VARLIĞINA bağlı, kayıt sayısına değil: kuyruk
+     boşsa bu "şikâyet edilmiş yorum yok" demektir — dürüst bir boş durum,
+     örneğe düşme sebebi değil. */
+  var YORUM_DURUM = { sikayetli:'bekleyen', bekliyor:'bekleyen', gizli:'gizlenen',
+                      reddedildi:'silinen', kaldirildi:'silinen' };
+  var YORUM_TUR_AD = { antrenor:'Antrenör', egzersiz:'Egzersiz', program:'Program' };
+
+  function yorumYer(r){
+    var ad = YORUM_TUR_AD[r.tur] || 'İçerik';
+    var slug = String(r.slug || '').replace(/-/g, ' ');
+    return slug ? (ad + ' · ' + slug.charAt(0).toLocaleUpperCase('tr') + slug.slice(1)) : ad;
+  }
+
+  function danisanYorumVeri(){
+    try {
+      if (window.FIT_YORUM && typeof FIT_YORUM.hepsi === 'function') {
+        var ham = FIT_YORUM.hepsi();
+        if (Array.isArray(ham)) {
+          var kuyruk = ham.filter(function (r) { return r && YORUM_DURUM[r.durum]; });
+          return { liste: kuyruk.map(function (r) {
+            return {
+              id: 'MOD-Y-' + r.id,
+              durum: YORUM_DURUM[r.durum],
+              tur: 'yorum',
+              /* Sebep UYDURULMAZ. Bildirim akışı sebep sormuyor (kuyruk 30);
+                 sebepsiz kayıt kartta "belirtilmedi" basar, rastgele bir
+                 şablona düşürülmez — yanlış şablonla uyarı göndermek
+                 uyarının kendisini yanlış yapar. */
+              sebep: (r.sebep && SEBEP[r.sebep]) ? r.sebep : 'belirtilmedi',
+              yazar: (r.yazar && r.yazar.ad) || 'Üye',
+              yer: yorumYer(r),
+              bildiren: r.bildiren || 1,
+              tarih: (r.tarih || '').slice(0, 10),
+              metin: r.metin || ''
+            };
+          }), canli: true };
+        }
+      }
+    } catch (e) { /* sözleşme uyuşmadı — örneğe düş, sayfa çökmesin */ }
+    return { liste: ORNEK_YORUM, canli: false };
+  }
+  var YORUM_VERI = danisanYorumVeri();
 
   var BILDIRIM = [
     { id:'MOD-2026-0412', durum:'bekleyen', tur:'challenge', sebep:'saglik-riski',
@@ -314,18 +393,39 @@
       yazar:'—', yer:'Üye mesajları', bildiren:9, tarih:'2026-08-11',
       metin:'(İçerik kalıcı olarak silindi; metin geri getirilemez. Kayıt satırı denetim izi için duruyor.)' }
   ];
+  /* "Danışan yorumu" satırları burada eklenir — kaynağı yukarıdaki
+     `danisanYorumVeri()` belirledi (A15'in modülü ya da örnek). */
+  Array.prototype.push.apply(BILDIRIM, YORUM_VERI.liste);
 
   var BUGUN = new Date('2026-08-30T00:00:00');
   function gun(iso){ return Math.max(0, Math.round((BUGUN - new Date(iso + 'T00:00:00')) / 86400000)); }
   function bul(id){ for (var i=0;i<BILDIRIM.length;i++) if (BILDIRIM[i].id===id) return BILDIRIM[i]; return null; }
   function sayi(d){ return BILDIRIM.filter(function(b){ return b.durum===d; }).length; }
 
-  document.getElementById('mdKaynak').innerHTML = A.kaynak('ornek',
-    '<b>Bildirim verisi örnektir.</b> Bu depoda yorum ve bildirim tutan bir sözleşme ' +
-    'modülü yok; içerik tipleri (egzersiz · program · challenge yorumu, antrenör ' +
-    'değerlendirmesi, üye mesajı) mevcut sayfaların gerçek yüzeylerinden alındı, ' +
-    'metinler uydurmadır. <b>Yazma yüzeyi maket:</b> onayla · gizle · sil · uyar ' +
-    'düğmelerinin hiçbiri içeriğe dokunmaz — bu prototipte sunucu yok.');
+  /* İKİ AYRI ŞERİT — Gastro'nun karma kaynaklı ekranlarında zaten olan
+     desen (`admin-raporlar-v1.html`de 5 kaynak şeridi ölçüldü, tek örnek
+     değil). Üstteki BEŞ türü kapsar, hep 'ornek' kalır: hiçbiri hiçbir
+     zaman gerçek bir sözleşme modülünden okunmuyor. Alttaki YALNIZ
+     "Danışan yorumu"nu kapsar ve `YORUM_VERI.canli`ye göre DÖNER —
+     A15'in modülü yüklenince bu ikinci şerit tek başına canlıya geçer. */
+  document.getElementById('mdKaynak').innerHTML =
+    A.kaynak('ornek',
+      '<b>Bildirim verisi örnektir.</b> Bu depoda yorum ve bildirim tutan bir sözleşme ' +
+      'modülü yok; içerik tipleri (egzersiz · program · challenge yorumu, antrenör ' +
+      'değerlendirmesi, üye mesajı) mevcut sayfaların gerçek yüzeylerinden alındı, ' +
+      'metinler uydurmadır. <b>Yazma yüzeyi maket:</b> onayla · gizle · sil · uyar ' +
+      'düğmelerinin hiçbiri içeriğe dokunmaz — bu prototipte sunucu yok.') +
+    (YORUM_VERI.canli
+      ? A.kaynak('canli',
+          '<b>Danışan yorumu</b> satırları artık gerçek bir sözleşme modülünden okunuyor ' +
+          '(<code>FIT_YORUM.hepsi()</code>, ' + YORUM_VERI.liste.length + ' bildirilmiş kayıt). ' +
+          'Yazma yüzeyi yine de maket — onayla/gizle/sil/uyar hiçbir şeye dokunmaz.')
+      : A.kaynak('ornek',
+          '<b>Danışan yorumu</b> türü yalnız ölçülen gerçek yüzeyi kapsar (antrenör profili → ' +
+          'Danışan Yorumları); ölçüldüğünde egzersiz ve program sayfalarında yorum bulunmadığı ' +
+          'için o iki yüzeye satır uydurulmadı. Bu satırlar da şimdilik örnek — ' +
+          '<code>window.FIT_YORUM</code> henüz bu sayfada yok; A15&#39;in modülü yüklenince ' +
+          'bu şerit otomatik canlıya döner, ikinci bir tur gerekmez.'));
 
   /* ---- sekme sayaçları — şerit markup'ta, burada yalnız sayı ------ */
   function sayacYaz(id, n){
@@ -354,7 +454,8 @@
 
   function satir(b){
     var t = TUR[b.tur], s = SEBEP[b.sebep];
-    return '<div class="set-row' + (s.agir ? ' is-saglik' : '') + '" data-id="' + esc(b.id) + '" data-ara="' +
+    return '<div class="set-row' + (s.agir ? ' is-saglik' : '') + '" data-id="' + esc(b.id) + '" data-tur="' +
+        esc(b.tur) + '" data-ara="' +
         esc((b.id + ' ' + b.yazar + ' ' + b.yer + ' ' + s.ad + ' ' + t.ad + ' ' + b.metin).toLocaleLowerCase('tr')) + '">' +
       '<label class="md-sel"><input type="checkbox" data-sec="' + esc(b.durum) + '" ' +
         'aria-label="' + esc(b.id + ' · ' + t.ad + ' seç') + '" /></label>' +
@@ -401,28 +502,67 @@
       A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
   });
 
-  /* ---- arama: dört sekmede birden ---------------------------------- */
+  /* ---- tür süzgeci: `admin-hareketler-v1.html`teki `.fgroup`/`.df-fchip`
+     çoklu-seçim kalıbının BİREBİR aynısı, tek grupla (`tur`). Çipler TUR
+     sözlüğünden doğar — altıncı tür eklenince süzgeç kendiliğinden büyür. */
+  var TUR_SEC = [];
+  function suzgecKur(){
+    var kok = document.getElementById('mdSuzgec');
+    kok.innerHTML = '<div class="fgroup" data-group="tur" role="group" aria-label="Tür filtresi">' +
+      '<span class="lbl">Tür</span>' +
+      '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+      Object.keys(TUR).map(function (k) {
+        var t = TUR[k];
+        return '<button class="df-fchip" type="button" data-val="' + esc(k) + '">' +
+          '<i class="fa-solid ' + t.ico + '" aria-hidden="true"></i> ' + esc(t.ad) + '</button>';
+      }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+    kok.querySelectorAll('.df-fchip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-val');
+        if (v === 'all') {
+          TUR_SEC = [];
+          kok.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+        } else {
+          var i = TUR_SEC.indexOf(v);
+          if (i < 0) TUR_SEC.push(v); else TUR_SEC.splice(i, 1);
+          b.classList.toggle('on', i < 0);
+          var all = kok.querySelector('.df-fchip[data-val="all"]');
+          if (all) all.classList.toggle('on', TUR_SEC.length === 0);
+        }
+        suz();
+        DURUM.forEach(function (d) { secimTazele(d.id); });
+      });
+    });
+  }
+
+  /* ---- arama + tür süzgeci: dört sekmede birden --------------------- */
   var ara = document.getElementById('mdAra');
   function suz(){
     var q = ara.value.trim().toLocaleLowerCase('tr');
     DURUM.forEach(function (d) {
       var n = 0;
       document.querySelectorAll('[data-liste="' + d.id + '"] .set-row').forEach(function (r) {
-        var ok = !q || r.getAttribute('data-ara').indexOf(q) >= 0;
+        var okAra = !q || r.getAttribute('data-ara').indexOf(q) >= 0;
+        var okTur = !TUR_SEC.length || TUR_SEC.indexOf(r.getAttribute('data-tur')) >= 0;
+        var ok = okAra && okTur;
         r.hidden = !ok; if (ok) n++;
       });
       var bos = document.querySelector('[data-bos="' + d.id + '"]');
       if (bos) {
+        var suzgecAktif = q || TUR_SEC.length;
         bos.hidden = (n > 0);
-        bos.innerHTML = (n === 0 && q)
-          ? A.bos('fa-magnifying-glass', 'Bu aramayla bildirim bulunamadı',
-                  '"' + ara.value.trim() + '" için bu durumda bildirim yok. Aramayı boşalt ya da başka bir sekmeye bak.')
+        bos.innerHTML = (n === 0 && suzgecAktif)
+          ? A.bos('fa-magnifying-glass', 'Bu süzgeçle bildirim bulunamadı',
+                  (q ? '"' + ara.value.trim() + '" için b' : 'B') +
+                  'u durumda bildirim yok. Aramayı boşalt, tür süzgecini sıfırla ya da başka bir sekmeye bak.')
           : A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
       }
       sayacYaz(d.id, n);
     });
   }
   ara.addEventListener('input', function () { suz(); DURUM.forEach(function (d) { secimTazele(d.id); }); });
+  suzgecKur();
 
   /* ---- toplu seçim: kabuğun `secimKur`u TABLO bekler, bu kuyruk
      `.set-row` listesidir; bu yüzden seçim burada kurulur. Gizlenmiş
@@ -470,35 +610,108 @@
     'hakaret': ['Üslup', 'Merhaba, bildirilen içeriğin bir üyeye ya da antrenöre yönelik aşağılayıcı ifade taşıdığını gördük. Eleştirini içeriğe yöneltebilirsin; kişiye yönelen ifadeler kaldırılır.'],
     'spam':    ['Yinelenen içerik', 'Merhaba, aynı metnin kısa aralıklarla birden çok yere gönderildiğini gördük. Bu, diğer üyelerin akışını okunmaz hâle getiriyor. Gönderilerini seyrelttiğinde uyarı düşer.']
   };
-  var uyarKart = document.getElementById('mdUyar');
-  var sablonSec = document.getElementById('muSablon');
-  sablonSec.innerHTML = Object.keys(SABLON).map(function (k) {
-    return '<option value="' + k + '">' + esc(SABLON[k][0]) + '</option>';
-  }).join('');
-  var metin = document.getElementById('muMetin');
-  function sablonUygula(){
-    metin.value = SABLON[sablonSec.value][1];
-    document.getElementById('muSay').textContent = metin.value.length + ' / 1200';
+  /* ---------- uyarı MODALI — taksonomi'nin `.sa-modal-ov`/`.sa-modal`
+     deseninin aynısı (R20). ---------- */
+  var uyarKok = null, uyarTetikleyen = null;
+
+  function uyarKapat(){
+    if (!uyarKok) return;
+    var ov = uyarKok;
+    uyarKok = null;
+    ov.classList.remove('open');
+    document.removeEventListener('keydown', uyarTus, true);
+    setTimeout(function () {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if (uyarTetikleyen && uyarTetikleyen.focus) uyarTetikleyen.focus();
+    }, 180);
   }
-  sablonSec.addEventListener('change', sablonUygula);
-  metin.addEventListener('input', function () {
-    document.getElementById('muSay').textContent = metin.value.length + ' / 1200';
-  });
+  function uyarTus(e){
+    if (!uyarKok) return;
+    if (e.key === 'Escape') { e.preventDefault(); uyarKapat(); return; }
+    if (e.key !== 'Tab') return;
+    var od = uyarKok.querySelectorAll('button,input,select,textarea,a[href]');
+    if (!od.length) return;
+    var liste = Array.prototype.slice.call(od).filter(function (x) { return !x.disabled; });
+    var ix = liste.indexOf(document.activeElement);
+    e.preventDefault();
+    liste[(ix + (e.shiftKey ? -1 : 1) + liste.length) % liste.length].focus();
+  }
 
   function uyarAc(b){
-    document.getElementById('mdUyarBaslik').textContent = 'Kullanıcıyı uyar: ' + b.yazar;
-    document.getElementById('muKisi').value = b.yazar;
+    uyarTetikleyen = document.activeElement;
     var gecmis = BILDIRIM.filter(function (x) { return x.yazar === b.yazar; }).length;
-    document.getElementById('muGecmis').innerHTML =
-      '<i class="fa-solid fa-circle-info"></i> Bu üyenin moderasyon kaydında ' + gecmis +
-      ' bildirim var · ilgili bildirim ' + esc(b.id);
-    sablonSec.value = SEBEP[b.sebep].agir ? 'saglik'
+    var ilkSablon = SEBEP[b.sebep].agir ? 'saglik'
       : (b.sebep === 'reklam' ? 'reklam' : (b.sebep === 'hakaret' ? 'hakaret' : 'spam'));
+
+    var ov = document.createElement('div');
+    ov.className = 'sa-ov sa-modal-ov';
+    ov.innerHTML =
+      '<div class="sa-modal md-modal" role="dialog" aria-modal="true" aria-label="Kullanıcıyı uyar">' +
+        '<div class="mdm-head">' +
+          '<h3><i class="fa-solid fa-triangle-exclamation"></i> Kullanıcıyı uyar: ' + esc(b.yazar) + '</h3>' +
+          '<button class="mdm-x" type="button" id="mdUyarKapat" aria-label="Kapat">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="mdm-body">' +
+          '<form id="mdF" novalidate>' +
+            '<div class="fk-grid c2">' +
+              '<div class="fk-field">' +
+                '<label class="fk-label" for="muKisi">Uyarılacak üye</label>' +
+                '<input class="fk-input" id="muKisi" readonly aria-readonly="true" value="' + esc(b.yazar) + '" />' +
+                '<span class="fk-help"><i class="fa-solid fa-circle-info"></i> Bu üyenin moderasyon kaydında ' +
+                  gecmis + ' bildirim var · ilgili bildirim ' + esc(b.id) + '</span>' +
+              '</div>' +
+              '<div class="fk-field">' +
+                '<label class="fk-label" for="muSablon">Uyarı şablonu <span class="req">*</span></label>' +
+                '<select class="fk-select" id="muSablon" name="sablon" required>' +
+                  Object.keys(SABLON).map(function (k) {
+                    return '<option value="' + k + '"' + (k === ilkSablon ? ' selected' : '') + '>' + esc(SABLON[k][0]) + '</option>';
+                  }).join('') +
+                '</select>' +
+                '<span class="fk-help"><i class="fa-solid fa-circle-info"></i> Şablon metni aşağıya düşer; göndermeden önce olayı anlatacak şekilde düzenlenir.</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="fk-field">' +
+              '<label class="fk-label" for="muMetin">Üyeye gidecek metin <span class="req">*</span>' +
+                '<span class="fk-count" id="muSay">0 / 1200</span></label>' +
+              '<textarea class="fk-textarea" id="muMetin" name="metin" rows="6" required maxlength="1200"></textarea>' +
+            '</div>' +
+          '</form>' +
+        '</div>' +
+        '<div class="mdm-foot">' +
+          '<button class="btn btn-ghost" type="button" id="mdUyarVazgec">Vazgeç</button>' +
+          '<button class="btn btn-primary" type="button" id="mdUyarGonder"><i class="fa-solid fa-paper-plane"></i> Uyarıyı gönder</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    uyarKok = ov;
+
+    if (window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    requestAnimationFrame(function () {
+      ov.classList.add('open');
+      var ilk = ov.querySelector('#muSablon');
+      if (ilk) ilk.focus();
+    });
+
+    var sablonSec = ov.querySelector('#muSablon'), metin = ov.querySelector('#muMetin');
+    function sablonUygula(){
+      metin.value = SABLON[sablonSec.value][1];
+      ov.querySelector('#muSay').textContent = metin.value.length + ' / 1200';
+    }
     sablonUygula();
-    uyarKart.hidden = false;
-    uyarKart.scrollIntoView({ behavior:'smooth', block:'start' });
+    sablonSec.addEventListener('change', sablonUygula);
+    metin.addEventListener('input', function () {
+      ov.querySelector('#muSay').textContent = metin.value.length + ' / 1200';
+    });
+
+    ov.querySelector('#mdUyarKapat').addEventListener('click', uyarKapat);
+    ov.querySelector('#mdUyarVazgec').addEventListener('click', uyarKapat);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) uyarKapat(); });
+    document.addEventListener('keydown', uyarTus, true);
+
+    A.maketKaydet(ov.querySelector('#mdUyarGonder'), 'uyarı', ov.querySelector('#mdF'));
   }
-  document.getElementById('mdUyarKapat').addEventListener('click', function () { uyarKart.hidden = true; });
 
   /* ---- kararlar: SESSİZCE UYGULANMIŞ GİBİ YAPMAZ ------------------- */
   var KARAR_AD = { onayla:'Onayla', gizle:'Gizle', sil:'Sil', uyar:'Uyar' };
@@ -534,7 +747,6 @@
     sessiz = true; t.click(); sessiz = false;
   });
 
-  A.maketKaydet(document.getElementById('mdUyarGonder'), 'uyarı');
   suz();
   DURUM.forEach(function (d) { secimTazele(d.id); });
 })();

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antrenör başvurusu — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.bv-av{
+  width:46px;height:46px;flex:none;border-radius:50%;
+  background:var(--fit-tint);color:var(--fit-deep);
+  display:grid;place-items:center;font-size:15px;font-weight:800;
+}
+.bv-dl{display:grid;grid-template-columns:190px minmax(0,1fr);gap:0}
+.bv-dl dt,.bv-dl dd{margin:0;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.55}
+.bv-dl dt{font-weight:700;color:var(--muted);font-size:12.5px}
+.bv-dl dd{font-weight:600;color:var(--slate)}
+.bv-dl dt:last-of-type,.bv-dl dd:last-of-type{border-bottom:0}
+@media (max-width:520px){
+  .bv-dl{grid-template-columns:minmax(0,1fr)}
+  .bv-dl dt{padding-bottom:0;border-bottom:0}
+}
+.bv-kontrol{display:flex;flex-direction:column;gap:2px}
+.bv-kontrol label{
+  display:flex;align-items:center;gap:10px;padding:10px 0;min-height:44px;
+  font-size:13px;font-weight:600;color:var(--slate);line-height:1.5;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+.bv-kontrol label:last-child{border-bottom:0}
+.bv-kontrol input{width:18px;height:18px;accent-color:var(--fit);flex:none;margin-top:1px;cursor:pointer}
+</style>
+</head>
+<body class="adm-body" data-adm="antrenorler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-antrenorler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Antrenörler</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <span class="bv-av" id="adAv" aria-hidden="true">—</span>
+          <div style="min-width:0">
+            <h1 id="adAd">Başvuru</h1>
+            <div class="ph-sub" id="adAlt">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="h-acts" id="adRozet"></div>
+    </div>
+
+    <div id="atKaynak"></div>
+
+    <div class="adm-card" data-fit-tabs-scope>
+      <div class="c-head">
+        <nav class="fit-tabs" data-fit-tabs="atDetay" aria-label="Başvuru detayı bölümleri">
+          <button class="fit-tab active" type="button" data-tab="basvuru"><i class="fa-solid fa-file-lines"></i> Başvuru</button>
+          <button class="fit-tab" type="button" data-tab="belgeler"><i class="fa-solid fa-file-shield"></i> Belgeler</button>
+          <button class="fit-tab" type="button" data-tab="karar"><i class="fa-solid fa-clock-rotate-left"></i> Karar geçmişi</button>
+        </nav>
+      </div>
+
+      <div class="c-body">
+        <div class="adm-cols">
+          <div>
+            <div class="fit-pane" data-pane="basvuru"><dl class="bv-dl" id="adBasvuru"></dl></div>
+
+            <div class="fit-pane" data-pane="belgeler" hidden>
+              <div class="adm-tw">
+                <table class="adm-table">
+                  <thead><tr><th>Belge</th><th>Tür</th><th>Yüklendi</th><th>Durum</th></tr></thead>
+                  <tbody id="adBelge"></tbody>
+                </table>
+              </div>
+              <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i>
+                Dosya deposu bu prototipte yok; belge adları örnektir ve
+                açılamaz. Başvuru formunun kendisi gerçek —
+                <a href="antrenor-ol-v1.html" target="_blank" rel="noopener">antrenor-ol-v1.html</a>
+                sertifikayı PDF ya da JPG olarak, birden fazla dosyayla topluyor.</p>
+            </div>
+
+            <div class="fit-pane" data-pane="karar" hidden>
+              <div class="adm-tw">
+                <table class="adm-table">
+                  <thead><tr><th>Tarih</th><th>Olay</th><th>Yapan</th></tr></thead>
+                  <tbody id="adKararlar"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- yan bilgi kolonu: karar yüzeyi -->
+          <div>
+            <div class="adm-card" style="box-shadow:none">
+              <div class="c-head"><h3><i class="fa-solid fa-list-check"></i> Doğrulama listesi</h3></div>
+              <div class="c-body">
+                <div class="bv-kontrol">
+                  <label><input type="checkbox" /> Sertifika okunaklı ve süresi geçmemiş</label>
+                  <label><input type="checkbox" /> Belgedeki ad başvurudaki adla aynı</label>
+                  <label><input type="checkbox" /> Sertifikayı veren kurum tanınıyor</label>
+                  <label><input type="checkbox" /> Bio ve uzmanlık alanları tutarlı</label>
+                </div>
+                <p class="fk-help" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
+                  Diploma numarası aranmaz — başvuru sayfasının kendi sözü bu.
+                  Geçerli bir antrenörlük/eğitmenlik sertifikası yeterli.</p>
+              </div>
+            </div>
+
+            <div class="adm-card" style="box-shadow:none">
+              <div class="c-head"><h3><i class="fa-solid fa-gavel"></i> Karar</h3></div>
+              <div class="c-body">
+                <form id="adKararF">
+                  <div class="fk-field">
+                    <label class="fk-label" for="adInceleyen">İnceleyen <span class="req">*</span></label>
+                    <select class="fk-select" id="adInceleyen" required></select>
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Başvuru bir inceleyene atanmadan karara bağlanmaz; kararın kimin olduğu geçmişte görünür.</span>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="adKarar">Karar <span class="req">*</span></label>
+                    <select class="fk-select" id="adKarar" required>
+                      <option value="onayla">Onayla — antrenör dizinine al</option>
+                      <option value="ek-belge">Ek belge iste</option>
+                      <option value="reddet">Reddet</option>
+                    </select>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="adGerekce">Başvurana yazılacak gerekçe <span class="req">*</span></label>
+                    <textarea class="fk-textarea" id="adGerekce" rows="4" required maxlength="600"
+                              placeholder="Neyin eksik olduğunu ve nasıl düzeltileceğini yaz."></textarea>
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Onayda da yazılır: başvuran her kararda bir cümle görür. Gerekçesiz ret, düzeltilemeyen rettir.</span>
+                  </div>
+                  <button class="btn btn-primary" type="button" id="adKaydet"><i class="fa-solid fa-check"></i> Kararı kaydet</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-antrenor-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ANTRENÖR BAŞVURUSU   (R20)   — K3 detay
+   ---------------------------------------------------------------------
+   NEDEN VAR — ÖLÇÜLEN KUSUR (Beyar, R20): `admin-antrenorler-v1.html`deki
+   "İncele" aynı sayfada gizli bir kartı açıyordu (`#atDetay hidden` +
+   `scrollIntoView`). Gastro'da bu başvurunun doğrudan bir karşılığı yok
+   (fit-admin-plan.md §10: "Gastro'da şef ayrı kalem değil, üye
+   detayının sekmesi"); en yakın Gastro deseni zengin kayıt için ölçülen
+   AYRI SAYFA `show` kalıbıdır (kullanıcı, tarif, abonelik, fatura —
+   hepsi ayrı sayfa). Künye 14 alan + belge listesi + karar geçmişi
+   taşıyor — modalin 2-4 alan eşiğinin çok üstünde. Bu ekran o kalıba
+   çekildi; içerik birebir taşındı, icat edilmedi. İç sekme yapısı
+   (Başvuru/Belgeler/Karar geçmişi) önceki turdan aynen korundu.
+
+   VERİ AYNI KAYNAK: `fit-admin-antrenor-veri.js`. Kuyruk ekranı da bunu
+   okur, ikinci bir kopya yok. Adres `?basvuru=<id>` parametresiyle açılır.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, AT = window.FIT_ADMIN_ANTRENOR;
+  if (!A) return;
+  var esc = A.esc, tarih = A.tarih;
+
+  var kap = document.querySelector('.adm-page');
+
+  if (!AT) {
+    document.getElementById('atKaynak').innerHTML = A.kaynak('ornek',
+      'Antrenör başvuru verisi (<code>fit-admin-antrenor-veri.js</code>) yüklenemedi.');
+    document.getElementById('adAd').textContent = 'Başvuru verisi yüklenmedi';
+    return;
+  }
+
+  var id = new URLSearchParams(location.search).get('basvuru') || '';
+  var b = AT.bul(id);
+
+  if (!b) {
+    document.getElementById('adAd').textContent = 'Başvuru bulunamadı';
+    document.getElementById('adAlt').textContent =
+      id ? ('"' + id + '" numaralı başvuru kaydı yok.') : 'Adreste başvuru numarası yok.';
+    document.getElementById('atKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?basvuru=&lt;başvuru no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-admin-antrenor-veri.js</code>ten okur. Numara eşleşmedi.');
+    document.querySelectorAll('.adm-card').forEach(function (c) { c.remove(); });
+    kap.insertAdjacentHTML('beforeend', A.bos('fa-user-check', 'Bu numarayla başvuru yok',
+      'Adresteki başvuru numarası kuyrukla eşleşmiyor. Listeye dönüp bir başvuru seç; ' +
+      '"İncele" demek seni buraya, doğru numarayla getirir.',
+      '<a class="btn btn-primary" href="admin-antrenorler-v1.html"><i class="fa-solid fa-arrow-left"></i> Antrenörler listesine dön</a>'));
+    return;
+  }
+
+  document.title = b.ad + ' — DadaFit Yönetim';
+  var d = AT.DURUM[b.durum];
+
+  document.getElementById('adAv').textContent = AT.bas2(b.ad);
+  document.getElementById('adAd').textContent = b.ad;
+  document.getElementById('adAlt').textContent = b.id + ' · ' + b.unvan + ' · başvuru ' + tarih(b.tarih);
+  document.getElementById('adRozet').innerHTML =
+    A.rozet(d.rz, d.ad, d.ico) +
+    A.rozet('off', b.inceleyen ? ('İnceleyen: ' + b.inceleyen) : 'Atanmadı', 'fa-user-pen');
+
+  document.getElementById('atKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Başvuru verisi örnektir.</b> Bu prototipte sunucu ve dosya deposu yok; belge ' +
+    'adları açılmaz. Başvurunun <b>alanları</b> uydurulmadı — ' +
+    '<code>antrenor-ol-v1.html</code>’in gerçek formundan alındı. ' +
+    '<b>Yazma yüzeyi maket:</b> onayla · ek belge iste · reddet doğrulanır ama karar kaydedilmez.');
+
+  var satir = [
+    ['Başvuru no', b.id],
+    ['Ad Soyad', b.ad],
+    ['Kullanıcı adı', b.kul],
+    ['E-posta', b.mail],
+    ['Telefon', b.tel],
+    ['Şehir / İlçe', b.sehir + ' · ' + b.ilce],
+    ['Uzmanlık alanları', b.uzmanlik],
+    ['Çalışma şekli', b.calisma],
+    ['Deneyim', b.deneyim + ' yıl'],
+    ['Sertifikayı veren kurum', b.kurum],
+    ['Çalıştığı stüdyo / kulüp', b.studyo],
+    ['Kısa bio', b.bio],
+    ['Sosyal medya', b.sosyal],
+    ['Seans ücreti', '—']
+  ];
+  document.getElementById('adBasvuru').innerHTML = satir.map(function (s) {
+    return '<dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd>';
+  }).join('');
+
+  document.getElementById('adBelge').innerHTML = b.belge.map(function (bg) {
+    var rz = bg[3] === 'Onaylandı' ? A.rozet('ok', bg[3], 'fa-circle-check')
+           : bg[3] === 'İncelenecek' ? A.rozet('wait', bg[3], 'fa-hourglass-half')
+           : A.rozet('stop', bg[3], 'fa-triangle-exclamation');
+    var ico = /\.pdf$/i.test(bg[0]) ? 'fa-file-pdf' : 'fa-file-image';
+    return '<tr><td><b><i class="fa-solid ' + ico + '" aria-hidden="true"></i> ' + esc(bg[0]) + '</b></td>' +
+      '<td>' + esc(bg[1]) + '</td><td>' + tarih(bg[2]) + '</td><td>' + rz + '</td></tr>';
+  }).join('');
+
+  document.getElementById('adKararlar').innerHTML = b.gecmis.map(function (g) {
+    return '<tr><td>' + tarih(g[0]) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
+  }).join('');
+
+  document.getElementById('adInceleyen').innerHTML =
+    '<option value="">— seç —</option>' + AT.INCELEYEN.map(function (x) {
+      return '<option' + (x === b.inceleyen ? ' selected' : '') + '>' + esc(x) + '</option>';
+    }).join('');
+  document.getElementById('adKarar').value = (b.durum === 'ek-belge') ? 'ek-belge' : 'onayla';
+
+  A.maketKaydet(document.getElementById('adKaydet'), 'başvuru kararı', document.getElementById('adKararF'));
+})();
+</script>
+</body>
+</html>

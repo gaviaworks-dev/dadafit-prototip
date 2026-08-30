@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abonelik detayı — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.ab-yok{color:var(--muted);font-weight:600}
+.ab-dl th{width:220px}
+</style>
+</head>
+<body class="adm-body" data-adm="abonelikler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-abonelikler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Abonelikler</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="abBaslik">Abonelik detayı</h1>
+        <div class="ph-sub" id="abAlt">—</div>
+      </div>
+      <div class="h-acts" id="abEylem"></div>
+    </div>
+
+    <div id="abKaynak"></div>
+
+    <div class="adm-card">
+      <div class="c-head"><h3><i class="fa-solid fa-receipt"></i> Künye</h3></div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table ab-dl">
+            <caption class="sr-only">Abonelik künyesi</caption>
+            <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
+            <tbody id="abDetayGovde"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="c-head"><h3><i class="fa-solid fa-clock-rotate-left"></i> Geçmiş</h3></div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table">
+            <caption class="sr-only">Abonelik olay geçmişi</caption>
+            <thead><tr><th>Tarih</th><th>Olay</th><th>Kaynak</th></tr></thead>
+            <tbody id="abGecmisGovde"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin-abonelik-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ABONELİK DETAYI   (R20)
+   ---------------------------------------------------------------------
+   NEDEN VAR — Beyar'ın ÖLÇTÜĞÜ kusurun kaynak ekranı: liste sayfasında
+   "Görüntüle" aynı sayfada gizli bir kartı açıp aşağı kaydırıyordu.
+   Gastro'da bu eylemin karşılığı ölçüldü: `SubscriptionController::show()`
+   → `admin.abonelikler.show` — AYRI sayfa, AYRI rota
+   (routes/web.php:1302), `subscription.load(['user','subscribable'])` +
+   `refunds` veriyor. Bu ekran o kalıba çekildi.
+
+   VERİ TEK KAYNAKTAN: `fit-admin-abonelik-veri.js`. Liste ekranı da aynı
+   dosyayı okur — kayıt iki yerde yaşamaz. İptal/devam eylemleri liste
+   satırında KALDI (K5 iş akışı orada daha hızlı); bu ekran yalnız
+   GÖRÜNTÜLEMEYİ üstlendi — Gastro'nun show sayfası da işlem yapmaz,
+   yalnız gösterir ve iade listesini döker.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET, AB = window.FIT_ADMIN_ABONELIK;
+  if (!A) return;
+  var esc = A.esc, tarih = A.tarih;
+
+  var kap = document.querySelector('.adm-page');
+
+  if (!AB) {
+    document.getElementById('abKaynak').innerHTML = A.kaynak('ornek',
+      'Abonelik verisi (<code>fit-admin-abonelik-veri.js</code>) yüklenemedi.');
+    document.getElementById('abBaslik').textContent = 'Abonelik verisi yüklenmedi';
+    return;
+  }
+
+  var no = new URLSearchParams(location.search).get('abn') || '';
+  var a = AB.bul(no);
+
+  if (!a) {
+    document.getElementById('abBaslik').textContent = 'Abonelik bulunamadı';
+    document.getElementById('abAlt').textContent =
+      no ? ('"' + no + '" numaralı abonelik kaydı yok.') : 'Adreste abonelik numarası yok.';
+    document.getElementById('abKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?abn=&lt;abonelik no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-admin-abonelik-veri.js</code>ten okur. Numara eşleşmedi.');
+    document.querySelectorAll('.adm-card').forEach(function (c) { c.remove(); });
+    kap.insertAdjacentHTML('beforeend', A.bos('fa-repeat', 'Bu numarayla abonelik yok',
+      'Adresteki abonelik numarası kayıtlarla eşleşmiyor. Listeye dönüp bir abonelik seç; ' +
+      'satıra basmak seni buraya, doğru numarayla getirir.',
+      '<a class="btn btn-primary" href="admin-abonelikler-v1.html"><i class="fa-solid fa-arrow-left"></i> Abonelik listesine dön</a>'));
+    return;
+  }
+
+  document.title = a.uye + ' — DadaFit Yönetim';
+  var k = P ? P.kademe(a.plan) : null, d = AB.DURUM[a.durum];
+  var bitti = (a.durum === 'iptal');
+
+  document.getElementById('abBaslik').textContent = a.uye + ' — ' + a.no;
+  document.getElementById('abAlt').innerHTML = esc(a.mail) + ' · ' + A.rozet(d.rz, d.ad, d.ico);
+
+  document.getElementById('abKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Plan alanı gerçek:</b> ad, ikon ve tutar <code>fit-paket.js</code>ten okunuyor. ' +
+    '<b>Abonelik kaydı örnek:</b> depoda üye⇄abonelik ilişkisini tutan bir modül yok — ' +
+    'adlar <code>admin-uyeler-v1.html</code>in üye listesinden alındı. ' +
+    '<b>Yazma yüzeyi maket:</b> iptal ve devam liste ekranında doğrulanır, kayıt gitmez.');
+
+  var satir = function (etiket, deger) {
+    return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
+  };
+  document.getElementById('abDetayGovde').innerHTML =
+    satir('Üye', '<b>' + esc(a.uye) + '</b><small>' + esc(a.mail) + '</small>') +
+    satir('Plan', k ? '<b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
+          '<small>' + esc(P.fiyatMetni(k.key)) + ' ' + esc(k.birim) + '</small>'
+        : '<span class="ab-yok">—</span>') +
+    satir('Durum', A.rozet(d.rz, d.ad, d.ico)) +
+    satir('Başlangıç', esc(tarih(a.basla))) +
+    satir('Yenileme', a.yenile ? esc(tarih(a.yenile))
+          : '<span class="ab-yok">— yenileme yok, abonelik bitti</span>') +
+    satir('Ödeme yöntemi', '<i class="' + esc(a.marka) + '" aria-hidden="true"></i> ' + esc(a.kart)) +
+    satir('Faturalar', '<a href="admin-faturalar-v1.html">Fatura defterinde ara</a>' +
+          '<small>Defter tek üyenin defteri; abonelik⇄fatura bağı sunucu turunda kurulur.</small>');
+
+  document.getElementById('abGecmisGovde').innerHTML = a.gecmis.map(function (g) {
+    return '<tr><td>' + esc(tarih(g[0])) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
+  }).join('');
+
+  /* ---------- başlıktaki eylemler — liste satırıyla AYNI mantık ---------- */
+  var eylem = document.getElementById('abEylem');
+  var parcalar = [];
+  if (!bitti) {
+    parcalar.push('<button class="btn btn-ghost" type="button" id="abIptal">' +
+      '<i class="fa-solid fa-ban"></i> Dönem sonunda bitir</button>');
+  }
+  if (a.durum === 'donemsonu' || a.durum === 'iptal') {
+    parcalar.push('<button class="btn btn-primary" type="button" id="abDevam">' +
+      '<i class="fa-solid fa-rotate-right"></i> Devam ettir</button>');
+  }
+  eylem.innerHTML = parcalar.join('');
+
+  var iptalBtn = document.getElementById('abIptal');
+  if (iptalBtn) iptalBtn.addEventListener('click', function () {
+    A.onay({
+      yikici: true, ico: 'fa-ban',
+      baslik: 'Abonelik dönem sonunda bitsin mi?',
+      metin: '"' + a.uye + '" için yenileme durdurulacak. Erişim ' +
+             (a.yenile ? tarih(a.yenile) : 'dönem sonuna') + ' tarihine kadar sürer; ' +
+             'o tarihten sonra abonelik biter. İşlem geri alınabilir — "Devam ettir" ile.',
+      onayla: 'Dönem sonunda bitir',
+      onay: function () {
+        A.toast('"' + a.uye + '" aboneliği maket düzeyinde iptal edilmedi — sunucu yok. ' +
+                'Gerçekte yenileme durur, erişim dönem sonuna kadar sürer.', { tip:'info', ms:4600 });
+      }
+    });
+  });
+
+  var devamBtn = document.getElementById('abDevam');
+  if (devamBtn) devamBtn.addEventListener('click', function () {
+    A.onay({
+      ico: 'fa-rotate-right',
+      baslik: 'Abonelik devam etsin mi?',
+      metin: '"' + a.uye + '" için yenileme yeniden açılacak. Bir sonraki dönemde ' +
+             'plan tutarı kayıtlı ödeme yönteminden tahsil edilir.',
+      onayla: 'Devam ettir',
+      onay: function () {
+        A.toast('"' + a.uye + '" aboneliği maket düzeyinde devam ettirilmedi — sunucu yok.',
+                { tip:'info', ms:4200 });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

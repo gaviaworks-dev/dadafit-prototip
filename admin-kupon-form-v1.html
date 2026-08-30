@@ -282,6 +282,9 @@
   var kod = (new URLSearchParams(location.search).get('kupon') || '').toLocaleUpperCase('tr');
   var kayit = KUPON.filter(function (k) { return k.kod === kod; })[0] || null;
   var yeni = !kayit;
+  /* Henüz kaydı olmayan bir kuponu silmek anlamsız — Tehlikeli bölge
+     yalnız düzenleme kipinde görünür. */
+  if (yeni) document.getElementById('kfSil').closest('.adm-card').hidden = true;
 
   document.getElementById('kfBaslik').textContent = yeni ? 'Yeni kupon' : kayit.kod;
   document.title = (yeni ? 'Yeni kupon' : kayit.kod) + ' — DadaFit Yönetim';

@@ -14,27 +14,13 @@
 <link rel="stylesheet" href="assets/css/fit-planim.css" />
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
-/* SAYFA CSS — yalnız bu ekranın işi. Liste · süzgeç · tablo · form ızgarası ·
-   etiket alanı · sekme fit-admin.css ve fit-shell.css'te; tekrarlanmıyor.
+/* SAYFA CSS — yalnız bu ekranın işi. Liste · süzgeç · tablo fit-admin.css
+   ve fit-shell.css'te; tekrarlanmıyor.
 
    Latince ad ile SVG bölge kimliği kod parçasıdır; insan adından monospace
    ile ayrılıyor. Yeni renk üretilmedi. */
 .an-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted)}
 .an-latin{font-style:italic}
-/* SATIR İÇİ DÜZENLEME KABI — tablonun içinde açılan tam genişlikte hücre.
-   `.adm-table td` kendi dolgusunu dayatıyor; düzenleme hücresi form
-   ızgarasını taşıdığı için o dolguyu kendi ölçüsüyle değiştiriyor. */
-.an-ed-hucre{padding:0 !important;background:var(--paper-2,var(--paper))}
-/* 🔴 `text-align` GERİ ALINIYOR — ölçülmüş bir sızıntı.
-   Kabuk `.adm-table td:last-child{text-align:right}` yazıyor (fit-admin.css:509)
-   ve satır içi düzenleme hücresi tanımı gereği satırın SON hücresidir. Sonuç:
-   form etiketleri, ipuçları ve editörün gövde metni sağa yaslanıyordu (ekranda
-   ölçüldü). Kabuğa dokunulmadı; hizalama yalnız bu kabın içinde geri alınıyor. */
-.an-ed-kutu{padding:20px 22px;border-top:2px solid var(--acc);text-align:left}
-/* Düzenleme kabındaki kaydet çubuğu — kart alt çubuğu burada yok, form
-   ızgarasının altında duruyor ve SAĞA yaslı (K-FORM kuralı). */
-.an-ed-ayak{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px;
-  padding-top:16px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body class="adm-body" data-adm="anatomi">
@@ -54,13 +40,13 @@
       <div class="h-acts">
         <a class="btn btn-ghost" href="anatomi-v1.html" target="_blank" rel="noopener">
           <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Haritayı gör</a>
-        <!-- Ayrı bir form SAYFASI yok, çünkü kas kaydı listeden koparıldığında
-             okunmaz oluyor: hangi bölgeye, hangi haritaya ve hangi komşuya ait
-             olduğu ancak komşu satırlarla birlikte anlaşılıyor. Düğme aşağıdaki
-             TEK formu listenin başında açar — düzenleme de aynı formu açar,
-             ikinci bir yazma yüzeyi yok. -->
-        <button class="btn btn-primary" type="button" id="anYeni">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni kas kaydı</button>
+        <!-- Ekleme/düzenleme ayrı sayfadadır (`admin-anatomi-form-v1.html`,
+             D6 — create/edit aynı dosya). "Listeden koparılınca bağlam
+             kaybolur" itirazı formun sağ kolonundaki Bağlam kartıyla
+             çözüldü: haritalarda geçme ve hareket eşleşmesi orada
+             salt okunur duruyor. -->
+        <a class="btn btn-primary" href="admin-anatomi-form-v1.html">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni kas kaydı</a>
       </div>
     </div>
 
@@ -99,142 +85,6 @@
 
       <div class="adm-pager">
         <div class="p-info"><b id="anSay">0</b> kas kaydı · tümü tek sayfada</div>
-      </div>
-    </div>
-
-    <!-- ============ KAS KAYDI FORMU — TEK YAZMA YÜZEYİ ============
-         🔴 Bu form MARKUP'TA DURUR ve JS onu tabloya TAŞIR (klonlamaz).
-         Üç gerekçe:
-         1. Tek `<form>` düğümü = tek yazma yüzeyi. Her açılışta yeniden
-            üretilen bir form, iki kaydı aynı anda düzenlemeye ve "hangisi
-            kaydedildi" belirsizliğine kapı açardı.
-         2. Zengin metin editörü (`FIT_ADMIN.editor`) bir kez kurulur ve
-            kurulduğu textarea'yı işaretler; her satırda yeniden kurmak
-            araç çubuğunu çoğaltırdı.
-         3. Sayfa yüklendiğinde form ZATEN belgede: "Yeni kas kaydı"
-            düğmesinin arkasında gerçek bir yüzey olduğu ölçülebiliyor
-            (`docs/qa/admin-ekleme-kapisi.mjs`).
-         Kapalıyken `hidden`; açılınca tablodaki hücreye taşınır. -->
-    <div id="anEdTasiyici" hidden>
-      <div class="an-ed-kutu" id="anEdKutu">
-        <form id="anForm" novalidate>
-          <div class="form-sec">
-            <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
-              <span id="ae-baslik">Kas künyesi</span></h3>
-            <div class="form-grid">
-              <div class="frow two">
-                <div class="frow">
-                  <label for="ae-ad">Kas adı <span class="req">*</span></label>
-                  <input class="finput" id="ae-ad" name="ad" type="text" required maxlength="120"
-                         placeholder="Örn. Biceps (İki başlı kol kası)" />
-                </div>
-                <div class="frow">
-                  <label for="ae-latin">Latince ad</label>
-                  <input class="finput" id="ae-latin" name="latin" type="text" maxlength="200"
-                         placeholder="Örn. Musculus biceps brachii" />
-                </div>
-              </div>
-              <div class="frow two">
-                <div class="frow">
-                  <label for="ae-bolge">Bölge <span class="req">*</span></label>
-                  <input class="finput" id="ae-bolge" name="bolge" type="text" required maxlength="120"
-                         placeholder="Örn. Kol" />
-                  <div class="fhint">Süzgeç bu metni gruplar; aynı bölgeyi iki farklı yazımla
-                    yazmak listede iki ayrı grup üretir.</div>
-                </div>
-                <div class="frow">
-                  <label for="ae-gorunum">Görünüm <span class="req">*</span></label>
-                  <select class="fselect" id="ae-gorunum" name="gorunum" required>
-                    <option value="on">Ön</option><option value="arka">Arka</option>
-                  </select>
-                  <div class="fhint">Üye haritadan bu kasa tıkladığında sayfa BU görünüme geçer
-                    (<code>anatomi-v1.html</code>). Kas iki haritada birden çiziliyse de kayıt
-                    tek görünüm taşır.</div>
-                </div>
-              </div>
-              <div class="frow">
-                <label for="ae-adres">Adres <span class="req">*</span></label>
-                <div class="slug-wrap">
-                  <span class="slug-pre">anatomi-v1.html?kas=</span>
-                  <input class="finput" id="ae-adres" name="slug" type="text" required
-                         pattern="[a-z0-9\-]+" placeholder="biceps" />
-                </div>
-                <div class="fhint">Kayıt anahtarı aynı zamanda SVG dosyalarındaki
-                  <code>data-kas</code> değeridir; değişirse dört haritanın bağı birden kopar —
-                  bu yüzden var olan kayıtta salt okunur.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-sec">
-            <h3 class="form-sec-tt"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Anlatım</h3>
-            <div class="form-grid">
-              <div class="frow">
-                <label for="ae-fonksiyon">İşlevi</label>
-                <textarea class="ftext" id="ae-fonksiyon" name="fonksiyon"
-                          placeholder="Kasın nerede olduğu, ne yaptığı ve hangi harekette çalıştığı."></textarea>
-                <div class="fhint">Kas panelinin ana metni.</div>
-              </div>
-              <div class="frow two">
-                <div class="frow">
-                  <label for="ae-koken">Köken</label>
-                  <textarea class="ftext" id="ae-koken" name="koken"></textarea>
-                </div>
-                <div class="frow">
-                  <label for="ae-yapisma">Yapışma</label>
-                  <textarea class="ftext" id="ae-yapisma" name="yapisma"></textarea>
-                </div>
-              </div>
-              <div class="frow">
-                <label for="ae-kaynak">Kaynak künyesi</label>
-                <input class="finput" id="ae-kaynak" name="kaynak" type="text" />
-                <div class="fhint">Verinin çıkarıldığı plate numaraları. Adlandırılmayan bir
-                  tutunma noktası için “PDF plate'i adlandırmıyor” yazmak, sahte veri
-                  yazmaktan iyidir — veri dosyasının kendi kuralı.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-sec">
-            <h3 class="form-sec-tt"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Güvenlik notu</h3>
-            <div class="form-grid"><div class="frow">
-              <label for="ae-guvenlik">Bu kasa özgü uyarı</label>
-              <textarea class="ftext" id="ae-guvenlik" name="guvenlik"></textarea>
-              <div class="fhint">🔴 Sağlıkla ilgili metin. Genel sağlık uyarısı Ayarlar'da tek
-                yerden yönetilir; buraya yalnız <b>bu kasa özgü</b> olan yazılır.</div>
-            </div></div>
-          </div>
-
-          <div class="form-sec">
-            <h3 class="form-sec-tt"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Bağlar</h3>
-            <div class="form-grid">
-              <div class="frow">
-                <label>Komşu kaslar</label>
-                <div id="ae-komsu"></div>
-                <div class="fhint">Kas panelinde “yakınındakiler” olarak basılır; yalnız var olan
-                  kas kayıtlarından seçilir.</div>
-              </div>
-              <div class="frow">
-                <label>Bu kası çalıştıran hareketler</label>
-                <div id="ae-hareket"></div>
-                <div class="fhint" id="ae-hrk-not"></div>
-              </div>
-              <div class="frow">
-                <label>Ekipman</label>
-                <div id="ae-ekipman"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="an-ed-ayak">
-            <button class="btn btn-ghost" type="button" id="ae-kapat">İptal</button>
-            <button class="btn btn-ghost" type="button" id="ae-sil"
-                    data-yikici="Bu kayıt" data-fiil="sil"
-                    style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
-              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kaydı sil</button>
-            <button class="btn btn-primary" type="button" id="ae-kaydet">Kas kaydını kaydet</button>
-          </div>
-        </form>
       </div>
     </div>
 
@@ -514,12 +364,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('anSay').textContent = SLUGLAR.length;
-    /* Açık düzenleme satırı aramada kapanır: `aramaKur` gövdedeki HER satırı
-       süzüyor ve düzenleme satırı bir kayda ait değil — süzgeçte kalırsa
-       hangi kasa ait olduğu görünmez olur, sayaca da fazladan bir satır
-       eklerdi. Dinleyici `aramaKur`dan ÖNCE ekleniyor: dinleyici sırası
-       ekleme sırasıdır, satır önce kalkar, sayım sonra koşar. */
-    document.getElementById('anAra').addEventListener('input', kapat);
     A.aramaKur(document.getElementById('anAra'),
                document.getElementById('anTablo'),
                document.getElementById('anSay'));
@@ -572,7 +416,6 @@
      `aramaKur` içinde, bu ondan ayrı bir yol (kit §9). */
   var suzBos = null;
   function suz(sec) {
-    kapat();
     var say = 0;
     govde.querySelectorAll('tr[data-kas]').forEach(function (tr) {
       var ok = (!sec.bolge.length   || sec.bolge.indexOf(tr.getAttribute('data-bolge')) >= 0) &&
@@ -598,158 +441,15 @@
     }
   });
 
-  /* =====================================================================
-     SATIR İÇİ DÜZENLEME — brief'in "satır içi genişleyen kart" seçeneği
-     ---------------------------------------------------------------------
-     Modal DEĞİL, çünkü form 12 alanlı ve düzenlenen kaydın hangi satır
-     olduğu okunurken görünmeli. Ayrı form SAYFASI da değil: kas kaydı
-     listeden koparıldığında hangi bölgeye, hangi haritaya ve hangi komşuya
-     ait olduğu okunmaz oluyor.
-
-     TEK FORM DÜĞÜMÜ TAŞINIYOR, KOPYALANMIYOR. Form markup'ta duruyor
-     (`#anEdTasiyici`); açılışta hücreye taşınıyor, kapanışta taşıyıcısına
-     geri dönüyor. Böylece aynı anda iki kayıt açılamıyor ve zengin metin
-     editörü BİR KEZ kuruluyor — her satırda yeniden kurmak araç çubuğunu
-     çoğaltırdı (`FIT_ADMIN.editor` kurduğu textarea'yı işaretliyor).
-     ===================================================================== */
-  var tasiyici = document.getElementById('anEdTasiyici');
-  var edKutu   = document.getElementById('anEdKutu');
-  var edForm   = document.getElementById('anForm');
-  var acikSatir = null;   /* null = kapalı · '' = yeni kayıt · slug = düzenleme */
-
-  /* Editör bir kez kurulur; kayıt değiştiğinde yüzeyi `edTanimYaz` tazeler. */
-  A.editor('#ae-fonksiyon', 'govde');
-  var edYuz = edKutu.querySelector('.adm-ed-yuz');
-  function edTanimYaz(metin) {
-    var ta = document.getElementById('ae-fonksiyon');
-    ta.value = metin || '';
-    /* Editör tek yönlü yazıyor (yüzey → textarea). Kayıt değişince ters
-       yön gerekiyor ve bileşen bunun için API vermiyor; yüzeye yazılıp
-       `input` tetikleniyor ki kelime/karakter sayacı da tazelensin. */
-    if (edYuz) { edYuz.innerHTML = ta.value; edYuz.dispatchEvent(new Event('input', { bubbles: true })); }
-  }
-
-  A.maketKaydet(document.getElementById('ae-kaydet'), 'kas kaydı', edForm);
-
-  function kapat() {
-    if (acikSatir === null) return;
-    var d = govde.querySelector('[data-duzenle="' + acikSatir + '"]');
-    if (d) d.setAttribute('aria-expanded', 'false');
-    tasiyici.appendChild(edKutu);
-    tasiyici.hidden = true;
-    var tr = govde.querySelector('tr.an-ed-satir');
-    if (tr) tr.parentNode.removeChild(tr);
-    acikSatir = null;
-  }
-
-  function ac(slug) {
-    var yeni = !slug;
-    if (acikSatir === (yeni ? '' : slug)) { kapat(); return; }
-    kapat();
-    var k = yeni ? {} : KAS[slug];
-    if (!yeni && !k) return;
-
-    var tr = document.createElement('tr');
-    tr.className = 'an-ed-satir';
-    var td = document.createElement('td');
-    td.className = 'an-ed-hucre';
-    td.colSpan = 7;
-    tr.appendChild(td);
-
-    if (yeni) {
-      govde.insertBefore(tr, govde.firstChild);
-    } else {
-      var satir = govde.querySelector('tr[data-kas="' + slug + '"]');
-      if (!satir) return;
-      satir.parentNode.insertBefore(tr, satir.nextSibling);
-      govde.querySelector('[data-duzenle="' + slug + '"]').setAttribute('aria-expanded', 'true');
-    }
-    tasiyici.hidden = false;
-    td.appendChild(edKutu);
-    acikSatir = yeni ? '' : slug;
-
-    document.getElementById('ae-baslik').textContent = yeni ? 'Yeni kas kaydı' : k.ad;
-    document.getElementById('ae-ad').value       = k.ad || '';
-    document.getElementById('ae-latin').value    = k.latin || '';
-    document.getElementById('ae-bolge').value    = k.bolge || '';
-    document.getElementById('ae-gorunum').value  = k.gorunum || 'on';
-    document.getElementById('ae-koken').value    = k.koken || '';
-    document.getElementById('ae-yapisma').value  = k.yapisma || '';
-    document.getElementById('ae-guvenlik').value = k.guvenlik || '';
-    document.getElementById('ae-kaynak').value   = k.kaynak || '';
-    edTanimYaz(k.fonksiyon);
-
-    /* Adres var olan kayıtta SALT OKUNUR: anahtar aynı zamanda dört SVG'nin
-       `data-kas` değeri; değişirse haritaların bağı birden kopar. */
-    var adres = document.getElementById('ae-adres');
-    adres.value = yeni ? '' : slug;
-    adres.readOnly = !yeni;
-
-    /* Yeni kayıtta silinecek bir şey yok — düğme gizlenir, ölü düğme durmaz. */
-    var sil = document.getElementById('ae-sil');
-    sil.hidden = yeni;
-    if (!yeni) sil.setAttribute('data-yikici', k.ad);
-
-    /* Etiket alanları her açılışta yeniden çizilir; `FIT_ADMIN.etiket`
-       kabın içeriğini baştan kuruyor, bu yüzden eski seçim taşınmıyor. */
-    A.etiket(document.getElementById('ae-komsu'), {
-      katalog: SLUGLAR.filter(function (x) { return x !== slug; })
-        .map(function (x) { return { id: x, ad: KAS[x].ad }; }),
-      ad: 'komsu[]', ico: 'fa-person', ipucu: 'Kas ara…', secili: (k.komsu || []).slice()
-    });
-    /* Hareket seçenekleri 25 kayıtlık GERÇEK katalogdan veriliyor; kasın
-       kendi `hareketler` dizisi 12 kalemlik anatomi tablosundan geliyor.
-       İkisi ayrışmasın diye seçenek listesi katalogdan okunuyor. */
-    A.etiket(document.getElementById('ae-hareket'), {
-      katalog: HAREKET.length
-        ? HAREKET.map(function (h) { return { id: h.slug, ad: h.ad }; })
-        : Object.keys(ANA_HRK).map(function (x) { return { id: x, ad: ANA_HRK[x].ad }; }),
-      ad: 'hareketler[]', ico: 'fa-dumbbell',
-      ipucu: 'Hareket ara…', secili: (k.hareketler || []).slice()
-    });
-    A.etiket(document.getElementById('ae-ekipman'), {
-      katalog: (function () {
-        var e = {}; SLUGLAR.forEach(function (x) { (KAS[x].ekipman || []).forEach(function (n) { e[n] = 1; }); });
-        return Object.keys(e).sort(function (a, b) { return a.localeCompare(b, 'tr'); })
-          .map(function (n) { return { id: n, ad: n }; });
-      })(),
-      ad: 'ekipman[]', ico: 'fa-dumbbell', serbest: true,
-      ipucu: 'Ekipman ara ya da yaz…', secili: (k.ekipman || []).slice()
-    });
-
-    /* Hareket kataloğundan SAYILAN eşleşme — ilan edilmiyor, adlarıyla yazılıyor. */
-    var not = document.getElementById('ae-hrk-not');
-    if (yeni) {
-      not.innerHTML = 'Seçim kasın <b>kendi</b> hareket dizisini kurar. Hareket kataloğunun ' +
-        'ayrıca bu kası kaç harekette birincil/ikincil saydığı, kayıt bir ada kavuştuktan ' +
-        'sonra bu satırda görünür.';
-    } else {
-      var bs = esleme[slug].birincil, is = esleme[slug].ikincil;
-      not.innerHTML =
-        'Yukarıdaki seçim kasın <b>kendi</b> hareket dizisidir (' + (k.hareketler || []).length + ' kayıt). ' +
-        'Hareket kataloğu ayrıca bu kası <b>' + bs.length + ' harekette birincil</b>, ' +
-        '<b>' + is.length + ' harekette ikincil</b> olarak sayıyor' +
-        (bs.length ? ' — birincil: ' + bs.map(function (h) { return esc(h.ad); }).join(', ') : '') +
-        (is.length ? ' · ikincil: ' + is.map(function (h) { return esc(h.ad); }).join(', ') : '') +
-        '. Bu sayım <code>fit-admin-veri.js</code>teki <b>adlardan</b> çıkarıldı, slug bağından değil.';
-    }
-
-    document.getElementById('ae-ad').focus();
-    tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  document.getElementById('anYeni').addEventListener('click', function () { ac(null); });
-  document.getElementById('ae-kapat').addEventListener('click', kapat);
-  document.getElementById('ae-sil').addEventListener('click', function () {
-    /* Onay modalı kabuğun `data-yikici` delegesinden geldi; buraya yalnız
-       onay SONRASI düşülür. Sunucu yok: kayıt gerçekten silinmez ve ekran
-       bunu yazıyla söyler — sessizce "silindi" demek yalan olurdu. */
-    A.toast('Kayıt silinmedi — bu prototipte sunucu yok.', { tip: 'info' });
-    kapat();
-  });
+  /* ---------- kas kaydı düzenleme — ayrı sayfa (D6) ----------
+     Ekleme/düzenleme `admin-anatomi-form-v1.html`e taşındı (10 alan +
+     `.adm-ed` zengin metin editörü + üç ilişki seçici taşıyan bu form,
+     Gastro'nun 44 index blade'inin hiçbirinde bulunmayan "satır içi
+     genişleyen kart" desenini bırakmış oldu). Satırdaki kalem düğmesi
+     artık kayda git. */
   govde.addEventListener('click', function (e) {
     var d = e.target.closest('[data-duzenle]');
-    if (d) ac(d.getAttribute('data-duzenle'));
+    if (d) location.href = 'admin-anatomi-form-v1.html?kas=' + encodeURIComponent(d.getAttribute('data-duzenle'));
   });
 
   /* =====================================================================

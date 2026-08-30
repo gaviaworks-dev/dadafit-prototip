@@ -878,6 +878,7 @@
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-su.js"></script>
 <script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-ayar-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -924,8 +925,19 @@
   if (!A) return;
   var esc = A.esc, tl = A.tl, n = A.n;
   var SU = window.FIT_SU || null;
+  var AYAR = window.FIT_AYAR || null;
 
   function el(id){ return document.getElementById(id); }
+
+  /* K13 — artık TEK kaynaktan (assets/js/fit-ayar-veri.js); burada ikinci
+     bir kopya TUTULMAZ. Kayıt yoksa modülün kendi VARSAYILAN'ı (CLAUDE.md
+     K13) döner. */
+  function paraOku(){
+    if (AYAR && AYAR.oku) return AYAR.oku();
+    console.warn('[admin-ayarlar] FIT_AYAR (assets/js/fit-ayar-veri.js) yüklenemedi — para alanları boş kalır.');
+    return {};
+  }
+  var AK = paraOku();
 
   /* ================================================================
      KAYNAK ŞERİDİ — üç ayrı gerçeği ayrı ayrı söyler
@@ -937,7 +949,11 @@
     '<b>Palet, tipografi ve su sabitleri gerçekten okunur:</b> renkler <code>:root</code>tan, ' +
     'yazı tipleri <code>getComputedStyle</code> ile, su hesabı sabitleri ' +
     '<code>fit-su.js</code>ten. <b>Künye, abonelik komisyonu ve üretici eşikleri bilerek boştur</b> — ' +
-    'hukuki, ticari ve tanımsız kalemler uydurulmadı. <b>Yazma yüzeyi maket:</b> kayıt gitmez.');
+    'hukuki, ticari ve tanımsız kalemler uydurulmadı. <b>Yazma yüzeyi maket — TEK İSTİSNA "Para & Komisyon" ' +
+    'sekmesidir:</b> o sekme <code>assets/js/fit-ayar-veri.js</code> üzerinden GERÇEKTEN bu tarayıcının ' +
+    '<code>localStorage</code>ına yazar (K13 tek kaynak) — sunucuya gitmez, yalnız bu tarayıcıda saklanır. ' +
+    '<a href="admin-odemeler-v1.html">Ödemeler</a> ve <a href="admin-raporlar-v1.html">Raporlar</a> ekranları ' +
+    'aynı kaynaktan okur. Diğer sekmelerde kayıt gitmez.');
 
   /* ================================================================
      BAŞLANGIÇ DEĞERLERİ
@@ -959,13 +975,14 @@
     kayit: true,
     indeks: true,
 
-    /* K13 — KARARLAR'daki dört kalem. Beşincisi (abonelik komisyonu) yok. */
-    komisyonYuzde: 10,
-    abonKomisyon: '',
-    odemeGunu: 'ay-sonu',
-    altSinirKurus: 100000,      /* 1.000,00 ₺ */
-    faturaEsigiKurus: 1000000,  /* 10.000,00 ₺ */
-    iade: 'komisyon-kalir',
+    /* K13 — TEK KAYNAK: assets/js/fit-ayar-veri.js (FIT_AYAR.oku()). Sayı
+       burada UYDURULMAZ/TEKRARLANMAZ; AK açılışta modülden okundu. */
+    komisyonYuzde: AK.komisyonYuzde,
+    abonelikKomisyonYuzde: AK.abonelikKomisyonYuzde,
+    odemeGunu: AK.odemeGunu,
+    altSinirKurus: AK.altSinirKurus,
+    faturaEsigiKurus: AK.faturaEsigiKurus,
+    iade: AK.iade,
 
     /* Sağlık metinleri — depodaki sayfalardan BİREBİR taşındı. */
     uyari: 'Bu içerik genel bilgi amaçlıdır, kişisel tıbbi tavsiye değildir. Bir sağlık sorunun varsa, hamileysen ya da uzun süredir hareketsizsen, başlamadan önce bir uzmana danışman iyi olur.',
@@ -1246,7 +1263,7 @@
     durumNoktasi();
 
     el('ayKomisyon').value     = BASLANGIC.komisyonYuzde;
-    el('ayAbonKomisyon').value = BASLANGIC.abonKomisyon;
+    el('ayAbonKomisyon').value = BASLANGIC.abonelikKomisyonYuzde;
     el('ayOdemeGunu').value    = BASLANGIC.odemeGunu;
     el('ayAltSinir').value     = BASLANGIC.altSinirKurus / 100;
     el('ayFatura').value       = BASLANGIC.faturaEsigiKurus / 100;
@@ -1299,21 +1316,84 @@
   el('ayGecmis').innerHTML = A.bos(
     'fa-clock-rotate-left',
     'Henüz bir ayar değiştirilmedi',
-    'Bu prototipte sunucu yok, bu yüzden kaydedilmiş bir ayar da yok. Panel gerçek ' +
-    'yazmayı getirdiğinde kim, ne zaman, hangi alanı neyle değiştirdi burada ve Log ' +
-    'Yönetimi ekranında birlikte görünür.',
+    'Bu prototipte sunucu yok, bu yüzden çoğu sekmede kaydedilmiş bir ayar da yok — ' +
+    '"Para & Komisyon" istisna: o sekme <code>localStorage</code>a gerçekten yazar, ama kim-ne-zaman ' +
+    'defteri yine tutulmuyor. Panel gerçek yazmayı getirdiğinde kim, ne zaman, hangi alanı neyle ' +
+    'değiştirdi burada ve Log Yönetimi ekranında birlikte görünür.',
     '<a class="btn btn-ghost" href="admin-log-v1.html"><i class="fa-solid fa-list-check"></i> Log Yönetimi\'ne git</a>');
 
-  /* ---------- dokuz sekme, dokuz form, dokuz kaydet ---------- */
+  /* ---------- sekiz sekme maket, "Para & Komisyon" GERÇEK ---------- */
   A.maketKaydet(el('ayGenelKaydet'),   'genel ayarlar',        el('ayGenelF'));
   A.maketKaydet(el('ayMarkaKaydet'),   'marka ayarları',       el('ayMarkaF'));
   A.maketKaydet(el('aySosyalKaydet'),  'sosyal medya hesapları', el('aySosyalF'));
   A.maketKaydet(el('ayKunyeKaydet'),   'künye bilgileri',      el('ayKunyeF'));
   A.maketKaydet(el('ayEntKaydet'),     'entegrasyon ayarları', el('ayEntF'));
   A.maketKaydet(el('ayBildKaydet'),    'bildirim ayarları',    el('ayBildF'));
-  A.maketKaydet(el('ayParaKaydet'),    'para parametreleri',   el('ayParaF'));
   A.maketKaydet(el('ayUreticiKaydet'), 'üretici eşikleri',     el('ayUreticiF'));
   A.maketKaydet(el('ayHealthKaydet'),  'sağlık ayarları',      el('ayHealthF'));
+
+  /* ---------- "Para & Komisyon" — TEK İSTİSNA, GERÇEKTEN KAYDEDER ----------
+     K13 tek kaynak kararı: bu düğme `A.maketKaydet` KULLANMAZ, doğrulanan
+     formu `FIT_AYAR.yaz()` ile `dm_fit_ayar_v1`e yazar. `admin-odemeler-v1`
+     ve `admin-raporlar-v1` aynı anahtardan okur — üç ekranda üç kopya değil,
+     tek yazma ucu. */
+  el('ayParaKaydet').addEventListener('click', function (e) {
+    e.preventDefault();
+    var btn = el('ayParaKaydet');
+    var f = el('ayParaF');
+    var gecti = false;
+    try { gecti = f.reportValidity(); } catch (hata) { gecti = false; }
+
+    var eskiUy = btn.parentNode.querySelector('.adm-maket-hata');
+    if (eskiUy) eskiUy.remove();
+    var eskiNot = btn.parentNode.querySelector('.adm-maket-not');
+    if (eskiNot) eskiNot.remove();
+
+    if (!gecti) {
+      var uy = document.createElement('span');
+      uy.className = 'adm-maket-hata';
+      uy.style.cssText = 'font-size:12.5px;font-weight:600;color:var(--hs-danger);display:inline-flex;align-items:center;gap:7px';
+      uy.innerHTML = '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ' +
+        f.querySelectorAll(':invalid').length + ' zorunlu alan eksik — para parametreleri kaydedilmedi.';
+      btn.parentNode.appendChild(uy);
+      return;
+    }
+
+    var yeni = {
+      komisyonYuzde: Number(el('ayKomisyon').value),
+      abonelikKomisyonYuzde: el('ayAbonKomisyon').value === '' ? '' : Number(el('ayAbonKomisyon').value),
+      odemeGunu: el('ayOdemeGunu').value,
+      altSinirKurus: Math.round(Number(el('ayAltSinir').value || 0) * 100),
+      faturaEsigiKurus: Math.round(Number(el('ayFatura').value || 0) * 100),
+      iade: el('ayIade').value
+    };
+    var tamam = (AYAR && AYAR.yaz) ? AYAR.yaz(yeni) : false;
+
+    /* "Değişiklikleri geri al" bundan sonra bu KAYDEDİLMİŞ hâle döner —
+       kaydetmeden önceki hâle değil. */
+    if (tamam) {
+      BASLANGIC.komisyonYuzde = yeni.komisyonYuzde;
+      BASLANGIC.abonelikKomisyonYuzde = yeni.abonelikKomisyonYuzde;
+      BASLANGIC.odemeGunu = yeni.odemeGunu;
+      BASLANGIC.altSinirKurus = yeni.altSinirKurus;
+      BASLANGIC.faturaEsigiKurus = yeni.faturaEsigiKurus;
+      BASLANGIC.iade = yeni.iade;
+    }
+
+    var not = document.createElement('span');
+    not.className = 'adm-maket-not';
+    not.style.cssText = 'font-size:12.5px;font-weight:600;color:' +
+      (tamam ? 'var(--fit-deep)' : 'var(--hs-danger)') + ';display:inline-flex;align-items:center;gap:7px';
+    not.innerHTML = tamam
+      ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Para parametreleri KAYDEDİLDİ — değer ' +
+        '<b>bu tarayıcıda</b> (<code>localStorage</code>) saklanıyor, sunucuya gitmiyor. ' +
+        '<a href="admin-odemeler-v1.html">Ödemeler</a> ve <a href="admin-raporlar-v1.html">Raporlar</a> ' +
+        'ekranları artık bu değeri gösterir.'
+      : '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Kaydedilemedi — bu tarayıcı ' +
+        '<code>localStorage</code>a yazmaya izin vermiyor olabilir.';
+    btn.parentNode.appendChild(not);
+    if (tamam) ozetle();
+  });
 })();
 </script>
 </body>

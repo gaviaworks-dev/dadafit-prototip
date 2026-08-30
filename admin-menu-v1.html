@@ -40,7 +40,10 @@
   background:rgba(var(--acc-rgb),.15);color:var(--acc-deep);
 }
 
-.mb-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:20px}
+/* Sütun sayısı da EKRANIN değil İÇERİK ALANININ genişliğine bağlı — aynı
+   1440px ekran rail açıkken 998px, kapalıyken 1262px içerik veriyor. */
+.mb-wrap{container-type:inline-size}
+.mb-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,300px);gap:20px}
 .side-stack{display:flex;flex-direction:column;gap:16px}
 
 .tree{container-type:inline-size}
@@ -50,7 +53,7 @@
 .tree-list{display:flex;flex-direction:column;gap:8px}
 
 .node{
-  display:flex;align-items:flex-start;gap:10px;padding:12px;
+  display:flex;align-items:center;gap:8px;padding:10px;
   background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
 }
 .node.is-dragging{opacity:.45}
@@ -63,17 +66,25 @@
 }
 .node-grip:focus-visible{outline:3px solid var(--acc);outline-offset:-3px;border-radius:var(--radius-sm)}
 .node-ico{
-  width:34px;height:34px;flex:none;display:grid;place-items:center;margin-top:5px;
+  width:34px;height:34px;flex:none;display:grid;place-items:center;
   border-radius:var(--radius-sm);background:var(--paper);border:1px solid var(--line);
   color:var(--muted);font-size:14px;
 }
-.node-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:6px}
-.node-label{font-size:13.5px;font-weight:700;color:var(--slate);line-height:1.35}
+.node-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.node-label{font-size:13.5px;font-weight:700;color:var(--slate);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Gastro'nun `.node-id` bloğu iki metin satırıdır ve alt-menü rozeti satırın
+   İÇİNDEDİR (sa-menu.css:39-44). Fit'te rozet sayısı bire sabit değil (altı
+   ayrı durum: alt menü · panelli · yalnız üyeye · gizli · yeni sekme ·
+   kilitli), bu yüzden hedef ile rozetler ORTAK bir satırda durur ve o satır
+   sarılabilir — üç sabit satır yerine gerektiği kadar satır. */
+.node-line{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
 .node-target{
+  flex:1 1 140px;min-width:0;
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.node-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.node-tags{display:flex;flex-wrap:wrap;gap:6px;flex:none}
 .node-tag{
   font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
   padding:3px 8px;border-radius:var(--radius-sm);
@@ -90,27 +101,42 @@
 .nc-btn:disabled{opacity:.3;cursor:not-allowed}
 .nc-btn:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
 
-/* 🔴 KIRILIM YAMASI — ÖLÇÜLDÜ, ve kırılım noktası EKRANIN DEĞİL SATIRIN
-   genişliğine bağlandı.
-   Gastro'da aynı kusur ölçülüp yamanmış (§3.7: 981–1165px arasında altı
-   düğmelik `.node-ctrl` 268px yiyip havuzun üstüne biniyordu; çözüm beş
-   bildirimlik bir `@media` bloğu). Fit'te düğme sayısı SEKİZ (indent ·
-   outdent · panel eklendi) ve 44px dokunma tabanıyla şerit 352px.
-   ÖLÇÜM: 1440px'te rail açıkken ağaç sütunu 530px kalıyor; şeritten
-   sonra etikete 130px düşüyordu ve hedef adres iki satıra kırılıyordu —
-   yani Gastro'nun kusuru `@media` ile ÇÖZÜLMÜYOR, çünkü sorun ekran
-   genişliği değil SÜTUN genişliği (rail açık/kapalı, iki sütun/tek sütun,
-   hepsi aynı ekran genişliğinde farklı sütun üretiyor).
-   Bu yüzden kap sorgusu: ağaç sütunu 820px altına düştüğünde düğme şeridi
-   satırın ALTINA iner. Ekran genişliğinden bağımsız, her durumda doğru. */
+/* 🔴 KIRILIM EŞİĞİ — R20'de YENİDEN ÖLÇÜLDÜ.
+   Mekanizma (kap sorgusu) doğruydu, SAYI yanlıştı: eşik 820px'ti ve rail
+   AÇIKKEN ağaç sütunu 1440px ekranda 638px ölçülüyor — yani eşik her
+   zaman tetikleniyor, satır hiç kurulamıyordu. Beyar'ın gördüğü "rail
+   expand olunca bozuluyor" tam olarak buydu; rail DARALTILMIŞken sütun
+   902px oluyor, eşiğin üstünde kalıyor ve satır Gastro gibi düzgün
+   basılıyordu. Kusur bir düzen kusuru değil, tek bir eşik sayısıydı.
+
+   Eski yorumun "1440'te sütun 530px kalıyor" ölçümü de yanlıştı (gerçek:
+   638px) — bu yüzden eşik gereğinden 200px yukarı konmuştu.
+
+   GERÇEK TABAN (ölçüldü): dolgu 20 + tutamak 44 + ikon 34 + üç boşluk 24
+   + düğme şeridi 366 = 488px; etikete 132px kalan yer 620px'tir. Eşik
+   bu yüzden 620.
+   ŞERİT NEDEN 366px: sekiz düğme × 44px + yedi boşluk × 2px. Gastro'nun
+   şeridi 268px (8 × 30px + 7 × 4px, sa-menu.css:46-47) — aradaki 98px
+   TAMAMEN 44px dokunma hedefi kuralının bedeli. Kit §13 ve §16/1 bu
+   kuralı üç kez verdi ve çözümü "görsel Gastro'nunki, KUTU 44px"
+   (`.ie-del` · `.kyt-btn`) — yani kutu küçültülerek kazanılacak yer YOK.
+   Eksik 60px sağ sütundan (340→300) ve satır dolgusundan alındı. */
 /* Kap `.tree`tir (yukarıda `container-type:inline-size`); sorgu onun
-   satır-içi genişliğini okur ve içindeki `.node`ları biçimler. */
-@media (max-width:1240px){
+   satır-içi genişliğini okur ve içindeki `.node`ları biçimler. Ekran
+   sorgusu bu işi YAPAMAZ: aynı 1440px ekran, rail açık/kapalı iki farklı
+   sütun genişliği üretiyor. */
+/* ÖLÇÜLEN İÇERİK GENİŞLİKLERİ (sekiz durum): 1440 açık 998 · 1440 dar 1262 ·
+   1280 açık 838 · 1280 dar 1102 · 1024 946 · 768 690 · 390 324.
+   Eşik 960: 998 ve üstü iki sütun kaldırıyor, 946 ve altı tek sütuna iniyor.
+   Böylece 1280'de rail AÇIKKEN havuz alta iner ve ağaç 838px'e çıkar —
+   satır orada da kurulabiliyor (eski `@media 1240` bunu göremiyordu, çünkü
+   ekran 1280'di ama içerik 838'di). */
+@container (max-width:960px){
   .mb-layout{grid-template-columns:minmax(0,1fr)}
 }
-@container (max-width:820px){
-  .node{flex-wrap:wrap}
-  .node-main{flex-basis:100%;order:3;padding-top:0}
+@container (max-width:620px){
+  .node{flex-wrap:wrap;align-items:flex-start}
+  .node-main{flex-basis:100%;order:3}
   .node-ctrl{order:4;flex-basis:100%;justify-content:flex-start;border-top:1px solid var(--line);padding-top:4px}
 }
 
@@ -197,6 +223,7 @@
       </div>
 
       <div class="c-body">
+        <div class="mb-wrap">
         <div class="mb-layout">
 
           <div class="tree">
@@ -230,6 +257,7 @@
             </div>
           </aside>
 
+        </div>
         </div>
       </div>
 
@@ -564,21 +592,30 @@
         '<span class="node-ico"><i class="' + esc(x.ico || 'fa-solid fa-minus') + '" aria-hidden="true"></i></span>' +
         '<div class="node-main">' +
           '<span class="node-label">' + esc(x.ad) + '</span>' +
-          hedef +
-          (etiketler.length ? '<span class="node-tags">' + etiketler.map(function (t) {
-            return '<span class="node-tag">' + esc(t) + '</span>';
-          }).join('') + '</span>' : '') +
+          /* Hedef ve rozetler TEK satırda (Gastro `.node-id` + inline
+             `.node-tag` deseni); sığmazsa rozetler alta sarılır. */
+          '<span class="node-line">' + hedef +
+            (etiketler.length ? '<span class="node-tags">' + etiketler.map(function (t) {
+              return '<span class="node-tag">' + esc(t) + '</span>';
+            }).join('') + '</span>' : '') +
+          '</span>' +
         '</div>' +
+        /* SIRA GASTRO'NUN SIRASI (sa-menu.js:143-154, ölçüldü):
+           mega · edit · up · down · indent · outdent · vis · del.
+           Fit karşılıkları: panel · düzenle · yukarı · aşağı · indent ·
+           outdent · gör · sil. Gastro'da `mega` yalnız top-level'da
+           basılır; Fit'te `panel` yalnız NAV'ın top-level'ında — aynı
+           koşullu şekil, sekiz düğme, aynı sıra. */
         '<div class="node-ctrl">' +
+          (aktif === 'NAV' && !x.child
+            ? btn('panel', x.panel ? 'fa-square-caret-down' : 'fa-square', x.panel ? 'Paneli kapat' : 'Panel aç', false)
+            : '') +
+          btn('duzenle', 'fa-pen', 'Düzenle', false) +
           btn('yukari', 'fa-chevron-up', 'Yukarı taşı', i === 0) +
           btn('asagi', 'fa-chevron-down', 'Aşağı taşı', i === liste.length - 1) +
           btn('indent', 'fa-indent', 'Alt menü yap', !aileBul(aktif).icice || x.child || x.baslik || !oncekiUst) +
           btn('outdent', 'fa-outdent', 'Üst seviyeye çıkar', !x.child) +
-          (aktif === 'NAV' && !x.child
-            ? btn('panel', x.panel ? 'fa-square-caret-down' : 'fa-square', x.panel ? 'Paneli kapat' : 'Panel aç', false)
-            : '') +
           btn('gor', x.gizli ? 'fa-eye-slash' : 'fa-eye', x.gizli ? 'Gizli — göster' : 'Görünür — gizle', x.baslik) +
-          btn('duzenle', 'fa-pen', 'Düzenle', false) +
           btn('sil', 'fa-trash-can', 'Kaldır', false) +
         '</div>' +
       '</div>';

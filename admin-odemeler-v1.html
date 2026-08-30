@@ -38,21 +38,26 @@
 .py-kapa .fk-field{margin-bottom:0;min-width:200px}
 .py-kapa .btn{flex:none}
 
-/* Satır işlemi paneli — `.fit-pane` kartın DOĞRUDAN çocuğu olduğu için
-   kendi yatay marjını taşır (Sponsorluk ve Reklam ekranının kanonu ile
-   aynı; ölçüler `.c-body`nin 22px/16px kırılımından). */
-.py-islem{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);padding:18px;margin:16px 22px 0}
-.py-islem h4{font-size:14px;font-weight:800;color:var(--slate);margin:0 0 4px;display:flex;align-items:center;gap:9px}
-.py-islem h4 i{color:var(--fit-deep);font-size:13px}
-/* 🔴 SINIF ADI ÇAKIŞMASI — ÖLÇÜLDÜ, TEKRARLANMASIN.
-   Bu satır önce `.sec` adıyla yazılmıştı; `.sec` KABUĞUN public bölüm
-   sınıfıdır (`fit-shell.css:205` → `padding:var(--sec-pad) 0`) ve panelin
-   alt satırı 74px dolgu alıyordu (ölçüldü: `padding-top:74px`, yükseklik
-   16 yerine 167px). Panel sınıfları artık ekranın kendi ön ekini taşıyor. */
-.py-islem .pi-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
-.py-islem .form-actions{margin-top:16px}
+/* Satır işlemi MODALI — R20. ÖNCEKİ HÂLİ (`.py-islem`) kartın altında
+   gizli bir düğüm açıp `scrollIntoView` yapıyordu; Beyar'ın ölçtüğü
+   kusurun aynısı (bkz. abonelikler/faturalar). Alan sayısı üç (tutar ·
+   dekont · not) — kitin modal eşiği (§13/16: "2-4 basit alan") içinde,
+   bu yüzden AYRI SAYFA değil kabuğun `.sa-modal-ov`/`.sa-modal`
+   primitifleri kullanıldı (`admin-taksonomi-v1.html`in `.tx-modal`
+   deseninin aynısı). */
+.sa-modal.py-modal{width:min(480px,100%);padding:0;max-height:88vh;display:flex;flex-direction:column}
+.pym-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.pym-head h3{margin:0;font-size:16px;display:flex;align-items:center;gap:9px}
+.pym-head h3 i{color:var(--fit-deep);font-size:14px}
+.pym-x{
+  margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;
+  color:var(--muted);font-size:15px;cursor:pointer;border-radius:var(--radius-sm);
+}
+.pym-x:hover{color:var(--slate);background:var(--bg)}
+.pym-body{padding:20px 22px;overflow-y:auto}
+.pym-body .pi-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
+.pym-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
 .adm-table tbody tr.is-sec td{background:var(--fit-tint)}
-@media (max-width:640px){ .py-islem{margin-left:16px;margin-right:16px} }
 
 /* Grafik şeridi pane'in doğrudan çocuğu; kart kenarıyla hizalanır. */
 .py-grafik{border-top:1px solid var(--line);padding:16px 22px 4px}
@@ -229,39 +234,10 @@
           eksikliği söylüyor. Ödeme bilgisi olmayan satır elle transfer edilemez;
           alan doğduğunda maskeli IBAN buraya düşer.</span></p>
 
-        <!-- Satır işlemi paneli: dört eylem de aynı kutuya düşer, alanları
-             eyleme göre değişir. Ayrı bir ekran açmıyoruz — ödeme
-             işaretlemesi iki satırlık bir iştir. Uygula → ONAY MODALI. -->
-        <div class="py-islem" id="pyIslem" hidden>
-          <h4><i class="fa-solid fa-pen-to-square"></i> <span id="pyIslemBaslik">Satır işlemi</span></h4>
-          <p class="pi-sec" id="pyIslemSecili">—</p>
-          <form id="pyIslemForm" novalidate>
-            <div class="form-grid">
-              <div class="frow" id="pyIslemTutarRow" hidden>
-                <label for="pyIslemTutar">Düzeltilmiş ödeme tutarı (₺) <span class="req">*</span></label>
-                <input class="finput" id="pyIslemTutar" name="tutar" type="number" min="0" step="0.01" />
-                <div class="fhint">Hesaplanan tutar bir kural sonucudur; düzeltme onu <b>ezer</b>.
-                  Gerekçe zorunlu, çünkü kuralın dışına çıkan her satır sonradan okunabilmeli.</div>
-              </div>
-              <div class="frow" id="pyIslemDekontRow" hidden>
-                <label>Dekont görseli</label>
-                <div id="pyIslemDekont"></div>
-                <div class="fhint">Banka transferi bu ekranın dışında yapılır; dekont yalnız
-                  <b>kaydın kanıtıdır</b>, bir ödeme emri değildir.</div>
-              </div>
-              <div class="frow">
-                <label for="pyIslemNot"><span id="pyIslemNotEtiket">Not</span> <span class="req" id="pyIslemNotReq" hidden>*</span></label>
-                <textarea class="ftext" id="pyIslemNot" name="not" maxlength="500"
-                          placeholder="Bu satırda ne yapıldığı — kayıt defterine aynen geçer."></textarea>
-                <span class="fsay" data-say-for="pyIslemNot">0 / 500</span>
-              </div>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-ghost" type="button" id="pyIslemIptal">Vazgeç</button>
-              <button class="btn btn-primary" type="button" id="pyIslemUygula"><i class="fa-solid fa-check"></i> Uygula</button>
-            </div>
-          </form>
-        </div>
+        <!-- Satır işlemi: dört eylem de aynı MODALA düşer (R20 — bkz. sayfa
+             CSS'indeki gerekçe), alanları eyleme göre değişir. Uygula →
+             ONAY MODALI (kabuğun ayrı bir katmanı, `A.onay`). -->
+
 
         <!-- Dönem dağılımı — GRAFİK. Kütüphane yok: kabuğun kendi
              `.fpx-gunbar` satırı + `.fp-bar` çubuğu (fit-planim.css ·
@@ -307,6 +283,7 @@
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-ayar-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -326,11 +303,13 @@
    ⚠ Defter TEK ÜYENİN faturalarıdır; gerçek platform cirosu değildir.
    Şerit bunu söylüyor.
 
-   🔴 K13 — PARA SAYILARI KODA GÖMÜLMEZ. Dördü de tek bir `PARAM`
-   nesnesindedir ve o nesne panelin (Ayarlar → Para parametreleri) yerine
-   geçen TEK yer tutucudur. Ekranda hiçbir sayı sabit metin olarak
-   yazılmaz; dördü de alan olarak görünür ve türetilen her tutar bu
-   nesneden hesaplanır. Panel doğduğunda tek nesne değişir, ekran değil.
+   🔴 K13 — PARA SAYILARI KODA GÖMÜLMEZ. Dördü de yerel `PARAM`
+   nesnesine `assets/js/fit-ayar-veri.js`in `FIT_AYAR.oku()`sundan
+   doldurulur — üç ekranda (Ayarlar · Ödemeler · Raporlar) tek okuma
+   ucu, ikinci bir kopya YOK (R20). Ekranda hiçbir sayı sabit metin
+   olarak yazılmaz; dördü de alan olarak görünür ve türetilen her tutar
+   bu nesneden hesaplanır. Ayarlar'da kaydedilen değer bu ekrana yeni
+   sayfa yüklemesinde yansır (canlı olay dinlemez, sayfa tazelenince okur).
 
    K5 — Oran tüm antrenörler için aynı · ödeme ay sonu · alt sınır
    altındaki bakiye BİRİKİR · iade olursa komisyon GERİ GİTMEZ.
@@ -362,22 +341,33 @@
   if (!A) return;
   var esc = A.esc, n = A.n, tl = A.tl;
 
-  /* ---- K13 · panelin yerine geçen TEK yer tutucu ------------------- */
+  /* ---- K13 · TEK KAYNAK: assets/js/fit-ayar-veri.js -----------------
+     Eskiden burada kendi kopyası olan sabit bir `PARAM` nesnesi vardı
+     (`komisyonOran:10`, `altSinirKurus:100000` …) — `admin-ayarlar-v1`in
+     Para & Komisyon sekmesinden BAĞIMSIZDI. Artık `FIT_AYAR.oku()`
+     çağrılıyor; Ayarlar'da kaydedilen değer buraya olay/yenileme
+     olmadan, sayfa her açıldığında gerçekten yansır. */
+  var AYAR = window.FIT_AYAR || null;
+  var AK = (AYAR && AYAR.oku) ? AYAR.oku() : {};
   var PARAM = {
-    komisyonOran:     10,        /* yüzde        · Ayarlar → Para parametreleri */
-    odemeGunu:        'ay-sonu', /* takvim       · Ayarlar → Para parametreleri */
-    altSinirKurus:    100000,    /* kuruş tamsayı· Ayarlar → Para parametreleri */
-    faturaEsigiKurus: 1000000    /* kuruş tamsayı· Ayarlar → Para parametreleri */
+    komisyonOran:     AK.komisyonYuzde,      /* yüzde        · Ayarlar → Para parametreleri */
+    odemeGunu:        AK.odemeGunu,          /* takvim       · Ayarlar → Para parametreleri */
+    altSinirKurus:    AK.altSinirKurus,      /* kuruş tamsayı· Ayarlar → Para parametreleri */
+    faturaEsigiKurus: AK.faturaEsigiKurus    /* kuruş tamsayı· Ayarlar → Para parametreleri */
   };
-  var ODEME_GUNU_AD = { 'ay-sonu':'Ay sonu — toplu', 'hafta':'Haftalık', 'anlik':'Anlık' };
+  /* Görünen ad TEK sözlükten (`FIT_AYAR.ODEME_GUNU_AD`) — burada ikinci
+     bir çeviri tablosu TUTULMAZ (bkz. admin-hizmetler-v1 aynı deseni kullanır). */
+  var ODEME_GUNU_AD = (AYAR && AYAR.ODEME_GUNU_AD) || {};
 
   document.getElementById('pyKaynak').innerHTML = A.kaynak('canli',
     '<b>Tutarlar gerçek, kapsam örnek.</b> Brüt satışlar <code>fit-fatura.js</code> ' +
     'defterinden okunuyor ve komisyon o kuruş tutarlarından hesaplanıyor — ikinci ' +
     'bir kopya yok. <b>Ama defter tek üyenin faturalarıdır</b>, platformun gerçek ' +
     'cirosu değil; antrenör başına toplamlar bu yüzden <b>örnek ölçektedir</b>. ' +
-    'Para parametreleri panelin (<code>Ayarlar → Para parametreleri</code>) yerine ' +
-    'geçen tek yer tutucudan okunur. <b>Antrenörlerin IBAN kaydı bu depoda hiç yok</b> ' +
+    'Para parametreleri <code>Ayarlar → Para & Komisyon</code>dan GERÇEKTEN okunur ' +
+    '(<code>FIT_AYAR.oku()</code>, <code>dm_fit_ayar_v1</code>) — ikinci bir kopya yok; ' +
+    'Ayarlar\'da değiştirip kaydettiğin an bu sayfa da (yenilendiğinde) aynı sayıyı gösterir. ' +
+    '<b>Antrenörlerin IBAN kaydı bu depoda hiç yok</b> ' +
     '— kolon uydurulmadı, eksikliği rozetle söylüyor. <b>Yazma yüzeyi maket:</b> ' +
     'dönem kapanmaz, satır işaretlenmez, dekont yüklenmez — bu prototipte sunucu yok.');
 
@@ -881,14 +871,36 @@
               onayla:'Dekont ekle' }
   };
 
-  var islemPanel = document.getElementById('pyIslem');
-  var islemForm = document.getElementById('pyIslemForm');
-  var aktifEylem = null, aktifAd = null, dekontAlan = null;
+  /* ---------- işlem MODALI — taksonomi'nin `.sa-modal-ov`/`.sa-modal`
+     deseninin aynısı (R20). Kabuğun onay modalından AYRI bir katman:
+     bu modal FORMU toplar, "Uygula" onun üstüne `A.onay` ile ikinci bir
+     doğrulama açar — Gastro'nun iki basamaklı yıkıcı/ hassas eylem
+     kalıbı (form → onay). ---------- */
+  var islemKok = null, islemTetikleyen = null, aktifEylem = null, aktifAd = null, dekontAlan = null;
 
   function islemKapat(){
-    islemPanel.hidden = true;
-    aktifEylem = null; aktifAd = null;
+    if (!islemKok) return;
+    var ov = islemKok;
+    islemKok = null; aktifEylem = null; aktifAd = null; dekontAlan = null;
     document.querySelectorAll('#pyGovde tr').forEach(function (tr) { tr.classList.remove('is-sec'); });
+    ov.classList.remove('open');
+    document.removeEventListener('keydown', islemTus, true);
+    setTimeout(function () {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if (islemTetikleyen && islemTetikleyen.focus) islemTetikleyen.focus();
+    }, 180);
+  }
+  function islemTus(e){
+    if (!islemKok) return;
+    if (e.key === 'Escape') { e.preventDefault(); islemKapat(); return; }
+    if (e.key !== 'Tab') return;
+    var od = islemKok.querySelectorAll('button,input,select,textarea,a[href]');
+    if (!od.length) return;
+    var liste = Array.prototype.slice.call(od).filter(function (x) { return !x.disabled; });
+    var ix = liste.indexOf(document.activeElement);
+    e.preventDefault();
+    liste[(ix + (e.shiftKey ? -1 : 1) + liste.length) % liste.length].focus();
   }
 
   function islemAc(ey, ad){
@@ -896,84 +908,105 @@
     var r = DONEM[secili].satir.filter(function (x) { return x.ad === ad; })[0];
     if (!E || !r) return;
     aktifEylem = ey; aktifAd = ad;
+    islemTetikleyen = document.activeElement;
 
     document.querySelectorAll('#pyGovde tr').forEach(function (tr) {
       tr.classList.toggle('is-sec', tr.getAttribute('data-ad') === ad);
     });
 
-    document.getElementById('pyIslemBaslik').textContent = E.baslik;
-    document.getElementById('pyIslemSecili').innerHTML =
-      '<b>' + esc(ad) + '</b> · ' + esc(DONEM[secili].ad) + ' · ' + r.adet + ' kayıt · ödenecek ' +
-      esc(tl(r.odenebilir));
+    var ov = document.createElement('div');
+    ov.className = 'sa-ov sa-modal-ov';
+    ov.innerHTML =
+      '<div class="sa-modal py-modal" role="dialog" aria-modal="true" aria-label="' + esc(E.baslik) + '">' +
+        '<div class="pym-head">' +
+          '<h3><i class="fa-solid ' + esc(E.ico) + '"></i> ' + esc(E.baslik) + '</h3>' +
+          '<button class="pym-x" type="button" id="pyIslemKapat" aria-label="Kapat">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="pym-body">' +
+          '<p class="pi-sec">' + '<b>' + esc(ad) + '</b> · ' + esc(DONEM[secili].ad) + ' · ' + r.adet +
+            ' kayıt · ödenecek ' + esc(tl(r.odenebilir)) + '</p>' +
+          '<form id="pyIslemForm" novalidate><div class="form-grid">' +
+            (E.tutar
+              ? '<div class="frow"><label for="pyIslemTutar">Düzeltilmiş ödeme tutarı (₺) <span class="req">*</span></label>' +
+                '<input class="finput" id="pyIslemTutar" name="tutar" type="number" min="0" step="0.01" required ' +
+                'value="' + (r.odenebilir / 100).toFixed(2) + '" />' +
+                '<div class="fhint">Hesaplanan tutar bir kural sonucudur; düzeltme onu <b>ezer</b>. ' +
+                'Gerekçe zorunlu, çünkü kuralın dışına çıkan her satır sonradan okunabilmeli.</div></div>'
+              : '') +
+            (E.dekont
+              ? '<div class="frow"><label>Dekont görseli</label><div id="pyIslemDekont"></div>' +
+                '<div class="fhint">Banka transferi bu ekranın dışında yapılır; dekont yalnız ' +
+                '<b>kaydın kanıtıdır</b>, bir ödeme emri değildir.</div></div>'
+              : '') +
+            '<div class="frow"><label for="pyIslemNot">' + esc(E.notEtiket) +
+              (E.notZorunlu ? ' <span class="req">*</span>' : '') + '</label>' +
+              '<textarea class="ftext" id="pyIslemNot" name="not" maxlength="500"' + (E.notZorunlu ? ' required' : '') +
+              ' placeholder="Bu satırda ne yapıldığı — kayıt defterine aynen geçer."></textarea>' +
+              '<span class="fsay" id="pyIslemNotSay">0 / 500</span></div>' +
+          '</div></form>' +
+        '</div>' +
+        '<div class="pym-foot">' +
+          '<button class="btn btn-ghost" type="button" id="pyIslemIptal">Vazgeç</button>' +
+          '<button class="btn btn-primary" type="button" id="pyIslemUygula"><i class="fa-solid fa-check"></i> Uygula</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    islemKok = ov;
 
-    var tutarRow = document.getElementById('pyIslemTutarRow');
-    var tutarAlan = document.getElementById('pyIslemTutar');
-    tutarRow.hidden = !E.tutar;
-    tutarAlan.required = !!E.tutar;
-    tutarAlan.value = E.tutar ? (r.odenebilir / 100).toFixed(2) : '';
+    if (window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    requestAnimationFrame(function () {
+      ov.classList.add('open');
+      var ilk = ov.querySelector('.finput,.ftext');
+      if (ilk) ilk.focus();
+    });
 
-    var dekontRow = document.getElementById('pyIslemDekontRow');
-    dekontRow.hidden = !E.dekont;
-    if (E.dekont && !dekontAlan) {
+    if (E.dekont) {
       dekontAlan = A.yukle('#pyIslemDekont', { cok:false,
         not:'Tek dekont görseli. Kütüphaneden seç ya da sürükle.' });
     }
 
-    document.getElementById('pyIslemNotEtiket').textContent = E.notEtiket;
-    document.getElementById('pyIslemNotReq').hidden = !E.notZorunlu;
-    var notAlan = document.getElementById('pyIslemNot');
-    notAlan.required = !!E.notZorunlu;
-    notAlan.value = '';
-    notAlan.dispatchEvent(new Event('input'));
+    var notAlan = ov.querySelector('#pyIslemNot'), notSay = ov.querySelector('#pyIslemNotSay');
+    function notTazele(){
+      notSay.textContent = notAlan.value.length + ' / 500';
+      notSay.classList.toggle('is-over', notAlan.value.length > 500);
+    }
+    notAlan.addEventListener('input', notTazele); notTazele();
 
-    islemPanel.hidden = false;
-    islemPanel.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
+    ov.querySelector('#pyIslemKapat').addEventListener('click', islemKapat);
+    ov.querySelector('#pyIslemIptal').addEventListener('click', islemKapat);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) islemKapat(); });
+    document.addEventListener('keydown', islemTus, true);
 
-  document.getElementById('pyIslemIptal').addEventListener('click', islemKapat);
-
-  document.getElementById('pyIslemUygula').addEventListener('click', function () {
-    if (!aktifEylem || !aktifAd) return;
-    if (!islemForm.reportValidity()) return;
-    var E = EYLEM[aktifEylem], ey = aktifEylem, ad = aktifAd;
-    A.onay({
-      baslik: E.onayBaslik, metin: E.onayMetin, onayla: E.onayla, ico: E.ico,
-      onay: function () {
-        var k = odemeAnahtar(secili, ad);
-        var kayit = ODEME[k] || { durum:'hazir' };
-        var not = document.getElementById('pyIslemNot').value.trim();
-        if (ey === 'odendi') kayit.durum = 'odendi';
-        if (ey === 'beklet') kayit.durum = 'beklet';
-        if (ey === 'duzelt') kayit.tutar = Math.round(parseFloat(document.getElementById('pyIslemTutar').value || '0') * 100);
-        if (ey === 'dekont') kayit.dekont = dekontAlan && dekontAlan.deger().length ? dekontAlan.deger()[0].ad : 'dekont';
-        if (not) kayit.not = E.baslik + ': ' + not;
-        ODEME[k] = kayit;
-        islemKapat();
-        bas();
-        A.toast(ad + ' · ' + E.baslik + ' uygulandı — KAYDEDİLMEDİ, bu prototipte sunucu yok.',
-                { tip:'info', ms:3600 });
-      }
+    ov.querySelector('#pyIslemUygula').addEventListener('click', function () {
+      var form = ov.querySelector('#pyIslemForm');
+      if (!form.reportValidity()) return;
+      var ey = aktifEylem, adx = aktifAd;
+      A.onay({
+        baslik: E.onayBaslik, metin: E.onayMetin, onayla: E.onayla, ico: E.ico,
+        onay: function () {
+          var k = odemeAnahtar(secili, adx);
+          var kayit = ODEME[k] || { durum:'hazir' };
+          var not = notAlan.value.trim();
+          if (ey === 'odendi') kayit.durum = 'odendi';
+          if (ey === 'beklet') kayit.durum = 'beklet';
+          if (ey === 'duzelt') kayit.tutar = Math.round(parseFloat((ov.querySelector('#pyIslemTutar') || {}).value || '0') * 100);
+          if (ey === 'dekont') kayit.dekont = dekontAlan && dekontAlan.deger().length ? dekontAlan.deger()[0].ad : 'dekont';
+          if (not) kayit.not = E.baslik + ': ' + not;
+          ODEME[k] = kayit;
+          islemKapat();
+          bas();
+          A.toast(adx + ' · ' + E.baslik + ' uygulandı — KAYDEDİLMEDİ, bu prototipte sunucu yok.',
+                  { tip:'info', ms:3600 });
+        }
+      });
     });
-  });
+  }
 
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-py-ey]');
     if (!b) return;
     islemAc(b.getAttribute('data-py-ey'), b.getAttribute('data-py-ad'));
-  });
-
-  /* ---- karakter sayacı (referans formun deseni) ---- */
-  document.querySelectorAll('[data-say-for]').forEach(function (s) {
-    var el = document.getElementById(s.getAttribute('data-say-for'));
-    if (!el) return;
-    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
-    var son = s.textContent.replace(/^\d+/, '').trim();
-    function tazele(){
-      var n2 = el.value.length;
-      s.textContent = n2 + ' ' + son;
-      s.classList.toggle('is-over', sinir > 0 && n2 > sinir);
-    }
-    el.addEventListener('input', tazele); tazele();
   });
 
   bas();

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Destek talebi — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="destek">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-destek-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Destek Talepleri</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="dkBaslik">Talep</h1>
+        <div class="ph-sub" id="dkAlt">—</div>
+      </div>
+    </div>
+
+    <div id="dkKaynak"></div>
+
+    <div class="adm-card">
+      <div class="c-head"><h3><i class="fa-solid fa-comments"></i> Künye</h3></div>
+      <form id="dkF">
+      <div class="c-body">
+        <div class="fp-list" id="dkKunye"></div>
+        <div style="margin-top:20px">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="dfAtanan">Atanan temsilci <span class="req">*</span></label>
+              <select class="fk-select" id="dfAtanan" name="atanan" required></select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Atanmamış talep kuyrukta kalır; ilk yanıtı yazan temsilci sorumluluğu devralır.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="dfDurum">Durum <span class="req">*</span></label>
+              <select class="fk-select" id="dfDurum" name="durum" required></select>
+              <span class="fk-help" id="dfDurumNot"><i class="fa-solid fa-circle-info"></i> —</span>
+            </div>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="dfYanit">Yanıt <span class="req">*</span>
+              <span class="fk-count" id="dfSay">0 / 2000</span></label>
+            <textarea class="fk-textarea" id="dfYanit" name="yanit" rows="6" required maxlength="2000"
+                      placeholder="Üyeye gidecek yanıt. Ne olduğunu ve ne yapılacağını yaz."></textarea>
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+              Destek ekibi tıbbi teşhis ve tedavi önerisi vermez; sağlık sorusu gelen talepte üye bir sağlık uzmanına yönlendirilir.</span>
+          </div>
+        </div>
+      </div>
+      <!-- Kaydet düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
+           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
+           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
+           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
+           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu. -->
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
+     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
+     birincil eylem en sağda. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="dkGonder"><i class="fa-solid fa-paper-plane"></i> Yanıtı gönder</button>
+        </div>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-destek-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · DESTEK TALEBİ DETAYI   (R20)
+   ---------------------------------------------------------------------
+   NEDEN VAR — ÖLÇÜLEN KUSUR (Beyar, R20): `admin-destek-v1.html`deki
+   "Aç" aynı sayfada gizli bir kartı açıyordu (`#dkDetay hidden` +
+   `scrollIntoView`). Gastro'da bu eylemin karşılığı ölçüldü:
+   `admin.destek.talep` — AYRI sayfa, AYRI rota
+   (`resources/views/admin/destek/talep.blade.php`), yazışma + yanıt formu
+   + durum değişikliği o sayfada. Bu ekran o kalıba çekildi; içerik
+   birebir taşındı, icat edilmedi.
+
+   VERİ AYNI KAYNAK: `fit-admin-destek-veri.js` — kuyruk ekranı da bunu
+   okur, ikinci bir kopya yok. Adres `?talep=<no>` parametresiyle açılır.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, D = window.FIT_ADMIN_DESTEK;
+  if (!A) return;
+  var esc = A.esc;
+
+  var kap = document.querySelector('.adm-page');
+
+  if (!D) {
+    document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
+      'Destek verisi (<code>fit-admin-destek-veri.js</code>) yüklenemedi.');
+    document.getElementById('dkBaslik').textContent = 'Destek verisi yüklenmedi';
+    return;
+  }
+
+  var no = new URLSearchParams(location.search).get('talep') || '';
+  var t = D.bul(no);
+
+  if (!t) {
+    document.getElementById('dkBaslik').textContent = 'Talep bulunamadı';
+    document.getElementById('dkAlt').textContent =
+      no ? ('"' + no + '" numaralı destek talebi yok.') : 'Adreste talep numarası yok.';
+    document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?talep=&lt;talep no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-admin-destek-veri.js</code>ten okur. Numara eşleşmedi.');
+    document.querySelectorAll('.adm-card').forEach(function (c) { c.remove(); });
+    kap.insertAdjacentHTML('beforeend', A.bos('fa-life-ring', 'Bu numarayla talep yok',
+      'Adresteki talep numarası kuyrukla eşleşmiyor. Listeye dönüp bir talep seç; ' +
+      '"Aç" demek seni buraya, doğru numarayla getirir.',
+      '<a class="btn btn-primary" href="admin-destek-v1.html"><i class="fa-solid fa-inbox"></i> Destek kuyruğuna dön</a>'));
+    return;
+  }
+
+  document.title = t.no + ' — DadaFit Yönetim';
+  var d = D.durumBul(t.durum);
+
+  document.getElementById('dkBaslik').textContent = t.no + ' · ' + t.baslik;
+  document.getElementById('dkAlt').innerHTML = A.rozet(d.rozet, d.ad, d.ico);
+
+  document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Talep verisi örnektir.</b> Numara, başlık, konu, durum ve son hareket tarihi ' +
+    '<code>destek-v1.html</code>in maket listesinden birebir alındı. Üye adı, atanan ' +
+    'temsilci ve mesaj sayısı — ve <b>e-posta adresi</b> — bu ekranın kendi örnek ' +
+    'alanlarıdır. <b>Yazma yüzeyi maket:</b> atama değişmez, yanıt gönderilmez, durum ' +
+    'geçmez — bu prototipte sunucu yok.');
+
+  document.getElementById('dkKunye').innerHTML = [
+    ['fa-user',          'Üye',            t.uye + ' · ' + t.mail],
+    ['fa-tag',           'Konu',           t.konu],
+    ['fa-circle-half-stroke','Durum',      d.ad + ' — ' + d.yon],
+    ['fa-clock',         'Son hareket',    A.tarih(t.son) + ' · ' + D.gunFarki(t.son) + ' gün önce'],
+    ['fa-comment-dots',  'Yazışma',        t.mesaj + ' mesaj · yazışma gövdesi bu makette yok, üye yüzeyinde okunur']
+  ].map(function (x) {
+    return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
+      '<span class="txt"><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span></div>';
+  }).join('');
+
+  document.getElementById('dfAtanan').innerHTML =
+    D.TEMSILCI.map(function (k) { return '<option' + (k === t.atanan ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('');
+
+  var durumSec = document.getElementById('dfDurum');
+  durumSec.innerHTML = D.DURUM.map(function (dd) {
+    return '<option value="' + dd.id + '">' + esc(dd.ad) + '</option>';
+  }).join('');
+  durumSec.value = t.durum;
+  function durumNotu(){
+    document.getElementById('dfDurumNot').innerHTML =
+      '<i class="fa-solid fa-circle-info"></i> ' + esc(D.durumBul(durumSec.value).yon);
+  }
+  durumSec.addEventListener('change', durumNotu);
+  durumNotu();
+
+  var yanit = document.getElementById('dfYanit');
+  yanit.addEventListener('input', function () {
+    document.getElementById('dfSay').textContent = yanit.value.length + ' / 2000';
+  });
+
+  A.maketKaydet(document.getElementById('dkGonder'), 'yanıt ve durum değişikliği', document.getElementById('dkF'));
+})();
+</script>
+</body>
+</html>

@@ -118,6 +118,7 @@
 <script src="assets/js/fit-challenge.js"></script>
 <script src="assets/js/fit-rozet.js"></script>
 <script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-ayar-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -159,7 +160,11 @@
       R = window.FIT_ROZET, F = window.FIT_FATURA;
   var esc = A.esc, n = A.n, tl = A.tl;
 
-  var KOMISYON_ORAN = 10;   /* Ayarlar → Para parametreleri (K13 · bkz. admin-odemeler) */
+  /* K13 — TEK KAYNAK: assets/js/fit-ayar-veri.js. Eskiden burada bağımsız
+     bir `KOMISYON_ORAN = 10` sabiti vardı (Ayarlar'ın ve Ödemeler'in kendi
+     kopyalarından habersiz, ÜÇÜNCÜ bağımsız kopya — R20'de ölçüldü). */
+  var AYAR = window.FIT_AYAR || null;
+  var KOMISYON_ORAN = (AYAR && AYAR.oku) ? AYAR.oku().komisyonYuzde : 0;
   var BUGUN = new Date('2026-08-30T00:00:00');
 
   document.getElementById('rpKaynak').innerHTML = A.kaynak('canli',
@@ -367,8 +372,9 @@
 
     return sekmeNotu('canli',
       '<b>Bu sekme gerçek.</b> Tutarlar <code>fit-fatura.js</code> defterinden okunuyor ve ' +
-      '<b>kuruş tamsayısı</b> olarak hesaplanıyor; komisyon oranı para parametrelerinden ' +
-      '(Kazançlar ve Ödemeler ekranındaki alan) gelir. ⚠ Defter tek üyenin faturalarıdır, ' +
+      '<b>kuruş tamsayısı</b> olarak hesaplanıyor; komisyon oranı <code>Ayarlar → Para & Komisyon</code>dan ' +
+      '(<code>FIT_AYAR.oku()</code>) gelir — Ödemeler ekranı da aynı kaynağı okur, ikinci bir kopya yok. ' +
+      '⚠ Defter tek üyenin faturalarıdır, ' +
       'platformun gerçek cirosu değildir — <b>ölçek örnektir, aritmetik gerçektir</b>.') +
       kpi([
         ['fa-solid fa-cash-register', tl(hizmetBrut), 'Hizmet cirosu', 'Antrenör hizmeti · komisyona giren tek kalem', 'flat', 'fa-solid fa-minus'],

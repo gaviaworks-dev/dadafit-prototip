@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Soru düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.sf-ico-onizle{display:flex;align-items:center;gap:9px}
+.sf-ico-onizle i{width:20px;flex:none;text-align:center;color:var(--acc)}
+</style>
+</head>
+<body class="adm-body" data-adm="sss">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-sss-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> S.S.S.</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="sfBaslik">Yeni soru</h1>
+        <div class="ph-sub" id="sfAlt">Kategori, ikon, soru ve cevap tek formda. Cevap site içi
+          bağlantı taşıyabilir; bağlantı düğmesi editörün araç çubuğunda.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="destek-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Çözüm Merkezi'ni gör</a>
+      </div>
+    </div>
+
+    <div id="sfKaynak"></div>
+
+    <form id="sfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Soru ve cevap</h3>
+            <div class="form-grid">
+              <div class="frow two">
+                <div class="frow">
+                  <label for="sfKat">Kategori <span class="req">*</span></label>
+                  <select class="fselect" id="sfKat" name="kategori" required></select>
+                </div>
+                <div class="frow">
+                  <label for="sfIkon">Soru ikonu</label>
+                  <div class="sf-ico-onizle">
+                    <i id="sfIkonOn" class="fa-solid fa-circle-question" aria-hidden="true"></i>
+                    <select class="fselect" id="sfIkon" name="ikon"></select>
+                  </div>
+                  <div class="fhint">Havuz uydurulmadı — bugün S.S.S. kayıtlarında kullanılan
+                    <b id="sfIkonSay">0</b> ikondan doğuyor.</div>
+                </div>
+              </div>
+              <div class="frow">
+                <label for="sfSoru">Soru <span class="req">*</span></label>
+                <input class="finput" id="sfSoru" name="soru" type="text" required maxlength="140"
+                       placeholder="Örn. Şifremi unuttum, ne yapmalıyım?" />
+                <span class="fsay" data-say-for="sfSoru">0 / 140</span>
+              </div>
+              <div class="frow">
+                <label for="sfCevap">Cevap</label>
+                <textarea class="ftext" id="sfCevap" name="cevap"></textarea>
+                <div class="fhint">Zorunlu işareti bilerek konmadı: editör gizli bir
+                  <code>&lt;textarea&gt;</code> üzerinden çalışır, gizli alan
+                  <code>required</code> olursa tarayıcı odaklanamaz ve doğrulama sessizce yarıda
+                  kalır — "doğrulandı" diyen not o zaman yalan söylerdi.
+                  Cevaplar site içi bağlantı taşıyor (ölçüldü: 24 cevapta
+                  <b id="sfBagSay">0</b> bağlantı). Bağlantı düğmesi editörün araç çubuğunda.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-sss-v1.html">İptal</a>
+            <button class="btn btn-primary" type="button" id="sfKaydet">Soruyu kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfGorunur">Görünürlük</label>
+                  <select class="fselect" id="sfGorunur" name="gorunur">
+                    <option value="1">Yayında</option>
+                    <option value="0">Gizli</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Bağlam</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfFaydali">Faydalı bulundu <span class="opt">— salt okuma</span></label>
+                  <input class="finput" id="sfFaydali" name="faydali" type="text" value="—"
+                         readonly aria-readonly="true" />
+                  <div class="fhint">Bu sayacın bugün <b>kaynağı yok</b>: public sayfada
+                    "faydalı buldum" düğmesi ilan edilmemiş. Sayaç doğduğunda buraya bağlanır.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" id="sfTehlikeli" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen soru Çözüm Merkezi'nden
+                düşer; üye bir daha bu soruyu göremez.</div>
+              <button class="btn btn-ghost" type="button" id="sfSil"
+                      data-yikici="Bu soru" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Soruyu sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-sss-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   S.S.S. — SORU FORMU   (R19/2)   — K-FORM
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html` (panelin referans form ekranı) ve
+   `docs/gastro-olcum/form-kalibi.md` §1. Create ve edit AYNI DOSYA:
+   `?soru=<index>` varsa düzenleme, yoksa yeni — Gastro'nun `form.blade.php`
+   kanonu (D6).
+
+   NEDEN AYRI SAYFA: bu ekran önceden `admin-sss-v1.html`in içinde gizli bir
+   kartta duruyordu (`ssFormKart`, `formKart.hidden = false`) — Gastro'nun
+   44 index blade'inin hiçbirinde bulunmayan bir üçüncü desendi. 5 alan
+   (kategori, ikon, soru, cevap, görünürlük) + zengin metin editörü
+   (`.adm-ed`) taşıyor; kit §16-17'nin eşiği "2-4 basit metin alanı"
+   modal bandının üstünde ve rich content taşıyor, D6'ya göre ayrı forma
+   gider.
+
+   VERİ: `assets/js/fit-sss-veri.js`teki `FIT_SSS_VERI.SSS` — liste ve bu
+   form aynı 24 kaydı okuyor, kayıt bu formda index'iyle bulunuyor (kalıcı
+   slug'ı yok, maket kaydı).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, SV = window.FIT_SSS_VERI;
+  if (!A) return;
+  if (!SV) {
+    document.getElementById('sfKaynak').innerHTML = A.kaynak('ornek',
+      'S.S.S. modülü (<code>assets/js/fit-sss-veri.js</code> · <code>window.FIT_SSS_VERI</code>) ' +
+      'bu sayfada yüklenemedi; kategori ve ikon listeleri boş.');
+    return;
+  }
+  var KAT = SV.KAT, SSS = SV.SSS, IKON = SV.ikonHavuzu();
+
+  var ix = new URLSearchParams(location.search).get('soru');
+  ix = (ix !== null && /^\d+$/.test(ix) && SSS[parseInt(ix, 10)]) ? parseInt(ix, 10) : null;
+  var kayit = (ix === null) ? null : SSS[ix];
+  var yeni = !kayit;
+
+  if (yeni) document.getElementById('sfTehlikeli').hidden = true;
+
+  document.getElementById('sfBaslik').textContent = yeni ? 'Yeni soru' : kayit.soru;
+  document.title = (yeni ? 'Yeni soru' : kayit.soru) + ' — DadaFit Yönetim';
+
+  function bagSay() {
+    return SSS.reduce(function (a, s) { return a + (s.cevap.match(/<a /g) || []).length; }, 0);
+  }
+
+  document.getElementById('sfKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Kategori ve ikon havuzu gerçek:</b> <code>destek-v1.html</code>in akordiyon ' +
+    'markup\'ından 2026-08-30\'da çıkarılan <b>' + SSS.length + ' soru</b>dan geliyor ' +
+    '(<code>fit-sss-veri.js</code>). Buildless prototipte sayfa kardeş dosyasını okuyamadığı ' +
+    'için bu bir <b>anlık görüntüdür</b>, canlı bağ değil. ' +
+    '<b>"Faydalı bulundu" sayacının bugün kaynağı yok</b> ve "—" olarak duruyor. ' +
+    'Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  /* ---- kategori seçenekleri ---- */
+  var fKat = document.getElementById('sfKat');
+  fKat.innerHTML = '<option value="">Seç…</option>' + KAT.map(function (k) {
+    return '<option value="' + A.esc(k.kod) + '">' + A.esc(k.ad) + '</option>';
+  }).join('');
+
+  /* ---- ikon seçenekleri ---- */
+  var fIkon = document.getElementById('sfIkon');
+  var fIkonOn = document.getElementById('sfIkonOn');
+  fIkon.innerHTML = IKON.map(function (k) {
+    return '<option value="' + A.esc(k) + '">' + A.esc(k.replace(/^fa-(solid|regular) fa-/, '')) + '</option>';
+  }).join('');
+  document.getElementById('sfIkonSay').textContent = IKON.length;
+  document.getElementById('sfBagSay').textContent = bagSay();
+  fIkon.addEventListener('change', function () { fIkonOn.className = fIkon.value; });
+
+  /* ---- zengin metin editörü ---- */
+  var ed = A.editor('#sfCevap', 'govde');
+  var edYuz = document.querySelector('#sfForm .adm-ed-yuz');
+
+  /* ---- düzenleme: alanları doldur ---- */
+  fKat.value = kayit ? kayit.kat : '';
+  fIkon.value = kayit ? kayit.ico : 'fa-solid fa-circle-question';
+  fIkonOn.className = fIkon.value;
+  document.getElementById('sfSoru').value = kayit ? kayit.soru : '';
+  document.getElementById('sfCevap').value = kayit ? kayit.cevap : '';
+  if (edYuz) edYuz.innerHTML = kayit ? kayit.cevap : '';
+  if (ed) ed.yaz();
+  document.getElementById('sfGorunur').value = '1';
+  if (!yeni) document.getElementById('sfSil').setAttribute('data-yikici', kayit.soru);
+
+  /* ---- karakter sayacı ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* Onay kabuğun delegesinden gelir; bu dinleyici yalnız ONAYLANMIŞ
+     tıklamada koşar. Onaydan sonra sessiz kalmak, silinmiş sanılmasına
+     yol açardı. */
+  document.getElementById('sfSil').addEventListener('click', function () {
+    A.toast('“' + document.getElementById('sfSil').getAttribute('data-yikici') +
+            '” silinmedi — sunucu yok. Gerçek silmede Çözüm Merkezi listesinden düşer.',
+            { tip: 'info', ms: 4200 });
+  });
+
+  A.maketKaydet(document.getElementById('sfKaydet'), 'S.S.S. kaydı', document.getElementById('sfForm'));
+})();
+</script>
+</body>
+</html>

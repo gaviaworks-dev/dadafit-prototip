@@ -85,46 +85,6 @@
       </div>
     </div>
 
-    <!-- ============ FATURA DETAYI ============ -->
-    <div class="adm-card" id="faDetay" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-receipt"></i> <span id="faDetayBaslik">Fatura detayı</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="faDetayKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table fa-dl">
-            <caption class="sr-only">Fatura künyesi</caption>
-            <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
-            <tbody id="faKunye"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="c-head">
-        <h3><i class="fa-solid fa-list"></i> Kalemler</h3>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table" id="faKalemTablo">
-            <caption class="sr-only">Fatura kalemleri ve toplamları</caption>
-            <thead>
-              <tr><th>Açıklama</th><th class="num">Adet</th><th class="num">Birim fiyat</th><th class="num">Tutar</th></tr>
-            </thead>
-            <tbody id="faKalem"></tbody>
-            <tfoot id="faToplam"></tfoot>
-          </table>
-        </div>
-      </div>
-
-      <div class="c-body">
-        <div id="faBelgeNot"></div>
-      </div>
-    </div>
-
   </div>
 </main>
 
@@ -249,8 +209,8 @@
         '<td>' + A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle') + '</td>' +
         '<td>' + esc(f.tarihKisa) + '</td>' +
         '<td class="act">' +
-          '<button class="adm-ico-btn" type="button" data-fa-detay="' + esc(f.no) + '" ' +
-            'aria-label="' + esc(f.no) + ' faturasının detayını aç"><i class="fa-solid fa-eye"></i></button>' +
+          '<a class="adm-ico-btn" href="admin-fatura-detay-v1.html?fatura=' + esc(f.no) + '" ' +
+            'aria-label="' + esc(f.no) + ' faturasının detayını aç"><i class="fa-solid fa-eye"></i></a>' +
         '</td>' +
       '</tr>';
     }).join('');
@@ -316,69 +276,11 @@
     document.getElementById('faSay').textContent = s;
   }
 
-  /* ---------- detay ---------- */
-  function detayAc(no){
-    var f = F.bul(no); if (!f) return;
-    var t = TUR[f.tur] || { ad:f.tur, ico:'fa-file', rz:'off' };
-    var top = F.toplamlar(f);
-
-    document.getElementById('faDetayBaslik').textContent = f.no + ' — ' + f.konu;
-
-    var satir = function (etiket, deger) {
-      return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
-    };
-    document.getElementById('faKunye').innerHTML =
-      satir('Fatura no', '<b>' + esc(f.no) + '</b>') +
-      satir('ETTN', '<code>' + esc(f.ettn) + '</code><small>Örnek değer — gerçek bir e-Arşiv kaydına karşılık gelmez.</small>') +
-      satir('Tür', A.rozet(t.rz, t.ad, t.ico)) +
-      satir('Durum', A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle')) +
-      satir('Tarih', esc(f.tarih)) +
-      satir('Dönem', esc(f.donem)) +
-      satir('Tahsilat', esc(f.kart) + ' · ' + esc(f.odemeAni)) +
-      satir('Satıcı', '<b>' + esc(F.satici.unvan) + '</b><small>' + esc(F.satici.kunyeYok) + '</small>') +
-      satir('Alıcı', '<b>' + esc(alici.ad) + '</b><small>' + esc(alici.kimlikEtiket) + ': ' + esc(alici.kimlik) +
-            ' · ' + esc(alici.adres) + ' · ' + esc(alici.eposta) + '</small>');
-
-    document.getElementById('faKalem').innerHTML = f.kalem.map(function (k) {
-      var tutar = k[2] * k[3];
-      return '<tr>' +
-        '<td><b>' + esc(k[0]) + '</b><small>' + esc(k[1]) + '</small></td>' +
-        '<td class="num fa-tut">' + n(k[2]) + '</td>' +
-        '<td class="num fa-tut">' + esc(A.tl(k[3])) + '</td>' +
-        '<td class="num fa-tut' + (tutar < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(tutar)) + '</td>' +
-      '</tr>';
-    }).join('');
-
-    document.getElementById('faToplam').innerHTML =
-      '<tr><th scope="row" colspan="3">Ara toplam</th>' +
-        '<td class="num fa-tut' + (top.ara < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.ara)) + '</td></tr>' +
-      '<tr><th scope="row" colspan="3">KDV (%' + n(F.kdvOran) + ')</th>' +
-        '<td class="num fa-tut' + (top.kdv < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.kdv)) + '</td></tr>' +
-      '<tr><th scope="row" colspan="3">Genel toplam</th>' +
-        '<td class="num fa-tut' + (top.genel < 0 ? ' fa-eksi' : '') + '"><b>' + esc(A.tl(top.genel)) + '</b></td></tr>';
-
-    /* PDF DÜĞMESİ YOK — hedefi olmayan düğme koymak yerine ne olduğu yazılı.
-       Not `.adm-src` DEĞİL: sayfa sözleşmesi ekran başına TEK kaynak şeridi
-       istiyor (brief §1) ve o şerit sayfanın en üstünde duruyor. */
-    document.getElementById('faBelgeNot').innerHTML =
-      '<div class="fhint"><b>Belge çıktısı yok.</b> PDF ve e-Arşiv gönderimi sunucu işidir; bu maket ' +
-      'dosya üretmez, bu yüzden buraya çalışmayan bir “PDF indir” düğmesi konmadı. ' +
-      'Tutarlar KDV <b>dâhil</b> girilir ve ara toplam ile vergi ondan ayrıştırılır ' +
-      '(<code>ara = yuvarla(toplam / 1,' + n(F.kdvOran) + ')</code>) — tersi değil, ' +
-      'fatura toplamının kuruşu kaymasın diye.</div>';
-
-    var kart = document.getElementById('faDetay');
-    kart.hidden = false;
-    kart.scrollIntoView({ behavior:'smooth', block:'start' });
-  }
-
-  document.getElementById('faGovde').addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-fa-detay]');
-    if (b) detayAc(b.getAttribute('data-fa-detay'));
-  });
-  document.getElementById('faDetayKapat').addEventListener('click', function () {
-    document.getElementById('faDetay').hidden = true;
-  });
+  /* ---------- detay ----------
+     R20: "Görüntüle" artık AYRI SAYFAYA gider (admin-fatura-detay-v1.html
+     ?fatura=<no>) — Gastro'nun ölçülen `admin.faturalar.show` rotasının
+     aynı deseni. Satır düğmesi `<a href>`e çevrildiği için burada JS
+     wiring'e gerek yok. */
 
   listeBas();
   suzgecKur();

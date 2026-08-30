@@ -90,43 +90,13 @@
       </div>
     </div>
 
-    <!-- ============ DETAY ============ -->
-    <div class="adm-card" id="abDetay" hidden>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-receipt"></i> <span id="abDetayBaslik">Abonelik detayı</span></h3>
-        <div class="c-acts">
-          <button class="btn btn-ghost" type="button" id="abDetayKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        </div>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table ab-dl">
-            <caption class="sr-only">Abonelik künyesi</caption>
-            <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
-            <tbody id="abDetayGovde"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="c-head">
-        <h3><i class="fa-solid fa-clock-rotate-left"></i> Geçmiş</h3>
-      </div>
-      <div class="c-body flush">
-        <div class="adm-tw">
-          <table class="adm-table">
-            <caption class="sr-only">Abonelik olay geçmişi</caption>
-            <thead><tr><th>Tarih</th><th>Olay</th><th>Kaynak</th></tr></thead>
-            <tbody id="abGecmisGovde"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-paket.js"></script>
 <script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin-abonelik-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -162,70 +132,21 @@
    ===================================================================== */
 (function () {
   'use strict';
-  var A = window.FIT_ADMIN, P = window.FIT_PAKET, F = window.FIT_FATURA;
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET, F = window.FIT_FATURA, AB = window.FIT_ADMIN_ABONELIK;
   if (!A) return;
   var esc = A.esc, n = A.n, tarih = A.tarih;
 
-  /* ---------- durumlar — Gastro'nun ölçülen dört durumu ---------- */
-  var DURUM = {
-    aktif:     { ad:'Aktif',                    rz:'ok',   ico:'fa-circle-check' },
-    donemsonu: { ad:'Dönem sonunda bitecek',    rz:'wait', ico:'fa-hourglass-half' },
-    iptal:     { ad:'İptal edilmiş',            rz:'off',  ico:'fa-circle-minus' },
-    basarisiz: { ad:'Ödemesi başarısız',        rz:'stop', ico:'fa-triangle-exclamation' }
-  };
+  if (!AB) {
+    document.getElementById('abKaynak').innerHTML = A.kaynak('ornek',
+      'Abonelik verisi (<code>fit-admin-abonelik-veri.js</code>) yüklenemedi.');
+    return;
+  }
 
-  /* ---------- örnek abonelikler ----------
-     Adlar `admin-uyeler-v1.html`in listesinden; Elif Şahin
-     `fit-fatura.js`in personası. Plan anahtarı motordan doğrulanıyor. */
-  var ABONELIK = [
-    { no:'ABN-2026-0412', uye:'Elif Şahin',      mail:'elif@ornek.com',              plan:'pro', durum:'aktif',
-      basla:'2026-02-15', yenile:'2026-09-15', kart:'Visa •••• 4242', marka:'fa-brands fa-cc-visa',
-      gecmis:[['2026-08-15','Dönem yenilendi · DFT-2026-004128','Otomatik tahsilat'],
-              ['2026-07-15','Dönem yenilendi · DFT-2026-003844','Otomatik tahsilat'],
-              ['2026-02-20','Şubat dönemi iade edildi · DFT-2026-002995','Cayma hakkı'],
-              ['2026-02-15','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0388', uye:'Ahmet Yıldırım',  mail:'ahmet.yildirim@eposta.com',   plan:'pro', durum:'aktif',
-      basla:'2026-01-08', yenile:'2026-09-08', kart:'Mastercard •••• 8871', marka:'fa-brands fa-cc-mastercard',
-      gecmis:[['2026-08-08','Dönem yenilendi','Otomatik tahsilat'],
-              ['2026-01-08','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0355', uye:'Gizem Polat',     mail:'gizem.polat@eposta.com',      plan:'pro', durum:'aktif',
-      basla:'2025-11-22', yenile:'2026-09-22', kart:'Visa •••• 1109', marka:'fa-brands fa-cc-visa',
-      gecmis:[['2026-08-22','Dönem yenilendi','Otomatik tahsilat'],
-              ['2025-11-22','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0341', uye:'İpek Doğan',      mail:'ipek.dogan@eposta.com',       plan:'pro', durum:'aktif',
-      basla:'2025-09-30', yenile:'2026-09-30', kart:'Troy •••• 5520', marka:'fa-solid fa-credit-card',
-      gecmis:[['2026-08-30','Dönem yenilendi','Otomatik tahsilat'],
-              ['2025-09-30','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0402', uye:'Ceren Aktaş',     mail:'ceren.aktas@eposta.com',      plan:'pro', durum:'donemsonu',
-      basla:'2026-03-05', yenile:'2026-09-05', kart:'Mastercard •••• 3390', marka:'fa-brands fa-cc-mastercard',
-      gecmis:[['2026-08-26','İptal istendi · dönem sonunda bitecek','Üye'],
-              ['2026-08-05','Dönem yenilendi','Otomatik tahsilat'],
-              ['2026-03-05','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0377', uye:'Kerem Aslan',     mail:'kerem.aslan@eposta.com',      plan:'pro', durum:'donemsonu',
-      basla:'2026-07-14', yenile:'2026-09-14', kart:'Visa •••• 7712', marka:'fa-brands fa-cc-visa',
-      gecmis:[['2026-08-29','İptal istendi · dönem sonunda bitecek','Üye'],
-              ['2026-07-14','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0298', uye:'Emre Şen',        mail:'emre.sen@eposta.com',         plan:'pro', durum:'basarisiz',
-      basla:'2026-06-21', yenile:'2026-08-21', kart:'Visa •••• 6634', marka:'fa-brands fa-cc-visa',
-      gecmis:[['2026-08-25','Üçüncü deneme başarısız · yetersiz bakiye','Ödeme sağlayıcı'],
-              ['2026-08-23','İkinci deneme başarısız','Ödeme sağlayıcı'],
-              ['2026-08-21','Yenileme tahsilatı başarısız','Ödeme sağlayıcı'],
-              ['2026-06-21','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0267', uye:'Naz Erdem',       mail:'naz.erdem@eposta.com',        plan:'pro', durum:'basarisiz',
-      basla:'2026-07-30', yenile:'2026-08-30', kart:'Mastercard •••• 2048', marka:'fa-brands fa-cc-mastercard',
-      gecmis:[['2026-08-30','Yenileme tahsilatı başarısız · kart süresi dolmuş','Ödeme sağlayıcı'],
-              ['2026-07-30','Abonelik başladı','Üye']] },
-    { no:'ABN-2026-0181', uye:'Hakan Uçar',      mail:'hakan.ucar@eposta.com',       plan:'pro', durum:'iptal',
-      basla:'2026-05-08', yenile:null, kart:'Visa •••• 9003', marka:'fa-brands fa-cc-visa',
-      gecmis:[['2026-06-02','Abonelik bitti · hesap kullanıcı isteğiyle kapatıldı','Üye'],
-              ['2026-05-30','İptal istendi','Üye'],
-              ['2026-05-08','Abonelik başladı','Üye']] },
-    { no:'ABN-2025-0904', uye:'Leyla Şimşek',    mail:'leyla.simsek@eposta.com',     plan:'pro', durum:'iptal',
-      basla:'2025-12-11', yenile:null, kart:'Troy •••• 4417', marka:'fa-solid fa-credit-card',
-      gecmis:[['2026-03-11','Abonelik bitti','Dönem sonu'],
-              ['2026-02-28','İptal istendi','Üye'],
-              ['2025-12-11','Abonelik başladı','Üye']] }
-  ];
+  /* ---------- durumlar ve kayıtlar — TEK KAYNAK: fit-admin-abonelik-veri.js
+     Detay sayfası (`admin-abonelik-detay-v1.html`) da aynı diziyi okur —
+     kayıt iki yerde yaşamaz (R20). ---------- */
+  var DURUM = AB.DURUM;
+  var ABONELIK = AB.LISTE;
 
   function plani(key){ return (P && P.kademe(key)) || null; }
 
@@ -286,8 +207,8 @@
         '<td class="ab-ode"><i class="' + esc(a.marka) + '" aria-hidden="true"></i> ' + esc(a.kart) + '</td>' +
         '<td class="ab-durum">' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
         '<td class="act">' +
-          '<button class="adm-ico-btn" type="button" data-detay="' + esc(a.no) + '" ' +
-            'aria-label="' + esc(a.uye) + ' aboneliğinin detayını aç"><i class="fa-solid fa-eye"></i></button>' +
+          '<a class="adm-ico-btn" href="admin-abonelik-detay-v1.html?abn=' + esc(a.no) + '" ' +
+            'aria-label="' + esc(a.uye) + ' aboneliğinin detayını aç"><i class="fa-solid fa-eye"></i></a>' +
           (bitti
             ? ''
             : '<button class="adm-ico-btn danger" type="button" data-iptal="' + esc(a.no) + '" ' +
@@ -350,47 +271,16 @@
     document.getElementById('abSay').textContent = s;
   }
 
-  /* ---------- detay ---------- */
+  /* ---------- detay ----------
+     R20: "Görüntüle" artık AYRI SAYFAYA gider (admin-abonelik-detay-v1.html
+     ?abn=<no>) — Gastro'nun ölçülen `admin.abonelikler.show` rotasının aynı
+     deseni. Bu ekranda yalnız iptal/devam satır eylemleri kalıyor. */
   function bul(no){ return ABONELIK.filter(function (a) { return a.no === no; })[0] || null; }
-
-  function detayAc(no){
-    var a = bul(no); if (!a) return;
-    var k = plani(a.plan), d = DURUM[a.durum];
-    document.getElementById('abDetayBaslik').textContent = a.uye + ' — ' + a.no;
-    var satir = function (etiket, deger) {
-      return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
-    };
-    document.getElementById('abDetayGovde').innerHTML =
-      satir('Üye', '<b>' + esc(a.uye) + '</b><small>' + esc(a.mail) + '</small>') +
-      satir('Plan', k ? '<b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
-            '<small>' + esc(P.fiyatMetni(k.key)) + ' ' + esc(k.birim) + '</small>'
-          : '<span class="ab-yok">—</span>') +
-      satir('Durum', A.rozet(d.rz, d.ad, d.ico)) +
-      satir('Başlangıç', esc(tarih(a.basla))) +
-      satir('Yenileme', a.yenile ? esc(tarih(a.yenile))
-            : '<span class="ab-yok">— yenileme yok, abonelik bitti</span>') +
-      satir('Ödeme yöntemi', '<i class="' + esc(a.marka) + '" aria-hidden="true"></i> ' + esc(a.kart)) +
-      satir('Faturalar', '<a href="admin-faturalar-v1.html">Fatura defterinde ara</a>' +
-            '<small>Defter tek üyenin defteri; abonelik⇄fatura bağı sunucu turunda kurulur.</small>');
-
-    document.getElementById('abGecmisGovde').innerHTML = a.gecmis.map(function (g) {
-      return '<tr><td>' + esc(tarih(g[0])) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
-    }).join('');
-
-    var kart = document.getElementById('abDetay');
-    kart.hidden = false;
-    kart.scrollIntoView({ behavior:'smooth', block:'start' });
-  }
-  document.getElementById('abDetayKapat').addEventListener('click', function () {
-    document.getElementById('abDetay').hidden = true;
-  });
 
   /* ---------- satır eylemleri ---------- */
   document.getElementById('abGovde').addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('[data-detay],[data-iptal],[data-devam]');
+    var t = e.target.closest && e.target.closest('[data-iptal],[data-devam]');
     if (!t) return;
-
-    if (t.hasAttribute('data-detay')) { detayAc(t.getAttribute('data-detay')); return; }
 
     var a = bul(t.getAttribute('data-iptal') || t.getAttribute('data-devam'));
     if (!a) return;

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kas kaydı düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="anatomi">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-anatomi-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Anatomi Haritası</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="afBaslik">Yeni kas kaydı</h1>
+        <div class="ph-sub" id="afAlt">Künye, anlatım ve bağlar tek formda. Adres aynı zamanda
+          dört gövde haritasındaki <code>data-kas</code> değeridir.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="afOnizle" href="anatomi-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünde gör</a>
+      </div>
+    </div>
+
+    <div id="afKaynak"></div>
+
+    <form id="afForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="anlatim">Anlatım</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="baglar">Bağlar</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="afAd">Kas adı <span class="req">*</span></label>
+                    <input class="finput" id="afAd" name="ad" type="text" required maxlength="120"
+                           placeholder="Örn. Biceps (İki başlı kol kası)" />
+                  </div>
+                  <div class="frow">
+                    <label for="afLatin">Latince ad</label>
+                    <input class="finput" id="afLatin" name="latin" type="text" maxlength="200"
+                           placeholder="Örn. Musculus biceps brachii" />
+                  </div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="afBolge">Bölge <span class="req">*</span></label>
+                    <input class="finput" id="afBolge" name="bolge" type="text" required maxlength="120"
+                           placeholder="Örn. Kol" />
+                    <div class="fhint">Süzgeç bu metni gruplar; aynı bölgeyi iki farklı yazımla
+                      yazmak listede iki ayrı grup üretir.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="afGorunum">Görünüm <span class="req">*</span></label>
+                    <select class="fselect" id="afGorunum" name="gorunum" required>
+                      <option value="on">Ön</option><option value="arka">Arka</option>
+                    </select>
+                    <div class="fhint">Üye haritadan bu kasa tıkladığında sayfa BU görünüme geçer
+                      (<code>anatomi-v1.html</code>). Kas iki haritada birden çiziliyse de kayıt
+                      tek görünüm taşır.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="afAdres">Adres <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">anatomi-v1.html?kas=</span>
+                    <input class="finput" id="afAdres" name="slug" type="text" required
+                           pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="biceps" />
+                  </div>
+                  <div class="fhint">Kayıt anahtarı aynı zamanda SVG dosyalarındaki
+                    <code>data-kas</code> değeridir; değişirse dört haritanın bağı birden kopar —
+                    bu yüzden var olan kayıtta salt okunur.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- ANLATIM ---- -->
+          <div class="sa-form-panel" data-form-panel="anlatim" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-align-left" aria-hidden="true"></i> İşlevi</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="afFonksiyon">İşlevi</label>
+                  <textarea class="ftext" id="afFonksiyon" name="fonksiyon"
+                            placeholder="Kasın nerede olduğu, ne yaptığı ve hangi harekette çalıştığı."></textarea>
+                  <div class="fhint">Kas panelinin ana metni.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="afKoken">Köken</label>
+                    <textarea class="ftext" id="afKoken" name="koken"></textarea>
+                  </div>
+                  <div class="frow">
+                    <label for="afYapisma">Yapışma</label>
+                    <textarea class="ftext" id="afYapisma" name="yapisma"></textarea>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="afKaynak2">Kaynak künyesi</label>
+                  <input class="finput" id="afKaynak2" name="kaynak" type="text" />
+                  <div class="fhint">Verinin çıkarıldığı plate numaraları. Adlandırılmayan bir
+                    tutunma noktası için “PDF plate'i adlandırmıyor” yazmak, sahte veri
+                    yazmaktan iyidir — veri dosyasının kendi kuralı.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Güvenlik notu</h3>
+              <div class="form-grid"><div class="frow">
+                <label for="afGuvenlik">Bu kasa özgü uyarı</label>
+                <textarea class="ftext" id="afGuvenlik" name="guvenlik"></textarea>
+                <div class="fhint">🔴 Sağlıkla ilgili metin. Genel sağlık uyarısı Ayarlar'da tek
+                  yerden yönetilir; buraya yalnız <b>bu kasa özgü</b> olan yazılır.</div>
+              </div></div>
+            </div>
+          </div>
+
+          <!-- ---- BAĞLAR ---- -->
+          <div class="sa-form-panel" data-form-panel="baglar" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Bağlar</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Komşu kaslar</label>
+                  <div id="afKomsu"></div>
+                  <div class="fhint">Kas panelinde “yakınındakiler” olarak basılır; yalnız var olan
+                    kas kayıtlarından seçilir.</div>
+                </div>
+                <div class="frow">
+                  <label>Bu kası çalıştıran hareketler</label>
+                  <div id="afHareket"></div>
+                  <div class="fhint" id="afHrkNot"></div>
+                </div>
+                <div class="frow">
+                  <label>Ekipman</label>
+                  <div id="afEkipman"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-anatomi-v1.html">İptal</a>
+            <button class="btn btn-primary" type="button" id="afKaydet">Kas kaydını kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Bağlam</h2></div>
+            <div class="pc-body" id="afBaglam">—</div>
+          </div>
+
+          <div class="adm-card" id="afTehlikeli" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen kas kaydı, üyenin haritadan
+                bu bölgeye tıkladığında hiçbir şey açılmamasına yol açar.</div>
+              <button class="btn btn-ghost" type="button" id="afSil"
+                      data-yikici="Bu kayıt" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kaydı sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/anatomi-veri.js"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ANATOMİ — KAS KAYDI FORMU   (R19/2)   — K-FORM
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html` + `docs/gastro-olcum/form-kalibi.md`
+   §1. Create ve edit AYNI DOSYA: `?kas=<slug>` varsa düzenleme, yoksa
+   yeni (D6).
+
+   NEDEN AYRI SAYFA: önceki hâl tabloya satır içi bir `<tr class="an-ed-
+   satir">` ekliyordu (`govde.insertBefore`) — Gastro'nun 44 index
+   blade'inin hiçbirinde bulunmayan bir üçüncü desen. 10 alan (ad, latin,
+   bölge, görünüm, adres, işlev, köken, yapışma, kaynak, güvenlik) + zengin
+   metin editörü (`.adm-ed`) + üç ilişki seçici (komşu/hareket/ekipman)
+   taşıyor; kit §16-17'nin "2-4 basit metin alanı" modal bandının çok
+   üstünde, D6'ya göre ayrı forma gider.
+
+   "Listeden koparılınca bağlam kaybolur" itirazı sağ kolondaki BAĞLAM
+   kartıyla çözüldü: hangi haritalarda geçtiği ve hareket kataloğuyla kaç
+   eşleşme taşıdığı formda salt okunur olarak duruyor — ayrı sayfa olmak
+   bu bilgiyi göstermemek anlamına gelmiyor.
+
+   VERİ GERÇEK: `window.ANATOMI_VERI` (liste sayfasıyla aynı nesne) +
+   `FIT_ADMIN_VERI.HAREKET` (ad eşlemesi için).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.ANATOMI_VERI;
+  if (!A) return;
+  var esc = A.esc;
+
+  if (!V || !V.kaslar) {
+    document.getElementById('afKaynak').innerHTML = A.kaynak('ornek',
+      'Anatomi modülü (<code>assets/js/anatomi-veri.js</code> · <code>window.ANATOMI_VERI</code>) ' +
+      'bu sayfada yüklenemedi; kas kaydı doldurulamıyor.');
+    return;
+  }
+
+  var KAS = V.kaslar, HARITA = V.haritalar || {};
+  var SLUGLAR = Object.keys(KAS);
+  var HAREKET = (window.FIT_ADMIN_VERI && window.FIT_ADMIN_VERI.HAREKET) || [];
+
+  var slug = new URLSearchParams(location.search).get('kas') || '';
+  var kayit = slug ? KAS[slug] : null;
+  var yeni = !kayit;
+
+  if (yeni) document.getElementById('afTehlikeli').hidden = true;
+
+  document.getElementById('afBaslik').textContent = yeni ? 'Yeni kas kaydı' : kayit.ad;
+  document.title = (yeni ? 'Yeni kas kaydı' : kayit.ad) + ' — DadaFit Yönetim';
+  if (!yeni) {
+    document.getElementById('afOnizle').href = 'anatomi-v1.html?kas=' + encodeURIComponent(slug);
+    document.getElementById('afSil').setAttribute('data-yikici', kayit.ad);
+  }
+
+  document.getElementById('afKaynak').innerHTML = A.kaynak('canli',
+    '<b>Kaynağın kendisi, kopyası değil.</b> ' + SLUGLAR.length + ' kas kaydı ' +
+    '<code>assets/js/anatomi-veri.js</code>ten (<code>window.ANATOMI_VERI</code>) okunuyor — ' +
+    '<code>anatomi-v1.html</code> de aynı nesneyi okuyor. ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrular, kayıt gitmez — bu prototipte sunucu yok.');
+
+  /* ---- form içi sekmeler ---- */
+  var seklemeler = document.querySelectorAll('.sa-form-tab');
+  seklemeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      seklemeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- zengin metin editörü ---- */
+  A.editor('#afFonksiyon', 'govde');
+  var edYuz = document.querySelector('#afForm .adm-ed-yuz');
+  function edTanimYaz(metin) {
+    var ta = document.getElementById('afFonksiyon');
+    ta.value = metin || '';
+    if (edYuz) { edYuz.innerHTML = ta.value; edYuz.dispatchEvent(new Event('input', { bubbles: true })); }
+  }
+
+  /* ---- künye doldur ---- */
+  var k = kayit || {};
+  document.getElementById('afAd').value       = k.ad || '';
+  document.getElementById('afLatin').value    = k.latin || '';
+  document.getElementById('afBolge').value    = k.bolge || '';
+  document.getElementById('afGorunum').value  = k.gorunum || 'on';
+  document.getElementById('afKoken').value    = k.koken || '';
+  document.getElementById('afYapisma').value  = k.yapisma || '';
+  document.getElementById('afGuvenlik').value = k.guvenlik || '';
+  document.getElementById('afKaynak2').value  = k.kaynak || '';
+  edTanimYaz(k.fonksiyon);
+
+  /* Adres var olan kayıtta SALT OKUNUR: anahtar aynı zamanda dört SVG'nin
+     `data-kas` değeri; değişirse haritaların bağı birden kopar. */
+  var adres = document.getElementById('afAdres');
+  adres.value = yeni ? '' : slug;
+  adres.readOnly = !yeni;
+
+  /* ---- ilişki seçicileri ---- */
+  A.etiket(document.getElementById('afKomsu'), {
+    katalog: SLUGLAR.filter(function (x) { return x !== slug; })
+      .map(function (x) { return { id: x, ad: KAS[x].ad }; }),
+    ad: 'komsu[]', ico: 'fa-person', ipucu: 'Kas ara…', secili: (k.komsu || []).slice()
+  });
+  A.etiket(document.getElementById('afHareket'), {
+    katalog: HAREKET.length
+      ? HAREKET.map(function (h) { return { id: h.slug, ad: h.ad }; })
+      : Object.keys(V.hareketler || {}).map(function (x) { return { id: x, ad: (V.hareketler[x] || {}).ad || x }; }),
+    ad: 'hareketler[]', ico: 'fa-dumbbell',
+    ipucu: 'Hareket ara…', secili: (k.hareketler || []).slice()
+  });
+  A.etiket(document.getElementById('afEkipman'), {
+    katalog: (function () {
+      var e = {}; SLUGLAR.forEach(function (x) { (KAS[x].ekipman || []).forEach(function (n) { e[n] = 1; }); });
+      return Object.keys(e).sort(function (a, b) { return a.localeCompare(b, 'tr'); })
+        .map(function (n) { return { id: n, ad: n }; });
+    })(),
+    ad: 'ekipman[]', ico: 'fa-dumbbell', serbest: true,
+    ipucu: 'Ekipman ara ya da yaz…', secili: (k.ekipman || []).slice()
+  });
+
+  /* =====================================================================
+     BAĞLAM — hareket eşleşmesi (ad sadeleştirerek) + haritalarda geçme
+     ---------------------------------------------------------------------
+     Listedeki "satır içi düzenleme" ayrı sayfaya taşındığında kaybolan
+     tek şey bu bilgiydi; burada AYNI hesapla salt okunur gösteriliyor.
+     ===================================================================== */
+  var TRC = { 'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','I':'i','İ':'i','Ö':'o','Ş':'s','Ü':'u' };
+  function nrm(s) {
+    return String(s || '').replace(/\([^)]*\)/g, ' ')
+      .split('').map(function (c) { return TRC[c] !== undefined ? TRC[c] : c; }).join('')
+      .toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  var nAd = nrm(k.ad), nLatin = nrm(k.latin), nSlug = nrm(slug.replace(/-/g, ' '));
+  function esler(isim) {
+    var n = nrm(isim);
+    if (!n) return false;
+    if (nAd && (nAd.indexOf(n) >= 0 || n.indexOf(nAd) >= 0)) return true;
+    if (nLatin && (nLatin.indexOf(n) >= 0 || n.indexOf(nLatin) >= 0)) return true;
+    if (nSlug && (nSlug === n || n.indexOf(nSlug) >= 0)) return true;
+    return false;
+  }
+  var birincil = [], ikincil = [];
+  if (!yeni) {
+    HAREKET.forEach(function (h) {
+      if ((h.birincil || []).some(esler)) birincil.push(h);
+      if ((h.ikincil || []).some(esler)) ikincil.push(h);
+    });
+  }
+  var hrkNot = yeni
+    ? 'Seçim kasın <b>kendi</b> hareket dizisini kurar. Hareket kataloğunun ayrıca bu kası kaç ' +
+      'harekette birincil/ikincil saydığı, kayıt bir ada kavuştuktan sonra Bağlam kartında görünür.'
+    : 'Yukarıdaki seçim kasın <b>kendi</b> hareket dizisidir (' + (k.hareketler || []).length + ' kayıt). ' +
+      'Hareket kataloğu ayrıca bu kası <b>' + birincil.length + ' harekette birincil</b>, ' +
+      '<b>' + ikincil.length + ' harekette ikincil</b> olarak sayıyor. Bu sayım ' +
+      '<code>fit-admin-veri.js</code>teki <b>adlardan</b> çıkarıldı, slug bağından değil.';
+  document.getElementById('afHrkNot').innerHTML = hrkNot;
+
+  function baglamYaz(haritaSatiri) {
+    document.getElementById('afBaglam').innerHTML =
+      (yeni
+        ? '<div class="fhint">Kayıt henüz yok — bağlam (haritalarda geçme, hareket eşleşmesi) ' +
+          'kaydedildikten sonra burada görünür.</div>'
+        : '<div class="fhint" style="margin-bottom:10px">' + haritaSatiri + '</div>' +
+          '<div class="fhint">Hareket kataloğunda <b>' + birincil.length + '</b> harekette birincil, ' +
+          '<b>' + ikincil.length + '</b> harekette ikincil olarak geçiyor.</div>');
+  }
+  baglamYaz('Haritalar henüz okunmadı.');
+
+  /* Dört SVG'den bu SLUG'un kaç haritada geçtiği sayılıyor — ilan
+     edilmiyor, gerçekten fetch edilip [data-kas] düğümlerinden sayılıyor
+     (`anatomi-v1.html`in yaptığının aynısı). */
+  if (!yeni) {
+    var anahtarlar = Object.keys(HARITA), kalan = anahtarlar.length, gecenler = [];
+    if (!kalan) baglamYaz('Harita dosyaları bu sayfada tanımlı değil.');
+    anahtarlar.forEach(function (a) {
+      fetch(HARITA[a])
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(function (txt) {
+          var doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+          if (doc.querySelector('[data-kas="' + slug.replace(/"/g, '') + '"]')) gecenler.push(a);
+        })
+        .catch(function () { /* okunamayan SVG sessizce atlanır, sayı eksik kalır */ })
+        .then(function () {
+          if (--kalan === 0) {
+            baglamYaz(gecenler.length
+              ? '<b>' + gecenler.length + '</b> haritada geçiyor: ' + gecenler.join(', ') + '.'
+              : '🔴 Hiçbir haritada bölge bulmuyor — kayıt var ama üye ona haritadan ulaşamıyor.');
+          }
+        });
+    });
+  }
+
+  /* Onay kabuğun delegesinden gelir; bu dinleyici yalnız ONAYLANMIŞ
+     tıklamada koşar. */
+  document.getElementById('afSil').addEventListener('click', function () {
+    A.toast('Kayıt silinmedi — bu prototipte sunucu yok.', { tip: 'info' });
+  });
+
+  A.maketKaydet(document.getElementById('afKaydet'), 'kas kaydı', document.getElementById('afForm'));
+})();
+</script>
+</body>
+</html>

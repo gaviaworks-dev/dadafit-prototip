@@ -258,8 +258,14 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · ÜYE DETAYI   (R19)   — D/8'in karşılığı
+   ADMIN · ÜYE DETAYI   (R19 · R20)   — D/8'in karşılığı
    ---------------------------------------------------------------------
+   🔴 R20'DE EKLENEN: başlıktaki "Düzenle" düğmesi `admin-uye-form-v1.html
+   ?uye=<üye no>`ya açılıyor — Gastro'da ölçülen ikinci aksiyon
+   (`uyeler/index.blade.php:174` · `show.blade.php:104`). Rol ve hesap
+   durumu YİNE burada değişir (Gastro'nun kendi kararı, formun kendi
+   yorumunda ölçüldü: guard'lı akışlara ikinci yazma yolu açılmaz).
+   Künye kartına "İç not" satırı eklendi — formun yönettiği yeni alan.
    ÖLÇÜLEN EKSİK (`fit-yonetilmeyenler.md` D/8): `admin-uyeler` satıra
    tıklayınca gömülü bir kart açıyordu ve o kartta **iki** düzenlenebilir
    alan vardı (Rol, Hesap durumu). Gastro'nun karşılığı
@@ -334,6 +340,8 @@
     (kademe ? A.rozet('ok', kademe.ad, kademe.ico.replace('fa-solid ', '')) : '');
 
   document.getElementById('udEylem').innerHTML =
+    '<a class="btn btn-primary" href="admin-uye-form-v1.html?uye=' + esc(u.id) + '">' +
+      '<i class="fa-solid fa-pen" aria-hidden="true"></i> Düzenle</a>' +
     '<a class="btn btn-ghost" href="profil-v1.html" target="_blank" rel="noopener">' +
       '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>' +
     '<a class="btn btn-ghost" href="mailto:' + esc(u.mail) + '">' +
@@ -368,6 +376,7 @@
     ['E-posta',        u.mail],
     ['Telefon',        u.tel],
     ['Şehir',          u.sehir],
+    ['İç not',         u.not, 'Henüz not girilmedi. Alan admin-uye-form-v1.html üzerinden yönetilir (Gastro karşılığı: admin_note).'],
     ['Üyelik tarihi',  '', Y.uyelikTarihi],
     ['Son giriş',      '', Y.sonGiris],
     ['Doğum tarihi',   '', Y.dogumTarihi]

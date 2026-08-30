@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Üye düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Form kolonu, alan primitifi,
+   toggle ve sticky yan kolon kabuktan gelir; burada yalnız "Özet"
+   kartındaki küçük kimlik başlığı var. Yeni renk üretilmedi;
+   `.av` deseni `admin-uye-detay-v1.html`den birebir. */
+.uf-kim{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.uf-kim .av{
+  width:44px;height:44px;flex:none;border-radius:var(--radius-circle);
+  background:var(--fit-tint);color:var(--fit-deep);
+  display:grid;place-items:center;font-size:15px;font-weight:800;
+}
+.uf-kim .who{min-width:0}
+.uf-kim .who b{display:block;font-size:14px;color:var(--slate);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uf-kim .who small{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.uf-dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0;margin:0}
+.uf-dl dt,.uf-dl dd{margin:0;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.uf-dl dt{font-weight:600;color:var(--muted)}
+.uf-dl dd{font-weight:700;color:var(--slate);text-align:right}
+.uf-dl dt:last-of-type,.uf-dl dd:last-of-type{border-bottom:0}
+
+/* 🔴 DAR EKRAN — `admin-uye-detay-v1.html`de ölçülen aynı Grid `1fr`
+   taşması; kabuk `fit-admin.css`e kapalı, özgüllükle bu gövdeye bağlandı. */
+.adm-body[data-adm="uyeler"] .form-layout>*{min-width:0}
+</style>
+</head>
+<body class="adm-body" data-adm="uyeler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" id="ufGeri" href="admin-uyeler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <span id="ufGeriMetin">Üyeler ve Yetki</span></a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="ufBaslik">Üye düzenle</h1>
+        <div class="ph-sub" id="ufAlt">Ad, e-posta, telefon, iç not ve herkese açık görünürlük.
+          Rol ve hesap durumu burada değişmez — onlar üye detayının kendi doğrulanan akışı.</div>
+      </div>
+    </div>
+
+    <div id="ufKaynak"></div>
+
+    <form id="ufForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL: FORM ================= -->
+        <div class="adm-card">
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-user" aria-hidden="true"></i> Kimlik bilgileri</h3>
+            <div class="form-grid">
+              <div class="frow">
+                <label for="ufAd">Ad Soyad</label>
+                <input class="finput" id="ufAd" name="ad" type="text" maxlength="60" />
+                <div class="fhint">Gastro'da Ad ve Soyad iki ayrı sütundur (<code>uyeler/edit.blade.php:50,57</code>);
+                  Fit'in üye kaydında tek bir "Ad Soyad" alanı var ve liste, detay ile avatar baş harfi hep
+                  bunu okuyor. İkiye bölmek üç dosyayı birden değiştirip ikinci bir isim kaynağı açardı.</div>
+              </div>
+              <div class="frow two">
+                <div class="frow">
+                  <label for="ufMail">E-posta adresi</label>
+                  <input class="finput" id="ufMail" name="mail" type="email" maxlength="80" />
+                </div>
+                <div class="frow">
+                  <label for="ufTel">Telefon <span class="opt">— opsiyonel</span></label>
+                  <input class="finput" id="ufTel" name="tel" type="tel" maxlength="20" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> İç not <span class="opt">— opsiyonel</span></h3>
+            <div class="form-grid">
+              <div class="frow">
+                <label for="ufNot">Not</label>
+                <textarea class="ftext" id="ufNot" name="not" maxlength="400" placeholder="Bu hesapla ilgili iç notlar…"></textarea>
+                <div class="fhint">Yalnız panelde görünür, üyeye gösterilmez. Gastro karşılığı:
+                  <code>uyeler/edit.blade.php:86</code> (<code>admin_note</code>).</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Herkese açık görünürlük</h3>
+            <div class="toggle-row">
+              <span>Herkese açık listelerde gizle <span class="opt">(kademe merdiveni, antrenörler dizini)</span></span>
+              <label class="toggle"><input type="checkbox" id="ufGizli" name="gizli" />
+                <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="fhint">Test, demo ve QA hesapları için. Hesap çalışmaya devam eder; yalnız
+              misafire açık üye listelerinde görünmez. Gastro karşılığı: <code>uyeler/edit.blade.php:99</code>
+              (<code>hidden_from_public</code>).</div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" id="ufIptal" href="admin-uyeler-v1.html">İptal</a>
+            <button class="btn btn-primary" type="button" id="ufKaydet"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ: ÖZET (sticky) ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2><i class="fa-solid fa-id-badge" aria-hidden="true"></i> Özet</h2></div>
+            <div class="c-body">
+              <div class="uf-kim">
+                <span class="av" id="ufAv" aria-hidden="true">—</span>
+                <div class="who"><b id="ufOzAd">—</b><small id="ufOzMail">—</small></div>
+              </div>
+              <dl class="uf-dl" id="ufOzDl"></dl>
+              <div class="fhint" style="margin-top:12px" id="ufYetkiNot"></div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-admin-uye-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ÜYE FORMU   (R20)   — K-FORM
+   ---------------------------------------------------------------------
+   ÖLÇÜLEN EKSİK: `admin-uyeler-v1.html` satırında yalnız Detay (göz) vardı,
+   Düzenle (kalem) yoktu. Gastro'nun ölçülen karşılığı ölçüldü ve İKİ ayrı
+   aksiyonu var: `uyeler/index.blade.php:165` Detay (göz) · `:174` Düzenle
+   (kalem). Bu dosya o ikinci aksiyonun sayfası — Gastro'nun `form.blade`
+   kanonu (D6, `docs/fit-admin-plan.md` §11): create ve edit AYNI dosya,
+   `?uye=<üye no>` varsa düzenleme, yoksa yeni.
+
+   ALAN LİSTESİ — Gastro `uyeler/edit.blade.php`den ölçüldü (satır:alan):
+     :50 Ad · :57 Soyad · :65 E-posta · :72 Telefon · :86 Not (admin_note)
+     · :99 hidden_from_public toggle  → 6 alan.
+   Fit'te 5: Ad+Soyad Fit'in tek "Ad Soyad" alanına birleşiyor (üstteki
+   fhint'te gerekçesi var — ikinci bir isim kaynağı açmamak için).
+
+   🔴 ROL VE HESAP DURUMU BU FORMDA YOK — Gastro'nun kendi ölçülen kararı.
+   `uyeler/edit.blade.php:9-13`in kendi yorumu: "'Yetki & Rol' form-sec'i
+   TAŞINMAZ — rol/durum/2FA'nın zaten guard'lı tek-kapı akışları var
+   (Rol Ata, Askıya Al, 2FA Zorla); generic update ucuna ikinci yazma yolu
+   açmak o guard'ları baypas riski taşır." Fit'te bu guard'lı akış zaten
+   `admin-uye-detay-v1.html`in "Yetki ve güvenlik" ve "Tehlikeli bölge"
+   kartları — aynı yıkıcı eylem için ikinci bir yazma yüzeyi açmıyoruz.
+   Bu yüzden bu formda "Tehlikeli bölge" kartı da YOK (Gastro'da da yok,
+   ölçüldü — `edit.blade.php`nin tamamında `sil`/`askı`/`confirm` sıfır).
+
+   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-uye-veri.js`. Liste ve detay
+   ekranları da aynı diziyi okur — kayıt iki yerde yaşamaz.
+
+   🔴 YENİ ÜYE KİPİ (?uye= YOK) yalnız D6 kalıbının gereği çalışır durumda
+   TUTULUYOR; hiçbir ekranda ona giden bir düğme YOK. `admin-uyeler-v1.html`
+   bunu bilerek söylüyor: "Üye kendi kaydolur; panelden hesap açmak,
+   sahibi olmadığın bir e-postayla kimlik yaratmaktır." Panelden üye
+   yaratmak bir ürün kararıyla kapalı; bu dosya o kararı bozmuyor.
+
+   🔴 YAZMA YÜZEYİ MAKET. Kaydet doğrular, hiçbir yere yazmaz.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, U = window.FIT_ADMIN_UYE;
+  if (!A) return;
+  var esc = A.esc;
+
+  var kap = document.querySelector('.form-layout');
+
+  if (!U) {
+    document.getElementById('ufKaynak').innerHTML = A.kaynak('ornek', 'Üye verisi yüklenemedi.');
+    kap.innerHTML = A.bos('fa-user-slash', 'Üye verisi yüklenmedi',
+      'Kayıtlar assets/js/fit-admin-uye-veri.js dosyasından okunur; bu sayfada yüklenemedi.',
+      '<a class="btn btn-primary" href="admin-uyeler-v1.html"><i class="fa-solid fa-arrow-left"></i> Üye listesine dön</a>');
+    return;
+  }
+
+  var id = new URLSearchParams(location.search).get('uye') || '';
+  var kayit = id ? U.bul(id) : null;
+  var yeni = !kayit;
+
+  /* Adres bir üye numarası taşıyor ama eşleşmiyorsa DÜRÜSTÇE söylenir —
+     boş bir form açıp "yeni üye" gibi davranmak, olmayan bir kaydı
+     düzenliyormuş izlenimi verirdi. */
+  if (id && !kayit) {
+    document.getElementById('ufBaslik').textContent = 'Üye bulunamadı';
+    document.getElementById('ufAlt').textContent = '“' + id + '” numaralı üye kaydı yok.';
+    document.getElementById('ufKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?uye=&lt;üye no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-admin-uye-veri.js</code>ten okur. Numara eşleşmedi.');
+    kap.innerHTML = A.bos('fa-user-slash', 'Bu numarayla üye yok',
+      'Adresteki üye numarası kayıtlarla eşleşmiyor. Listeye dönüp bir üye seç.',
+      '<a class="btn btn-primary" href="admin-uyeler-v1.html"><i class="fa-solid fa-users"></i> Üye listesine dön</a>');
+    return;
+  }
+
+  document.title = (yeni ? 'Yeni üye' : kayit.ad) + ' — DadaFit Yönetim';
+  document.getElementById('ufBaslik').textContent = yeni ? 'Yeni üye' : (kayit.ad + ' — düzenle');
+
+  /* ---------- geri bağlantısı ----------
+     Gastro düzenlemede listeye değil DETAYA döner (`edit.blade.php:29`).
+     Yeni kipte dönecek bir detay yok, listeye döner. */
+  var geri = document.getElementById('ufGeri'), geriMetin = document.getElementById('ufGeriMetin');
+  if (kayit) {
+    geri.href = 'admin-uye-detay-v1.html?uye=' + encodeURIComponent(kayit.id);
+    geriMetin.textContent = 'Üye Detayı';
+    document.getElementById('ufIptal').href = geri.href;
+  }
+
+  document.getElementById('ufKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Üye kaydı örnektir.</b> Bu prototipte sunucu ve üye veritabanı yok; kayıtlar ' +
+    '<code>fit-admin-uye-veri.js</code>ten okunuyor ve liste ile detay ekranı da aynı dosyayı okur. ' +
+    '<b>Not ve “herkese kapalı” alanları bu formun kendi alanı:</b> kayıtta henüz karşılığı yok, ' +
+    'form boş/kapalı açılır — Gastro’da bunlar gerçek <code>admin_note</code> ve ' +
+    '<code>hidden_from_public</code> sütunlarıdır (ölçüldü). ' +
+    '<b>Rol ve hesap durumu bu formdan değişmez</b> — <a href="admin-uye-detay-v1.html' +
+    (kayit ? ('?uye=' + encodeURIComponent(kayit.id)) : '') + '">üye detayının</a> guard’lı akışı. ' +
+    '<b>Yazma yüzeyi maket:</b> Kaydet doğrular, kayıt gitmez.');
+
+  var el = {
+    ad: document.getElementById('ufAd'), mail: document.getElementById('ufMail'),
+    tel: document.getElementById('ufTel'), not: document.getElementById('ufNot'),
+    gizli: document.getElementById('ufGizli')
+  };
+
+  if (kayit) {
+    el.ad.value = kayit.ad;
+    el.mail.value = kayit.mail;
+    el.tel.value = kayit.tel || '';
+    el.not.value = kayit.not || '';
+    el.gizli.checked = !!kayit.gizli;
+  }
+
+  /* ---------- Özet: canlı, alanlardan besleniyor ---------- */
+  function ozetTazele(){
+    var ad = el.ad.value.trim() || (yeni ? 'Yeni üye' : kayit.ad);
+    document.getElementById('ufAv').textContent = U.basHarf(ad) || '—';
+    document.getElementById('ufOzAd').textContent = ad;
+    document.getElementById('ufOzMail').textContent = el.mail.value.trim() || '—';
+  }
+  el.ad.addEventListener('input', ozetTazele);
+  el.mail.addEventListener('input', ozetTazele);
+
+  var ozDl = document.getElementById('ufOzDl');
+  if (kayit) {
+    var rol = U.ROL[kayit.rol], durum = U.DURUM[kayit.durum];
+    ozDl.innerHTML =
+      '<dt>Üye no</dt><dd>' + esc(kayit.id) + '</dd>' +
+      '<dt>Kullanıcı adı</dt><dd>' + esc(kayit.kul) + '</dd>' +
+      '<dt>Rol</dt><dd>' + A.rozet('off', rol.ad, rol.ico) + '</dd>' +
+      '<dt>Hesap durumu</dt><dd>' + A.rozet(durum.rz, durum.ad, durum.ico) + '</dd>';
+    document.getElementById('ufYetkiNot').innerHTML =
+      'Rol ve hesap durumu <a href="admin-uye-detay-v1.html?uye=' + encodeURIComponent(kayit.id) +
+      '">üye detayında</a> değişir — Gastro’nun ölçülen kararı: guard’lı tek-kapı akışlara (Rol Ata, ' +
+      'Askıya Al) bu formdan ikinci bir yazma yolu açılmaz.';
+  } else {
+    ozDl.innerHTML = '<dt>Üye no</dt><dd>—</dd><dt>Kullanıcı adı</dt><dd>—</dd>';
+    document.getElementById('ufYetkiNot').textContent =
+      'Rol ve hesap durumu yalnız kayıtlı bir üye için gösterilir.';
+  }
+  ozetTazele();
+
+  /* ---------- kaydet ---------- */
+  A.maketKaydet(document.getElementById('ufKaydet'), yeni ? 'yeni üye' : 'üye bilgileri', document.getElementById('ufForm'));
+})();
+</script>
+</body>
+</html>

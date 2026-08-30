@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fatura detayı — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.fa-yok{color:var(--muted);font-weight:600}
+.fa-eksi{color:var(--hs-danger)}
+.fa-dl th{width:220px}
+.fa-tut{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="adm-body" data-adm="faturalar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-faturalar-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Faturalar</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="faBaslik">Fatura detayı</h1>
+        <div class="ph-sub" id="faAlt">—</div>
+      </div>
+    </div>
+
+    <div id="faKaynak"></div>
+
+    <div class="adm-card">
+      <div class="c-head"><h3><i class="fa-solid fa-receipt"></i> Künye</h3></div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table fa-dl">
+            <caption class="sr-only">Fatura künyesi</caption>
+            <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
+            <tbody id="faKunye"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="c-head"><h3><i class="fa-solid fa-list"></i> Kalemler</h3></div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="faKalemTablo">
+            <caption class="sr-only">Fatura kalemleri ve toplamları</caption>
+            <thead>
+              <tr><th>Açıklama</th><th class="num">Adet</th><th class="num">Birim fiyat</th><th class="num">Tutar</th></tr>
+            </thead>
+            <tbody id="faKalem"></tbody>
+            <tfoot id="faToplam"></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="c-body">
+        <div id="faBelgeNot"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · FATURA DETAYI   (R20)
+   ---------------------------------------------------------------------
+   NEDEN VAR — ÖLÇÜLEN KUSUR (Beyar, R20): `admin-faturalar-v1.html`daki
+   "Görüntüle" aynı sayfada gizli bir kartı açıyordu (`#faDetay hidden` +
+   `scrollIntoView`). Gastro'da bu eylemin karşılığı ölçüldü: `InvoiceController
+   ::show()` → `admin.faturalar.show` — AYRI sayfa, AYRI rota
+   (routes/web.php:1088). Bu ekran o kalıba çekildi; detay içeriği
+   birebir taşındı, icat edilmedi.
+
+   VERİ AYNI KAYNAK: `fit-fatura.js`in `DEFTER` dizisi — liste ekranı da
+   bunu okur, ikinci bir kopya yok. Adres `?fatura=<no>` parametresiyle
+   açılır (uye-detay'ın `?uye=` deseninin aynısı).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, F = window.FIT_FATURA;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  var kap = document.querySelector('.adm-page');
+
+  if (!F) {
+    document.getElementById('faKaynak').innerHTML = A.kaynak('ornek',
+      'Fatura defteri (<code>fit-fatura.js</code>) yüklenemedi.');
+    document.getElementById('faBaslik').textContent = 'Fatura defteri yüklenmedi';
+    return;
+  }
+
+  var DEFTER = F.defter, alici = F.alici();
+  var no = new URLSearchParams(location.search).get('fatura') || '';
+  var f = F.bul(no);
+
+  var TUR = {
+    uyelik:   { ad:'Abonelik',       ico:'fa-repeat',            rz:'ok'   },
+    antrenor: { ad:'Antrenör hizmeti', ico:'fa-user-tie',        rz:'off'  },
+    iade:     { ad:'İade',           ico:'fa-rotate-left',       rz:'wait' }
+  };
+  var DURUM_RZ = { ok:'ok', wait:'wait', off:'off', stop:'stop' };
+  var DURUM_ICO = { ok:'fa-circle-check', wait:'fa-clock', off:'fa-rotate-left', stop:'fa-circle-xmark' };
+
+  if (!f) {
+    document.getElementById('faBaslik').textContent = 'Fatura bulunamadı';
+    document.getElementById('faAlt').textContent =
+      no ? ('"' + no + '" numaralı fatura kaydı yok.') : 'Adreste fatura numarası yok.';
+    document.getElementById('faKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?fatura=&lt;fatura no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-fatura.js</code>ten okur. Numara eşleşmedi.');
+    document.querySelectorAll('.adm-card').forEach(function (c) { c.remove(); });
+    kap.insertAdjacentHTML('beforeend', A.bos('fa-file-invoice', 'Bu numarayla fatura yok',
+      'Adresteki fatura numarası defterle eşleşmiyor. Listeye dönüp bir fatura seç; ' +
+      'satıra basmak seni buraya, doğru numarayla getirir.',
+      '<a class="btn btn-primary" href="admin-faturalar-v1.html"><i class="fa-solid fa-file-invoice"></i> Fatura listesine dön</a>'));
+    return;
+  }
+
+  document.title = f.no + ' — DadaFit Yönetim';
+  var t = TUR[f.tur] || { ad:f.tur, ico:'fa-file', rz:'off' };
+  var top = F.toplamlar(f);
+
+  document.getElementById('faBaslik').textContent = f.no + ' — ' + f.konu;
+  document.getElementById('faAlt').innerHTML =
+    A.rozet(t.rz, t.ad, t.ico) + ' ' + A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle');
+
+  document.getElementById('faKaynak').innerHTML = A.kaynak('canli',
+    '<b>Belge gerçek:</b> <code>fit-fatura.js</code>ten okunuyor, üye yüzündeki ' +
+    '<code>odemelerim-v1.html</code> da aynı diziyi basıyor. ' +
+    '<b>KDV %' + n(F.kdvOran) + ' tek yerden</b> okunuyor ve toplamdan <b>ayrıştırılıyor</b>. ' +
+    '<b>Satıcı künyesi boş:</b> ' + esc(F.satici.kunyeYok) + ' ' +
+    '<b>Üye kolonu tek kişi:</b> defter bir üyenin defteri, fatura başına üye alanı yok.');
+
+  var satir = function (etiket, deger) {
+    return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
+  };
+  document.getElementById('faKunye').innerHTML =
+    satir('Fatura no', '<b>' + esc(f.no) + '</b>') +
+    satir('ETTN', '<code>' + esc(f.ettn) + '</code><small>Örnek değer — gerçek bir e-Arşiv kaydına karşılık gelmez.</small>') +
+    satir('Tür', A.rozet(t.rz, t.ad, t.ico)) +
+    satir('Durum', A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle')) +
+    satir('Tarih', esc(f.tarih)) +
+    satir('Dönem', esc(f.donem)) +
+    satir('Tahsilat', esc(f.kart) + ' · ' + esc(f.odemeAni)) +
+    satir('Satıcı', '<b>' + esc(F.satici.unvan) + '</b><small>' + esc(F.satici.kunyeYok) + '</small>') +
+    satir('Alıcı', '<b>' + esc(alici.ad) + '</b><small>' + esc(alici.kimlikEtiket) + ': ' + esc(alici.kimlik) +
+          ' · ' + esc(alici.adres) + ' · ' + esc(alici.eposta) + '</small>');
+
+  document.getElementById('faKalem').innerHTML = f.kalem.map(function (k) {
+    var tutar = k[2] * k[3];
+    return '<tr>' +
+      '<td><b>' + esc(k[0]) + '</b><small>' + esc(k[1]) + '</small></td>' +
+      '<td class="num fa-tut">' + n(k[2]) + '</td>' +
+      '<td class="num fa-tut">' + esc(A.tl(k[3])) + '</td>' +
+      '<td class="num fa-tut' + (tutar < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(tutar)) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('faToplam').innerHTML =
+    '<tr><th scope="row" colspan="3">Ara toplam</th>' +
+      '<td class="num fa-tut' + (top.ara < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.ara)) + '</td></tr>' +
+    '<tr><th scope="row" colspan="3">KDV (%' + n(F.kdvOran) + ')</th>' +
+      '<td class="num fa-tut' + (top.kdv < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.kdv)) + '</td></tr>' +
+    '<tr><th scope="row" colspan="3">Genel toplam</th>' +
+      '<td class="num fa-tut' + (top.genel < 0 ? ' fa-eksi' : '') + '"><b>' + esc(A.tl(top.genel)) + '</b></td></tr>';
+
+  document.getElementById('faBelgeNot').innerHTML =
+    '<div class="fhint"><b>Belge çıktısı yok.</b> PDF ve e-Arşiv gönderimi sunucu işidir; bu maket ' +
+    'dosya üretmez, bu yüzden buraya çalışmayan bir "PDF indir" düğmesi konmadı. ' +
+    'Tutarlar KDV <b>dâhil</b> girilir ve ara toplam ile vergi ondan ayrıştırılır ' +
+    '(<code>ara = yuvarla(toplam / 1,' + n(F.kdvOran) + ')</code>) — tersi değil, ' +
+    'fatura toplamının kuruşu kaymasın diye.</div>';
+})();
+</script>
+</body>
+</html>

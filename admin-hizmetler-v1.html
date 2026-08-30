@@ -39,23 +39,32 @@
 .hz-toplam span{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .hz-toplam b{font-size:16px;font-weight:800;color:var(--slate);font-variant-numeric:tabular-nums}
 
-/* İade uyarı metni ve karar kutusu — aynı sebeple yatay MARJ taşır
-   (kutu zaten kendi kenarlığını çiziyor, dolgu değil boşluk gerekiyor). */
+/* İade uyarı metni — yatay MARJ taşır. */
 .fit-pane[data-pane="iadeler"] > .fk-help{margin-left:22px;margin-right:22px}
-.hz-karar{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);padding:18px;margin:16px 22px 0}
-.hz-karar h4{font-size:14px;font-weight:800;color:var(--slate);margin:0 0 4px;display:flex;align-items:center;gap:9px}
-.hz-karar h4 i{color:var(--fit-deep);font-size:13px}
-/* 🔴 SINIF ADI ÇAKIŞMASI — ölçüldü (R19). Bu satır `.sec` adını taşıyordu;
-   `.sec` KABUĞUN public bölüm sınıfıdır (`fit-shell.css:205` →
-   `padding:var(--sec-pad) 0`) ve karar kutusunun alt satırı sessizce 74px
-   dolgu alıyordu. Ad ekranın kendi ön ekine çekildi. */
-.hz-karar .hz-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
 .adm-table tbody tr.is-sec td{background:var(--fit-tint)}
 @media (max-width:640px){
   .hz-toplam{padding-left:16px;padding-right:16px}
   .fit-pane[data-pane="iadeler"] > .fk-help{margin-left:16px;margin-right:16px}
-  .hz-karar{margin-left:16px;margin-right:16px}
 }
+
+/* İADE KARARI MODALI — R20. ÖNCEKİ HÂLİ (`.hz-karar`) kartın altında
+   gizli bir düğüm açıp `scrollIntoView` yapıyordu; Beyar'ın ölçtüğü
+   kusurun aynısı (bkz. abonelikler/faturalar). Alan sayısı üç (karar ·
+   bilgilendirme kanalı · not) — kitin modal eşiği içinde, bu yüzden AYRI
+   SAYFA değil kabuğun `.sa-modal-ov`/`.sa-modal` primitifleri
+   (`admin-taksonomi-v1.html` deseninin aynısı). */
+.sa-modal.hz-modal{width:min(480px,100%);padding:0;max-height:88vh;display:flex;flex-direction:column}
+.hzm-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.hzm-head h3{margin:0;font-size:16px;display:flex;align-items:center;gap:9px}
+.hzm-head h3 i{color:var(--fit-deep);font-size:14px}
+.hzm-x{
+  margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;
+  color:var(--muted);font-size:15px;cursor:pointer;border-radius:var(--radius-sm);
+}
+.hzm-x:hover{color:var(--slate);background:var(--bg)}
+.hzm-body{padding:20px 22px;overflow-y:auto}
+.hzm-body .hz-sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
+.hzm-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
 
 /* 🔴 ÖLÇÜLEN KUSUR (390 px): `.adm-head .h-acts` kabukta `flex:none`.
    Bu ekranda başlıkta İKİ düğme var; ikisi yan yana 399 px istiyor, oysa
@@ -291,35 +300,6 @@
 
         <!-- Karar kutusu: seçilen talep buraya düşer. Ayrı bir ekran
              açmıyoruz — iade kararı iki satırlık bir iş. -->
-        <div class="hz-karar" id="hzIaKarar" hidden>
-          <h4><i class="fa-solid fa-gavel"></i> İade kararı</h4>
-          <p class="hz-sec" id="hzIaSecili">—</p>
-          <form id="hzIaForm">
-            <div class="fk-grid c2">
-              <div class="fk-field">
-                <label class="fk-label" for="hzIaKararSec">Karar <span class="req">*</span></label>
-                <select class="fk-select" id="hzIaKararSec" required>
-                  <option value="onayla">İadeyi onayla</option>
-                  <option value="reddet">İadeyi reddet</option>
-                </select>
-              </div>
-              <div class="fk-field">
-                <label class="fk-label" for="hzIaKanal">Bilgilendirme</label>
-                <select class="fk-select" id="hzIaKanal">
-                  <option>Üyeye ve antrenöre e-posta</option>
-                  <option>Yalnız üyeye e-posta</option>
-                </select>
-              </div>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="hzIaNot">Karar notu <span class="req">*</span></label>
-              <textarea class="fk-textarea" id="hzIaNot" rows="3" required maxlength="500"
-                        placeholder="Kararın gerekçesi — üyeye ve antrenöre aynen iletilir."></textarea>
-            </div>
-            <button class="btn btn-primary" type="button" id="hzIaKaydet"><i class="fa-solid fa-check"></i> Kararı kaydet</button>
-          </form>
-        </div>
-
         <div class="adm-pager">
           <div class="p-info"><b id="hzIaSay">0</b> talep · tümü tek sayfada</div>
           <div class="p-btns">
@@ -335,6 +315,7 @@
 </main>
 
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-ayar-veri.js"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
@@ -349,11 +330,13 @@
    Tanışma Görüşmesi (ücretsiz) · Birebir Seans · Aylık Paket.
 
    🔴 K13 · PARA SAYILARI KODA GÖMÜLMEZ.
-   Komisyon oranı, ödeme dönemi, alt sınır ve fatura eşiği aşağıdaki tek
+   Komisyon oranı, ödeme dönemi, alt sınır ve fatura eşiği aşağıdaki yerel
    `PARAM` nesnesinde durur ve ekranda ALAN olarak gösterilir. Hiçbiri
    cümle içine yazılmadı; komisyon ve antrenör payı kolonları her satırda
-   bu nesneden HESAPLANIR. Panel gerçek olduğunda `PARAM` Ayarlar
-   ekranından okunur, bu dosyada tek satır değişir.
+   bu nesneden HESAPLANIR. `PARAM` artık `assets/js/fit-ayar-veri.js`in
+   `FIT_AYAR.oku()`sundan doluyor — eskiden burada bağımsız, sabit bir
+   kopyası vardı (`komisyonYuzde:10` …); R20/2'de ölçülüp tek kaynağa
+   bağlandı (bkz. `admin-odemeler-v1.html`, `admin-raporlar-v1.html`).
    Sahibi bu ekran değil, `admin-ayarlar-v1.html`dir — alanlar `readonly`.
 
    K5 · İADEDE KOMİSYON GERİ GİTMEZ. İade tablosunun "Üyeye dönen"
@@ -379,12 +362,21 @@
   if (!A) return;
   var esc = A.esc, n = A.n, tl = A.tl, tarih = A.tarih;
 
-  /* ---- K13 · tek kaynak, ekranda alan olarak görünür ---- */
+  /* ---- K13 · TEK KAYNAK: assets/js/fit-ayar-veri.js -----------------
+     Eskiden burada da (admin-odemeler-v1 ve admin-raporlar-v1 gibi)
+     bağımsız bir `PARAM` nesnesi vardı — `docs/fit-panel-yeterlilik.md`in
+     R20 ölçümünden SONRA doğan bu dosya, o ölçümün kaçırdığı DÖRDÜNCÜ
+     kopyaydı (R20/2). Artık `FIT_AYAR.oku()`dan doluyor; ikinci bir
+     çeviri sözlüğü de YOK — "Ödeme günü" metni `FIT_AYAR.odemeGunuAd()`
+     ile aynı tek sözlükten geliyor (`admin-odemeler-v1`in okuduğu sözlükle
+     BİREBİR aynı kaynak). */
+  var AYAR = window.FIT_AYAR || null;
+  var AK = (AYAR && AYAR.oku) ? AYAR.oku() : {};
   var PARAM = {
-    komisyonYuzde: 10,
-    odemeDonemi:   'Ay sonu · toplu',
-    altSinirKurus: 100000,
-    faturaKurus:   1000000
+    komisyonYuzde: AK.komisyonYuzde,
+    odemeDonemi:   AYAR ? AYAR.odemeGunuAd(AK.odemeGunu) : AK.odemeGunu,
+    altSinirKurus: AK.altSinirKurus,
+    faturaKurus:   AK.faturaEsigiKurus
   };
 
   document.getElementById('hzKomisyon').value = PARAM.komisyonYuzde;
@@ -400,7 +392,8 @@
     '\u2019in "Seanslar" sekmesindeki üç seçenektir. <b>Para parametreleri alan olarak ' +
     'durur:</b> komisyon, ödeme dönemi, alt sınır ve fatura eşiği yukarıdaki ' +
     'kutularda okunur ve komisyon kolonu her satırda oradan hesaplanır; ekranda ' +
-    'sabit sayı yazılmaz. Sahibi Ayarlar ekranıdır, buradan düzenlenmez. ' +
+    'sabit sayı yazılmaz. <code>Ayarlar → Para & Komisyon</code>dan (<code>FIT_AYAR.oku()</code>) ' +
+    'GERÇEKTEN okunur — ikinci bir kopya yok, buradan düzenlenmez. ' +
     '<b>Yazma yüzeyi maket:</b> paket onayı, reddi ve iade kararı doğrulanır ama kaydedilmez.');
 
   /* ==================================================================
@@ -710,26 +703,142 @@
     A.aramaKur(document.getElementById('hzIaAra'), document.getElementById('hzIaTablo'), document.getElementById('hzIaSay'));
   }
 
-  /* ---- iade karar kutusu ---- */
-  var kararKutu = document.getElementById('hzIaKarar');
+  /* ---- iade karar MODALI — taksonomi'nin `.sa-modal-ov`/`.sa-modal`
+     deseninin aynısı (R20). Önceki hâli (`.hz-karar`) sayfanın altında
+     gizli bir kutuyu açıp `scrollIntoView` yapıyordu. ---- */
+  var iaKok = null, iaTetikleyen = null;
+
+  function iaKapat(){
+    if (!iaKok) return;
+    var ov = iaKok;
+    iaKok = null;
+    document.querySelectorAll('#hzIaGovde tr').forEach(function (tr) { tr.classList.remove('is-sec'); });
+    ov.classList.remove('open');
+    document.removeEventListener('keydown', iaTus, true);
+    setTimeout(function () {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (window.FIT_SHELL && FIT_SHELL.unlockScroll) FIT_SHELL.unlockScroll();
+      if (iaTetikleyen && iaTetikleyen.focus) iaTetikleyen.focus();
+    }, 180);
+  }
+  function iaTus(e){
+    if (!iaKok) return;
+    if (e.key === 'Escape') { e.preventDefault(); iaKapat(); return; }
+    if (e.key !== 'Tab') return;
+    var od = iaKok.querySelectorAll('button,input,select,textarea,a[href]');
+    if (!od.length) return;
+    var liste = Array.prototype.slice.call(od).filter(function (x) { return !x.disabled; });
+    var ix = liste.indexOf(document.activeElement);
+    e.preventDefault();
+    liste[(ix + (e.shiftKey ? -1 : 1) + liste.length) % liste.length].focus();
+  }
+
+  function iaAc(id){
+    var t = IADE.filter(function (x) { return x.id === id; })[0];
+    if (!t) return;
+    iaTetikleyen = document.activeElement;
+    document.querySelectorAll('#hzIaGovde tr').forEach(function (tr) {
+      tr.classList.toggle('is-sec', tr.getAttribute('data-id') === id);
+    });
+
+    var ov = document.createElement('div');
+    ov.className = 'sa-ov sa-modal-ov';
+    ov.innerHTML =
+      '<div class="sa-modal hz-modal" role="dialog" aria-modal="true" aria-label="İade kararı">' +
+        '<div class="hzm-head">' +
+          '<h3><i class="fa-solid fa-gavel"></i> İade kararı</h3>' +
+          '<button class="hzm-x" type="button" id="hzIaKapat" aria-label="Kapat">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="hzm-body">' +
+          '<p class="hz-sec">' + '<b>' + esc(t.id) + '</b> · ' + esc(t.uye) + ' → ' + esc(t.ant) + ' · ' +
+            esc(t.paket) + ' · ' + tl(t.tutar) + ' · ' + esc(t.neden) + '</p>' +
+          '<form id="hzIaForm" novalidate>' +
+            '<div class="fk-grid c2">' +
+              '<div class="fk-field">' +
+                '<label class="fk-label" for="hzIaKararSec">Karar <span class="req">*</span></label>' +
+                '<select class="fk-select" id="hzIaKararSec" required>' +
+                  '<option value="onayla">İadeyi onayla</option>' +
+                  '<option value="reddet">İadeyi reddet</option>' +
+                '</select>' +
+              '</div>' +
+              '<div class="fk-field">' +
+                '<label class="fk-label" for="hzIaKanal">Bilgilendirme</label>' +
+                '<select class="fk-select" id="hzIaKanal">' +
+                  '<option>Üyeye ve antrenöre e-posta</option>' +
+                  '<option>Yalnız üyeye e-posta</option>' +
+                '</select>' +
+              '</div>' +
+            '</div>' +
+            '<div class="fk-field">' +
+              '<label class="fk-label" for="hzIaNot">Karar notu <span class="req">*</span></label>' +
+              '<textarea class="fk-textarea" id="hzIaNot" rows="3" required maxlength="500"' +
+                ' placeholder="Kararın gerekçesi — üyeye ve antrenöre aynen iletilir."></textarea>' +
+            '</div>' +
+          '</form>' +
+        '</div>' +
+        '<div class="hzm-foot">' +
+          '<button class="btn btn-ghost" type="button" id="hzIaVazgec">Vazgeç</button>' +
+          '<button class="btn btn-primary" type="button" id="hzIaKaydet"><i class="fa-solid fa-check"></i> Kararı kaydet</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    iaKok = ov;
+
+    if (window.FIT_SHELL && FIT_SHELL.lockScroll) FIT_SHELL.lockScroll();
+    requestAnimationFrame(function () {
+      ov.classList.add('open');
+      var ilk = ov.querySelector('#hzIaKararSec');
+      if (ilk) ilk.focus();
+    });
+
+    ov.querySelector('#hzIaKapat').addEventListener('click', iaKapat);
+    ov.querySelector('#hzIaVazgec').addEventListener('click', iaKapat);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) iaKapat(); });
+    document.addEventListener('keydown', iaTus, true);
+
+    /* İADE KARARI — önce doğrula, sonra ONAY MODALI, sonra dürüst not.
+       🔴 Sıra bilinçli: `data-yikici` delegesi capture fazında çalışır ve
+       formu doğrulamadan modalı açardı; boş zorunlu alanla onay sorulup
+       ardından doğrulamanın patlaması kötü bir akış olurdu. Bu yüzden
+       onay modalı burada elle açılıyor ve K5'in cümlesi kararın türüne
+       göre yazılıyor — kabuğun `data-fiil="iade"` metniyle aynı şeyi
+       söylüyor. */
+    var iaForm = ov.querySelector('#hzIaForm');
+    ov.querySelector('#hzIaKaydet').addEventListener('click', function () {
+      if (!iaForm.reportValidity()) return;
+      var karar = ov.querySelector('#hzIaKararSec').value;
+      var onayli = (karar === 'onayla');
+      A.onay({
+        yikici: onayli,
+        baslik: onayli ? 'İade edilsin mi?' : 'İade reddedilsin mi?',
+        metin: onayli
+          ? 'Üyeye paket tutarının TAMAMI döner. K5 gereği platform komisyonu geri gitmez — ' +
+            'kesilen komisyon markada kalır ve iade tutarı antrenörün bakiyesinden düşülür.'
+          : 'Talep reddedilecek ve gerekçe üyeye iletilecek. Üye aynı talebi yeniden açabilir.',
+        onayla: onayli ? 'İade et' : 'Reddet',
+        ico: onayli ? 'fa-rotate-left' : 'fa-circle-xmark',
+        onay: function () {
+          var not = ov.querySelector('.adm-maket-not');
+          if (!not) {
+            not = document.createElement('span');
+            not.className = 'adm-maket-not';
+            not.style.cssText = 'font-size:12.5px;font-weight:600;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px;margin-right:auto';
+            ov.querySelector('#hzIaKaydet').parentNode.insertBefore(not, ov.querySelector('#hzIaKaydet'));
+          }
+          not.innerHTML = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+            'Form doğrulandı — iade kararı KAYDEDİLMEDİ. Bu prototipte sunucu yok.';
+          A.toast('İade kararı doğrulandı — kaydedilmedi, sunucu yok.', { tip:'info' });
+        }
+      });
+    });
+  }
+
   document.addEventListener('click', function (e) {
     if (!e.target.closest) return;
 
     var ia = e.target.closest('[data-iade]');
-    if (ia) {
-      var id = ia.getAttribute('data-iade');
-      var t = IADE.filter(function (x) { return x.id === id; })[0];
-      document.querySelectorAll('#hzIaGovde tr').forEach(function (tr) {
-        tr.classList.toggle('is-sec', tr.getAttribute('data-id') === id);
-      });
-      document.getElementById('hzIaSecili').innerHTML =
-        '<b>' + esc(t.id) + '</b> · ' + esc(t.uye) + ' → ' + esc(t.ant) + ' · ' +
-        esc(t.paket) + ' · ' + tl(t.tutar) + ' · ' + esc(t.neden);
-      document.getElementById('hzIaNot').value = '';
-      kararKutu.hidden = false;
-      kararKutu.scrollIntoView({ behavior:'smooth', block:'nearest' });
-      return;
-    }
+    if (ia) { iaAc(ia.getAttribute('data-iade')); return; }
 
     /* --- paket ONAYI: yıkıcı değil, o yüzden modalı sayfa açar --- */
     var on = e.target.closest('[data-pk-onay]');
@@ -768,41 +877,6 @@
       pkSuz();
       return;
     }
-  });
-
-  /* İADE KARARI — önce doğrula, sonra ONAY MODALI, sonra dürüst not.
-     🔴 Sıra bilinçli: `data-yikici` delegesi capture fazında çalışır ve
-     formu doğrulamadan modalı açardı; boş zorunlu alanla onay sorulup
-     ardından doğrulamanın patlaması kötü bir akış olurdu. Bu yüzden
-     modal burada elle açılıyor ve K5'in cümlesi kararın türüne göre
-     yazılıyor — kabuğun `data-fiil="iade"` metniyle aynı şeyi söylüyor. */
-  var iaForm = document.getElementById('hzIaForm');
-  document.getElementById('hzIaKaydet').addEventListener('click', function () {
-    if (!iaForm.reportValidity()) return;
-    var karar = document.getElementById('hzIaKararSec').value;
-    var onayli = (karar === 'onayla');
-    A.onay({
-      yikici: onayli,
-      baslik: onayli ? 'İade edilsin mi?' : 'İade reddedilsin mi?',
-      metin: onayli
-        ? 'Üyeye paket tutarının TAMAMI döner. K5 gereği platform komisyonu geri gitmez — ' +
-          'kesilen komisyon markada kalır ve iade tutarı antrenörün bakiyesinden düşülür.'
-        : 'Talep reddedilecek ve gerekçe üyeye iletilecek. Üye aynı talebi yeniden açabilir.',
-      onayla: onayli ? 'İade et' : 'Reddet',
-      ico: onayli ? 'fa-rotate-left' : 'fa-circle-xmark',
-      onay: function () {
-        var not = document.querySelector('#hzIaForm .adm-maket-not');
-        if (!not) {
-          not = document.createElement('span');
-          not.className = 'adm-maket-not';
-          not.style.cssText = 'font-size:12.5px;font-weight:600;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px;margin-left:12px';
-          document.getElementById('hzIaKaydet').parentNode.appendChild(not);
-        }
-        not.innerHTML = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
-          'Form doğrulandı — iade kararı KAYDEDİLMEDİ. Bu prototipte sunucu yok.';
-        A.toast('İade kararı doğrulandı — kaydedilmedi, sunucu yok.', { tip:'info' });
-      }
-    });
   });
 
   pkSuzgecKur();

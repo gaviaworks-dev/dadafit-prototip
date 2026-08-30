@@ -37,8 +37,9 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Üyeler ve Yetki</h1>
-        <div class="ph-sub">Kim üye, kim antrenör, kim yönetici. Satırdaki ada bas — üyenin künyesi,
-           aboneliği, kademesi ve işlem geçmişi kendi sayfasında açılır.</div>
+        <div class="ph-sub">Kim üye, kim antrenör, kim yönetici. Satırdaki ada ya da göz ikonuna bas —
+           üyenin künyesi, aboneliği, kademesi ve işlem geçmişi kendi sayfasında açılır. Kalem ikonu
+           ad, e-posta, telefon ve iç notu düzenleyen forma götürür.</div>
       </div>
       <div class="h-acts">
         <a class="btn btn-ghost" href="admin-rozetler-v1.html"><i class="fa-solid fa-medal"></i> Kademe merdiveni</a>
@@ -98,7 +99,7 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · ÜYELER VE YETKİ   (R19)   — K-LİSTE
+   ADMIN · ÜYELER VE YETKİ   (R19 · R20)   — K-LİSTE
    ---------------------------------------------------------------------
    🔴 R19'DA DEĞİŞEN: gömülü `#uyDetay` kartı SÖKÜLDÜ. İki alanlık
    (Rol, Hesap durumu) o kart D/8'in ölçtüğü eksiğin ta kendisiydi;
@@ -106,8 +107,16 @@
    kendi sayfasında: `admin-uye-detay-v1.html?uye=<üye no>`.
    Liste ekranı yalnız LİSTE olur; detay ekranı yalnız DETAY.
 
-   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-uye-veri.js`. Detay ekranı da
-   aynı dosyayı okur — kayıt iki yerde yaşamaz.
+   🔴 R20'DE EKLENEN: satır aksiyonu birden ikiye çıktı. Gastro ölçüldü
+   (`uyeler/index.blade.php:165` Detay/göz · `:174` Düzenle/kalem) — iki
+   ayrı aksiyon, iki ayrı sayfa. Fit'te yalnız Detay vardı; şimdi Düzenle
+   (kalem) `admin-uye-form-v1.html?uye=<üye no>`ya açılıyor — künye
+   alanlarını (Ad Soyad, e-posta, telefon, iç not, herkese açık
+   görünürlük) düzenleyen ayrı form. Rol/durum hâlâ yalnız detay
+   sayfasında (Gastro'nun kendi kararı, o dosyanın başında ölçüldü).
+
+   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-uye-veri.js`. Detay ve form
+   ekranı da aynı dosyayı okur — kayıt iki yerde yaşamaz.
 
    NE GERÇEK, NE ÖRNEK
    · Kademe merdiveni GERÇEK: `FIT_ROZET.KADEMELER`, her kademede
@@ -234,6 +243,7 @@
       var k = U.kademeBul(u.puan, u.gun);
       var d = DURUM[u.durum], r = ROL[u.rol];
       var hedef = 'admin-uye-detay-v1.html?uye=' + encodeURIComponent(u.id);
+      var duzenle = 'admin-uye-form-v1.html?uye=' + encodeURIComponent(u.id);
       return '<tr data-id="' + esc(u.id) + '" data-rol="' + esc(u.rol) + '" data-durum="' + esc(u.durum) +
              '" data-kademe="' + esc(k ? k.key : '') + '" data-href="' + esc(hedef) + '">' +
         '<td><a class="uy-ad u-cell" href="' + esc(hedef) + '">' +
@@ -246,7 +256,9 @@
         '<td class="num">' + n(u.puan) + '</td>' +
         '<td class="act">' +
           '<a class="adm-ico-btn" href="' + esc(hedef) + '" aria-label="' + esc(u.ad) + ' detayını aç">' +
-          '<i class="fa-solid fa-chevron-right"></i></a>' +
+          '<i class="fa-solid fa-eye"></i></a>' +
+          '<a class="adm-ico-btn" href="' + esc(duzenle) + '" aria-label="' + esc(u.ad) + ' bilgilerini düzenle">' +
+          '<i class="fa-solid fa-pen"></i></a>' +
         '</td></tr>';
     }).join('');
     document.getElementById('uySay').textContent = UYELER.length;

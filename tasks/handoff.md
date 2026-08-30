@@ -619,3 +619,192 @@ Kalıcılaştırılmak istenirse `docs/qa/` altına taşınmalı:
 `an-denetim.mjs` (72 hücre tıklama) · `an-ortusme.mjs` (bölge örtüşmesi) ·
 `k28-cakisma.mjs` (66 sayfada üst üste binen `.lead`) ·
 `k27-dogrula.mjs` (sekme davranışı) · `dogrula-r3.mjs` (kanon genişlik).
+
+---
+---
+
+# 2026-08-30 · R19 — YÖNETİM PANELİ GASTRO'YA ÇEKİLDİ + SPEC TARAMASI
+
+**Özet:** altı ölçüm kapısının altısı **YEŞİL** · public taraf **101/101** ·
+working tree **TEMİZ** · **PUSH ATILAMADI — 9 commit yerelde bekliyor** (§7).
+
+**Sunucu:** `python3 -m http.server 8788 --bind 127.0.0.1` — **ayakta bırakıldı**
+**Giriş:** `http://127.0.0.1:8788/admin-v1.html`
+
+---
+
+## 1 · Ekip durumu — HEPSİ KAPATILDI, YENİDEN AÇMA
+
+Bu turda **13 ajan** koştu, hepsi işini bitirdi ve **idle**. Yeniden açma;
+devir notları commit mesajlarında ve `docs/gastro-olcum/` altında.
+
+**Ölçüm ajanları (6, çıktıları depoda):**
+`gastro-bilesen` · `gastro-form` · `gastro-liste` · `gastro-para` ·
+`fit-eksik` · `spec-tarayici`
+
+**Yapıcı ajanlar (7, çıktıları commit'lendi):**
+`B1-paket` · `B2-sozluk` · `B3-icerik` · `B4-program` · `B5-rozet` ·
+`B6-operasyon` · `B7-ayarlar`
+
+⚠ Üç ajanın raporu 16.000 karakteri aştığı için **kısaltılmış** ulaştı
+(`B2` · `B6` · `gastro-liste`). Bilinmesi gereken her şey belgeye ve commit
+mesajına geçti; ajanı yeniden açmaya gerek yok.
+
+---
+
+## 2 · KAPANANLAR — 9 commit
+
+| Hash | Ne |
+|---|---|
+| `ddd173f` | `docs(olcum)` — Gastro admin + Fit'in yönetilmeyen yüzeyi, **4.840 satır ölçüm** |
+| `a41ae71` | `feat(kabuk)` — 10 ortak bileşen · form kalıbı · gruplu sidebar · `FIT_SHELL.menu()` |
+| `a7402b3` | `feat(veri)` — 5 veri modülü (2'si üreteçli) |
+| `c5e5a9f` | `feat(panel)` — **16 form sayfası**, gömülü form kartlarının yerine |
+| `a013367` | `feat(panel)` — hiç yönetilmeyen içerik için **10 ekran** |
+| `759dba0` | `fix(panel)` — mevcut **18 ekran** aynı sözleşmeye çekildi |
+| `e1bba32` | `test(qa)` — 2 yeni kapı + **yalan söyleyen 4 kapının düzeltmesi** |
+| `f2a5eeb` | `docs` — kit §16–17 · plan D1–D9 · **dersler §32–34** |
+| `9ba81cc` | `docs(kuyruk)` — 4 kalem kapandı, 6 kalem açıldı |
+
+### Ölçülen tur
+
+| | R18 | R19 |
+|---|---|---|
+| Admin ekranı | 21 | **48** (25 menü + 16 form + 7 detay/alt) |
+| Form alanı | 99 | **520** |
+| Ayrı form sayfası | 0 (5 gömülü kart) | **16** (263 alan / 90 bölüm) |
+| Silme yüzeyi olan ekran | **0/21** | **9** |
+| Ortak bileşen | 0 | **10** |
+| Ölçüm kapısı | 4 | **6** |
+| Sidebar | 21 düz kalem | 26 kalem, **2 açılır grup** |
+
+**Kapanış ölçümü (hepsi bu oturumda koşuldu):**
+```
+admin-denetim        25 ekran · taşan 0 · konsol 0 · bağlantı 393, ölü 0 · 44px altı 0
+admin-kalip-denetim  25 ekran · kabuk sapması 0 · kalıp sapması 0 · kusurlu 0
+admin-form-kalibi    16 form  · kusurlu 0 · 263 alan · 90 bölüm
+admin-yazma-kapisi   48 ekran · yazma yüzeyi yalanı 0
+admin-ekleme-kapisi  32 ekran · kusurlu 0 · 520 alan · muaf 15 (hepsi gerekçeli)
+admin-icerik-olcum   6 ekranın 6'sı geçti
+kabuk-r18-nobet      101/101 sayfa · konsol 0 · taşma 0 · footer basıldı
+olu-baglanti         kaynak 0 · DOM 0
+footer-denetim       kırık hedef 0 · çapa 0 · 24px altı 0
+hareket-katalog      EŞİT (25/25, alan farkı 0)
+```
+
+### Gastro taban, tavan değil — ölçülen sınırlar
+Beyar'ın 8 maddesinin **üçünde Gastro'nun kendisi eksikti**, üstüne inşa edildi:
+medya kütüphanesi (`media-library` → **0 isabet**, `alt_text` → **0**) ·
+paket yönetimi (plan CREATE/DELETE yok, özellik tanımlama yüzeyi yok,
+karşılaştırma tablosu yönetilmiyor) · menü (serbest kalem ekleme yok).
+Gastro'nun **üç ölçülmüş kusuru kopyalanmadı**: üç kopya modal CSS'i ·
+CSS'siz `danger` şeridi · merkezî olmayan sıralama (15 çağrı / 6 ekran).
+
+---
+
+## 3 · İŞ 2 — SPEC TARAMASI (ayrı iş, bitti)
+
+`docs/fit-spec-kopukluklari.md` (449 satır) — **22 mantık kopukluğu**:
+yarım eylem 8 · karşılıksız vaat 5 · sahte bağ 5 · ölü veri 4.
+🔴 **Bu turda yalnız ÖLÇÜLDÜ, hiçbiri düzeltilmedi** — kapsam yönetim paneliydi.
+
+En ağır beşi:
+1. **K13** — `dm_fit.bugun`da tarih alanı yok, gün dönümünde sıfırlayan kod yok.
+   Tarayıcıda ölçüldü: 9 gün önce 40 dk + 3 gün önce 30 dk + bugün 20 dk →
+   ekran **"90 dk bugün hareket"** basıyor. `fit-su.js` bunu doğru yapıyor.
+2. **K1** — `hesabim-v1`de 6 form yeşil tikle "Kaydedildi" diyor, **0 yazma**.
+3. **K3** — 50 rozetin 9'u hiçbir yoldan kazanılamaz (4.170 puanın 950'si).
+4. **K10** — `rozetlerim-v1` `fit-su.js`i yüklemiyor; aynı rozet iki sayfada
+   iki farklı sayı gösteriyor.
+5. **K11** — programı bitirmek rozeti vermiyor; rozet **bir sonraki programa
+   başlayınca** düşüyor.
+
+**Desen:** kopuklukların üçte ikisi tek sebepten — *sonucu yazacak alan var,
+yazan çağrı yok* (`randevuDurum` 0 çağıran · `programArsivle` 0 ·
+`dm_user.paket` 0 yazan / 2 okuyan · `metrik.km` 0).
+
+---
+
+## 4 · AÇIK / SONRAKİ ADIM — öncelik sırası
+
+**🔴 P0 · DIŞ BAĞIMLILIK — PUSH.** 9 commit yerelde. Beyar'ın elinden
+`! git push origin main` (aktif hesap `gaviaworks-dev`, doğru olan).
+Push atılana kadar `/v2/` yayını **tazelenmedi**.
+
+**P1 · `tasks/kuyruk.md` kalem 11 — `.cmp-table` iki kopya ve AYRIŞMIŞLAR.**
+`pro-v1` 31 kural / `paketlerim-v1` 25 kural; `min-width` 660 vs 640,
+dolgu 13/18 vs 12/16, `.cmp-hint` `none` vs `flex`. **Kullanıcı iki sayfada
+farklı bir tablo görüyor.** Kabuğa taşınmalı; hangi değerlerin kanon olacağı
+bir karar. İki public sayfayı ilgilendirdiği için R19'da yapılmadı.
+
+**P2 · `docs/fit-spec-kopukluklari.md`in 22 kalemi.** Ölçüldü, düzeltilmedi.
+K13 ve K1 en ucuz ikisi ve en görünür yalanı üretiyorlar.
+
+**P3 · Kuyruk kalemleri 12–16** (R19'da açıldı): reklam formatı⇄alan
+eşleşmesi ürün kararı · `FIT_SU.EK_ADIM_ML` dışa verilmiyor · 3 destek
+konusunun yönergesi yok · ajan scratchpad ad çakışması.
+
+**P4 · Kuyruk kalemleri 1, 3, 6, 7, 8, 9** — önceki turlardan taşınanlar.
+Özellikle **kalem 9: rail iki kez tanımlı** (60 public sayfayı ilgilendiriyor).
+
+**Karar bekleyenler (ürün/ticari, ajanlar DUR dedi):** yıllık ücret · deneme
+süresi · yıllık indirim oranı · Pro Max fiyatı — dördü de **boş alan** olarak
+duruyor, rakam uydurulmadı.
+
+---
+
+## 5 · Dersler — `docs/lessons.md` §32–34 (versiyonlu, commit'li)
+
+**§32 · Belgeye yazılan ders, kapıya yazılmadıkça bir sonraki dosyada geri
+gelir.** `pattern="[a-z0-9-]+"` Chromium'un `v` kipinde geçersiz →
+`reportValidity()` istisna atıyor → form doğrulanmıyor → ekran yine
+"Form doğrulandı" diyor. **Bu ders `admin-challenge-v1`in kendi yorumunda
+zaten yazılıydı** ve altı yeni dosyanın altısında tekrarlandı.
+
+**§33 · HTML'den grep'lenen sayı ölçüm değil tahmindir.** Bir ajan kendi
+brifingindeki üç sayıyı yeniden ölçtü, üçü de yanlıştı — **ve üçü de
+grep'ti**; veri modülünden okunan hiçbir sayı yanlış çıkmadı.
+Ve: **olmayan bir kusuru ekrana basmak, olan bir kusuru kaçırmaktan daha
+kötüdür** — ajan talimatı körlemesine uygulamak yerine ölçümü söyledi.
+
+**§34 · Yarım uygulanan eş-ad sözleşmesi, hiç olmamasından kötüdür.**
+`.adm-card .c-body, .pnl-card .pc-body` yazılışı çapraz birleşimleri
+düşürüyordu → `.adm-card .pc-body` dolgusu **0px**. Kimse görmedi çünkü kart
+yine de "duruyor" görünüyordu. *Yan ders:* **çalışan bir yedek yol kusuru
+görünmez kılar** — `kasKatalog()` sessizce yanlış kaynağa düşüyor, ipucu
+"31 kas" diyor, menü **38** basıyordu.
+
+**Bu tura özel dördüncü:** **kapının kendisi de yalan söyleyebilir.** Beş
+kapı düzeltildi — biri 30 sn timeout ile sessizce çöküyordu, biri
+`<script>` gövdesini okuyup kendi belgesini kusur sanıyordu, biri WCAG
+2.5.8'in kendi inline istisnasını bilmiyordu, biri boşalttığı formun değil
+başka bir formun düğmesine basıyordu. **Yanlış kırmızı, kırmızıyı
+değersizleştirir.**
+
+---
+
+## 6 · Bilinmesi gerekenler
+
+- Kabuk dosyalarına (`fit-shell.*` · `fit-admin.*`) **yalnız lead yazar**.
+- `git add -A` **YASAK** · `--no-verify` **YASAK** (pre-commit 9/9 geçti).
+- Ajanlar tek git index paylaşır — **ajanlar çalışırken commit atma**
+  (pre-commit çalışan ağacı stash'liyor). Bu turda kurala uyuldu.
+- Ajanlar scratchpad'i de paylaşıyor; geçici dosya adına **ön ek** koydur.
+- Ölçüm reçetesi: `BASE=http://127.0.0.1:8788 PW_HOME=~/.pw node docs/qa/<betik>.mjs`
+- Yeni ekran eklemek = `fit-admin.js`in `MENU` dizisine bir satır.
+  Form sayfaları MENU'ye **girmez**; kapılar onları diskten okur.
+
+---
+
+## 7 · 🔴 PUSH DURUMU — TAMAMLANMADI
+
+`git push origin main` **harness izin sınıflandırıcısı tarafından reddedildi.**
+Etrafından dolanılmadı (skill kuralı).
+
+```
+## main...origin/main [ahead 9]
+working tree: temiz
+```
+
+**Beyar'ın yapması gereken:** `! git push origin main`
+Beklenen aralık: `b8d3418..9ba81cc` (9 commit).

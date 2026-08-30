@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abonelik Planları — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.pl-yok{color:var(--muted);font-weight:600}
+.pl-kol{min-width:150px}
+</style>
+</head>
+<body class="adm-body" data-adm="planlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Abonelik Planları</h1>
+        <div class="ph-sub" id="plAlt">Platformun kendi ürünü: üyenin DadaFit'e ödediği abonelik.
+           Üyenin antrenörden satın aldığı hizmet ayrı bir akıştır ve
+           <a href="admin-hizmetler-v1.html">Hizmetler ve Satışlar</a> ekranından yönetilir.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="pro-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+        <a class="btn btn-primary" href="admin-plan-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni plan</a>
+      </div>
+    </div>
+
+    <div id="plKaynak"></div>
+
+    <div class="adm-kpi" id="plKpi"></div>
+
+    <div class="adm-card" id="plListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-layer-group"></i> Planlar</h3>
+        <div class="c-acts"><span class="fp-badge" id="plRozet">—</span></div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="plAra">Plan ara</label>
+          <input type="search" id="plAra" placeholder="Plan adı ya da anahtar ara" />
+        </div>
+        <div class="fb-sel">
+          <div class="ff" id="plSuzgec" data-ff></div>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="plTablo">
+            <thead>
+              <tr>
+                <th>Plan</th><th>Rozet</th>
+                <th class="num">Aylık</th><th class="num">Yıllık</th>
+                <th class="num">Deneme</th><th class="num">Açık özellik</th>
+                <th class="num">Abone</th><th>Durum</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="plGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="plSay">0</b> plan · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AÇIK KALEMLER — ticari karar bekleyenler ============ -->
+    <div class="adm-card" id="plAcik">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-circle-question"></i> Kaynağı olmayan alanlar</h3>
+        <div class="c-acts"><span class="fp-badge wait" id="plAcikSay">—</span></div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="plAcikTablo">
+            <thead><tr><th>Alan</th><th>Bugünkü kaynağı</th><th>Neden boş</th></tr></thead>
+            <tbody id="plAcikGovde"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ABONELİK PLANLARI   (R19)   — K-LİSTE
+   ---------------------------------------------------------------------
+   NEDEN VAR — K6 (2026-08-30 güncellemesi): "Fit'te abonelik YOKTUR"
+   kararı geri alındı; abonelik VARDIR ve platformun kendi ürünüdür.
+   Gastro'nun karşılığı dörtlüdür: Planlar · Abonelikler · Faturalar ·
+   Kuponlar. Bu ekran o dörtlünün ilkidir.
+
+   VERİ — İKİ KAYNAK, İKİSİ DE SÖYLENİYOR (brief §4):
+   · GERÇEK: plan satırları `fit-paket.js`in `KADEMELER` dizisidir
+     (Ücretsiz · Pro · Pro Max). Ad, anahtar, ikon, özet, aylık tutar ve
+     "öne çıkan" bayrağı oradan okunuyor; açık özellik sayısı
+     `FIT_PAKET.ozellikler(key)`den SAYILIYOR. İkinci bir plan listesi
+     tutulmuyor — tutulsaydı paket ekranıyla bu ekran ayrışırdı.
+   · KAYNAĞI YOK: yıllık fiyat, deneme süresi, indirim, para birimi ve
+     abone sayısı motorda YOKTUR. Uydurulmadılar; hücre "—" kalıyor ve
+     sayfanın altındaki tablo hangi alanın neden boş olduğunu tek tek
+     yazıyor. 🔴 Bunların üçü TİCARİ KARARDIR (brief §4) ve lead'e
+     bildirildi.
+
+   🔴 GASTRO'NUN EKSİĞİ BİLEREK KAPATILDI. Ölçüm
+   (`para-abonelik-menu-ayarlar.md` §1.1): Gastro'da plan CREATE ve DELETE
+   **kasıtlı olarak yoktur** — `PlanController` yalnız
+   `index/edit/update/toggleStatus` taşır, kanonik set sabittir. Fit'te K14
+   "hesap yüzeyinin TAMAMI doğru kurguyla yeniden çizilir" diyor, bu yüzden
+   "Yeni plan" ve satır "Sil" VAR. Sapma bilinçlidir ve buraya yazılıdır.
+
+   🔴 K13. Tutar sabit metin değil ALAN: bu dosyada basılı bir "₺99" yok,
+   değer `FIT_PAKET`ten okunuyor ve `FIT_ADMIN.tl` ile biçimleniyor.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET, F = window.FIT_FATURA;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  var KADEMELER = (P && P.kademeler) || [];
+
+  /* Abonelik faturası SAYISI gerçek — defterden sayılıyor. Abone SAYISI
+     değil: defter tek üyenin defteridir, üye sayısı vermez. İkisini
+     karıştırmamak için sayaç "abonelik faturası" diye adlandırıldı. */
+  var uyelikFatura = ((F && F.defter) || []).filter(function (x) { return x.tur === 'uyelik'; });
+
+  document.getElementById('plKaynak').innerHTML = A.kaynak('canli',
+    '<b>Plan satırları gerçek:</b> ' + n(KADEMELER.length) + ' plan <code>fit-paket.js</code>ten ' +
+    'okunuyor — üye yüzündeki kademe kartları da aynı diziden basılıyor, burada ikinci bir ' +
+    'plan listesi yok. Açık özellik sayısı 30 modüllük eşlemeden <b>sayıldı</b>. ' +
+    '<b>Yıllık fiyat, deneme süresi, indirim, para birimi ve abone sayısı motorda yok</b> — ' +
+    'hücreler “—” kalıyor, aşağıdaki tablo nedenini tek tek yazıyor. ' +
+    '<b>Yazma yüzeyi maket:</b> sunucu yok, kayıt gitmez.');
+
+  if (!P) {
+    document.getElementById('plGovde').innerHTML = '<tr><td colspan="9">' +
+      A.bos('fa-layer-group', 'Plan motoru yüklenmedi',
+            'Abonelik planları fit-paket.js dosyasından okunur; bu sayfada yüklenemedi.',
+            '<a class="btn btn-ghost" href="admin-paketler-v1.html">' +
+            '<i class="fa-solid fa-layer-group"></i> Paketler ekranını aç</a>') +
+      '</td></tr>';
+    return;
+  }
+
+  /* ---------- durum: motorun kendi alanlarından TÜRETİLİR ----------
+     Ayrı bir `durum` kolonu yok; olsaydı ikinci bir gerçek olurdu.
+       fiyat null      → tutar onay bekliyor (satılamaz)
+       fiyat 0         → ücretsiz (yayında, tahsilat yok)
+       fiyat > 0       → yayında */
+  function durumu(k){
+    if (k.fiyat === null || k.fiyatMetin === null) return { key:'bekleyen', ad:'Tutar onay bekliyor', rz:'wait', ico:'fa-clock' };
+    if (k.fiyat === 0) return { key:'ucretsiz', ad:'Ücretsiz', rz:'off', ico:'fa-circle-dot' };
+    return { key:'yayin', ad:'Yayında', rz:'ok', ico:'fa-circle-check' };
+  }
+
+  /* ---------- sayaçlar ---------- */
+  var satilabilir = KADEMELER.filter(function (k) { return k.fiyat; }).length;
+  var bekleyen = KADEMELER.filter(function (k) { return k.fiyat === null; }).length;
+  var oneCikan = KADEMELER.filter(function (k) { return k.one; })[0];
+
+  document.getElementById('plKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><div>' +
+      '<b>' + n(KADEMELER.length) + '</b><span>Plan</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' +
+      KADEMELER.map(function (k) { return esc(k.ad); }).join(' · ') + '</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-lira-sign"></i></span><div>' +
+      '<b>' + n(satilabilir) + '</b><span>Ücretli plan</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' + n(bekleyen) +
+      ' planın tutarı verilmedi; satın alma akışı o planda açılamaz.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-star"></i></span><div>' +
+      '<b>' + (oneCikan ? esc(oneCikan.ad) : '—') + '</b><span>Öne çıkan plan</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> Üyelik sayfasında vurgulanan sütun; plan formundan seçilir.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-file-invoice"></i></span><div>' +
+      '<b>' + n(uyelikFatura.length) + '</b><span>Abonelik faturası</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> Fatura defterinden sayıldı. ' +
+      'Abone SAYISI değildir: defter tek üyenin defteri.</span>' +
+    '</div></div>';
+
+  /* ---------- liste ---------- */
+  function listeBas(){
+    document.getElementById('plGovde').innerHTML = KADEMELER.map(function (k, i) {
+      var d = durumu(k);
+      var acik = P.ozellikler(k.key).length;
+      var rozet = k.one
+        ? A.rozet('ok', 'Öne çıkan', 'fa-star')
+        : '<span class="pl-yok">—</span>';
+      return '<tr data-plan="' + esc(k.key) + '" data-durum="' + d.key + '">' +
+        '<td><b><i class="' + k.ikon + '" aria-hidden="true"></i> ' + esc(k.ad) + '</b>' +
+          '<small>' + esc(k.key) + ' · ' + esc(k.ozet) + '</small></td>' +
+        '<td>' + rozet + '</td>' +
+        '<td class="num">' + (k.fiyatMetin === null ? '<span class="pl-yok">—</span>'
+              : '<b>' + esc(k.fiyatMetin) + '</b><small>' + esc(k.birim) + '</small>') + '</td>' +
+        '<td class="num"><span class="pl-yok">—</span></td>' +
+        '<td class="num"><span class="pl-yok">—</span></td>' +
+        '<td class="num">' + n(acik) + ' / 30</td>' +
+        '<td class="num"><span class="pl-yok">—</span></td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="pro-v1.html#karsilastir" target="_blank" rel="noopener" ' +
+            'aria-label="' + esc(k.ad) + ' planını sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<a class="adm-ico-btn" href="admin-plan-form-v1.html?plan=' + encodeURIComponent(k.key) + '" ' +
+            'aria-label="' + esc(k.ad) + ' planını düzenle"><i class="fa-solid fa-pen"></i></a>' +
+          '<button class="adm-ico-btn danger" type="button" data-plan-sil="' + esc(k.key) + '" ' +
+            'data-yikici="' + esc(k.ad) + '" data-fiil="sil" ' +
+            'aria-label="' + esc(k.ad) + ' planını sil"><i class="fa-solid fa-trash-can"></i></button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('plSay').textContent = KADEMELER.length;
+    document.getElementById('plRozet').textContent =
+      KADEMELER.length + ' plan · ' + bekleyen + ' tutar bekliyor';
+    A.aramaKur(document.getElementById('plAra'),
+               document.getElementById('plTablo'),
+               document.getElementById('plSay'));
+  }
+
+  /* ---------- süzgeç — kabuğun ortak bileşeni ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('plSuzgec');
+    var durumlar = [];
+    KADEMELER.forEach(function (k) {
+      var d = durumu(k);
+      if (!durumlar.filter(function (x) { return x.key === d.key; }).length) durumlar.push(d);
+    });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span>' +
+        '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        durumlar.map(function (d) {
+          return '<button class="df-fchip" type="button" data-val="' + d.key + '">' +
+                 '<i class="fa-solid ' + d.ico + '"></i> ' + esc(d.ad) + '</button>';
+        }).join('') +
+      '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = new Set();
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec.clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec.has(v);
+            if (ac) sec.add(v); else sec.delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec.size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+  function suz(sec){
+    var say = 0;
+    document.querySelectorAll('#plGovde tr[data-plan]').forEach(function (tr) {
+      var ok = !sec.size || sec.has(tr.getAttribute('data-durum'));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('plSay').textContent = say;
+  }
+
+  /* ---------- silme: onay kabuktan, sonuç dürüstçe söyleniyor ---------- */
+  document.getElementById('plGovde').addEventListener('click', function (e) {
+    var s = e.target.closest && e.target.closest('[data-plan-sil]');
+    if (!s) return;
+    A.toast('“' + s.getAttribute('data-yikici') + '” planı silinmedi — sunucu yok. ' +
+            'Gerçek silmede bu plandaki abonelikler dönem sonuna kadar korunur.',
+            { tip:'info', ms:4600 });
+  });
+
+  /* ---------- kaynağı olmayan alanlar — dürüstlük tablosu ----------
+     Boş hücreyi açıklamadan bırakmak, okuyanı "veri kayıp mı" diye
+     düşündürür. Beş alanın da neden boş olduğu tek tek yazılı. */
+  var ACIK = [
+    ['Yıllık fiyat', 'Yok — <code>fit-paket.js</code> yalnız aylık tutar taşıyor',
+     'Yıllık tutar ve “2 ay bedava” gibi bir indirim kuralı ticari karardır; verilmedi, uydurulmadı.'],
+    ['Deneme süresi', 'Yok — motorda karşılığı olan alan yok',
+     'Kaç gün deneme verileceği ticari karardır; panelden belirlenir.'],
+    ['İndirim', 'Yok — motorda karşılığı olan alan yok',
+     'Yıllık indirim oranı ticari karardır. Gastro’da da ayrı alan yok: kart metni “(2 ay bedava)” diye SABİT (ölçüldü).'],
+    ['Para birimi', 'Yok — tutar <code>₺</code> önekiyle basılıyor',
+     'Gastro’da <code>plans.currency</code> kolonu var ama formda alanı yok (ölçüldü). Fit’te tek para birimi var; alan plan formunda duruyor, değeri panelden gelir.'],
+    ['Abone sayısı', 'Yok — <code>fit-fatura.js</code> tek üyenin defteri',
+     'Defterde ' + uyelikFatura.length + ' abonelik faturası var ama hepsi aynı üyenin; bu bir abone sayısı vermez. Sayı üye kayıtlarından gelmeli.']
+  ];
+  document.getElementById('plAcikGovde').innerHTML = ACIK.map(function (r) {
+    return '<tr><td><b>' + esc(r[0]) + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+  }).join('');
+  document.getElementById('plAcikSay').textContent = ACIK.length + ' alan kaynaksız';
+
+  listeBas();
+  suzgecKur();
+})();
+</script>
+</body>
+</html>

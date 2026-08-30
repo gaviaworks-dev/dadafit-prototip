@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yasal Belgeler — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi yerleşim işi. */
+.yl-ord{display:flex;align-items:center;gap:4px}
+/* Kaynağı olmayan alan: kabuk "—" basıyor; burada yalnız hizası
+   sayısal kolonlarla tutuluyor, yeni renk yok. */
+.yl-yok{color:var(--muted);font-weight:600}
+</style>
+</head>
+<body class="adm-body" data-adm="yasal">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Yasal Belgeler</h1>
+        <div class="ph-sub">Kullanım koşullarından antrenör sözleşmesine kadar yasal metinlerin
+          tamamı. Bugün hepsi <code>yasal-v1.html</code>in içinde tek bir JS nesnesinde duruyor;
+          hiçbiri panelden düzenlenmiyor.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="yasal-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Yasal sayfayı gör</a>
+        <a class="btn btn-primary" href="admin-yasal-form-v1.html">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni belge</a>
+      </div>
+    </div>
+
+    <div id="ylKaynak"></div>
+    <div id="ylUyari"></div>
+
+    <div class="adm-kpi" id="ylKpi"></div>
+
+    <div class="adm-card" id="ylListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Belgeler</h3>
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="ylAra">Belge ara</label>
+          <input type="search" id="ylAra" placeholder="Belge adı ya da anahtar ara" />
+        </div>
+        <div class="fb-sel">
+          <label for="ylSuz">Süzgeç</label>
+          <select id="ylSuz">
+            <option value="">Tümü</option>
+            <option value="uyari">Sağlık uyarısı taşıyanlar</option>
+            <option value="surumsuz">Sürüm damgası olmayanlar</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="ylTablo">
+            <thead>
+              <tr>
+                <th>Sıra</th>
+                <th>Belge</th>
+                <th>Sürüm</th>
+                <th>Yürürlük tarihi</th>
+                <th>Son güncelleme</th>
+                <th class="num">Gövde</th>
+                <th class="num">Bağlantı</th>
+                <th>Durum</th>
+                <th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="ylGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="ylSay">0</b> belge · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DİZİN TUTARLILIĞI ============ -->
+    <div class="adm-card" style="margin-top:24px">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Dizin tutarlılığı</h3>
+      </div>
+      <div class="pc-body" id="ylTutarlilik"></div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   YASAL BELGELER — LİSTE   (kalıp: K-LİSTE)
+   ---------------------------------------------------------------------
+   Ölçülen eksiğin karşılığı: `fit-yonetilmeyenler.md` C-4 —
+   "yasal-v1.html içinde yasal belge · gömülü metin · yöneten YOK".
+
+   🔴 ÖLÇÜM DÜZELTMESİ — DÖRT SAYI YENİDEN ÖLÇÜLDÜ (2026-08-30).
+   Kaynak belge şunları söylüyordu; parantez içi bu ekranın ölçtüğü:
+     · "10 yasal belge"                → **11**  (`L` 11 anahtar tanımlıyor)
+     · "ORDER 11 ilan ediyor ama L 10" → **YOK** (ikisi de 11, kesişim tam)
+     · "veri-izin `L` içinde yok"      → **VAR** (`yasal-v1.html:398`)
+     · "31 KB gömülü metin"            → **28,8 KB** (gövdelerin toplamı)
+     · "5 kez tekrarlanan sağlık uyarısı" → **1 sabit, 4 belgede kullanılıyor**
+   Yeniden üretim:
+     node -e "…yasal-v1.html'den ORDER ve L okunur…"
+     ORDER.length → 11 · Object.keys(L).length → 11 · fark → []
+   Bu ekran uyarı rozetini SABİT BASMIYOR; farkı aşağıdaki veriden
+   HESAPLIYOR. Fark doğduğu gün rozet kendiliğinden yanar; bugün yanmıyor
+   çünkü fark yok — olmayan bir kusuru boyamak, olan bir kusuru gizlemek
+   kadar yanlış olurdu.
+
+   GERÇEK EKSİK BAŞKA: 11 belgenin 11'inde de **sürüm** ve **yürürlük
+   tarihi** alanı hiç yok (`L` yalnız t · c · s · h tutuyor). Yasal metnin
+   hangi tarihten beri yürürlükte olduğu bugün hiçbir yerde yazmıyor —
+   uyarı şeridi bunu söylüyor.
+
+   🔴 HUKUKİ SINIR: bu ekran yasal metnin İÇERİĞİNE dokunmaz. Metin
+   okunur, sayılır, listelenir; tek bir hukuki cümle üretilmez.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+
+  /* Dizin sırası — `yasal-v1.html`in kendi ORDER dizisi (2026-08-30). */
+  var ORDER = ['kullanim','uyelik','mesafeli','iade','teslimat','kvkk',
+               'aydinlatma','cerez','veri-izin','bilgilendirme','sozlesme'];
+
+  /* Belge künyeleri — `L` nesnesinden okundu. `karakter` gövdenin uzunluğu,
+     `bag` deponun kaç yerinden bu anahtara bağlandığı:
+       grep -ohE 'yasal-v1\.html\?metin=[a-z-]+' *.html assets/js/*.js
+         | sed 's/.*metin=//' | sort | uniq -c                          */
+  var L = [
+    { slug:'kullanim',      baslik:'Kullanım Koşulları',          kisa:'Kullanım Koşulları', h3:7, p:8, li:5, karakter:3747, uyari:true,  bag:7 },
+    { slug:'uyelik',        baslik:'Üyelik ve İptal Koşulları',   kisa:'Üyelik ve İptal',    h3:6, p:7, li:3, karakter:2956, uyari:false, bag:13 },
+    { slug:'mesafeli',      baslik:'Mesafeli Satış Sözleşmesi',   kisa:'Mesafeli Satış',     h3:5, p:4, li:0, karakter:1886, uyari:false, bag:4 },
+    { slug:'iade',          baslik:'Cayma ve İade Koşulları',     kisa:'Cayma ve İade',      h3:5, p:4, li:4, karakter:1969, uyari:false, bag:12 },
+    { slug:'teslimat',      baslik:'Ödeme ve Erişim Koşulları',   kisa:'Ödeme ve Erişim',    h3:5, p:4, li:3, karakter:1556, uyari:false, bag:4 },
+    { slug:'kvkk',          baslik:'Gizlilik ve KVKK Politikası', kisa:'Gizlilik ve KVKK',   h3:7, p:8, li:6, karakter:4824, uyari:true,  bag:23 },
+    { slug:'aydinlatma',    baslik:'Aydınlatma Metni',            kisa:'Aydınlatma Metni',   h3:5, p:4, li:6, karakter:1745, uyari:false, bag:11 },
+    { slug:'cerez',         baslik:'Çerez Politikası',            kisa:'Çerez Politikası',   h3:5, p:4, li:0, karakter:1839, uyari:false, bag:5 },
+    { slug:'veri-izin',     baslik:'Veri ve İzin Politikası',     kisa:'Veri ve İzin',       h3:5, p:5, li:7, karakter:2836, uyari:false, bag:7 },
+    { slug:'bilgilendirme', baslik:'Platform Bilgilendirme Metni',kisa:'Bilgilendirme Metni',h3:6, p:8, li:0, karakter:3223, uyari:true,  bag:3 },
+    { slug:'sozlesme',      baslik:'Antrenör Sözleşmesi',         kisa:'Antrenör Sözleşmesi',h3:6, p:6, li:5, karakter:2889, uyari:true,  bag:3 }
+  ];
+
+  /* Bütün belgeler tek dosyada yaşıyor; son güncelleme o dosyanın
+     git damgası (git log -1 --format=%as -- yasal-v1.html). */
+  var DOSYA_TARIH = '2026-08-25';
+
+  function bul(s) { for (var i = 0; i < L.length; i++) if (L[i].slug === s) return L[i]; return null; }
+  var topKarakter = L.reduce(function (a, x) { return a + x.karakter; }, 0);
+  var topBag = L.reduce(function (a, x) { return a + x.bag; }, 0);
+  var uyariSay = L.filter(function (x) { return x.uyari; }).length;
+
+  /* ---- dizin farkı: hesaplanır, yazılmaz ---- */
+  var slugKume = L.map(function (x) { return x.slug; });
+  var orderFazla = ORDER.filter(function (k) { return slugKume.indexOf(k) < 0; });
+  var lFazla = slugKume.filter(function (k) { return ORDER.indexOf(k) < 0; });
+  var fark = orderFazla.length + lFazla.length;
+
+  document.getElementById('ylKaynak').innerHTML = A.kaynak('ornek',
+    '<b>' + L.length + ' belgenin künyesi gerçek:</b> <code>yasal-v1.html</code>in ' +
+    '<code>ORDER</code> ve <code>L</code> yapılarından 2026-08-30\'da okundu; gövde uzunlukları ' +
+    've bağlantı sayıları depodan sayıldı (toplam <b>' + topBag + '</b> iç bağlantı, 17 dosyadan). ' +
+    '<b>Sürüm ve yürürlük tarihi kolonları boş çünkü kaynağı yok</b> — bugün hiçbir belgede ' +
+    'böyle bir alan tanımlı değil. Sunucu yok: <b>hiçbir şey kaydedilmez.</b>');
+
+  /* ---- uyarı şeridi: GERÇEK eksiği söyler ---- */
+  var kap = document.getElementById('ylUyari');
+  if (fark) {
+    A.flash('warn', 'Dizin tutarsız: ORDER ile L arasında ' + fark + ' kalem farkı var — ' +
+      'eksik anahtar ORDER[0]\'a düşer ve üye yanlış belgeyi okur.', kap);
+  }
+  A.flash('warn', L.length + ' belgenin ' + L.length + '\'inde de sürüm ve yürürlük tarihi alanı yok. ' +
+    'Yasal metnin hangi tarihten beri geçerli olduğu bugün hiçbir yerde yazmıyor; ' +
+    'değişiklik olduğunda üyeye "neyin ne zaman değiştiği" gösterilemez.', kap);
+
+  /* ---------- sayaçlar ---------- */
+  (function kpi() {
+    var kut = [
+      ['fa-scale-balanced', L.length, 'yasal belge',
+       'Ölçüldü: kaynak belgedeki "10" rakamı bir kalem eksikti; L 11 anahtar tanımlıyor.', 'flat', 'fa-check'],
+      ['fa-file-lines', (topKarakter / 1024).toFixed(1) + '<small>KB</small>', 'gömülü gövde metni',
+       'Onbir belgenin gövdeleri toplamı; hiçbiri panelden düzenlenemiyor.', 'down', 'fa-clock'],
+      ['fa-link', topBag, 'iç bağlantı',
+       'Kabuk, footer, çerez bandı ve 14 sayfa bu anahtarlara bağlanıyor — anahtar bir sözleşmedir.', 'flat', 'fa-check'],
+      ['fa-calendar-xmark', 0, 'sürüm damgası',
+       'Sürüm ve yürürlük tarihi alanı hiçbir belgede tanımlı değil.', 'down', 'fa-clock']
+    ];
+    document.getElementById('ylKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '" aria-hidden="true"></i></span>' +
+        '<div><b>' + k[1] + '</b><span>' + A.esc(k[2]) + '</span>' +
+        '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+        A.esc(k[3]) + '</span></div></div>';
+    }).join('');
+  })();
+
+  /* ---------- liste ---------- */
+  var govde = document.getElementById('ylGovde');
+  govde.innerHTML = ORDER.map(function (slug, i) {
+    var d = bul(slug);
+    if (!d) {
+      /* ORDER'da olup L'de olmayan anahtar — üye bu adrese girdiğinde
+         sessizce ORDER[0]'a düşer. Satır BASILIR ki kusur görünsün. */
+      return '<tr data-slug="' + A.esc(slug) + '" data-uyari="0" data-surumsuz="1">' +
+        '<td><div class="yl-ord"><span class="st-num">' + (i + 1) + '</span></div></td>' +
+        '<td><b>' + A.esc(slug) + '</b><small>dizinde ilan edilmiş, gövdesi tanımlı değil</small></td>' +
+        '<td class="yl-yok">—</td><td class="yl-yok">—</td><td class="yl-yok">—</td>' +
+        '<td class="num yl-yok">—</td><td class="num yl-yok">—</td>' +
+        '<td>' + A.rozet('stop', 'Gövdesi yok', 'fa-triangle-exclamation') + '</td>' +
+        '<td class="act"><span class="adm-ico-btn" aria-disabled="true" ' +
+          'aria-label="Gövdesi olmayan kalem düzenlenemez">' +
+          '<i class="fa-solid fa-ban" aria-hidden="true"></i></span></td></tr>';
+    }
+    return '<tr data-slug="' + A.esc(d.slug) + '" data-uyari="' + (d.uyari ? 1 : 0) + '" data-surumsuz="1">' +
+      '<td><div class="yl-ord">' +
+        '<span class="st-num">' + (i + 1) + '</span>' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="' + A.esc(d.baslik) + ' — dizindeki sırayı ok tuşlarıyla değiştir">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<input type="hidden" data-field="position" value="' + i + '">' +
+      '</div></td>' +
+      '<td><b>' + A.esc(d.baslik) + '</b><small><code>?metin=' + A.esc(d.slug) + '</code> · ' +
+        A.esc(d.kisa) + (d.uyari ? ' · sağlık uyarısı taşır' : '') + '</small></td>' +
+      '<td class="yl-yok">—</td>' +
+      '<td class="yl-yok">—</td>' +
+      '<td>' + A.tarih(DOSYA_TARIH) + '</td>' +
+      '<td class="num">' + A.n(d.karakter) + '</td>' +
+      '<td class="num">' + d.bag + '</td>' +
+      '<td>' + A.rozet('ok', 'Yayında', 'fa-circle-check') +
+        (d.uyari ? ' ' + A.rozet('wait', 'Sağlık uyarısı', 'fa-heart-pulse') : '') + '</td>' +
+      '<td class="act">' +
+        '<a class="adm-ico-btn" href="yasal-v1.html?metin=' + A.esc(d.slug) + '" target="_blank" rel="noopener" ' +
+          'aria-label="' + A.esc(d.baslik) + ' belgesini sitede gör">' +
+          '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>' +
+        '<a class="adm-ico-btn" href="admin-yasal-form-v1.html?belge=' + A.esc(d.slug) + '" ' +
+          'aria-label="' + A.esc(d.baslik) + ' düzenle">' +
+          '<i class="fa-solid fa-pen" aria-hidden="true"></i></a>' +
+      '</td></tr>';
+  }).join('');
+  document.getElementById('ylSay').textContent = ORDER.length;
+  A.sirala(govde, { oge: 'tr', tutamak: '.ie-drag' });
+
+  /* ---------- süzgeç ---------- */
+  var bosSatir = null;
+  function bosDurum(say) {
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="9">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle belge kalmadı',
+          'Seçili ölçüte uyan yasal belge yok. Süzgeci "Tümü"ne al ya da arama kutusunu boşalt.',
+          '<button class="btn btn-primary" type="button" id="ylSifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+  }
+  var suzSec = document.getElementById('ylSuz');
+  function suz() {
+    var v = suzSec.value, say = 0;
+    govde.querySelectorAll('tr[data-slug]').forEach(function (tr) {
+      var ok = !v || tr.getAttribute('data-' + v) === '1';
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('ylSay').textContent = say;
+    bosDurum(say);
+  }
+  suzSec.addEventListener('change', suz);
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#ylSifirla')) {
+      suzSec.value = ''; document.getElementById('ylAra').value = '';
+      suz(); document.getElementById('ylAra').dispatchEvent(new Event('input'));
+    }
+  });
+  A.aramaKur(document.getElementById('ylAra'),
+             document.getElementById('ylTablo'),
+             document.getElementById('ylSay'));
+
+  /* ---------- dizin tutarlılığı kartı ---------- */
+  (function tutarlilik() {
+    var sat = [
+      ['ORDER dizisi kalem sayısı', ORDER.length, true],
+      ['L nesnesinde tanımlı gövde', L.length, true],
+      ['ORDER\'da olup gövdesi olmayan', orderFazla.length || 0, orderFazla.length === 0],
+      ['Gövdesi olup dizinde olmayan', lFazla.length || 0, lFazla.length === 0],
+      ['Sürüm damgası taşıyan belge', 0, false],
+      ['Yürürlük tarihi taşıyan belge', 0, false],
+      ['Sağlık uyarısı taşıyan belge', uyariSay, true]
+    ];
+    document.getElementById('ylTutarlilik').innerHTML =
+      '<div class="seo-checks">' + sat.map(function (s) {
+        return '<div class="seo-chk ' + (s[2] ? 'pass' : 'fail') + '">' +
+          '<i class="fa-solid ' + (s[2] ? 'fa-circle-check' : 'fa-circle') + '" aria-hidden="true"></i>' +
+          A.esc(s[0]) + ': <b>' + s[1] + '</b></div>';
+      }).join('') + '</div>' +
+      '<div class="fhint" style="margin-top:12px">Bu yedi satır ekrana yazılmadı, yukarıdaki ' +
+      'veriden <b>hesaplandı</b>. Dizin ile gövde kümesi ayrıştığı gün ilk iki kırmızı satır ' +
+      'kendiliğinden yanar. Sağlık uyarısı metni tek bir sabitte duruyor ve ' +
+      uyariSay + ' belgede kullanılıyor — <b>kopyalanmıyor</b>, tek yerden geliyor.</div>';
+  })();
+})();
+</script>
+</body>
+</html>

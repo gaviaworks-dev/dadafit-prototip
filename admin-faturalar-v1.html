@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Faturalar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.fa-yok{color:var(--muted);font-weight:600}
+.fa-eksi{color:var(--hs-danger)}
+.fa-dl th{width:220px}
+.fa-tut{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="adm-body" data-adm="faturalar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Faturalar</h1>
+        <div class="ph-sub" id="faAlt">Abonelik ve hizmet belgeleri tek defterde. Tutarlar kuruş
+           tamsayısı olarak tutulur, ekranda biçimlenir; KDV ara toplamdan
+           <b>ayrıştırılır</b>, üstüne eklenmez.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="odemelerim-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="faKaynak"></div>
+
+    <div class="adm-kpi" id="faKpi"></div>
+
+    <div class="adm-card" id="faListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-file-invoice"></i> Fatura defteri</h3>
+        <div class="c-acts"><span class="fp-badge" id="faRozet">—</span></div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="faAra">Fatura ara</label>
+          <input type="search" id="faAra" placeholder="Fatura no, konu ya da üye ara" />
+        </div>
+        <div class="fb-sel">
+          <div class="ff" id="faSuzgec" data-ff></div>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="faTablo">
+            <thead>
+              <tr>
+                <th>No</th><th>Üye</th><th>Tür</th>
+                <th class="num">Tutar</th><th>Durum</th><th>Tarih</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="faGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="faSay">0</b> fatura · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FATURA DETAYI ============ -->
+    <div class="adm-card" id="faDetay" hidden>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-receipt"></i> <span id="faDetayBaslik">Fatura detayı</span></h3>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="faDetayKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table fa-dl">
+            <caption class="sr-only">Fatura künyesi</caption>
+            <thead><tr><th>Alan</th><th>Değer</th></tr></thead>
+            <tbody id="faKunye"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="c-head">
+        <h3><i class="fa-solid fa-list"></i> Kalemler</h3>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="faKalemTablo">
+            <caption class="sr-only">Fatura kalemleri ve toplamları</caption>
+            <thead>
+              <tr><th>Açıklama</th><th class="num">Adet</th><th class="num">Birim fiyat</th><th class="num">Tutar</th></tr>
+            </thead>
+            <tbody id="faKalem"></tbody>
+            <tfoot id="faToplam"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="c-body">
+        <div id="faBelgeNot"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · FATURALAR   (R19)   — K-LİSTE
+   ---------------------------------------------------------------------
+   🔴 VERİ GERÇEK — kaynak şeridi 'canli'. Defterin tamamı
+   `assets/js/fit-fatura.js`in `DEFTER` dizisidir: fatura numarası, ETTN,
+   tarih, tür, durum, dönem, konu, kalem dökümü, kart ve tahsilat anı.
+   Üye yüzündeki `odemelerim-v1.html` ve belge penceresi de AYNI dizidir;
+   burada ikinci bir kopya tutulmadı — tutulsaydı iki ekranda iki farklı
+   rakam çıkardı.
+
+   PARA: tutarlar KURUŞ TAMSAYISIDIR (motorun kendi şerhi: kayan noktalı
+   para aritmetiği yuvarlama hatası üretir). Toplam ve KDV
+   `FIT_FATURA.toplamlar()` ile hesaplanıyor — bu ekran kendi aritmetiğini
+   yazmıyor. KDV oranı da tek yerdedir (`FIT_FATURA.kdvOran`) ve buraya
+   sayı olarak KOPYALANMADI, okundu. 🔴 K13.
+
+   ⚠ BİÇİMLEYİCİ `FIT_ADMIN.tl`, `FIT_FATURA.tl` DEĞİL — ölçülmüş bir
+   sapmanın düzeltmesi: defterin kendi biçimleyicisi "₺7.748,00" basıyor,
+   panelin biçimleyicisi "7.748,00 ₺". İkisi de doğru ama panelde İKİSİ
+   birden olamaz; `admin-odemeler` ve öteki para ekranları `FIT_ADMIN.tl`
+   kullanıyor, bu ekran da ona çekildi. SAYI aynı sayıdır — defterin
+   kuruş tamsayısı — yalnız simgenin yeri panelin kuralına uyar.
+   `FIT_FATURA.tl` üye yüzündeki belgenin biçimidir ve orada kalır.
+
+   ⚠ ÜÇ DÜRÜST BOŞLUK, üçü de ekranda yazılı:
+   1. SATICI KÜNYESİ YOK. Motorun şerhi: "DadaFit'in ticari unvanı, vergi
+      dairesi ve VKN'si henüz yok… uydurma bir vergi numarası yazmak SAHTE
+      BELGE üretmek olurdu." Buraya da yazılmadı.
+   2. ÜYE KOLONU TEK KİŞİ. Defter bir üyenin defteridir; `FIT_FATURA`da
+      fatura başına üye alanı YOKTUR, alıcı tek bir `alici()` çağrısından
+      gelir. Kolon o adı basıyor ve şerit bunun neden aynı olduğunu
+      söylüyor. Sahte bir üye dağılımı üretmek, ölçülmemiş bir veriyi
+      ölçülmüş göstermek olurdu.
+   3. PDF YOK. Belge üretimi sunucu işidir; maket dosya üretmez. Düğme
+      koymak yerine ne olduğunu söyleyen bir not duruyor (brief §0/6:
+      hedefi olmayan şey düğme olmaz).
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, F = window.FIT_FATURA;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  if (!F) {
+    document.getElementById('faKaynak').innerHTML = A.kaynak('ornek',
+      'Fatura defteri (<code>fit-fatura.js</code>) yüklenemedi.');
+    document.getElementById('faGovde').innerHTML = '<tr><td colspan="7">' +
+      A.bos('fa-file-invoice', 'Fatura defteri yüklenmedi',
+            'Belgeler fit-fatura.js dosyasından okunur; bu sayfada yüklenemedi.',
+            '<a class="btn btn-ghost" href="admin-odemeler-v1.html">' +
+            '<i class="fa-solid fa-money-bill-wave"></i> Kazançlar ve Ödemeler</a>') +
+      '</td></tr>';
+    return;
+  }
+
+  var DEFTER = F.defter, alici = F.alici();
+
+  /* ---------- tür ve durum sözlükleri — defterin kendi değerlerinden ---- */
+  var TUR = {
+    uyelik:   { ad:'Abonelik',       ico:'fa-repeat',            rz:'ok'   },
+    antrenor: { ad:'Antrenör hizmeti', ico:'fa-user-tie',        rz:'off'  },
+    iade:     { ad:'İade',           ico:'fa-rotate-left',       rz:'wait' }
+  };
+  var DURUM_RZ = { ok:'ok', wait:'wait', off:'off', stop:'stop' };
+  var DURUM_ICO = { ok:'fa-circle-check', wait:'fa-clock', off:'fa-rotate-left', stop:'fa-circle-xmark' };
+
+  /* ---------- sayaçlar — defterden SAYILIR ---------- */
+  function turSay(t){ return DEFTER.filter(function (f) { return f.tur === t; }).length; }
+  var brut = DEFTER.reduce(function (t, f) { return t + F.toplamlar(f).genel; }, 0);
+  var kdvT = DEFTER.reduce(function (t, f) { return t + F.toplamlar(f).kdv; }, 0);
+  var iadeT = DEFTER.filter(function (f) { return F.toplamlar(f).genel < 0; })
+    .reduce(function (t, f) { return t + F.toplamlar(f).genel; }, 0);
+
+  document.getElementById('faKaynak').innerHTML = A.kaynak('canli',
+    '<b>Defter gerçek:</b> ' + n(DEFTER.length) + ' fatura <code>fit-fatura.js</code>ten okunuyor — ' +
+    n(turSay('uyelik')) + ' abonelik, ' + n(turSay('antrenor')) + ' hizmet, ' + n(turSay('iade')) + ' iade. ' +
+    'Üye yüzündeki <code>odemelerim-v1.html</code> de aynı diziyi basıyor. ' +
+    '<b>KDV %' + n(F.kdvOran) + ' tek yerden</b> okunuyor ve toplamdan <b>ayrıştırılıyor</b>; ' +
+    'bu ekran kendi aritmetiğini yazmıyor. ' +
+    '<b>Satıcı künyesi boş:</b> ' + esc(F.satici.kunyeYok) + ' ' +
+    '<b>Üye kolonu tek kişi:</b> defter bir üyenin defteri, fatura başına üye alanı yok.');
+
+  document.getElementById('faKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-file-invoice"></i></span><div>' +
+      '<b>' + n(DEFTER.length) + '</b><span>Fatura</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' +
+      n(turSay('uyelik')) + ' abonelik · ' + n(turSay('antrenor')) + ' hizmet · ' + n(turSay('iade')) + ' iade</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-lira-sign"></i></span><div>' +
+      '<b>' + esc(A.tl(brut)) + '</b><span>Defter toplamı</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> KDV dâhil; iade belgeleri eksi tutar taşır.</span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-percent"></i></span><div>' +
+      '<b>' + esc(A.tl(kdvT)) + '</b><span>Ayrışan KDV</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i><span>Oran <b>%' + n(F.kdvOran) +
+      '</b> — motordan okundu, buraya kopyalanmadı.</span></span>' +
+    '</div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-rotate-left"></i></span><div>' +
+      '<b>' + esc(A.tl(iadeT)) + '</b><span>İade tutarı</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i><span>K5: iade olursa komisyon geri gitmez; ' +
+      'komisyon <a href="admin-odemeler-v1.html">Kazançlar ve Ödemeler</a> ekranında hesaplanır.</span></span>' +
+    '</div></div>';
+
+  /* ---------- liste ---------- */
+  function listeBas(){
+    document.getElementById('faGovde').innerHTML = DEFTER.map(function (f) {
+      var t = TUR[f.tur] || { ad:f.tur, ico:'fa-file', rz:'off' };
+      var top = F.toplamlar(f);
+      return '<tr data-fatura="' + esc(f.no) + '" data-tur="' + esc(f.tur) + '" data-durum="' + esc(f.durum) + '">' +
+        '<td><b>' + esc(f.no) + '</b><small>' + esc(f.konu) + '</small></td>' +
+        '<td><b>' + esc(alici.ad) + '</b><small>' + esc(alici.eposta) + '</small></td>' +
+        '<td>' + A.rozet(t.rz, t.ad, t.ico) + '</td>' +
+        '<td class="num fa-tut' + (top.genel < 0 ? ' fa-eksi' : '') + '"><b>' + esc(A.tl(top.genel)) + '</b>' +
+          '<small>' + esc(f.donem) + '</small></td>' +
+        '<td>' + A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle') + '</td>' +
+        '<td>' + esc(f.tarihKisa) + '</td>' +
+        '<td class="act">' +
+          '<button class="adm-ico-btn" type="button" data-fa-detay="' + esc(f.no) + '" ' +
+            'aria-label="' + esc(f.no) + ' faturasının detayını aç"><i class="fa-solid fa-eye"></i></button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('faSay').textContent = DEFTER.length;
+    document.getElementById('faRozet').textContent =
+      DEFTER.length + ' belge · ' + esc(A.tl(brut)) + ' toplam';
+    A.aramaKur(document.getElementById('faAra'),
+               document.getElementById('faTablo'),
+               document.getElementById('faSay'));
+  }
+
+  /* ---------- süzgeç: tür + durum ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('faSuzgec');
+    var turler = [], durumlar = [];
+    DEFTER.forEach(function (f) {
+      if (turler.indexOf(f.tur) < 0) turler.push(f.tur);
+      if (!durumlar.filter(function (d) { return d.k === f.durum; }).length)
+        durumlar.push({ k:f.durum, ad:f.durumAd });
+    });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="tur" role="group" aria-label="Tür filtresi">' +
+        '<span class="lbl">Tür</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        turler.map(function (t) {
+          var x = TUR[t] || { ad:t, ico:'fa-file' };
+          return '<button class="df-fchip" type="button" data-val="' + esc(t) + '">' +
+                 '<i class="fa-solid ' + x.ico + '"></i> ' + esc(x.ad) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        durumlar.map(function (d) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(d.k) + '">' +
+                 '<i class="fa-solid ' + (DURUM_ICO[d.k] || 'fa-circle') + '"></i> ' + esc(d.ad) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { tur:new Set(), durum:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+  function suz(sec){
+    var s = 0;
+    document.querySelectorAll('#faGovde tr[data-fatura]').forEach(function (tr) {
+      var ok = (!sec.tur.size   || sec.tur.has(tr.getAttribute('data-tur'))) &&
+               (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum')));
+      tr.hidden = !ok; if (ok) s++;
+    });
+    document.getElementById('faSay').textContent = s;
+  }
+
+  /* ---------- detay ---------- */
+  function detayAc(no){
+    var f = F.bul(no); if (!f) return;
+    var t = TUR[f.tur] || { ad:f.tur, ico:'fa-file', rz:'off' };
+    var top = F.toplamlar(f);
+
+    document.getElementById('faDetayBaslik').textContent = f.no + ' — ' + f.konu;
+
+    var satir = function (etiket, deger) {
+      return '<tr><th scope="row">' + esc(etiket) + '</th><td>' + deger + '</td></tr>';
+    };
+    document.getElementById('faKunye').innerHTML =
+      satir('Fatura no', '<b>' + esc(f.no) + '</b>') +
+      satir('ETTN', '<code>' + esc(f.ettn) + '</code><small>Örnek değer — gerçek bir e-Arşiv kaydına karşılık gelmez.</small>') +
+      satir('Tür', A.rozet(t.rz, t.ad, t.ico)) +
+      satir('Durum', A.rozet(DURUM_RZ[f.durum] || 'off', f.durumAd, DURUM_ICO[f.durum] || 'fa-circle')) +
+      satir('Tarih', esc(f.tarih)) +
+      satir('Dönem', esc(f.donem)) +
+      satir('Tahsilat', esc(f.kart) + ' · ' + esc(f.odemeAni)) +
+      satir('Satıcı', '<b>' + esc(F.satici.unvan) + '</b><small>' + esc(F.satici.kunyeYok) + '</small>') +
+      satir('Alıcı', '<b>' + esc(alici.ad) + '</b><small>' + esc(alici.kimlikEtiket) + ': ' + esc(alici.kimlik) +
+            ' · ' + esc(alici.adres) + ' · ' + esc(alici.eposta) + '</small>');
+
+    document.getElementById('faKalem').innerHTML = f.kalem.map(function (k) {
+      var tutar = k[2] * k[3];
+      return '<tr>' +
+        '<td><b>' + esc(k[0]) + '</b><small>' + esc(k[1]) + '</small></td>' +
+        '<td class="num fa-tut">' + n(k[2]) + '</td>' +
+        '<td class="num fa-tut">' + esc(A.tl(k[3])) + '</td>' +
+        '<td class="num fa-tut' + (tutar < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(tutar)) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    document.getElementById('faToplam').innerHTML =
+      '<tr><th scope="row" colspan="3">Ara toplam</th>' +
+        '<td class="num fa-tut' + (top.ara < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.ara)) + '</td></tr>' +
+      '<tr><th scope="row" colspan="3">KDV (%' + n(F.kdvOran) + ')</th>' +
+        '<td class="num fa-tut' + (top.kdv < 0 ? ' fa-eksi' : '') + '">' + esc(A.tl(top.kdv)) + '</td></tr>' +
+      '<tr><th scope="row" colspan="3">Genel toplam</th>' +
+        '<td class="num fa-tut' + (top.genel < 0 ? ' fa-eksi' : '') + '"><b>' + esc(A.tl(top.genel)) + '</b></td></tr>';
+
+    /* PDF DÜĞMESİ YOK — hedefi olmayan düğme koymak yerine ne olduğu yazılı.
+       Not `.adm-src` DEĞİL: sayfa sözleşmesi ekran başına TEK kaynak şeridi
+       istiyor (brief §1) ve o şerit sayfanın en üstünde duruyor. */
+    document.getElementById('faBelgeNot').innerHTML =
+      '<div class="fhint"><b>Belge çıktısı yok.</b> PDF ve e-Arşiv gönderimi sunucu işidir; bu maket ' +
+      'dosya üretmez, bu yüzden buraya çalışmayan bir “PDF indir” düğmesi konmadı. ' +
+      'Tutarlar KDV <b>dâhil</b> girilir ve ara toplam ile vergi ondan ayrıştırılır ' +
+      '(<code>ara = yuvarla(toplam / 1,' + n(F.kdvOran) + ')</code>) — tersi değil, ' +
+      'fatura toplamının kuruşu kaymasın diye.</div>';
+
+    var kart = document.getElementById('faDetay');
+    kart.hidden = false;
+    kart.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  document.getElementById('faGovde').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-fa-detay]');
+    if (b) detayAc(b.getAttribute('data-fa-detay'));
+  });
+  document.getElementById('faDetayKapat').addEventListener('click', function () {
+    document.getElementById('faDetay').hidden = true;
+  });
+
+  listeBas();
+  suzgecKur();
+})();
+</script>
+</body>
+</html>

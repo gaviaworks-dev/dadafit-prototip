@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rehber Sayfaları — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Liste · süzgeç · tablo ·
+   sayfalama · sıra tutamağı fit-admin.css'te; burada tekrarlanmaz.
+   Buradaki tek kalem, sıra rozetiyle tutamağı aynı hücrede yan yana
+   tutan sarmalayıcı — yeni renk, yeni yarıçap, yeni ölçü yok. */
+.rb-ord{display:flex;align-items:center;gap:4px}
+/* Sayfa adının altındaki üst etiket (eyebrow) satırı — tablo altı metniyle
+   aynı ölçüde, kabuğun `.adm-table td small` kuralını kullanır; burada
+   yalnız ikonun rengi hizalanıyor. */
+.rb-ust i{color:var(--acc);margin-right:5px}
+</style>
+</head>
+<body class="adm-body" data-adm="rehber">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Rehber Sayfaları</h1>
+        <div class="ph-sub">Hareket Rehberi'nin merkez sayfası ve sekiz makalesi. Bugün bu
+          sayfaların yalnız <b>başlık ve meta açıklaması</b> yönetiliyor (Sayfalar ve SEO);
+          gövdedeki bölümler, paragraflar ve maddeler HTML'in içinde duruyor.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="hareket-rehberi-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Rehberi gör</a>
+        <a class="btn btn-primary" href="admin-rehber-form-v1.html">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni rehber sayfası</a>
+      </div>
+    </div>
+
+    <div id="rbKaynak"></div>
+
+    <!-- SAYAÇLAR — dördü de aşağıdaki listeden toplanır, elle yazılmaz -->
+    <div class="adm-kpi" id="rbKpi"></div>
+
+    <div class="adm-card" id="rbListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-book-open" aria-hidden="true"></i> Rehber sayfaları</h3>
+      </div>
+
+      <!-- Filtre şeridi: arama SOLDA (max 320px), süzgeç sağda. Süzgeç
+           `<select>` — `.fb-sel` kabukta bunun için var. -->
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="rbAra">Rehber sayfası ara</label>
+          <input type="search" id="rbAra" placeholder="Başlık ya da adres ara" />
+        </div>
+        <div class="fb-sel">
+          <label for="rbTur">Tür</label>
+          <select id="rbTur">
+            <option value="">Tümü</option>
+            <option value="merkez">Merkez sayfa</option>
+            <option value="makale">Makale</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="rbTablo">
+            <thead>
+              <tr>
+                <th>Sıra</th>
+                <th>Sayfa</th>
+                <th class="num">Bölüm</th>
+                <th class="num">Madde</th>
+                <th class="num">Paragraf</th>
+                <th>Durum</th>
+                <th>Son güncelleme</th>
+                <th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="rbGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="rbSay">0</b> rehber sayfası · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   REHBER SAYFALARI — LİSTE   (kalıp: K-LİSTE)
+   ---------------------------------------------------------------------
+   Ölçülen eksiğin karşılığı: `docs/gastro-olcum/fit-yonetilmeyenler.md`
+   C-6 · "Hareket rehberi · 9 sayfa · yöneten YOK (yalnız SEO)".
+
+   🔴 SAYILAR NEREDEN GELİYOR — ve neden sayfanın kendisi saymıyor.
+   Bu ekran public HTML'i okuyamaz: buildless depoda sayfa kendi kardeş
+   dosyalarını ayrıştıramaz (fetch + parse yolu `file://` açılışında
+   sessizce ölür ve ekran 0 gösterirdi). Bu yüzden sayılar DEPODAN
+   ÖLÇÜLÜP buraya yazıldı — tahmin değil, komutu aşağıda:
+
+     for f in hareket-*.html; do
+       grep -oE '<div class="qa( open)?"' $f | wc -l   # bölüm
+       grep -oE '<li[ >]' $f | wc -l                   # madde
+       grep -oE '<p[ >]'  $f | wc -l                   # paragraf
+     done
+     git log -1 --format=%as -- <dosya>                # son güncelleme
+
+   ⚠ ÖLÇÜM DÜZELTMESİ. `fit-yonetilmeyenler.md` bu küme için "177 <li>"
+   diyor; o sayı `grep -o '<li'` ile alınmış ve desen `<link>` etiketlerini
+   de yakalıyor (her sayfada 4 tane). Sınır karakteriyle ölçülen doğru
+   sayı **153**. Paragraf sayısı (171) her iki yöntemde de aynı çıkıyor.
+   Bölüm sayısı ilk kez burada ölçüldü: **49**.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+
+  /* Ölçüm anlık görüntüsü — 2026-08-30, depo taraması.
+     `tur`: merkez sayfa kart dizinidir (akordiyon bölümü yoktur),
+     makale ise bölümlü anlatım sayfasıdır. */
+  var RB = [
+    { slug:'hareket-rehberi-v1', tur:'merkez', ikon:'fa-solid fa-book-open',
+      baslik:'Doğru hareket, güvenli başlangıç, günlük aktivite',
+      ust:'Hareket Rehberi', bolum:0, madde:0, p:11, tarih:'2026-08-21' },
+    { slug:'hareket-yeni-baslayanlar-v1', tur:'makale', ikon:'fa-solid fa-seedling',
+      baslik:'Harekete başlamak için hiç geç değil',
+      ust:'Hareket Rehberi · Yeni Başlayanlar', bolum:6, madde:20, p:17, tarih:'2026-08-30' },
+    { slug:'hareket-dogru-form-v1', tur:'makale', ikon:'fa-solid fa-shield-heart',
+      baslik:'Doğru form: güvenle ve bilinçle hareket',
+      ust:'Hareket Rehberi · Doğru Form', bolum:6, madde:21, p:17, tarih:'2026-08-25' },
+    { slug:'hareket-sureye-gore-v1', tur:'makale', ikon:'fa-solid fa-stopwatch',
+      baslik:'Vaktin ne kadarsa, ona göre hareket',
+      ust:'Hareket Rehberi · Süreye Göre', bolum:6, madde:19, p:18, tarih:'2026-08-30' },
+    { slug:'hareket-hedefe-gore-v1', tur:'makale', ikon:'fa-solid fa-bullseye',
+      baslik:'Hedefini seç, sana uygun hareketi bul',
+      ust:'Hareket Rehberi · Hedefe Göre', bolum:6, madde:18, p:21, tarih:'2026-08-30' },
+    { slug:'hareket-bolgeye-gore-v1', tur:'makale', ikon:'fa-solid fa-child-reaching',
+      baslik:'Çalışmak istediğin bölgeye göre hareket',
+      ust:'Hareket Rehberi · Bölgeye Göre', bolum:6, madde:18, p:22, tarih:'2026-08-25' },
+    { slug:'hareket-masa-basi-v1', tur:'makale', ikon:'fa-solid fa-chair',
+      baslik:'Masa başında gün boyu hareketli kal',
+      ust:'Hareket Rehberi · Masa Başı', bolum:6, madde:18, p:21, tarih:'2026-08-30' },
+    { slug:'hareket-isinma-soguma-v1', tur:'makale', ikon:'fa-solid fa-fire',
+      baslik:'Isın, soğu, esne — bilinçli hareketin çerçevesi',
+      ust:'Hareket Rehberi · Isınma & Soğuma', bolum:6, madde:18, p:21, tarih:'2026-08-25' },
+    { slug:'hareket-sozluk-v1', tur:'makale', ikon:'fa-solid fa-book',
+      baslik:'Hareket sözlüğü: sık geçen terimler',
+      ust:'Hareket Rehberi · Hareket Sözlüğü', bolum:7, madde:21, p:23, tarih:'2026-08-25' }
+  ];
+
+  var top = function (alan) {
+    return RB.reduce(function (a, x) { return a + x[alan]; }, 0);
+  };
+
+  document.getElementById('rbKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Liste gerçek: dokuz sayfanın dokuzu da depoda duruyor</b> ve her satırın adresi ' +
+    'o dosyaya gidiyor. <b>Bölüm · madde · paragraf sayıları 2026-08-30\'da depodan ölçüldü</b> ' +
+    've bu ekrana yazıldı — buildless prototipte sayfa kardeş dosyalarını okuyamaz, ' +
+    'o yüzden sayılar canlı değil <b>anlık görüntüdür</b>. ' +
+    'Sürükle-bırak sıra, durum ve düzenleme yüzeyi maket: <b>sunucu yok, hiçbir şey kaydedilmez.</b>');
+
+  /* ---------- sayaçlar ---------- */
+  (function kpi() {
+    var kut = [
+      ['fa-file-lines', RB.length, 'rehber sayfası',
+       'Merkez sayfa + sekiz makale. Dokuzunun da gövdesi bugün HTML\'e gömülü.', 'flat', 'fa-check'],
+      ['fa-layer-group', top('bolum'), 'akordiyon bölümü',
+       'Bölüm başlığı, ikonu, gövdesi ve madde listesi — hiçbiri düzenlenemiyor.', 'down', 'fa-clock'],
+      ['fa-list-ul', top('madde'), 'madde',
+       'Bölümlerin içindeki li satırları; ölçüm sınır karakteriyle yapıldı.', 'down', 'fa-clock'],
+      ['fa-align-left', top('p'), 'paragraf',
+       'Giriş metni, bölüm gövdeleri ve kapanış blokları dahil.', 'down', 'fa-clock']
+    ];
+    document.getElementById('rbKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '" aria-hidden="true"></i></span>' +
+        '<div><b>' + k[1] + '</b><span>' + A.esc(k[2]) + '</span>' +
+        '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+        A.esc(k[3]) + '</span></div></div>';
+    }).join('');
+  })();
+
+  /* ---------- liste ---------- */
+  var govde = document.getElementById('rbGovde');
+
+  function satir(r, i) {
+    var durum = A.rozet('ok', 'Yayında', 'fa-circle-check');
+    return '<tr data-slug="' + A.esc(r.slug) + '" data-tur="' + A.esc(r.tur) + '">' +
+      '<td><div class="rb-ord">' +
+        '<span class="st-num">' + (i + 1) + '</span>' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="' + A.esc(r.baslik) + ' — sırayı yukarı ok ve aşağı ok tuşlarıyla değiştir">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<input type="hidden" data-field="position" value="' + i + '">' +
+      '</div></td>' +
+      '<td><b>' + A.esc(r.baslik) + '</b>' +
+        '<small class="rb-ust"><i class="' + r.ikon + '" aria-hidden="true"></i>' +
+        A.esc(r.ust) + ' · <code>' + A.esc(r.slug) + '.html</code></small></td>' +
+      '<td class="num">' + (r.bolum || '—') + '</td>' +
+      '<td class="num">' + (r.madde || '—') + '</td>' +
+      '<td class="num">' + r.p + '</td>' +
+      '<td>' + durum + '</td>' +
+      '<td>' + A.tarih(r.tarih) + '</td>' +
+      '<td class="act">' +
+        '<a class="adm-ico-btn" href="' + A.esc(r.slug) + '.html" target="_blank" rel="noopener" ' +
+          'aria-label="' + A.esc(r.baslik) + ' sayfasını sitede gör">' +
+          '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>' +
+        '<a class="adm-ico-btn" href="admin-rehber-form-v1.html?r=' + A.esc(r.slug) + '" ' +
+          'aria-label="' + A.esc(r.baslik) + ' düzenle">' +
+          '<i class="fa-solid fa-pen" aria-hidden="true"></i></a>' +
+      '</td></tr>';
+  }
+
+  govde.innerHTML = RB.map(satir).join('');
+  document.getElementById('rbSay').textContent = RB.length;
+
+  /* ---------- sürükle-bırak sıra ---------- */
+  A.sirala(govde, {
+    oge: 'tr', tutamak: '.ie-drag',
+    degisti: function () { /* sıra DOM'dan doğar; gizli position alanı sürücüde yazılır */ }
+  });
+
+  /* ---------- süzgeç ---------- */
+  var bosSatir = null;
+  function bosDurum(say) {
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="8">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle rehber sayfası kalmadı',
+          'Seçili türe düşen sayfa yok. Süzgeci "Tümü"ne al ya da arama kutusunu boşalt.',
+          '<button class="btn btn-primary" type="button" id="rbSifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+  }
+
+  var tur = document.getElementById('rbTur');
+  function suz() {
+    var v = tur.value, say = 0;
+    govde.querySelectorAll('tr[data-slug]').forEach(function (tr) {
+      var ok = !v || tr.getAttribute('data-tur') === v;
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('rbSay').textContent = say;
+    bosDurum(say);
+  }
+  tur.addEventListener('change', suz);
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#rbSifirla')) {
+      tur.value = ''; document.getElementById('rbAra').value = '';
+      suz();
+      document.getElementById('rbAra').dispatchEvent(new Event('input'));
+    }
+  });
+
+  /* Arama kabuktan — 0 sonuçta kendi dört parçalı boş durumunu basar. */
+  A.aramaKur(document.getElementById('rbAra'),
+             document.getElementById('rbTablo'),
+             document.getElementById('rbSay'));
+})();
+</script>
+</body>
+</html>

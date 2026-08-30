@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spor Sözlüğü — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Liste · süzgeç · tablo · sayfalama ·
+   sıralanabilir kart fit-admin.css'te; burada tekrarlanmaz.
+
+   Terimin İngilizce karşılığı ile slug'ı aynı hücrede, ad'ın altında
+   duruyor. `.adm-table td small` zaten tanımlı; buradaki tek ek, slug'ın
+   monospace okunması — kod parçası ile insan metnini ayırt ettiriyor.
+   Yeni renk üretilmedi. */
+.sz-slug{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+/* Harf hücresi tek karakter taşıyor; ortalanınca 254 satırlık kolon
+   tarandığında göz kayıyor. Sabit genişlik + ortalama, kolonun kendi işi. */
+.sz-harf{text-align:center;font-weight:800;font-size:15px}
+/* SAYFALAMA ŞERİDİ SARILIR — bu ekrana özgü, ölçülmüş bir gerekçeyle.
+   254 terim / 50 = 6 sayfa; düğme şeridi önceki + 6 + sonraki = 8 düğme
+   eder ve her düğme kit gereği 44px'tir (WCAG 2.5.8). 390px ekranda
+   8×44 + boşluk = 394px, yani şerit TEK BAŞINA viewport'tan geniş —
+   ölçüldü: `.adm-main` 427 > 390, yatay taşma. Düğmeyi küçültmek dokunma
+   hedefini kırar, düğmeyi gizlemek sayfaya erişimi kırar; kalan doğru
+   çözüm şeridin sarılmasıdır. Kabuğun `.adm-pager`ına dokunulmadı,
+   yalnız bu kartın şeridi sarılıyor. */
+#szListe .adm-pager .p-btns{flex-wrap:wrap;justify-content:flex-end}
+</style>
+</head>
+<body class="adm-body" data-adm="sozluk">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Spor Sözlüğü</h1>
+        <div class="ph-sub" id="szAlt">Sözlüğün tek kaynağı bu ekrandan yönetilir. Aynı diziyi
+           üye tarafında liste ve terim detayı sayfaları okuyor; buradaki bir terim
+           iki yere kopyalanmaz.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="sozluk-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Sözlüğü gör</a>
+        <a class="btn btn-primary" href="admin-sozluk-form-v1.html">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni terim</a>
+      </div>
+    </div>
+
+    <div id="szKaynak"></div>
+
+    <!-- SAYAÇLAR — dördü de veriden SAYILIR, elle yazılmaz -->
+    <div class="adm-kpi" id="szKpi"></div>
+
+    <!-- ============ TERİM LİSTESİ (K-LİSTE) ============ -->
+    <div class="adm-card" id="szListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-book" aria-hidden="true"></i> Terimler</h3>
+      </div>
+
+      <!-- Arama SOLDA, süzgeç sağında — K-LİSTE §2. Kategori ve harf
+           dizini kabuğun ortak `.ff` bileşeninde: 10 + 28 çip düz bir
+           şeride sığmıyor, bileşen onları kendi açılırına alıyor. -->
+      <div class="filter-bar">
+        <label class="sr-only" for="szAra">Terim ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="szAra" placeholder="Terim, İngilizce karşılık ya da tanım ara" />
+        </div>
+        <div class="ff" id="szSuzgec" data-ff></div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="szTablo">
+            <thead>
+              <tr>
+                <th>Terim</th><th>Kategori</th><th class="sz-harf">Harf</th>
+                <th>İlişkili hareket</th><th>Durum</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="szGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info" id="szBilgi">—</div>
+        <div class="p-btns" id="szSayfalar"></div>
+      </div>
+    </div>
+
+    <!-- ============ KATEGORİ YÖNETİMİ ============ -->
+    <div class="adm-card" id="szKat">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-tags" aria-hidden="true"></i> Kategoriler</h3>
+        <div class="c-acts"><span class="fb-count" id="szKatSay">0 kategori</span></div>
+      </div>
+      <div class="c-body">
+        <div class="fhint" style="margin-bottom:12px">Kategori sırası üye tarafındaki kategori
+          seçicide aynen görünür. Tutamağı sürükleyerek ya da odaktayken ↑ / ↓ ile taşı.
+          Terim sayısı elle yazılmaz — her satırda o kategoriye düşen terimler sayılır.</div>
+        <form id="szKatF" novalidate>
+          <div class="st-list" id="szKatListe"></div>
+          <button class="add-row" type="button" id="szKatEkle">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Kategori ekle</button>
+        </form>
+      </div>
+      <div class="c-foot">
+        <div class="form-actions">
+          <button class="btn btn-primary" type="button" id="szKatKaydet">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> Kategorileri kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/sozluk-veri.js"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/anatomi-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · SPOR SÖZLÜĞÜ — liste + kategori yönetimi        (K-LİSTE)
+   ---------------------------------------------------------------------
+   NE YÖNETİYOR — ölçülmüş eksiğin karşılığı:
+   `docs/gastro-olcum/fit-yonetilmeyenler.md` C-3: `sozluk-veri.js` 1.540
+   satır, 254 terim, 10 kategori, 29 harflik dizin taşıyor; `sozluk-v1.html`
+   ile `sozluk-detay-v1.html`i besliyor ve BUGÜNE KADAR hiçbir admin ekranı
+   onu okumuyordu bile. `admin-taksonomi` bu değil — o kütüphane süzgecinin
+   dört sözlüğünü (36 terim) yönetiyor.
+
+   VERİ GERÇEK VE KAYNAĞIN KENDİSİ. `window.SOZLUK` — global adı dosyadan
+   okundu, `SOZLUK_VERI` DEĞİL (ölçüldü: `sozluk-veri.js:1490`,
+   `global.SOZLUK = { … }`). Bu ekran public sayfaların okuduğu diziyi
+   okuyor; ikinci bir kopya yok, bu yüzden kaynak şeridi 'canli'.
+
+   VERİDE OLMAYANI UYDURMADIK:
+   · `durum` alanı yok. Dosyada duran her terim public tarafta yayında;
+     Durum kolonu bunu söylüyor ve kaynak şeridi neden 254 satırın
+     hepsinin aynı olduğunu yazıyor.
+   · `hareket` alanı TEKİL (terim başına en çok bir hareket) — bu yüzden
+     kolon "kaç tane" değil "hangisi" diye soruyor. Ölçüldü: 254 terimin
+     52'sinde hareket köprüsü, 98'inde kas köprüsü var.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, S = window.SOZLUK;
+  if (!A) return;
+  var esc = A.esc;
+  var govde = document.getElementById('szGovde');
+
+  /* ---- veri yoksa dört parçalı boş durum, sessiz ölüm yok ---- */
+  if (!S || !S.TERIMLER || !S.TERIMLER.length) {
+    document.getElementById('szKaynak').innerHTML = A.kaynak('ornek',
+      'Sözlük modülü (<code>assets/js/sozluk-veri.js</code> · <code>window.SOZLUK</code>) ' +
+      'bu sayfada yüklenemedi; aşağıdaki liste boş.');
+    govde.innerHTML = '<tr><td colspan="6">' +
+      A.bos('fa-book', 'Sözlük yüklenemedi',
+            'Terimler assets/js/sozluk-veri.js dosyasından okunur ve window.SOZLUK ' +
+            'olarak yayımlanır; bu sayfada o global tanımlı değil.',
+            '<a class="btn btn-primary" href="sozluk-v1.html" target="_blank" rel="noopener">' +
+            'Üye tarafındaki sözlüğü aç</a>') + '</td></tr>';
+    document.getElementById('szKat').hidden = true;
+    return;
+  }
+
+  var T = S.TERIMLER, K = S.KATEGORILER;
+  var HAREKET = (window.FIT_ADMIN_VERI && window.FIT_ADMIN_VERI.HAREKET) || [];
+  var KASLAR  = (window.ANATOMI_VERI && window.ANATOMI_VERI.kaslar) || {};
+
+  function katAd(id) { var k = S.kategori(id); return k ? k.ad : id; }
+  function katIkon(id) { var k = S.kategori(id); return k ? k.ikon : ''; }
+
+  /* ---- köprü bütünlüğü: SAYILIR, ilan edilmez ------------------------
+     Terimdeki `hareket` slug'ı hareket kataloğunda, `kas` slug'ı anatomi
+     kayıtlarında, `karistirilanlar.slug` ise sözlüğün kendi dizininde
+     karşılık buluyor mu. Karşılıksız köprü detay sayfasında sessizce
+     başka yere düşer — bu yüzden burada sayılır. */
+  var katalogSlug = {}, kasSlug = {};
+  HAREKET.forEach(function (h) { katalogSlug[h.slug] = h.ad; });
+  Object.keys(KASLAR).forEach(function (s) { kasSlug[s] = KASLAR[s].ad; });
+
+  var koprü = { hareket: 0, kas: 0, karistirilan: 0, kirik: 0 };
+  T.forEach(function (t) {
+    if (t.hareket) { koprü.hareket++; if (!katalogSlug[t.hareket]) koprü.kirik++; }
+    if (t.kas)     { koprü.kas++;     if (!kasSlug[t.kas]) koprü.kirik++; }
+    if (t.karistirilanlar) {
+      koprü.karistirilan++;
+      if (!S.bul(t.karistirilanlar.slug)) koprü.kirik++;
+    }
+  });
+  var koprüToplam = koprü.hareket + koprü.kas + koprü.karistirilan;
+
+  /* ---- karşılıksız harf: alfabede ilan edilip terimi olmayan harf ---- */
+  var bosHarf = S.ALFABE.filter(function (h) { return !S.harfSayi[h]; });
+
+  /* ---- kaynak şeridi ---- */
+  document.getElementById('szKaynak').innerHTML = A.kaynak('canli',
+    '<b>Kaynağın kendisi, kopyası değil.</b> ' + T.length + ' terim ' +
+    '<code>assets/js/sozluk-veri.js</code>ten (<code>window.SOZLUK</code>) okunuyor — ' +
+    '<code>sozluk-v1.html</code> ve <code>sozluk-detay-v1.html</code> de aynı diziyi okuyor, ' +
+    'burada gördüğün satır üyenin gördüğü satırın ta kendisi. ' +
+    '<b>Veride <code>durum</code> alanı YOK:</b> dosyada duran her terim public tarafta ' +
+    'yayında olduğu için Durum kolonu ' + T.length + ' satırın hepsinde aynı şeyi söylüyor. ' +
+    '<b><code>hareket</code> alanı tekildir</b> (terim başına en çok bir hareket), ' +
+    'bu yüzden kolon sayı değil hareketin adını gösteriyor. ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrular, kayıt gitmez — bu prototipte sunucu yok.');
+
+  document.getElementById('szAlt').textContent =
+    T.length + ' terim · ' + K.length + ' kategori · ' +
+    Object.keys(S.harfSayi).length + ' harfte karşılık. Sözlüğün tek kaynağı burasıdır; ' +
+    'üye tarafındaki liste ve terim detayı sayfaları bu diziyi okuyor.';
+
+  /* ---- sayaçlar ---- */
+  (function kpi() {
+    var enKalabalik = K.slice().sort(function (a, b) { return b.adet - a.adet; })[0];
+    var harfTam = bosHarf.length === 0;
+    var koprüTam = koprü.kirik === 0;
+    var kut = [
+      ['fa-book', A.n(T.length), 'terim',
+       'Tek kaynak sozluk-veri.js; iki public sayfayı besliyor.', 'flat', 'fa-check'],
+      ['fa-tags', K.length, 'kategori',
+       'En kalabalık aile: ' + enKalabalik.ad + ' (' + enKalabalik.adet + ' terim).', 'flat', 'fa-check'],
+      ['fa-font', Object.keys(S.harfSayi).length + '<small>/' + S.ALFABE.length + '</small>',
+       'harfte terim var',
+       harfTam ? 'Alfabenin her harfinde en az bir terim var.'
+               : bosHarf.join(', ') + ' harfinde terim yok; harf rayında karşılıksız duruyor.',
+       harfTam ? 'flat' : 'down', harfTam ? 'fa-check' : 'fa-clock'],
+      ['fa-link', A.n(koprüToplam), 'köprü',
+       koprüTam ? koprü.hareket + ' hareket · ' + koprü.kas + ' kas · ' + koprü.karistirilan +
+                  ' karıştırılan terim bağı; hepsi karşılık buluyor.'
+                : koprü.kirik + ' köprü karşılıksız — varış sayfası sessizce başka yere düşer.',
+       koprüTam ? 'flat' : 'down', koprüTam ? 'fa-check' : 'fa-clock']
+    ];
+    document.getElementById('szKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '" aria-hidden="true"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+             esc(k[3]) + '</span></div></div>';
+    }).join('');
+  })();
+
+  /* =====================================================================
+     SÜZGEÇ + ARAMA + SAYFALAMA — tek çizim yolundan
+     ---------------------------------------------------------------------
+     `FIT_ADMIN.aramaKur` BİLEREK kullanılmadı: o yardımcı satırları
+     yerinde `hidden` yaparak süzer, bu liste ise 254 satırla sayfalanıyor
+     ve DOM'da her an yalnız bir sayfa duruyor. İki mekanizma aynı satırlar
+     üzerinde çakışırdı. Arama · kategori · harf · sayfa tek `ciz()`
+     fonksiyonundan geçiyor, böylece sayaç ile tablo hiçbir durumda
+     ayrışmıyor.
+     ===================================================================== */
+  var SAYFA_BOY = 50;
+  var durum = { q: '', kategori: [], harf: [], sayfa: 1 };
+
+  function suzulmus() {
+    var q = S.sadele(durum.q.trim());
+    return T.filter(function (t) {
+      if (durum.kategori.length && durum.kategori.indexOf(t.kategori) < 0) return false;
+      if (durum.harf.length && durum.harf.indexOf(t.harf) < 0) return false;
+      if (q && t._ara.indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function satir(t) {
+    var hrkAd = t.hareket ? (katalogSlug[t.hareket] || null) : null;
+    var hrk = !t.hareket ? '<span class="muted">—</span>'
+            : hrkAd ? '<a href="admin-hareket-form-v1.html?h=' + esc(t.hareket) + '">' + esc(hrkAd) + '</a>'
+                    : A.rozet('stop', t.hareket + ' — katalogda yok', 'fa-link-slash');
+    /* Kas köprüsü aynı hücrede ama ETİKETLİ: "—" satırının altındaki
+       adsız bir kas adı, hareket köprüsü sanılıyordu (ekranda ölçüldü).
+       Kolon hareketi soruyor; kas ikinci bir bağ ve öyle yazıyor. */
+    var kasEk = t.kas
+      ? '<small>Kas: ' + (kasSlug[t.kas]
+          ? esc(kasSlug[t.kas])
+          : esc(t.kas) + ' — anatomide yok') + '</small>'
+      : '';
+    return '<tr>' +
+      '<td><b>' + esc(t.terim) + '</b><small>' + esc(t.ingilizce) +
+        ' · <span class="sz-slug">' + esc(t.slug) + '</span></small></td>' +
+      '<td>' + (katIkon(t.kategori) ? '<i class="' + katIkon(t.kategori) + '" aria-hidden="true"></i> ' : '') +
+        esc(katAd(t.kategori)) + '</td>' +
+      '<td class="sz-harf">' + esc(t.harf) + '</td>' +
+      '<td>' + hrk + kasEk + '</td>' +
+      '<td>' + A.rozet('ok', 'Yayında', 'fa-circle-check') + '</td>' +
+      '<td class="act">' +
+        '<a class="adm-ico-btn" href="sozluk-detay-v1.html?slug=' + esc(t.slug) + '" ' +
+          'target="_blank" rel="noopener" aria-label="' + esc(t.terim) + ' terimini sitede gör">' +
+          '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>' +
+        '<a class="adm-ico-btn" href="admin-sozluk-form-v1.html?t=' + esc(t.slug) + '" ' +
+          'aria-label="' + esc(t.terim) + ' terimini düzenle">' +
+          '<i class="fa-solid fa-pen" aria-hidden="true"></i></a>' +
+      '</td></tr>';
+  }
+
+  function ciz() {
+    var liste = suzulmus();
+    var sayfaSay = Math.max(1, Math.ceil(liste.length / SAYFA_BOY));
+    if (durum.sayfa > sayfaSay) durum.sayfa = sayfaSay;
+    var bas = (durum.sayfa - 1) * SAYFA_BOY;
+    var dilim = liste.slice(bas, bas + SAYFA_BOY);
+
+    if (!liste.length) {
+      govde.innerHTML = '<tr><td colspan="6">' + A.bos('fa-magnifying-glass',
+        'Bu süzgeçle terim kalmadı',
+        'Seçili kategori, harf ve arama birleşimine düşen terim yok. Bir çipi kaldır ya da süzgeci sıfırla.',
+        '<button class="btn btn-primary" type="button" id="szSifirla">Süzgeci sıfırla</button>') +
+        '</td></tr>';
+    } else {
+      govde.innerHTML = dilim.map(satir).join('');
+    }
+
+    document.getElementById('szBilgi').innerHTML = liste.length
+      ? '<b>' + A.n(liste.length) + '</b> terim · ' + A.n(bas + 1) + '–' + A.n(bas + dilim.length) +
+        ' arası gösteriliyor · sayfa ' + durum.sayfa + ' / ' + sayfaSay
+      : '<b>0</b> terim';
+
+    /* Sayfa düğmeleri: 6 sayfada tümü basılır, daha fazlasında pencere. */
+    var btn = [];
+    btn.push('<button class="adm-pg" type="button" data-git="' + (durum.sayfa - 1) + '"' +
+      (durum.sayfa === 1 ? ' disabled' : '') + ' aria-label="Önceki sayfa">' +
+      '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>');
+    for (var i = 1; i <= sayfaSay; i++) {
+      btn.push('<button class="adm-pg' + (i === durum.sayfa ? ' is-on' : '') + '" type="button" ' +
+        'data-git="' + i + '"' + (i === durum.sayfa ? ' aria-current="page"' : '') + '>' + i + '</button>');
+    }
+    btn.push('<button class="adm-pg" type="button" data-git="' + (durum.sayfa + 1) + '"' +
+      (durum.sayfa === sayfaSay ? ' disabled' : '') + ' aria-label="Sonraki sayfa">' +
+      '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>');
+    document.getElementById('szSayfalar').innerHTML = btn.join('');
+  }
+
+  document.getElementById('szSayfalar').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-git]');
+    if (!b || b.disabled) return;
+    durum.sayfa = parseInt(b.getAttribute('data-git'), 10);
+    ciz();
+    document.getElementById('szListe').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('szAra').addEventListener('input', function (e) {
+    durum.q = e.target.value; durum.sayfa = 1; ciz();
+  });
+
+  /* ---- süzgeç çipleri: kategori + harf dizini ------------------------
+     Çipler VERİDEN doğar. İlan edilip terimi olmayan harf çip olsaydı her
+     tıklamasında 0 satır gelirdi — boş vaat; o harfin yeri KPI şeridindeki
+     "karşılıksız harf" kalemidir, süzgeç değil. */
+  (function suzgecKur() {
+    var kok = document.getElementById('szSuzgec');
+    var katHtml = '<div class="fgroup" data-group="kategori" role="group" aria-label="Kategori filtresi">' +
+      '<span class="lbl">Kategori</span>' +
+      '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+      K.map(function (k) {
+        return '<button class="df-fchip" type="button" data-val="' + esc(k.id) + '">' +
+          (k.ikon ? '<i class="' + esc(k.ikon) + '" aria-hidden="true"></i> ' : '') +
+          esc(k.ad) + ' (' + k.adet + ')</button>';
+      }).join('') + '</div>';
+    var harfHtml = '<div class="fgroup" data-group="harf" role="group" aria-label="Harf filtresi">' +
+      '<span class="lbl">Harf</span>' +
+      '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+      S.ALFABE.filter(function (h) { return S.harfSayi[h]; }).map(function (h) {
+        return '<button class="df-fchip" type="button" data-val="' + esc(h) + '">' +
+          esc(h) + ' <small>' + S.harfSayi[h] + '</small></button>';
+      }).join('') + '</div>';
+    kok.innerHTML = katHtml + harfHtml;
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') {
+            durum[grup] = [];
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+          } else {
+            var i = durum[grup].indexOf(v);
+            if (i < 0) durum[grup].push(v); else durum[grup].splice(i, 1);
+            b.classList.toggle('on', i < 0);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', durum[grup].length === 0);
+          }
+          durum.sayfa = 1;
+          ciz();
+        });
+      });
+    });
+  })();
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#szSifirla')) {
+      document.getElementById('szAra').value = '';
+      durum.q = '';
+      document.querySelectorAll('#szSuzgec .df-fchip[data-val="all"]').forEach(function (b) { b.click(); });
+    }
+  });
+
+  /* =====================================================================
+     KATEGORİ YÖNETİMİ — aynı ekranın ikinci kartı
+     ---------------------------------------------------------------------
+     10 kategori: ad · ikon · sıra · terim sayısı. Sıra sürüklenebilir
+     (`FIT_ADMIN.sirala`, `FIT_ADMIN.tekrar` üzerinden) ve üye tarafındaki
+     kategori seçicide aynen görünür. Terim sayısı ELLE YAZILMIYOR:
+     `KATEGORILER[].adet` sozluk-veri.js içinde TERIMLER'den sayılıyor.
+     ===================================================================== */
+  (function kategoriKur() {
+    var liste = document.getElementById('szKatListe');
+
+    var sablon = document.createElement('template');
+    sablon.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-tag" aria-hidden="true"></i> Kategori</span>' +
+          '<input class="finput" type="text" name="kategoriAd[]" data-field="ad" placeholder="Kategori adı — örn. Hareket ve teknik">' +
+          '<input class="finput" type="text" name="kategoriIkon[]" data-field="ikon" placeholder="Font Awesome sınıfı — örn. fa-solid fa-dumbbell">' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Kategoriyi sil" aria-label="Kategoriyi sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sablon);
+
+    function say() {
+      document.getElementById('szKatSay').textContent =
+        liste.querySelectorAll('.st-card').length + ' kategori';
+    }
+
+    var r = A.tekrar({
+      liste: liste, ekle: document.getElementById('szKatEkle'), sablon: sablon,
+      enAz: 1, enCok: 24, degisti: say
+    });
+
+    /* Mevcut 10 kategori veriden basılır; her satıra o kategoriye düşen
+       terim sayısı ve silme onayının okuyacağı ad yazılır. */
+    K.forEach(function (k) {
+      var n = r.ekle();
+      n.querySelector('[data-field="ad"]').value = k.ad;
+      n.querySelector('[data-field="ikon"]').value = k.ikon || '';
+      var etiket = n.querySelector('.cb-kind');
+      etiket.innerHTML = '<i class="' + esc(k.ikon || 'fa-solid fa-tag') + '" aria-hidden="true"></i> ' +
+        esc(k.id) + ' · <b>' + k.adet + '</b> terim';
+      /* Yıkıcı eylem onay ister — native confirm() bu depoda yasak,
+         kabuğun delegesi `data-yikici` görünce modalı kendiliğinden açar. */
+      var sil = n.querySelector('.ie-del');
+      sil.setAttribute('data-yikici', k.ad + ' (' + k.adet + ' terim)');
+      sil.setAttribute('data-fiil', 'sil');
+    });
+    say();
+    /* Odak son eklenen alana kaçmasın — kart açılışta okunacak, yazılacak değil. */
+    if (document.activeElement && liste.contains(document.activeElement)) document.activeElement.blur();
+
+    /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi kartın ALT ÇUBUĞUNDA,
+       `<form>` ise gövdede — `closest('form')` null döner ve doğrulama
+       sessizce atlanırdı (kabuk yorumu `fit-admin.js:480`). */
+    A.maketKaydet(document.getElementById('szKatKaydet'), 'kategori sırası',
+                  document.getElementById('szKatF'));
+  })();
+
+  ciz();
+})();
+</script>
+</body>
+</html>

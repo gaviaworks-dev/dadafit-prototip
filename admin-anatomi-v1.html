@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anatomi Haritası — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Liste · süzgeç · tablo · form ızgarası ·
+   etiket alanı · sekme fit-admin.css ve fit-shell.css'te; tekrarlanmıyor.
+
+   Latince ad ile SVG bölge kimliği kod parçasıdır; insan adından monospace
+   ile ayrılıyor. Yeni renk üretilmedi. */
+.an-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted)}
+.an-latin{font-style:italic}
+/* SATIR İÇİ DÜZENLEME KABI — tablonun içinde açılan tam genişlikte hücre.
+   `.adm-table td` kendi dolgusunu dayatıyor; düzenleme hücresi form
+   ızgarasını taşıdığı için o dolguyu kendi ölçüsüyle değiştiriyor. */
+.an-ed-hucre{padding:0 !important;background:var(--paper-2,var(--paper))}
+/* 🔴 `text-align` GERİ ALINIYOR — ölçülmüş bir sızıntı.
+   Kabuk `.adm-table td:last-child{text-align:right}` yazıyor (fit-admin.css:509)
+   ve satır içi düzenleme hücresi tanımı gereği satırın SON hücresidir. Sonuç:
+   form etiketleri, ipuçları ve editörün gövde metni sağa yaslanıyordu (ekranda
+   ölçüldü). Kabuğa dokunulmadı; hizalama yalnız bu kabın içinde geri alınıyor. */
+.an-ed-kutu{padding:20px 22px;border-top:2px solid var(--acc);text-align:left}
+/* Düzenleme kabındaki kaydet çubuğu — kart alt çubuğu burada yok, form
+   ızgarasının altında duruyor ve SAĞA yaslı (K-FORM kuralı). */
+.an-ed-ayak{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px;
+  padding-top:16px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body class="adm-body" data-adm="anatomi">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Anatomi Haritası</h1>
+        <div class="ph-sub" id="anAlt">Kas kayıtları, dört gövde haritası ve kas ⇄ hareket
+           eşlemesi tek ekranda. Haritadaki her bölge bir kas kaydına bağlıdır; bağ kopunca
+           üye haritaya tıklar ve hiçbir şey açılmaz.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="anatomi-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Haritayı gör</a>
+        <!-- Ayrı bir form SAYFASI yok, çünkü kas kaydı listeden koparıldığında
+             okunmaz oluyor: hangi bölgeye, hangi haritaya ve hangi komşuya ait
+             olduğu ancak komşu satırlarla birlikte anlaşılıyor. Düğme aşağıdaki
+             TEK formu listenin başında açar — düzenleme de aynı formu açar,
+             ikinci bir yazma yüzeyi yok. -->
+        <button class="btn btn-primary" type="button" id="anYeni">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Yeni kas kaydı</button>
+      </div>
+    </div>
+
+    <div id="anKaynak"></div>
+
+    <div class="adm-kpi" id="anKpi"></div>
+
+    <!-- ============ KAS KAYITLARI (K-LİSTE) ============ -->
+    <div class="adm-card" id="anListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-person" aria-hidden="true"></i> Kas kayıtları</h3>
+      </div>
+
+      <div class="filter-bar">
+        <label class="sr-only" for="anAra">Kas ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="anAra" placeholder="Kas adı, Latince ad ya da bölge ara" />
+        </div>
+        <div class="ff" id="anSuzgec" data-ff></div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="anTablo">
+            <thead>
+              <tr>
+                <th>Kas</th><th>Latince ad</th><th>Bölge</th><th>Harita</th>
+                <th class="num">Birincil</th><th class="num">İkincil</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="anGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="anSay">0</b> kas kaydı · tümü tek sayfada</div>
+      </div>
+    </div>
+
+    <!-- ============ KAS KAYDI FORMU — TEK YAZMA YÜZEYİ ============
+         🔴 Bu form MARKUP'TA DURUR ve JS onu tabloya TAŞIR (klonlamaz).
+         Üç gerekçe:
+         1. Tek `<form>` düğümü = tek yazma yüzeyi. Her açılışta yeniden
+            üretilen bir form, iki kaydı aynı anda düzenlemeye ve "hangisi
+            kaydedildi" belirsizliğine kapı açardı.
+         2. Zengin metin editörü (`FIT_ADMIN.editor`) bir kez kurulur ve
+            kurulduğu textarea'yı işaretler; her satırda yeniden kurmak
+            araç çubuğunu çoğaltırdı.
+         3. Sayfa yüklendiğinde form ZATEN belgede: "Yeni kas kaydı"
+            düğmesinin arkasında gerçek bir yüzey olduğu ölçülebiliyor
+            (`docs/qa/admin-ekleme-kapisi.mjs`).
+         Kapalıyken `hidden`; açılınca tablodaki hücreye taşınır. -->
+    <div id="anEdTasiyici" hidden>
+      <div class="an-ed-kutu" id="anEdKutu">
+        <form id="anForm" novalidate>
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              <span id="ae-baslik">Kas künyesi</span></h3>
+            <div class="form-grid">
+              <div class="frow two">
+                <div class="frow">
+                  <label for="ae-ad">Kas adı <span class="req">*</span></label>
+                  <input class="finput" id="ae-ad" name="ad" type="text" required maxlength="120"
+                         placeholder="Örn. Biceps (İki başlı kol kası)" />
+                </div>
+                <div class="frow">
+                  <label for="ae-latin">Latince ad</label>
+                  <input class="finput" id="ae-latin" name="latin" type="text" maxlength="200"
+                         placeholder="Örn. Musculus biceps brachii" />
+                </div>
+              </div>
+              <div class="frow two">
+                <div class="frow">
+                  <label for="ae-bolge">Bölge <span class="req">*</span></label>
+                  <input class="finput" id="ae-bolge" name="bolge" type="text" required maxlength="120"
+                         placeholder="Örn. Kol" />
+                  <div class="fhint">Süzgeç bu metni gruplar; aynı bölgeyi iki farklı yazımla
+                    yazmak listede iki ayrı grup üretir.</div>
+                </div>
+                <div class="frow">
+                  <label for="ae-gorunum">Görünüm <span class="req">*</span></label>
+                  <select class="fselect" id="ae-gorunum" name="gorunum" required>
+                    <option value="on">Ön</option><option value="arka">Arka</option>
+                  </select>
+                  <div class="fhint">Üye haritadan bu kasa tıkladığında sayfa BU görünüme geçer
+                    (<code>anatomi-v1.html</code>). Kas iki haritada birden çiziliyse de kayıt
+                    tek görünüm taşır.</div>
+                </div>
+              </div>
+              <div class="frow">
+                <label for="ae-adres">Adres <span class="req">*</span></label>
+                <div class="slug-wrap">
+                  <span class="slug-pre">anatomi-v1.html?kas=</span>
+                  <input class="finput" id="ae-adres" name="slug" type="text" required
+                         pattern="[a-z0-9\-]+" placeholder="biceps" />
+                </div>
+                <div class="fhint">Kayıt anahtarı aynı zamanda SVG dosyalarındaki
+                  <code>data-kas</code> değeridir; değişirse dört haritanın bağı birden kopar —
+                  bu yüzden var olan kayıtta salt okunur.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Anlatım</h3>
+            <div class="form-grid">
+              <div class="frow">
+                <label for="ae-fonksiyon">İşlevi</label>
+                <textarea class="ftext" id="ae-fonksiyon" name="fonksiyon"
+                          placeholder="Kasın nerede olduğu, ne yaptığı ve hangi harekette çalıştığı."></textarea>
+                <div class="fhint">Kas panelinin ana metni.</div>
+              </div>
+              <div class="frow two">
+                <div class="frow">
+                  <label for="ae-koken">Köken</label>
+                  <textarea class="ftext" id="ae-koken" name="koken"></textarea>
+                </div>
+                <div class="frow">
+                  <label for="ae-yapisma">Yapışma</label>
+                  <textarea class="ftext" id="ae-yapisma" name="yapisma"></textarea>
+                </div>
+              </div>
+              <div class="frow">
+                <label for="ae-kaynak">Kaynak künyesi</label>
+                <input class="finput" id="ae-kaynak" name="kaynak" type="text" />
+                <div class="fhint">Verinin çıkarıldığı plate numaraları. Adlandırılmayan bir
+                  tutunma noktası için “PDF plate'i adlandırmıyor” yazmak, sahte veri
+                  yazmaktan iyidir — veri dosyasının kendi kuralı.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Güvenlik notu</h3>
+            <div class="form-grid"><div class="frow">
+              <label for="ae-guvenlik">Bu kasa özgü uyarı</label>
+              <textarea class="ftext" id="ae-guvenlik" name="guvenlik"></textarea>
+              <div class="fhint">🔴 Sağlıkla ilgili metin. Genel sağlık uyarısı Ayarlar'da tek
+                yerden yönetilir; buraya yalnız <b>bu kasa özgü</b> olan yazılır.</div>
+            </div></div>
+          </div>
+
+          <div class="form-sec">
+            <h3 class="form-sec-tt"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Bağlar</h3>
+            <div class="form-grid">
+              <div class="frow">
+                <label>Komşu kaslar</label>
+                <div id="ae-komsu"></div>
+                <div class="fhint">Kas panelinde “yakınındakiler” olarak basılır; yalnız var olan
+                  kas kayıtlarından seçilir.</div>
+              </div>
+              <div class="frow">
+                <label>Bu kası çalıştıran hareketler</label>
+                <div id="ae-hareket"></div>
+                <div class="fhint" id="ae-hrk-not"></div>
+              </div>
+              <div class="frow">
+                <label>Ekipman</label>
+                <div id="ae-ekipman"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="an-ed-ayak">
+            <button class="btn btn-ghost" type="button" id="ae-kapat">İptal</button>
+            <button class="btn btn-ghost" type="button" id="ae-sil"
+                    data-yikici="Bu kayıt" data-fiil="sil"
+                    style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kaydı sil</button>
+            <button class="btn btn-primary" type="button" id="ae-kaydet">Kas kaydını kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ DÖRT HARİTA ============ -->
+    <nav class="fit-tabs" data-fit-tabs="an" aria-label="Gövde haritaları" id="anHaritaSekme">
+      <button class="fit-tab" type="button" data-tab="erkek-on"><i class="fa-solid fa-person" aria-hidden="true"></i> Erkek · Ön</button>
+      <button class="fit-tab" type="button" data-tab="erkek-arka"><i class="fa-solid fa-person" aria-hidden="true"></i> Erkek · Arka</button>
+      <button class="fit-tab" type="button" data-tab="kadin-on"><i class="fa-solid fa-person-dress" aria-hidden="true"></i> Kadın · Ön</button>
+      <button class="fit-tab" type="button" data-tab="kadin-arka"><i class="fa-solid fa-person-dress" aria-hidden="true"></i> Kadın · Arka</button>
+    </nav>
+
+    <!-- PANELLER MARKUP'TA DURUR, JS YALNIZ GÖVDEYİ DOLDURUR.
+         Kabuğun sekme bileşeni ([data-fit-tabs]) fit-shell.js yüklenirken BİR KEZ
+         koşar ve o an `.fit-pane` düğümlerini arar; panelleri fetch sonrası
+         yaratsaydık şerit panelsiz kalırdı (admin-taksonomi'de ölçülmüş kural). -->
+    <div class="fit-pane adm-card" data-pane="erkek-on">
+      <div class="c-head"><h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Erkek · Ön</h3>
+        <div class="c-acts"><span class="fb-count" data-harita-say="erkek-on">—</span></div></div>
+      <div class="c-body flush"><div class="adm-tw"><table class="adm-table">
+        <thead><tr><th>Haritadaki bölge</th><th>Bağlı kas kaydı</th><th>Kaydın görünümü</th><th>Durum</th></tr></thead>
+        <tbody data-harita="erkek-on"></tbody></table></div></div>
+      <div class="adm-pager"><div class="p-info" data-harita-not="erkek-on">—</div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="erkek-arka" hidden>
+      <div class="c-head"><h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Erkek · Arka</h3>
+        <div class="c-acts"><span class="fb-count" data-harita-say="erkek-arka">—</span></div></div>
+      <div class="c-body flush"><div class="adm-tw"><table class="adm-table">
+        <thead><tr><th>Haritadaki bölge</th><th>Bağlı kas kaydı</th><th>Kaydın görünümü</th><th>Durum</th></tr></thead>
+        <tbody data-harita="erkek-arka"></tbody></table></div></div>
+      <div class="adm-pager"><div class="p-info" data-harita-not="erkek-arka">—</div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="kadin-on" hidden>
+      <div class="c-head"><h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Kadın · Ön</h3>
+        <div class="c-acts"><span class="fb-count" data-harita-say="kadin-on">—</span></div></div>
+      <div class="c-body flush"><div class="adm-tw"><table class="adm-table">
+        <thead><tr><th>Haritadaki bölge</th><th>Bağlı kas kaydı</th><th>Kaydın görünümü</th><th>Durum</th></tr></thead>
+        <tbody data-harita="kadin-on"></tbody></table></div></div>
+      <div class="adm-pager"><div class="p-info" data-harita-not="kadin-on">—</div></div>
+    </div>
+    <div class="fit-pane adm-card" data-pane="kadin-arka" hidden>
+      <div class="c-head"><h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Kadın · Arka</h3>
+        <div class="c-acts"><span class="fb-count" data-harita-say="kadin-arka">—</span></div></div>
+      <div class="c-body flush"><div class="adm-tw"><table class="adm-table">
+        <thead><tr><th>Haritadaki bölge</th><th>Bağlı kas kaydı</th><th>Kaydın görünümü</th><th>Durum</th></tr></thead>
+        <tbody data-harita="kadin-arka"></tbody></table></div></div>
+      <div class="adm-pager"><div class="p-info" data-harita-not="kadin-arka">—</div></div>
+    </div>
+
+    <!-- ============ KAS ⇄ HAREKET EŞLEMESİ ============ -->
+    <div class="adm-card" id="anEs">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-link" aria-hidden="true"></i> Kas ⇄ hareket eşlemesi</h3>
+        <div class="c-acts"><span class="fb-count" id="anEsSay">—</span></div>
+      </div>
+      <div class="c-body">
+        <div class="fhint" id="anEsNot">—</div>
+      </div>
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="anEsTablo">
+            <thead><tr><th>Hareket kataloğundaki ad</th><th>Nerede geçiyor</th><th class="num">Hareket</th><th>Durum</th></tr></thead>
+            <tbody id="anEsGovde"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/anatomi-veri.js"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ANATOMİ HARİTASI — kas kayıtları + dört harita + eşleme
+   ---------------------------------------------------------------------
+   NE YÖNETİYOR — ölçülmüş eksiğin karşılığı:
+   `docs/gastro-olcum/fit-yonetilmeyenler.md` C-6: `anatomi-veri.js` 583
+   satır, 31 kas · 12 hareket eşlemesi · 4 harita taşıyor, `anatomi-v1.html`i
+   besliyor ve HİÇBİR admin ekranı onu yönetmiyordu.
+
+   VERİ GERÇEK VE KAYNAĞIN KENDİSİ: `window.ANATOMI_VERI` — global adı
+   dosyadan okundu (`anatomi-veri.js:578`). Public sayfa da bu nesneyi
+   okuyor; ikinci kopya yok.
+
+   ÜÇ SAYI DA SAYILIYOR, İLAN EDİLMİYOR:
+   1. Harita bölgeleri gerçek SVG dosyalarından FETCH edilip `[data-kas]`
+      düğümleri sayılıyor — `anatomi-v1.html:537`in yaptığının aynısı.
+      Dosya okunamazsa sayı uydurulmaz, boş durum basılır.
+   2. Kas ⇄ hareket eşlemesi `FIT_ADMIN_VERI.HAREKET`in 25 kaydındaki
+      `birincil`/`ikincil` dizilerinden sayılıyor.
+   3. Kasın kendi `hareketler` dizisi ayrı bir bağdır ve ayrı gösteriliyor.
+
+   🔴 ÖLÇÜLMÜŞ AYRIŞMA — EKRANIN ASIL İŞİ:
+   `FIT_ADMIN_VERI.HAREKET` kasları SLUG'la değil ADLA taşıyor
+   ("Latissimus dorsi", "Trapezius (orta)", "Core"). 38 ayrı ad var;
+   bunların 33'ü bir kas kaydına ad benzerliğiyle düşüyor, 5'i düşmüyor.
+   Bu ekran o eşlemeyi UYDURMUYOR: adı sadeleştirip karşılaştırıyor ve
+   karşılık bulamadıklarını ayrı bir kartta ADIYLA listeliyor. Bağ
+   slug'a çevrilene kadar sayı "yaklaşık"tır ve ekran bunu yazıyor.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.ANATOMI_VERI;
+  if (!A) return;
+  var esc = A.esc;
+  var govde = document.getElementById('anGovde');
+
+  if (!V || !V.kaslar) {
+    document.getElementById('anKaynak').innerHTML = A.kaynak('ornek',
+      'Anatomi modülü (<code>assets/js/anatomi-veri.js</code> · <code>window.ANATOMI_VERI</code>) ' +
+      'bu sayfada yüklenemedi; kas listesi ve harita bölgeleri boş.');
+    govde.innerHTML = '<tr><td colspan="7">' +
+      A.bos('fa-person', 'Anatomi verisi yüklenemedi',
+            'Kas kayıtları assets/js/anatomi-veri.js dosyasından okunur ve window.ANATOMI_VERI ' +
+            'olarak yayımlanır; bu sayfada o global tanımlı değil.',
+            '<a class="btn btn-primary" href="anatomi-v1.html" target="_blank" rel="noopener">' +
+            'Üye tarafındaki haritayı aç</a>') + '</td></tr>';
+    return;
+  }
+
+  var KAS = V.kaslar, HARITA = V.haritalar, ANA_HRK = V.hareketler || {};
+  var SLUGLAR = Object.keys(KAS);
+  var HAREKET = (window.FIT_ADMIN_VERI && window.FIT_ADMIN_VERI.HAREKET) || [];
+
+  /* =====================================================================
+     AD EŞLEME — uydurmuyor, sadeleştirip karşılaştırıyor
+     ---------------------------------------------------------------------
+     `HAREKET[].birincil/ikincil` insan/Latince ADI taşıyor, slug değil.
+     Sadeleştirme: parantez içi atılır, Türkçe harfler ASCII'ye düşürülür,
+     harf dışı her şey boşluğa çevrilir. Sonra ad, Latince ad ve slug'ın
+     düz okunuşu ile iki yönlü kapsama sınanır. Bulunamayan ad SAKLANMAZ,
+     "Eşleşmeyen adlar" tablosunda adıyla durur.
+     ===================================================================== */
+  var TRC = { 'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','I':'i','İ':'i','Ö':'o','Ş':'s','Ü':'u' };
+  function nrm(s) {
+    return String(s || '').replace(/\([^)]*\)/g, ' ')
+      .split('').map(function (c) { return TRC[c] !== undefined ? TRC[c] : c; }).join('')
+      .toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  var nrmKas = {};
+  SLUGLAR.forEach(function (s) {
+    nrmKas[s] = { ad: nrm(KAS[s].ad), latin: nrm(KAS[s].latin), slug: nrm(s.replace(/-/g, ' ')) };
+  });
+  function kasBul(isim) {
+    var n = nrm(isim);
+    if (!n) return null;
+    for (var i = 0; i < SLUGLAR.length; i++) {
+      var k = nrmKas[SLUGLAR[i]];
+      if (k.ad && (k.ad.indexOf(n) >= 0 || n.indexOf(k.ad) >= 0)) return SLUGLAR[i];
+      if (k.latin && (k.latin.indexOf(n) >= 0 || n.indexOf(k.latin) >= 0)) return SLUGLAR[i];
+      if (k.slug && (k.slug === n || n.indexOf(k.slug) >= 0)) return SLUGLAR[i];
+    }
+    return null;
+  }
+
+  /* kas slug → { birincil:[hareket], ikincil:[hareket] } ve eşleşmeyen adlar */
+  var esleme = {}, esleşmeyen = {};
+  SLUGLAR.forEach(function (s) { esleme[s] = { birincil: [], ikincil: [] }; });
+  HAREKET.forEach(function (h) {
+    [['birincil', h.birincil || []], ['ikincil', h.ikincil || []]].forEach(function (par) {
+      par[1].forEach(function (isim) {
+        var s = kasBul(isim);
+        if (s) esleme[s][par[0]].push(h);
+        else {
+          if (!esleşmeyen[isim]) esleşmeyen[isim] = { hareket: [], rol: {} };
+          esleşmeyen[isim].hareket.push(h.ad);
+          esleşmeyen[isim].rol[par[0]] = 1;
+        }
+      });
+    });
+  });
+  var esleşmeyenAd = Object.keys(esleşmeyen).sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+  var farkliIsim = {};
+  HAREKET.forEach(function (h) {
+    (h.birincil || []).concat(h.ikincil || []).forEach(function (x) { farkliIsim[x] = 1; });
+  });
+  var isimSay = Object.keys(farkliIsim).length;
+
+  /* ---- kaynak şeridi ---- */
+  document.getElementById('anKaynak').innerHTML = A.kaynak('canli',
+    '<b>Kaynağın kendisi, kopyası değil.</b> ' + SLUGLAR.length + ' kas kaydı ve ' +
+    Object.keys(HARITA).length + ' harita <code>assets/js/anatomi-veri.js</code>ten ' +
+    '(<code>window.ANATOMI_VERI</code>) okunuyor — <code>anatomi-v1.html</code> de aynı nesneyi okuyor. ' +
+    'Harita bölgeleri <b>SVG dosyalarının kendisinden</b> (<code>assets/svg/govde-*.svg</code>) ' +
+    'okunup sayılıyor, ilan edilmiyor. ' +
+    '<b>🔴 Eşleme yaklaşıktır ve nedeni ölçüldü:</b> hareket kataloğu kasları slug\'la değil ' +
+    '<b>adla</b> taşıyor (<code>fit-admin-veri.js</code> → <code>birincil</code>/<code>ikincil</code>); ' +
+    isimSay + ' ayrı addan ' + (isimSay - esleşmeyenAd.length) + '\'i bir kas kaydına ad benzerliğiyle ' +
+    'düşüyor, ' + esleşmeyenAd.length + '\'i düşmüyor ve aşağıda adıyla listeleniyor. ' +
+    '<b>Yazma yüzeyi maket:</b> form doğrular, kayıt gitmez — bu prototipte sunucu yok.');
+
+  document.getElementById('anAlt').textContent =
+    SLUGLAR.length + ' kas kaydı · ' + V.sayim().on + ' ön · ' + V.sayim().arka + ' arka görünüm · ' +
+    Object.keys(HARITA).length + ' gövde haritası · ' + Object.keys(ANA_HRK).length +
+    ' hareket eşlemesi. Haritadaki her bölge bir kas kaydına bağlıdır; bağ kopunca üye ' +
+    'haritaya tıklar ve hiçbir şey açılmaz.';
+
+  /* ---- kas → kaç haritada geçiyor (SVG'lerden sayılır, fetch sonrası dolar) ---- */
+  var haritaBolge = {};   /* harita anahtarı → [slug] */
+  var kasHarita = {};     /* kas slug → [harita anahtarı] */
+  SLUGLAR.forEach(function (s) { kasHarita[s] = []; });
+
+  /* ---- sayaçlar ---- */
+  function kpi(haritaOk) {
+    var c = V.sayim();
+    var bolgeToplam = 0;
+    Object.keys(haritaBolge).forEach(function (k) { bolgeToplam += haritaBolge[k].length; });
+    var haritasiz = SLUGLAR.filter(function (s) { return !kasHarita[s].length; });
+    var esleşen = SLUGLAR.filter(function (s) {
+      return esleme[s].birincil.length || esleme[s].ikincil.length;
+    }).length;
+
+    var kut = [
+      ['fa-person', SLUGLAR.length, 'kas kaydı',
+       c.on + ' ön · ' + c.arka + ' arka görünüm.', 'flat', 'fa-check'],
+      /* "72/4" bir oran değil; `n/toplam` idiomu burada yanlış okunuyordu
+         (ekranda ölçüldü). Sayı tek başına duruyor, kaç haritadan geldiği
+         alt satırda yazıyor. */
+      ['fa-map-location-dot',
+       haritaOk === null ? '—' : bolgeToplam,
+       'haritada tıklanabilir bölge',
+       haritaOk === null ? 'SVG dosyaları henüz okunmadı.'
+        : haritaOk ? Object.keys(HARITA).length + ' SVG dosyasından sayıldı; her bölge bir kas kaydına bağlı.'
+                   : 'En az bir SVG okunamadı — sayı eksik, uydurulmadı.',
+       haritaOk ? 'flat' : 'down', haritaOk ? 'fa-check' : 'fa-clock'],
+      ['fa-link-slash',
+       haritaOk === null ? '—' : haritasiz.length, 'haritasız kas kaydı',
+       haritaOk === null ? 'SVG dosyaları henüz okunmadı.'
+        : haritasiz.length ? haritasiz.join(', ') + ' hiçbir haritada bölge bulmuyor; ' +
+                             'kayıt var ama üye ona haritadan ulaşamıyor.'
+                           : 'Her kas kaydının en az bir haritada karşılığı var.',
+       haritasiz.length ? 'down' : 'flat', haritasiz.length ? 'fa-clock' : 'fa-check'],
+      ['fa-dumbbell', esleşen + '<small>/' + SLUGLAR.length + '</small>', 'kas hareketle eşleşti',
+       esleşmeyenAd.length
+         ? esleşmeyenAd.length + ' kas adı hiçbir kayda düşmüyor — aşağıdaki eşleme kartında.'
+         : 'Hareket kataloğundaki her kas adı bir kayda düşüyor.',
+       esleşmeyenAd.length ? 'down' : 'flat', esleşmeyenAd.length ? 'fa-clock' : 'fa-check']
+    ];
+    document.getElementById('anKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '" aria-hidden="true"></i></span>' +
+             '<div><b>' + k[1] + '</b><span>' + esc(k[2]) + '</span>' +
+             '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+             esc(k[3]) + '</span></div></div>';
+    }).join('');
+  }
+
+  /* =====================================================================
+     KAS LİSTESİ
+     ===================================================================== */
+  function haritaRozet(slug) {
+    var l = kasHarita[slug];
+    if (!l.length) return A.rozet('stop', 'haritada yok', 'fa-link-slash');
+    return A.rozet('ok', l.length + ' harita', 'fa-map-location-dot');
+  }
+
+  function listeBas() {
+    govde.innerHTML = SLUGLAR.map(function (s) {
+      var k = KAS[s];
+      return '<tr data-kas="' + esc(s) + '" data-gorunum="' + esc(k.gorunum) + '" ' +
+             'data-bolge="' + esc(k.bolge) + '">' +
+        '<td><b>' + esc(k.ad) + '</b><small class="an-kod">' + esc(s) + '</small></td>' +
+        '<td class="an-latin">' + esc(k.latin) + '</td>' +
+        '<td>' + esc(k.bolge) + '<small>' + (k.gorunum === 'on' ? 'Ön görünüm' : 'Arka görünüm') + '</small></td>' +
+        '<td data-harita-hucre="' + esc(s) + '">' + haritaRozet(s) + '</td>' +
+        '<td class="num">' + esleme[s].birincil.length + '</td>' +
+        '<td class="num">' + esleme[s].ikincil.length + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="anatomi-v1.html?kas=' + esc(s) + '" target="_blank" rel="noopener" ' +
+            'aria-label="' + esc(k.ad) + ' kaydını sitede gör">' +
+            '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>' +
+          '<button class="adm-ico-btn" type="button" data-duzenle="' + esc(s) + '" ' +
+            'aria-label="' + esc(k.ad) + ' kaydını düzenle" aria-expanded="false">' +
+            '<i class="fa-solid fa-pen" aria-hidden="true"></i></button>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('anSay').textContent = SLUGLAR.length;
+    /* Açık düzenleme satırı aramada kapanır: `aramaKur` gövdedeki HER satırı
+       süzüyor ve düzenleme satırı bir kayda ait değil — süzgeçte kalırsa
+       hangi kasa ait olduğu görünmez olur, sayaca da fazladan bir satır
+       eklerdi. Dinleyici `aramaKur`dan ÖNCE ekleniyor: dinleyici sırası
+       ekleme sırasıdır, satır önce kalkar, sayım sonra koşar. */
+    document.getElementById('anAra').addEventListener('input', kapat);
+    A.aramaKur(document.getElementById('anAra'),
+               document.getElementById('anTablo'),
+               document.getElementById('anSay'));
+  }
+
+  /* ---- süzgeç: bölge + görünüm, ikisi de veriden doğar ---- */
+  function suzgecKur() {
+    var kok = document.getElementById('anSuzgec');
+    var bolgeler = [];
+    SLUGLAR.forEach(function (s) { if (bolgeler.indexOf(KAS[s].bolge) < 0) bolgeler.push(KAS[s].bolge); });
+    bolgeler.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+
+    function grup(ad, etiket, degerler, yazi) {
+      return '<div class="fgroup" data-group="' + ad + '" role="group" aria-label="' + esc(etiket) + ' filtresi">' +
+        '<span class="lbl">' + esc(etiket) + '</span>' +
+        '<button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        degerler.map(function (v) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(v) + '">' +
+            esc(yazi ? yazi(v) : v) + '</button>';
+        }).join('') + '</div>';
+    }
+    kok.innerHTML =
+      grup('bolge', 'Bölge', bolgeler) +
+      grup('gorunum', 'Görünüm', ['on', 'arka'], function (v) { return v === 'on' ? 'Ön' : 'Arka'; });
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { bolge: [], gorunum: [] };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var ad = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') {
+            sec[ad] = [];
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+          } else {
+            var i = sec[ad].indexOf(v);
+            if (i < 0) sec[ad].push(v); else sec[ad].splice(i, 1);
+            b.classList.toggle('on', i < 0);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[ad].length === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+
+  /* Süzgeç 0 sonuç verdiğinde de boş durum basılır — aramanınki
+     `aramaKur` içinde, bu ondan ayrı bir yol (kit §9). */
+  var suzBos = null;
+  function suz(sec) {
+    kapat();
+    var say = 0;
+    govde.querySelectorAll('tr[data-kas]').forEach(function (tr) {
+      var ok = (!sec.bolge.length   || sec.bolge.indexOf(tr.getAttribute('data-bolge')) >= 0) &&
+               (!sec.gorunum.length || sec.gorunum.indexOf(tr.getAttribute('data-gorunum')) >= 0);
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('anSay').textContent = say;
+    if (say === 0) {
+      if (!suzBos) {
+        suzBos = document.createElement('tr');
+        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
+          'Bu süzgeçle kas kalmadı',
+          'Seçili bölge ve görünüm birleşimine düşen kas kaydı yok. Bir çipi kaldır ya da süzgeci sıfırla.',
+          '<button class="btn btn-primary" type="button" id="anSifirla">Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(suzBos);
+      }
+      suzBos.hidden = false;
+    } else if (suzBos) suzBos.hidden = true;
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#anSifirla')) {
+      document.querySelectorAll('#anSuzgec .df-fchip[data-val="all"]').forEach(function (b) { b.click(); });
+    }
+  });
+
+  /* =====================================================================
+     SATIR İÇİ DÜZENLEME — brief'in "satır içi genişleyen kart" seçeneği
+     ---------------------------------------------------------------------
+     Modal DEĞİL, çünkü form 12 alanlı ve düzenlenen kaydın hangi satır
+     olduğu okunurken görünmeli. Ayrı form SAYFASI da değil: kas kaydı
+     listeden koparıldığında hangi bölgeye, hangi haritaya ve hangi komşuya
+     ait olduğu okunmaz oluyor.
+
+     TEK FORM DÜĞÜMÜ TAŞINIYOR, KOPYALANMIYOR. Form markup'ta duruyor
+     (`#anEdTasiyici`); açılışta hücreye taşınıyor, kapanışta taşıyıcısına
+     geri dönüyor. Böylece aynı anda iki kayıt açılamıyor ve zengin metin
+     editörü BİR KEZ kuruluyor — her satırda yeniden kurmak araç çubuğunu
+     çoğaltırdı (`FIT_ADMIN.editor` kurduğu textarea'yı işaretliyor).
+     ===================================================================== */
+  var tasiyici = document.getElementById('anEdTasiyici');
+  var edKutu   = document.getElementById('anEdKutu');
+  var edForm   = document.getElementById('anForm');
+  var acikSatir = null;   /* null = kapalı · '' = yeni kayıt · slug = düzenleme */
+
+  /* Editör bir kez kurulur; kayıt değiştiğinde yüzeyi `edTanimYaz` tazeler. */
+  A.editor('#ae-fonksiyon', 'govde');
+  var edYuz = edKutu.querySelector('.adm-ed-yuz');
+  function edTanimYaz(metin) {
+    var ta = document.getElementById('ae-fonksiyon');
+    ta.value = metin || '';
+    /* Editör tek yönlü yazıyor (yüzey → textarea). Kayıt değişince ters
+       yön gerekiyor ve bileşen bunun için API vermiyor; yüzeye yazılıp
+       `input` tetikleniyor ki kelime/karakter sayacı da tazelensin. */
+    if (edYuz) { edYuz.innerHTML = ta.value; edYuz.dispatchEvent(new Event('input', { bubbles: true })); }
+  }
+
+  A.maketKaydet(document.getElementById('ae-kaydet'), 'kas kaydı', edForm);
+
+  function kapat() {
+    if (acikSatir === null) return;
+    var d = govde.querySelector('[data-duzenle="' + acikSatir + '"]');
+    if (d) d.setAttribute('aria-expanded', 'false');
+    tasiyici.appendChild(edKutu);
+    tasiyici.hidden = true;
+    var tr = govde.querySelector('tr.an-ed-satir');
+    if (tr) tr.parentNode.removeChild(tr);
+    acikSatir = null;
+  }
+
+  function ac(slug) {
+    var yeni = !slug;
+    if (acikSatir === (yeni ? '' : slug)) { kapat(); return; }
+    kapat();
+    var k = yeni ? {} : KAS[slug];
+    if (!yeni && !k) return;
+
+    var tr = document.createElement('tr');
+    tr.className = 'an-ed-satir';
+    var td = document.createElement('td');
+    td.className = 'an-ed-hucre';
+    td.colSpan = 7;
+    tr.appendChild(td);
+
+    if (yeni) {
+      govde.insertBefore(tr, govde.firstChild);
+    } else {
+      var satir = govde.querySelector('tr[data-kas="' + slug + '"]');
+      if (!satir) return;
+      satir.parentNode.insertBefore(tr, satir.nextSibling);
+      govde.querySelector('[data-duzenle="' + slug + '"]').setAttribute('aria-expanded', 'true');
+    }
+    tasiyici.hidden = false;
+    td.appendChild(edKutu);
+    acikSatir = yeni ? '' : slug;
+
+    document.getElementById('ae-baslik').textContent = yeni ? 'Yeni kas kaydı' : k.ad;
+    document.getElementById('ae-ad').value       = k.ad || '';
+    document.getElementById('ae-latin').value    = k.latin || '';
+    document.getElementById('ae-bolge').value    = k.bolge || '';
+    document.getElementById('ae-gorunum').value  = k.gorunum || 'on';
+    document.getElementById('ae-koken').value    = k.koken || '';
+    document.getElementById('ae-yapisma').value  = k.yapisma || '';
+    document.getElementById('ae-guvenlik').value = k.guvenlik || '';
+    document.getElementById('ae-kaynak').value   = k.kaynak || '';
+    edTanimYaz(k.fonksiyon);
+
+    /* Adres var olan kayıtta SALT OKUNUR: anahtar aynı zamanda dört SVG'nin
+       `data-kas` değeri; değişirse haritaların bağı birden kopar. */
+    var adres = document.getElementById('ae-adres');
+    adres.value = yeni ? '' : slug;
+    adres.readOnly = !yeni;
+
+    /* Yeni kayıtta silinecek bir şey yok — düğme gizlenir, ölü düğme durmaz. */
+    var sil = document.getElementById('ae-sil');
+    sil.hidden = yeni;
+    if (!yeni) sil.setAttribute('data-yikici', k.ad);
+
+    /* Etiket alanları her açılışta yeniden çizilir; `FIT_ADMIN.etiket`
+       kabın içeriğini baştan kuruyor, bu yüzden eski seçim taşınmıyor. */
+    A.etiket(document.getElementById('ae-komsu'), {
+      katalog: SLUGLAR.filter(function (x) { return x !== slug; })
+        .map(function (x) { return { id: x, ad: KAS[x].ad }; }),
+      ad: 'komsu[]', ico: 'fa-person', ipucu: 'Kas ara…', secili: (k.komsu || []).slice()
+    });
+    /* Hareket seçenekleri 25 kayıtlık GERÇEK katalogdan veriliyor; kasın
+       kendi `hareketler` dizisi 12 kalemlik anatomi tablosundan geliyor.
+       İkisi ayrışmasın diye seçenek listesi katalogdan okunuyor. */
+    A.etiket(document.getElementById('ae-hareket'), {
+      katalog: HAREKET.length
+        ? HAREKET.map(function (h) { return { id: h.slug, ad: h.ad }; })
+        : Object.keys(ANA_HRK).map(function (x) { return { id: x, ad: ANA_HRK[x].ad }; }),
+      ad: 'hareketler[]', ico: 'fa-dumbbell',
+      ipucu: 'Hareket ara…', secili: (k.hareketler || []).slice()
+    });
+    A.etiket(document.getElementById('ae-ekipman'), {
+      katalog: (function () {
+        var e = {}; SLUGLAR.forEach(function (x) { (KAS[x].ekipman || []).forEach(function (n) { e[n] = 1; }); });
+        return Object.keys(e).sort(function (a, b) { return a.localeCompare(b, 'tr'); })
+          .map(function (n) { return { id: n, ad: n }; });
+      })(),
+      ad: 'ekipman[]', ico: 'fa-dumbbell', serbest: true,
+      ipucu: 'Ekipman ara ya da yaz…', secili: (k.ekipman || []).slice()
+    });
+
+    /* Hareket kataloğundan SAYILAN eşleşme — ilan edilmiyor, adlarıyla yazılıyor. */
+    var not = document.getElementById('ae-hrk-not');
+    if (yeni) {
+      not.innerHTML = 'Seçim kasın <b>kendi</b> hareket dizisini kurar. Hareket kataloğunun ' +
+        'ayrıca bu kası kaç harekette birincil/ikincil saydığı, kayıt bir ada kavuştuktan ' +
+        'sonra bu satırda görünür.';
+    } else {
+      var bs = esleme[slug].birincil, is = esleme[slug].ikincil;
+      not.innerHTML =
+        'Yukarıdaki seçim kasın <b>kendi</b> hareket dizisidir (' + (k.hareketler || []).length + ' kayıt). ' +
+        'Hareket kataloğu ayrıca bu kası <b>' + bs.length + ' harekette birincil</b>, ' +
+        '<b>' + is.length + ' harekette ikincil</b> olarak sayıyor' +
+        (bs.length ? ' — birincil: ' + bs.map(function (h) { return esc(h.ad); }).join(', ') : '') +
+        (is.length ? ' · ikincil: ' + is.map(function (h) { return esc(h.ad); }).join(', ') : '') +
+        '. Bu sayım <code>fit-admin-veri.js</code>teki <b>adlardan</b> çıkarıldı, slug bağından değil.';
+    }
+
+    document.getElementById('ae-ad').focus();
+    tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  document.getElementById('anYeni').addEventListener('click', function () { ac(null); });
+  document.getElementById('ae-kapat').addEventListener('click', kapat);
+  document.getElementById('ae-sil').addEventListener('click', function () {
+    /* Onay modalı kabuğun `data-yikici` delegesinden geldi; buraya yalnız
+       onay SONRASI düşülür. Sunucu yok: kayıt gerçekten silinmez ve ekran
+       bunu yazıyla söyler — sessizce "silindi" demek yalan olurdu. */
+    A.toast('Kayıt silinmedi — bu prototipte sunucu yok.', { tip: 'info' });
+    kapat();
+  });
+  govde.addEventListener('click', function (e) {
+    var d = e.target.closest('[data-duzenle]');
+    if (d) ac(d.getAttribute('data-duzenle'));
+  });
+
+  /* =====================================================================
+     DÖRT HARİTA — bölgeler SVG'den okunur, sayı uydurulmaz
+     ===================================================================== */
+  function haritaSecenek(secili) {
+    return '<option value="">— Bağ yok —</option>' + SLUGLAR.map(function (s) {
+      return '<option value="' + esc(s) + '"' + (s === secili ? ' selected' : '') + '>' +
+        esc(KAS[s].ad) + '</option>';
+    }).join('');
+  }
+
+  function haritaBas(anahtar, slugListe, hata) {
+    var tb = document.querySelector('tbody[data-harita="' + anahtar + '"]');
+    var say = document.querySelector('[data-harita-say="' + anahtar + '"]');
+    var not = document.querySelector('[data-harita-not="' + anahtar + '"]');
+    var yon = anahtar.split('-')[1];
+
+    if (hata) {
+      tb.innerHTML = '<tr><td colspan="4">' + A.bos('fa-file-circle-xmark',
+        'Harita dosyası okunamadı',
+        'Bölgeler ' + HARITA[anahtar] + ' dosyasından okunur. Dosya bu adreste yanıt vermedi, ' +
+        'bu yüzden bölge sayısı uydurulmadı — boş bırakıldı.',
+        '<a class="btn btn-primary" href="' + esc(HARITA[anahtar]) + '" target="_blank" rel="noopener">' +
+        'SVG dosyasını aç</a>') + '</td></tr>';
+      say.textContent = '—';
+      not.textContent = 'Dosya okunamadı.';
+      return;
+    }
+
+    var uyumsuz = 0;
+    tb.innerHTML = slugListe.map(function (s) {
+      var k = KAS[s];
+      var farkli = k && k.gorunum !== yon;
+      if (farkli) uyumsuz++;
+      return '<tr>' +
+        '<td><b class="an-kod">' + esc(s) + '</b>' +
+          '<small>' + (k ? esc(k.bolge) : 'kayıt yok') + '</small></td>' +
+        '<td><label class="sr-only" for="hm-' + esc(anahtar) + '-' + esc(s) + '">' +
+          esc(s) + ' bölgesinin kas kaydı</label>' +
+          '<select class="fselect" id="hm-' + esc(anahtar) + '-' + esc(s) + '">' +
+          haritaSecenek(k ? s : '') + '</select></td>' +
+        '<td>' + (k ? (k.gorunum === 'on' ? 'Ön' : 'Arka') : '—') + '</td>' +
+        '<td>' + (!k
+            ? A.rozet('stop', 'kayıt yok', 'fa-link-slash')
+            : farkli
+              ? A.rozet('wait', 'kayıt ' + (k.gorunum === 'on' ? 'ön' : 'arka') + ' diyor', 'fa-arrows-turn-to-dots')
+              : A.rozet('ok', 'bağlı', 'fa-check')) + '</td></tr>';
+    }).join('');
+
+    say.textContent = slugListe.length + ' bölge';
+    not.innerHTML = '<b>' + slugListe.length + '</b> bölge · <code>' + esc(HARITA[anahtar]) +
+      '</code> dosyasındaki <code>data-kas</code> düğümlerinden sayıldı' +
+      (uyumsuz
+        ? ' · <b>' + uyumsuz + '</b> bölgenin kas kaydı bu haritanın yönünü (' +
+          (yon === 'on' ? 'ön' : 'arka') + ') değil ötekini söylüyor: üye buraya tıklayınca ' +
+          'sayfa öteki görünüme atlar.'
+        : ' · her bölgenin kas kaydı bu haritanın yönüyle uyumlu.');
+  }
+
+  function haritalariOku() {
+    var anahtarlar = Object.keys(HARITA);
+    var kalan = anahtarlar.length, hataVar = false;
+    anahtarlar.forEach(function (a) { haritaBolge[a] = []; });
+
+    anahtarlar.forEach(function (a) {
+      fetch(HARITA[a])
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(function (txt) {
+          var doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+          var liste = [];
+          doc.querySelectorAll('[data-kas]').forEach(function (el) {
+            liste.push(el.getAttribute('data-kas'));
+          });
+          haritaBolge[a] = liste;
+          liste.forEach(function (s) { if (kasHarita[s] && kasHarita[s].indexOf(a) < 0) kasHarita[s].push(a); });
+          haritaBas(a, liste, false);
+        })
+        .catch(function () { hataVar = true; haritaBas(a, [], true); })
+        .then(function () {
+          if (--kalan === 0) {
+            kpi(!hataVar);
+            /* Kas listesindeki harita hücreleri fetch sonrası tazelenir —
+               sayı gelmeden "0 harita" yazmak yanlış olurdu. */
+            SLUGLAR.forEach(function (s) {
+              var h = govde.querySelector('[data-harita-hucre="' + s + '"]');
+              if (h) h.innerHTML = haritaRozet(s);
+            });
+          }
+        });
+    });
+  }
+
+  /* =====================================================================
+     KAS ⇄ HAREKET EŞLEMESİ — eşleşmeyen adlar tablosu
+     ===================================================================== */
+  (function eslemeBas() {
+    var tb = document.getElementById('anEsGovde');
+    document.getElementById('anEsSay').textContent =
+      isimSay + ' ad · ' + (isimSay - esleşmeyenAd.length) + ' eşleşti';
+    document.getElementById('anEsNot').innerHTML =
+      'Hareket kataloğu (<code>fit-admin-veri.js</code>, ' + HAREKET.length + ' hareket) kasları ' +
+      '<b>slug\'la değil adla</b> taşıyor: <code>birincil</code> ve <code>ikincil</code> alanları ' +
+      '“Latissimus dorsi”, “Trapezius (orta)”, “Core” gibi metinler. Bu ekran o metinleri ' +
+      'sadeleştirip ' + SLUGLAR.length + ' kas kaydının adı, Latince adı ve anahtarıyla ' +
+      'karşılaştırıyor — <b>eşleme uydurulmuyor, ölçülüyor</b>. Aşağıda yalnız <b>karşılık ' +
+      'bulamayan</b> adlar var; bunlar bugün hiçbir kas kaydına düşmüyor, yani üye hareket ' +
+      'sayfasında o kası okuyor ama anatomi haritasında karşılığını bulamıyor. ' +
+      'Bağ slug\'a çevrilene kadar bu tablo açık kalır.';
+
+    if (!HAREKET.length) {
+      tb.innerHTML = '<tr><td colspan="4">' + A.bos('fa-dumbbell',
+        'Hareket kataloğu yüklenmedi',
+        'Eşleme fit-admin-veri.js dosyasındaki 25 hareket kaydından sayılır; bu sayfada o ' +
+        'katalog yüklenemedi, bu yüzden hiçbir sayı üretilmedi.',
+        '<a class="btn btn-primary" href="admin-hareketler-v1.html">Hareket Kütüphanesini aç</a>') +
+        '</td></tr>';
+      return;
+    }
+    if (!esleşmeyenAd.length) {
+      tb.innerHTML = '<tr><td colspan="4">' + A.bos('fa-circle-check',
+        'Her kas adı bir kayda düşüyor',
+        'Hareket kataloğundaki ' + isimSay + ' ayrı kas adının tamamı bir anatomi kaydıyla ' +
+        'eşleşti; anatomi haritasında karşılığı olmayan ad yok.',
+        '<a class="btn btn-primary" href="admin-hareketler-v1.html">Hareket Kütüphanesini aç</a>') +
+        '</td></tr>';
+      return;
+    }
+    tb.innerHTML = esleşmeyenAd.map(function (isim) {
+      var e = esleşmeyen[isim];
+      var rol = Object.keys(e.rol).join(' · ');
+      return '<tr>' +
+        '<td><b>' + esc(isim) + '</b><small>' + esc(rol) + '</small></td>' +
+        '<td>' + e.hareket.slice(0, 3).map(esc).join(', ') +
+          (e.hareket.length > 3 ? ' <small>+' + (e.hareket.length - 3) + ' hareket daha</small>' : '') + '</td>' +
+        '<td class="num">' + e.hareket.length + '</td>' +
+        '<td>' + A.rozet('stop', 'kas kaydı yok', 'fa-link-slash') + '</td></tr>';
+    }).join('');
+  })();
+
+  kpi(null);
+  listeBas();
+  suzgecKur();
+  haritalariOku();
+})();
+</script>
+</body>
+</html>

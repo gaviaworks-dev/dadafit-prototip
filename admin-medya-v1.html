@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Medya Kütüphanesi — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi.
+   Kütüphane ızgarası modaldakinin (`.mk-izgara`) aynı bileşenidir; ekran
+   kipinde döşeme büyür çünkü kaplayacak genişlik var. Yeni sınıf değil,
+   aynı sınıfın ekran ölçüsü. */
+.md-sayfa .mk-izgara{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));padding:0}
+.md-sayfa .mk-oge .mk-gorsel{height:128px}
+.md-govde{display:grid;grid-template-columns:220px minmax(0,1fr) 280px;gap:0;align-items:start}
+.md-govde>*{min-width:0}
+.md-sol{border-right:1px solid var(--line);padding:18px 14px}
+.md-orta{padding:18px 20px}
+.md-sag{border-left:1px solid var(--line);padding:18px}
+.md-sirala{margin-left:auto}
+.md-sirala .fselect{max-width:220px}
+@media (max-width:1100px){
+  .md-govde{grid-template-columns:1fr}
+  .md-sol{border-right:0;border-bottom:1px solid var(--line)}
+  .md-sag{border-left:0;border-top:1px solid var(--line)}
+}
+</style>
+</head>
+<body class="adm-body" data-adm="medya">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page md-sayfa">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Medya Kütüphanesi</h1>
+        <div class="ph-sub">Sitenin kullandığı her görsel tek yerde: klasör, arama, alt metin
+          ve nerede kullanıldığı. Bir görseli değiştirmeden önce kaç yerde geçtiğine bak.</div>
+      </div>
+      <div class="h-acts">
+        <button class="btn btn-ghost" type="button" id="mdAltEksik">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          Alt metni olmayanlar</button>
+        <button class="btn btn-primary" type="button" id="mdYukle">
+          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Görsel yükle</button>
+      </div>
+    </div>
+
+    <div id="mdKaynak"></div>
+    <div id="mdUyari"></div>
+
+    <div class="adm-kpi" id="mdKpi"></div>
+
+    <div class="adm-card">
+      <div class="filter-bar">
+        <label class="sr-only" for="mdAra">Medyada ara</label>
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" id="mdAra" placeholder="Dosya adı ya da alt metinde ara" autocomplete="off" />
+        </div>
+        <div class="md-sirala">
+          <label class="sr-only" for="mdSirala">Sırala</label>
+          <select class="fselect" id="mdSirala">
+            <option value="kullanim">En çok kullanılan</option>
+            <option value="ad">Dosya adı</option>
+            <option value="klasor">Klasör</option>
+            <option value="alt">Alt metni eksik olanlar önce</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="md-govde">
+        <div class="md-sol">
+          <div class="form-sec-tt" style="margin-bottom:10px">
+            <i class="fa-solid fa-folder-tree" aria-hidden="true"></i> Klasörler</div>
+          <div class="mk-klasor" id="mdKlasor" role="tablist" aria-label="Klasörler"
+               style="width:auto;border:0;padding:0;background:none"></div>
+          <div class="fhint" style="margin-top:14px">Klasör bir dosya yolu değil,
+            <b>kullanım bağlamı</b>: uzak görselin klasörü olmaz, onu en çok kullanan modül
+            klasör sayılır.</div>
+        </div>
+
+        <div class="md-orta">
+          <div class="mk-izgara" id="mdIzgara" role="listbox" aria-label="Medya öğeleri"></div>
+        </div>
+
+        <aside class="md-sag" id="mdYan"></aside>
+      </div>
+
+      <div class="c-foot" style="justify-content:space-between">
+        <span class="fhint" id="mdSay"></span>
+        <span class="fhint">Seçili görselin alt metnini sağdaki panelden yaz.</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   MEDYA KÜTÜPHANESİ — 🔴 GASTRO'DA YOK, ÜSTÜNE İNŞA EDİLDİ
+   ---------------------------------------------------------------------
+   Ölçüm (`docs/gastro-olcum/ortak-bilesenler.md` §1.1):
+   `media-library|MediaLibrary|media.index` → **0 isabet** · `alt_text` →
+   **0** · klasörleme **yok**. Gastro'da görsel yalnız formun içindeki
+   yükleme kutusundan gelir; yüklendikten sonra bir daha bulunamaz, alt
+   metni hiç sorulmaz, hangi içerikte kullanıldığı bilinmez.
+
+   Beyar'ın kalemi: "Görsel kütüphanesi / medya yöneticisi — yükleme,
+   seçme, kırpma, alt metin, klasörleme". Gastro'da karşılığı olmadığı
+   için desen alınamadı; kabuğun kendi dilinden kuruldu:
+     · ızgara ve döşeme = yükleme bileşeninin ölçüsü (148×92 → ekranda 200)
+     · klasör rayı = `.mk-kl`, sidebar kaleminin dili
+     · modal kipi = `FIT_ADMIN.medya()`, form alanlarından çağrılan
+   Yeni bir görsel dil ÜRETİLMEDİ.
+
+   KATALOG UYDURULMADI, SAYILDI: `assets/js/fit-medya-veri.js`,
+   üreteci `tools/medya-veri-uret.mjs` — 75 HTML + assets/js tarandı.
+   Her kaydın `kullanim` sayısı ve `sayfa` listesi gerçek.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  var OGE = (window.FIT_MEDYA_VERI || []).slice();
+  var klasor = 'hepsi', q = '', sirala = 'kullanim', secili = null, yalnizAltsiz = false;
+
+  var izgara = document.getElementById('mdIzgara');
+  var klKap  = document.getElementById('mdKlasor');
+  var yan    = document.getElementById('mdYan');
+  var sayEl  = document.getElementById('mdSay');
+
+  var altsiz = OGE.filter(function (o) { return !o.alt; }).length;
+  var paylasik = OGE.filter(function (o) { return o.paylasik; }).length;
+
+  document.getElementById('mdKaynak').innerHTML = A.kaynak('canli',
+    'Katalog <b>uydurulmadı, sayıldı</b>: 75 HTML sayfası ve <code>assets/js</code> ' +
+    'modülleri tarandı, <b>' + OGE.length + ' benzersiz görsel</b> bulundu ' +
+    '(<code>tools/medya-veri-uret.mjs</code>). Her kaydın kullanım sayısı ve ' +
+    'hangi sayfalarda geçtiği gerçek. ' +
+    '<b>Yükleme maket</b>: sunucu yok, seçtiğin dosya yalnız bu sekmede yaşar.');
+
+  /* Alt metin eksiği bir ERİŞİLEBİLİRLİK kusurudur; ekran bunu saklamaz. */
+  if (altsiz) {
+    A.flash('warn', altsiz + ' görselin alt metni yok. Ekran okuyucu bunları okuyamaz; ' +
+      'alt metni olmayan görsel erişilemez sayılır.', document.getElementById('mdUyari'));
+  }
+
+  /* ---- KPI ---- */
+  /* KPI kalıbı kabuğunki (kit §13): ikon solda → sayı → etiket → trend satırı.
+     Trend metni UYDURULMADI — ekranın zaten hesapladığı sayıdan türedi. */
+  var klasorSay = Object.keys(OGE.reduce(function (m, o) { m[o.klasor] = 1; return m; }, {})).length;
+  var kullanimTop = OGE.reduce(function (t, o) { return t + (o.kullanim || 0); }, 0);
+  var kut = [
+    ['fa-images', OGE.length, 'görsel', klasorSay + ' klasörde toplandı.', 'flat', 'fa-check'],
+    ['fa-triangle-exclamation', altsiz, 'alt metni yok',
+     altsiz ? Math.round(altsiz / OGE.length * 100) + '% — ekran okuyucu bunları okuyamıyor.'
+            : 'Her görselin alt metni var.',
+     altsiz ? 'down' : 'flat', altsiz ? 'fa-clock' : 'fa-check'],
+    ['fa-code-branch', paylasik, 'birden çok modülde',
+     paylasik ? 'Değiştirmeden önce kullanım listesine bak.' : 'Her görsel tek modülde.',
+     'flat', 'fa-check'],
+    ['fa-link', kullanimTop, 'toplam kullanım', 'Sayfa ve modül geçişlerinin toplamı.', 'flat', 'fa-check']
+  ];
+  document.getElementById('mdKpi').innerHTML = kut.map(function (k) {
+    return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '" aria-hidden="true"></i></span>' +
+      '<div><b>' + k[1] + '</b><span>' + A.esc(k[2]) + '</span>' +
+      '<span class="kpi-delta ' + k[4] + '"><i class="fa-solid ' + k[5] + '" aria-hidden="true"></i> ' +
+      A.esc(k[3]) + '</span></div></div>';
+  }).join('');
+
+  /* ---- klasör rayı ---- */
+  function klasorler() {
+    var m = { hepsi: OGE.length };
+    OGE.forEach(function (o) { m[o.klasor] = (m[o.klasor] || 0) + 1; });
+    return m;
+  }
+  function klCiz() {
+    var m = klasorler();
+    klKap.innerHTML = '';
+    Object.keys(m).forEach(function (k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mk-kl' + (k === klasor ? ' is-on' : '');
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', k === klasor ? 'true' : 'false');
+      b.innerHTML = '<i class="fa-solid ' + (k === 'hepsi' ? 'fa-images' : 'fa-folder') +
+        '" aria-hidden="true"></i><span></span><span class="mk-kl-n">' + m[k] + '</span>';
+      b.querySelectorAll('span')[0].textContent = (k === 'hepsi' ? 'Tüm medya' : k);
+      b.addEventListener('click', function () { klasor = k; klCiz(); ciz(); });
+      klKap.appendChild(b);
+    });
+  }
+
+  /* ---- süzme ve sıralama ---- */
+  function liste() {
+    var s = q.trim().toLocaleLowerCase('tr');
+    var l = OGE.filter(function (o) {
+      if (klasor !== 'hepsi' && o.klasor !== klasor) return false;
+      if (yalnizAltsiz && o.alt) return false;
+      if (!s) return true;
+      return (o.ad + ' ' + (o.alt || '') + ' ' + o.klasor).toLocaleLowerCase('tr').indexOf(s) >= 0;
+    });
+    var K = {
+      kullanim: function (a, b) { return (b.kullanim || 0) - (a.kullanim || 0); },
+      ad:       function (a, b) { return a.ad.localeCompare(b.ad, 'tr'); },
+      klasor:   function (a, b) { return a.klasor.localeCompare(b.klasor, 'tr') || a.ad.localeCompare(b.ad, 'tr'); },
+      alt:      function (a, b) { return (a.alt ? 1 : 0) - (b.alt ? 1 : 0); }
+    };
+    return l.sort(K[sirala] || K.kullanim);
+  }
+
+  /* ---- yan panel — alt metin buradan yazılır ---- */
+  function yanCiz() {
+    if (!secili) {
+      yan.innerHTML = A.bos('fa-hand-pointer', 'Bir görsel seç',
+        'Alt metni, ölçüsü ve hangi sayfalarda kullanıldığı burada görünür.');
+      return;
+    }
+    var o = secili;
+    var sayfa = (o.sayfa || []);
+    yan.innerHTML =
+      '<div class="mk-onizle" style="background-image:url(' + A.esc(o.url) + ')" ' +
+        'role="img" aria-label="' + A.esc(o.alt || o.ad) + '"></div>' +
+      '<div class="form-grid">' +
+        '<div class="frow">' +
+          '<label for="mdAlt">Alt metin' + (o.alt ? '' : ' <span class="req">*</span>') + '</label>' +
+          '<input class="finput" id="mdAlt" type="text" placeholder="Görsel ne anlatıyor?" />' +
+          '<div class="fhint">Ekran okuyucu bunu okur. Süsleyici bir görselse boş bırak ' +
+            've dekoratif işaretle — ama içerik taşıyorsa yazılması zorunludur.</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-sec-tt" style="margin:18px 0 10px">' +
+        '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> Künye</div>' +
+      '<div class="fhint"><b>Dosya</b> ' + A.esc(o.ad) + '</div>' +
+      '<div class="fhint"><b>Klasör</b> ' + A.esc(o.klasor) + '</div>' +
+      '<div class="fhint"><b>Ölçü</b> ' + A.esc(o.olcu || '—') + '</div>' +
+      '<div class="fhint"><b>Kullanım</b> ' + (o.kullanim || 0) + ' yerde</div>' +
+      (o.paylasik
+        ? '<div class="sa-flash is-warn" style="margin-top:12px">' +
+          '<i class="fa-solid fa-code-branch" aria-hidden="true"></i>' +
+          '<div>Bu görsel birden çok modülde kullanılıyor. Değiştirirsen hepsi değişir.</div></div>'
+        : '') +
+      (sayfa.length
+        ? '<div class="form-sec-tt" style="margin:18px 0 10px">' +
+          '<i class="fa-solid fa-file-lines" aria-hidden="true"></i> Nerede kullanılıyor' +
+          '<span class="fs-say">' + sayfa.length + '</span></div>' +
+          '<div class="bd-list">' + sayfa.slice(0, 10).map(function (s) {
+            var html = /\.html$/.test(s);
+            return html
+              ? '<a class="fhint" href="' + A.esc(s) + '" target="_blank" rel="noopener">' +
+                '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> ' + A.esc(s) + '</a>'
+              : '<span class="fhint"><i class="fa-solid fa-file-code" aria-hidden="true"></i> ' + A.esc(s) + '</span>';
+          }).join('') +
+          (sayfa.length > 10 ? '<span class="fhint">…ve ' + (sayfa.length - 10) + ' tane daha</span>' : '') +
+          '</div>'
+        : '') +
+      '<div class="c-foot" style="padding:16px 0 0;margin-top:16px;justify-content:flex-end">' +
+        '<button class="btn btn-ghost" type="button" id="mdSil" ' +
+          'data-yikici="' + A.esc(o.ad) + '" data-fiil="sil" ' +
+          'style="color:var(--hs-danger);border-color:var(--hs-danger-line)">' +
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Sil</button>' +
+      '</div>';
+
+    var alt = yan.querySelector('#mdAlt');
+    alt.value = o.alt || '';
+    alt.addEventListener('input', function () { o.alt = alt.value; ciz(); });
+    alt.addEventListener('change', function () {
+      A.toast(o.alt ? 'Alt metin yazıldı — bu prototipte sunucu yok, kayıt bu sekmede yaşar.'
+                    : 'Alt metin boşaltıldı.', { tip: o.alt ? 'ok' : 'info' });
+    });
+    yan.querySelector('#mdSil').addEventListener('click', function () {
+      /* Yıkıcı delege onayı zaten aldı; buraya yalnız onaydan sonra gelinir. */
+      if (o.kullanim > 0) {
+        A.toast('Silinmedi: bu görsel ' + o.kullanim + ' yerde kullanılıyor. ' +
+          'Önce kullanımlarını kaldır.', { tip: 'danger', ms: 4200 });
+        return;
+      }
+      A.toast('Bu prototipte silme yüzeyi maket — dosya kaldırılmadı.', { tip: 'info' });
+    });
+  }
+
+  /* ---- ızgara ---- */
+  function ciz() {
+    var l = liste();
+    izgara.innerHTML = '';
+    if (!l.length) {
+      izgara.style.display = 'block';
+      izgara.innerHTML = A.bos('fa-image', 'Bu süzgeçle görsel yok',
+        'Aramayı temizle, başka bir klasör seç ya da alt metin süzgecini kapat.');
+    } else {
+      izgara.style.display = '';
+      l.forEach(function (o) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'mk-oge' + (o === secili ? ' is-sel' : '');
+        b.setAttribute('role', 'option');
+        b.setAttribute('aria-selected', o === secili ? 'true' : 'false');
+        b.innerHTML =
+          '<span class="mk-gorsel" style="background-image:url(' + A.esc(o.url) + ')"></span>' +
+          '<span class="mk-ad"></span>' +
+          (o.alt ? '' : '<span class="mk-alt-yok">alt metin yok</span>') +
+          '<span class="mk-tik"><i class="fa-solid fa-check" aria-hidden="true"></i></span>';
+        b.querySelector('.mk-ad').textContent = o.ad + ' · ' + (o.kullanim || 0) + '×';
+        b.addEventListener('click', function () { secili = o; ciz(); yanCiz(); });
+        izgara.appendChild(b);
+      });
+    }
+    sayEl.textContent = l.length + ' görsel gösteriliyor · toplam ' + OGE.length +
+      (yalnizAltsiz ? ' · alt metni olmayanlar süzüldü' : '');
+  }
+
+  /* ---- kontroller ---- */
+  document.getElementById('mdAra').addEventListener('input', function () {
+    q = this.value; ciz();
+  });
+  document.getElementById('mdSirala').addEventListener('change', function () {
+    sirala = this.value; ciz();
+  });
+  document.getElementById('mdAltEksik').addEventListener('click', function () {
+    yalnizAltsiz = !yalnizAltsiz;
+    this.classList.toggle('btn-primary', yalnizAltsiz);
+    this.classList.toggle('btn-ghost', !yalnizAltsiz);
+    this.setAttribute('aria-pressed', yalnizAltsiz ? 'true' : 'false');
+    ciz();
+  });
+  document.getElementById('mdYukle').addEventListener('click', function () {
+    A.medya({ tekli: false, sec: function (m) {
+      if (m.length) { secili = m[m.length - 1]; ciz(); yanCiz(); }
+    }});
+  });
+
+  klCiz(); ciz(); yanCiz();
+})();
+</script>
+</body>
+</html>

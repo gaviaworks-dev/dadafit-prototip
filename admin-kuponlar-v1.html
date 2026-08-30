@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kuponlar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.kp-yok{color:var(--muted);font-weight:600}
+/* Kullanım çubuğu: uzunluğu VERİDİR (satır içi genişlik meşru), kabı değil. */
+.kp-bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+.kp-bar span{display:block;height:100%;background:var(--acc);border-radius:99px}
+.kp-bar.dolu span{background:var(--hs-danger)}
+</style>
+</head>
+<body class="adm-body" data-adm="kuponlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1>Kuponlar</h1>
+        <div class="ph-sub">Abonelik satın alma akışında girilen indirim kodları. Kupon yalnız
+           <b>abonelik</b> planlarında geçer; antrenörden alınan hizmetin bedeli K4 gereği
+           ayrı bir akıştır ve kuponla indirilmez.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-planlar-v1.html"><i class="fa-solid fa-layer-group"></i> Planları yönet</a>
+        <a class="btn btn-primary" href="admin-kupon-form-v1.html"><i class="fa-solid fa-plus"></i> Yeni kupon</a>
+      </div>
+    </div>
+
+    <div id="kpKaynak"></div>
+
+    <div class="adm-kpi" id="kpKpi"></div>
+
+    <div class="adm-card" id="kpListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-ticket"></i> Kupon kodları</h3>
+        <div class="c-acts"><span class="fp-badge" id="kpRozet">—</span></div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="fb-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="kpAra">Kupon ara</label>
+          <input type="search" id="kpAra" placeholder="Kupon kodu ya da açıklama ara" />
+        </div>
+        <div class="fb-sel">
+          <div class="ff" id="kpSuzgec" data-ff></div>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="kpTablo">
+            <thead>
+              <tr>
+                <th>Kod</th><th>Tip</th><th class="num">Değer</th>
+                <th>Geçerlilik</th><th>Geçerli planlar</th>
+                <th class="num">Kullanım</th><th>Durum</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="kpGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="kpSay">0</b> kupon · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · KUPONLAR   (R19)   — K-LİSTE
+   ---------------------------------------------------------------------
+   NEDEN VAR — K6: Fit'te abonelik VARDIR. Gastro'nun dörtlüsünün
+   sonuncusu: `V/admin/kuponlar/index.blade.php` (119 satır) +
+   `form.blade.php` (130 satır).
+
+   VERİ — İKİ KAYNAK, İKİSİ DE SÖYLENİYOR (brief §4):
+   · GERÇEK: "geçerli planlar" sütunu `fit-paket.js`in kademe adlarından
+     gelir; olmayan bir plan adı basılmaz.
+   · ÖRNEK: kupon satırlarının kendisi. Depoda kupon tutan bir modül yok
+     (grep: `FIT_KUPON` sıfır sonuç) — bu yüzden şerit 'ornek'.
+
+   🔴 İNDİRİM RAKAMI KODA GÖMÜLÜ DEĞİL (K13). Örnek satırların değeri bir
+   ALAN olarak duruyor ve `FIT_ADMIN.tl` / yüzde biçimleyicisinden
+   geçiyor; sayfada "%20 indirim" diye basılı bir cümle yok. Kuponun
+   gerçek oranları panelden girilir.
+
+   ⚠ Tutar tipindeki kuponun değeri KURUŞ TAMSAYISIDIR — `fit-fatura.js`
+   deseninin aynısı. Kayan noktalı para aritmetiği yuvarlama hatası üretir.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET;
+  if (!A) return;
+  var esc = A.esc, n = A.n, tarih = A.tarih;
+
+  var KADEMELER = (P && P.kademeler) || [];
+  /* Kupon yalnız ÜCRETLİ planda anlamlıdır: ücretsiz plana indirim
+     uygulanamaz. Katalog o yüzden fiyatı olan planlardan süzülüyor. */
+  var UCRETLI = KADEMELER.filter(function (k) { return k.fiyat !== 0; });
+
+  var DURUM = {
+    aktif:   { ad:'Aktif',       rz:'ok',   ico:'fa-circle-check' },
+    zamanli: { ad:'Başlamadı',   rz:'wait', ico:'fa-clock' },
+    dolu:    { ad:'Sınır doldu', rz:'stop', ico:'fa-circle-xmark' },
+    bitti:   { ad:'Süresi doldu',rz:'off',  ico:'fa-hourglass-end' },
+    kapali:  { ad:'Kapalı',      rz:'off',  ico:'fa-circle-minus' }
+  };
+
+  /* ---------- örnek kuponlar ----------
+     `plan` alanı motorun anahtarlarını taşır; boş dizi = tüm ücretli
+     planlarda geçerli. Değerler: yuzde → tam sayı %, tutar → KURUŞ. */
+  var KUPON = [
+    { kod:'DADAFIT10',   aciklama:'Yeni üye karşılama indirimi',      tip:'yuzde', deger:10,
+      basla:'2026-01-01', bitis:'2026-12-31', sinir:1000, kullanilan:412, plan:[],           durum:'aktif' },
+    { kod:'YAZ2026',     aciklama:'Yaz kampanyası',                   tip:'yuzde', deger:25,
+      basla:'2026-06-01', bitis:'2026-09-15', sinir:500,  kullanilan:498, plan:['pro'],      durum:'aktif' },
+    { kod:'GERIDON',     aciklama:'Aboneliği biten üyeye geri dönüş', tip:'tutar', deger:5000,
+      basla:'2026-03-01', bitis:'2026-12-31', sinir:250,  kullanilan:250, plan:['pro'],      durum:'dolu' },
+    { kod:'PROMAX1AY',   aciklama:'Pro Max lansman kuponu',           tip:'yuzde', deger:50,
+      basla:'2026-10-01', bitis:'2026-11-30', sinir:300,  kullanilan:0,   plan:['promax'],   durum:'zamanli' },
+    { kod:'KIS2025',     aciklama:'Kış kampanyası — kapandı',         tip:'yuzde', deger:20,
+      basla:'2025-12-01', bitis:'2026-02-28', sinir:800,  kullanilan:611, plan:[],           durum:'bitti' },
+    { kod:'ANTRENOR15',  aciklama:'Antrenör davetiyle gelen üye',     tip:'yuzde', deger:15,
+      basla:'2026-05-01', bitis:'2027-05-01', sinir:0,    kullanilan:87,  plan:['pro'],      durum:'kapali' }
+  ];
+
+  document.getElementById('kpKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Kupon satırları örnek:</b> depoda kupon tutan bir modül yok — ' +
+    '<code>fit-paket.js</code>, <code>fit-fatura.js</code> ve diğerleri kupon taşımıyor. ' +
+    '<b>Plan sütunu gerçek:</b> ' + n(UCRETLI.length) + ' ücretli plan ' +
+    '<code>fit-paket.js</code>ten okunuyor; olmayan bir plan adı basılmıyor. ' +
+    '<b>Ücretsiz plan katalogda yok:</b> indirimi olmayan bir tutara kupon uygulanamaz. ' +
+    '<b>Oranlar alan, metin değil (K13):</b> sayfada basılı bir indirim cümlesi yok. ' +
+    '<b>Yazma yüzeyi maket:</b> sunucu yok, kayıt gitmez.');
+
+  /* ---------- değer biçimleyicisi ---------- */
+  function deger(k){
+    return k.tip === 'yuzde' ? '%' + n(k.deger) : A.tl(k.deger);
+  }
+  function tipAd(k){ return k.tip === 'yuzde' ? 'Yüzde' : 'Tutar'; }
+
+  /* ---------- sayaçlar — listeden SAYILIR ---------- */
+  function say(d){ return KUPON.filter(function (k) { return k.durum === d; }).length; }
+  var toplamKullanim = KUPON.reduce(function (t, k) { return t + k.kullanilan; }, 0);
+  var sinirli = KUPON.filter(function (k) { return k.sinir > 0; });
+
+  document.getElementById('kpKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-ticket"></i></span><div>' +
+      '<b>' + n(KUPON.length) + '</b><span>Kupon</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' +
+      n(say('aktif')) + ' aktif · ' + n(say('zamanli')) + ' başlamadı · ' +
+      n(say('dolu') + say('bitti') + say('kapali')) + ' kapalı</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-circle-check"></i></span><div>' +
+      '<b>' + n(toplamKullanim) + '</b><span>Toplam kullanım</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> Kupon başına sınır ' +
+      n(sinirli.length) + ' kuponda tanımlı; kalanı sınırsız.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-percent"></i></span><div>' +
+      '<b>' + n(KUPON.filter(function (k) { return k.tip === 'yuzde'; }).length) + '</b><span>Yüzde kuponu</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' +
+      n(KUPON.filter(function (k) { return k.tip === 'tutar'; }).length) +
+      ' kupon sabit tutar indirir; tutar kuruş tamsayısı olarak tutulur.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><div>' +
+      '<b>' + n(UCRETLI.length) + '</b><span>Kupon uygulanabilir plan</span>' +
+      '<span class="kpi-delta flat"><i class="fa-solid fa-minus"></i> ' +
+      (UCRETLI.map(function (k) { return esc(k.ad); }).join(' · ') || '—') +
+      '. Ücretsiz plan listede değil.</span></div></div>';
+
+  /* ---------- liste ---------- */
+  function planAd(key){
+    var k = P && P.kademe(key);
+    return k ? k.ad : key;
+  }
+  function listeBas(){
+    document.getElementById('kpGovde').innerHTML = KUPON.map(function (k) {
+      var d = DURUM[k.durum] || DURUM.kapali;
+      var oran = k.sinir > 0 ? Math.min(100, Math.round(k.kullanilan / k.sinir * 100)) : 0;
+      var kullanim = k.sinir > 0
+        ? '<b>' + n(k.kullanilan) + ' / ' + n(k.sinir) + '</b>' +
+          '<div class="kp-bar' + (oran >= 100 ? ' dolu' : '') + '">' +
+          '<span style="width:' + oran + '%"></span></div>'
+        : '<b>' + n(k.kullanilan) + '</b><small>sınırsız</small>';
+      var planlar = k.plan.length
+        ? k.plan.map(function (p) { return esc(planAd(p)); }).join(', ')
+        : '<span class="kp-yok">Tüm ücretli planlar</span>';
+
+      return '<tr data-kupon="' + esc(k.kod) + '" data-durum="' + esc(k.durum) + '" data-tip="' + esc(k.tip) + '">' +
+        '<td><b><code>' + esc(k.kod) + '</code></b><small>' + esc(k.aciklama) + '</small></td>' +
+        '<td>' + esc(tipAd(k)) + '</td>' +
+        '<td class="num"><b>' + esc(deger(k)) + '</b></td>' +
+        '<td>' + esc(tarih(k.basla)) + '<small>' + esc(tarih(k.bitis)) + ' tarihine kadar</small></td>' +
+        '<td>' + planlar + '</td>' +
+        '<td class="num">' + kullanim + '</td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="admin-kupon-form-v1.html?kupon=' + encodeURIComponent(k.kod) + '" ' +
+            'aria-label="' + esc(k.kod) + ' kuponunu düzenle"><i class="fa-solid fa-pen"></i></a>' +
+          '<button class="adm-ico-btn danger" type="button" data-kp-sil="' + esc(k.kod) + '" ' +
+            'data-yikici="' + esc(k.kod) + '" data-fiil="sil" ' +
+            'aria-label="' + esc(k.kod) + ' kuponunu sil"><i class="fa-solid fa-trash-can"></i></button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('kpSay').textContent = KUPON.length;
+    document.getElementById('kpRozet').textContent =
+      KUPON.length + ' kupon · ' + say('aktif') + ' aktif';
+    A.aramaKur(document.getElementById('kpAra'),
+               document.getElementById('kpTablo'),
+               document.getElementById('kpSay'));
+  }
+
+  /* ---------- süzgeç: durum + tip ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('kpSuzgec');
+    var durumlar = [];
+    KUPON.forEach(function (k) { if (durumlar.indexOf(k.durum) < 0) durumlar.push(k.durum); });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        durumlar.map(function (d) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(d) + '">' +
+                 '<i class="fa-solid ' + DURUM[d].ico + '"></i> ' + esc(DURUM[d].ad) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="tip" role="group" aria-label="Tip filtresi">' +
+        '<span class="lbl">Tip</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        '<button class="df-fchip" type="button" data-val="yuzde"><i class="fa-solid fa-percent"></i> Yüzde</button>' +
+        '<button class="df-fchip" type="button" data-val="tutar"><i class="fa-solid fa-lira-sign"></i> Tutar</button>' +
+      '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { durum:new Set(), tip:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+  function suz(sec){
+    var s = 0;
+    document.querySelectorAll('#kpGovde tr[data-kupon]').forEach(function (tr) {
+      var ok = (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum'))) &&
+               (!sec.tip.size   || sec.tip.has(tr.getAttribute('data-tip')));
+      tr.hidden = !ok; if (ok) s++;
+    });
+    document.getElementById('kpSay').textContent = s;
+  }
+
+  /* ---------- silme: onay kabuktan, sonuç dürüstçe söyleniyor ---------- */
+  document.getElementById('kpGovde').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-kp-sil]');
+    if (!b) return;
+    var kod = b.getAttribute('data-kp-sil');
+    var k = KUPON.filter(function (x) { return x.kod === kod; })[0];
+    A.toast('“' + kod + '” kuponu silinmedi — sunucu yok. Gerçek silmede bu kuponla ' +
+            'alınmış ' + n(k ? k.kullanilan : 0) + ' abonelik etkilenmez: indirim ' +
+            'zaten uygulanmış faturada durur.', { tip:'info', ms:5000 });
+  });
+
+  listeBas();
+  suzgecKur();
+})();
+</script>
+</body>
+</html>

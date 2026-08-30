@@ -812,3 +812,132 @@ yeniden denendi ve geçti. Ayrım hafızaya yazıldı (`push-classifier-engeli`)
 **Yayın:** `.github/workflows/pages.yml` her `main` push'unda koşuyor →
 `https://gaviaworks-dev.github.io/dadafit-prototip/v2/` tazelenir.
 Kök adres (v1) `V1_SHA` ile `d4839be`e sabit, **dokunulmadı**.
+
+---
+
+# 2026-08-31 · R21 — 22 MANTIK KOPUKLUĞU + PANELİN TAMAMI GASTRO'YA HİZALANDI
+
+**Özet:** 11 commit · yedi kapının yedisi **YEŞİL** · working tree **TEMİZ** · **PUSH EDİLDİ**
+**Sunucu:** `python3 -m http.server 8788` **ve** `8099` (ikisi de ayakta — bkz. §6)
+**Giriş:** `http://127.0.0.1:8788/admin-v1.html`
+
+## 1 · Ekip — 22 ajan koştu, hepsi kapandı
+
+**A serisi (17):** `A1-form` · `A2-para` · `A3-defter` · `A4-profil` (22 kopukluk) ·
+`A5-sidebar` · `A6-rail` · `A7-akis` · `A8-akis48` · `A9-parite` · `A10-kiyas` ·
+`A11-senk` · `A12-yeterlilik` · `A13-k13` · `A14-moderasyon` · `A15-yorum` ·
+`A16-uye` · `A17-menu`
+**B serisi (5):** `B1-icerik` · `B2-operasyon` · `B3-para` · `B4-yapilandirma` · `B5-form`
+
+Kabuk dosyalarına (`fit-shell.*` · `fit-admin.*` · `fit-rozet.js`) **yalnız lead yazdı.**
+Ajanlar `git add/commit/push/stash` yapmadı.
+
+## 2 · KAPANANLAR
+
+### İş 1 · `docs/fit-spec-kopukluklari.md`in 22 kopukluğu — **22/22**
+Kapanış ölçümleri belgenin başındaki "R20 KAPANIŞ" tablosunda, her satırda rakamla.
+En görünür üçü: "90 dk bugün" → **20 dk** · üç kaydın üçü de "bugün" → **"Bugün · 3 gün önce · 21 Ağustos 2026"** ·
+hiç antrenman yapmamışa beş haftalık uydurma grafik → **boş durum**.
+Ölçüsü olmayan rozet **4 → 0** (test ve antrenör eksenleri sağlık verisi taşımadan açıldı).
+
+### İş 2 · Panelin tamamı Gastro'ya hizalandı — 56 ekran, dokuz eksen
+🔴 **Beyar'ın teşhisi doğruydu:** dört kusur (ekleme akışı · düzenleme akışı · sayfalama ·
+sidebar gruplaması) aynı sınıftandı — R19'da değerler `docs/gastro-olcum/` belgelerinden
+okunmuş, Gastro'dan ölçülmemişti. Bu tur her sayı **dosya:satır** ile kaynaktan alındı.
+
+| Ne | Ölçüm |
+|---|---|
+| **Rail kırılımı** — `@media` ekranı görür, sidebar içeriği **264px** değiştirir | 6 ekranda bulundu, 6'sı düzeltildi |
+| Form sayfaları | **21/21**'inde vardı · 1120px'te alan **28px → 217px** (Gastro tabanı 179px) |
+| Kayıt sayacı | **0 → 14 ekran**, hepsi diziden; `admin-hareketler`in sabit "25"i söküldü |
+| Boş durumun 4. parçası | 8/9 eksikti → **9/9**, tıklayınca arama gerçekten temizleniyor |
+| Ekleme/düzenleme akışı | 7 sapma → **0** (4 ayrı sayfa · 3 modal) |
+| Sol rail | bölüm seçici → **marka geçişi** (6 marka, Gastro spesifikasyonu birebir) |
+| Sidebar grupları | yalnız bulunduğun grup açık (Gastro'nun server-render davranışının JS karşılığı) |
+| Sayfalama kutusu | 44×34 dikdörtgen → **34×34 kare** |
+| K13 para parametreleri | 4 bağımsız kopya → **tek kaynak** (`fit-ayar-veri.js`), gömülü sabit **0** |
+| Yorum sistemi | egzersiz · program · antrenör detayda kuruldu, **gerçekten kaydediyor** |
+| Moderasyon | 6. tür (danışan yorumu), `FIT_YORUM`u çalışma anında okuyor |
+| Üye düzenleme | Gastro'da vardı, Fit'te yoktu → `admin-uye-form-v1.html` |
+| Medya kütüphanesi | **söküldü** (Beyar kararı — Gastro'da karşılığı yok, yeniden ölçüldü) |
+| Dar ekranda kolon gizleme | 9 tablo ölçüldü, **1'ine** uygulandı (birebir aynı ekran) |
+
+### Üç ölçüm belgesi
+`docs/admin-dort-marka-kiyas.md` (4 marka × 7 başlık, ~62 satır) ·
+`docs/fit-public-admin-senk.md` (108 sayfa, 16 modül, 26 anahtar) ·
+`docs/fit-panel-yeterlilik.md` (29 modül: 20 tam · 9 kısmi · 0 hiç)
+
+## 3 · KAPILAR — yedisi de yeşil
+
+```
+kabuk-r18-nobet      109/109 sayfa · konsol 0 · taşma 0 · footer var
+olu-baglanti         kaynak 0 · DOM 0 · TOPLAM 0
+admin-denetim        23 ekran · taşma 0 · konsol 0 · 416 bağlantı · ölü 0
+admin-kalip-denetim  23 ekran · kabuk sapması 0 · kalıp sapması 0
+admin-form-kalibi    21 form · kusurlu 0 · 301 alan · 103 bölüm
+admin-yazma-kapisi   56 ekran · yazma yüzeyi kusuru 0
+admin-ekleme-kapisi  35 ekran · muaf 19 · kusurlu 0     ← 4'tü, kapandı
+```
+
+## 4 · AÇIK KALEMLER — `tasks/kuyruk.md` 17-29
+
+Öne çıkanlar: `.cmp-table` iki public sayfada ayrışmış kopya (kalem 11) ·
+rail iki kez tanımlı (kalem 9, 60 public sayfayı ilgilendiriyor) ·
+`ECO` adresleri iki dosyada (kalem 21) · kapılar port konusunda tutarsız (kalem 22) ·
+`docs/fit-admin-plan.md` §11/D3 medya kararıyla geçersizleşti (kalem 23) ·
+`admin-yasal-v1`in `L` dizisi hâlâ public'in kopyası (kalem 26) ·
+`sebep:'yanlis-bilgi'` şablonu yok, sessizce 'spam'e düşüyor (kalem 27).
+
+## 5 · 🔴 BEYAR KARARI BEKLEYENLER
+
+1. **Reklam topolojisi.** Gastro **dört ayrı rota** (`reklam-alanlari` · `kampanyalar` ·
+   `kreatifler` · `reklam-paketleri`); Fit tek ekran + dört sekme. Ajan ölçtü, dokunmadı.
+2. **"Tehlikeli bölge" kartının başlığı ve açıklaması.** Gastro'nun kartında ikisi de yok
+   (çerçevesiz, tek düğme); Fit'te 20 formda var. **Yapı aynı** (yan kolonun son kartı,
+   create kipinde gizli) — fark yalnız çerçeve. Kart sökülmedi: 11 ekranda silmenin tek
+   yolu o form (Gastro listeden siliyor, 39 blade'in 17'sinde `DELETE`).
+3. **Sidebar açılır grup davranışı.** Gastro'nunki server-render sonucu; statik depoda
+   karşılığı JS ile kuruldu ama "kullanıcı gruba girmeden içini göremesin" mi, yoksa
+   önizleyebilsin mi — ürün kararı.
+4. **`admin-uyeler`de "Yeni üye" yok** (üye kendi kaydolur) ama Gastro'da da yok — teyit.
+5. **Rakamlar:** Pro Max fiyatı · yıllık ücret · deneme süresi · yıllık indirim oranı ·
+   973 ilçe listesi. Hepsi ekranda **"onay bekliyor"** olarak duruyor, uydurulmadı.
+
+## 6 · Bilinmesi gerekenler
+
+- **İki sunucu ayakta ve bu bir pansuman:** `olu-baglanti.mjs` `BASE` okumuyor, **8099**'a
+  gömüyor; `kabuk-r18-nobet` `BASE` alıyor ve yoksa 8099'a düşüyor. Kapılar tek desene
+  çekilmeli (kuyruk 22). ⚠ `kabuk-r18-nobet` `BASE` verilmezse **100/100 sayfayı kırmızı**
+  gösteriyor — kod değil kapı kusuru, teşhis oraya kayabilir (ders §36).
+- `gitleaks`, `hesabim-v1.html`de `KEY` sonekli bir değişkene atanan localStorage anahtar
+  adını API anahtarı sandı; `--no-verify` yasak olduğu için kaynak düzeltildi (sonek
+  `ANAHTAR`a çevrildi, depo dili zaten öyle). ⚠ Bu satırın kendisi de bir kez aynı kapıya
+  takıldı — kusuru **anlatırken** deseni tekrar yazmak yetiyor.
+- Ajanlar tek git index paylaşır. Bu turda bir ajan `git stash` yaptı ve on ajanın açık
+  işini (19 dosya) riske attı; `pop` temiz döndü ama kural sertleşti (ders §37).
+- **Dersler §35 · §36 · §37** — `docs/lessons.md`.
+
+## 7 · 🔴 FULL-STACK'E GEÇMEDEN CEVAPLANMASI GEREKENLER
+
+1. **Panel yazma yüzeyi bugün MAKET.** 56 ekranda "form doğrulanır, kayıt gitmez" şeridi
+   var. Backend gelince o şeritler **kalkmalı** — kalırsa yalan tersine döner. Tek istisna
+   `admin-ayarlar`ın Para & Komisyon sekmesi: gerçekten `localStorage`a yazıyor.
+2. **`localStorage` şeması sözleşme değil.** 26 anahtar var (`dm_fit` · `dm_user` ·
+   `dm_fit_yorum_v1` · `dm_fit_ayar_v1` …). Hangisi API'ye taşınacak, hangisi tarayıcıda
+   kalacak (tercih/taslak) — karar verilmeden migration yazılamaz.
+3. **K13 parametreleri artık panelden okunuyor ama `dm_fit_ayar_v1`den.** Backend'de bu
+   bir ayarlar tablosu mu, env mi, feature flag mi?
+4. **Yorum modülünün 6 durumu** (`bekliyor · onayli · reddedildi · sikayetli · gizli ·
+   kaldirildi`) Gastro'nun `ReviewStatus` enum'uyla **birebir**. Backend'de aynı enum mu
+   kullanılacak, yoksa Fit kendi tablosunu mu kuracak (K1: paket yok, her marka kendi kodu)?
+4. **Medya:** ekran söküldü, modal ve `fit-medya-veri.js` (85 görsel) duruyor. Backend
+   gerçek bir medya ucu getirecekse kütüphane ekranı geri gelecek mi?
+5. **Antrenör başvurusu** `dm_user.antrenorBasvuru = {durum:'beklemede'}` yazıyor ama
+   Gastro'da bu ekranın karşılığı yok (enum var, ekran yok). Onay akışı kim tarafından,
+   hangi rolle yürütülecek?
+6. **Dört markanın kanonu.** `docs/admin-dort-marka-kiyas.md` her başlıkta hangi markanın
+   en olgun olduğunu yazıyor (sidebar: Diet'in tek PHP kaynağı · toplu işlem: Gourmet'in
+   paylaşılan partial'ı · doğrulama: Gourmet'in FormRequest'leri · onay diyaloğu: **Fit'in**
+   açık `data-yikici` sözleşmesi). Kanon seçilmeden dört depo ayrışmaya devam eder.
+7. **Sayfalama gerçek değil.** Bugün "tümü tek sayfada" örnek veri; sunucu gelince pencere
+   mantığı (Gastro: ≤7 sayfa hepsi, üstünde `[1,2,son-1,son,aktif±1]` + `…`) kurulacak.

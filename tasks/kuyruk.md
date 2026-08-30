@@ -54,6 +54,16 @@ araması yapmıyor ve bunu söylüyor) · menüyü daralt (276→74px, tercih sa
 ikisi de aynı motordan geliyor) · Sponsorluk ve Reklam tek kalem + sekme
 (Gastro'da yedi — Fit'te arkasında altı boş ekran olurdu).
 
+**Kapanış ölçümü:** 21 ekran × 4 genişlik — yatay taşma **0** · konsol hatası
+**0** · ölü bağlantı **0** (136 bağlantı) · 44px altı dokunma hedefi **0** ·
+kaynak şeridi 21/21 · sidebar'da tek doğru aktif kalem 21/21 · boş durum kusuru
+**0**. Betik: `docs/qa/admin-denetim.mjs` (`PW_HOME=~/.pw node …`).
+Tüm site: **81 sayfa · konsol 0 · taşma 0 · 460 bağlantı · ölü 0**.
+
+**Bilinen sapma (sonraki tur):** toplu seçim çubuğu 12 ekranda; Gastro'da 47
+kalemden yalnız 1'inde var. Her biri tıklanınca "uygulanmadı, sunucu yok" diyor,
+yani dürüst — ama Gastro parity'si için gözden geçirilmeli.
+
 🔴 **Panel yazma yüzeyi MAKET.** Formlar doğrulanır, kayıt gitmez; her ekran
 bunu yazıyor. Panel gerçek yazmayı getirdiğinde o şeritler kalkmalı — şerit
 kalırsa yalan tersine döner.

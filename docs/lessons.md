@@ -870,3 +870,91 @@ Bu, bu depoda üçüncü kez aynı sınıf (`maketKaydet`in form bulamama hâli 
 **çalışan bir yedek yol, kusuru görünmez kılar.**
 Kural: yedek yola düşen kod **konsola yazar**, ve ekranda sayı ilan
 edilmez — **sayılır** (ipucu artık `kaslar.length` basıyor).
+
+---
+
+## §35 · "Belgede yazıyor" ölçüm değildir — kaynak değişir, belge kalır
+
+**R20, Beyar'ın sorusu:** *"Gastro'yu gerçekten ölçtün mü, yoksa 'böyle olmalı'
+diye kendi yorumunu mu yazdın? Bu turda çıkan kusurların hepsi aynı sınıftan:
+ekleme akışı, düzenleme akışı, sayfalama, sidebar gruplaması — dördü de
+Gastro'da farklı."*
+
+Cevap **hayır**dı ve teşhis tam isabetti. Dört kusurun dördü de tek sebepten
+doğdu: R19'da panel "Gastro'ya hizalandı" derken bazı değerler
+`docs/gastro-olcum/` belgelerinden okundu, Gastro'nun kendisinden ölçülmedi.
+
+Somut kanıt aynı turda çıktı: bir ajan sidebar gruplaması için Gastro'nun
+`layout.blade.php`sini **açmadı**, plan §9-10'daki önceki ölçümü kullandı ve
+bunu dürüstçe raporunda yazdı. Yani "Gastro'nun gruplama mantığı şudur" cümlesi
+bir **belgeden** geliyordu.
+
+İkinci kanıt daha keskin: rail'in kendi yorumu *"Taban GASTRO, taşıma BİREBİR
+(§U7)"* diyordu. Yeniden ölçüldü — **artık yalan.** Gastro o zamandan beri
+`layout.blade.php`den Diet ve Gourmet ikonlarını sökmüş ve söküm notunu dosyaya
+yazmış (2026-08-20). Belge doğruydu, yazıldığı gün. Kaynak değişti, belge kaldı.
+
+**Kural:** başka bir deponun değeri bir belgeye geçtiği anda **kopya** olur ve
+kopyanın tazeliği garanti edilemez. Bir sayı üzerinde iş yapılacaksa
+**kaynaktan yeniden okunur**; belge yalnız "nereye bakayım" haritasıdır.
+Ajan brifine yazılacak biçimi: *"`docs/…-olcum/` haritadır; bu turda hiçbir sayı
+oradan alınmayacak, her değer kaynak dosyadan satır numarasıyla okunacak,
+okunmadıysa 'ölçülmedi' yazılacak."*
+
+**Yan ders — ölçüm doğru varsayımı da yalanlar.** Aynı turda Beyar
+*"egzersiz ve program sayfalarındaki kullanıcı yorumları"* dedi; ajan ölçtü ve
+o sayfalarda yorum yüzeyi **0** çıktı (DOM sayımı ve grep, ikisi de). Ajan
+uydurmadı, "yok" yazdı. Varsayımı ölçmek, varsayıma göre iş yapmaktan ucuzdur.
+
+---
+
+## §36 · Kapının kendisi yanlış kırmızı yakabilir — önce kapıyı sorgula
+
+R20'de `docs/qa/kabuk-r18-nobet.mjs` **100/100 sayfayı kırmızı** gösterdi.
+Kod kusursuzdu: kapı `BASE` verilmediğinde `8099`a düşüyor, sunucu ise
+`8788`de ayaktaydı. Hepsi `ERR_CONNECTION_REFUSED`.
+
+Aynı turda `docs/qa/olu-baglanti.mjs` **`BASE`i hiç okumuyor**, portu gömüyor.
+Yani `docs/qa/` içinde iki farklı sözleşme yaşıyor ve hangi kapının hangisini
+izlediği ancak kaynağı okuyunca anlaşılıyor.
+
+**100/100 kırmızı, ilk bakışta felaket gibi görünür ve teşhis oraya kayar.**
+Doğru refleks: bir kapı **her şeyi** kırmızı gösteriyorsa önce kapıdan şüphelen.
+Gerçek bir kusur nadiren evrenseldir; evrensel kırmızı genelde ölçüm hattının
+kendisindedir.
+
+R19'da beş kapı bu yüzden düzeltilmişti ("kapının kendisi de yalan söyleyebilir");
+R20 aynı sınıftan altıncısını gösterdi. Kural: **kapılar da ölçülen şeydir.**
+Tek desene çekilmeleri kuyruk kalemi 22'de.
+
+---
+
+## §37 · Ajanın ölçümü lead'in brifinden iyiyse, ölçüm kazanır
+
+R20'de üye düzenleme formu için brif şuydu: *"mevcut 15 form sayfasının
+kalıbına birebir uy — sağ sticky kolonda 'Tehlikeli bölge' kartı."*
+Ajan işi durdurdu ve ölçümle itiraz etti: Gastro'nun `uyeler/edit.blade.php`si
+o kartı **taşımıyor** ve dosyanın kendi yorumu sebebini yazıyor (satır 9-13):
+rol/durum/2FA'nın guard'lı tek-kapı akışları var, generic update ucuna ikinci
+yazma yolu açmak o guard'ları baypas eder.
+
+Brif genel kalıptan geliyordu; itiraz kaynaktan. **İtiraz kabul edildi.**
+Aynı ajan ikinci bir sapmayı da ölçtü: Gastro `name`+`surname` iki sütun
+kullanıyor, Fit'in veri modülü tek birleşik `ad` alanı tutuyor ve liste, detay,
+avatar baş harfi hep onu okuyor. Şemayı bölmek üç dosyayı değiştirir ve ikinci
+kaynak riski doğururdu — form tek alanla kaldı, fark raporda **sayıyla**
+açıklandı (Gastro 6 alan, Fit 5).
+
+**Kural:** brif bir hipotezdir, ölçüm veridir. Ajan brife uymak için ölçümü
+eğmemeli; çeliştiğinde **durup raporlamalı**. Bunun tersi bu turda üç kez daha
+işe yaradı: bir ajan "çift silme kartı" iddiasını ölçüp **yok** buldu ve asıl
+kusuru (create kipinde silme kartının görünmesi) düzeltti; bir ajan Beyar'ın
+saydığı altı markanın Gastro'da **üç** olduğunu bulup durdu; bir ajan
+"48 ekranda ekleme akışı yanlış" iddiasını ölçüp **15'inin doğru, 3'ünün
+yanlış** olduğunu gösterdi.
+
+**Yan ders — paralel ajanda `git stash` YASAK.** Bir ajan "önce/sonra"
+karşılaştırması için `git stash`/`stash pop` çalıştırdı; o an **on ajanın**
+açık işi (19 dosya) stash'e girdi. `pop` temiz döndü ve kayıp olmadı, ajan da
+dürüstçe bildirdi — ama kurtarılamayabilirdi. Ajanlar tek git index paylaşır:
+`add` · `commit` · `push` · `stash`, dördü de yasak.

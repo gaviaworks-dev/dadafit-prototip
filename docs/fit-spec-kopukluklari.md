@@ -3,7 +3,53 @@
 **Ölçüm tarihi:** 2026-08-30 · **Kapsam:** 75 HTML sayfası, 16 JS modülü (11.725 satır)
 **Yöntem:** statik sayım (grep/python) + Playwright ile çalışan tarayıcıda ölçüm
 (`python3 -m http.server 8788`, oturum `?auth=1`).
-**Bu belge kayıt tutar; bu turda hiçbir kod değiştirilmedi.**
+
+---
+
+## 🟢 R20 KAPANIŞ — 2026-08-30, aynı gün
+
+**Bu belge ölçüldüğü turda hiçbir kod değiştirilmemişti. R20'de 22 kalemin
+tamamı ele alındı.** Beyar'ın kuralı: *"Sahte davranış kalmayacak. Bir düğme
+çalışmıyorsa ya çalışsın ya kalksın. Bir vaat karşılıksızsa ya karşılığı
+kurulsun ya vaat kalksın. 'Kaydedildi' diyen her yer gerçekten kaydetsin."*
+
+Aşağıdaki her satır **tarayıcıda ölçülerek** kapandı; "eklendi/çalışıyor"
+kanıt sayılmadı (`DENETIM.md`).
+
+| # | Sınıf | Nasıl kapandı | Kapanış ölçümü |
+|---|---|---|---|
+| K1 | yarım eylem | 6 form `dm_fit_hesap_v1`e yazıyor **ve açılışta geri okuyor**; doğrulama geçmeden "Kaydedildi" yok; şifre kartı düz metin şifre YAZMIYOR | ad değiştir → kaydet → yenile → değer **duruyor**; 6/6 form |
+| K2 | yarım eylem | `startSub` artık `dm_user.paket` yazıyor (okuyan 2 yüzey hazırdı) | `dm_user.paket:"pro"`; hesabım rozeti **Ücretsiz → Pro** |
+| K3 | karşılıksız vaat | test ve antrenör ölçüleri açıldı (`dm_fit_test_v1` · `dm_fit_antrenor_bilgi_v1`, **ikisi de sağlık verisi taşımıyor**); km/adım ailesi K5'in cihaz hunisiyle beslendi | **ölçüsüz rozet 0/50** (eskiden 4); test çözüldü → `test-ilk` kazanıldı; 12 km → **`km-10` kazanıldı**, `olcular().km:12` |
+| K4 | karşılıksız vaat | eksik türlere `data-kaydet` düğmesi: rehber (9 sayfa) · test (7 kart) · antrenör · challenge | 6 türün 6'sı dolabiliyor |
+| K5 | karşılıksız vaat | aktivite kayıtları `dm_fit.gecmis`e yazıyor; sabit 6 tohum söküldü; **oto-tahmin (dk × sabit hız) söküldü**; bağlı uygulamaya dayalı gerçek **Kaynak seçici** | ekle → yenile → **duruyor**; bağlantı yokken seçici `disabled` + dürüst metin; bağlıyken `kaynak:'cihaz'` |
+| K6 | karşılıksız vaat | ücretli randevu önce paket hakkından düşüyor (`dm_fit_paket_hakki_v1`), yoksa karttan tahsil + fatura | Aylık Paket → `{kalan:3,toplam:4}`, fatura 11→12; sonraki seans → `kalan:2`, fatura **12'de sabit** (çift faturalama yok) |
+| K7 | sahte bağ | antrenör paneli `state.read().randevular`ı basıyor; 4+2 sabit satır kaldırıldı | panelde **2 gerçek randevu**; boş durumda dürüst boş durum |
+| K8 | sahte bağ | `FIT_FATURA.ekle()` açıldı; `startSub` ve `randevuAl` oraya yazıyor; gerçek satır "· senin kaydın" etiketiyle ayrılıyor | defter 10→11; 3 yenileme sonrası **11→11→11** (kalıcı, tekrarlamıyor) |
+| K9 | yarım eylem | üye tarafına İptal/Ertele, antrenör tarafına Onayla/Ertele/Tamamlandı/Gelmedi — hepsi `randevuDurum(i,d)` çağırıyor | `durum` **"onay-bekliyor" → "onaylandi"** ve → **"iptal"** |
+| K10 | sahte bağ | `fit-su.js` de kabuktan enjekte ediliyor (`_suYukle`), `fit-rozet.js` için R15/6'da yapılanın aynısı | `rozetlerim-v1`de `FIT_SU` **object** (eskiden undefined) |
+| K11 | sahte bağ | `antrenmanTamamla` içinde `durum='tamamlandi'` anında arşivleme; çift sayımı `arsivlendi` bayrağı önlüyor | 3/3 bitir → arşiv **1**, `bitenProgram` **1** (eskiden 0) |
+| K12 | sahte bağ | dinlenme günleri arşiv kaydıyla taşınıyor (`_arsivKaydi`), rozet motoru aktif + arşiv topluyor, tarihe göre tekilleştiriyor | program değişti → dinlenme **2 → 3** (eskiden 1 → 0) |
+| K13 | ölü veri | `bugun.tarih` eklendi, sıfırlama **okuma anında**; ayrıca kayıt kendi `tarihISO`suna bakıyor — geriye dönük kayıt bugüne yazmıyor | 9 gün önce 40dk + 3 gün önce 30dk + bugün 20dk → ekran **"20 dk"** (eskiden 90) |
+| K14 | ölü veri | `gecmis[].tarih` sabiti söküldü, eski kayıtlardan da siliniyor; `FIT_SHELL.tarihEtiket(iso)` tek biçimleyici | etiketler **"Bugün" · "3 gün önce" · "21 Ağustos 2026"**; `tarih` alanı taşıyan **0**; "undefined" basan **0** |
+| K15 | karşılıksız vaat | tohum `hafta:[62,74,90,96,118,142]` söküldü; `haftalik(n)` `tarihISO`dan türetiyor; `veriVar` yanlışsa boş durum | boş depoda `veriVar:false`, toplam **0 dk**; kayıt sonrası gerçek haftalara dağılıyor |
+| K16 | yarım eylem | "Faydalı" (6) gerçek sayaç (`dm_fit_faydali_v1`, aç/kapa, kalıcı) · kapak/avatar gerçek `<input type=file>` + önizleme + dürüst şerit · "Mesaj" (4) **kaldırıldı** — `fit-mesaj.js` yalnız üye→antrenör yönünü destekliyor, bağlamak yanlış kişiyle sohbet açardı | JS karşılığı olmayan düğme **0**; 18 → 19 → yenile → **19** |
+| K17 | yarım eylem | **kök neden**: form demo değerlerle DOLU geliyordu (Ad="Selin"…), yani "boş" submit aslında geçerli bir formdu. 9 zorunlu alanın varsayılanları söküldü | boş → başarı **0**, `dm_user` **null**; yarım → **0**/null; tam → **1** + `durum:'beklemede'` |
+| K18 | yarım eylem | `reklam-ver` gerçek doğrulama + dürüst şerit; `giris-v1` kayıt artık `?auth=1` çıkışına gidiyor | boş reklam formu başarı **0**; kayıt sonrası `body.is-auth` **true** |
+| K19 | yarım eylem | 10 gösterim anahtarı `dm_fit_izin_v1`e yazıyor ve geri okunuyor; gerçek olan 3 `data-fit-pref` anahtarına **dokunulmadı** | 10/10 anahtar yazıyor; kapat → yenile → **kapalı** |
+| K20 | ölü veri | `suEkle`/`suSifirla` söküldü (`bugun.su` yalnız `fit-su.js` göçü için duruyor); `programArsivle` K11'e, `randevuDurum` K9'a bağlandı | `suEkle`/`suSifirla` → **undefined** |
+| K21 | yarım eylem | talep `dm_fit_destek_v1`e yazılıyor, hem liste hem detay oradan da okuyor; dürüstlük şeridi **korundu** | 11 → 12 satır; yenile → **12** (çift kayıt yok); tıkla → detay açılıyor, "Talep bulunamadı" **0** |
+| K22 | ölü veri | **kod değişikliği gerekmedi** — `6e0b51d` commit'i bu belgeden önce kapatmış, belge bayattı | `bin-tekrar` işaret düğmesi **0** + "hareketi aç" bağlantısı; `hareket-aliskanligi`nde düğme **1** (doğru) |
+
+**Kabuk katmanı** (`fit-shell.js` · `fit-rozet.js`) yalnız lead tarafından yazıldı;
+sayfa tarafı dört ajana bölündü (dosya kümeleri ayrık tutuldu).
+**Çapraz denetim bir yalan yakaladı:** K17 "kapandı" diye raporlanmıştı, bağımsız
+sonda boş formda hâlâ rol yazıldığını ölçtü ve kalem geri açıldı.
+
+**Kapanış kapıları:** `kabuk-r18-nobet` **100/100 sayfa · konsol 0 · taşma 0 ·
+footer var** · `admin-denetim` ölü bağlantı **0**.
+
+---
 
 > Tahmin yok. Her bulgunun altındaki sayı ya `grep`/`python` sayımıdır ya da
 > tarayıcıda koşan bir sondanın çıktısıdır. Ölçülemeyen şey "ölçülmedi" yazar.

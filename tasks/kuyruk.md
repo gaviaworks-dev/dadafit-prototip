@@ -360,3 +360,116 @@ değer, alternatif adı `ED_VERI`den.
 `fit-paket.js` (kademe⇄özellik matrisi) ve `fit-challenge.js` (challenge
 kataloğu) bugün okunabilir veri; panel yazma ucunu ekleyecek. Ayrıntı devir
 notunun 6. bölümünde.
+
+
+---
+
+# R20 — 2026-08-30 (aynı gün, ikinci tur)
+
+Sunucu: `python3 -m http.server 8788` **ve** `8099` (bazı kapılar `BASE` okumuyor, porta gömüyor — bkz. kalem 22)
+
+## R20'DE KAPANANLAR
+
+| Ne | Kanıt |
+|---|---|
+| **`docs/fit-spec-kopukluklari.md`in 22 mantık kopukluğunun TAMAMI** | belgenin başındaki "R20 KAPANIŞ" tablosu — her kalemin kapanış ölçümü rakamla |
+| Sidebar gruplaması — `Fit Testleri` artık `Programlar` altında | açılır grup 2→3 · benzersiz ekran 31→31 (kayıp 0) · ölü bağlantı 0 |
+| Sol rail **marka geçişi** oldu (R17'nin bölüm seçici kararı geri alındı) | 76px · #19160F · 6 ikon 48×48 r14 · aktif zemin rgba(0,157,79,.2)+3px çubuk · kilitli not-allowed+rozet · `data-tip` 6/6 · native `title` 0 · `[data-rail]` 0 |
+| Medya kütüphanesi ekranı söküldü (Beyar kararı) | Gastro'da yeniden ölçüldü ve yok; sidebar + dashboard kartı + dosya kalktı, modal ve `fit-medya-veri.js` durdu |
+| Sayfalama kutusu kare oldu | `::before` inset 5/5/5/5 → görsel 34×34, hedef 44×44 korundu |
+| Pager eş-ad sözleşmesi `:is()` desenine çekildi | çapraz `.pager`+`.p-info` 16px→**12.5px** |
+| 15 form sayfasında create kipinde "Tehlikeli bölge" gizleniyor | create 15/15 gizli · edit 15/15 görünür |
+| Üç sayfa-içi ekleme akışı ayrı form sayfasına çevrildi | anatomi(13 kontrol) · sss soru(5+editör) · sss konu(7+editör) · paketler kademe(12); alan kaybı 0 |
+| Üç ölçüm belgesi | `docs/admin-dort-marka-kiyas.md` · `docs/fit-public-admin-senk.md` · `docs/fit-panel-yeterlilik.md` |
+
+## R20'DE AÇILAN KALEMLER
+
+17. ✅ **KAPANDI (R20/2, Beyar kararı).** Tek kaynak kuruldu:
+   `assets/js/fit-ayar-veri.js` (`FIT_AYAR.oku()`/`yaz()`, `dm_fit_ayar_v1`),
+   varsayılanlar CLAUDE.md K13'ten birebir. **Dört** bağımsız kopya söküldü
+   (üçü ölçülmüştü, dördüncüsü `admin-hizmetler-v1:363` sonradan bulundu);
+   `admin-ayarlar-v1`in Para & Komisyon sekmesi artık GERÇEKTEN yazıyor,
+   öteki üç ekran okuyor. Yolda iki sessiz kusur daha kapandı:
+   `ODEME_GUNU_AD` sözlüğü Ayarlar'ın enum'uyla eşleşmiyordu (`hafta`/`anlik`
+   vs `ayin-15`/`haftalik`) ve iki ekranda iki kopyası vardı — modüle taşındı.
+   **Ölçüm:** %10→%15 dört ekranda da yansıyor · `dm_fit_ayar_v1` silinince
+   dördü de K13 varsayılanına dönüyor · koda gömülü K13-sınıfı sabit **0**.
+   ~~Eski kayıt:~~ **K13 FİİLEN ÇİĞNENİYORDU — komisyon oranı üç bağımsız kopyada.**
+   `admin-ayarlar-v1.html` (form alanları) · `admin-odemeler-v1.html:367` ·
+   `admin-raporlar-v1.html:162`. Üstelik **Ayarlar hiçbir yere
+   `localStorage.setItem` çağırmıyor** — panele girilen değer kimseye
+   ulaşmıyor. CLAUDE.md K13: *"hiçbiri koda gömülmez, panelden okunur."*
+   **Yapılacak:** tek okuma ucu + Ayarlar'ın gerçekten yazması. Koda gömülü
+   ölçülen sabit sayısı: **5**.
+
+18. **Kullanıcı yorumları moderasyon kuyruğunda yok.** `profil-v1.html`de
+   212+120 yorum var ve R20'de K16 ile gerçek "Faydalı" sayacına bağlandı;
+   `admin-moderasyon-v1`in `tur` sözlüğünde yorum türü yok. Altıncı tür
+   eklenmeli.
+
+19. **`admin-abonelik-detay-v1` ve `admin-fatura-detay-v1`de düzenleme /
+   durum değiştirme yüzeyi yok.** `admin-ekleme-kapisi` ikisini de kusurlu
+   işaretliyor.
+
+20. **Sidebar açılır grup davranışı Gastro'dan farklı — ÜRÜN KARARI.**
+   Ölçüldü: Gastro'da inaktif grubun alt menüsü **DOM'da bile yok**
+   (`layout.blade.php:326`, server-side `@if`). Fit'te her grup daima DOM'da,
+   `hidden` ile gizli, chevron her zaman açılıyor — kullanıcı gezinmeden
+   önizleyebiliyor. **Bilerek değiştirilmedi:** Gastro'nun davranışı bir
+   tasarım tercihi değil, server-side render'ın sonucu; bu depo statik ve
+   buildless. Benzetmek için grupları sökmek gerekirdi, o zaman kullanıcı bir
+   gruba girmeden içini göremezdi. Karar Beyar'ın.
+
+21. **`ECO` adresleri iki yerde.** `fit-shell.js:52` (kanon) ve
+   `fit-admin.js` (R20'de rail için eklendi). Sebep: admin sayfaları
+   `fit-shell.js`i **yüklemiyor** (sayfanın kendi notu: "public kabuk kendi
+   header/footer'ını basar"). Kardeş markalara taşınırken tek yere inmeli.
+
+22. **Kapılar port konusunda tutarsız.** Bir kısmı `BASE` okuyor
+   (`kabuk-r18-nobet`), bir kısmı **8099'a gömüyor** (`olu-baglanti`).
+   R20'de iki sunucu birden açıldı, ama bu bir düzeltme değil pansuman.
+   Tek desene çekilmeli. ⚠ `kabuk-r18-nobet` `BASE` yokken 100/100 sayfayı
+   **kırmızı** gösterdi — kod değil kapı kusuruydu, teşhis yanlış yapılabilirdi.
+
+23. **`docs/fit-admin-plan.md` §11/D3 geçersizleşti.** Medya kütüphanesi
+   kararı Beyar tarafından geri alındı; belge hâlâ "kuruldu" diyor.
+   Aynı belgenin §9-10'u da bu turda yanlış çıktı (bkz. ders §35).
+
+24. **Gastro'nun rail'i eksik — Beyar'ın notu.** Gastro'da bugün 3 ikon var
+   (Gastro · Store atıl · Akademi kilitli); Diet ve Gourmet dosyanın kendi
+   "SÖKÜM NOTU (2026-08-20, S4)" yorumuyla sökülmüş. Beyar: *"Gastro'nun
+   rail'i eksik, sonra düzeltilecek. Fit'te altı olacak."* Yani Fit'teki
+   6'lı liste bir sapma değil, kayıt altına alınmış karardır.
+
+25. **A9'un ölçemediği dört bileşen** — sticky header · filtre şeridinde
+   aramanın yeri (kuyruk kalemi 9 ile aynı) · `.sa-modal`ın Fit tarafı ·
+   dots/ok ikon seti. Ayrı bir ölçüm turu ister.
+
+26. **`admin-sss-v1` ve `admin-yasal-v1` kendi kopyalarını okuyordu.**
+   SSS tarafı R20'de kapandı (`assets/js/fit-sss-veri.js` çıkarıldı);
+   **`admin-yasal-v1`in `L` dizisi hâlâ kopya.**
+
+27. **`sebep:'yanlis-bilgi'` için uyarı şablonu yok.** `admin-moderasyon-v1`in
+   `ilkSablon` mantığı bu sebebi sessizce **'spam' şablonuna** düşürüyor
+   (A14 ölçtü, `MOD-2026-0398` bu turdan önce de bu sebeple vardı).
+   Yanlış şablonla uyarı göndermek, uyarının kendisini yanlış yapar.
+
+28. ✅ **KAPANDI (R20/2).** Köprü **savunmacı okuma** olarak kuruldu:
+   `danisanYorumVeri()` çalışma anında `window.FIT_YORUM` arıyor, varsa
+   `hepsi()`den okuyup **yalnız bildirilmiş** kayıtları kuyruğa alıyor,
+   yoksa örneğe düşüyor ve sayfa çökmüyor. Script etiketi **bilerek
+   eklenmedi** — dosya o an yokken 404 ve konsol hatası üretirdi; modül
+   nasıl yüklenirse yüklensin ekran kendiliğinden canlıya geçer.
+   Kaynak şeridi **ikiye ayrıldı** (`admin-raporlar-v1`in 5-şeritli
+   kalıbı): üstteki 5 tür hep `is-ornek`, alttaki yorum türü
+   `is-canli`/`is-ornek` arasında **doğruyu söyleyerek** dönüyor.
+   **Ölçüm:** sahte `FIT_YORUM` enjekte edildi (`page.addInitScript`,
+   3 kayıt · 2'si bildirilmiş) → şerit `is-canli`, kuyruğa **2** kayıt
+   girdi, bildirilmemiş olan doğru şekilde dışlandı, konsol **0**.
+   ⚠ A15'in gerçek kayıt şekli tahminden farklı çıkarsa alan eşlemesi
+   tek satırda düzeltilir; en kötü hâlde ekran örnekte kalır.
+
+29. **`antrenor-detay-v1`de "Daha fazla yorum göster" düğmesi MAKET** —
+   ölçüldü: aynı 3 kartı klonluyor, gerçek veri getirmiyor. Rozet "120"
+   diyor, gerçek kart **3**. A15'in yorum sistemi bunu kapatabilir;
+   kapatmazsa düğme ya çalışsın ya kalksın.

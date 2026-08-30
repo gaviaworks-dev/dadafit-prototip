@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hizmetler ve Satışlar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Tablo · sekme · rozet · form ·
+   boş durum kabuktan geliyor; buradaki her değer kitin bir tokeni. */
+
+/* Sekme panelinin araç sırası: arama solda, süzgeç çipleri altında. */
+.hz-arac{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.hz-arac .fk-input{min-width:250px;flex:1;max-width:420px}
+
+/* Toplu eylem çubuğu panelin İÇİNDE duruyor (kart kenarına yapışmıyor),
+   o yüzden kendi kenarlığını taşır. */
+.fit-pane .adm-bulk{border:1px solid var(--fit-line);border-radius:var(--radius-md);margin-bottom:14px}
+
+/* Sayfalama panel içinde: yan dolgu kartın gövdesinden zaten geliyor. */
+.fit-pane .adm-pager{padding-left:0;padding-right:0;margin-top:2px}
+
+/* Para parametreleri — K13. Değerler ALAN olarak durur, cümle olarak
+   DEĞİL; okunur ama buradan düzenlenmez (sahibi Ayarlar ekranı). */
+.hz-par{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
+.hz-par .fk-field{margin-bottom:0}
+.hz-par .fk-input,.hz-par .fk-select{background:var(--bg);font-weight:700}
+@media (max-width:1240px){ .hz-par{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:560px){ .hz-par{grid-template-columns:minmax(0,1fr)} }
+
+/* Tablo altı toplam şeridi — kolonlarla aynı hizada değil, ÖZET olduğu
+   için ayrı bir satır: sayı yığınının sonunda okunur. */
+.hz-toplam{
+  display:flex;gap:22px;flex-wrap:wrap;align-items:baseline;
+  border-top:1px solid var(--line);padding:14px 0 0;margin-top:2px;
+}
+.hz-toplam div{display:flex;flex-direction:column;gap:3px}
+.hz-toplam span{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hz-toplam b{font-size:16px;font-weight:800;color:var(--slate);font-variant-numeric:tabular-nums}
+
+/* İade karar kutusu — seçilen talep buraya düşer */
+.hz-karar{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);padding:18px;margin-top:16px}
+.hz-karar h4{font-size:14px;font-weight:800;color:var(--slate);margin:0 0 4px;display:flex;align-items:center;gap:9px}
+.hz-karar h4 i{color:var(--fit-deep);font-size:13px}
+.hz-karar .sec{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 16px}
+.adm-table tbody tr.is-sec td{background:var(--fit-tint)}
+
+/* 🔴 ÖLÇÜLEN KUSUR (390 px): `.adm-head .h-acts` kabukta `flex:none`.
+   Bu ekranda başlıkta İKİ düğme var; ikisi yan yana 399 px istiyor, oysa
+   gövdede 358 px yer var — `body.scrollWidth` 415'e çıkıyordu. Kırılımda
+   sarmaya izin veriyoruz. Kabuğa DOKUNULMADI, kural yalnız bu ekranda. */
+@media (max-width:640px){
+  .adm-head .h-acts{flex:1 1 100%;min-width:0}
+}
+</style>
+</head>
+<body class="adm-body" data-adm="hizmetler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Hizmetler ve Satışlar</h2>
+        <p>Fit'te abonelik yoktur; üye antrenörden hizmet paketi satın alır.
+           Bu ekran üç işi tutar: hangi paketler satışta, kim ne aldı, kim
+           iade istedi.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-odemeler-v1.html"><i class="fa-solid fa-money-bill-wave"></i> Kazançlar ve ödemeler</a>
+        <a class="btn btn-ghost" href="admin-antrenorler-v1.html"><i class="fa-solid fa-user-check"></i> Antrenörler</a>
+      </div>
+    </div>
+
+    <div id="hzKaynak"></div>
+
+    <!-- ============ PARA PARAMETRELERİ (K13) ============
+         🔴 Bu sayılar koda gömülmez ve ekrana cümle olarak yazılmaz.
+         Alan olarak durur, tek bir yerden okunur ve sahipleri Ayarlar
+         ekranıdır — burada yalnız görünürler. Aşağıdaki komisyon kolonu
+         da bu alandan hesaplanır, elle yazılmaz. -->
+    <div class="adm-card">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-percent"></i> Para parametreleri</h3>
+        <div class="c-acts">
+          <a class="btn btn-ghost" href="admin-ayarlar-v1.html"><i class="fa-solid fa-sliders"></i> Ayarlarda düzenle</a>
+        </div>
+      </div>
+      <div class="c-body">
+        <div class="hz-par">
+          <div class="fk-field">
+            <label class="fk-label" for="hzKomisyon">Hizmet komisyonu (%)</label>
+            <input class="fk-input" id="hzKomisyon" type="text" readonly />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Tüm kullanıcılarda aynı oran.</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="hzDonem">Ödeme dönemi</label>
+            <input class="fk-input" id="hzDonem" type="text" readonly />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Ödemeler toplu yapılır.</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="hzAltSinir">Ödeme alt sınırı</label>
+            <input class="fk-input" id="hzAltSinir" type="text" readonly />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Altındaki bakiye ödenmez, birikir.</span>
+          </div>
+          <div class="fk-field">
+            <label class="fk-label" for="hzFatura">Fatura eşiği</label>
+            <input class="fk-input" id="hzFatura" type="text" readonly />
+            <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Üstünde fatura istenir.</span>
+          </div>
+        </div>
+        <p class="fk-help" style="margin-top:16px"><i class="fa-solid fa-lock"></i>
+          Dört değer de <b>Ayarlar</b> ekranından yönetilir; bu ekran onları
+          yalnız okur. Aşağıdaki komisyon ve antrenör payı kolonları aynı
+          değerlerden hesaplanır — hiçbiri satıra elle yazılmaz.</p>
+      </div>
+    </div>
+
+    <!-- ============ ÜÇ SEKME (K1) ============ -->
+    <div class="adm-card" id="hzKart" data-fit-tabs-scope>
+      <div class="c-head">
+        <nav class="fit-tabs" data-fit-tabs="hizmetler" aria-label="Hizmet bölümleri">
+          <button class="fit-tab active" type="button" data-tab="paketler"><i class="fa-solid fa-box-open"></i> Hizmet paketleri <span class="cnt" data-cnt="paketler"></span></button>
+          <button class="fit-tab" type="button" data-tab="alimlar"><i class="fa-solid fa-receipt"></i> Satın alımlar <span class="cnt" data-cnt="alimlar"></span></button>
+          <button class="fit-tab" type="button" data-tab="iadeler"><i class="fa-solid fa-rotate-left"></i> İade talepleri <span class="cnt" data-cnt="iadeler"></span></button>
+        </nav>
+      </div>
+
+      <div class="c-body">
+
+        <!-- ---------- 1 · HİZMET PAKETLERİ ---------- -->
+        <div class="fit-pane" data-pane="paketler">
+          <div class="hz-arac">
+            <label class="sr-only" for="hzPkAra">Paket ara</label>
+            <input class="fk-input" type="search" id="hzPkAra" placeholder="Paket ya da antrenör ara" />
+          </div>
+          <div class="ff" id="hzPkSuzgec" data-ff></div>
+
+          <div class="adm-bulk" id="hzPkBulk" hidden>
+            <b>0 satır seçildi</b>
+            <div class="b-acts">
+              <button class="btn btn-ghost" type="button" data-toplu="yayin"><i class="fa-solid fa-play"></i> Yayına al</button>
+              <button class="btn btn-ghost" type="button" data-toplu="durdur"><i class="fa-solid fa-pause"></i> Satışı durdur</button>
+            </div>
+          </div>
+
+          <div class="adm-tw">
+            <table class="adm-table" id="hzPkTablo">
+              <thead>
+                <tr>
+                  <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                  <th>Paket</th><th>Antrenör</th><th>Tip</th><th>Süre</th>
+                  <th class="num">Fiyat</th><th class="num">30 günde satış</th><th>Durum</th><th class="act">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="hzPkGovde"></tbody>
+            </table>
+          </div>
+          <div class="adm-pager">
+            <div class="p-info"><b id="hzPkSay">0</b> paket · tümü tek sayfada</div>
+            <div class="p-btns">
+              <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+              <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- 2 · SATIN ALIMLAR ---------- -->
+        <div class="fit-pane" data-pane="alimlar" hidden>
+          <div class="hz-arac">
+            <label class="sr-only" for="hzSaAra">Satın alım ara</label>
+            <input class="fk-input" type="search" id="hzSaAra" placeholder="Sipariş no, üye ya da antrenör ara" />
+          </div>
+
+          <div class="adm-tw">
+            <table class="adm-table" id="hzSaTablo">
+              <thead>
+                <tr>
+                  <th>Sipariş</th><th>Üye</th><th>Antrenör</th><th>Paket</th>
+                  <th class="num">Tutar</th><th class="num">Komisyon</th><th class="num">Antrenöre kalan</th>
+                  <th>Tarih</th><th>Durum</th>
+                </tr>
+              </thead>
+              <tbody id="hzSaGovde"></tbody>
+            </table>
+          </div>
+
+          <div class="hz-toplam" id="hzSaToplam"></div>
+
+          <div class="adm-pager">
+            <div class="p-info"><b id="hzSaSay">0</b> satın alım · tümü tek sayfada</div>
+            <div class="p-btns">
+              <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+              <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- 3 · İADE TALEPLERİ ---------- -->
+        <div class="fit-pane" data-pane="iadeler" hidden>
+          <div class="hz-arac">
+            <label class="sr-only" for="hzIaAra">İade talebi ara</label>
+            <input class="fk-input" type="search" id="hzIaAra" placeholder="Talep no, üye ya da antrenör ara" />
+          </div>
+
+          <div class="adm-tw">
+            <table class="adm-table" id="hzIaTablo">
+              <thead>
+                <tr>
+                  <th>Talep</th><th>Üye</th><th>Antrenör</th><th>Paket</th>
+                  <th class="num">Tutar</th><th class="num">Üyeye dönen</th><th>Gerekçe</th>
+                  <th>Durum</th><th class="act">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="hzIaGovde"></tbody>
+            </table>
+          </div>
+
+          <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-triangle-exclamation"></i>
+            İade onaylanırsa üyeye paket tutarı döner ama <b>komisyon geri
+            gitmez</b> — kesilen komisyon markada kalır, iade tutarı antrenörün
+            bakiyesinden düşülür. Bu yüzden "Üyeye dönen" kolonu tutarın
+            tamamıdır, antrenörün payı değil.</p>
+
+          <!-- Karar kutusu: seçilen talep buraya düşer. Ayrı bir ekran
+               açmıyoruz — iade kararı iki satırlık bir iş. -->
+          <div class="hz-karar" id="hzIaKarar" hidden>
+            <h4><i class="fa-solid fa-gavel"></i> İade kararı</h4>
+            <p class="sec" id="hzIaSecili">—</p>
+            <form id="hzIaForm">
+              <div class="fk-grid c2">
+                <div class="fk-field">
+                  <label class="fk-label" for="hzIaKararSec">Karar <span class="req">*</span></label>
+                  <select class="fk-select" id="hzIaKararSec" required>
+                    <option value="onayla">İadeyi onayla</option>
+                    <option value="reddet">İadeyi reddet</option>
+                  </select>
+                </div>
+                <div class="fk-field">
+                  <label class="fk-label" for="hzIaKanal">Bilgilendirme</label>
+                  <select class="fk-select" id="hzIaKanal">
+                    <option>Üyeye ve antrenöre e-posta</option>
+                    <option>Yalnız üyeye e-posta</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="hzIaNot">Karar notu <span class="req">*</span></label>
+                <textarea class="fk-textarea" id="hzIaNot" rows="3" required maxlength="500"
+                          placeholder="Kararın gerekçesi — üyeye ve antrenöre aynen iletilir."></textarea>
+              </div>
+              <button class="btn btn-primary" type="button" id="hzIaKaydet"><i class="fa-solid fa-check"></i> Kararı kaydet</button>
+            </form>
+          </div>
+
+          <div class="adm-pager">
+            <div class="p-info"><b id="hzIaSay">0</b> talep · tümü tek sayfada</div>
+            <div class="p-btns">
+              <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+              <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · HİZMETLER VE SATIŞLAR   (R16/3)   — K1 liste × 3 sekme
+   ---------------------------------------------------------------------
+   K6 · FİT'TE ABONELİK YOKTUR. Bu ekranda plan, abone, yenileme, iptal
+   kavramı geçmez; üye antrenörden TEK SEFERLİK bir hizmet paketi satın
+   alır. Paket tipleri uydurulmadı — `antrenor-detay-v1.html`in kendi
+   "Seanslar" sekmesindeki üç seçenektir: Tanışma Görüşmesi (ücretsiz) ·
+   Birebir Seans · Aylık Paket.
+
+   🔴 K13 · PARA SAYILARI KODA GÖMÜLMEZ.
+   Komisyon oranı, ödeme dönemi, alt sınır ve fatura eşiği aşağıdaki tek
+   `PARAM` nesnesinde durur ve ekranda ALAN olarak gösterilir. Hiçbiri
+   cümle içine yazılmadı; komisyon ve antrenör payı kolonları her satırda
+   bu nesneden HESAPLANIR. Panel gerçek olduğunda `PARAM` Ayarlar
+   ekranından okunur, bu dosyada tek satır değişir.
+   Sahibi bu ekran değil, `admin-ayarlar-v1.html`dir — alanlar `readonly`.
+
+   K5 · İADEDE KOMİSYON GERİ GİTMEZ. İade tablosunun "Üyeye dönen"
+   kolonu tutarın TAMAMIDIR; kesilen komisyon markada kalır.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc, n = A.n, tl = A.tl, tarih = A.tarih;
+
+  /* ---- K13 · tek kaynak, ekranda alan olarak görünür ---- */
+  var PARAM = {
+    komisyonYuzde: 10,
+    odemeDonemi:   'Ay sonu · toplu',
+    altSinirKurus: 100000,
+    faturaKurus:   1000000
+  };
+
+  document.getElementById('hzKomisyon').value = PARAM.komisyonYuzde;
+  document.getElementById('hzDonem').value    = PARAM.odemeDonemi;
+  document.getElementById('hzAltSinir').value = tl(PARAM.altSinirKurus);
+  document.getElementById('hzFatura').value   = tl(PARAM.faturaKurus);
+
+  function komisyon(kurus){ return Math.round(kurus * PARAM.komisyonYuzde / 100); }
+
+  document.getElementById('hzKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Paket, satış ve iade verisi örnektir.</b> Bu prototipte sunucu ve ödeme ' +
+    'sağlayıcısı yok. Paket tipleri uydurulmadı — <code>antrenor-detay-v1.html</code>' +
+    '\u2019in "Seanslar" sekmesindeki üç seçenektir. <b>Para parametreleri alan olarak ' +
+    'durur:</b> komisyon, ödeme dönemi, alt sınır ve fatura eşiği yukarıdaki ' +
+    'kutularda okunur ve komisyon kolonu her satırda oradan hesaplanır; ekranda ' +
+    'sabit sayı yazılmaz. Sahibi Ayarlar ekranıdır, buradan düzenlenmez. ' +
+    '<b>Yazma yüzeyi maket:</b> iade kararı doğrulanır ama kaydedilmez.');
+
+  /* ==================================================================
+     1 · HİZMET PAKETLERİ
+     ================================================================== */
+  var TIP = {
+    tanisma: { ad:'Tanışma', ico:'fa-comments' },
+    seans:   { ad:'Birebir seans', ico:'fa-dumbbell' },
+    aylik:   { ad:'Aylık paket', ico:'fa-calendar-days' }
+  };
+  var PK_DURUM = {
+    yayinda: { ad:'Yayında',  rz:'ok',   ico:'fa-circle-check' },
+    durdu:   { ad:'Satış kapalı', rz:'off', ico:'fa-pause' },
+    taslak:  { ad:'Taslak',   rz:'wait', ico:'fa-pen' }
+  };
+
+  var PAKET = [
+    { id:'p-401', ad:'Tanışma Görüşmesi', ant:'Selin Aksoy', slug:'selin-aksoy', tip:'tanisma', sure:'15 dk', fiyat:0,      satis:9,  durum:'yayinda' },
+    { id:'p-402', ad:'Birebir Seans',     ant:'Selin Aksoy', slug:'selin-aksoy', tip:'seans',   sure:'60 dk', fiyat:45000,  satis:12, durum:'yayinda' },
+    { id:'p-403', ad:'Aylık Paket',       ant:'Selin Aksoy', slug:'selin-aksoy', tip:'aylik',   sure:'4 seans / ay', fiyat:160000, satis:5, durum:'yayinda' },
+    { id:'p-411', ad:'Tanışma Görüşmesi', ant:'Burak Demir', slug:'burak-demir', tip:'tanisma', sure:'15 dk', fiyat:0,      satis:6,  durum:'yayinda' },
+    { id:'p-412', ad:'Birebir Seans',     ant:'Burak Demir', slug:'burak-demir', tip:'seans',   sure:'60 dk', fiyat:52000,  satis:8,  durum:'yayinda' },
+    { id:'p-413', ad:'Aylık Paket',       ant:'Burak Demir', slug:'burak-demir', tip:'aylik',   sure:'4 seans / ay', fiyat:160000, satis:3, durum:'yayinda' },
+    { id:'p-421', ad:'Birebir Seans',     ant:'Merve Tan',   slug:'merve-tan',   tip:'seans',   sure:'60 dk', fiyat:46000,  satis:7,  durum:'yayinda' },
+    { id:'p-422', ad:'Tanışma Görüşmesi', ant:'Merve Tan',   slug:'merve-tan',   tip:'tanisma', sure:'15 dk', fiyat:0,      satis:11, durum:'yayinda' },
+    { id:'p-431', ad:'Birebir Seans',     ant:'Zeynep Arı',  slug:'zeynep-ari',  tip:'seans',   sure:'60 dk', fiyat:41000,  satis:10, durum:'yayinda' },
+    { id:'p-432', ad:'Aylık Paket',       ant:'Zeynep Arı',  slug:'zeynep-ari',  tip:'aylik',   sure:'4 seans / ay', fiyat:160000, satis:4, durum:'yayinda' },
+    { id:'p-441', ad:'Birebir Seans',     ant:'Can Aydın',   slug:'can-aydin',   tip:'seans',   sure:'60 dk', fiyat:50000,  satis:0,  durum:'durdu' },
+    { id:'p-451', ad:'Birebir Seans',     ant:'Elif Şahin',  slug:'elif-sahin',  tip:'seans',   sure:'60 dk', fiyat:44000,  satis:2,  durum:'yayinda' },
+    { id:'p-452', ad:'Aylık Paket',       ant:'Elif Şahin',  slug:'elif-sahin',  tip:'aylik',   sure:'4 seans / ay', fiyat:160000, satis:0, durum:'taslak' },
+    { id:'p-461', ad:'Birebir Seans',     ant:'Ayşe Kaplan', slug:'ayse-kaplan', tip:'seans',   sure:'60 dk', fiyat:39000,  satis:6,  durum:'yayinda' }
+  ];
+
+  /* ==================================================================
+     2 · SATIN ALIMLAR
+     Tutar KURUŞ tamsayısı (fit-fatura.js deseni). Komisyon ve antrenör
+     payı satıra yazılmadı — PARAM'dan hesaplanıyor.
+     ================================================================== */
+  var AL_DURUM = {
+    tamam: { ad:'Tamamlandı', rz:'ok',   ico:'fa-circle-check' },
+    iade:  { ad:'İade edildi', rz:'stop', ico:'fa-rotate-left' },
+    bekler:{ ad:'Ödeme bekliyor', rz:'wait', ico:'fa-hourglass-half' }
+  };
+  var ALIM = [
+    { id:'s-8841', uye:'Ahmet Yıldırım', ant:'Burak Demir', paket:'Aylık Paket',       tutar:160000, tar:'2026-08-21', durum:'tamam' },
+    { id:'s-8837', uye:'Gizem Polat',    ant:'Selin Aksoy', paket:'Aylık Paket',       tutar:160000, tar:'2026-08-18', durum:'tamam' },
+    { id:'s-8829', uye:'Kerem Aslan',    ant:'Merve Tan',   paket:'Tanışma Görüşmesi', tutar:0,      tar:'2026-08-24', durum:'tamam' },
+    { id:'s-8826', uye:'Ceren Aktaş',    ant:'Merve Tan',   paket:'Birebir Seans',     tutar:46000,  tar:'2026-08-26', durum:'bekler' },
+    { id:'s-8812', uye:'Naz Erdem',      ant:'Selin Aksoy', paket:'Tanışma Görüşmesi', tutar:0,      tar:'2026-08-12', durum:'tamam' },
+    { id:'s-8805', uye:'Ceren Aktaş',    ant:'Merve Tan',   paket:'Birebir Seans',     tutar:46000,  tar:'2026-08-05', durum:'tamam' },
+    { id:'s-8798', uye:'İpek Doğan',     ant:'Zeynep Arı',  paket:'Aylık Paket',       tutar:160000, tar:'2026-08-02', durum:'tamam' },
+    { id:'s-8744', uye:'Ahmet Yıldırım', ant:'Burak Demir', paket:'Birebir Seans',     tutar:52000,  tar:'2026-07-19', durum:'tamam' },
+    { id:'s-8702', uye:'Gizem Polat',    ant:'Selin Aksoy', paket:'Aylık Paket',       tutar:160000, tar:'2026-06-11', durum:'tamam' },
+    { id:'s-8655', uye:'İpek Doğan',     ant:'Zeynep Arı',  paket:'Birebir Seans',     tutar:41000,  tar:'2026-04-14', durum:'tamam' },
+    { id:'s-8611', uye:'Gizem Polat',    ant:'Selin Aksoy', paket:'Birebir Seans',     tutar:45000,  tar:'2026-05-03', durum:'iade' }
+  ];
+
+  /* ==================================================================
+     3 · İADE TALEPLERİ
+     Bekleyen tek talep var ve Genel Bakış'ın kuyruk tablosu da "1 · 3 gün
+     önce" diyor. İki ekran aynı gerçeği göstermek zorunda.
+     ================================================================== */
+  var IA_DURUM = {
+    inceleniyor: { ad:'İnceleniyor', rz:'wait', ico:'fa-hourglass-half' },
+    onaylandi:   { ad:'Onaylandı',   rz:'ok',   ico:'fa-circle-check' },
+    reddedildi:  { ad:'Reddedildi',  rz:'stop', ico:'fa-circle-xmark' }
+  };
+  var IADE = [
+    { id:'i-320', uye:'Ceren Aktaş',    ant:'Merve Tan',   paket:'Birebir Seans', tutar:46000,  tar:'2026-08-27',
+      neden:'Aynı seans yanlışlıkla iki kez satın alındı', durum:'inceleniyor' },
+    { id:'i-318', uye:'Ahmet Yıldırım', ant:'Burak Demir', paket:'Aylık Paket',   tutar:160000, tar:'2026-08-25',
+      neden:'Paket içeriği tanıtımdan farklı', durum:'reddedildi' },
+    { id:'i-311', uye:'Gizem Polat',    ant:'Selin Aksoy', paket:'Birebir Seans', tutar:45000,  tar:'2026-05-09',
+      neden:'Antrenör seans saatinde katılmadı', durum:'onaylandi' }
+  ];
+
+  /* ==================================================================
+     BASIM
+     ================================================================== */
+  function sayacBas(ad, deger){
+    var c = document.querySelector('.fit-tab .cnt[data-cnt="' + ad + '"]');
+    if (!c) return;
+    /* Sayaç sıfırsa BASILMAZ — kabuğun sidebar kuralının aynısı. */
+    if (deger) c.textContent = deger; else c.remove();
+  }
+
+  /* ---- paketler ---- */
+  var pkSec = { tip:new Set(), durum:new Set() };
+  var pkBos = null;
+
+  function pkSuz(){
+    var govde = document.getElementById('hzPkGovde');
+    var say = 0;
+    govde.querySelectorAll('tr[data-id]').forEach(function (tr) {
+      var ok = (!pkSec.tip.size   || pkSec.tip.has(tr.getAttribute('data-tip'))) &&
+               (!pkSec.durum.size || pkSec.durum.has(tr.getAttribute('data-durum')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    if (say === 0) {
+      if (!pkBos) {
+        pkBos = document.createElement('tr');
+        pkBos.innerHTML = '<td colspan="9">' +
+          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle paket kalmadı',
+                'Seçili tip ve durum birleşimine uyan hizmet paketi yok. Bir çipi kapat ya da başka bir tip dene.',
+                '<button class="btn btn-primary" type="button" data-suzgec-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
+          '</td>';
+        govde.appendChild(pkBos);
+      }
+      pkBos.hidden = false;
+    } else if (pkBos) pkBos.hidden = true;
+    document.getElementById('hzPkSay').textContent = say;
+  }
+
+  function pkSuzgecKur(){
+    var kok = document.getElementById('hzPkSuzgec');
+    kok.innerHTML =
+      '<div class="fgroup" data-group="tip" role="group" aria-label="Paket tipi filtresi">' +
+        '<span class="lbl">Tip</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        Object.keys(TIP).map(function (t) {
+          return '<button class="df-fchip" type="button" data-val="' + t + '">' +
+                 '<i class="fa-solid ' + TIP[t].ico + '"></i> ' + esc(TIP[t].ad) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Paket durumu filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        Object.keys(PK_DURUM).map(function (d) {
+          return '<button class="df-fchip" type="button" data-val="' + d + '">' +
+                 '<i class="fa-solid ' + PK_DURUM[d].ico + '"></i> ' + esc(PK_DURUM[d].ad) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var ad = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') {
+            pkSec[ad].clear();
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); });
+          } else {
+            var ac = !pkSec[ad].has(v);
+            if (ac) pkSec[ad].add(v); else pkSec[ad].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', pkSec[ad].size === 0);
+          }
+          pkSuz();
+        });
+      });
+    });
+  }
+
+  function pkBas(){
+    document.getElementById('hzPkGovde').innerHTML = PAKET.map(function (p) {
+      var t = TIP[p.tip], d = PK_DURUM[p.durum];
+      return '<tr data-id="' + esc(p.id) + '" data-tip="' + esc(p.tip) + '" data-durum="' + esc(p.durum) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + esc(p.ad + ' · ' + p.ant) + ' seç" /></td>' +
+        '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.id) + '</small></td>' +
+        '<td>' + esc(p.ant) + '</td>' +
+        '<td><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i> ' + esc(t.ad) + '</td>' +
+        '<td>' + esc(p.sure) + '</td>' +
+        '<td class="num">' + (p.fiyat ? tl(p.fiyat) : 'Ücretsiz') + '</td>' +
+        '<td class="num">' + (p.satis ? n(p.satis) : '—') + '</td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="antrenor-detay-v1.html?slug=' + esc(p.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(p.ad) + ' paketini sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('hzPkSay').textContent = PAKET.length;
+    sayacBas('paketler', PAKET.length);
+    A.secimKur(document.querySelector('.fit-pane[data-pane="paketler"]'));
+    A.aramaKur(document.getElementById('hzPkAra'), document.getElementById('hzPkTablo'), document.getElementById('hzPkSay'));
+  }
+
+  /* ---- satın alımlar: komisyon PARAM'dan hesaplanır ---- */
+  function saBas(){
+    document.getElementById('hzSaGovde').innerHTML = ALIM.map(function (s) {
+      var d = AL_DURUM[s.durum];
+      var k = komisyon(s.tutar);
+      return '<tr data-id="' + esc(s.id) + '">' +
+        '<td><b>' + esc(s.id) + '</b></td>' +
+        '<td>' + esc(s.uye) + '</td>' +
+        '<td>' + esc(s.ant) + '</td>' +
+        '<td>' + esc(s.paket) + '</td>' +
+        '<td class="num">' + (s.tutar ? tl(s.tutar) : 'Ücretsiz') + '</td>' +
+        '<td class="num">' + (s.tutar ? tl(k) : '—') + '</td>' +
+        '<td class="num">' + (s.tutar ? tl(s.tutar - k) : '—') + '</td>' +
+        '<td>' + tarih(s.tar) + '</td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td></tr>';
+    }).join('');
+    document.getElementById('hzSaSay').textContent = ALIM.length;
+    sayacBas('alimlar', ALIM.length);
+
+    /* Toplamlar da hesaplanır. "İade edilen" satır ciroya girmez. */
+    var ciro = 0;
+    ALIM.forEach(function (s) { if (s.durum !== 'iade') ciro += s.tutar; });
+    var kom = komisyon(ciro);
+    document.getElementById('hzSaToplam').innerHTML =
+      '<div><span>Toplam ciro</span><b>' + tl(ciro) + '</b></div>' +
+      '<div><span>Komisyon</span><b>' + tl(kom) + '</b></div>' +
+      '<div><span>Antrenörlere kalan</span><b>' + tl(ciro - kom) + '</b></div>' +
+      '<div><span>İade edilen</span><b>' + tl(ALIM.filter(function (s) { return s.durum === 'iade'; })
+          .reduce(function (t, s) { return t + s.tutar; }, 0)) + '</b></div>';
+
+    A.aramaKur(document.getElementById('hzSaAra'), document.getElementById('hzSaTablo'), document.getElementById('hzSaSay'));
+  }
+
+  /* ---- iade talepleri ---- */
+  function iaBas(){
+    document.getElementById('hzIaGovde').innerHTML = IADE.map(function (i) {
+      var d = IA_DURUM[i.durum];
+      var acik = (i.durum === 'inceleniyor');
+      return '<tr data-id="' + esc(i.id) + '">' +
+        '<td><b>' + esc(i.id) + '</b><small>' + tarih(i.tar) + '</small></td>' +
+        '<td>' + esc(i.uye) + '</td>' +
+        '<td>' + esc(i.ant) + '</td>' +
+        '<td>' + esc(i.paket) + '</td>' +
+        '<td class="num">' + tl(i.tutar) + '</td>' +
+        '<td class="num">' + tl(i.tutar) + '</td>' +
+        '<td>' + esc(i.neden) + '</td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
+        '<td class="act">' +
+          (acik
+            ? '<button class="adm-ico-btn" type="button" data-iade="' + esc(i.id) + '" aria-label="' + esc(i.id) + ' talebini karara bağla"><i class="fa-solid fa-gavel"></i></button>'
+            : '<span class="adm-ico-btn" aria-hidden="true" style="opacity:.35"><i class="fa-solid fa-lock"></i></span>') +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('hzIaSay').textContent = IADE.length;
+    /* Sekme sayacı KARAR BEKLEYENİ sayar, toplam talebi değil — kuyruk
+       sayacı "bende ne iş var" sorusunun cevabıdır. */
+    sayacBas('iadeler', IADE.filter(function (i) { return i.durum === 'inceleniyor'; }).length);
+    A.aramaKur(document.getElementById('hzIaAra'), document.getElementById('hzIaTablo'), document.getElementById('hzIaSay'));
+  }
+
+  /* ---- iade karar kutusu ---- */
+  var kararKutu = document.getElementById('hzIaKarar');
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest) return;
+
+    var ia = e.target.closest('[data-iade]');
+    if (ia) {
+      var id = ia.getAttribute('data-iade');
+      var t = IADE.filter(function (x) { return x.id === id; })[0];
+      document.querySelectorAll('#hzIaGovde tr').forEach(function (tr) {
+        tr.classList.toggle('is-sec', tr.getAttribute('data-id') === id);
+      });
+      document.getElementById('hzIaSecili').innerHTML =
+        '<b>' + esc(t.id) + '</b> · ' + esc(t.uye) + ' → ' + esc(t.ant) + ' · ' +
+        esc(t.paket) + ' · ' + tl(t.tutar) + ' · ' + esc(t.neden);
+      document.getElementById('hzIaNot').value = '';
+      kararKutu.hidden = false;
+      kararKutu.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      return;
+    }
+
+    var sf = e.target.closest('[data-suzgec-sifirla]');
+    if (sf) {
+      pkSec.tip.clear(); pkSec.durum.clear();
+      document.querySelectorAll('#hzPkSuzgec .fgroup').forEach(function (g) {
+        g.querySelectorAll('.df-fchip').forEach(function (x) {
+          x.classList.toggle('on', x.getAttribute('data-val') === 'all');
+        });
+      });
+      pkSuz();
+      return;
+    }
+
+    var tp = e.target.closest('[data-toplu]');
+    if (tp) {
+      var s = document.querySelectorAll('#hzPkGovde input[type=checkbox]:checked').length;
+      var kap = document.getElementById('hzPkBulk').querySelector('.b-acts');
+      var not = kap.querySelector('.adm-maket-not');
+      if (!not) {
+        not = document.createElement('span'); not.className = 'adm-maket-not';
+        not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(not);
+      }
+      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
+        ' paket seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    }
+  });
+
+  A.maketKaydet(document.getElementById('hzIaKaydet'), 'iade kararı');
+
+  pkSuzgecKur();
+  pkBas();
+  saBas();
+  iaBas();
+})();
+</script>
+</body>
+</html>

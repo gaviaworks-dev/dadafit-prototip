@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Raporlar — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi.
+   🔴 GRAFİK KÜTÜPHANESİ YOK ve eklenmedi. Çubuklar kabuğun kendi
+   bileşenidir: `.fpx-gunbar` satırı (fit-planim.css:148) + `.fp-bar`
+   çubuğu (fit-shell.css:2238). Yeni ölçü, yeni renk, `<canvas>` yok.
+   Burada yalnız üç yerleşim kuralı var. */
+
+.rp-tabwrap{padding:14px 20px;border-bottom:1px solid var(--line)}
+@media (max-width:640px){ .rp-tabwrap{padding:14px} }
+
+/* Sekme paneli kartın gövdesindedir; sayaç ızgarası panelin içinde
+   kendi alt boşluğunu taşır. */
+.fit-pane .adm-kpi{margin-bottom:22px}
+
+/* Grafik başlık satırı: `.fpx-gunbar-row` ızgarasını kullanmaz, çünkü
+   çubuğu yoktur — yalnız çubuk kümesinin ne ölçtüğünü söyler. */
+.rp-gbas{font-size:13px;font-weight:700;color:var(--slate);margin:0 0 14px;line-height:1.5}
+.rp-gbas small{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:3px}
+</style>
+</head>
+<body class="adm-body" data-adm="raporlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Raporlar</h2>
+        <p>Dört eksen: genel kullanım, içerik kataloğu, para akışı ve
+           moderasyon. Her sekme kendi kaynağını söyler — bir kısmı depoda
+           gerçekten çalışan modüllerden okunuyor, bir kısmı örnektir.</p>
+      </div>
+      <div class="h-acts">
+        <label class="sr-only" for="rpDonem">Rapor dönemi</label>
+        <select class="fk-select" id="rpDonem" style="min-width:180px">
+          <option value="30">Son 30 gün</option>
+          <option value="90">Son 90 gün</option>
+          <option value="yil">Bu yıl</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="rpKaynak"></div>
+
+    <div class="adm-card">
+      <div class="rp-tabwrap">
+        <nav class="fit-tabs" data-fit-tabs="rp" aria-label="Rapor ekseni">
+          <button class="fit-tab active" type="button" data-tab="genel"><i class="fa-solid fa-gauge-high"></i> Genel</button>
+          <button class="fit-tab" type="button" data-tab="icerik"><i class="fa-solid fa-dumbbell"></i> İçerik</button>
+          <button class="fit-tab" type="button" data-tab="finansal"><i class="fa-solid fa-money-bill-wave"></i> Finansal</button>
+          <button class="fit-tab" type="button" data-tab="moderasyon"><i class="fa-solid fa-shield-halved"></i> Moderasyon</button>
+        </nav>
+      </div>
+      <div class="c-body">
+        <div class="fit-pane" data-pane="genel"      id="rpGenel"></div>
+        <div class="fit-pane" data-pane="icerik"     id="rpIcerik" hidden></div>
+        <div class="fit-pane" data-pane="finansal"   id="rpFinansal" hidden></div>
+        <div class="fit-pane" data-pane="moderasyon" id="rpModerasyon" hidden></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-challenge.js"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-fatura.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · RAPORLAR   (R16/2)   — K6 rapor kalıbı
+   ---------------------------------------------------------------------
+   🔴 GRAFİK KÜTÜPHANESİ YOK. Bu depo buildless ve CDN kilitli; bir
+   grafik kütüphanesi eklemek deponun kararını bozmak olurdu. Çubuklar
+   kabuğun KENDİ bileşeniyle çiziliyor: `.fpx-gunbar-row` + `.fp-bar`
+   (İlerlemem ekranındaki gün çubuğunun aynısı). Emsal okundu, yeni ölçü
+   üretilmedi, `<canvas>` kullanılmadı.
+
+   DÖRT SEKME, DÖRT AYRI KAYNAK — ve her sekme kendi kaynağını YAZAR.
+     genel      → ÖRNEK. Sunucu yok, kullanıcı verisi yok.
+     içerik     → GERÇEK. `fit-admin-veri.js` (depodan mekanik olarak
+                  okunmuş katalog) + `fit-challenge.js` + `fit-rozet.js`.
+     finansal   → GERÇEK. `fit-fatura.js` defteri, kuruş tamsayısı.
+     moderasyon → ÖRNEK. `admin-moderasyon-v1.html`in örnek kümesinin
+                  ÖZETİ. ⚠ Bugün iki dosyada iki kopya duruyor; gerçek
+                  bildirim kaynağı doğduğunda ikisi de ondan okumalı.
+
+   DÖNEM SEÇİCİ GERÇEKTEN SÜZER. Finansal sekmede fatura defteri tarihe
+   göre kesilir; genel ve moderasyon sekmesinde dönem başına ayrı örnek
+   küme vardır. İçerik kataloğu dönemden bağımsızdır (anlık sayımdır) ve
+   sekme bunu yazar — dönem seçiciyi sahte biçimde etkiliyormuş gibi
+   göstermek, olmayan bir zaman serisi uydurmak olurdu.
+
+   K6 · ⚠ AÇIK ÇELİŞKİ, GİZLENMEDİ. Fatura defterinde `tur:'uyelik'`
+   satırları var ("DadaFit Pro — Aylık · Platform paketi"). K6 "Fit'te
+   abonelik YOKTUR" diyor. Rapor bu satırları ne siliyor ne de hizmet
+   cirosuna karıştırıyor: AYRI kalem olarak gösteriyor ve finansal
+   sekmenin başında ne olduğunu yazıyor. Karar Beyar'ındır.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var V = window.FIT_ADMIN_VERI, C = window.FIT_CHALLENGE,
+      R = window.FIT_ROZET, F = window.FIT_FATURA;
+  var esc = A.esc, n = A.n, tl = A.tl;
+
+  var KOMISYON_ORAN = 10;   /* Ayarlar → Para parametreleri (K13 · bkz. admin-odemeler) */
+  var BUGUN = new Date('2026-08-30T00:00:00');
+
+  document.getElementById('rpKaynak').innerHTML = A.kaynak('canli',
+    '<b>İki sekme gerçek, iki sekme örnek — hangisi olduğu sekmenin başında yazılı.</b> ' +
+    '<b>İçerik</b> sekmesi <code>fit-admin-veri.js</code> · <code>fit-challenge.js</code> · ' +
+    '<code>fit-rozet.js</code>ten, <b>finansal</b> sekmesi <code>fit-fatura.js</code> ' +
+    'defterinden okunuyor; tutarlar kuruş tamsayısıdır. <b>Genel</b> ve <b>moderasyon</b> ' +
+    'sekmeleri örnektir — bu prototipte sunucu ve kullanıcı verisi yok. Rapor ' +
+    '<b>dışa aktarılmaz</b>: dosya üretecek bir uç yok, olmayan düğme konulmadı.');
+
+  /* ================================================================
+     ORTAK ÇİZİCİLER — üç parça: sayaç · çubuk · tablo
+     ================================================================ */
+  function kpi(liste){
+    return '<div class="adm-kpi">' + liste.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="' + k[0] + '" aria-hidden="true"></i></span>' +
+        '<div><b>' + esc(k[1]) + '</b><span>' + esc(k[2]) + '</span>' +
+        '<span class="note">' + esc(k[3]) + '</span></div></div>';
+    }).join('') + '</div>';
+  }
+
+  /* Çubuk kümesi. `satir` = [{ad, alt, deger, etiket}].
+     En büyük satır %100 genişliktir ve bu ekranda yazılıdır — ölçek
+     söylenmeden çizilen çubuk okuru yanıltır. */
+  function cubuk(baslik, altbaslik, satir){
+    if (!satir.length) return '';
+    var enb = satir.reduce(function (m, s) { return Math.max(m, s.deger); }, 0) || 1;
+    return '<p class="rp-gbas">' + esc(baslik) + '<small>' + esc(altbaslik) +
+      ' · en yüksek satır %100 genişlik</small></p>' +
+      '<div class="fpx-gunbar">' + satir.map(function (s) {
+        var y = Math.round(s.deger / enb * 100);
+        return '<div class="fpx-gunbar-row"><b>' + esc(s.ad) +
+          (s.alt ? '<small>' + esc(s.alt) + '</small>' : '') + '</b>' +
+          '<span class="fp-bar" role="img" aria-label="' + esc(s.ad + ': ' + s.etiket) + '">' +
+            '<span style="width:' + y + '%"></span></span>' +
+          '<span class="end">' + esc(s.etiket) + '</span></div>';
+      }).join('') + '</div>';
+  }
+
+  function tablo(basliklar, satirlar, altNot){
+    return '<div class="adm-tw" style="margin-top:24px"><table class="adm-table"><thead><tr>' +
+      basliklar.map(function (b) {
+        return '<th' + (b[1] ? ' class="' + b[1] + '"' : '') + '>' + esc(b[0]) + '</th>';
+      }).join('') + '</tr></thead><tbody>' +
+      satirlar.map(function (r) { return '<tr>' + r + '</tr>'; }).join('') +
+      '</tbody></table></div>' +
+      (altNot ? '<p class="rp-gbas" style="margin:14px 0 0"><small>' + altNot + '</small></p>' : '');
+  }
+
+  function sekmeNotu(tip, metin){
+    return '<div class="adm-src is-' + tip + '">' +
+      '<i class="fa-solid ' + (tip === 'canli' ? 'fa-circle-check' : 'fa-circle-info') + '" aria-hidden="true"></i>' +
+      '<div>' + metin + '</div></div>';
+  }
+
+  /* ================================================================
+     1 · GENEL — ÖRNEK. Dönem başına ayrı küme.
+     ================================================================ */
+  var GENEL = {
+    '30': { uye:1284, yeni:96, aktif:611, antrenman:4820, seans:27,
+            hafta:[['1–7 Ağu',528],['8–14 Ağu',571],['15–21 Ağu',604],['22–28 Ağu',611],['29–30 Ağu',188]],
+            kirilim:[['Program antrenmanı',2914],['Serbest antrenman',1198],['Challenge işareti',521],['Fit testi',187]] },
+    '90': { uye:1284, yeni:271, aktif:742, antrenman:13160, seans:26,
+            hafta:[['Haziran',3980],['Temmuz',4360],['Ağustos',4820]],
+            kirilim:[['Program antrenmanı',7902],['Serbest antrenman',3390],['Challenge işareti',1462],['Fit testi',406]] },
+    'yil':{ uye:1284, yeni:1284, aktif:889, antrenman:38940, seans:26,
+            hafta:[['1. çeyrek',9120],['2. çeyrek',12480],['3. çeyrek (kısmi)',17340]],
+            kirilim:[['Program antrenmanı',23364],['Serbest antrenman',10024],['Challenge işareti',4326],['Fit testi',1226]] }
+  };
+
+  function genelBas(d){
+    var g = GENEL[d];
+    return sekmeNotu('ornek',
+      '<b>Bu sekme örnektir.</b> Üye, oturum ve antrenman sayısı tutan bir kaynak bu ' +
+      'prototipte yok; sayılar dönem başına yazılmış örnek kümedir. Gerçek kaynak ' +
+      'doğduğunda aynı üç parça (sayaç · çubuk · kırılım) aynı yerde durur.') +
+      kpi([
+        ['fa-solid fa-users', n(g.uye), 'Toplam üye', 'Dönem içinde ' + n(g.yeni) + ' yeni kayıt'],
+        ['fa-solid fa-user-clock', n(g.aktif), 'Etkin üye', 'Dönemde en az bir antrenman işaretledi'],
+        ['fa-solid fa-dumbbell', n(g.antrenman), 'Tamamlanan antrenman', 'Program, serbest ve challenge birlikte'],
+        ['fa-solid fa-stopwatch', n(g.seans) + ' dk', 'Ortalama seans', 'Antrenman başına geçen süre']
+      ]) +
+      cubuk('Antrenman hacmi', 'Tamamlanan antrenman sayısı',
+        g.hafta.map(function (h) {
+          return { ad:h[0], alt:'', deger:h[1], etiket:n(h[1]) };
+        })) +
+      tablo([['Antrenman türü'], ['Adet','num'], ['Pay','num']],
+        g.kirilim.map(function (k) {
+          return '<td><b>' + esc(k[0]) + '</b></td><td class="num">' + n(k[1]) + '</td>' +
+                 '<td class="num">%' + Math.round(k[1] / g.antrenman * 100) + '</td>';
+        }));
+  }
+
+  /* ================================================================
+     2 · İÇERİK — GERÇEK. Katalog anlık sayımdır, dönemden bağımsız.
+     ================================================================ */
+  function icerikBas(){
+    if (!V) return A.bos('fa-dumbbell', 'İçerik kataloğu yüklenmedi',
+      'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi.');
+
+    var hareket = V.HAREKET, program = V.PROGRAM, test = V.TEST, sayfa = V.SAYFA;
+    var chSay = C ? C.KATALOG.length : 0;
+
+    /* kas bölgesine göre hareket — sözlük terimi ile ölçüm eşleşiyor mu */
+    var kasSatir = V.SOZLUK.kas.map(function (k) {
+      var adet = hareket.filter(function (h) { return h.kas === k.kod; }).length;
+      return { ad:k.ad, alt:k.kod, deger:adet, etiket:adet + ' hareket' };
+    }).sort(function (a, b) { return b.deger - a.deger; });
+
+    /* ekipman sözlüğü: İLAN EDİLEN terim ile KULLANILAN terim aynı mı */
+    var ekip = V.SOZLUK.ekipman.map(function (e) {
+      var kullanan = hareket.filter(function (h) { return h.ekipmanKod === e.kod; });
+      return { ad:e.ad, kod:e.kod, adet:kullanan.length,
+               ornek: kullanan.length ? kullanan[0].ad : '—' };
+    }).sort(function (a, b) { return b.adet - a.adet; });
+    var bosTerim = ekip.filter(function (e) { return e.adet === 0; }).length;
+
+    return sekmeNotu('canli',
+      '<b>Bu sekme gerçek.</b> Katalog <code>fit-admin-veri.js</code>ten (' +
+      esc(V.OLCUM_TARIHI) + ' tarihli mekanik sayım) ve <code>fit-challenge.js</code>ten ' +
+      'okunuyor. <b>Katalog anlık bir sayımdır, zaman serisi değildir</b> — bu yüzden ' +
+      'üstteki dönem seçici bu sekmeyi etkilemez; etkiliyormuş gibi göstermek olmayan ' +
+      'bir geçmişi uydurmak olurdu.') +
+      kpi([
+        ['fa-solid fa-dumbbell', n(hareket.length), 'Hareket', V.SOZLUK.kas.length + ' kas bölgesi · ' + V.SOZLUK.ekipman.length + ' ekipman terimi'],
+        ['fa-solid fa-clipboard-list', n(program.length), 'Program', V.PROGRAM_DETAY.length + ' program detay sayfası yayında'],
+        ['fa-solid fa-stopwatch', n(test.length), 'Fit testi', 'Her testin 3 sonuç bandı ve önerilen programı var'],
+        ['fa-solid fa-trophy', n(chSay), "Challenge", C ? Object.keys(C.TIP).length + ' tip · katalogdan okundu' : 'motor yüklenmedi']
+      ]) +
+      cubuk('Hareket kütüphanesi · kas bölgesine göre',
+            hareket.length + ' hareket, ' + V.SOZLUK.kas.length + ' bölge sözlüğüne dağılıyor',
+            kasSatir) +
+      tablo([['Ekipman terimi'], ['Hareket','num'], ['Örnek hareket']],
+        ekip.map(function (e) {
+          return '<td><b>' + esc(e.ad) + '</b><small>' + esc(e.kod) + '</small></td>' +
+            '<td class="num">' + (e.adet ? '<b>' + e.adet + '</b>' : A.rozet('off', 'kullanılmıyor')) + '</td>' +
+            '<td>' + esc(e.ornek) + '</td>';
+        }),
+        '<b>Ölçülen bulgu:</b> kütüphanenin süzgeci ' + V.SOZLUK.ekipman.length +
+        ' ekipman terimi ilan ediyor ama bunların <b>' + bosTerim +
+        ' tanesinde hiç hareket yok</b>. Boş terim, süzgeçte tıklanıp sıfır sonuç ' +
+        'döndüren bir kalem demektir; taksonomi ekranının kararına kalmıştır.') +
+      tablo([['Yayın yüzeyi'], ['Adet','num']], [
+        '<td><b>Sayfa</b><small>depodaki HTML dosyaları</small></td><td class="num">' + n(sayfa.length) + '</td>',
+        '<td><b>Açıklama metni yazılmış sayfa</b><small>meta description dolu</small></td><td class="num">' +
+          n(sayfa.filter(function (s) { return s.aciklama; }).length) + '</td>',
+        '<td><b>Rozet</b><small>fit-rozet.js kataloğu</small></td><td class="num">' +
+          (R ? n(R.KATALOG.length) : '—') + '</td>',
+        '<td><b>Kademe</b><small>puan merdiveni</small></td><td class="num">' +
+          (R ? n(R.KADEMELER.length) : '—') + '</td>'
+      ]);
+  }
+
+  /* ================================================================
+     3 · FİNANSAL — GERÇEK. Kuruş tamsayısı, defterden.
+     ================================================================ */
+  var AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+               'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  function faturaTarih(f){
+    var p = String(f.tarih).split(' ');
+    var i = AYLAR.indexOf(p[1]);
+    if (i < 0) return null;
+    return { d: new Date(Date.UTC(+p[2], i, +p[0])), ay: p[1] + ' ' + p[2], ayNo: p[2] + '-' + (i<9?'0':'') + (i+1) };
+  }
+  function faturaTutar(f){
+    var t = 0; f.kalem.forEach(function (k) { t += k[2] * k[3]; }); return t;
+  }
+  function hizmetMi(f){ return f.kalem[0][0].indexOf('Antrenör') === 0; }
+
+  function finansalBas(d){
+    if (!F) return A.bos('fa-money-bill-wave', 'Fatura defteri yüklenmedi',
+      'Finansal rapor fit-fatura.js dosyasından okunur; bu sayfada yüklenemedi.');
+
+    var sinir = new Date(BUGUN);
+    if (d === '30') sinir.setDate(sinir.getDate() - 30);
+    else if (d === '90') sinir.setDate(sinir.getDate() - 90);
+    else sinir = new Date('2026-01-01T00:00:00');
+
+    var kayit = [];
+    F.defter.forEach(function (f) {
+      var t = faturaTarih(f); if (!t || t.d < sinir) return;
+      kayit.push({ f:f, t:t, tutar:faturaTutar(f), hizmet:hizmetMi(f), iade:(f.tur === 'iade') });
+    });
+
+    var hizmetBrut = 0, paketBrut = 0, iadeTutar = 0;
+    kayit.forEach(function (k) {
+      if (k.iade) { iadeTutar += Math.abs(k.tutar); return; }
+      if (k.hizmet) hizmetBrut += k.tutar; else paketBrut += k.tutar;
+    });
+    var komisyon = Math.round(hizmetBrut * KOMISYON_ORAN / 100);
+    var hakedis  = hizmetBrut - komisyon;
+
+    /* aylık çubuk — hizmet cirosu */
+    var ayAd = [], ayTop = {};
+    kayit.forEach(function (k) {
+      if (k.iade || !k.hizmet) return;
+      if (ayAd.indexOf(k.t.ayNo) < 0) ayAd.push(k.t.ayNo);
+      ayTop[k.t.ayNo] = { ad:k.t.ay, tutar:(ayTop[k.t.ayNo] ? ayTop[k.t.ayNo].tutar : 0) + k.tutar };
+    });
+    ayAd.sort();
+    var aySatir = ayAd.map(function (a) {
+      return { ad:ayTop[a].ad, alt:'', deger:ayTop[a].tutar, etiket:tl(ayTop[a].tutar) };
+    });
+
+    return sekmeNotu('canli',
+      '<b>Bu sekme gerçek.</b> Tutarlar <code>fit-fatura.js</code> defterinden okunuyor ve ' +
+      '<b>kuruş tamsayısı</b> olarak hesaplanıyor; komisyon oranı para parametrelerinden ' +
+      '(Kazançlar ve Ödemeler ekranındaki alan) gelir. ⚠ Defter tek üyenin faturalarıdır, ' +
+      'platformun gerçek cirosu değildir — <b>ölçek örnektir, aritmetik gerçektir</b>.') +
+      sekmeNotu('ornek',
+      '<b>K6 çelişkisi, gizlenmedi.</b> Defterde <code>tur:"uyelik"</code> satırları var ' +
+      '("DadaFit Pro — Aylık · Platform paketi"). K6 <b>Fit\'te abonelik yoktur</b> diyor. ' +
+      'Rapor bu satırları ne siliyor ne de hizmet cirosuna karıştırıyor: aşağıda <b>ayrı ' +
+      'kalem</b> olarak duruyorlar ve komisyona girmiyorlar. Kalemin kalıp kalkmayacağı ' +
+      'ürün kararıdır, raporun değil.') +
+      kpi([
+        ['fa-solid fa-cash-register', tl(hizmetBrut), 'Hizmet cirosu', 'Antrenör hizmeti · komisyona giren tek kalem'],
+        ['fa-solid fa-percent', tl(komisyon), 'Platform komisyonu', 'Oran para parametrelerinden okunur'],
+        ['fa-solid fa-user-check', tl(hakedis), 'Antrenör hakedişi', 'Alt sınır ve devir Kazançlar ekranında hesaplanır'],
+        ['fa-solid fa-rotate-left', tl(iadeTutar), 'İade', 'İade olsa da komisyon geri gitmez']
+      ]) +
+      (aySatir.length
+        ? cubuk('Hizmet cirosu · aya göre', 'Yalnız antrenör hizmeti; platform paketi dışarıda', aySatir)
+        : A.bos('fa-chart-column', 'Bu dönemde hizmet satışı yok',
+                'Seçili dönem aralığında antrenör hizmeti faturası bulunmuyor. Dönemi genişleterek defterin tamamına bakabilirsin.')) +
+      tablo([['Gelir kalemi'], ['Brüt','num'], ['Komisyon','num'], ['Antrenöre','num']], [
+        '<td><b>Antrenör hizmeti</b><small>K4 · üye üreticiden hizmet satın alır</small></td>' +
+          '<td class="num">' + esc(tl(hizmetBrut)) + '</td>' +
+          '<td class="num">−' + esc(tl(komisyon)) + '</td>' +
+          '<td class="num"><b>' + esc(tl(hakedis)) + '</b></td>',
+        '<td><b>Platform paketi</b><small>⚠ K6 bu kalemin kalkmasını söylüyor</small></td>' +
+          '<td class="num">' + esc(tl(paketBrut)) + '</td>' +
+          '<td class="num">—</td>' +
+          '<td class="num">—</td>'
+      ]) +
+      tablo([['Fatura'], ['Tarih'], ['Tür'], ['Durum'], ['Tutar','num']],
+        kayit.map(function (k) {
+          return '<td><b>' + esc(k.f.no) + '</b><small>' + esc(k.f.konu) + '</small></td>' +
+            '<td>' + esc(k.f.tarihKisa) + '</td>' +
+            '<td>' + (k.iade ? 'İade' : (k.hizmet ? 'Hizmet' : 'Platform paketi')) + '</td>' +
+            '<td>' + A.rozet(k.f.durum, k.f.durumAd) + '</td>' +
+            '<td class="num">' + esc(tl(k.tutar)) + '</td>';
+        }),
+        'Dönemde <b>' + kayit.length + '</b> fatura kaydı okundu. Belge gövdesi ve ETTN ' +
+        'üye yüzeyindedir (<code>odemelerim-v1.html</code>); rapor yalnız tutarı toplar.');
+  }
+
+  /* ================================================================
+     4 · MODERASYON — ÖRNEK.
+     ⚠ Bu özet `admin-moderasyon-v1.html`in örnek kümesinden türetildi ve
+     bugün İKİ dosyada iki kopya duruyor. Gerçek bildirim kaynağı
+     doğduğunda ikisi de ondan okumalı; kopya sessizce ayrışabilir.
+     ================================================================ */
+  var MOD = {
+    '30': { toplam:9, bekleyen:4, saglik:2, karar:5,
+            sebep:[['Sağlık riski',2],['Yanlış bilgi',2],['Hakaret',2],['Spam',2],['Reklam',1]],
+            tur:[['Üye mesajı',2],['Program yorumu',2],['Egzersiz yorumu',2],['Challenge yorumu',2],['Antrenör değerlendirmesi',1]] },
+    '90': { toplam:34, bekleyen:4, saglik:6, karar:30,
+            sebep:[['Spam',11],['Yanlış bilgi',8],['Sağlık riski',6],['Reklam',5],['Hakaret',4]],
+            tur:[['Egzersiz yorumu',12],['Üye mesajı',9],['Program yorumu',7],['Challenge yorumu',4],['Antrenör değerlendirmesi',2]] },
+    'yil':{ toplam:118, bekleyen:4, saglik:19, karar:114,
+            sebep:[['Spam',41],['Yanlış bilgi',27],['Sağlık riski',19],['Reklam',18],['Hakaret',13]],
+            tur:[['Egzersiz yorumu',44],['Üye mesajı',31],['Program yorumu',22],['Challenge yorumu',14],['Antrenör değerlendirmesi',7]] }
+  };
+
+  function moderasyonBas(d){
+    var m = MOD[d];
+    return sekmeNotu('ornek',
+      '<b>Bu sekme örnektir.</b> Bu depoda yorum ve bildirim tutan bir sözleşme modülü yok. ' +
+      'Sayılar <code>admin-moderasyon-v1.html</code>in örnek kümesinden türetildi. ' +
+      '⚠ <b>Bugün aynı rakam iki dosyada duruyor</b> — gerçek bildirim kaynağı doğduğunda ' +
+      'iki ekran da ondan okumalı, yoksa kopya sessizce ayrışır.') +
+      kpi([
+        ['fa-solid fa-flag', n(m.toplam), 'Bildirim', 'Dönemde üyelerin bildirdiği içerik'],
+        ['fa-solid fa-hourglass-half', n(m.bekleyen), 'Karar bekleyen', 'Kuyruk Moderasyon ekranında açılır'],
+        ['fa-solid fa-heart-pulse', n(m.saglik), 'Sağlık riski', 'Kuyruğun başına alınır — zarar potansiyeli var'],
+        ['fa-solid fa-gavel', n(m.karar), 'Karara bağlanan', 'Onaylandı, gizlendi ya da silindi']
+      ]) +
+      cubuk('Bildirim sebebi', 'Aynı içerik birden çok üye tarafından bildirilebilir',
+        m.sebep.map(function (s) { return { ad:s[0], alt:'', deger:s[1], etiket:n(s[1]) }; })) +
+      tablo([['İçerik türü'], ['Bildirim','num'], ['Pay','num']],
+        m.tur.map(function (t) {
+          return '<td><b>' + esc(t[0]) + '</b></td><td class="num">' + n(t[1]) + '</td>' +
+                 '<td class="num">%' + Math.round(t[1] / m.toplam * 100) + '</td>';
+        }),
+        'Sağlık riski bildirimleri sebep dağılımının en küçük dilimi olsa da <b>karar ' +
+        'sırasının başındadır</b>: spam okuru yorar, yanlış sağlık yönlendirmesi zarar verir.');
+  }
+
+  /* ---- dönem değişince dördü birden yeniden çizilir --------------- */
+  function ciz(){
+    var d = document.getElementById('rpDonem').value;
+    document.getElementById('rpGenel').innerHTML      = genelBas(d);
+    document.getElementById('rpIcerik').innerHTML     = icerikBas();
+    document.getElementById('rpFinansal').innerHTML   = finansalBas(d);
+    document.getElementById('rpModerasyon').innerHTML = moderasyonBas(d);
+  }
+  document.getElementById('rpDonem').addEventListener('change', ciz);
+  ciz();
+})();
+</script>
+</body>
+</html>

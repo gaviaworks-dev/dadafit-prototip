@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antrenörler — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi: K2 kuyruğunun SATIR KARTI.
+   Tablo · sekme · rozet · düğme · boş durum kabuktan geliyor; buradaki
+   her değer kitin bir tokeni. Yeni renk, yeni yarıçap üretilmedi.
+
+   NEDEN KART, NEDEN TABLO DEĞİL: kuyrukta satır okunmuyor, satır hakkında
+   KARAR veriliyor. Karar için belge listesi, atama ve üç düğme aynı anda
+   görünmeli; bunlar bir tablo hücresine sığmaz. (plan §4 · K2) */
+.bv-liste{display:flex;flex-direction:column;gap:12px}
+.bv-kart{
+  border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--paper);
+  padding:16px 18px;display:flex;flex-direction:column;gap:14px;
+}
+.bv-kart.is-sec{border-color:var(--fit-line);background:var(--fit-tint)}
+.bv-ust{display:flex;align-items:flex-start;gap:13px;flex-wrap:wrap}
+.bv-av{
+  width:46px;height:46px;flex:none;border-radius:50%;
+  background:var(--fit-tint);color:var(--fit-deep);
+  display:grid;place-items:center;font-size:15px;font-weight:800;
+}
+.bv-kim{flex:1;min-width:180px}
+.bv-kim b{display:block;font-size:15px;font-weight:800;color:var(--slate);letter-spacing:-.01em}
+.bv-kim span{display:block;font-size:12.5px;font-weight:600;color:var(--slate-2);margin-top:3px}
+.bv-kim small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:4px}
+.bv-durum{flex:none}
+
+/* Belge çipleri — dosya adı + tür. Tıklanabilir görünmüyorlar çünkü
+   tıklanacak bir dosya deposu YOK; ekran bunu şeritte söylüyor. */
+.bv-belge{display:flex;gap:8px;flex-wrap:wrap}
+.bv-belge span{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:600;color:var(--slate-2);
+  background:var(--bg);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:6px 11px;
+}
+.bv-belge span i{color:var(--fit-deep);font-size:12px}
+
+/* Eylem sırası: atama solda (karardan ÖNCE gelir), kararlar sağda.
+   Yıkıcı olan (Reddet) birincil düğmenin yanına konmadı. */
+.bv-alt{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:13px}
+.bv-ata{min-width:210px}
+.bv-ata .fk-label{margin-bottom:6px;font-size:12.5px}
+.bv-eylem{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bv-not{flex-basis:100%;font-size:12.5px;font-weight:700;color:var(--hs-warn);display:flex;align-items:center;gap:7px}
+/* Maket notu (FIT_ADMIN.maketKaydet) düğme sırasının ALTINA iner — araya
+   girseydi kararlar birbirinden ayrılır, sıra bozulurdu. */
+.bv-eylem .adm-maket-not{flex-basis:100%;justify-content:flex-end;line-height:1.5}
+
+/* K3 detay — üye ekranıyla aynı veri sayfası deseni */
+.bv-dl{display:grid;grid-template-columns:190px minmax(0,1fr);gap:0}
+.bv-dl dt,.bv-dl dd{margin:0;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.55}
+.bv-dl dt{font-weight:700;color:var(--muted);font-size:12.5px}
+.bv-dl dd{font-weight:600;color:var(--slate)}
+.bv-dl dt:last-of-type,.bv-dl dd:last-of-type{border-bottom:0}
+@media (max-width:520px){
+  .bv-dl{grid-template-columns:minmax(0,1fr)}
+  .bv-dl dt{padding-bottom:0;border-bottom:0}
+}
+.bv-kontrol{display:flex;flex-direction:column;gap:2px}
+.bv-kontrol label{
+  /* Dokunma hedefi 44px (WCAG 2.5.8): kutunun kendisi 18px ama TIKLANAN
+     yüzey etikettir; ölçülen yükseklik 39.5px'ti, `min-height` ile 44'e
+     çekildi — dolgu büyütülseydi liste ritmi de kayardı. */
+  display:flex;align-items:center;gap:10px;padding:10px 0;min-height:44px;
+  font-size:13px;font-weight:600;color:var(--slate);line-height:1.5;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+.bv-kontrol label:last-child{border-bottom:0}
+.bv-kontrol input{width:18px;height:18px;accent-color:var(--fit);flex:none;margin-top:1px;cursor:pointer}
+</style>
+</head>
+<body class="adm-body" data-adm="antrenorler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Antrenörler</h2>
+        <p>İki iş, iki bölüm: bekleyen başvuruların belgesi doğrulanır ve
+           karara bağlanır; altta yayında olan antrenörlerin dizini durur.
+           Karar vermeden önce başvuru bir inceleyene atanır.</p>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="antrenor-ol-v1.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Başvuru formunu gör</a>
+      </div>
+    </div>
+
+    <div id="atKaynak"></div>
+
+    <!-- ============ BAŞVURU KUYRUĞU (K2) ============
+         Sekme şeridi ve panelleri markup'ta durur; kabuğun sekme bileşeni
+         yüklenirken rolleri, aria'yı ve klavyeyi kurar. Panellerin içi JS
+         ile yazılır. `data-fit-tabs-scope` iki şeridi ayırır: bu kartın
+         panelleri detay kartınınkilerle karışmasın. -->
+    <div class="adm-card" id="atKuyruk" data-fit-tabs-scope>
+      <div class="c-head">
+        <h3><i class="fa-solid fa-inbox"></i> Başvuru kuyruğu</h3>
+        <div class="c-acts">
+          <span class="fp-badge wait" id="atBekleyen">—</span>
+        </div>
+      </div>
+
+      <div class="c-head" style="border-bottom:1px solid var(--line)">
+        <nav class="fit-tabs" data-fit-tabs="atKuyruk" aria-label="Başvuru durumları">
+          <button class="fit-tab active" type="button" data-tab="bekleyen"><i class="fa-solid fa-hourglass-half"></i> Bekleyen <span class="cnt" data-cnt="bekleyen"></span></button>
+          <button class="fit-tab" type="button" data-tab="ek-belge"><i class="fa-solid fa-file-circle-question"></i> Ek belge bekleniyor <span class="cnt" data-cnt="ek-belge"></span></button>
+          <button class="fit-tab" type="button" data-tab="onaylanan"><i class="fa-solid fa-circle-check"></i> Onaylanan <span class="cnt" data-cnt="onaylanan"></span></button>
+          <button class="fit-tab" type="button" data-tab="reddedilen"><i class="fa-solid fa-circle-xmark"></i> Reddedilen <span class="cnt" data-cnt="reddedilen"></span></button>
+        </nav>
+      </div>
+
+      <div class="c-body">
+        <div class="fit-pane" data-pane="bekleyen"><div class="bv-liste" data-liste="bekleyen"></div></div>
+        <div class="fit-pane" data-pane="ek-belge" hidden><div class="bv-liste" data-liste="ek-belge"></div></div>
+        <div class="fit-pane" data-pane="onaylanan" hidden><div class="bv-liste" data-liste="onaylanan"></div></div>
+        <div class="fit-pane" data-pane="reddedilen" hidden><div class="bv-liste" data-liste="reddedilen"></div></div>
+      </div>
+    </div>
+
+    <!-- ============ BAŞVURU DETAYI (K3) ============ -->
+    <div class="adm-card" id="atDetay" hidden data-fit-tabs-scope>
+      <div class="c-head">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;flex-wrap:wrap">
+          <span class="bv-av" id="adAv">—</span>
+          <div style="min-width:0">
+            <b id="adAd" style="display:block;font-size:17px;font-weight:800;color:var(--slate);letter-spacing:-.01em">—</b>
+            <small id="adAlt" style="display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:2px">—</small>
+          </div>
+          <div id="adRozet" style="display:flex;gap:7px;flex-wrap:wrap;margin-left:auto"></div>
+        </div>
+      </div>
+
+      <div class="c-head" style="border-bottom:1px solid var(--line)">
+        <nav class="fit-tabs" data-fit-tabs="atDetay" aria-label="Başvuru detayı bölümleri">
+          <button class="fit-tab active" type="button" data-tab="basvuru"><i class="fa-solid fa-file-lines"></i> Başvuru</button>
+          <button class="fit-tab" type="button" data-tab="belgeler"><i class="fa-solid fa-file-shield"></i> Belgeler</button>
+          <button class="fit-tab" type="button" data-tab="karar"><i class="fa-solid fa-clock-rotate-left"></i> Karar geçmişi</button>
+        </nav>
+        <div class="c-acts">
+          <button class="btn btn-ghost" type="button" id="adKapat"><i class="fa-solid fa-xmark"></i> Kapat</button>
+        </div>
+      </div>
+
+      <div class="c-body">
+        <div class="adm-cols">
+          <div>
+            <div class="fit-pane" data-pane="basvuru"><dl class="bv-dl" id="adBasvuru"></dl></div>
+
+            <div class="fit-pane" data-pane="belgeler" hidden>
+              <div class="adm-tw">
+                <table class="adm-table">
+                  <thead><tr><th>Belge</th><th>Tür</th><th>Yüklendi</th><th>Durum</th></tr></thead>
+                  <tbody id="adBelge"></tbody>
+                </table>
+              </div>
+              <p class="fk-help" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i>
+                Dosya deposu bu prototipte yok; belge adları örnektir ve
+                açılamaz. Başvuru formunun kendisi gerçek —
+                <a href="antrenor-ol-v1.html" target="_blank" rel="noopener">antrenor-ol-v1.html</a>
+                sertifikayı PDF ya da JPG olarak, birden fazla dosyayla topluyor.</p>
+            </div>
+
+            <div class="fit-pane" data-pane="karar" hidden>
+              <div class="adm-tw">
+                <table class="adm-table">
+                  <thead><tr><th>Tarih</th><th>Olay</th><th>Yapan</th></tr></thead>
+                  <tbody id="adKararlar"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- yan bilgi kolonu: karar yüzeyi -->
+          <div>
+            <div class="adm-card" style="box-shadow:none">
+              <div class="c-head"><h3><i class="fa-solid fa-list-check"></i> Doğrulama listesi</h3></div>
+              <div class="c-body">
+                <div class="bv-kontrol">
+                  <label><input type="checkbox" /> Sertifika okunaklı ve süresi geçmemiş</label>
+                  <label><input type="checkbox" /> Belgedeki ad başvurudaki adla aynı</label>
+                  <label><input type="checkbox" /> Sertifikayı veren kurum tanınıyor</label>
+                  <label><input type="checkbox" /> Bio ve uzmanlık alanları tutarlı</label>
+                </div>
+                <p class="fk-help" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
+                  Diploma numarası aranmaz — başvuru sayfasının kendi sözü bu.
+                  Geçerli bir antrenörlük/eğitmenlik sertifikası yeterli.</p>
+              </div>
+            </div>
+
+            <div class="adm-card" style="box-shadow:none">
+              <div class="c-head"><h3><i class="fa-solid fa-gavel"></i> Karar</h3></div>
+              <div class="c-body">
+                <form id="adKararF">
+                  <div class="fk-field">
+                    <label class="fk-label" for="adInceleyen">İnceleyen <span class="req">*</span></label>
+                    <select class="fk-select" id="adInceleyen" required></select>
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Başvuru bir inceleyene atanmadan karara bağlanmaz; kararın kimin olduğu geçmişte görünür.</span>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="adKarar">Karar <span class="req">*</span></label>
+                    <select class="fk-select" id="adKarar" required>
+                      <option value="onayla">Onayla — antrenör dizinine al</option>
+                      <option value="ek-belge">Ek belge iste</option>
+                      <option value="reddet">Reddet</option>
+                    </select>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="adGerekce">Başvurana yazılacak gerekçe <span class="req">*</span></label>
+                    <textarea class="fk-textarea" id="adGerekce" rows="4" required maxlength="600"
+                              placeholder="Neyin eksik olduğunu ve nasıl düzeltileceğini yaz."></textarea>
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Onayda da yazılır: başvuran her kararda bir cümle görür. Gerekçesiz ret, düzeltilemeyen rettir.</span>
+                  </div>
+                  <button class="btn btn-primary" type="button" id="adKaydet"><i class="fa-solid fa-check"></i> Kararı kaydet</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ONAYLI ANTRENÖRLER (K1) ============ -->
+    <div class="adm-card" id="atOnayli">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-user-check"></i> Onaylı antrenörler</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="atAra">Antrenör ara</label>
+          <input class="fk-input" type="search" id="atAra" placeholder="Ad, uzmanlık ya da şehir ara" style="min-width:250px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="atSuzgec" data-ff></div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="atTablo">
+            <thead>
+              <tr>
+                <th>Antrenör</th><th>Uzmanlık</th><th>Şehir</th>
+                <th class="num">Seans ücreti</th><th class="num">Aktif danışan</th>
+                <th>Durum</th><th class="act">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="atGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="atSay">0</b> antrenör · tümü tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ANTRENÖRLER   (R16/3)   — K2 kuyruk + K3 detay + K1 liste
+   ---------------------------------------------------------------------
+   VERİ ÖRNEKTİR — ama uydurulmadı, iki gerçek yüzeyden türetildi:
+
+   1. BAŞVURU ALANLARI `antrenor-ol-v1.html`in kendi formundan alındı
+      (ad · soyad · e-posta · telefon · şehir · kullanıcı adı · uzmanlık
+      alanları · çalışma şekli · sertifika · deneyim yılı · sertifikayı
+      veren kurum · stüdyo · bio · sosyal). Panel, formun toplamadığı bir
+      alanı sormaz; formun topladığı bir alanı da yutmaz.
+   2. KARAR SEÇENEKLERİ o sayfanın kendi sözünden çıktı: "Belgeler eksik
+      ya da okunaksızsa nedenini açıklayıp düzeltmen için geri yazarız."
+      Bu yüzden karar İKİ değil ÜÇ: onayla · ek belge iste · reddet.
+
+   🔴 ONAYLI ANTRENÖR DİZİNİ İKİNCİ BİR KOPYADIR — ve bu bir borçtur.
+   Adlar, unvanlar ve seans ücretleri `antrenor-detay-v1.html` içindeki
+   VERI haritasından birebir alındı; ortak bir `fit-antrenor.js` modülü
+   YOK. Challenge ve rozet ekranları gerçek modülden okurken bu ekran
+   kopya taşıyor. Modül doğduğunda aşağıdaki dizi silinir ve o okunur.
+   Kaynak şeridi bunu ekranda da söylüyor.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc, n = A.n, tl = A.tl, tarih = A.tarih;
+
+  document.getElementById('atKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Başvuru ve antrenör verisi örnektir.</b> Bu prototipte sunucu ve dosya ' +
+    'deposu yok; belge adları açılmaz. Başvurunun <b>alanları</b> uydurulmadı — ' +
+    '<code>antrenor-ol-v1.html</code>\u2019in gerçek formundan alındı. Onaylı antrenör ' +
+    'dizini bugün <b>ikinci bir kopyadır</b>: adlar ve seans ücretleri ' +
+    '<code>antrenor-detay-v1.html</code>\u2019in VERI haritasından okundu, ortak bir ' +
+    'antrenör modülü henüz yok. <b>Yazma yüzeyi maket:</b> onayla · ek belge iste · ' +
+    'reddet doğrulanır ama karar kaydedilmez.');
+
+  /* ---- inceleyenler: atama listesi ---- */
+  var INCELEYEN = ['Yasin Yavuz', 'Deniz Korkmaz', 'Ela Bozkurt'];
+
+  var DURUM = {
+    'bekleyen':   { ad:'Bekliyor',            rz:'wait', ico:'fa-hourglass-half' },
+    'ek-belge':   { ad:'Ek belge bekleniyor', rz:'wait', ico:'fa-file-circle-question' },
+    'onaylanan':  { ad:'Onaylandı',           rz:'ok',   ico:'fa-circle-check' },
+    'reddedilen': { ad:'Reddedildi',          rz:'stop', ico:'fa-circle-xmark' }
+  };
+
+  /* ==================================================================
+     BAŞVURULAR — örnek
+     Sidebar'ın kuyruk sayacı 3 diyor (fit-admin.js · SAYAC.antrenorler);
+     "bekleyen" burada da 3. İki sayı ayrışırsa panel kendi kendine yalan
+     söyler — sayaç ile kuyruk aynı gerçeği göstermek zorunda.
+     ================================================================== */
+  var BASVURU = [
+    { id:'b-2041', ad:'Naz Erdem', durum:'bekleyen', tarih:'2026-08-28',
+      unvan:'Evde antrenman ve başlangıç', sehir:'Bursa', ilce:'Nilüfer',
+      mail:'naz.erdem@eposta.com', tel:'0(536) 442 10 63', kul:'@nazerdem',
+      uzmanlik:'Evde antrenman · Yeni başlayan · Kilo yönetimi', calisma:'Online',
+      deneyim:3, kurum:'Türkiye Fitness Federasyonu · Antrenörlük 1. Kademe',
+      studyo:'—', inceleyen:'',
+      bio:'Ekipmansız, evde yapılabilen programlarla yeni başlayanları hareketle tanıştırıyorum. Altı yıldır grup dersi veriyorum, iki yıldır birebir çalışıyorum.',
+      sosyal:'instagram.com/nazerdem.fit',
+      belge:[['antrenorluk-sertifikasi.pdf','Sertifika','2026-08-28','İncelenecek'],
+             ['ilk-yardim-belgesi.pdf','Ek belge','2026-08-28','İncelenecek']],
+      gecmis:[['2026-08-28','Başvuru alındı','Naz Erdem']] },
+
+    { id:'b-2039', ad:'Onur Kılıç', durum:'bekleyen', tarih:'2026-08-27',
+      unvan:'Kuvvet ve kondisyon', sehir:'Ankara', ilce:'Çankaya',
+      mail:'onur.kilic@eposta.com', tel:'0(543) 771 09 22', kul:'@onurkilic',
+      uzmanlik:'Kuvvet · Kondisyon · Sporcu performansı', calisma:'Online ve yüz yüze',
+      deneyim:5, kurum:'ACSM · Certified Personal Trainer',
+      studyo:'Kavaklıdere Performans Merkezi', inceleyen:'',
+      bio:'Beş yıldır kuvvet ve kondisyon çalışıyorum. Programlarım periyotlanmış, ölçüme dayalı ve haftalık geri bildirimle ilerliyor.',
+      sosyal:'—',
+      belge:[['acsm-cpt-sertifika.pdf','Sertifika','2026-08-27','İncelenecek']],
+      gecmis:[['2026-08-27','Başvuru alındı','Onur Kılıç']] },
+
+    { id:'b-2036', ad:'Pelin Yalçın', durum:'bekleyen', tarih:'2026-08-25',
+      unvan:'Pilates ve mobilite', sehir:'İstanbul', ilce:'Kadıköy',
+      mail:'pelin.yalcin@eposta.com', tel:'0(532) 908 14 77', kul:'@pelinyalcin',
+      uzmanlik:'Pilates · Mobilite · Postür', calisma:'Yüz yüze',
+      deneyim:7, kurum:'Pilates Mat ve Reformer sertifikası',
+      studyo:'Moda Pilates Stüdyo', inceleyen:'Deniz Korkmaz',
+      bio:'Yedi yıldır mat ve reformer pilates çalışıyorum. Masa başı çalışanlarda postür ve bel-boyun ağrısına odaklanıyorum.',
+      sosyal:'instagram.com/pelinyalcin.pilates',
+      belge:[['pilates-mat-sertifika.pdf','Sertifika','2026-08-25','İncelenecek'],
+             ['reformer-sertifika.jpg','Sertifika','2026-08-25','İncelenecek'],
+             ['studyo-belgesi.pdf','Ek belge','2026-08-25','İncelenecek']],
+      gecmis:[['2026-08-26','İnceleyene atandı · Deniz Korkmaz','Yasin Yavuz'],
+              ['2026-08-25','Başvuru alındı','Pelin Yalçın']] },
+
+    { id:'b-2018', ad:'Serkan Aydoğdu', durum:'ek-belge', tarih:'2026-08-19',
+      unvan:'Salon ve kondisyon', sehir:'İzmir', ilce:'Karşıyaka',
+      mail:'serkan.aydogdu@eposta.com', tel:'0(535) 226 88 41', kul:'@serkanaydogdu',
+      uzmanlik:'Salon antrenmanı · Kondisyon', calisma:'Yüz yüze',
+      deneyim:2, kurum:'—', studyo:'Karşıyaka Spor Salonu', inceleyen:'Yasin Yavuz',
+      bio:'İki yıldır salonda birebir çalışıyorum. Yeni başlayanları ekipmanla tanıştırmaya ve doğru forma odaklanıyorum.',
+      sosyal:'—',
+      belge:[['sertifika-foto.jpg','Sertifika','2026-08-19','Okunmuyor']],
+      gecmis:[['2026-08-21','Ek belge istendi · sertifika fotoğrafı okunmuyor','Yasin Yavuz'],
+              ['2026-08-20','İnceleyene atandı · Yasin Yavuz','Yasin Yavuz'],
+              ['2026-08-19','Başvuru alındı','Serkan Aydoğdu']] },
+
+    { id:'b-2011', ad:'Tuğba Er', durum:'ek-belge', tarih:'2026-08-16',
+      unvan:'Yoga ve esneklik', sehir:'Antalya', ilce:'Muratpaşa',
+      mail:'tugba.er@eposta.com', tel:'0(541) 330 62 05', kul:'@tugbaer',
+      uzmanlik:'Yoga · Esneklik · Nefes', calisma:'Online ve yüz yüze',
+      deneyim:4, kurum:'Yoga Alliance · RYT 200', studyo:'Lara Yoga',
+      inceleyen:'Ela Bozkurt',
+      bio:'Dört yıldır yoga eğitmenliği yapıyorum. Esneklik ve nefes çalışmasını hareket programının içine yerleştiriyorum.',
+      sosyal:'instagram.com/tugbaer.yoga',
+      belge:[['ryt200-sertifika.pdf','Sertifika','2026-08-16','Süresi geçmiş'],
+             ['kimlik-on.jpg','Kimlik','2026-08-16','Onaylandı']],
+      gecmis:[['2026-08-18','Ek belge istendi · sertifika tarihi güncellenmeli','Ela Bozkurt'],
+              ['2026-08-17','İnceleyene atandı · Ela Bozkurt','Yasin Yavuz'],
+              ['2026-08-16','Başvuru alındı','Tuğba Er']] },
+
+    { id:'b-1902', ad:'Merve Tan', durum:'onaylanan', tarih:'2026-06-04',
+      unvan:'Güç, kondisyon ve kilo yönetimi', sehir:'İzmir', ilce:'Bornova',
+      mail:'merve.tan@eposta.com', tel:'0(542) 903 77 14', kul:'@mervetan',
+      uzmanlik:'Güç · Kondisyon · Kilo yönetimi', calisma:'Online',
+      deneyim:6, kurum:'ACSM · Certified Personal Trainer', studyo:'—',
+      inceleyen:'Yasin Yavuz',
+      bio:'Altı yıldır güç ve kondisyon çalışıyorum; kilo yönetiminde hareketi beslenmeden ayırmadan planlıyorum.',
+      sosyal:'instagram.com/mervetan.fit',
+      belge:[['acsm-cpt-sertifika.pdf','Sertifika','2026-06-04','Onaylandı']],
+      gecmis:[['2026-06-09','Onaylandı · dizine alındı','Yasin Yavuz'],
+              ['2026-06-05','İnceleyene atandı · Yasin Yavuz','Yasin Yavuz'],
+              ['2026-06-04','Başvuru alındı','Merve Tan']] },
+
+    { id:'b-1840', ad:'Selin Aksoy', durum:'onaylanan', tarih:'2026-04-28',
+      unvan:'Egzersiz ve spor bilimleri uzmanı', sehir:'İstanbul', ilce:'Beşiktaş',
+      mail:'selin.aksoy@eposta.com', tel:'0(532) 214 88 09', kul:'@selinaksoyfit',
+      uzmanlik:'Kilo yönetimi · Mobilite · Yeni başlayan', calisma:'Online',
+      deneyim:6, kurum:'ACSM · Pilates Mat sertifikası', studyo:'—',
+      inceleyen:'Yasin Yavuz',
+      bio:'Egzersiz ve spor bilimleri mezunuyum. Kilo yönetimi ve mobilite alanında altı yıldır birebir çalışıyorum.',
+      sosyal:'instagram.com/selinaksoy.fit',
+      belge:[['antrenorluk-sertifikasi.pdf','Sertifika','2026-04-28','Onaylandı']],
+      gecmis:[['2026-05-02','Onaylandı · dizine alındı','Yasin Yavuz'],
+              ['2026-04-29','İnceleyene atandı · Yasin Yavuz','Yasin Yavuz'],
+              ['2026-04-28','Başvuru alındı','Selin Aksoy']] },
+
+    { id:'b-1798', ad:'Burak Demir', durum:'onaylanan', tarih:'2026-04-12',
+      unvan:'Kuvvet ve kondisyon antrenörü', sehir:'Ankara', ilce:'Çankaya',
+      mail:'burak.demir@eposta.com', tel:'0(533) 118 45 20', kul:'@burakdemir',
+      uzmanlik:'Kuvvet · Kondisyon', calisma:'Online ve yüz yüze',
+      deneyim:8, kurum:'NSCA · CSCS', studyo:'Ankara Kuvvet Merkezi',
+      inceleyen:'Deniz Korkmaz',
+      bio:'Sekiz yıldır kuvvet ve kondisyon antrenörlüğü yapıyorum. Kayıt tutmayan programı program saymam.',
+      sosyal:'—',
+      belge:[['nsca-cscs-sertifika.pdf','Sertifika','2026-04-12','Onaylandı']],
+      gecmis:[['2026-04-18','Onaylandı · dizine alındı','Deniz Korkmaz'],
+              ['2026-04-13','İnceleyene atandı · Deniz Korkmaz','Yasin Yavuz'],
+              ['2026-04-12','Başvuru alındı','Burak Demir']] },
+
+    { id:'b-1702', ad:'Zeynep Arı', durum:'onaylanan', tarih:'2026-02-27',
+      unvan:'Koşu, dayanıklılık ve başlangıç', sehir:'İzmir', ilce:'Alsancak',
+      mail:'zeynep.ari@eposta.com', tel:'0(538) 447 20 96', kul:'@zeynepari',
+      uzmanlik:'Koşu · Dayanıklılık · Yeni başlayan', calisma:'Online',
+      deneyim:5, kurum:'Atletizm Federasyonu · Koşu antrenörlüğü', studyo:'—',
+      inceleyen:'Ela Bozkurt',
+      bio:'Beş yıldır koşu ve dayanıklılık çalışıyorum. İlk 5 km hedefiyle gelen herkese ayrı plan yazıyorum.',
+      sosyal:'instagram.com/zeynepari.kosu',
+      belge:[['kosu-antrenorlugu.pdf','Sertifika','2026-02-27','Onaylandı']],
+      gecmis:[['2026-03-05','Onaylandı · dizine alındı','Ela Bozkurt'],
+              ['2026-02-28','İnceleyene atandı · Ela Bozkurt','Yasin Yavuz'],
+              ['2026-02-27','Başvuru alındı','Zeynep Arı']] }
+  ];
+
+  /* ==================================================================
+     ONAYLI ANTRENÖR DİZİNİ — `antrenor-detay-v1.html`in VERI haritası
+     Ücret KURUŞ tamsayısı olarak tutuluyor (fit-fatura.js deseni); ekranda
+     A.tl() ile TL'ye çevriliyor. Kaynak haritada "₺450" yazıyordu — sayı
+     aynı, biçimi adminin ortak biçimi.
+     ================================================================== */
+  var ANTRENOR = [
+    { slug:'selin-aksoy',  ad:'Selin Aksoy',   unvan:'Egzersiz ve spor bilimleri uzmanı', sehir:'İstanbul', ucret:45000, danisan:14, durum:'aktif' },
+    { slug:'burak-demir',  ad:'Burak Demir',   unvan:'Kuvvet ve kondisyon antrenörü',     sehir:'Ankara',   ucret:52000, danisan:11, durum:'aktif' },
+    { slug:'ece-yalcin',   ad:'Ece Yalçın',    unvan:'Mobilite ve postür uzmanı',         sehir:'İstanbul', ucret:40000, danisan:9,  durum:'aktif' },
+    { slug:'mert-ozkan',   ad:'Mert Özkan',    unvan:'Yeni başlayan programları',         sehir:'Bursa',    ucret:38000, danisan:7,  durum:'aktif' },
+    { slug:'deniz-kaya',   ad:'Deniz Kaya',    unvan:'Kadın sağlığı ve hareket',          sehir:'İzmir',    ucret:47000, danisan:12, durum:'aktif' },
+    { slug:'derya-yildiz', ad:'Derya Yıldız',  unvan:'Mobilite ve postür',                sehir:'Antalya',  ucret:43000, danisan:6,  durum:'aktif' },
+    { slug:'ayse-kaplan',  ad:'Ayşe Kaplan',   unvan:'Yeni başlayan ve kilo yönetimi',    sehir:'İstanbul', ucret:39000, danisan:10, durum:'aktif' },
+    { slug:'can-aydin',    ad:'Can Aydın',     unvan:'Salon ve kondisyon',                sehir:'Ankara',   ucret:50000, danisan:8,  durum:'izinli' },
+    { slug:'merve-tan',    ad:'Merve Tan',     unvan:'Güç, kondisyon ve kilo yönetimi',   sehir:'İzmir',    ucret:46000, danisan:13, durum:'aktif' },
+    { slug:'zeynep-ari',   ad:'Zeynep Arı',    unvan:'Koşu, dayanıklılık ve başlangıç',   sehir:'İzmir',    ucret:41000, danisan:15, durum:'aktif' },
+    { slug:'elif-sahin',   ad:'Elif Şahin',    unvan:'Mobilite, pilates ve esneklik',     sehir:'İstanbul', ucret:44000, danisan:5,  durum:'aktif' },
+    { slug:'naz-erdem',    ad:'Naz Erdem',     unvan:'Evde antrenman ve başlangıç',       sehir:'Bursa',    ucret:37000, danisan:0,  durum:'askida' }
+  ];
+  var ANT_DURUM = {
+    aktif:  { ad:'Yayında',  rz:'ok',   ico:'fa-circle-check' },
+    izinli: { ad:'İzinde',   rz:'wait', ico:'fa-plane-departure' },
+    askida: { ad:'Askıda',   rz:'off',  ico:'fa-pause' }
+  };
+
+  function bas2(x){ return String(x).trim().split(/\s+/).slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toLocaleUpperCase('tr'); }
+
+  /* ==================================================================
+     K2 · KUYRUK
+     Her sekmenin KENDİ boş durumu var (kit §9, dört parça). Bir sekme
+     boşsa "kayıt yok" yazıp bırakmak kusurdur; boş ekran bir davettir.
+     Sekme sayacı SIFIRSA BASILMAZ — sidebar'ın kuralının aynısı.
+     ================================================================== */
+  function kartHtml(b){
+    var d = DURUM[b.durum];
+    var karar = (b.durum === 'bekleyen' || b.durum === 'ek-belge');
+    return '<form class="bv-kart" data-bv="' + esc(b.id) + '">' +
+      '<div class="bv-ust">' +
+        '<span class="bv-av">' + esc(bas2(b.ad)) + '</span>' +
+        '<span class="bv-kim"><b>' + esc(b.ad) + '</b>' +
+          '<span>' + esc(b.unvan) + ' · ' + esc(b.sehir) + '</span>' +
+          '<small>' + b.deneyim + ' yıl deneyim · ' + b.belge.length + ' belge · başvuru ' + tarih(b.tarih) + '</small></span>' +
+        '<span class="bv-durum">' + A.rozet(d.rz, d.ad, d.ico) + '</span>' +
+      '</div>' +
+      '<div class="bv-belge">' +
+        b.belge.map(function (bg) {
+          var ico = /\.pdf$/i.test(bg[0]) ? 'fa-file-pdf' : 'fa-file-image';
+          return '<span><i class="fa-solid ' + ico + '" aria-hidden="true"></i>' + esc(bg[0]) + ' · ' + esc(bg[3]) + '</span>';
+        }).join('') +
+      '</div>' +
+      '<div class="bv-alt">' +
+        '<div class="bv-ata fk-field" style="margin-bottom:0">' +
+          '<label class="fk-label" for="ata-' + esc(b.id) + '">İnceleyen' + (karar ? ' <span class="req">*</span>' : '') + '</label>' +
+          '<select class="fk-select" id="ata-' + esc(b.id) + '" data-ata' + (karar ? ' required' : '') + '>' +
+            '<option value="">— seç —</option>' +
+            INCELEYEN.map(function (x) {
+              return '<option' + (x === b.inceleyen ? ' selected' : '') + '>' + esc(x) + '</option>';
+            }).join('') +
+          '</select>' +
+        '</div>' +
+        '<div class="bv-eylem">' +
+          '<button class="btn btn-ghost" type="button" data-bv-ac="' + esc(b.id) + '"><i class="fa-solid fa-magnifying-glass"></i> İncele</button>' +
+          (karar
+            ? '<button class="btn btn-ghost" type="button" data-eylem="ek belge isteği"><i class="fa-solid fa-file-circle-question"></i> Ek belge iste</button>' +
+              '<button class="btn btn-ghost" type="button" data-eylem="ret kararı"><i class="fa-solid fa-xmark"></i> Reddet</button>' +
+              '<button class="btn btn-primary" type="button" data-eylem="onay kararı"><i class="fa-solid fa-check"></i> Onayla</button>'
+            : '') +
+        '</div>' +
+      '</div>' +
+      '</form>';
+  }
+
+  function kuyrukBas(){
+    Object.keys(DURUM).forEach(function (dr) {
+      var liste = BASVURU.filter(function (b) { return b.durum === dr; });
+      var kap = document.querySelector('.bv-liste[data-liste="' + dr + '"]');
+      var cnt = document.querySelector('.fit-tab .cnt[data-cnt="' + dr + '"]');
+
+      /* Sayaç sıfırsa BASILMAZ: "0 bekleyen" bir bilgi değil gürültüdür. */
+      if (cnt) {
+        if (liste.length) cnt.textContent = liste.length;
+        else cnt.remove();
+      }
+
+      if (!liste.length) {
+        var bosMetin = {
+          'bekleyen':   ['fa-inbox', 'Bekleyen başvuru yok', "Sıradaki başvuru geldiğinde burada belirir; kuyruk sayacı da sidebar'da görünür."],
+          'ek-belge':   ['fa-file-circle-question', 'Kimseden ek belge beklenmiyor', 'Bir başvuruda belge okunmuyorsa "Ek belge iste" dersin; başvuru buraya düşer ve yanıt gelene kadar burada durur.'],
+          'onaylanan':  ['fa-circle-check', 'Henüz onaylanan başvuru yok', 'Onayladığın başvuru buraya taşınır ve antrenör aşağıdaki dizine girer.'],
+          'reddedilen': ['fa-circle-xmark', 'Reddedilen başvuru yok', 'Gerekçesiyle reddettiğin başvurular burada arşivlenir; başvuran düzeltip yeniden başvurabilir.']
+        }[dr];
+        kap.innerHTML = A.bos(bosMetin[0], bosMetin[1], bosMetin[2],
+          '<button class="btn btn-primary" type="button" data-sekme="bekleyen">' +
+          '<i class="fa-solid fa-hourglass-half"></i> Bekleyen kuyruğa dön</button>');
+      } else {
+        kap.innerHTML = liste.map(kartHtml).join('');
+      }
+    });
+
+    var bekleyen = BASVURU.filter(function (b) { return b.durum === 'bekleyen'; }).length;
+    document.getElementById('atBekleyen').innerHTML =
+      '<i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> ' + bekleyen + ' başvuru karar bekliyor';
+
+    /* Satır içi kararlar: form doğrulanır (inceleyen zorunlu), sonra ekran
+       DÜRÜSTÇE söyler. Sessizce "onaylandı" demek en açık yalan olurdu. */
+    document.querySelectorAll('[data-eylem]').forEach(function (b) {
+      A.maketKaydet(b, b.getAttribute('data-eylem'));
+    });
+  }
+
+  /* ==================================================================
+     K3 · DETAY
+     ================================================================== */
+  var detay = document.getElementById('atDetay');
+  document.getElementById('adInceleyen').innerHTML =
+    '<option value="">— seç —</option>' + INCELEYEN.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('');
+
+  function detayAc(id){
+    var b = BASVURU.filter(function (x) { return x.id === id; })[0];
+    if (!b) return;
+    var d = DURUM[b.durum];
+
+    document.querySelectorAll('.bv-kart').forEach(function (k) {
+      k.classList.toggle('is-sec', k.getAttribute('data-bv') === id);
+    });
+
+    document.getElementById('adAv').textContent = bas2(b.ad);
+    document.getElementById('adAd').textContent = b.ad;
+    document.getElementById('adAlt').textContent = b.id + ' · ' + b.unvan + ' · başvuru ' + tarih(b.tarih);
+    document.getElementById('adRozet').innerHTML =
+      A.rozet(d.rz, d.ad, d.ico) +
+      A.rozet('off', b.inceleyen ? ('İnceleyen: ' + b.inceleyen) : 'Atanmadı', 'fa-user-pen');
+
+    var satir = [
+      ['Başvuru no', b.id],
+      ['Ad Soyad', b.ad],
+      ['Kullanıcı adı', b.kul],
+      ['E-posta', b.mail],
+      ['Telefon', b.tel],
+      ['Şehir / İlçe', b.sehir + ' · ' + b.ilce],
+      ['Uzmanlık alanları', b.uzmanlik],
+      ['Çalışma şekli', b.calisma],
+      ['Deneyim', b.deneyim + ' yıl'],
+      ['Sertifikayı veren kurum', b.kurum],
+      ['Çalıştığı stüdyo / kulüp', b.studyo],
+      ['Kısa bio', b.bio],
+      ['Sosyal medya', b.sosyal],
+      ['Seans ücreti', '—']
+    ];
+    document.getElementById('adBasvuru').innerHTML = satir.map(function (s) {
+      return '<dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd>';
+    }).join('');
+
+    document.getElementById('adBelge').innerHTML = b.belge.map(function (bg) {
+      var rz = bg[3] === 'Onaylandı' ? A.rozet('ok', bg[3], 'fa-circle-check')
+             : bg[3] === 'İncelenecek' ? A.rozet('wait', bg[3], 'fa-hourglass-half')
+             : A.rozet('stop', bg[3], 'fa-triangle-exclamation');
+      var ico = /\.pdf$/i.test(bg[0]) ? 'fa-file-pdf' : 'fa-file-image';
+      return '<tr><td><b><i class="fa-solid ' + ico + '" aria-hidden="true"></i> ' + esc(bg[0]) + '</b></td>' +
+        '<td>' + esc(bg[1]) + '</td><td>' + tarih(bg[2]) + '</td><td>' + rz + '</td></tr>';
+    }).join('');
+
+    document.getElementById('adKararlar').innerHTML = b.gecmis.map(function (g) {
+      return '<tr><td>' + tarih(g[0]) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
+    }).join('');
+
+    document.getElementById('adInceleyen').value = b.inceleyen || '';
+    document.getElementById('adKarar').value = (b.durum === 'ek-belge') ? 'ek-belge' : 'onayla';
+    document.getElementById('adGerekce').value = '';
+
+    detay.hidden = false;
+    detay.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  document.getElementById('adKapat').addEventListener('click', function () {
+    detay.hidden = true;
+    document.querySelectorAll('.bv-kart.is-sec').forEach(function (k) { k.classList.remove('is-sec'); });
+  });
+  A.maketKaydet(document.getElementById('adKaydet'), 'başvuru kararı');
+
+  /* ==================================================================
+     K1 · ONAYLI ANTRENÖR DİZİNİ
+     ================================================================== */
+  var sec = { sehir:new Set(), durum:new Set() };
+
+  function suzgecKur(){
+    var kok = document.getElementById('atSuzgec');
+    var sehirler = [];
+    ANTRENOR.forEach(function (a) { if (sehirler.indexOf(a.sehir) < 0) sehirler.push(a.sehir); });
+    sehirler.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="sehir" role="group" aria-label="Şehir filtresi">' +
+        '<span class="lbl">Şehir</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        sehirler.map(function (s) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(s) + '">' +
+                 '<i class="fa-solid fa-location-dot"></i> ' + esc(s) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="durum" role="group" aria-label="Durum filtresi">' +
+        '<span class="lbl">Durum</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        Object.keys(ANT_DURUM).map(function (k) {
+          return '<button class="df-fchip" type="button" data-val="' + esc(k) + '">' +
+                 '<i class="fa-solid ' + ANT_DURUM[k].ico + '"></i> ' + esc(ANT_DURUM[k].ad) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var ad = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (bt) {
+        bt.addEventListener('click', function () {
+          var v = bt.getAttribute('data-val');
+          if (v === 'all') {
+            sec[ad].clear();
+            g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === bt); });
+          } else {
+            var ac = !sec[ad].has(v);
+            if (ac) sec[ad].add(v); else sec[ad].delete(v);
+            bt.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[ad].size === 0);
+          }
+          suz();
+        });
+      });
+    });
+  }
+
+  var bosSatir = null;
+  function suz(){
+    var govde = document.getElementById('atGovde');
+    var say = 0;
+    govde.querySelectorAll('tr[data-slug]').forEach(function (tr) {
+      var ok = (!sec.sehir.size || sec.sehir.has(tr.getAttribute('data-sehir'))) &&
+               (!sec.durum.size || sec.durum.has(tr.getAttribute('data-durum')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="7">' +
+          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle antrenör kalmadı',
+                'Seçili şehir ve durum birleşimine uyan yayında antrenör yok. Bir çipi kapat ya da başka bir şehir dene.',
+                '<button class="btn btn-primary" type="button" data-suzgec-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') + '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+    document.getElementById('atSay').textContent = say;
+  }
+
+  function dizinBas(){
+    document.getElementById('atGovde').innerHTML = ANTRENOR.map(function (a) {
+      var d = ANT_DURUM[a.durum];
+      return '<tr data-slug="' + esc(a.slug) + '" data-sehir="' + esc(a.sehir) + '" data-durum="' + esc(a.durum) + '">' +
+        '<td><b>' + esc(a.ad) + '</b><small>' + esc(a.slug) + '</small></td>' +
+        '<td>' + esc(a.unvan) + '</td>' +
+        '<td>' + esc(a.sehir) + '</td>' +
+        '<td class="num">' + tl(a.ucret) + '</td>' +
+        '<td class="num">' + (a.danisan ? n(a.danisan) : '—') + '</td>' +
+        '<td>' + A.rozet(d.rz, d.ad, d.ico) + '</td>' +
+        '<td class="act">' +
+          '<a class="adm-ico-btn" href="antrenor-detay-v1.html?slug=' + esc(a.slug) + '" target="_blank" rel="noopener" aria-label="' + esc(a.ad) + ' profilini sitede gör"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>' +
+          '<a class="adm-ico-btn" href="admin-hizmetler-v1.html" aria-label="' + esc(a.ad) + ' hizmet paketlerini aç"><i class="fa-solid fa-basket-shopping"></i></a>' +
+        '</td></tr>';
+    }).join('');
+    document.getElementById('atSay').textContent = ANTRENOR.length;
+    A.aramaKur(document.getElementById('atAra'), document.getElementById('atTablo'), document.getElementById('atSay'));
+  }
+
+  /* ---------- olaylar ---------- */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest) return;
+    var ac = e.target.closest('[data-bv-ac]');
+    if (ac) { detayAc(ac.getAttribute('data-bv-ac')); return; }
+    /* Boş durumun eylemi: sekmeyi değiştirir. Kabuğun sekme bileşeni
+       düğmeye basılınca paneli açar; burada yalnız tıklama devredilir. */
+    var sf = e.target.closest('[data-suzgec-sifirla]');
+    if (sf) {
+      sec.sehir.clear(); sec.durum.clear();
+      document.querySelectorAll('#atSuzgec .fgroup').forEach(function (g) {
+        g.querySelectorAll('.df-fchip').forEach(function (x) {
+          x.classList.toggle('on', x.getAttribute('data-val') === 'all');
+        });
+      });
+      suz();
+      return;
+    }
+    var sk = e.target.closest('[data-sekme]');
+    if (sk) {
+      var hedef = document.querySelector('.fit-tab[data-tab="' + sk.getAttribute('data-sekme') + '"]');
+      if (hedef) { hedef.click(); hedef.focus(); }
+    }
+  });
+
+  kuyrukBas();
+  suzgecKur();
+  dizinBas();
+})();
+</script>
+</body>
+</html>

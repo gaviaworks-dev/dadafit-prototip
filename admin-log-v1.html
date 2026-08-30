@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Log Yönetimi — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+.lg-kod{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.lg-zaman{white-space:nowrap;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="adm-body" data-adm="log">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h2>Log Yönetimi</h2>
+        <p>Yönetici işlem kaydı: kim, ne zaman, hangi kayda ne yaptı. Kayıt
+           silinemez ve düzeltilemez — bir logu değiştirebilmek, logu değersiz
+           kılar. Yanlış bir işlem geri alınırsa geri alma da yeni bir satır olur.</p>
+      </div>
+      <div class="h-acts">
+        <button class="btn btn-ghost" type="button" id="lgDisaAktar"><i class="fa-solid fa-file-arrow-down"></i> Dışa aktar</button>
+      </div>
+    </div>
+
+    <div id="lgKaynak"></div>
+
+    <div class="adm-kpi" id="lgKpi"></div>
+
+    <div class="adm-card" id="lgListe">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-list-check"></i> İşlem kaydı</h3>
+        <div class="c-acts">
+          <label class="sr-only" for="lgAra">Kayıt ara</label>
+          <input class="fk-input" type="search" id="lgAra" placeholder="Yönetici, kayıt ya da ekran ara" style="min-width:260px" />
+        </div>
+      </div>
+
+      <div class="c-body" style="padding:14px 20px;border-bottom:1px solid var(--line)">
+        <div class="ff" id="lgSuzgec" data-ff></div>
+      </div>
+
+      <div class="adm-bulk" id="lgBulk" hidden>
+        <b>0 satır seçildi</b>
+        <div class="b-acts">
+          <button class="btn btn-ghost" type="button" data-toplu="disa"><i class="fa-solid fa-file-arrow-down"></i> Seçilenleri dışa aktar</button>
+        </div>
+      </div>
+
+      <div class="c-body flush">
+        <div class="adm-tw">
+          <table class="adm-table" id="lgTablo">
+            <thead>
+              <tr>
+                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
+                <th>Zaman</th><th>Yönetici</th><th>İşlem</th>
+                <th>Kayıt</th><th>Ekran</th><th>Kaynak IP</th>
+              </tr>
+            </thead>
+            <tbody id="lgGovde"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-pager">
+        <div class="p-info"><b id="lgSay">0</b> kayıt · son 30 gün tek sayfada</div>
+        <div class="p-btns">
+          <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="adm-pg is-on" type="button" aria-current="page">1</button>
+          <button class="adm-pg" type="button" disabled aria-label="Sonraki sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SAKLAMA SÜRESİ ============ -->
+    <div class="adm-card">
+      <div class="c-head">
+        <h3><i class="fa-solid fa-box-archive"></i> Saklama süresi</h3>
+      </div>
+      <div class="c-body">
+        <form id="lgSaklaF">
+          <div class="fk-grid c2">
+            <div class="fk-field">
+              <label class="fk-label" for="lgSure">Kaydın panelde kalma süresi <span class="req">*</span></label>
+              <select class="fk-select" id="lgSure" name="sure" required>
+                <option value="90">90 gün</option>
+                <option value="180">180 gün</option>
+                <option value="365" selected>1 yıl</option>
+                <option value="1095">3 yıl</option>
+              </select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Süre dolunca kayıt panelden düşer, arşive taşınır. <b>Silinmez</b> —
+                bir işlem kaydını silmek, işlemin olmadığını iddia etmektir.</span>
+            </div>
+            <div class="fk-field">
+              <label class="fk-label" for="lgIp">Kaynak IP kaydı <span class="req">*</span></label>
+              <select class="fk-select" id="lgIp" name="ip" required>
+                <option value="tam">Tam adresi sakla</option>
+                <option value="maskeli" selected>Son bloğu maskele</option>
+                <option value="yok">Hiç saklama</option>
+              </select>
+              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                Maskeleme yalnız yeni kayıtları etkiler; geçmiş kayıtlar olduğu gibi kalır.</span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="lgKaydet"><i class="fa-solid fa-check"></i> Saklama ayarlarını kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · LOG YÖNETİMİ   (R16/4)   — K1 liste
+   ---------------------------------------------------------------------
+   🔴 VERİ ÖRNEK. Bu depoda yönetici işlem kaydı tutan bir modül yok
+   (ölçüldü: statik prototip, sunucu yok, yazma yüzeylerinin hepsi maket).
+   Aşağıdaki satırlar örnektir.
+
+   ÖRNEK SATIRLAR YİNE DE TUTARLI: her satırın "ekran" alanı bu panelde
+   gerçekten var olan bir admin ekranına, "kayıt" alanı da o ekranın
+   gerçekten yönettiği bir kayda karşılık geliyor (rozet slug'ları
+   `fit-rozet.js`ten, challenge slug'ları `fit-challenge.js`ten, paket
+   anahtarları `fit-paket.js`ten). Uydurma bir ekran adı ya da olmayan bir
+   kayıt yok; log motoru doğduğunda satırların şekli aynı kalır.
+
+   LOG DEĞİŞTİRİLEMEZ. Bu ekranda satır düzenleme ya da silme eylemi
+   BİLEREK yok: değiştirilebilen bir kayıt, kayıt değildir. Yönetici bir
+   işlemi geri alırsa geri alma da ayrı bir satır olarak düşer.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  document.getElementById('lgKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Kayıtlar örnek.</b> Bu depoda yönetici işlem kaydı tutan bir modül yok — ' +
+    'statik prototip, sunucu yok, bütün yazma yüzeyleri maket. Satırların ' +
+    '<b>hedefleri gerçek:</b> ekran adları bu panelde var olan ekranlar, kayıt ' +
+    'anahtarları da <code>fit-rozet.js</code> · <code>fit-challenge.js</code> · ' +
+    '<code>fit-paket.js</code> içindeki gerçek slug\'lar.');
+
+  var ISLEM = {
+    olustur:  { ad:'Oluşturdu',  ico:'fa-solid fa-plus',          durum:'ok' },
+    guncelle: { ad:'Güncelledi', ico:'fa-solid fa-pen',           durum:'off' },
+    sil:      { ad:'Sildi',      ico:'fa-solid fa-trash',         durum:'stop' },
+    onayla:   { ad:'Onayladı',   ico:'fa-solid fa-circle-check',  durum:'ok' },
+    reddet:   { ad:'Reddetti',   ico:'fa-solid fa-circle-xmark',  durum:'stop' },
+    giris:    { ad:'Giriş yaptı',ico:'fa-solid fa-right-to-bracket', durum:'off' }
+  };
+
+  var YONETICILER = [
+    { key:'yy', ad:'Yasin Yavuz',  rol:'Yönetici' },
+    { key:'ed', ad:'Elif Demir',   rol:'İçerik editörü' },
+    { key:'mk', ad:'Mert Kaya',    rol:'Moderatör' },
+    { key:'sa', ad:'Selin Arda',   rol:'Finans' }
+  ];
+
+  var KAYITLAR = [
+    { t:'2026-08-30T09:12:00', y:'yy', i:'guncelle', kayit:'kademe · kendi-yolun',            ekran:'Rozetler ve Kademeler', href:'admin-rozetler-v1.html',  ip:'88.243.11.xxx', not:'Puan eşiği 3.600 → 3.800' },
+    { t:'2026-08-30T08:47:00', y:'sa', i:'guncelle', kayit:'para · komisyon oranı',           ekran:'Ayarlar',               href:'admin-ayarlar-v1.html',   ip:'78.180.4.xxx',  not:'Ay sonu ödeme takvimi doğrulandı' },
+    { t:'2026-08-29T18:20:00', y:'ed', i:'olustur',  kayit:"challenge · hareket-aliskanligi", ekran:"Challenge'lar",         href:'admin-challenge-v1.html', ip:'88.243.11.xxx', not:'Alışkanlık tipi, 30 gün' },
+    { t:'2026-08-29T17:55:00', y:'ed', i:'guncelle', kayit:'rozet · aktif-180',               ekran:'Rozetler ve Kademeler', href:'admin-rozetler-v1.html',  ip:'88.243.11.xxx', not:'Puan 200 → 250' },
+    { t:'2026-08-29T16:31:00', y:'yy', i:'guncelle', kayit:'paket · promax',                  ekran:'Paketler ve Özellikler',href:'admin-paketler-v1.html',  ip:'88.243.11.xxx', not:'Tutar alanı boş bırakıldı — onay bekliyor' },
+    { t:'2026-08-29T15:04:00', y:'mk', i:'onayla',   kayit:'antrenör · elif-demir',           ekran:'Antrenörler',           href:'admin-antrenorler-v1.html',ip:'85.34.90.xxx', not:'Belge doğrulaması tamam' },
+    { t:'2026-08-29T14:48:00', y:'mk', i:'reddet',   kayit:'yorum · #4182',                   ekran:'Moderasyon',            href:'admin-moderasyon-v1.html',ip:'85.34.90.xxx',  not:'Ürün tanıtımı — kural dışı' },
+    { t:'2026-08-29T11:22:00', y:'ed', i:'guncelle', kayit:'modül · Video serileri',          ekran:'Paketler ve Özellikler',href:'admin-paketler-v1.html',  ip:'88.243.11.xxx', not:'Ücretsiz kademede kapalıya alındı' },
+    { t:'2026-08-29T10:05:00', y:'yy', i:'giris',    kayit:'oturum · yasin@dadafit',          ekran:'Genel Bakış',           href:'admin-v1.html',           ip:'88.243.11.xxx', not:'' },
+    { t:'2026-08-28T19:40:00', y:'sa', i:'guncelle', kayit:'para · fatura eşiği',             ekran:'Ayarlar',               href:'admin-ayarlar-v1.html',   ip:'78.180.4.xxx',  not:'Eşik alanı gözden geçirildi' },
+    { t:'2026-08-28T17:12:00', y:'ed', i:'olustur',  kayit:'rozet · su-seri-7',               ekran:'Rozetler ve Kademeler', href:'admin-rozetler-v1.html',  ip:'88.243.11.xxx', not:'Su ailesine eklendi, ilk ay kademesi' },
+    { t:'2026-08-28T15:58:00', y:'mk', i:'onayla',   kayit:'destek · DT-2418',                ekran:'Destek Talepleri',      href:'admin-destek-v1.html',    ip:'85.34.90.xxx',  not:'Çözülen durumuna alındı' },
+    { t:'2026-08-28T13:26:00', y:'yy', i:'guncelle', kayit:'menü · alt çubuk · Programlarım', ekran:'Menü ve Navigasyon',    href:'admin-menu-v1.html',      ip:'88.243.11.xxx', not:'Görünürlük: yalnız üyeye' },
+    { t:'2026-08-28T11:03:00', y:'ed', i:'sil',      kayit:'kreatif · homegym-yeni.webp',     ekran:'Sponsorluk ve Reklam',  href:'admin-reklam-v1.html',    ip:'88.243.11.xxx', not:'Alt metin eksik, yayına alınmadı' },
+    { t:'2026-08-27T18:44:00', y:'yy', i:'guncelle', kayit:'şablon · rozet.kazanildi',        ekran:'Bildirim Şablonları',   href:'admin-bildirim-v1.html',  ip:'88.243.11.xxx', not:'Uygulama içi metin kısaltıldı' },
+    { t:'2026-08-27T16:09:00', y:'sa', i:'giris',    kayit:'oturum · selin@dadafit',          ekran:'Genel Bakış',           href:'admin-v1.html',           ip:'78.180.4.xxx',  not:'' },
+    { t:'2026-08-27T14:31:00', y:'ed', i:'guncelle', kayit:'hareket · hava-squat',            ekran:'Hareket Kütüphanesi',   href:'admin-hareketler-v1.html',ip:'88.243.11.xxx', not:'Alternatif hareket eklendi' },
+    { t:'2026-08-27T09:50:00', y:'mk', i:'reddet',   kayit:'antrenör · başvuru #77',          ekran:'Antrenörler',           href:'admin-antrenorler-v1.html',ip:'85.34.90.xxx', not:'Sertifika okunamadı, yeniden istendi' },
+    { t:'2026-08-26T17:22:00', y:'yy', i:'olustur',  kayit:'alan · hub-sponsor',              ekran:'Sponsorluk ve Reklam',  href:'admin-reklam-v1.html',    ip:'88.243.11.xxx', not:'Footer üstü, 1240×90' },
+    { t:'2026-08-26T10:14:00', y:'ed', i:'guncelle', kayit:'sayfa · saglik-bilgilendirme',    ekran:'Sayfalar ve SEO',       href:'admin-sayfalar-v1.html',  ip:'88.243.11.xxx', not:'Açıklama metni güncellendi' }
+  ];
+
+  function yon(key){
+    for (var i = 0; i < YONETICILER.length; i++) if (YONETICILER[i].key === key) return YONETICILER[i];
+    return { ad:key, rol:'—' };
+  }
+  function saat(iso){
+    var t = new Date(iso); if (isNaN(t)) return '—';
+    return t.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  /* ---------- sayaçlar ---------- */
+  var bugun = KAYITLAR.filter(function (k) { return k.t.slice(0, 10) === '2026-08-30'; }).length;
+  var silme = KAYITLAR.filter(function (k) { return k.i === 'sil'; }).length;
+  var kisi = {}; KAYITLAR.forEach(function (k) { kisi[k.y] = 1; });
+
+  document.getElementById('lgKpi').innerHTML =
+    '<div class="k"><span class="ico"><i class="fa-solid fa-list-check"></i></span><div>' +
+      '<b>' + n(KAYITLAR.length) + '</b><span>Kayıt · son 30 gün</span>' +
+      '<span class="note">Kayıt silinemez; saklama süresi dolunca panelden düşer, arşive taşınır.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-calendar-day"></i></span><div>' +
+      '<b>' + n(bugun) + '</b><span>Bugünkü işlem</span>' +
+      '<span class="note">Gün ortasındaki hareket; akşam kapanışına kadar artabilir.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-user-shield"></i></span><div>' +
+      '<b>' + n(Object.keys(kisi).length) + '</b><span>İşlem yapan yönetici</span>' +
+      '<span class="note">Toplam ' + n(YONETICILER.length) + ' yetkili hesap tanımlı.</span></div></div>' +
+    '<div class="k"><span class="ico"><i class="fa-solid fa-trash"></i></span><div>' +
+      '<b>' + n(silme) + '</b><span>Silme işlemi</span>' +
+      '<span class="note">Silme geri alınamaz; bu yüzden ayrı sayılır ve süzgeçte kendi çipi vardır.</span></div></div>';
+
+  /* ---------- liste ---------- */
+  function listeBas(){
+    document.getElementById('lgGovde').innerHTML = KAYITLAR.map(function (k) {
+      var y = yon(k.y), t = ISLEM[k.i];
+      return '<tr data-islem="' + esc(k.i) + '" data-yonetici="' + esc(k.y) + '">' +
+        '<td class="sel"><input type="checkbox" aria-label="' + A.tarih(k.t) + ' kaydını seç" /></td>' +
+        '<td class="lg-zaman"><b>' + A.tarih(k.t) + '</b><small>' + saat(k.t) + '</small></td>' +
+        '<td><b>' + esc(y.ad) + '</b><small>' + esc(y.rol) + '</small></td>' +
+        '<td>' + A.rozet(t.durum, t.ad, t.ico.replace('fa-solid ', '')) + '</td>' +
+        '<td><span class="lg-kod">' + esc(k.kayit) + '</span>' +
+          (k.not ? '<small>' + esc(k.not) + '</small>' : '') + '</td>' +
+        '<td><a href="' + esc(k.href) + '">' + esc(k.ekran) + '</a></td>' +
+        '<td class="lg-kod">' + esc(k.ip) + '</td>' +
+      '</tr>';
+    }).join('');
+    document.getElementById('lgSay').textContent = KAYITLAR.length;
+    A.secimKur(document.getElementById('lgListe'));
+    A.aramaKur(document.getElementById('lgAra'), document.getElementById('lgTablo'), document.getElementById('lgSay'));
+  }
+
+  /* ---------- süzgeç ---------- */
+  function suzgecKur(){
+    var kok = document.getElementById('lgSuzgec');
+    var kullanilan = {}; KAYITLAR.forEach(function (k) { kullanilan[k.i] = 1; });
+    kok.innerHTML =
+      '<div class="fgroup" data-group="islem" role="group" aria-label="İşlem filtresi">' +
+        '<span class="lbl">İşlem</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        Object.keys(ISLEM).filter(function (i) { return kullanilan[i]; }).map(function (i) {
+          return '<button class="df-fchip" type="button" data-val="' + i + '">' +
+                 '<i class="' + ISLEM[i].ico + '"></i> ' + esc(ISLEM[i].ad) + '</button>';
+        }).join('') + '</div>' +
+      '<div class="fgroup" data-group="yonetici" role="group" aria-label="Yönetici filtresi">' +
+        '<span class="lbl">Yönetici</span><button class="df-fchip on" type="button" data-val="all">Tümü</button>' +
+        YONETICILER.map(function (y) {
+          return '<button class="df-fchip" type="button" data-val="' + y.key + '">' +
+                 '<i class="fa-solid fa-user"></i> ' + esc(y.ad) + '</button>';
+        }).join('') + '</div>';
+    if (window.FIT_SHELL && FIT_SHELL.filtreKur) FIT_SHELL.filtreKur(kok);
+
+    var sec = { islem:new Set(), yonetici:new Set() };
+    kok.querySelectorAll('.fgroup[data-group]').forEach(function (g) {
+      var grup = g.getAttribute('data-group');
+      g.querySelectorAll('.df-fchip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.getAttribute('data-val');
+          if (v === 'all') { sec[grup].clear(); g.querySelectorAll('.df-fchip').forEach(function (x) { x.classList.toggle('on', x === b); }); }
+          else {
+            var ac = !sec[grup].has(v);
+            if (ac) sec[grup].add(v); else sec[grup].delete(v);
+            b.classList.toggle('on', ac);
+            var all = g.querySelector('.df-fchip[data-val="all"]');
+            if (all) all.classList.toggle('on', sec[grup].size === 0);
+          }
+          suz(sec);
+        });
+      });
+    });
+  }
+
+  var bosSatir = null;
+  function suz(sec){
+    var govde = document.getElementById('lgGovde');
+    var say = 0;
+    govde.querySelectorAll('tr[data-islem]').forEach(function (tr) {
+      var ok = (!sec.islem.size    || sec.islem.has(tr.getAttribute('data-islem'))) &&
+               (!sec.yonetici.size || sec.yonetici.has(tr.getAttribute('data-yonetici')));
+      tr.hidden = !ok; if (ok) say++;
+    });
+    document.getElementById('lgSay').textContent = say;
+    if (say === 0) {
+      if (!bosSatir) {
+        bosSatir = document.createElement('tr');
+        bosSatir.innerHTML = '<td colspan="7">' +
+          A.bos('fa-filter-circle-xmark', 'Bu süzgeçle kayıt kalmadı',
+                'Seçili işlem ve yöneticinin kesişiminde son 30 günde bir hareket yok. Bir çipi kaldır ya da “Tümü”ne dön.') +
+          '</td>';
+        govde.appendChild(bosSatir);
+      }
+      bosSatir.hidden = false;
+    } else if (bosSatir) bosSatir.hidden = true;
+  }
+
+  /* ---------- dışa aktarma: maket, dürüstçe söyler ---------- */
+  function disaNot(dugme, kap){
+    if (!dugme) return;
+    dugme.addEventListener('click', function () {
+      var s = document.querySelectorAll('#lgGovde input[type=checkbox]:checked').length;
+      var not = kap.querySelector('.adm-maket-not');
+      if (!not) {
+        not = document.createElement('span'); not.className = 'adm-maket-not';
+        not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+        kap.appendChild(not);
+      }
+      not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' +
+        (s ? s + ' satır seçili — dosya ÜRETİLMEDİ, sunucu yok.'
+           : 'Dışa aktarma dosyası ÜRETİLMEDİ, sunucu yok.');
+    });
+  }
+  disaNot(document.getElementById('lgDisaAktar'), document.querySelector('.adm-head .h-acts'));
+  disaNot(document.querySelector('[data-toplu="disa"]'), document.getElementById('lgBulk').querySelector('.b-acts'));
+
+  A.maketKaydet(document.getElementById('lgKaydet'), 'saklama ayarları');
+
+  listeBas();
+  suzgecKur();
+})();
+</script>
+</body>
+</html>

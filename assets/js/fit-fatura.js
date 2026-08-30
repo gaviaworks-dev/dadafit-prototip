@@ -112,6 +112,69 @@ window.FIT_FATURA = (function () {
       kart:'Visa •••• 4242', marka:'fa-cc-visa', odemeAni:'14 Şubat 2026, 10:19' }
   ];
 
+  /* =====================================================================
+   GERÇEK KAYITLAR — K8 (Ajan 2, 2026-08-30)
+   ---------------------------------------------------------------------
+   `DEFTER` yukarıdaki 10 satır SABİT ÖRNEK VERİDİR — dokunulmadı. Bu
+   tarayıcıda gerçekten yapılan abonelik/randevu ödemeleri `ekle()` ile
+   `dm_fit_fatura_kayit_v1`e yazılır ve sayfa yüklenirken DEFTER'in
+   BAŞINA eklenir (en yeni en üstte, örnek satırların önünde). İki liste
+   tek dizide birleşiyor ki `odemelerim-v1.html`in fatura tablosu ve
+   `#fdModal` belge penceresi tek kaynaktan okumaya devam etsin.
+   Gerçek satır `kaynak:'gercek'` taşır; örnek satırlarda bu alan yok —
+   ekranlar ikisini birbirinden bu alanla ayırt eder ve SÖYLER (dürüstlük
+   kuralı, `docs/fit-kit.md` §13 `.adm-src`in public karşılığı). */
+  var GERCEK_ANAHTAR = 'dm_fit_fatura_kayit_v1';
+
+  function gercekOku() {
+    try {
+      var d = JSON.parse(localStorage.getItem(GERCEK_ANAHTAR) || 'null');
+      return Array.isArray(d) ? d : [];
+    } catch (e) { return []; }
+  }
+  function gercekYaz(liste) {
+    try { localStorage.setItem(GERCEK_ANAHTAR, JSON.stringify(liste)); } catch (e) {}
+  }
+  /* saklanan liste de "en yeni ilk" sırada; DEFTER'e ters sıradan
+     unshift edilir ki en yeni gerçek satır en üste, en eski gerçek
+     satır örnek verinin hemen üstüne otursun — aralarındaki sıra bozulmaz. */
+  (function () {
+    var gc = gercekOku();
+    for (var i = gc.length - 1; i >= 0; i--) DEFTER.unshift(gc[i]);
+  })();
+
+  function ay3(d) {
+    return ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][d.getMonth()];
+  }
+  function ayUzun(d) {
+    return ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'][d.getMonth()];
+  }
+  function no2(n) { return (n < 10 ? '0' : '') + n; }
+
+  /* `kayit`: {tur, donem, konu, kalem} — kalem burada da [açıklama, alt
+     açıklama, adet, birim fiyat KURUŞ KDV DÂHİL] biçimindedir, çağıran
+     kuruşu kendi hesaplar (fiyat parametreleri koda gömülmez — K13). */
+  function ekle(kayit) {
+    var s = new Date();
+    var tarih = s.getDate() + ' ' + ayUzun(s) + ' ' + s.getFullYear();
+    var tarihKisa = s.getDate() + ' ' + ay3(s) + ' ' + s.getFullYear();
+    var saat = no2(s.getHours()) + ':' + no2(s.getMinutes());
+    var kayitTam = {
+      no: 'DFT-' + s.getFullYear() + '-' + Math.floor(100000 + Math.random() * 899999),
+      ettn: 'g' + Math.random().toString(16).slice(2, 10) + '-gerc-ek00-0000-' + Math.random().toString(16).slice(2, 14),
+      tarih: tarih, tarihKisa: tarihKisa, tur: kayit.tur,
+      durum: 'ok', durumAd: 'Ödendi', donem: kayit.donem || 'Tek seferlik',
+      konu: kayit.konu, kalem: kayit.kalem,
+      kart: 'Visa •••• 4242', marka: 'fa-cc-visa',
+      odemeAni: tarih + ', ' + saat, kaynak: 'gercek'
+    };
+    DEFTER.unshift(kayitTam);
+    var liste = gercekOku();
+    liste.unshift(kayitTam);
+    gercekYaz(liste);
+    return kayitTam;
+  }
+
   /* ---- para: kuruş tamsayısı → "₺1.400,00" ---- */
   function tl(kurus) {
     var eksi = kurus < 0;
@@ -154,6 +217,6 @@ window.FIT_FATURA = (function () {
 
   return {
     defter: DEFTER, satici: SATICI, kdvOran: KDV_ORAN,
-    tl: tl, bul: bul, toplamlar: toplamlar, alici: alici
+    tl: tl, bul: bul, toplamlar: toplamlar, alici: alici, ekle: ekle
   };
 })();

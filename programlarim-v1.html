@@ -3858,9 +3858,9 @@ var FPX = (function () {
   }
 
   /* ===== R10 · kabuk defterinden gelen antrenman kayıtları ============
-     gecmis[] tarihleri serbest metin ('bugün', 'dün', ISO…) — sıralama
-     için dizideki sıra (yeniden eskiye) kullanılır, tarih parse edilmez;
-     parse edilemeyen bir metni tarihe çevirmek uydurma olurdu. */
+     R20/K14 · `g.tarih` sabit 'bugün' dizgesi ARTIK YOK (fit-shell.js
+     bu alanı söktü). Gerçek tarih `tarihISO`da; ekrana basılan metin
+     TEK biçimleyiciden geçer: FIT_SHELL.tarihEtiket(). */
   function defter(){
     var S = window.FIT_SHELL && window.FIT_SHELL.state;
     if(!S) return [];
@@ -3871,7 +3871,7 @@ var FPX = (function () {
          `|| 0` ile sıfıra çevriliyordu ve ekran "0 dk · 0 kcal" diyordu —
          bilinmeyeni sıfır göstermek uydurmadır, kanıt kademesinin tam
          tersi. null KORUNUYOR; basan taraf "—" yazar, toplamlar atlar. */
-      return { sira:i, tarih:g.tarih || '—', ad:g.ad || 'Antrenman',
+      return { sira:i, tarih:window.FIT_SHELL.tarihEtiket(g.tarihISO), ad:g.ad || 'Antrenman',
                dk:(typeof g.dk === 'number' ? g.dk : null),
                kcal:(typeof g.kcal === 'number' ? g.kcal : null),
                kaynak:kanitKod(g.kaynak) };
@@ -3977,16 +3977,18 @@ var FPX = (function () {
     if (!S) return null;
     try { return S.read(); } catch (e) { return null; }
   }
-  /* HAFTALIK SÜRE — kabuğun BOŞ durumu `hafta:[62,74,90,96,118,142]` ile
-     geliyor; hiç antrenman yapmamış bir kullanıcıda bile bu dizi dolu.
-     O sayıları "senin haftan" diye basmak, tam da kaçındığımız uydurma
-     olurdu. Tek dürüst kapı: haftalık dakika ancak TAMAMLANMIŞ bir
-     antrenman kaydı varsa senindir — `antrenmanTamamla` gecmis[]'e ve
-     hafta[]'ya birlikte yazar, ikisi ayrışmaz. */
-  function haftaVerisi(st) {
-    if (!st || !Array.isArray(st.hafta)) return [];
-    if (!(st.gecmis || []).length) return [];
-    return st.hafta;
+  /* R20/K15 · HAFTALIK SÜRE artık TÜRETİLİYOR, SAKLANMIYOR. Eski
+     `hafta:[62,74,90,96,118,142]` tohum dizisi kabuktan söküldü — hiç
+     antrenman yapmamış kullanıcıda bile beş haftalık uydurma geçmiş
+     gösteriyordu. Tek dürüst kapı: FIT_SHELL.state.haftalik(), gecmis[].
+     tarihISO'dan haftalara topluyor; `veriVar` yanlışsa boş durum basılır. */
+  function haftaVerisi() {
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if (!S) return [];
+    var h;
+    try { h = S.haftalik(6); } catch (e) { return []; }
+    if (!h || !h.veriVar) return [];
+    return h.haftalar.map(function (k) { return k.dk; });
   }
   function tamTarih(iso) {
     var d = new Date(iso);

@@ -106,6 +106,11 @@
 .ap-row .txt .alt span{display:inline-flex;align-items:center;gap:6px}
 .ap-row .txt .alt i{font-size:11px}
 .ap-row .end{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+/* K9 · durum geçiş düğmeleri — dokunma hedefi 44px (kit §5/§6 ile aynı karar) */
+.ap-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.ap-act-btn{min-height:44px;padding:0 13px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--paper);color:var(--slate);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.18s var(--ease)}
+.ap-act-btn:hover{border-color:var(--fit);color:var(--fit-deep)}
+.ap-act-btn i{font-size:11px}
 
 /* =====================================================================
  HAKEDİŞ TABLOSU — fatura-detay-v1.html'in `.fd-tablo`su, BİREBİR kopya.
@@ -184,7 +189,7 @@
     <div class="lib-stats">
       <div class="lib-stat"><b>3</b><span>hizmet paketi</span></div>
       <div class="lib-stat"><b>6</b><span>aktif danışan</span></div>
-      <div class="lib-stat"><b>4</b><span>yaklaşan randevu</span></div>
+      <div class="lib-stat"><b id="apLibYaklasan">0</b><span>yaklaşan randevu</span></div>
     </div>
   </div>
 </section>
@@ -432,43 +437,23 @@
         <h2 class="pc-title"><i class="fa-solid fa-calendar-check"></i> Yaklaşan randevular</h2>
         <p>Durum her satırda <b>yazıyla</b> duruyor: onaylandı, onay bekliyor, ertelendi. Renk tek başına durum taşımaz.</p>
       </div>
-      <span class="pc-end">4 randevu</span>
+      <span class="pc-end" id="apYaklasanSay">0 randevu</span>
     </div>
     <div class="pc-body flush">
-      <div class="fp-list" style="padding:0 22px">
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-video" aria-hidden="true"></i></span>
-          <span class="txt"><b>Elif Ş. · Online seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-27T18:00">27 Ağustos, Perşembe · 18:00</time></span><span><i class="fa-regular fa-clock" aria-hidden="true"></i> 50 dk</span><span><i class="fa-solid fa-box-open" aria-hidden="true"></i> Sürdürülebilir Rutin</span></span></span>
-          <span class="end"><span class="fp-badge ok"><i class="fa-solid fa-check"></i> Onaylandı</span></span>
-        </div>
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
-          <span class="txt"><b>Deniz Y. · Yüz yüze seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-28T10:30">28 Ağustos, Cuma · 10:30</time></span><span><i class="fa-regular fa-clock" aria-hidden="true"></i> 50 dk</span><span><i class="fa-solid fa-box-open" aria-hidden="true"></i> Sürdürülebilir Rutin</span></span></span>
-          <span class="end"><span class="fp-badge wait"><i class="fa-solid fa-hourglass-half"></i> Onayını bekliyor</span></span>
-        </div>
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-video" aria-hidden="true"></i></span>
-          <span class="txt"><b>Mert K. · Online seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-31T19:00">31 Ağustos, Pazartesi · 19:00</time></span><span><i class="fa-regular fa-clock" aria-hidden="true"></i> 50 dk</span><span><i class="fa-solid fa-rotate" aria-hidden="true"></i> 26 Ağustos'tan ertelendi</span></span></span>
-          <span class="end"><span class="fp-badge ok"><i class="fa-solid fa-check"></i> Onaylandı</span></span>
-        </div>
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-video" aria-hidden="true"></i></span>
-          <span class="txt"><b>Zeynep A. · Online seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-09-02T08:00">2 Eylül, Çarşamba · 08:00</time></span><span><i class="fa-regular fa-clock" aria-hidden="true"></i> 50 dk</span><span><i class="fa-solid fa-box-open" aria-hidden="true"></i> Sürdürülebilir Rutin</span></span></span>
-          <span class="end"><span class="fp-badge wait"><i class="fa-solid fa-hourglass-half"></i> Onayını bekliyor</span></span>
-        </div>
+      <div class="fp-list" id="apYaklasanList" style="padding:0 22px"></div>
+      <div class="fpx-bos" id="apYaklasanBos" hidden style="margin:0 22px 22px">
+        <span class="pe-ico"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+        <h4>Yaklaşan randevu yok</h4>
+        <p>Danışanların antrenör profilinden randevu aldığında burada, onay bekleyen olarak görünür.</p>
       </div>
     </div>
     <div class="pc-foot">
-      <!-- 🔴 Onay/erteleme DÜĞMESİ çizilmedi: randevu durumu iki tarafın
-           birden gördüğü bir kayıttır ve üye tarafındaki karşılığı
-           (`egzersizlerim-v1.html#antrenorum`) da bugün SADECE ARAYÜZ. Tek
-           tarafa çalışan bir düğme, danışanın ekranında karşılığı olmayan
-           bir hâl üretirdi. Gerekçe + çıkış yolu yazıldı; "Yakında" yok. -->
-      <p class="ap-note">Onaylama ve erteleme bu turda çizilmedi: randevu durumu senin ve danışanın <b>aynı anda</b> gördüğü tek kayıttır, tek taraflı değişen bir düğme danışanın ekranında karşılığı olmayan bir hâl bırakırdı. Bir randevuyu değiştirmen gerekiyorsa danışanınla <a href="egzersizlerim-v1.html#antrenorum">randevu ekranı üzerinden</a> yazışabilir, gerekirse <a href="destek-v1.html#taleplerim">destek talebi açabilirsin</a>.</p>
+      <!-- K7/K9 (Ajan 2, 2026-08-30): randevu artık `FIT_SHELL.state.read().randevular`dan
+           okunuyor ve Onayla/Ertele/Tamamlandı/Gelmedi düğmeleri aynı kaydı
+           `randevuDurum(i,d)` ile değiştiriyor — üye tarafı (K7'nin çözdüğü) da
+           AYNI kaydı okuduğu için "tek taraflı düğme" gerekçesi artık geçerli
+           değil; eski gerekçe metni bu yüzden kaldırıldı. -->
+      <p class="ap-note">Onayla, ertele, tamamlandı ve gelmedi düğmeleri aynı kaydı danışanın da gördüğü <b>tek yerden</b> değiştirir; iki taraf da aynı durumu görür. Bir randevuyu bu düğmelerle değiştiremiyorsan danışanınla <a href="egzersizlerim-v1.html#antrenorum">randevu ekranı üzerinden</a> yazışabilir, gerekirse <a href="destek-v1.html#taleplerim">destek talebi açabilirsin</a>.</p>
     </div>
   </div>
 
@@ -476,23 +461,16 @@
     <div class="pc-head">
       <div>
         <h2 class="pc-title"><i class="fa-solid fa-clock-rotate-left"></i> Geçmiş randevular</h2>
-        <p>Tamamlanan ve iptal edilen seanslar. İptal edilen bir seans danışanın paketinden düşmez.</p>
+        <p>Tamamlanan, ertelenmiş ve gelinmemiş seanslar. İptal edilen bir seans danışanın paketinden düşmez.</p>
       </div>
+      <span class="pc-end" id="apGecmisSay">0 randevu</span>
     </div>
     <div class="pc-body flush">
-      <div class="fp-list" style="padding:0 22px">
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-          <span class="txt"><b>Elif Ş. · Online seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-24T18:00">24 Ağustos · 18:00</time></span><span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Görüşme notu var</span></span></span>
-          <span class="end"><span class="fp-badge off"><i class="fa-solid fa-flag-checkered"></i> Tamamlandı</span></span>
-        </div>
-        <div class="fp-row ap-row">
-          <span class="ico"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
-          <span class="txt"><b>Burak T. · Yüz yüze seans</b>
-            <span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> <time datetime="2026-08-19T17:00">19 Ağustos · 17:00</time></span><span><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Danışan iptal etti · seans pakete geri sayıldı</span></span></span>
-          <span class="end"><span class="fp-badge stop"><i class="fa-solid fa-ban"></i> İptal</span></span>
-        </div>
+      <div class="fp-list" id="apGecmisList" style="padding:0 22px"></div>
+      <div class="fpx-bos" id="apGecmisBos" hidden style="margin:0 22px 22px">
+        <span class="pe-ico"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+        <h4>Geçmiş randevu yok</h4>
+        <p>Bir randevu tamamlandığında, gelinmediğinde ya da iptal olduğunda kaydı buraya taşır ve silmeyiz.</p>
       </div>
     </div>
   </div>
@@ -765,6 +743,89 @@
   window.addEventListener('resize', payOlc);
 
   ac(adresten(), false);
+})();
+</script>
+<script>
+/* =====================================================================
+ RANDEVULARIM — K7 / K9 (Ajan 2, 2026-08-30)
+ ---------------------------------------------------------------------
+ Üyenin antrenör-detay-v1.html'de aldığı randevu `dm_fit.randevular`a
+ yazılıyor (`FIT_SHELL.state.randevuAl`); bu panel ÜÇÜNCÜ bir kopya
+ açmadan aynı diziyi okuyup basıyor. Durum geçişleri `randevuDurum(i,d)`
+ API'siyle yapılır; etiket/rozet motorun kendi sözlüklerinden gelir
+ (`randevuEtiket`/`randevuRozet`) — yeni durum ya da renk icat edilmedi.
+
+ ⚠ TEK TARAYICI KISITI: bu prototipte ayrı bir "danışan" hesabı yok,
+ randevu üyenin kendi `dm_fit` kaydından okunuyor. Danışan adı olarak
+ `FIT_USER.ad` kullanılır; uydurma bir danışan listesi kurulmadı.
+ ===================================================================== */
+(function(){
+  'use strict';
+  var S = window.FIT_SHELL && window.FIT_SHELL.state;
+  if(!S) return;
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function ikon(rozet){ return {ok:'fa-check', wait:'fa-hourglass-half', off:'fa-flag-checkered', stop:'fa-ban'}[rozet] || 'fa-circle'; }
+
+  var YAKLASAN = {'onay-bekliyor':1, 'onaylandi':1, 'ertelendi':1};
+  /* durum → sıradaki mantıklı eylemler (belge §11 yaşam döngüsü) */
+  var EYLEM = {
+    'onay-bekliyor': [['onaylandi','fa-check','Onayla'], ['ertelendi','fa-clock-rotate-left','Ertele']],
+    'onaylandi':     [['tamamlandi','fa-flag-checkered','Tamamlandı'], ['gelmedi','fa-user-xmark','Gelmedi'], ['ertelendi','fa-clock-rotate-left','Ertele']],
+    'ertelendi':     [['onaylandi','fa-check','Onayla'], ['ertelendi','fa-clock-rotate-left','Yeniden ertele']]
+  };
+
+  function satir(r, i){
+    var rozet = S.randevuRozet(r.durum), etiket = S.randevuEtiket(r.durum);
+    var danisan = (window.FIT_USER && FIT_USER.ad) || 'Danışan';
+    var eylemler = EYLEM[r.durum] || [];
+    var acts = eylemler.map(function(e){
+      return '<button class="ap-act-btn" type="button" data-durum-git="'+e[0]+'" data-i="'+i+'">'+
+             '<i class="fa-solid '+e[1]+'" aria-hidden="true"></i> '+e[2]+'</button>';
+    }).join('');
+    return '<div class="fp-row ap-row">'+
+      '<span class="ico"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>'+
+      '<span class="txt"><b>'+esc(danisan)+' · '+esc(r.hizmet)+'</b>'+
+        '<span class="alt"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> '+esc(r.tarih)+' · '+esc(r.saat)+'</span>'+
+        '<span><i class="fa-solid fa-user-tie" aria-hidden="true"></i> '+esc(r.antrenor)+'</span>'+
+        (r.fiyat ? '<span><i class="fa-solid fa-turkish-lira-sign" aria-hidden="true"></i> '+esc(r.fiyat)+'</span>' : '')+
+        '</span></span>'+
+      '<span class="end"><span class="fp-badge '+rozet+'"><i class="fa-solid '+ikon(rozet)+'" aria-hidden="true"></i> '+esc(etiket)+'</span>'+
+      (acts ? '<span class="ap-acts">'+acts+'</span>' : '')+'</span>'+
+    '</div>';
+  }
+
+  function ciz(){
+    var s = S.read();
+    var liste = s.randevular || [];
+    var yak = [], gec = [];
+    liste.forEach(function(r, i){ (YAKLASAN[r.durum] ? yak : gec).push([r,i]); });
+
+    var yl = document.getElementById('apYaklasanList'), yb = document.getElementById('apYaklasanBos');
+    if(yl){
+      yl.innerHTML = yak.map(function(p){ return satir(p[0], p[1]); }).join('');
+      if(yb) yb.hidden = yak.length > 0;
+    }
+    var gl = document.getElementById('apGecmisList'), gb = document.getElementById('apGecmisBos');
+    if(gl){
+      gl.innerHTML = gec.map(function(p){ return satir(p[0], p[1]); }).join('');
+      if(gb) gb.hidden = gec.length > 0;
+    }
+    var ys = document.getElementById('apYaklasanSay'); if(ys) ys.textContent = yak.length + ' randevu';
+    var gs = document.getElementById('apGecmisSay'); if(gs) gs.textContent = gec.length + ' randevu';
+    var lys = document.getElementById('apLibYaklasan'); if(lys) lys.textContent = String(yak.length);
+  }
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-durum-git]');
+    if(!b) return;
+    var i = parseInt(b.getAttribute('data-i'), 10);
+    var d = b.getAttribute('data-durum-git');
+    S.randevuDurum(i, d);
+    ciz();
+  });
+
+  ciz();
 })();
 </script>
 </body>

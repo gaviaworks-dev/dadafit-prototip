@@ -1468,6 +1468,19 @@ button.ft-blk-h[aria-expanded="false"]{margin-bottom:0}
     fs.classList.remove('is-err');
     fs.removeAttribute('aria-invalid');
 
+    /* R20 · K3'ün EK GÖREVİ · test-ilk / test-3 rozetleri (fit-rozet.js)
+       hangi testlerin çözüldüğünü sayar. `:865`teki ürün kararı DURUYOR:
+       tarama yanıtları, ölçüm seçimi, seviye ya da sonuç metni HİÇBİR
+       YERE yazılmaz — bu bir slug sayacıdır, sağlık verisi değildir. */
+    try{
+      var TK = 'dm_fit_test_v1';
+      var td = JSON.parse(localStorage.getItem(TK) || 'null');
+      if(!td || !Array.isArray(td.cozulen)) td = {surum:1, cozulen:[], guncelleme:null};
+      if(td.cozulen.indexOf(SLUG) < 0) td.cozulen.push(SLUG);
+      td.guncelleme = new Date().toISOString();
+      localStorage.setItem(TK, JSON.stringify(td));
+    }catch(e){}
+
     var o = T.olcum[+sel.value];
     el('ftResOzet').textContent = o.ozet;
     el('ftResSeviye').textContent = SEVIYE[o.lv];

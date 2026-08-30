@@ -1034,6 +1034,73 @@
     'kapatilan':      'Bu talep kapatıldı ve yazışması kayıtta duruyor. Aynı konu tekrar ederse talebi yeniden açabilirsin — geçmiş yazışma korunur.'
   };
 
+  /* =====================================================================
+     K21 · YEREL TALEPLERİ İÇE AL — destek-v1.html'de gönderilen talep artık
+     `dm_fit_destek_v1`e de yazılıyor (bu depo yalnız DOM'a ekliyordu,
+     yenilemede kayboluyordu). Statik 11 `.tk-t` bloğunun YANINA, aynı
+     `.tk-t` şemasında bir blok daha üretiyoruz; `tickets` dizisi ve `pick()`
+     ikisini de aynı yoldan tanır — ayrı bir kod dalı açılmadı.
+     Yazışması TEK satırdır (kullanıcının kendi mesajı) ve önüne dürüst bir
+     sistem notu eklenir: bu talep sunucuya gitmedi, yalnız bu tarayıcıda
+     duruyor. "Destek ekibi yanıtladı" gibi sahte bir ikinci mesaj YOK. */
+  (function(){
+    var DEPO = 'dm_fit_destek_v1';
+    var veri = null;
+    try{ veri = JSON.parse(localStorage.getItem(DEPO)); }catch(e){ veri = null; }
+    var talepler = (veri && Array.isArray(veri.talepler)) ? veri.talepler : [];
+    if(!talepler.length) return;
+    var ilkTk = document.querySelector('.tk-t');
+    if(!ilkTk) return;
+    var kap = ilkTk.parentElement;
+    var AY_YEREL = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    function pad2(n){ return (n < 10 ? '0' : '') + n; }
+    function bicimle(iso){
+      var t = new Date(iso);
+      if(isNaN(t.getTime())) t = new Date();
+      return {
+        iso: t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate()),
+        txt: t.getDate() + ' ' + AY_YEREL[t.getMonth()] + ' ' + t.getFullYear() + ', ' + pad2(t.getHours()) + ':' + pad2(t.getMinutes()),
+        short: t.getDate() + ' ' + AY_YEREL[t.getMonth()].slice(0,3),
+        datetime: t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate()) + 'T' + pad2(t.getHours()) + ':' + pad2(t.getMinutes())
+      };
+    }
+    function escYerel(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+      });
+    }
+    talepler.forEach(function(tp){
+      if(!tp || !tp.no) return;
+      if(document.querySelector('.tk-t[data-tk="' + tp.no + '"]')) return; /* çift eklenmez */
+      var s = bicimle(tp.tarih);
+      var div = document.createElement('div');
+      div.className = 'tk-t';
+      div.hidden = true;
+      div.setAttribute('data-tk', tp.no);
+      div.setAttribute('data-title', tp.konu || tp.no);
+      div.setAttribute('data-status', tp.durum || 'acik');
+      div.setAttribute('data-konu', tp.konu || '');
+      div.setAttribute('data-kanal', 'Web · Destek Taleplerim');
+      div.setAttribute('data-open-iso', s.iso);
+      div.setAttribute('data-open-txt', s.txt);
+      div.setAttribute('data-open-short', s.short);
+      div.setAttribute('data-last-iso', s.iso);
+      div.setAttribute('data-last-txt', s.txt);
+      div.setAttribute('data-last-short', s.short);
+      div.innerHTML =
+        '<div class="bub-list">' +
+          '<div class="bub is-sys">' +
+            '<p><i class="fa-solid fa-laptop" aria-hidden="true"></i> Bu talep yalnız bu tarayıcıda duruyor, sunucuya gitmedi — makette örnek bir hesap değil.</p>' +
+          '</div>' +
+          '<div class="bub out">' +
+            '<div class="bt"><b>Sen</b> <time datetime="' + escYerel(s.datetime) + '">' + escYerel(s.txt) + '</time></div>' +
+            '<p>' + escYerel(tp.mesaj || '') + '</p>' +
+          '</div>' +
+        '</div>';
+      kap.appendChild(div);
+    });
+  })();
+
   var tickets  = [].slice.call(document.querySelectorAll('.tk-t'));
   var empty    = document.getElementById('tkEmpty');
   var replyBox = document.getElementById('yanit');

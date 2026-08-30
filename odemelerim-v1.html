@@ -525,6 +525,11 @@
             <button class="btn btn-ghost" type="button" id="odFtBilgi"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Fatura Bilgilerim</button>
           </div>
 
+          <div class="hs-warn" style="margin:0 22px 18px">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <span>Defterde sabit örnek satırların yanında bu tarayıcıda GERÇEKTEN yaptığın abonelik ve randevu ödemeleri de görünür — o satırlarda numaranın yanında <b>"· senin kaydın"</b> yazar.</span>
+          </div>
+
           <div class="od-filter">
             <div class="fgroup" role="group" aria-label="Fatura türü süzgeci" id="odFtChips">
               <span class="fgroup-lbl">Tür</span>
@@ -1178,6 +1183,35 @@ window.__bottomStrips=window.__bottomStrips||[];
       not:'14 Şubat 2026 – 11 Nisan 2026 · fatura DFT-2026-002980', durum:'off', durumAd:'Tamamlandı' }
   ];
 
+  /* K6 (Ajan 2, 2026-08-30) — PAKETLER/GECMIS yukarısı SABİT ÖRNEK VERİDİR,
+     dokunulmadı. Bu tarayıcıda antrenor-detay-v1.html'de GERÇEKTEN alınan
+     "Aylık Paket" hakları `dm_fit_paket_hakki_v1`den okunup listeye EKLENİR
+     — fit-fatura.js'in `ekle()`indeki "sabit + gerçek, tek listede,
+     işaretli" ilkesinin aynısı (bkz. `paketKart` içindeki "senin kaydın"
+     etiketi). Antrenör adı `dm_fit.randevular`daki eşleşen slug'ın kaydından
+     okunur; ayrı bir isim kaynağı uydurulmadı. */
+  (function(){
+    try{
+      var H = JSON.parse(localStorage.getItem('dm_fit_paket_hakki_v1')||'null');
+      if(!H || !H.paketler) return;
+      var s = (window.FIT_SHELL && FIT_SHELL.state) ? FIT_SHELL.state.read() : null;
+      var randevular = (s && s.randevular) || [];
+      Object.keys(H.paketler).forEach(function(slug){
+        var hak = H.paketler[slug]; if(!hak) return;
+        var r = randevular.filter(function(x){ return x.slug === slug; })[0];
+        var p = {
+          antrenor: r ? r.antrenor : slug, slug: slug, foto: 'photo-1518310383802-640c2de311b2',
+          paket: 'Aylık Paket — ' + hak.toplam + ' seanslık paket', hak: hak.toplam, kalan: hak.kalan,
+          tutar: '₺1.600,00', birim: hak.toplam + ' seans',
+          not: hak.kalan > 0 ? 'Antrenör profilinden randevu aldıkça haktan düşer' : 'Haklar bitti — yeni paket için antrenör profiline git',
+          durum: hak.kalan > 0 ? 'ok' : 'off', durumAd: hak.kalan > 0 ? 'Aktif' : 'Tamamlandı',
+          gercek: true
+        };
+        (hak.kalan > 0 ? PAKETLER : GECMIS).push(p);
+      });
+    }catch(e){}
+  })();
+
   function ava(id){ return "https://images.unsplash.com/"+id+"?w=160&q=80&auto=format&fit=crop&exp=7&gam=6&sat=-12"; }
 
   (function(){
@@ -1201,7 +1235,8 @@ window.__bottomStrips=window.__bottomStrips||[];
       '<span class="uys-ava" role="img" aria-label="'+esc(p.antrenor)+'" style="background-image:url(\''+ava(p.foto)+'\')"></span>'+
       '<div class="uys-info">'+
         '<b>'+esc(p.antrenor)+' <span class="hs-pill '+(p.durum==='ok'?'on':'off')+'">'+
-          (p.durum==='ok'?'<i class="fa-solid fa-circle-check" aria-hidden="true"></i> ':'')+esc(p.durumAd)+'</span></b>'+
+          (p.durum==='ok'?'<i class="fa-solid fa-circle-check" aria-hidden="true"></i> ':'')+esc(p.durumAd)+'</span>'+
+          (p.gercek?' <span style="color:var(--fit-ink);font-weight:800;font-size:12px">· senin kaydın</span>':'')+'</b>'+
         '<span class="uys-plan">'+esc(p.paket)+'</span>'+
         '<span class="uys-renew"><i class="fa-solid fa-video" aria-hidden="true"></i> '+p.hak+' seansın '+kullanilan+"'i kullanıldı"+
           (p.kalan>0 ? ' · '+p.kalan+' seans hakkın duruyor' : ' · hak kalmadı')+'</span>'+
@@ -1253,7 +1288,11 @@ window.__bottomStrips=window.__bottomStrips||[];
   var FATURALAR = (window.FIT_FATURA ? FIT_FATURA.defter : []).map(function(f){
     var t = FIT_FATURA.toplamlar(f);
     return { no:f.no, konu:f.konu, tur:f.tur, tarih:f.tarihKisa,
-             tutar:FIT_FATURA.tl(t.genel), durum:f.durum, durumAd:f.durumAd };
+             tutar:FIT_FATURA.tl(t.genel), durum:f.durum, durumAd:f.durumAd,
+             /* K8 · örnek defter satırlarının yanında bu tarayıcıda GERÇEKTEN
+                yapılan ödemeler de görünür — ikisi ayrı kaynaktan geldiği için
+                ayrı ayrı işaretlenir, karışmaz (bkz. satır şablonundaki etiket). */
+             gercek: f.kaynak === 'gercek' };
   });
 
 
@@ -1269,7 +1308,7 @@ window.__bottomStrips=window.__bottomStrips||[];
       var liste = FATURALAR.filter(function(f){ return tur==='tumu' || f.tur===tur; });
       body.innerHTML = liste.map(function(f){
         return '<tr>'+
-          '<td><span class="od-no">'+esc(f.no)+'<small>'+esc(f.konu)+'</small></span></td>'+
+          '<td><span class="od-no">'+esc(f.no)+(f.gercek?' <b style="color:var(--fit-ink);font-weight:800">· senin kaydın</b>':'')+'<small>'+esc(f.konu)+'</small></span></td>'+
           '<td class="od-tarih">'+esc(f.tarih)+'</td>'+
           '<td class="od-tutar">'+esc(f.tutar)+'</td>'+
           '<td><span class="od-pill '+f.durum+'"><i class="fa-solid fa-'+ikon(f.durum)+'" aria-hidden="true"></i> '+esc(f.durumAd)+'</span></td>'+

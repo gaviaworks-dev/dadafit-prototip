@@ -547,6 +547,8 @@ body.pay-done .pay-success{display:block}
 <script src="assets/js/fit-shell.js"></script>
 <!-- Kademe–özellik eşlemesinin tek kaynağı -->
 <script src="assets/js/fit-paket.js"></script>
+<!-- Fatura defterinin tek kaynağı — K8: abonelik burada faturaya düşer -->
+<script src="assets/js/fit-fatura.js"></script>
 <script>
 /* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) =====
  Kural: ekranda en fazla 1 sabit alt şerit. Çerez onayı (geçici, öncelikli)
@@ -753,6 +755,32 @@ window.__bottomStrips=window.__bottomStrips||[];
         agree.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
+
+      /* K2 — abonelik artık `dm_user.paket`e YAZILIYOR (Ajan 2, 2026-08-30).
+         Şema C1 sözleşmesi (fit-shell.js): {auth,roles[],verified,level}.
+         Var olan alanlar EZİLMEZ, yalnız `paket`/`paketTarih` eklenir.
+         Anahtar adı `pro_max` — `fit-shell.js:1656` ve `hesabim-v1.html:2106`
+         zaten bu değeri okuyordu, uydurulmadı. */
+      try{
+        var u = JSON.parse(localStorage.getItem('dm_user')||'null') || {auth:true, roles:['kullanici'], verified:false, level:0};
+        u.paket = (key === 'promax') ? 'pro_max' : 'pro';
+        u.paketTarih = new Date().toISOString();
+        localStorage.setItem('dm_user', JSON.stringify(u));
+      }catch(e){}
+
+      /* K8 — abonelik faturaya düşer (fiyatı olmayan kademe için sayı
+         uydurulmaz, satır hiç açılmaz). */
+      if(window.FIT_FATURA && typeof plan.fiyat === 'number'){
+        var ay=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+        var b=new Date(), bt=new Date(b); bt.setMonth(bt.getMonth()+1); bt.setDate(bt.getDate()-1);
+        var donem = b.getDate()+' '+ay[b.getMonth()]+' – '+bt.getDate()+' '+ay[bt.getMonth()]+' '+bt.getFullYear();
+        FIT_FATURA.ekle({
+          tur:'uyelik', donem:donem,
+          konu:'DadaFit '+plan.ad+' — '+donem+' dönemi',
+          kalem:[[ 'DadaFit '+plan.ad+' — Aylık','Platform paketi · '+donem+' dönemi',1,Math.round(plan.fiyat*100) ]]
+        });
+      }
+
       durumGoster();
     });
   }

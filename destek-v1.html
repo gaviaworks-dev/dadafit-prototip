@@ -1412,6 +1412,27 @@
      BU listede değildir, o yüzden ne sayılır ne sayfalanır. */
   function items(){ return [].slice.call(list.querySelectorAll('.set-row')); }
 
+  /* K21 · satır şablonu TEK yerde — hem az sonraki submit hem açılıştaki
+     yerel-talep yeniden hidrasyonu (aşağıda) aynı fonksiyonu çağırır, iki
+     kopya yazılmadı. */
+  function talepSatiriYap(no, bas, kat, iso, trh){
+    var li = document.createElement('a');
+    li.className = 'set-row is-new';
+    li.setAttribute('href','destek-talebi-detay-v1.html?talep=' + no);
+    li.setAttribute('data-durum','acik');
+    li.setAttribute('data-no', no);
+    li.innerHTML =
+        '<span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>' +
+        '<span class="sr-txt">' +
+          '<b>' + esc(bas) + '</b>' +
+          '<span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(no) + ' · ' + esc(kat) +
+            ' · son hareket <time datetime="' + iso + '">' + trh + '</time> · 1 mesaj</span>' +
+        '</span>' +
+        '<span class="sr-act"><span class="pstat wait">Açık talep</span>' +
+        '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>';
+    return li;
+  }
+
   function readParam(){
     var v = new URLSearchParams(location.search).get('durum');
     return VALID.indexOf(v) > -1 ? v : 'tumu';
@@ -1506,6 +1527,29 @@
   });
 
   window.addEventListener('popstate', function(){ apply(readParam(), false); });
+
+  /* K21 · AÇILIŞTA yerel talepleri yeniden ekle — dm_fit_destek_v1'e yazılan
+     satırlar önceden yalnız o oturumun DOM'unda yaşıyordu; sayfa yenilenince
+     depoda kalan kayıt görünmez oluyordu ("yenile → listede duruyor mu?"
+     ölçütü). Kendi ay dizisi tutulur — `AYLAR` bu noktada henüz atanmamış
+     (`var` yalnız bildirimi taşır, değeri değil). */
+  (function yerelSatirlariHidrat(){
+    try{
+      var veri = JSON.parse(localStorage.getItem('dm_fit_destek_v1'));
+      var talepler = (veri && Array.isArray(veri.talepler)) ? veri.talepler : [];
+      if(!talepler.length) return;
+      var AY = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+      talepler.slice().reverse().forEach(function(tp){
+        if(!tp || !tp.no) return;
+        if(list.querySelector('.set-row[data-no="' + tp.no + '"]')) return;   /* çift eklenmez */
+        var t = new Date(tp.tarih); if(isNaN(t.getTime())) t = new Date();
+        var iso2 = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+        var trh2 = t.getDate() + ' ' + AY[t.getMonth()] + ' ' + t.getFullYear();
+        var li2 = talepSatiriYap(tp.no, tp.konu, tp.kategori || tp.konu, iso2, trh2);
+        list.insertBefore(li2, list.firstElementChild);
+      });
+    }catch(e){ /* depolama okunamazsa liste yalnız statik 11 talebi gösterir */ }
+  })();
 
   recount();
   apply(readParam(), false);
@@ -1757,21 +1801,33 @@
     /* §Ö7/§Ö8 · yeni satır da kanon kitle basılır: `a.set-row`, satırın
        TAMAMI bağlantı. §Ö9 · alt metin sırası referans · kategori ·
        son hareket · mesaj sayısı. §Ö25 · yeni talep `acik` → `.pstat wait`. */
-    var li = document.createElement('a');
-    li.className = 'set-row is-new';
-    li.setAttribute('href','destek-talebi-detay-v1.html?talep=' + no);
-    li.setAttribute('data-durum','acik');
-    li.setAttribute('data-no', no);
-    li.innerHTML =
-        '<span class="sr-ico"><i class="fa-solid fa-inbox" aria-hidden="true"></i></span>' +
-        '<span class="sr-txt">' +
-          '<b>' + esc(bas) + '</b>' +
-          '<span><i class="fa-solid fa-hashtag" aria-hidden="true"></i> ' + esc(no) + ' · ' + esc(kat) +
-            ' · son hareket <time datetime="' + iso + '">' + trh + '</time> · 1 mesaj</span>' +
-        '</span>' +
-        '<span class="sr-act"><span class="pstat wait">Açık talep</span>' +
-        '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>'
+    var li = talepSatiriYap(no, bas, kat, iso, trh);
     list.insertBefore(li, list.firstElementChild);
+
+    /* K21 · yerel kalıcılık — satır önce yalnız DOM'a giriyordu,
+       localStorage yazması 0'dı; yenilemede kaybolan satır kalan tıklamada
+       "Talep bulunamadı" veriyordu (destek-talebi-detay-v1.html detayı
+       tanımıyordu). Şimdi aynı talep dm_fit_destek_v1'e de yazılır; bu liste
+       AÇILIŞTA (aşağıdaki `yerelSatirlariHidrat`) ve detay sayfası her
+       açılışta bu anahtarı okur — satır da yazışma da artık kalıcı.
+       Sözleşmenin dört zorunlu alanına (no/konu/mesaj/durum/tarih/yerel)
+       `kategori` eklendi: liste satırı kategoriyi göstermek zorunda,
+       şema bunu genişletmek dışında bozulmadı. */
+    (function(){
+      var mesajAlan = document.getElementById('tkMesaj');
+      var mesajMetni = mesajAlan ? mesajAlan.value.trim() : '';
+      try{
+        var DEPO = 'dm_fit_destek_v1';
+        var mevcut = null;
+        try{ mevcut = JSON.parse(localStorage.getItem(DEPO)); }catch(errOku){ mevcut = null; }
+        if(!mevcut || typeof mevcut !== 'object' || !Array.isArray(mevcut.talepler)){
+          mevcut = { surum:1, talepler:[], guncelleme:null };
+        }
+        mevcut.talepler.unshift({ no:no, konu:bas, kategori:kat, mesaj:mesajMetni, durum:'acik', tarih:d.toISOString(), yerel:true });
+        mevcut.guncelleme = d.toISOString();
+        localStorage.setItem(DEPO, JSON.stringify(mevcut));
+      }catch(errYaz){ /* depolama kapalıysa satır yalnız DOM'da kalır — form uyarısı zaten dürüst */ }
+    })();
 
     recount();
     /* Yeni talep "Açık talep" doğar (kanon §1: DB default 'acik').
@@ -1781,7 +1837,11 @@
     if(okBox){
       /* DÜRÜST DURUM EKRANI — "gönderildi" YAZILMAZ, çünkü gönderilmedi.
          İki cümle iki ayrı gerçeği söyler: (1) makette ne oldu, (2) gerçekte
-         ne olmadı. Talep numarası da makette üretildi, sunucuda değil. */
+         ne olmadı. Talep numarası da makette üretildi, sunucuda değil.
+         K21 · SON CÜMLE GÜNCELLENDİ: satır ve yazışma artık dm_fit_destek_v1'e
+         yazılıyor (bu dosyanın açılış hidrasyonu + detay sayfasının kendi
+         okuması), yani "yenilersen kaybolur" artık YANLIŞ olurdu — doğrusu
+         "yalnız bu tarayıcıda kalıcı, sunucuya hiç gitmez"dir. */
       okBox.querySelector('span').innerHTML =
         'Talebin <b>gönderilmedi</b> — bu ekran maket, arkasında sunucu yok. ' +
         'Makette olan şu: <b>' + esc(no) + '</b> numarasıyla örnek bir satır ' +
@@ -1790,7 +1850,7 @@
            çelişirdi. Çıplak çapa kabuğun panel yönlendiricisini tetikler. */
         '<a href="#taleplerim">Destek Taleplerim</a> sekmesinin en üstüne eklendi ' +
         've <a href="destek-talebi-detay-v1.html?talep=' + esc(no) + '">örnek bir yazışma sayfası</a> açılıyor. ' +
-        'Sayfayı yenilersen ikisi de kaybolur.';
+        'İkisi de yalnız bu tarayıcıda kalıcı — sayfayı yenilesen de dururlar, ama sunucuya hiç gitmezler.';
       okBox.hidden = false;
     }
 

@@ -2018,7 +2018,7 @@ body.kcal-off .ag-kcal{display:none !important}
     <div class="fb-head">
       <div>
         <h3 id="agModalTitle">Manuel aktivite ekle</h3>
-        <p id="agModalSub">Bağlı uygulamadan gelmeyen bir hareketi kendin ekle.</p>
+        <p id="agModalSub">Bir hareketi kendin ekle; bağlı bir cihazın varsa kaynağını seçebilirsin.</p>
       </div>
       <button class="fb-close" id="agClose" type="button" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -2044,6 +2044,11 @@ body.kcal-off .ag-kcal{display:none !important}
                    aria-describedby="agAdErr" autocomplete="off" />
             <p class="ag-err" id="agAdErr" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span>Aktiviteye bir ad ver — listede bu adla görünecek.</span></p>
           </div>
+          <div class="fb-field span-2">
+            <label for="agKaynak">Kaynak</label>
+            <select class="fb-select" id="agKaynak" name="kaynak"><option value="manuel">Manuel giriş</option></select>
+            <span class="hint" id="agKaynakHelp">Manuel giriş: bu değerleri sen giriyorsun.</span>
+          </div>
           <div class="fb-field">
             <label for="agDk">Süre (dakika)</label>
             <input type="number" id="agDk" name="dk" min="1" max="600" step="1" inputmode="numeric"
@@ -2058,7 +2063,7 @@ body.kcal-off .ag-kcal{display:none !important}
           <div class="fb-field">
             <label for="agAdimIn">Adım <span class="opt">— isteğe bağlı</span></label>
             <input type="number" id="agAdimIn" name="adim" min="0" max="100000" step="1" inputmode="numeric" placeholder="3500" />
-            <span class="hint">Boş bırakırsan yürüyüş ve koşuda süreden yaklaşık hesaplanır.</span>
+            <span class="hint">Boş bırakırsan hiç yazılmaz — bilmediğin bir sayıyı uydurmayız.</span>
           </div>
           <div class="fb-field">
             <label for="agNabiz">Nabız (ortalama bpm) <span class="opt">— isteğe bağlı</span></label>
@@ -2253,8 +2258,9 @@ body.kcal-off .ag-kcal{display:none !important}
       var kcal = (typeof k.kcal === 'number') ? k.kcal + ' kcal' : 'enerji bilinmiyor';
       var kay  = KAYNAK_AD[k.kaynak] || 'beyan';
       var guclu = k.kaynak === 'olculdu' || k.kaynak === 'cihaz';
+      var tarihEtiket = (window.FIT_SHELL && FIT_SHELL.tarihEtiket) ? FIT_SHELL.tarihEtiket(k.tarihISO) : '—';
       return '<div class="fp-row"><span class="ico"><i class="fa-solid fa-dumbbell"></i></span>' +
-             '<span class="txt"><b>' + esc(k.ad) + '</b><small>' + esc(k.tarih || '') + ' · ' + dk + ' · ' + kcal + '</small></span>' +
+             '<span class="txt"><b>' + esc(k.ad) + '</b><small>' + esc(tarihEtiket) + ' · ' + dk + ' · ' + kcal + '</small></span>' +
              '<span class="end"><span class="fp-badge ' + (guclu ? 'ok' : 'off') + '">' + kay + '</span></span></div>';
     }).join('');
     sonKok.innerHTML = '<div class="fp-card"><div class="fp-head">' +
@@ -2502,20 +2508,40 @@ var FPX = (function () {
   var S = window.FIT_SHELL && window.FIT_SHELL.state;
   var yaklasan = document.getElementById('fpxYaklasan');
 
+  /* R20/K9 · İptal ve Ertele düğmeleri ÜYE tarafında hiç yoktu — randevu
+     ölçüldüğünde her zaman 'onay-bekliyor' doğuyor ve orada kalıyordu
+     (fit-spec-kopukluklari.md K9). `randevuDurum(i,d)` motor tarafında
+     hazırdı, çağıranı 0'dı. Terminal durumdaki (iptal/tamamlandı/gelmedi)
+     bir randevuya düğme basılmaz — orada değişecek bir şey yok. */
+  var TERMINAL_DURUM = ['iptal', 'tamamlandi', 'gelmedi'];
+
   function randevuBas() {
     if (!S || !yaklasan) return;
     yaklasan.querySelectorAll('.fp-row[data-live]').forEach(function (r) { r.remove(); });
-    (S.read().randevular || []).forEach(function (r) {
+    (S.read().randevular || []).forEach(function (r, i) {
       var row = document.createElement('div');
       row.className = 'fp-row'; row.setAttribute('data-live', '1');
+      var eylemler = TERMINAL_DURUM.indexOf(r.durum) < 0
+        ? '<span class="ag-ops">' +
+            '<button class="ag-op" type="button" data-randevu-durum="ertelendi" data-i="' + i + '"><i class="fa-solid fa-rotate"></i> Ertele</button>' +
+            '<button class="ag-op" type="button" data-randevu-durum="iptal" data-i="' + i + '"><i class="fa-solid fa-xmark"></i> İptal et</button>' +
+          '</span>'
+        : '';
       row.innerHTML = '<span class="ico"><i class="fa-solid fa-calendar-check"></i></span>' +
         '<span class="txt"><b>' + r.antrenor + ' · ' + r.hizmet + '</b><small>' +
         r.tarih + ' · ' + r.saat + ' · ' + r.fiyat + '</small></span>' +
-        '<span class="end"><span class="fp-badge ' + S.randevuRozet(r.durum) + '">' +
+        '<span class="end">' + eylemler + '<span class="fp-badge ' + S.randevuRozet(r.durum) + '">' +
         S.randevuEtiket(r.durum) + '</span></span>';
       yaklasan.insertBefore(row, yaklasan.firstChild);
     });
   }
+
+  if (yaklasan) yaklasan.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-randevu-durum]'); if (!b || !S) return;
+    var i = parseInt(b.getAttribute('data-i'), 10);
+    var d = b.getAttribute('data-randevu-durum');
+    S.randevuDurum(i, d);          /* write() 'fit:state' yayınlar → boya() zaten dinliyor, listeyi kendisi tazeler */
+  });
 
   function boya() {
     randevuBas();
@@ -2980,7 +3006,6 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
   /* Yaklaşık enerji katsayıları (kcal/dk) — YAKLAŞIKTIR; boy, kilo ve
      tempoya göre değişir. Sayfada her yerde "~" ve "yaklaşık" ile sunulur. */
   var KCAL_DK = { yuruyus:4.2, kosu:10.5, bisiklet:7.4, antrenman:6.6 };
-  var ADIM_DK = { yuruyus:105, kosu:165, bisiklet:0, antrenman:0 };
   var TUR = {
     yuruyus:  {ad:'Yürüyüş',  ikon:'fa-solid fa-person-walking'},
     kosu:     {ad:'Koşu',     ikon:'fa-solid fa-person-running'},
@@ -2993,18 +3018,73 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
     manuel: {ad:'Manuel giriş',     ikon:'fa-solid fa-pen-to-square'}
   };
 
-  var seed = [
-    {tur:'yuruyus',  ad:'Sabah yürüyüşü',        saat:'07:40', dk:32, km:2.6, adim:3480, nabiz:96,  kaynak:'saat'},
-    {tur:'bisiklet', ad:'İşe bisikletle gidiş',  saat:'08:35', dk:18, km:5.2, adim:0,    nabiz:118, kaynak:'telefon'},
-    {tur:'yuruyus',  ad:'Öğle molası yürüyüşü',  saat:'12:50', dk:14, km:1.1, adim:1480, nabiz:null,kaynak:'telefon'},
-    {tur:'kosu',     ad:'Parkta tempolu koşu',   saat:'18:20', dk:24, km:4.1, adim:4020, nabiz:141, kaynak:'saat'},
-    {tur:'antrenman',ad:'Alt vücut ve core',     saat:'19:10', dk:26, km:0,   adim:0,    nabiz:128, kaynak:'manuel'},
-    {tur:'antrenman',ad:'Akşam esnemesi',        saat:'21:05', dk:12, km:0,   adim:0,    nabiz:null,kaynak:'manuel'}
-  ];
-  var uid = 0;
-  var recs = seed.map(function(r){ r.id = 'a' + (++uid); r.kcal = kcalOf(r); return r; });
+  /* R20/K5 · SABİT TOHUM KALKTI. Altı satırlık örnek dizi hiçbir depoya
+     yazmıyordu (ölçüldü) — kullanıcının elle eklediği kayıt yenilemede uçarken
+     bu altısı ölümsüzdü. Artık liste TEK KAYNAKTAN: `dm_fit.gecmis`. Bu modülün
+     yazdığı her kayıt `metrik.aid` taşır — okurken yalnız bu imzayı taşıyanlar
+     alınır, başka ekranların (program/plan) geçmiş kayıtları bu listeye
+     karışmaz. Depo boşsa liste boş açılır; kit §9'un boş durumu zaten kurulu. */
+  var SIL_KEY = 'dm_fit_aktivite_sil_v1';         /* kalıcı "silindi" imzaları — shell'e dokunmadan bu sayfanın kendi anahtarı (dm_fit_kcal_hidden ile aynı desen) */
 
   function kcalOf(r){ return Math.round(((KCAL_DK[r.tur] || 5) * r.dk) / 5) * 5; }
+
+  function aidUret(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function silinenler(){
+    try{ var v = JSON.parse(localStorage.getItem(SIL_KEY) || '[]'); return Array.isArray(v) ? v : []; }
+    catch(e){ return []; }
+  }
+  function silIsaretle(aid){
+    var v = silinenler();
+    if(v.indexOf(aid) < 0) v.push(aid);
+    try{ localStorage.setItem(SIL_KEY, JSON.stringify(v)); }catch(e){}
+  }
+
+  /* local kaynak (saat/telefon/manuel — HANGİ cihaz) ile kabuğun kanıt
+     kademesi (cihaz/beyan — NE KADAR güvenilir) AYRI eksenler. saat/telefon
+     bağlı bir cihazdan geliyor → 'cihaz'; manuel giriş kullanıcı beyanı →
+     'beyan'. fit-rozet.js km/adım rozetlerini yalnız 'cihaz' kaydından sayar
+     — bu eşleme K3'ün beş rozetini (725 puan) buradan açar. */
+  function kanitKademesi(kaynakDetay){ return kaynakDetay === 'manuel' ? 'beyan' : 'cihaz'; }
+
+  /* Bir aktivite kaydını dm_fit.gecmis'e YAZAR. km/adım UYDURULMAZ: alan
+     yalnız gerçekten girilmişse (>0) metrik'e girer, yoksa hiç yazılmaz. */
+  function gecmiseYaz(r){
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if(!S) return null;
+    var metrik = { tur:r.tur, saat:r.saat, kaynakDetay:r.kaynak, aid:r.id };
+    if(r.km)   metrik.km   = r.km;
+    if(r.adim) metrik.adim = r.adim;
+    if(typeof r.nabiz === 'number') metrik.nabiz = r.nabiz;
+    S.antrenmanTamamla({ ad:r.ad, dk:r.dk, kcal:r.kcal, kaynak:kanitKademesi(r.kaynak),
+                          tarihISO:r.tarihISO, metrik:metrik });
+    return r;
+  }
+
+  /* dm_fit.gecmis'ten bu modülün imzasını (metrik.aid) taşıyan kayıtları
+     okur; "silindi" imzalılar dışlanır. Depoda hiç yoksa [] — uydurma yok. */
+  function gecmistenYukle(){
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    if(!S) return [];
+    var st; try{ st = S.read(); }catch(e){ return []; }
+    var gizli = silinenler();
+    return (st.gecmis || []).filter(function(g){
+      return g && g.metrik && g.metrik.aid && gizli.indexOf(g.metrik.aid) < 0;
+    }).map(function(g){
+      return {
+        id:g.metrik.aid, tur:(g.metrik.tur in TUR ? g.metrik.tur : 'antrenman'),
+        ad:g.ad || 'Aktivite', saat:g.metrik.saat || '—',
+        dk:(typeof g.dk === 'number' ? g.dk : 0),
+        km:(typeof g.metrik.km === 'number' ? g.metrik.km : 0),
+        adim:(typeof g.metrik.adim === 'number' ? g.metrik.adim : 0),
+        nabiz:(typeof g.metrik.nabiz === 'number' ? g.metrik.nabiz : null),
+        kaynak:g.metrik.kaynakDetay || (g.kaynak === 'beyan' ? 'manuel' : 'saat'),
+        kcal:(typeof g.kcal === 'number' ? g.kcal : kcalOf({tur:g.metrik.tur, dk:g.dk||0})),
+        tarihISO:g.tarihISO || null
+      };
+    });
+  }
+  var recs = gecmistenYukle();
 
   /* ---------- biçimleme ---------- */
   function nf(n){ return (n || 0).toLocaleString('tr-TR'); }
@@ -3246,6 +3326,10 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
     var yes = box.querySelector('[data-confirm="yes"]');
     yes.focus();
     yes.addEventListener('click', function(){
+      /* R20/K5 · gecmis eklemeli bir defter — silme kaydı diziden ÇIKARMAZ,
+         imzayı 'silindi' işaretler. gecmistenYukle() bunu bir daha getirmez;
+         "geri alınamaz" sözü artık YENİLEMEDE de doğru. */
+      silIsaretle(id);
       recs = recs.filter(function(r){ return r.id !== id; });
       render();
       say(rec.ad + ' silindi. Kayıt sayısı: ' + recs.length + '.');
@@ -3284,7 +3368,9 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
         adim:rec.adim, nabiz:rec.nabiz, kaynak:'manuel'
       };
       kopya.kcal = kcalOf(kopya);
-      kopya.id = 'a' + (++uid);
+      kopya.id = aidUret();
+      kopya.tarihISO = new Date().toISOString();
+      gecmiseYaz(kopya);
       recs.push(kopya);
       if(!matches(kopya)){ GROUPS.forEach(function(g){ sel[g] = []; }); push(); }
       render();
@@ -3349,7 +3435,39 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
   var fAd  = document.getElementById('agAd'),    fDk   = document.getElementById('agDk');
   var fKm  = document.getElementById('agKm'),    fAdim = document.getElementById('agAdimIn');
   var fHr  = document.getElementById('agNabiz');
+  var fKaynak = document.getElementById('agKaynak'), kaynakYardim = document.getElementById('agKaynakHelp');
   var release = null, editing = null, opener = null;
+
+  /* R20/K5 · KAYNAK SEÇİMİ — GERÇEK BAĞLANTIDAN. `bagli-uygulamalar-v1.html`
+     kendi kartlarında hangi cihazın Aktivite Günlüğü'nde hangi adla
+     görüneceğini zaten söylüyor (apple-health→Telefon, akilli-saat→Akıllı
+     saat) — o sözleşme burada birebir kullanıldı, yeni ad uydurulmadı.
+     Yalnız GERÇEKTEN bağlı (`durum:'on'`) olanlar seçenek olur; hiçbiri
+     bağlı değilse alan `disabled` kalır ve neden dürüstçe yazılır
+     (desen: destek-v1.html'in randevu seçicisi, aynı yöntem). */
+  var CIHAZ_KAYNAK = [
+    { app:'akilli-saat',    kaynak:'saat',    ad:'Akıllı saat' },
+    { app:'apple-health',   kaynak:'telefon', ad:'Telefon (Apple Health)' },
+    { app:'health-connect', kaynak:'telefon', ad:'Telefon (Health Connect)' }
+  ];
+  function kaynakKur(){
+    if(!fKaynak) return;
+    var S = window.FIT_SHELL && window.FIT_SHELL.state;
+    var bag = {};
+    if(S){ try{ bag = (S.read() || {}).baglantilar || {}; }catch(e){} }
+    fKaynak.innerHTML = '';
+    fKaynak.appendChild(new Option('Manuel giriş', 'manuel'));
+    var cihazlar = CIHAZ_KAYNAK.filter(function(c){ return bag[c.app] && bag[c.app].durum === 'on'; });
+    cihazlar.forEach(function(c){ fKaynak.appendChild(new Option(c.ad, c.kaynak)); });
+    if(!cihazlar.length){
+      fKaynak.disabled = true;
+      if(kaynakYardim) kaynakYardim.innerHTML = 'Bağlı uygulaman yok — bu kayıt manuel olarak eklenecek. ' +
+        '<a href="bagli-uygulamalar-v1.html">Bağlı Uygulamalar</a>\'dan bir cihaz bağladığında burada seçenek olarak görünür.';
+    } else {
+      fKaynak.disabled = false;
+      if(kaynakYardim) kaynakYardim.textContent = 'Bir cihaz seçmek "bu veri cihazımdan geldi" demektir — sayıyı yine sen girersin, uydurulmaz.';
+    }
+  }
 
   function clearErrs(){
     ['agAdErr','agDkErr','agNabizErr'].forEach(function(id){
@@ -3370,7 +3488,7 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
     document.getElementById('agModalTitle').textContent = rec ? 'Aktiviteyi düzenle' : 'Manuel aktivite ekle';
     document.getElementById('agModalSub').textContent   = rec
       ? 'Değerleri düzelt; özet ve tür kırılımı kaydedince güncellenir.'
-      : 'Bağlı uygulamadan gelmeyen bir hareketi kendin ekle.';
+      : 'Bir hareketi kendin ekle; bağlı bir cihazın varsa kaynağını seçebilirsin.';
     fTur.value  = rec ? rec.tur   : 'yuruyus';
     fSaat.value = rec ? rec.saat  : '07:30';
     fAd.value   = rec ? rec.ad    : '';
@@ -3378,6 +3496,11 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
     fKm.value   = rec && rec.km   ? rec.km   : '';
     fAdim.value = rec && rec.adim ? rec.adim : '';
     fHr.value   = rec && rec.nabiz ? rec.nabiz : '';
+    kaynakKur();
+    /* rec.kaynak artık bağlı olmayan bir cihazı işaret edebilir (o cihaz o
+       zamandan beri koptu) — seçenek yoksa <select> sessizce 'manuel'de
+       kalır, uydurulmuş bir seçenek eklenmez. */
+    if(fKaynak) fKaynak.value = rec ? rec.kaynak : 'manuel';
 
     /* önce yerleşime al (CSS kapalıyken display:none veriyor), SONRAKİ
        karede .show — böylece opacity geçişi başlangıç değerini bulur */
@@ -3429,22 +3552,41 @@ document.querySelectorAll('.df-filterbar .df-fchip').forEach(function(c){
 
     var tur  = fTur.value in TUR ? fTur.value : 'yuruyus';
     var km   = fKm.value === '' ? 0 : Math.max(0, parseFloat(fKm.value) || 0);
-    var adim = fAdim.value === '' ? Math.round((ADIM_DK[tur] || 0) * dk) : Math.max(0, parseInt(fAdim.value, 10) || 0);
+    /* R20/K5 · adım boşsa ARTIK TAHMİN ÜRETİLMEZ (eskiden dk × sabit hız ile
+       uyduruluyordu — km/adım rozetleri gerçek cihaz sayısını beklerken bu
+       ekran onlara sahte bir sayı besliyordu). Alan boşsa 0 kalır, metrik'e
+       hiç yazılmaz (gecmiseYaz). */
+    var adim = fAdim.value === '' ? 0 : Math.max(0, parseInt(fAdim.value, 10) || 0);
 
+    /* R20/K5 · kaynak artık seçiciden gelir (gerçekten bağlı cihaz varsa);
+       select disabled ise zaten tek seçeneği 'manuel'dir. Bilinmeyen bir
+       değer sızarsa (ör. cihaz o sırada koptu) güvenli varsayılana düşer. */
+    var kaynakSecim = (fKaynak && KAYNAK.hasOwnProperty(fKaynak.value)) ? fKaynak.value : 'manuel';
     var data = {
       tur:tur, ad:ad, saat:fSaat.value || '00:00', dk:dk, km:km, adim:adim,
-      nabiz:hr, kaynak: editing ? editing.kaynak : 'manuel'
+      nabiz:hr, kaynak: kaynakSecim
     };
     data.kcal = kcalOf(data);
 
     if(editing){
-      var eskiDk = editing.dk;
-      Object.keys(data).forEach(function(k){ editing[k] = data[k]; });
+      /* R20/K5 · gecmis eklemeli: eski kaydın ÜZERİNE yazılamaz. Eski imza
+         'silindi' işaretlenir, güncellenmiş değerler YENİ bir imzayla
+         yazılır — kullanıcı için "düzenlendi", defter için "eskisi kapandı,
+         yenisi açıldı". */
+      var eskiDk = editing.dk, eskiId = editing.id;
+      data.id = aidUret();
+      data.tarihISO = new Date().toISOString();
+      silIsaretle(eskiId);
+      gecmiseYaz(data);
+      recs = recs.filter(function(r){ return r.id !== eskiId; });
+      recs.push(data);
       closeModal();
       render();
       say(ad + ' güncellendi: süre ' + eskiDk + ' dk → ' + dk + ' dk, yaklaşık enerji ~' + nf(data.kcal) + ' kcal.');
     }else{
-      data.id = 'a' + (++uid);
+      data.id = aidUret();
+      data.tarihISO = new Date().toISOString();
+      gecmiseYaz(data);
       recs.push(data);
       /* Yeni kaydın süzgeç yüzünden görünmez kalmasını engelle */
       if(!matches(data)){ GROUPS.forEach(function(g){ sel[g] = []; }); push(); }

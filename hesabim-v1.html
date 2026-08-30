@@ -723,7 +723,7 @@
        1 · PROFİL BİLGİLERİM  (§5)
        ============================================================ -->
       <section class="hs-sec" id="profil" role="tabpanel" tabindex="0" aria-labelledby="tab-profil">
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="profil">
           <div class="pc-head">
             <div>
               <h2 id="profilH" class="pc-title"><i class="fa-solid fa-id-card"></i> Profil Bilgilerim</h2>
@@ -842,7 +842,7 @@
           </div>
         </form>
 
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="gorunurluk">
           <div class="pc-head">
             <div>
               <h2 class="pc-title"><i class="fa-solid fa-eye"></i> Profil Görünürlüğü</h2>
@@ -904,7 +904,7 @@
        2 · BİLDİRİM TERCİHLERİM  (§5 · kabuk çapası #bildirim)
        ============================================================ -->
       <section class="hs-sec" id="bildirim" role="tabpanel" tabindex="0" aria-labelledby="tab-bildirim">
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="bildirim">
           <div class="pc-head">
             <div>
               <h2 id="bildirimH" class="pc-title"><i class="fa-regular fa-bell"></i> Bildirim Tercihlerim</h2>
@@ -1029,7 +1029,7 @@
        6 · GÜVENLİK  (§5 · kabuk çapası #guvenlik)
        ============================================================ -->
       <section class="hs-sec" id="guvenlik" role="tabpanel" tabindex="0" aria-labelledby="tab-guvenlik">
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="guvenlik-sifre">
           <div class="pc-head">
             <div>
               <h2 id="guvenlikH" class="pc-title"><i class="fa-solid fa-lock"></i> Güvenlik</h2>
@@ -1069,7 +1069,7 @@
           </div>
         </form>
 
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="2fa">
           <div class="pc-head">
             <div>
               <h2 class="pc-title"><i class="fa-solid fa-mobile-screen-button"></i> İki Adımlı Doğrulama ve Giriş Yöntemleri</h2>
@@ -1154,7 +1154,7 @@
        enerji ölçüsü var.
        ============================================================ -->
       <section class="hs-sec" id="dil" role="tabpanel" tabindex="0" aria-labelledby="tab-dil">
-        <form class="pnl-card" data-savecard>
+        <form class="pnl-card" data-savecard="dil">
           <div class="pc-head">
             <div>
               <h2 id="dilH" class="pc-title"><i class="fa-solid fa-globe"></i> Dil ve Bölge</h2>
@@ -1861,10 +1861,90 @@
     bio.addEventListener('input', sync); sync();
   }
 
-  /* kaydet izi (demo) — metin + ikon, yalnız renk değil */
+  /* =====================================================================
+   K1 · ALTI FORM GERÇEKTEN KAYDEDİYOR
+   Eskiden bu işleyici yalnız `.hs-saved` rozetini gösteriyordu — 0
+   `localStorage` yazması vardı, sayfa yenilenince "Kaydedildi" yalanı
+   ortaya çıkıyordu. Şimdi doğrulama geçen her form kendi kartını
+   `dm_fit_hesap_v1`e yazıyor ve sayfa açılışında GERİ OKUNUYOR.
+   Şema: { surum:1, kartlar:{ "<kart>": {alanId:deger} }, guncelleme:ISO }
+   `dm_user`a DOKUNULMAZ — tek anahtar `dm_fit_hesap_v1`.
+
+   Şifre alanları (pwCur/pwNew/pwNew2) BİLEREK YAZILMAZ: düz metin şifreyi
+   localStorage'a koymak, mock bile olsa, kendi başına bir güvenlik
+   kusurudur. O kart için "kaydedildi" iddiası alan/değer eşleşmesi yerine
+   gerçek bir davranışla karşılanıyor: eşleşme doğrulaması + "Son şifre
+   değişikliği" notunun güncellenmesi + alanların temizlenmesi.
+
+   Ülke kodu (`.fk-cc-pop`) ve doğum tarihi takvimi (`.fk-tar-pop`)
+   popover'larının İÇİNDEKİ yardımcı alanlar (arama kutusu, ay/yıl seçici)
+   kayıt kapsamı DIŞINDA tutulur — bunlar görünüm durumu, veri değil. */
+  var HS_ANAHTAR = 'dm_fit_hesap_v1';
+  function hsOku(){
+    try{ var v = JSON.parse(localStorage.getItem(HS_ANAHTAR) || 'null'); return (v && v.kartlar) ? v.kartlar : {}; }
+    catch(e){ return {}; }
+  }
+  function hsYaz(kart, alanlar){
+    try{
+      var kayit = JSON.parse(localStorage.getItem(HS_ANAHTAR) || 'null');
+      if(!kayit || typeof kayit !== 'object') kayit = {surum:1, kartlar:{}};
+      if(!kayit.kartlar) kayit.kartlar = {};
+      kayit.kartlar[kart] = alanlar;
+      kayit.guncelleme = new Date().toISOString();
+      localStorage.setItem(HS_ANAHTAR, JSON.stringify(kayit));
+    }catch(e){}
+  }
+  function hsAlanDeger(el){ return el.type === 'checkbox' ? el.checked : el.value; }
+  function hsAlanUygula(el, deger){ if(el.type === 'checkbox') el.checked = !!deger; else el.value = deger; }
+
+  var hsKayitli = hsOku();
+
   document.querySelectorAll('form[data-savecard]').forEach(function(f){
+    var kart = f.getAttribute('data-savecard');
+    if(!kart) return;
+
+    function hsAlanlar(){
+      var liste = [];
+      f.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el){
+        if(el.type === 'password') return;
+        if(el.closest('.fk-cc-pop, .fk-tar-pop')) return;
+        liste.push(el);
+      });
+      return liste;
+    }
+
+    /* GERİ OKUMA — sayfa açılışında kayıtlı değer varsa uygulanır. */
+    var kayitliAlan = hsKayitli[kart];
+    if(kayitliAlan){
+      hsAlanlar().forEach(function(el){
+        if(!Object.prototype.hasOwnProperty.call(kayitliAlan, el.id)) return;
+        hsAlanUygula(el, kayitliAlan[el.id]);
+        try{ el.dispatchEvent(new Event(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', {bubbles:true})); }catch(e){}
+      });
+    }
+
     f.addEventListener('submit', function(e){
       e.preventDefault();
+      /* doğrulama — boş/geçersiz formda "Kaydedildi" YAZMAZ */
+      var gecti = false;
+      try{ gecti = f.reportValidity(); }catch(hata){ gecti = false; }
+      if(!gecti) return;
+
+      if(kart === 'guvenlik-sifre'){
+        var yeni = f.querySelector('#pwNew'), tekrar = f.querySelector('#pwNew2');
+        if(yeni && tekrar && yeni.value !== tekrar.value){
+          tekrar.focus();
+          return; /* eşleşmiyor — "Kaydedildi" gösterme */
+        }
+        var not = f.querySelector('.pc-foot .note');
+        if(not) not.textContent = 'Son şifre değişikliği: az önce';
+        f.reset();
+      } else {
+        var alanlar = {};
+        hsAlanlar().forEach(function(el){ alanlar[el.id] = hsAlanDeger(el); });
+        hsYaz(kart, alanlar);
+      }
+
       var ok = f.querySelector('.hs-saved');
       if(!ok) return;
       ok.classList.add('show');
@@ -1872,6 +1952,12 @@
       ok._t = setTimeout(function(){ ok.classList.remove('show'); }, 2500);
     });
   });
+
+  /* İki Adımlı Doğrulama formunun kendi kaydet düğmesi/`.hs-saved`i yok
+     (bkz. markup) — checkbox `submit` olayını tetiklemez. Bu kart o yüzden
+     değişince ANINDA yazar; K19'daki izin anahtarlarıyla aynı desen. */
+  var gv2fa = document.getElementById('gv2fa');
+  if(gv2fa) gv2fa.addEventListener('change', function(){ hsYaz('2fa', {gv2fa: gv2fa.checked}); });
 
   /* ÖLÜ YORUM SÖKÜLDÜ — fatura bilgileri formunun tip davranışını
      anlatıyordu; form `odemelerim-v1.html`e taşındı ve orada segment

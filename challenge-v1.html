@@ -140,6 +140,14 @@
 }
 .chl-cta .btn-line:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
 .chl-cta .btn-line i{color:var(--fit-bright)}
+/* EK GÖREV · kaydet düğmesi — desen antrenor-detay-v1.html'in `.cp-mini`si,
+   koyu hero'ya `.chl-cta .btn-line`in kendi rgba(255,255,255,…) katmanıyla
+   uyarlandı (yeni renk yok). `.is-on` FIT_KAYIT.tazele() tarafından basılır. */
+.chl-save{flex:none;width:46px;height:46px;padding:0;display:grid;place-items:center;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.24);color:#fff;
+  border-radius:var(--radius-md);cursor:pointer;font-size:15px;transition:.2s var(--ease)}
+.chl-save:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+.chl-save.is-on{background:var(--fit);border-color:var(--fit);color:#fff}
 /* katılımcı avatar yığını */
 .chl-join{display:flex;align-items:center;gap:13px;margin-top:24px}
 .chl-avastack{display:flex}
@@ -604,6 +612,14 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
           <button class="btn-line" type="button" id="chDay" hidden><i class="fa-solid fa-check"></i> Bugünün görevini tamamla</button>
           <button class="btn-line" type="button" id="chLeave" hidden><i class="fa-solid fa-xmark"></i> Challenge'ı bırak</button>
           <a class="btn-line" href="#nasil"><i class="fa-solid fa-circle-info"></i> Nasıl çalışır?</a>
+          <!-- EK GÖREV · kaydetme düğmesi (K4) — sözleşme fit-kayit.js:203,
+               desen antrenor-detay-v1.html'in `.cp-mini`si (tek ikon, satır
+               içi). data-slug/ad/href/gorsel/meta sayfanın kendi script'i
+               `K` (katalog kaydı) çözülünce doldurur — challenge `?slug=`
+               ile değiştiği için statik değer yazılamaz. -->
+          <button class="chl-save" type="button" id="chlSave" data-kaydet aria-pressed="false"
+                  data-tur="challenge" data-slug="" data-ad="" data-href="" data-gorsel="" data-meta=""
+                  aria-label="Challenge'ı kaydet"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
         </div>
         <!-- Burada bir avatar yığını ve "Bu ay 2.840 kişi birlikte hareket
              ediyor" cümlesi vardı. Sayıyı üretecek bir kayıt hiçbir yerde
@@ -1011,6 +1027,8 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
 
 <!-- DadaFit ortak kabuk JS (tek kaynak): markup + davranis -->
 <script src="assets/js/fit-shell.js"></script>
+<!-- KAYIT (favori) SÖZLEŞMESİ (R15/1) — EK GÖREV: [data-kaydet] köprüsü -->
+<script src="assets/js/fit-kayit.js"></script>
 <!-- CHALLENGE MOTORU (R15/5) — katalog, üç tip, ilerleme hesabı -->
 <script src="assets/js/fit-challenge.js"></script>
 <!-- SU TAKİBİ SÖZLEŞMESİ (R15/7) — bu sekmenin bütün sayıları buradan -->
@@ -1037,6 +1055,19 @@ body[data-fit-over="1"] section.chl-hero{padding-bottom:48px !important}
   var K = C.bul(slug) || C.KATALOG[0];
   slug = K.slug;
   var T = C.TIP[K.tip];
+
+  /* EK GÖREV · kaydet düğmesi — challenge `?slug=`ye göre değiştiği için
+     data-* alanları statik yazılamaz, K çözülür çözülmez burada doldurulur. */
+  (function(){
+    var kytBtn = document.getElementById('chlSave');
+    if(!kytBtn) return;
+    kytBtn.setAttribute('data-slug', K.slug);
+    kytBtn.setAttribute('data-ad', K.ad);
+    kytBtn.setAttribute('data-href', 'challenge-v1.html?slug=' + K.slug);
+    kytBtn.setAttribute('data-gorsel', K.gorsel || '');
+    kytBtn.setAttribute('data-meta', (T.etiket || '') + ' · ' + K.gun + ' gün');
+    if(window.FIT_KAYIT) FIT_KAYIT.tazele();
+  })();
 
   function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function n(x){ return Number(x||0).toLocaleString('tr-TR'); }

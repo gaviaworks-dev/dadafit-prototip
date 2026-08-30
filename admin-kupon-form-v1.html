@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kupon düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="kuponlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-kuponlar-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kuponlar</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="kfBaslik">Yeni kupon</h1>
+        <div class="ph-sub" id="kfAlt">Kod, indirim değeri, geçerlilik aralığı ve kullanım sınırı
+          tek formda. Kupon yalnız abonelik planlarında geçer; antrenör hizmet bedeli
+          K4 gereği ayrı bir akıştır ve kuponla indirilmez.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-planlar-v1.html"><i class="fa-solid fa-layer-group"></i> Planları yönet</a>
+      </div>
+    </div>
+
+    <div id="kfKaynak"></div>
+
+    <form id="kfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="kural">Kural</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-ticket" aria-hidden="true"></i> Kupon künyesi</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfKod">Kupon kodu <span class="req">*</span></label>
+                    <input class="finput" id="kfKod" name="kod" type="text" required maxlength="32"
+                           pattern="[A-Z0-9]+(-[A-Z0-9]+)*" placeholder="YAZ2026" />
+                    <div class="fhint">Yalnız büyük harf, rakam ve tire. Üye bu kodu ödeme
+                      ekranında yazar; küçük harfle yazılsa da eşleşir.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="kfAciklama">Açıklama <span class="opt">— yalnız panelde görünür</span></label>
+                    <input class="finput" id="kfAciklama" name="aciklama" type="text" maxlength="80"
+                           placeholder="Yaz kampanyası" />
+                  </div>
+                </div>
+
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfTip">İndirim tipi <span class="req">*</span></label>
+                    <select class="fselect" id="kfTip" name="tip" required>
+                      <option value="yuzde">Yüzde — toplam üzerinden %</option>
+                      <option value="tutar">Tutar — sabit indirim</option>
+                    </select>
+                  </div>
+                  <div class="frow">
+                    <label for="kfDeger">Değer <span class="req">*</span> <span class="opt" id="kfDegerBirim">— %</span></label>
+                    <input class="finput" id="kfDeger" name="deger" type="number" min="0" step="1"
+                           required inputmode="numeric" />
+                    <div class="fhint" id="kfDegerNot">Yüzde tipinde 0–100 arası tam sayı.</div>
+                  </div>
+                </div>
+
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfBasla">Geçerlilik başlangıcı <span class="req">*</span></label>
+                    <input class="finput" id="kfBasla" name="basla" type="date" required />
+                  </div>
+                  <div class="frow">
+                    <label for="kfBitis">Geçerlilik bitişi <span class="req">*</span></label>
+                    <input class="finput" id="kfBitis" name="bitis" type="date" required />
+                    <div class="fhint" id="kfAralikNot">Bitiş, başlangıçtan önce olamaz.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- KURAL ---- -->
+          <div class="sa-form-panel" data-form-panel="kural" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-gauge" aria-hidden="true"></i> Kullanım sınırı</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfSinir">Kullanım sınırı <span class="opt">— 0 = sınırsız</span></label>
+                    <input class="finput" id="kfSinir" name="sinir" type="number" min="0" step="1" inputmode="numeric" value="0" />
+                    <div class="fhint">Kupon toplam kaç kez kullanılabilir. Sınıra ulaşınca kupon
+                      kendiliğinden kapanır; kod çalışmaya devam ediyormuş gibi görünmez.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="kfKullanilan">Kullanılan <span class="opt">— salt okunur</span></label>
+                    <input class="finput" id="kfKullanilan" name="kullanilan" type="number" value="0" readonly />
+                    <div class="fkilit"><i class="fa-solid fa-lock" aria-hidden="true"></i>
+                      <span class="fhint">Sayaç sistemden gelir; elle değiştirilmez. Değiştirilebilseydi
+                        kaç kez kullanıldığı sorusunun iki cevabı olurdu.</span></div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="kfUyeSinir">Üye başına sınır <span class="opt">— 0 = sınırsız</span></label>
+                  <input class="finput" id="kfUyeSinir" name="uye_sinir" type="number" min="0" step="1" inputmode="numeric" value="1" />
+                  <div class="fhint">Aynı üyenin bu kuponu kaç kez kullanabileceği.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i> Geçerli planlar
+                <span class="fs-say" id="kfPlanSay">—</span>
+              </h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Hangi planlarda geçerli <span class="opt">— boş = tüm ücretli planlar</span></label>
+                  <div id="kfPlanlar"></div>
+                  <div class="fhint" id="kfPlanNot">Katalog <code>fit-paket.js</code>ten okunur.
+                    <b>Ücretsiz plan listede yoktur:</b> indirimi olmayan bir tutara kupon
+                    uygulanamaz.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> İade ve komisyon</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>İade kuralı</label>
+                  <input class="finput" id="kfIade" name="iade_kural" type="text" readonly />
+                  <div class="fkilit"><i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <span class="fhint">🔴 K13: para kuralları koda gömülmez. Bu değer tek yerden —
+                      <a href="admin-ayarlar-v1.html">Ayarlar → Para ve komisyon</a> — okunur;
+                      kupon başına ayrı bir iade kuralı yazılmaz, yoksa aynı sorunun iki cevabı olur.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-kuponlar-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="kfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="kfKaydet">Kuponu kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="kfDurum">Durum</label>
+                  <select class="fselect" id="kfDurum" name="durum">
+                    <option value="aktif" selected>Aktif</option>
+                    <option value="kapali">Kapalı</option>
+                  </select>
+                  <div class="fhint">“Başlamadı”, “Sınır doldu” ve “Süresi doldu” elle seçilmez:
+                    tarih ve sayaçtan TÜRETİLİR. Elle seçilebilseydi kapalı bir kuponu açık
+                    göstermek mümkün olurdu.</div>
+                </div>
+                <div class="toggle-row">
+                  <span>Yalnız ilk abonelikte geçerli</span>
+                  <label class="toggle"><input type="checkbox" id="kfIlk" name="ilk_abonelik" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Yıllık ödemede de geçerli</span>
+                  <label class="toggle"><input type="checkbox" id="kfYillik" name="yillik" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="fhint">Yıllık ödeme seçeneği bugün kapalı: plan kaydında yıllık tutar
+                  alanı boş (değeri verilmedi). Tutar girilince bu anahtar anlam kazanır.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Etki önizlemesi</h2></div>
+            <div class="pc-body" id="kfOnizle"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen kupon, onunla alınmış
+                <b id="kfKullanimSay">0</b> aboneliği etkilemez: indirim zaten uygulanmış
+                faturada durur.</div>
+              <button class="btn btn-ghost" type="button" id="kfSil"
+                      data-yikici="Bu kupon" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kuponu sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · KUPON FORMU   (R19)   — K-FORM
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html`. Create ve edit AYNI dosya:
+   `?kupon=<kod>` varsa düzenleme, yoksa yeni. Dil sekmesi YOK (tek dilli).
+   SEO sekmesi YOK: kuponun public bir sayfası yok, ödeme akışında bir
+   alandır.
+
+   VERİ — İKİ KAYNAK:
+   · GERÇEK: "geçerli planlar" katalogu `fit-paket.js`ten. Ücretsiz plan
+     katalogda YOK — indirimi olmayan bir tutara kupon uygulanamaz.
+     Etki önizlemesi de plan tutarından HESAPLANIYOR, yazılmıyor.
+   · ÖRNEK: düzenleme için okunan kupon kayıtları (depoda kupon modülü
+     yok; liste ekranıyla aynı örnek dizi burada da duruyor).
+
+   🔴 K13 — PARA VE ORAN KODA GÖMÜLMEZ. Bu dosyada basılı bir indirim
+   cümlesi yok: değer bir alandır, etki önizlemesi plan tutarı × alan
+   değeri olarak hesaplanır. İade kuralı da buradan yazılmaz, Ayarlar'dan
+   OKUNUR — kupon başına ayrı bir iade kuralı, aynı sorunun ikinci cevabı
+   olurdu.
+
+   ⚠ ÜÇ DURUM ELLE SEÇİLMEZ: "Başlamadı" · "Sınır doldu" · "Süresi doldu"
+   tarih ve sayaçtan türer. Durum seçicisinde yalnız Aktif/Kapalı var;
+   ötekiler seçilebilseydi kapalı bir kupon açık gösterilebilirdi.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, P = window.FIT_PAKET;
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+
+  var KADEMELER = (P && P.kademeler) || [];
+  var UCRETLI = KADEMELER.filter(function (k) { return k.fiyat !== 0; });
+
+  /* Liste ekranıyla aynı örnek dizi — düzenleme için okunuyor. */
+  var KUPON = [
+    { kod:'DADAFIT10',  aciklama:'Yeni üye karşılama indirimi',      tip:'yuzde', deger:10,
+      basla:'2026-01-01', bitis:'2026-12-31', sinir:1000, kullanilan:412, plan:[],         durum:'aktif' },
+    { kod:'YAZ2026',    aciklama:'Yaz kampanyası',                   tip:'yuzde', deger:25,
+      basla:'2026-06-01', bitis:'2026-09-15', sinir:500,  kullanilan:498, plan:['pro'],    durum:'aktif' },
+    { kod:'GERIDON',    aciklama:'Aboneliği biten üyeye geri dönüş', tip:'tutar', deger:5000,
+      basla:'2026-03-01', bitis:'2026-12-31', sinir:250,  kullanilan:250, plan:['pro'],    durum:'dolu' },
+    { kod:'PROMAX1AY',  aciklama:'Pro Max lansman kuponu',           tip:'yuzde', deger:50,
+      basla:'2026-10-01', bitis:'2026-11-30', sinir:300,  kullanilan:0,   plan:['promax'], durum:'zamanli' },
+    { kod:'KIS2025',    aciklama:'Kış kampanyası — kapandı',         tip:'yuzde', deger:20,
+      basla:'2025-12-01', bitis:'2026-02-28', sinir:800,  kullanilan:611, plan:[],         durum:'bitti' },
+    { kod:'ANTRENOR15', aciklama:'Antrenör davetiyle gelen üye',     tip:'yuzde', deger:15,
+      basla:'2026-05-01', bitis:'2027-05-01', sinir:0,    kullanilan:87,  plan:['pro'],    durum:'kapali' }
+  ];
+
+  /* ---- düzenleme mi yeni mi ---- */
+  var kod = (new URLSearchParams(location.search).get('kupon') || '').toLocaleUpperCase('tr');
+  var kayit = KUPON.filter(function (k) { return k.kod === kod; })[0] || null;
+  var yeni = !kayit;
+
+  document.getElementById('kfBaslik').textContent = yeni ? 'Yeni kupon' : kayit.kod;
+  document.title = (yeni ? 'Yeni kupon' : kayit.kod) + ' — DadaFit Yönetim';
+
+  document.getElementById('kfKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Plan katalogu gerçek:</b> ' + n(UCRETLI.length) + ' ücretli plan ' +
+    '<code>fit-paket.js</code>ten okunuyor; etki önizlemesi o planların tutarından ' +
+    '<b>hesaplanıyor</b>, yazılmıyor (K13). ' +
+    '<b>Kupon kaydı örnek:</b> depoda kupon tutan bir modül yok. ' +
+    '<b>İade kuralı bu formdan yazılmaz</b>, Ayarlar’dan okunur — kupon başına ikinci bir ' +
+    'kural, aynı sorunun iki cevabı olurdu. ' +
+    '<b>Sunucu yok:</b> Kaydet formu doğrular, kaydetmez.');
+
+  /* ---- form içi sekmeler ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (nd) {
+        nd.hidden = (nd.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- geçerli plan seçimi — kabuğun etiket bileşeni ---- */
+  var planEtiket = A.etiket('#kfPlanlar', {
+    katalog: UCRETLI.map(function (k) { return { id:k.key, ad:k.ad, ico:(k.ikon || '').replace('fa-solid ', '') }; }),
+    ad: 'planlar[]', ico: 'fa-layer-group',
+    ipucu: 'Plan ara ya da seç…',
+    secili: kayit ? kayit.plan.slice() : []
+  });
+  document.getElementById('kfPlanSay').textContent =
+    UCRETLI.length + ' ücretli plan seçilebilir';
+  if (!UCRETLI.length) {
+    document.getElementById('kfPlanNot').innerHTML =
+      '🔴 Kupon uygulanabilecek ücretli plan yok: motorda tutarı verilmiş bir plan bulunmuyor.';
+  }
+
+  /* ---- alanlar ---- */
+  var el = {
+    kod: document.getElementById('kfKod'), aciklama: document.getElementById('kfAciklama'),
+    tip: document.getElementById('kfTip'), deger: document.getElementById('kfDeger'),
+    basla: document.getElementById('kfBasla'), bitis: document.getElementById('kfBitis'),
+    sinir: document.getElementById('kfSinir'), kullanilan: document.getElementById('kfKullanilan'),
+    durum: document.getElementById('kfDurum')
+  };
+
+  if (kayit) {
+    el.kod.value = kayit.kod;
+    el.aciklama.value = kayit.aciklama;
+    el.tip.value = kayit.tip;
+    el.deger.value = kayit.tip === 'tutar' ? Math.round(kayit.deger / 100) : kayit.deger;
+    el.basla.value = kayit.basla;
+    el.bitis.value = kayit.bitis;
+    el.sinir.value = kayit.sinir;
+    el.kullanilan.value = kayit.kullanilan;
+    el.durum.value = (kayit.durum === 'kapali') ? 'kapali' : 'aktif';
+    document.getElementById('kfSil').setAttribute('data-yikici', kayit.kod);
+    document.getElementById('kfKullanimSay').textContent = n(kayit.kullanilan);
+    document.getElementById('kfAlt').textContent =
+      'Kod, indirim değeri, geçerlilik aralığı ve kullanım sınırı tek formda. Bu kupon bugüne ' +
+      'kadar ' + n(kayit.kullanilan) + ' kez kullanıldı' +
+      (kayit.sinir ? ' (sınır ' + n(kayit.sinir) + ')' : ' ve sınırsız') + '.';
+  }
+
+  /* İade kuralı Ayarlar'ın alanıdır; burada SALT OKUNUR gösterilir.
+     Metin uydurulmuyor: K5'in kanon cümlesi tek yerde durur. */
+  document.getElementById('kfIade').value = 'Ayarlar → Para ve komisyon ekranından okunur';
+
+  /* ---- tip değişince birim ve doğrulama ---- */
+  function tipUygula(){
+    var yuzde = (el.tip.value === 'yuzde');
+    document.getElementById('kfDegerBirim').textContent = yuzde ? '— %' : '— ₺';
+    document.getElementById('kfDegerNot').textContent = yuzde
+      ? 'Yüzde tipinde 0–100 arası tam sayı.'
+      : 'Sabit tutar. Kuruşa çevrilerek saklanır — kayan noktalı para aritmetiği ' +
+        'yuvarlama hatası üretir (fit-fatura.js deseni).';
+    el.deger.max = yuzde ? 100 : '';
+    if (yuzde) el.deger.setAttribute('max', '100'); else el.deger.removeAttribute('max');
+    onizle();
+  }
+  el.tip.addEventListener('change', tipUygula);
+  el.deger.addEventListener('input', onizle);
+  /* Etiket bileşeni seçim değişince `ms:change` yayar (kabuğun kendi
+     sözleşmesi); önizleme onu dinliyor, ikinci bir seçim kopyası tutmuyor. */
+  document.getElementById('kfPlanlar').addEventListener('ms:change', onizle);
+
+  /* ---- geçerlilik aralığı doğrulaması ---- */
+  function aralikKontrol(){
+    var b = el.basla.value, s = el.bitis.value;
+    var hata = (b && s && s < b);
+    el.bitis.setCustomValidity(hata ? 'Bitiş tarihi başlangıçtan önce olamaz.' : '');
+    el.bitis.classList.toggle('is-err', hata);
+    document.getElementById('kfAralikNot').textContent = hata
+      ? '🔴 Bitiş, başlangıçtan önce. Kupon hiçbir gün geçerli olmaz.'
+      : 'Bitiş, başlangıçtan önce olamaz.';
+  }
+  el.basla.addEventListener('change', aralikKontrol);
+  el.bitis.addEventListener('change', aralikKontrol);
+
+  /* ---- etki önizlemesi — plan tutarından HESAPLANIR ---- */
+  function onizle(){
+    var d = parseFloat(el.deger.value);
+    var yuzde = (el.tip.value === 'yuzde');
+    var secili = planEtiket ? planEtiket.deger() : [];
+    var hedef = secili.length
+      ? UCRETLI.filter(function (k) { return secili.indexOf(k.key) >= 0; })
+      : UCRETLI;
+
+    var h = hedef.map(function (k) {
+      if (k.fiyat === null || k.fiyat === undefined) {
+        return '<div class="toggle-row"><span>' + esc(k.ad) + '</span><b>—</b></div>' +
+               '<div class="fhint">Tutarı verilmedi; indirimin ne olacağı hesaplanamaz.</div>';
+      }
+      var kurus = k.fiyat * 100;
+      var indirim = isNaN(d) ? null : (yuzde ? Math.round(kurus * d / 100) : Math.round(d * 100));
+      if (indirim === null) {
+        return '<div class="toggle-row"><span>' + esc(k.ad) + '</span><b>' + esc(A.tl(kurus)) + '</b></div>' +
+               '<div class="fhint">Değer girilmedi.</div>';
+      }
+      var son = Math.max(0, kurus - indirim);
+      return '<div class="toggle-row"><span>' + esc(k.ad) + '</span><b>' + esc(A.tl(son)) + '</b></div>' +
+             '<div class="fhint">' + esc(A.tl(kurus)) + ' tutarından ' + esc(A.tl(indirim)) +
+             ' indirilir' + (son === 0 ? ' — dönem ücretsiz olur.' : '.') + '</div>';
+    }).join('');
+
+    document.getElementById('kfOnizle').innerHTML = h ||
+      '<div class="fhint">Kupon uygulanabilecek ücretli plan yok.</div>';
+  }
+
+  /* ---- kaydet ---- */
+  var form = document.getElementById('kfForm');
+  A.maketKaydet(document.getElementById('kfKaydet'), 'kupon', form);
+  A.maketKaydet(document.getElementById('kfTaslak'), 'kupon taslağı', form);
+
+  tipUygula();
+  aralikKontrol();
+})();
+</script>
+</body>
+</html>

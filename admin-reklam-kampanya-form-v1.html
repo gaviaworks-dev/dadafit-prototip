@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reklam kampanyası — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Repeater satırının içindeki
+   iki-kolonluk alan düzeni; kart · alan · tutamak · yükleme kutusu
+   kabuktan geliyor. Yeni renk, yeni ölçü, yeni token yok. */
+.kf-kre-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){ .kf-kre-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body class="adm-body" data-adm="reklam">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-reklam-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Sponsorluk ve Reklam</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="kfBaslik">Yeni kampanya</h1>
+        <div class="ph-sub" id="kfAlt">Kampanya bir KİRA SÖZLEŞMESİDİR: hangi reklamveren, hangi
+          alanları, hangi tarih aralığında, hangi bütçeyle tutuyor. Kreatifler o alanların
+          ölçüsünü tutturmak zorunda — tutturmayan satır burada işaretlenir.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="admin-reklam-v1.html#esleme">
+          <i class="fa-solid fa-code-compare"></i> Envanter eşlemesi</a>
+      </div>
+    </div>
+
+    <div id="kfKaynak"></div>
+    <div id="kfUyari"></div>
+
+    <form id="kfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="yerlesim">Yerleşim</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="kreatif">Kreatifler</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Kampanya künyesi</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="kfAd">Kampanya adı <span class="req">*</span></label>
+                  <input class="finput" id="kfAd" name="ad" type="text" required maxlength="80"
+                         placeholder="Örn. Kış Formu 2026" />
+                  <span class="fsay" data-say-for="kfAd">0 / 80</span>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfMarka">Reklamveren <span class="req">*</span></label>
+                    <input class="finput" id="kfMarka" name="marka" type="text" required maxlength="80"
+                           placeholder="Marka ya da ajans adı" />
+                  </div>
+                  <div class="frow">
+                    <label for="kfKisi">İlgili kişi <span class="opt">— kreatif onayı bu adrese gider</span></label>
+                    <input class="finput" id="kfKisi" name="kisi" type="email" maxlength="120"
+                           placeholder="ornek@marka.com" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Dönem ve bütçe</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfBas">Başlangıç <span class="req">*</span></label>
+                    <input class="finput" id="kfBas" name="baslangic" type="date" required />
+                  </div>
+                  <div class="frow">
+                    <label for="kfBit">Bitiş <span class="req">*</span></label>
+                    <input class="finput" id="kfBit" name="bitis" type="date" required />
+                    <div class="fhint" id="kfSureNot">Bitiş başlangıçtan önce olamaz.</div>
+                  </div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="kfButce">Bütçe <span class="opt">— ₺, barterde boş bırakılır</span></label>
+                    <input class="finput" id="kfButce" name="butce" type="number" min="0" step="0.01"
+                           placeholder="0,00" />
+                    <div class="fhint">🔴 Fiyat listesi buraya <b>gömülmez</b> (K13). Tutar
+                      sözleşmeye göre girilir; ekran hiçbir birim fiyat önermez.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="kfModel">Satış modeli</label>
+                    <select class="fselect" id="kfModel" name="model">
+                      <option value="donem">Dönemsel — sabit tutar</option>
+                      <option value="gosterim">Gösterim başına</option>
+                      <option value="barter">Barter — para akışı yok</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- YERLEŞİM ---- -->
+          <div class="sa-form-panel" data-form-panel="yerlesim" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Hedef alanlar
+                <span class="fs-say" id="kfAlanSay">0 alan</span>
+              </h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Kampanya hangi yuvalarda görünecek? <span class="req">*</span></label>
+                  <div id="kfAlanlar"></div>
+                  <div class="fhint">Katalog envanterdeki alanlardan gelir
+                    (<code>fit-reklam-veri.js</code>) — olmayan bir yuva seçilemez.
+                    Durdurulmuş ya da satılmayan alan seçilirse aşağıda uyarı çıkar.</div>
+                </div>
+                <div class="frow">
+                  <label for="kfGunluk">Günlük gösterim tavanı <span class="opt">— boş = sınırsız</span></label>
+                  <input class="finput" id="kfGunluk" name="gunluk" type="number" min="0" step="1" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Seçilen yuvaların durumu</h3>
+              <div id="kfAlanDurum"></div>
+            </div>
+          </div>
+
+          <!-- ---- KREATİFLER ---- -->
+          <div class="sa-form-panel" data-form-panel="kreatif" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-image" aria-hidden="true"></i> Kreatifler
+                <span class="fs-say" id="kfKreSay">0 kreatif</span>
+              </h3>
+              <div class="st-list" id="kfKreatifler"></div>
+              <button class="add-row" type="button" id="kfKreEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Kreatif ekle</button>
+              <div class="fhint" style="margin-top:10px">
+                🔴 <b>Alt metni olmayan kreatif yayına çıkamaz.</b> Ekran okuyucu reklamı
+                okuyamazsa reklam erişilebilir değildir; bu alan bu yüzden zorunlu.
+                Sıra rotasyon sırasıdır: tutamağı sürükleyerek ya da odaktayken ↑ / ↓ ile taşı.
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-reklam-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="kfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="kfKaydet">Kampanyayı kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="kfDurum">Durum</label>
+                  <select class="fselect" id="kfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yaklasan">Yaklaşan</option>
+                    <option value="aktif" selected>Yayında</option>
+                    <option value="bitti">Bitti</option>
+                  </select>
+                </div>
+                <div class="toggle-row">
+                  <span>Kreatif onayı beklensin</span>
+                  <label class="toggle"><input type="checkbox" name="onay" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Sponsorlu etiketi basılsın</span>
+                  <label class="toggle"><input type="checkbox" name="sponsor" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+              <p class="fhint" style="margin-top:14px">“Sponsorlu” etiketi kapatılamaz bir
+                yükümlülüktür; anahtar burada duruyor çünkü native formatlarda etiketin
+                <b>nereye</b> basılacağı formata göre değişir — basılıp basılmayacağı değil.</p>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Ölçü uyumu</h2></div>
+            <div class="pc-body" id="kfUyum"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Kampanya silinince kreatifleri de
+                düşer; yuvalar boşalır ve doluluk oranı yeniden hesaplanır.</div>
+              <button class="btn btn-ghost" type="button" id="kfSil"
+                      data-yikici="Bu kampanya" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kampanyayı sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-reklam-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   REKLAM KAMPANYASI FORMU   (R19)   — K-FORM
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html` (referans form) ve
+   `docs/gastro-olcum/form-kalibi.md` §1 — üç form-içi sekme, sticky yayın
+   yan kartı, kaydet çubuğu SAĞDA. Create ve edit AYNI DOSYA: `?k=<slug>`
+   varsa düzenleme, yoksa yeni.
+
+   NE YÖNETİYOR (`fit-yonetilmeyenler.md` C-7): "Yeni kampanya" düğmesi
+   form açmıyordu; kampanya, bütçe, tarih ve kreatif kavramları hiçbir
+   ekranda düzenlenmiyordu.
+
+   🔴 ÖLÇÜ UYUMU BİR HESAPTIR, BİR CÜMLE DEĞİL. Sağdaki kart, seçilen
+   yuvaların ölçüleriyle eklenen kreatiflerin ölçülerini karşılaştırır ve
+   tutmayanı söyler. C-7'nin kökü tam buydu: satılan ölçü ile basılan ölçü
+   kimse tarafından karşılaştırılmıyordu.
+
+   🔴 K13 — HİÇBİR FİYAT KODA GÖMÜLMEDİ. Bütçe boş bir alandır; ekran
+   birim fiyat önermez, indirim hesaplamaz, "şu kadar eder" demez.
+
+   ⚠ ALT METİN ZORUNLU. Alt metinsiz kreatif erişilebilir değildir ve
+   ekranın kendi kuralıdır: `required`. Bu bir tercih değil, listede
+   ölçülmüş bir kusurun (10 kreatiften 1'inin alt metni yoktu) kapısı.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, R = window.FIT_REKLAM;
+  if (!A || !R) return;
+  var esc = A.esc, tl = A.tl;
+
+  var q = new URLSearchParams(location.search);
+  var slug = q.get('k') || '';
+  var yeni = !slug;
+
+  /* Kampanya kaydı bu depoda YOK — liste ekranındaki satırlar örnektir ve
+     bu form bilerek onların kopyasını tutmuyor. Düzenleme kipinde ad
+     adresten okunur, kalan alanlar boş açılır ve şerit bunu söyler. */
+  var adTahmin = slug ? slug.replace(/-/g, ' ').replace(/(^|\s)\S/g, function (c) { return c.toLocaleUpperCase('tr'); }) : '';
+
+  document.getElementById('kfBaslik').textContent = yeni ? 'Yeni kampanya' : adTahmin;
+  document.title = (yeni ? 'Yeni kampanya' : adTahmin) + ' — DadaFit Yönetim';
+
+  document.getElementById('kfKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Alan kataloğu gerçek, kampanya kaydı yok.</b> Hedef alan listesi envanterdeki ' +
+    '<b>' + R.ALAN.length + ' yuvadan</b> okunuyor (<code>fit-reklam-veri.js</code>) ve ölçü ' +
+    'uyumu o yuvaların gerçek ölçüleriyle hesaplanıyor. <b>Ama Fit\'te bir kampanya ' +
+    'tablosu yok</b> — liste ekranındaki satırlar örnektir, bu form onların kopyasını ' +
+    'tutmaz; düzenleme kipinde alanlar boş açılır. Medya kütüphanesi gerçek ' +
+    '(<code>fit-medya-veri.js</code>). <b>Sunucu yok:</b> Kaydet formu doğrular, kaydetmez.');
+
+  if (!yeni) {
+    document.getElementById('kfAd').value = adTahmin;
+    document.getElementById('kfSil').setAttribute('data-yikici', adTahmin);
+    document.getElementById('kfAlt').textContent =
+      'Bu kampanyanın arkasında bir kayıt yok — ad adresten okundu, kalan alanlar boş. ' +
+      'Kampanya tablosu doğduğunda form onu okur, bu satır kalkar.';
+  }
+
+  /* ---- form içi sekmeler (referans formun deseni) ------------------
+     Seçme mantığı ADI OLAN bir fonksiyonda: doğrulama da aynı yolu
+     kullanacak, ikinci bir sekme-açma kodu yazılmayacak. */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  function panelSec(anahtar) {
+    sekmeler.forEach(function (x) {
+      var on = (x.getAttribute('data-panel') === anahtar);
+      x.classList.toggle('is-on', on);
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.sa-form-panel').forEach(function (nd) {
+      nd.hidden = (nd.getAttribute('data-form-panel') !== anahtar);
+    });
+  }
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () { panelSec(b.getAttribute('data-panel')); });
+  });
+
+  /* ---- hedef alanlar — katalog envanterden ------------------------ */
+  A.etiket('#kfAlanlar', {
+    katalog: R.ALAN.map(function (a) { return { id:a.kod, ad:a.ad + ' — ' + a.olcu }; }),
+    ad: 'alanlar[]', ico: 'fa-crop-simple',
+    ipucu: 'Reklam alanı ara…', secili: []
+  });
+
+  function seciliAlanlar(){
+    return Array.prototype.slice.call(document.querySelectorAll('#kfAlanlar input[type=hidden]'))
+      .map(function (i) { return R.alanBul(i.value); })
+      .filter(Boolean);
+  }
+
+  function alanDurumBas(){
+    var liste = seciliAlanlar();
+    document.getElementById('kfAlanSay').textContent = liste.length + ' alan';
+    var kutu = document.getElementById('kfAlanDurum');
+    if (!liste.length) {
+      kutu.innerHTML = A.bos('fa-crop-simple', 'Henüz yuva seçilmedi',
+        'Kampanyanın nerede görüneceğini seçmeden kreatif ölçüsü hesaplanamaz. Yukarıdaki alandan en az bir yuva seç.');
+      return;
+    }
+    kutu.innerHTML = '<div class="fp-list">' + liste.map(function (a) {
+      var fm = R.alaninFormatlari(a.kod);
+      var rz = a.durum === 'aktif' ? (fm.length ? 'ok' : 'wait') : 'stop';
+      var ad = a.durum !== 'aktif' ? (a.durum === 'bos' ? 'Boş — yayında değil' : 'Durduruldu')
+             : fm.length ? 'Yayında ve satılıyor' : 'Yayında ama satış formatı bağlı değil';
+      var ico = rz === 'ok' ? 'fa-circle-check' : rz === 'wait' ? 'fa-triangle-exclamation' : 'fa-circle-xmark';
+      return '<div class="fp-row"><span class="ico"><i class="fa-solid fa-crop-simple" aria-hidden="true"></i></span>' +
+        '<span class="txt"><b>' + esc(a.ad) + '</b><small>' + esc(a.sayfa + ' · ' + a.konum + ' · ' + a.olcu) +
+        '</small></span><span class="end">' + A.rozet(rz, ad, ico) + '</span></div>';
+    }).join('') + '</div>';
+    uyumBas();
+  }
+  document.getElementById('kfAlanlar').addEventListener('ms:change', alanDurumBas);
+
+  /* ---- kreatif repeater — her satırda kendi yükleme kutusu -------- */
+  var sablon = document.createElement('template');
+  sablon.innerHTML =
+    '<div class="st-card">' +
+      '<span class="st-num">1</span>' +
+      '<div class="st-body">' +
+        '<span class="cb-kind"><i class="fa-solid fa-image" aria-hidden="true"></i> Kreatif</span>' +
+        '<div class="kf-kre-grid">' +
+          '<input class="finput" type="text" name="kreatif_ad[]" data-field="ad" required ' +
+                 'placeholder="Dosya ya da varyant adı" aria-label="Kreatif adı">' +
+          '<select class="fselect" name="kreatif_tip[]" data-field="tip" aria-label="Kreatif tipi">' +
+            '<option value="gorsel">Görsel</option><option value="video">Video</option>' +
+            '<option value="logo">Logo şeridi</option><option value="native">Native</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="kf-kre-grid">' +
+          '<input class="finput" type="text" name="kreatif_olcu[]" data-field="olcu" ' +
+                 'placeholder="Ölçü — ör. 1240×160" aria-label="Kreatif ölçüsü">' +
+          '<input class="finput" type="url" name="kreatif_url[]" data-field="url" ' +
+                 'placeholder="Tıklama adresi — https://…" aria-label="Tıklama adresi">' +
+        '</div>' +
+        '<input class="finput" type="text" name="kreatif_alt[]" data-field="alt" required maxlength="180" ' +
+               'placeholder="Alt metin — zorunlu, ekran okuyucu bunu okur" aria-label="Alt metin">' +
+        '<div data-yukle></div>' +
+        '<input type="hidden" data-field="position" value="0">' +
+      '</div>' +
+      '<div class="st-side">' +
+        '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+          'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+          '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+        '<button class="ie-del" type="button" title="Kreatifi sil" aria-label="Kreatifi sil">' +
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(sablon);
+
+  var liste = document.getElementById('kfKreatifler');
+  function kreSay(){
+    var n = liste.querySelectorAll('.st-card').length;
+    document.getElementById('kfKreSay').textContent = n + ' kreatif';
+  }
+  /* Yeni satır eklenince o satırın yükleme kutusu kurulur. `tekrar`
+     `degisti`yi `sirala` üzerinden çağırır (ekleme ve taşıma sonrası),
+     yani kurulum tek yerde kalıyor; her satır bir kez kurulur. */
+  function yuklemeKur(){
+    liste.querySelectorAll('[data-yukle]').forEach(function (slot) {
+      if (slot.getAttribute('data-kuruldu')) return;
+      slot.setAttribute('data-kuruldu', '1');
+      A.yukle(slot, { cok:false, not:'Kreatif görseli — kütüphaneden seç ya da sürükle.',
+        degisti: uyumBas });
+    });
+  }
+  var rep = A.tekrar({
+    liste: liste, ekle: document.getElementById('kfKreEkle'), sablon: sablon,
+    enAz: 1, enCok: 8,
+    degisti: function () { kreSay(); yuklemeKur(); uyumBas(); }
+  });
+  rep.ekle();
+  kreSay(); yuklemeKur();
+
+  liste.addEventListener('input', uyumBas);
+  liste.addEventListener('change', uyumBas);
+
+  /* ---- ölçü uyumu: seçilen yuva ölçüsü ile kreatif ölçüsü --------- */
+  function uyumBas(){
+    var kutu = document.getElementById('kfUyum');
+    var yuvalar = seciliAlanlar();
+    var kreatifler = Array.prototype.slice.call(liste.querySelectorAll('.st-card')).map(function (c) {
+      return {
+        ad: (c.querySelector('[data-field="ad"]') || {}).value || '',
+        olcu: ((c.querySelector('[data-field="olcu"]') || {}).value || '').trim(),
+        alt: ((c.querySelector('[data-field="alt"]') || {}).value || '').trim()
+      };
+    });
+    if (!yuvalar.length) {
+      kutu.innerHTML = '<div class="fhint">Önce hedef yuva seç — ölçü uyumu ancak o zaman hesaplanır.</div>';
+      return;
+    }
+    var yuvaOlculeri = yuvalar.map(function (a) { return a.olcu; });
+    var dolu = kreatifler.filter(function (k) { return k.olcu; });
+    var tutan = dolu.filter(function (k) { return yuvaOlculeri.indexOf(k.olcu) >= 0; });
+    var altsiz = kreatifler.filter(function (k) { return k.ad && !k.alt; });
+    var eksikYuva = yuvaOlculeri.filter(function (o) {
+      return !dolu.some(function (k) { return k.olcu === o; });
+    });
+
+    kutu.innerHTML =
+      '<div class="fhint" style="margin-bottom:12px"><b style="color:var(--slate);font-size:13px">' +
+        tutan.length + ' / ' + dolu.length + ' kreatif</b> seçilen yuvalardan birinin ölçüsünü tutuyor.</div>' +
+      (eksikYuva.length
+        ? '<div class="fhint" style="margin-bottom:10px">' +
+            A.rozet('wait', eksikYuva.length + ' yuvaya kreatif yok', 'fa-triangle-exclamation') +
+            '<p style="margin:8px 0 0">Ölçüsü karşılanmayan yuva: ' + esc(eksikYuva.join(' · ')) +
+            '. O yuva kampanya süresince boş kalır.</p></div>'
+        : '<div class="fhint" style="margin-bottom:10px">' +
+            A.rozet('ok', 'Her yuvanın kreatifi var', 'fa-circle-check') + '</div>') +
+      (altsiz.length
+        ? '<div class="fhint">' + A.rozet('stop', altsiz.length + ' kreatifin alt metni yok', 'fa-ban') +
+          '<p style="margin:8px 0 0">Alt metinsiz kreatif yayına çıkamaz — ekran okuyucu onu okuyamaz.</p></div>'
+        : '<div class="fhint">' + A.rozet('ok', 'Alt metinler tam', 'fa-universal-access') + '</div>');
+  }
+
+  /* ---- tarih tutarlılığı: bitiş başlangıçtan önce olamaz ---------- */
+  var bas = document.getElementById('kfBas'), bit = document.getElementById('kfBit');
+  function tarihKontrol(){
+    if (bas.value) bit.min = bas.value;
+    var not = document.getElementById('kfSureNot');
+    if (bas.value && bit.value) {
+      var g = Math.round((new Date(bit.value) - new Date(bas.value)) / 86400000);
+      bit.setCustomValidity(g < 0 ? 'Bitiş tarihi başlangıçtan önce olamaz.' : '');
+      not.textContent = g < 0 ? 'Bitiş başlangıçtan önce — kampanya süresi negatif olamaz.'
+                              : 'Kampanya süresi ' + (g + 1) + ' gün.';
+    } else {
+      bit.setCustomValidity('');
+      not.textContent = 'Bitiş başlangıçtan önce olamaz.';
+    }
+  }
+  bas.addEventListener('change', tarihKontrol);
+  bit.addEventListener('change', tarihKontrol);
+
+  /* ---- karakter sayaçları (referans formun deseni) ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele(){
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  alanDurumBas();
+  uyumBas();
+
+  var form = document.getElementById('kfForm');
+
+  /* 🔴 GİZLİ PANELDEKİ ZORUNLU ALAN — ÖLÇÜLDÜ, TEKRARLANMASIN.
+     Sekmeli formda zorunlu bir alan KAPALI panelde kalırsa Chromium onu
+     odaklayamaz. `reportValidity()` o alanların HER BİRİ için konsola
+     "An invalid form control ... is not focusable" hatası basar, sessizce
+     `false` döner ve ekranda hiçbir uyarı belirmez — kullanıcı neyin eksik
+     olduğunu göremez. Ölçüldü (R19): kampanya formunda 2, sayfa formunda 1.
+
+     ⚠ TEK PANEL AÇMAK YETMİYOR. Önce yalnız "ilk geçersiz alanın paneli"
+     açılıyordu; `reportValidity()` diğer panellerdeki geçersiz alanlar için
+     hâlâ log basıyordu (ölçüldü: 2 hata sürüyordu). Doğrulama anında HİÇBİR
+     geçersiz alan gizli kalmamalı.
+
+     Üç adımlı çözüm — sıra bağlayıcı, üçü de aynı düğmenin dinleyicileri:
+       1. (maketKaydet'ten ÖNCE) açık paneli hatırla, panellerin hepsini aç
+       2. kabuğun `maketKaydet`i doğrular — her alan odaklanabilir, log yok
+       3. (maketKaydet'ten SONRA) geçersiz alan varsa ONUN paneline geç,
+          yoksa hatırlanan panele dön
+     Adımlar aynı olay döngüsü turunda koştuğu için arada boyama olmaz;
+     kullanıcı panellerin hepsinin açıldığını görmez. */
+  var acikPanel = null;
+  function tumPanelleriAc() {
+    var ac = document.querySelector('.sa-form-panel:not([hidden])');
+    acikPanel = ac ? ac.getAttribute('data-form-panel') : null;
+    document.querySelectorAll('.sa-form-panel').forEach(function (nd) { nd.hidden = false; });
+  }
+  function paneliGeriAl() {
+    var ilk = form.querySelector(':invalid');
+    var panel = ilk && ilk.closest('.sa-form-panel[data-form-panel]');
+    panelSec(panel ? panel.getAttribute('data-form-panel') : acikPanel);
+  }
+  ['kfKaydet', 'kfTaslak'].forEach(function (id) {
+    document.getElementById(id).addEventListener('click', tumPanelleriAc);
+  });
+
+  A.maketKaydet(document.getElementById('kfKaydet'), 'kampanya', form);
+  A.maketKaydet(document.getElementById('kfTaslak'), 'taslak', form);
+
+  /* 3. adım — doğrulama bittikten sonra paneli yerine koy. */
+  ['kfKaydet', 'kfTaslak'].forEach(function (id) {
+    document.getElementById(id).addEventListener('click', paneliGeriAl);
+  });
+})();
+</script>
+</body>
+</html>

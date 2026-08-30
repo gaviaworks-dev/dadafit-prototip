@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rehber sayfası düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — bölüm kartının içindeki iki küçük yerleşim işi.
+   Kart kabuğu (.st-card/.st-num/.st-side), madde satırı (.bd-row/.bd-list),
+   editör ve yükleme alanı fit-admin.css'te; burada tekrarlanmaz. */
+.rf-ico{display:flex;align-items:center;gap:10px}
+.rf-ico i{width:22px;flex:none;text-align:center;color:var(--acc);font-size:15px}
+.rf-ico select{flex:1;min-width:0}
+/* Bölüm kartı içindeki form ızgarası, kartın kendi dolgusuyla değil
+   .st-body'nin dikey ritmiyle akar; ek boşluk üretmesin. */
+.st-card .form-grid{margin:0}
+</style>
+</head>
+<body class="adm-body" data-adm="rehber">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-rehber-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Rehber Sayfaları</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="rfBaslikH">Yeni rehber sayfası</h1>
+        <div class="ph-sub" id="rfAlt">Künye, giriş metni ve akordiyon bölümleri tek formda.
+          Bölüm sırası public tarafta aynen görünür.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="rfOnizle" href="hareket-rehberi-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="rfKaynak"></div>
+
+    <form id="rfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="bolumler">Bölümler</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="seo">SEO</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-image" aria-hidden="true"></i> Kapak görseli</h3>
+              <div id="rfKapak"></div>
+              <div class="fhint" style="margin-top:10px">Bugün rehber sayfalarının hiçbirinde
+                kapak görseli yok — banner metinle çiziliyor. Alan, görsel eklenmek istendiğinde
+                sayfanın markup'ını değiştirmek gerekmesin diye kuruldu.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfBaslik">Sayfa başlığı <span class="req">*</span></label>
+                  <input class="finput" id="rfBaslik" name="baslik" type="text" required maxlength="90"
+                         placeholder="Örn. Doğru form: güvenle ve bilinçle hareket" />
+                  <span class="fsay" data-say-for="rfBaslik">0 / 90</span>
+                  <div class="fhint">Banner'daki <code>&lt;h1&gt;</code>. Menüde görünen kısa ad
+                    üst etiketten okunur.</div>
+                </div>
+                <div class="frow">
+                  <label for="rfSlug">Adres <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">dadafit.com/</span>
+                    <input class="finput" id="rfSlug" name="slug" type="text" required maxlength="60"
+                           pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="hareket-dogru-form-v1" />
+                  </div>
+                  <div class="fhint">Yalnız küçük harf, rakam ve tire. Rehber sayfalarının adresi
+                    <b>destek sayfasından, hub'dan ve kardeş rehberlerden</b> bağlanıyor; bir kez
+                    yayımlandıktan sonra değiştirilirse o bağlantılar kırılır.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="rfUst">Üst etiket <span class="opt">— banner'daki eyebrow satırı</span></label>
+                    <input class="finput" id="rfUst" name="ust" type="text" maxlength="60"
+                           placeholder="Hareket Rehberi · Doğru Form" />
+                  </div>
+                  <div class="frow">
+                    <label for="rfIkon">Sayfa ikonu</label>
+                    <div class="rf-ico">
+                      <i id="rfIkonOn" class="fa-solid fa-book-open" aria-hidden="true"></i>
+                      <select class="fselect" id="rfIkon" name="ikon"></select>
+                    </div>
+                    <div class="fhint">Havuz uydurulmadı: bugün rehber sayfalarında ve bölüm
+                      başlıklarında <b id="rfIkonSay">0</b> ayrı ikon kullanılıyor, liste onlardan doğuyor.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="rfOzet">Kısa özet <span class="req">*</span>
+                    <span class="opt">— banner altındaki tek paragraf</span></label>
+                  <textarea class="ftext" id="rfOzet" name="ozet" required maxlength="320"
+                            placeholder="Sayfanın ne anlattığını iki cümleyle söyle."></textarea>
+                  <span class="fsay" data-say-for="rfOzet">0 / 320</span>
+                </div>
+                <div class="frow">
+                  <label for="rfGiris">Giriş metni <span class="opt">— akordiyondan önceki prose bloğu</span></label>
+                  <textarea class="ftext" id="rfGiris" name="giris"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-link" aria-hidden="true"></i> İlişkili hareketler</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Bu rehberin işaret ettiği hareketler</label>
+                  <div id="rfHareket"></div>
+                  <div class="fhint">Katalog gerçek: <b id="rfHarSay">0</b> hareketlik
+                    <code>fit-admin-veri.js</code> kaydından okunuyor. Rehber sayfaları bugün
+                    hareketlere <b>gövde metninin içindeki bağlantılarla</b> gidiyor; bu alan o
+                    ilişkiyi metinden çıkarıp veriye taşır.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- BÖLÜMLER ---- -->
+          <div class="sa-form-panel" data-form-panel="bolumler" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i> Akordiyon bölümleri
+                <span class="fs-say" id="rfBolumSay">0 bölüm</span>
+              </h3>
+              <div class="st-list" id="rfBolumler"></div>
+              <button class="add-row" type="button" id="rfBolumEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Bölüm ekle</button>
+              <div class="fhint" style="margin-top:10px">Her bölüm public tarafta bir akordiyon
+                kartıdır: başlık, ikon, gövde ve altındaki madde listesi. Sıra public tarafta
+                aynen görünür — tutamağı sürükle ya da odaktayken ↑ / ↓ ile taşı.</div>
+            </div>
+          </div>
+
+          <!-- ---- SEO ---- -->
+          <div class="sa-form-panel" data-form-panel="seo" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Arama motoru</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfMetaT">Meta başlık</label>
+                  <input class="finput" id="rfMetaT" name="meta_title" type="text" maxlength="180"
+                         placeholder="Boş bırakılırsa sayfa başlığı kullanılır" />
+                  <span class="fsay" data-say-for="rfMetaT">0 / 60 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="rfMetaD">Meta açıklama</label>
+                  <textarea class="ftext" id="rfMetaD" name="meta_desc" maxlength="320"
+                            placeholder="Arama sonucunda görünen iki cümle."></textarea>
+                  <span class="fsay" data-say-for="rfMetaD">0 / 160 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="rfCanon">Canonical adres</label>
+                  <input class="finput" id="rfCanon" name="canonical" type="url"
+                         placeholder="https://dadafit.com/hareket-rehberi/…" />
+                  <div class="fhint">Ölçüldü: bugün <b>54 sayfanın 54'ünde</b> canonical boş —
+                    Sayfalar ve SEO ekranı da aynı eksiği gösteriyor.</div>
+                </div>
+                <div class="frow">
+                  <label for="rfOdak">Odak anahtar sözcük</label>
+                  <input class="finput" id="rfOdak" name="focus" type="text" placeholder="doğru form" />
+                </div>
+                <div class="frow">
+                  <label>Paylaşım görseli</label>
+                  <div id="rfOg"></div>
+                  <input type="hidden" name="og_image" id="rfOgAlan" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-rehber-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="rfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="rfKaydet">Rehber sayfasını kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfDurum">Durum</label>
+                  <select class="fselect" id="rfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                </div>
+                <div class="frow">
+                  <label for="rfTarih">Yayın tarihi</label>
+                  <input class="finput" id="rfTarih" name="yayin_tarihi" type="date" />
+                </div>
+                <div class="toggle-row">
+                  <span>Rehber merkezinde kart olarak göster</span>
+                  <label class="toggle"><input type="checkbox" name="merkezde" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Öne çıkar</span>
+                  <label class="toggle"><input type="checkbox" name="one_cikar" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>SEO skoru</h2></div>
+            <div class="pc-body" id="rfSeo"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen rehber sayfası, ona bağlanan
+                <b id="rfBaglanti">0</b> kardeş sayfadan da düşer; kırık bağlantı bırakmamak için
+                önce o bağlantılar temizlenmeli.</div>
+              <button class="btn btn-ghost" type="button" id="rfSil"
+                      data-yikici="Rehber sayfası" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Sayfayı sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<!-- BÖLÜM KARTI ŞABLONU — Gastro'nun `_section-card.blade.php` deseni:
+     .st-num (sıra) + .st-body (alanlar) + .st-side (tutamak + sil). -->
+<template id="rfBolumSablon">
+  <div class="st-card">
+    <span class="st-num">1</span>
+    <div class="st-body">
+      <span class="cb-kind"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Bölüm</span>
+      <div class="form-grid">
+        <div class="frow two">
+          <div class="frow">
+            <label>Bölüm başlığı</label>
+            <input class="finput" type="text" data-field="baslik" name="bolum_baslik[]"
+                   placeholder="Örn. Doğru form neden önemli?" />
+          </div>
+          <div class="frow">
+            <label>Bölüm ikonu</label>
+            <div class="rf-ico">
+              <i class="fa-solid fa-circle-question" data-ico-on aria-hidden="true"></i>
+              <select class="fselect" data-field="ico" name="bolum_ikon[]"></select>
+            </div>
+          </div>
+        </div>
+        <div class="frow">
+          <label>Gövde</label>
+          <textarea class="ftext" data-field="govde" name="bolum_govde[]"
+                    placeholder="Bölümün paragrafları."></textarea>
+        </div>
+        <div class="frow">
+          <label>Madde listesi <span class="opt">— gövdenin altındaki maddeler</span></label>
+          <div class="bd-list" data-madde-liste></div>
+          <button class="add-row" type="button" data-madde-ekle>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Madde ekle</button>
+        </div>
+      </div>
+      <input type="hidden" data-field="position" value="0" />
+    </div>
+    <div class="st-side">
+      <button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala"
+              aria-label="Bölümü sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">
+        <i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>
+      <button class="ie-del" type="button" title="Bölümü sil" aria-label="Bölümü sil">
+        <i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+    </div>
+  </div>
+</template>
+
+<!-- MADDE SATIRI ŞABLONU — hafif repeater (.bd-row): tek alan + sil. -->
+<template id="rfMaddeSablon">
+  <div class="bd-row">
+    <input class="finput" type="text" data-field="metin" name="bolum_madde[]"
+           placeholder="Örn. Sakatlanma riskini belirgin şekilde azaltır." />
+    <button class="ie-del" type="button" title="Maddeyi sil" aria-label="Maddeyi sil">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  </div>
+</template>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   REHBER SAYFASI FORMU   (kalıp: K-FORM · taban: Gastro Püf Noktaları)
+   ---------------------------------------------------------------------
+   Ölçüm: `docs/gastro-olcum/form-kalibi.md` §2.5 — Püf Noktaları formu
+   (447 satır + `_section-card.blade.php` 66) üç sekmeli, tek repeater'lı,
+   akordiyon BÖLÜM KARTI desenini kullanıyor. Fit'in rehber sayfası aynı
+   yapıda: banner → giriş prose → akordiyon bölümleri.
+   Referans ekran `admin-hareket-form-v1.html`; kabuk bileşenleri oradan.
+
+   NE YÖNETİYOR — `fit-yonetilmeyenler.md` C-6:
+   9 rehber sayfası, 49 akordiyon bölümü, 153 madde ve 171 paragraf bugün
+   HTML'in içinde duruyor; `admin-sayfalar` yalnız <title>/<meta> alıyor.
+   Bu form o gövdeyi alan hâline getiriyor.
+
+   🔴 VERİ GERÇEK, AMA ANLIK GÖRÜNTÜ. Aşağıdaki REHBER dizisi
+   2026-08-30'da dokuz public sayfadan mekanik olarak çıkarıldı (başlık ·
+   üst etiket · ikon · özet · giriş · bölüm başlığı/ikonu/gövdesi/madde
+   listesi). Depodaki emsali `assets/js/fit-admin-veri.js` — o da
+   `tools/admin-veri-uret.mjs` ile sayfalardan üretilen bir KOPYA.
+   Sunucu doğduğunda ikisi de tek okumayla yer değiştirir.
+
+   İKİ İÇ İÇE REPEATER — kabuğa yamamadan.
+   `FIT_ADMIN.tekrar` iç içe kullanılmak üzere yazılmamış; iki noktada
+   çakışıyordu ve ikisi de KABUĞA DOKUNMADAN çözüldü:
+     1. iç `.ie-del` tıklaması dış listeye baloncuklanıyor — dış sürücü
+        `closest('.st-card')` null döndüğü için satırı silmiyor (kopmuş
+        düğümün ata zinciri `.bd-row`de bitiyor). Zararsız, ölçüldü.
+     2. dış `tazele()` `liste.querySelectorAll('.ie-del')` ile İÇ silme
+        düğmelerini de yakalıyor ve `enAz`a göre kapatabiliyordu — bu
+        yüzden iki repeater da `enAz:0` ile kuruldu; kimse kimsenin
+        düğmesini kapatmıyor.
+   Kabukta gerçek bir iç içe sözleşme yok; lead'e bildirildi.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI || {};
+  var HAREKET = V.HAREKET || [];
+
+  /* ---- 2026-08-30 · dokuz public sayfadan çıkarılan anlık görüntü ---- */
+  var REHBER = [
+  { slug:"hareket-rehberi-v1", tur:"merkez",
+    baslik:"Doğru hareket, güvenli başlangıç, günlük aktivite",
+    ust:"Hareket Rehberi", ikon:"fa-solid fa-book-open",
+    ozet:"Yeni başlayanlardan düzenli spor yapanlara kadar herkes için — nasıl, neden ve hangi seviyede hareket edeceğini adım adım öğreten rehber.",
+    giris:"",
+    bolumler:[
+
+    ] },
+  { slug:"hareket-yeni-baslayanlar-v1", tur:"makale",
+    baslik:"Harekete başlamak için hiç geç değil",
+    ust:"Hareket Rehberi · Yeni Başlayanlar", ikon:"fa-solid fa-seedling",
+    ozet:"Ne kadar süredir hareket etmediğin önemli değil. Bugün, olduğun yerden, küçük bir adımla başlanır. Bu rehber seni yarıştırmaz — yanında yürür.",
+    giris:"",
+    bolumler:[
+      { ico:"fa-solid fa-clock-rotate-left", baslik:"Spora başlamak için geç mi kaldım?",
+        govde:"<p>Hayır. Beden, hangi yaşta ve hangi noktada olursan ol, düzenli harekete uyum sağlar. “Geç kaldım” hissi çoğu zaman gerçeği değil, cesareti erteler. Önemli olan başlama tarihin değil, bugünden sonra ne yaptığın.</p><p>Kendine hatırlat:</p>",
+        maddeler:["Kimseyle yarışmıyorsun — kıyas ölçüsü dünkü sen.",
+                  "İlk hafta “az” gibi görünen şey, aslında en zor adım: başlamak.",
+                  "Küçük ama sürekli, büyük ama bir kerelikten iyidir."] },
+      { ico:"fa-solid fa-house", baslik:"Evde, ekipmansız başlayabilir miyim?",
+        govde:"<p>Kesinlikle. Başlangıç için ne spor salonuna ne de ekipmana ihtiyacın var. Yürüyüş, hafif esneme ve gün içindeki hareketi artırmak, ilk haftalar için fazlasıyla yeterli.</p>",
+        maddeler:["Kısa bir yürüyüşle başla — mahalle turu bile sayılır.",
+                  "Rahat kıyafet ve düz bir zemin, başlamak için yeter.",
+                  "Zorlanırsan yavaşla; amaç kendini kanıtlamak değil, alışmak."] },
+      { ico:"fa-solid fa-calendar-week", baslik:"İlk 7 günde ne yapmalıyım?",
+        govde:"<p>İlk hafta bir “antrenman planı” değil, bir <strong>alışma haftası</strong> olsun. Aşağıdaki akış bir zorunluluk değil, nazik bir öneri — kendi tempona göre kaydır.</p>",
+        maddeler:["<strong>1–2. gün:</strong> 10 dakikalık rahat yürüyüş.",
+                  "<strong>3. gün:</strong> Dinlenme — dinlenmek de plana dahildir.",
+                  "<strong>4–5. gün:</strong> Yürüyüşe birkaç dakika ekle, sonunda hafif esne.",
+                  "<strong>6. gün:</strong> Gün içinde daha çok ayakta kal, asansör yerine merdiven.",
+                  "<strong>7. gün:</strong> Haftanı gözden geçir — neyi sevdin, neyi tekrarlarsın?"] },
+      { ico:"fa-solid fa-person-walking", baslik:"Hareketsiz bir hayattan nasıl aktif olurum?",
+        govde:"<p>Büyük bir değişimi tek seferde yapmaya çalışmak yerine, yeni hareketi zaten var olan bir alışkanlığa ekle. Bu “ekleme” yöntemi devam etmeyi çok kolaylaştırır.</p>",
+        maddeler:["Sabah kahveni beklerken birkaç dakika esne.",
+                  "Telefon görüşmelerini ayakta ya da yürüyerek yap.",
+                  "Her akşam kısa bir tur — aynı saatte olması alışkanlığı pekiştirir."] },
+      { ico:"fa-solid fa-hourglass-half", baslik:"Günde 10 dakika hareket yeter mi?",
+        govde:"<p>Başlangıç için evet — hatta ideal. Günde 10 dakika, “hiç”ten kıyaslanmayacak kadar iyidir ve en önemlisi, sürdürülebilir. Süreyi zamanla, kendini hazır hissettikçe artırırsın.</p><p>Neden işe yarar:</p>",
+        maddeler:["Küçük hedef = daha az erteleme, daha çok tamamlama.",
+                  "Süreklilik, tek seferlik uzun antrenmandan daha kalıcıdır.",
+                  "10 dakika çoğu gün 15’e, sonra 20’ye kendiliğinden döner."] },
+      { ico:"fa-solid fa-heart", baslik:"Bir gün kaçırırsam ya da motivasyonum düşerse?",
+        govde:"<p>Bir günü kaçırmak, hiçbir şeyi bozmaz. Süreç bir gün atlamayla değil, “nasılsa bozuldu” deyip tamamen bırakmakla kesintiye uğrar. Kaçırdığın günü telafi etmeye çalışma — sadece ertesi gün kaldığın yerden devam et.</p>",
+        maddeler:["Mükemmel değil, devam eden ol.",
+                  "Kendine kızmak yerine, en küçük adımı at: 2 dakikalık yürüyüş bile sayılır.",
+                  "Motivasyon her gün gelmez; alışkanlık onun yokluğunda taşır."] }
+    ] },
+  { slug:"hareket-dogru-form-v1", tur:"makale",
+    baslik:"Doğru form: güvenle ve bilinçle hareket",
+    ust:"Hareket Rehberi · Doğru Form", ikon:"fa-solid fa-shield-heart",
+    ozet:"Doğru form, hareketten en çok verimi almanın ve kendini sakatlamadan sürdürmenin yolu. Bu sayfa sana adım adım açı talimatı vermez — hareket ederken nelere dikkat edeceğine dair bir bilinç kazandırır.",
+    giris:"<p><strong>Doğru form, hareketin görünmez ama en önemli parçasıdır.</strong> Aynı hareketi kontrollü ve bilinçli yaptığında bedenin ondan tam olarak beklediğin faydayı alır; acele ve dikkatsiz yaptığında ise hem verim düşer hem de sakatlanma riski artar.</p> <p>Bu sayfa sana “dizini şu açıya getir” gibi <strong>adım adım talimatlar vermez</strong> — çünkü yanlış anlaşılan bir yazı, iyi niyetle bile risk taşır. Bunun yerine amacımız, hareket ederken kendi bedenini nasıl dinleyeceğini ve formunu nasıl kontrol edeceğini kavramaktır. Her hareketin nasıl yapıldığını görmek için bir video izlemen, emin olmak için bir antrenörle çalışman en güvenli yoldur.</p>",
+    bolumler:[
+      { ico:"fa-solid fa-shield-heart", baslik:"Doğru form neden önemli?",
+        govde:"<p>Doğru form iki şeyi aynı anda korur: hareketin <strong>verimini</strong> ve senin <strong>güvenliğini</strong>. Kontrollü yapılan bir hareket, çalıştırmayı hedeflediğin bölgeye ulaşır; savrularak yapılan aynı hareket ise hem etkisini kaybeder hem de bedeni gereksiz yere zorlar.</p><p>Kısaca doğru form:</p>",
+        maddeler:["Emeğinin karşılığını almanı sağlar — boşa yorulmazsın.",
+                  "Sakatlanma riskini belirgin şekilde azaltır.",
+                  "Uzun vadede devam edebilmeni, yani sürekliliği mümkün kılar."] },
+      { ico:"fa-solid fa-video", baslik:"Formumu nasıl kontrol ederim?",
+        govde:"<p>Formunu kontrol etmenin en güvenli yolu, hareketi doğru yapan birini izleyip kendi hareketini onunla kıyaslamaktır. Aşağıdakiler kavramsal yöntemlerdir — hangisi sana uygunsa onunla başla.</p>",
+        maddeler:["Hareketin nasıl yapıldığını gösteren bir <strong>videoyu</strong> dikkatle izle.",
+                  "Mümkünse bir <strong>aynanın</strong> karşısında çalışarak kendini gözle.",
+                  "Telefonunla kendini <strong>çek</strong> ve sonra izleyerek fark et.",
+                  "Emin olamadığında bir <strong>antrenöre</strong> danış — en net geri bildirim odur."] },
+      { ico:"fa-solid fa-triangle-exclamation", baslik:"Yeni başlayanların en sık yaptığı hatalar neler?",
+        govde:"<p>Yeni başlarken yapılan hataların çoğu, hareketin kendisiyle değil <strong>yaklaşımla</strong> ilgilidir. Aşağıdakiler en yaygın olanları — bunların farkında olmak, çoğunu baştan önler.</p>",
+        maddeler:["<strong>Acele etmek:</strong> hareketi savurmak yerine kontrollü ve yavaş yapmak daha güvenlidir.",
+                  "<strong>Nefesi tutmak:</strong> hareket boyunca düzenli nefes almak önemlidir.",
+                  "<strong>Isınmadan başlamak:</strong> beden hazır değilken zorlanmak riski artırır.",
+                  "<strong>Ağrıyı görmezden gelmek:</strong> ağrı bir uyarıdır, kahramanlık değil.",
+                  "<strong>Aşırı ağırlık:</strong> taşıyamayacağın yükle başlamak formu bozar."] },
+      { ico:"fa-solid fa-hand", baslik:"Ağrı ya da rahatsızlık hissedersem?",
+        govde:"<p>Basit kural: keskin ya da alışılmadık bir ağrı hissedersen <strong>dur</strong>. Kasların çalıştığını gösteren hafif yorgunluk normaldir; ama batma, zonklama veya bir yeri “yanlış” hissettiren rahatsızlık bir uyarıdır — zorlayarak geçirmeye çalışma.</p><p>Ağrı hissettiğinde:</p>",
+        maddeler:["Hareketi bırak, kendini zorlamayı ısrarla sürdürme.",
+                  "Kısa bir dinlenme ver; geçici bir yorgunluk mu, gerçek bir ağrı mı ayırt et.",
+                  "Ağrı geçmiyor ya da tekrar ediyorsa bir uzmana danış."] },
+      { ico:"fa-solid fa-dumbbell", baslik:"Ağırlık ya da ekipmanı ne zaman artırmalıyım?",
+        govde:"<p>Ağırlığı ya da zorluğu artırmanın tek doğru zamanı, formun <strong>oturduğu</strong> andır. Hareketi rahatça, kontrolü kaybetmeden ve doğru şekilde yapabiliyorsan, o zaman kademeli bir artış düşünülebilir.</p>",
+        maddeler:["Önce hareketi doğru yap; ağırlık, formdan sonra gelir.",
+                  "Artışı <strong>kademeli</strong> tut — büyük sıçramalar formu bozar.",
+                  "Yeni ağırlıkta form bozuluyorsa, bir önceki seviyeye geri dön."] },
+      { ico:"fa-solid fa-user-check", baslik:"Tek başıma mı yoksa antrenörle mi çalışmalıyım?",
+        govde:"<p>Tek başına çalışmak mümkündür, ama özellikle <strong>başlangıçta</strong> bir antrenörle çalışmanın değeri büyüktür. Sen kendini dışarıdan göremezsin; bir antrenör formundaki küçük ayrıntıları anında fark eder ve seni güvenli yolda tutar.</p>",
+        maddeler:["Antrenör, formunu sen fark etmeden düzeltir — sakatlığı önler.",
+                  "Sana ve hedefine uygun, güvenli bir başlangıç kurgular.",
+                  "İlerledikçe kendi başına daha bilinçli çalışabilir hale gelirsin."] }
+    ] },
+  { slug:"hareket-sureye-gore-v1", tur:"makale",
+    baslik:"Vaktin ne kadarsa, ona göre hareket",
+    ust:"Hareket Rehberi · Süreye Göre", ikon:"fa-solid fa-stopwatch",
+    ozet:"“Vaktim yok” hepimizin en sık bahanesi. Oysa hareket için ille de boş bir saat gerekmiyor — elindeki 5 dakika bile değerli. Bu rehber, o küçük aralıkları nasıl kullanacağını gösterir.",
+    giris:"<p><strong>Zaman bulmayı beklersen, o gün nadiren gelir.</strong> Çoğu insan hareketi “yeterince vaktim olduğunda” yapmaya erteler; sonuç, sürekli ertelenen bir niyet olur. Oysa mesele uzun süre ayırmak değil, olan süreyi kullanmaktır.</p> <p>Kısa da olsa hareket etmek, hiç etmemekten kıyaslanmayacak kadar değerlidir. Aşağıda süreye göre ayırdığımız başlıklar, elindeki vakit ne olursa olsun sana bir başlangıç noktası sunar — <strong>5 dakikan da olsa, yarım saatin de.</strong></p>",
+    bolumler:[
+      { ico:"fa-solid fa-bolt", baslik:"Sadece 5 dakikam var",
+        govde:"<p>5 dakika “boşa geçer” gibi görünse de, hareketsiz bir güne kıyasla çok şey ifade eder. Amaç bu sürede antrenman yapmak değil; bedeni kımıldatmak ve “bugün de hareket ettim” hissini korumak.</p><p>Bu kısacık aralıkta:</p>",
+        maddeler:["Ayağa kalk, birkaç dakika evin içinde ya da kapı önünde yürü.",
+                  "Omuz, boyun ve bacaklarını rahatça esnet.",
+                  "Küçük tut — 5 dakikayı zorlamadan bitirmek, 20 dakikayı erteleyip hiç yapmamaktan iyidir."] },
+      { ico:"fa-solid fa-stopwatch", baslik:"10 dakikada ne yapılır?",
+        govde:"<p>10 dakika, bir “mini hareket seansı” için fazlasıyla yeterli. Bu sürede kendini yormadan ısınıp biraz aktif olabilir, günün geri kalanına daha canlı devam edebilirsin.</p>",
+        maddeler:["İlk birkaç dakikayı hafif ısınmaya ayır — acele etme.",
+                  "Tempolu bir yürüyüş ya da hoşuna giden basit hareketlerle devam et.",
+                  "Sonunda birkaç dakika esneyerek yavaşça bitir."] },
+      { ico:"fa-solid fa-clock", baslik:"15–20 dakikalık akış",
+        govde:"<p>15–20 dakika, hem ısınıp hem biraz daha oturaklı hareket etmen için rahat bir aralık. Bu sürede bir “başı–ortası–sonu” olan küçük bir akış kurabilirsin.</p><p>Genel bir düzen:</p>",
+        maddeler:["Isınma ile başla — bedeni yavaşça uyandır.",
+                  "Ortada asıl hareketine zaman ayır; keyif aldığın bir şey seç.",
+                  "Nefesine ve bedenine kulak ver; zorlanırsan tempoyu düşür.",
+                  "Birkaç dakikalık esneme ile kapat."] },
+      { ico:"fa-solid fa-hourglass-half", baslik:"30 dakika ve üzeri",
+        govde:"<p>Yarım saat ve üzeri vaktin olduğu günler bir “bonus”. Ama daha uzun süre, otomatik olarak daha iyi demek değil — önemli olan bu zamanı keyifle ve kendini fazla zorlamadan geçirmek.</p>",
+        maddeler:["Uzun süreyi tek bloka sıkıştırmak zorunda değilsin; araya kısa molalar koyabilirsin.",
+                  "Sevdiğin bir aktiviteyle birleştir — yürüyüşe müzik ya da sohbet eşlik edebilir.",
+                  "Bugün uzun yaptıysan, yarın kısa yapman gayet doğal; her gün aynı olmak zorunda değil."] },
+      { ico:"fa-solid fa-shuffle", baslik:"Vaktim çok düzensiz, nasıl?",
+        govde:"<p>Her günü aynı saatte planlayamıyorsan, sorun sende değil, katı planda. Düzensiz bir hayatta işe yarayan yöntem, sabit bir saat değil, ortaya çıkan boşlukları değerlendirmektir.</p>",
+        maddeler:["Günün belli bir saatini değil, “ilk fırsat”ı hedef al.",
+                  "Hareketi zaten yaptığın bir işe iliştir: bekleme, mola, telefon görüşmesi.",
+                  "Bazı günler 5 dakika, bazı günler yarım saat olması tamamen normal — esneklik burada güç."] },
+      { ico:"fa-solid fa-arrow-trend-up", baslik:"Süreyi zamanla nasıl artırırım?",
+        govde:"<p>Süreyi artırmanın en sağlam yolu, ani sıçramalar değil, küçük ve fark edilmeyecek eklemelerdir. Beden alıştıkça, kısa süreler kendiliğinden uzamaya başlar.</p><p>Nazikçe ilerlemek için:</p>",
+        maddeler:["Rahatça yapabildiğin süreye her seferinde küçük bir ekleme yeter.",
+                  "Yeni süre birkaç gün rahat gelmeye başladığında bir adım daha at.",
+                  "Zorlandığın gün geri çekilmek başarısızlık değil; süreklilik hep hızdan önemlidir."] }
+    ] },
+  { slug:"hareket-hedefe-gore-v1", tur:"makale",
+    baslik:"Hedefini seç, sana uygun hareketi bul",
+    ust:"Hareket Rehberi · Hedefe Göre", ikon:"fa-solid fa-bullseye",
+    ozet:"Herkesin hareketten beklediği farklı. Daha aktif olmak, güçlenmek ya da sadece iyi hissetmek — hepsi geçerli birer başlangıç noktası.",
+    giris:"",
+    bolumler:[
+      { ico:"fa-solid fa-person-walking", baslik:"Daha aktif olmak",
+        govde:"<p>Amacın performans değil, gün içinde daha çok hareket etmekse en kolay başlangıç noktasındasın. Buradaki hedef karmaşık bir plan değil, oturma süreni azaltıp bedeni düzenli olarak harekete alıştırmak.</p><p>Genel olarak işe yarayan</p>",
+        maddeler:["Kısa ama sık hareket: gün içine dağılmış yürüyüşler, ayağa kalkmalar",
+                  "Zorlamadan, keyif aldığın bir tempoyla başlamak",
+                  "Süreyi zamanla azar azar uzatmak"] },
+      { ico:"fa-solid fa-dumbbell", baslik:"Güçlenmek",
+        govde:"<p>Kaslarını daha güçlü hissetmek, günlük işleri (çanta taşımak, merdiven çıkmak) daha kolay yapmak istiyorsan hedefin kuvvet. Bu, ille ağır ağırlıklar demek değil; kontrollü direnç çalışması demek.</p><p>Genel olarak işe yarayan</p>",
+        maddeler:["Büyük kas gruplarını çalıştıran temel hareketler",
+                  "Kendi vücut ağırlığından başlayıp kademeli zorlaştırmak",
+                  "Kaslara toparlanması için dinlenme günü tanımak"] },
+      { ico:"fa-solid fa-child-reaching", baslik:"Esneklik &amp; mobilite",
+        govde:"<p>Sabahları tutuk hissediyor, eğilip bir şey almakta zorlanıyorsan hedefin esneklik ve hareket açıklığı olabilir. Bu, eklemlerin rahat hareket etmesi ve günlük tutulmaların azalması ile ilgili.</p><p>Genel olarak işe yarayan</p>",
+        maddeler:["Nazik, zorlamadan yapılan esneme ve mobilite akışları",
+                  "Düzenlilik: kısa ama sık tekrar, uzun ve seyrekten daha etkili",
+                  "Nefesi tutmadan, rahat bir aralıkta kalmak"] },
+      { ico:"fa-solid fa-heart-pulse", baslik:"Kondisyon &amp; dayanıklılık",
+        govde:"<p>Çabuk yorulmak yerine daha uzun süre dinç kalmak, nefesini daha iyi toplamak istiyorsan hedefin kalp-akciğer dayanıklılığı. Yürüyüş, bisiklet, yüzme gibi ritmik hareketler bu alanı genel olarak destekler.</p><p>Genel olarak işe yarayan</p>",
+        maddeler:["Konuşabildiğin, rahat bir tempoda süreyi kademeli artırmak",
+                  "Sevdiğin bir hareket türü seçmek — sürdürülebilirlik önemli",
+                  "Yorgunluk sinyalini dinleyip toparlanmaya alan bırakmak"] },
+      { ico:"fa-solid fa-sun", baslik:"Günlük enerji &amp; iyi hissetmek",
+        govde:"<p>Bazen hedef bir rakam değil, sadece kendini daha iyi ve enerjik hissetmektir. Hareket, ruh halini ve gün içindeki dinçliği desteklemenin en erişilebilir yollarından biri olarak yaygın kabul görür.</p><p>Genel olarak işe yarayan</p>",
+        maddeler:["Zevk aldığın, yük gibi gelmeyen bir hareket seçmek",
+                  "Küçük ama düzenli seanslar — mükemmel olmasına gerek yok",
+                  "Nasıl hissettirdiğini takip edip buna göre ayar yapmak"] },
+      { ico:"fa-solid fa-compass", baslik:"Hedefimi nasıl seçerim?",
+        govde:"<p>Birden fazla hedef arasında kaldıysan endişelenme; hepsi birbirini besler. Güçlenirken kondisyonun da artar, aktifleştikçe genellikle daha iyi hissedersin. Önemli olan bir yerden başlamak ve zamanla ne istediğini keşfetmek.</p><p>Karar verirken</p>",
+        maddeler:["\"Şu an hayatımda neyi kolaylaştırmak isterim?\" diye sor",
+                  "Şu an sürdürebileceğin en küçük adımı seç — hız sonra gelir",
+                  "Kararsızsan bir antrenörle konuşmak yönünü netleştirir"] }
+    ] },
+  { slug:"hareket-bolgeye-gore-v1", tur:"makale",
+    baslik:"Çalışmak istediğin bölgeye göre hareket",
+    ust:"Hareket Rehberi · Bölgeye Göre", ikon:"fa-solid fa-child-reaching",
+    ozet:"Karın, bacak, sırt ya da kol… Belirli bir bölgeye odaklanmak isteyebilirsin. Bunun ne anlama geldiğini sade bir dille anlatalım; ama unutma, beden bir bütün.",
+    giris:"<p>Çoğu zaman aynaya bakıp \"şu bölgeyi biraz daha çalışsam\" diye düşünürüz. Bu son derece doğal. <strong>Bölgesel çalışmak</strong>, hareketlerini belli bir kas grubuna yoğunlaştırmak anlamına gelir; örneğin bir gün karın ve core bölgesine, başka bir gün bacaklara ağırlık vermek gibi.</p> <p>Ama önemli bir noktayı baştan söyleyelim: beden tek bir bölgeden ibaret değil. Bir kası çalıştırırken çevresindeki pek çok kas ona destek olur. Bu yüzden en sağlıklı yaklaşım, tek bir bölgeye saplanıp kalmak değil, <strong>dengeli</strong> bir program içinde odak noktaları belirlemektir. Aşağıdaki başlıklar sana hangi bölgenin kabaca neyi kapsadığını gösterir.</p>",
+    bolumler:[
+      { ico:"fa-solid fa-shield", baslik:"Karın &amp; core",
+        govde:"<p>Core, gövdenin merkezi demek: karın kasları, yan bölgeler ve sırtın alt kısmı birlikte çalışır. Sanıldığının aksine sadece \"karın kası\" değildir; bedeni dik tutan, dengeni sağlayan bütün bir bölgedir.</p><p>Genel olarak neye yarar</p>",
+        maddeler:["Duruşu ve dengeyi destekler",
+                  "Günlük hareketlerde belini korumaya yardımcı olur",
+                  "Neredeyse tüm hareketlerin temelini oluşturur"] },
+      { ico:"fa-solid fa-person-running", baslik:"Bacak &amp; kalça",
+        govde:"<p>Bacak ve kalça, bedenin en büyük kas gruplarını barındırır. Yürümek, merdiven çıkmak, oturup kalkmak gibi günlük her hareket bu bölgeyle iç içedir.</p><p>Genel olarak neye yarar</p>",
+        maddeler:["Günlük hareketliliği ve dayanıklılığı destekler",
+                  "Alt beden gücünü kavramsal olarak geliştirir",
+                  "Büyük kas grupları olduğu için genel enerji dengesine katkı sağlar"] },
+      { ico:"fa-solid fa-user", baslik:"Sırt &amp; bel",
+        govde:"<p>Sırt ve bel bölgesi, gün boyu farkında olmadan en çok yorulan yerlerden biridir; özellikle masa başında çok vakit geçiriyorsan. Bu bölgeyi tanımak, duruşunu daha bilinçli değerlendirmeni sağlar.</p><p>Genel olarak neye yarar</p>",
+        maddeler:["Dik ve rahat bir duruşa katkıda bulunur",
+                  "Core ile birlikte gövdeyi dengeler",
+                  "Uzun süre oturmanın verdiği yorgunluğu dengelemeye yardımcı olur"] },
+      { ico:"fa-solid fa-hand-fist", baslik:"Kol &amp; omuz",
+        govde:"<p>Kol ve omuz bölgesi, taşımak, itmek, çekmek gibi üst beden hareketlerinin merkezidir. Görece küçük kas grupları olsalar da günlük hayatta sık kullanılırlar.</p><p>Genel olarak neye yarar</p>",
+        maddeler:["Üst beden hareketlerini destekler",
+                  "Omuz bölgesinin rahat ve hareketli kalmasına katkı sağlar",
+                  "Günlük taşıma-tutma işlerini kolaylaştırır"] },
+      { ico:"fa-solid fa-arrows-to-circle", baslik:"Tüm vücut / kombine",
+        govde:"<p>Bölgeleri tek tek düşünmek yerine, birçok kas grubunu aynı anda harekete katan bir yaklaşım da vardır. Kombine çalışmak, bedeni bir bütün olarak ele alır ve genellikle yeni başlayanlar için de dengeli bir başlangıçtır.</p><p>Genel olarak neye yarar</p>",
+        maddeler:["Bedeni dengeli bir şekilde çalıştırır",
+                  "Zamanı verimli kullanmayı sağlar",
+                  "Tek bir bölgeyi ihmal etme riskini azaltır"] },
+      { ico:"fa-solid fa-circle-question", baslik:"Bölge çalışmak oradan yağ yakar mı?",
+        govde:"<p>Bu, çok yaygın bir sorudur: \"Karın çalışırsam karnım incelir mi?\" Egzersiz biliminde genel olarak kabul edilen yaklaşım, belirli bir bölgeyi çalışarak <strong>sadece oradan yağ yakmanın</strong> mümkün olmadığı yönündedir. Buna çoğu zaman \"nokta yağ yakımı miti\" denir.</p><p>Beden, yağı bölgesel bir komutla değil, genel bir denge içinde kullanır. Yani bir bölgeyi çalışmak o bölgenin kaslarını güçlendirebilir, ama yağ kullanımı bütünsel bir süreçtir; uyku, hareket alışkanlıkları ve genel yaşam düzeniyle ilişkilidir.</p><p>Aklında kalsın</p>",
+        maddeler:["Tek bölge çalışmak o bölgeden seçici yağ yakmaz",
+                  "Bölgesel güçlenme ile yağ kullanımı farklı şeylerdir",
+                  "Dengeli hareket ve genel yaşam düzeni bütününe odaklanmak daha gerçekçidir"] }
+    ] },
+  { slug:"hareket-masa-basi-v1", tur:"makale",
+    baslik:"Masa başında gün boyu hareketli kal",
+    ust:"Hareket Rehberi · Masa Başı", ikon:"fa-solid fa-chair",
+    ozet:"Uzun oturmayı kısa molalarla bölmek, günün geri kalanını daha rahat ve enerjik geçirmenin en pratik yollarından biri. Ne spor kıyafeti ne de ekstra vakit gerekir — sadece küçük duraklar.",
+    giris:"<p>Ekran başında geçen saatler farkında olmadan uzayabiliyor. Beden uzun süre aynı pozisyonda kaldığında <strong>tutukluk ve yorgunluk</strong> hissi birikir; oysa ara ara yer değiştirmek, ayağa kalkmak ve birkaç kez gerinmek bu birikimi dağıtmaya yardımcı olur.</p> <p>İyi haber şu: fark yaratmak için büyük bir değişikliğe gerek yok. Günün içine serpiştirilmiş <strong>küçük mikro-hareketler</strong> — bir bardak su almak için kalkmak, telefonu ayakta konuşmak, omuzları gevşetmek — hareketsizliği bölmenin en sürdürülebilir yolu. Aşağıdaki başlıklar bu küçük molaları güne yaymana yardımcı olur.</p>",
+    bolumler:[
+      { ico:"fa-solid fa-clock", baslik:"Neden mola &amp; mikro-hareket?",
+        govde:"<p>Beden hareket için tasarlandı; uzun süre sabit kalmak yerine düzenli olarak yer değiştirmek genel olarak kendini daha iyi hissetmeni sağlar. Kısa molalar dolaşımı canlı tutar, zihni tazeler ve odaklanmayı korumaya yardımcı olur.</p><p>Mikro-hareket ne demek?</p>",
+        maddeler:["Sandalyeden kalkıp birkaç adım atmak",
+                  "Kolları ve omuzları yavaşça gerinmek",
+                  "Ayakta bir telefon görüşmesi yapmak veya su içmek"] },
+      { ico:"fa-solid fa-user", baslik:"Boyun &amp; omuz rahatlatma",
+        govde:"<p>Uzun süre ekrana bakınca boyun ve omuz çevresinde gerginlik hissetmek yaygın. Amaç bu bölgeyi nazikçe gevşetmek — zorlamadan, rahat hissettiğin kadar.</p><p>Yumuşak bir mola için</p>",
+        maddeler:["Omuzlarını yavaşça kaldırıp bırak, birkaç kez tekrarla",
+                  "Başını sağa-sola nazikçe çevir, rahat hissettiğin sınırda kal",
+                  "Derin bir nefes al, omuzların doğal olarak aşağı insin"] },
+      { ico:"fa-solid fa-chair", baslik:"Bel &amp; sırt için oturuş molası",
+        govde:"<p>Aynı pozisyonda uzun süre oturmak sırt ve bel çevresini yorabilir. Arada bir ayağa kalkmak ve duruşunu değiştirmek, bu bölgeye ufak bir nefes aldırmanın en kolay yolu.</p><p>Gün içinde deneyebileceklerin</p>",
+        maddeler:["Saatte bir kez kalkıp kısa bir tur at",
+                  "Sırtını koltuğa yaslayıp rahat bir duruş bul",
+                  "Ayaktayken nazikçe gerinip yeniden otur"] },
+      { ico:"fa-solid fa-eye", baslik:"Göz &amp; duruş molası",
+        govde:"<p>Sadece beden değil, gözler de ekran başında yorulur. Arada bakışını uzağa çevirmek ve duruşunu tazelemek, hem gözlere hem odaklanmaya iyi gelir.</p><p>Basit bir tazeleme molası</p>",
+        maddeler:["Bakışını birkaç saniye pencereden uzağa çevir",
+                  "Birkaç kez yavaşça göz kırp",
+                  "Oturuşunu düzeltip omuzlarını geriye aç"] },
+      { ico:"fa-solid fa-arrows-rotate", baslik:"Ne sıklıkla kalkmalıyım?",
+        govde:"<p>Kesin bir kural yok; önemli olan hareketsizliği düzenli olarak bölmek. Genel bir yaklaşım olarak, çalışma temponu bozmayacak sıklıkta kısa molalar vermek işe yarar. Sana uygun ritmi zamanla kendin bulursun.</p><p>Ritim tutturmak için</p>",
+        maddeler:["Bir görevi bitirince kalkmayı alışkanlık yap",
+                  "Su bardağını bilerek uzağa koy, dolduracakken kalk",
+                  "Molayı bir yük değil, kısa bir tazelenme olarak gör"] },
+      { ico:"fa-solid fa-bell", baslik:"Kendime hatırlatıcı nasıl kurarım?",
+        govde:"<p>Yoğun bir günde molayı hatırlamak zor olabilir; küçük bir hatırlatıcı bu yükü senden alır. Amaç kendini zorlamak değil, alışkanlık oturana kadar nazik bir dürtme almak.</p><p>Denemeye değer yöntemler</p>",
+        maddeler:["Telefonda saatlik hafif bir hatırlatıcı kur",
+                  "Molayı mevcut bir alışkanlığa bağla (ör. her kahveden sonra)",
+                  "Masana küçük bir not bırak, göz köşende dursun"] }
+    ] },
+  { slug:"hareket-isinma-soguma-v1", tur:"makale",
+    baslik:"Isın, soğu, esne — bilinçli hareketin çerçevesi",
+    ust:"Hareket Rehberi · Isınma &amp; Soğuma", ikon:"fa-solid fa-fire",
+    ozet:"Bedenini harekete hazırlamak ve sonrasında yatıştırmak, antrenmanın görünmez ama en değerli iki ucu. İşte neden atlanmaması gerektiği.",
+    giris:"<p>Çoğu zaman en çok acele ettiğimiz iki an, aslında en çok özen isteyen anlardır: harekete başlamadan hemen önce ve bittikten hemen sonra. <strong>Isınma</strong> bedeni yavaşça uyandırır, dolaşımı ve eklem hareketliliğini artırır, zihni de o ana getirir. <strong>Soğuma</strong> ise tersini yapar — kalp ritmini kademeli indirir, kasları yumuşatır, seni günün geri kalanına döndürür.</p> <p>Bu ikisi süs değil, hareketin doğal parçası. Ne kadar iyi ısınırsan o kadar rahat ve keyifli hareket edersin; ne kadar iyi soğursan sonrasında o kadar toparlanmış hissedersin. Aşağıdaki başlıklar bu çerçeveyi nazikçe, zorlamadan anlatıyor.</p>",
+    bolumler:[
+      { ico:"fa-solid fa-fire", baslik:"Isınma neden gerekli?",
+        govde:"<p>Isınma, bedeni durgun halden hareketli hale yumuşak bir geçişle taşır. Kaslar ısındıkça daha esnek çalışır, eklemler kayganlaşır, nabız kademeli yükselir. Böylece asıl harekete girdiğinde beden hazırdır — ani bir sürprizle karşılaşmaz.</p><p>İyi bir ısınma genelde şunları yapar</p>",
+        maddeler:["Dolaşımı ve nabzı yavaşça artırır, bedeni uyandırır.",
+                  "Eklemleri geniş ama nazik hareketlerle açar.",
+                  "Zihni de harekete odaklar — o ana gelmeni sağlar."] },
+      { ico:"fa-solid fa-wind", baslik:"Soğuma &amp; toparlanma neden önemli?",
+        govde:"<p>Soğuma, hareketten günün akışına dönüşün köprüsüdür. Nabzını ve nefesini birden kesmek yerine kademeli indirmek, bedenin daha rahat toparlanmasına yardımcı olur. Bittiğinde acele etmeden birkaç dakika ayırmak, çoğu zaman kendini nasıl hissettiğinde fark yaratır.</p><p>Soğuma tipik olarak şöyle görünür</p>",
+        maddeler:["Tempoyu yavaşça düşüren hafif hareket.",
+                  "Çalışan kaslara yönelik nazik, zorlamadan esnemeler.",
+                  "Sakin nefesle bedeni yatıştırmaya zaman tanımak."] },
+      { ico:"fa-solid fa-sun", baslik:"Sabah esnemesi",
+        govde:"<p>Sabahları beden uzun bir dinlenmeden çıkar; hareketler ilk anda biraz tutuk gelebilir. Nazik bir sabah esnemesi bedeni güne hazırlar, dolaşımı canlandırır ve zihinsel olarak da yumuşak bir başlangıç sunar. Amaç performans değil, uyanış.</p><p>Sabah için nazik bir yaklaşım</p>",
+        maddeler:["Yavaş başla — beden henüz tam açılmamış olabilir.",
+                  "Geniş, akıcı hareketleri zorlamadan dene.",
+                  "Nasıl hissettiğini dinle, güne taze bir tonla gir."] },
+      { ico:"fa-solid fa-moon", baslik:"Akşam rahatlama esnemesi",
+        govde:"<p>Günün sonunda yapılan sakin bir esneme, biriken gerginliği bırakmak için güzel bir andır. Burada hedef ısınmak değil, yavaşlamak. Sakin nefes ve nazik hareketler bedeni yatıştırır, günü kapatmana yardımcı olur.</p><p>Akşam için sakin bir çerçeve</p>",
+        maddeler:["Yavaş tempoyu ve sakin nefesi öne al.",
+                  "Rahat hissettiren, zorlamayan hareketleri tercih et.",
+                  "Aceleye getirme — bu an dinginlik için."] },
+      { ico:"fa-solid fa-seedling", baslik:"Yeni başlayan esneme yaklaşımı",
+        govde:"<p>Esnemeye yeni başlıyorsan en önemli ilke basit: nazikçe ve zorlamadan. Esneme bir yarış değil; bedenin rahatça izin verdiği yere kadar gitmek yeterli. Zamanla, düzenli ve sakin bir pratikle beden kendi ritminde açılır.</p><p>Başlarken akılda tutmak güzel</p>",
+        maddeler:["Keskin ağrı hissedersen dur — bu bir işaret, hedef değil.",
+                  "Nefesini tutma; sakin nefes hareketi kolaylaştırır.",
+                  "Süreklilik, tek seferde çok şey yapmaktan daha değerli."] },
+      { ico:"fa-solid fa-clock", baslik:"Ne kadar süre ısınmalı/soğumalı?",
+        govde:"<p>Kesin bir rakam vermek yerine şunu söylemek daha doğru: ısınma, kendini harekete hazır hissedene kadar; soğuma ise nabzın ve nefesin sakinleşene kadar sürer. Yoğun bir hareket öncesi genelde biraz daha uzun bir ısınma iyi gelir. Herkesin bedeni farklı, o yüzden en iyi ölçü kendi hissin.</p><p>Süreyi kendine göre ayarlarken</p>",
+        maddeler:["Bedenin ısındığını hissetmeden asıl harekete geçme.",
+                  "Soğumada acele etme; nabzın yerine oturmasına izin ver.",
+                  "Yoğun günlerde ısınmaya biraz daha zaman ayır."] }
+    ] },
+  { slug:"hareket-sozluk-v1", tur:"makale",
+    baslik:"Hareket sözlüğü: sık geçen terimler",
+    ust:"Hareket Rehberi · Hareket Sözlüğü", ikon:"fa-solid fa-book",
+    ozet:"Programlarda ve antrenman anlatımlarında karşına çıkan kelimeleri sade bir dille topladık. Terime tıkla, kısa tanımını oku.",
+    giris:"<p>Spor dünyasının kendine has bir dili var ve yeni başlarken bu terimler kafa karıştırabilir. \"HIIT\", \"core\", \"mobilite\" gibi kelimeler bir anda karşına çıkınca hareketin kendisinden çok, ne anlama geldiğini merak edersin.</p> <p>Bu sayfada <strong>en sık geçen terimleri sadeleştirdik</strong>. Amaç ezberletmek değil; bir programı okurken ya da bir videoyu izlerken \"bu ne demekti?\" diye takılmamanı sağlamak. Aklına takılan bir kelime varsa başlığına dokun, tanımı hemen altında.</p>",
+    bolumler:[
+      { ico:"fa-solid fa-bolt", baslik:"HIIT nedir?",
+        govde:"<p>HIIT, \"Yüksek Yoğunluklu Aralıklı Antrenman\"ın İngilizce baş harflerinden gelir. Kısa süreli yoğun efor ile dinlenme ya da hafif tempo dönemlerini sırayla tekrarlamaya dayanır.</p><p>Temel mantığı</p>",
+        maddeler:["Kısa ama tempolu efor blokları, aralarında toparlanma molaları.",
+                  "Genellikle kısa sürede yoğun bir çalışma hissi verir.",
+                  "Yoğunluğu yüksek olduğu için kendi tempona ve sınırına saygı göstermek önemli."] },
+      { ico:"fa-solid fa-list-ol", baslik:"Set ve tekrar ne demek?",
+        govde:"<p>Tekrar, bir hareketi baştan sona bir kez yapmandır. Set ise arka arkaya yaptığın tekrar grubudur; setler arasında genellikle kısa bir dinlenme olur.</p><p>Nasıl okunur</p>",
+        maddeler:["\"3 set\" ifadesi, aynı hareketi üç ayrı grup halinde yapmak demektir.",
+                  "Her setin içinde belirli sayıda tekrar bulunur.",
+                  "Programlarda çoğunlukla \"set x tekrar\" biçiminde birlikte yazılır."] },
+      { ico:"fa-solid fa-shield", baslik:"Core nedir?",
+        govde:"<p>Core, gövdenin merkezini oluşturan kas bölgesi için kullanılan bir terimdir. Karın, bel ve gövdeyi çevreleyen kaslar bu tanımın içine girer.</p><p>Neden sık duyulur</p>",
+        maddeler:["Duruş ve dengeyle yakından ilişkili olduğu için çok konuşulur.",
+                  "Birçok hareket sırasında gövdeyi sabit tutmaya yardımcı olur.",
+                  "\"Core çalışması\" denince genelde bu bölgeyi hedefleyen egzersizler kastedilir."] },
+      { ico:"fa-solid fa-child-reaching", baslik:"Mobilite nedir?",
+        govde:"<p>Mobilite, eklemlerin rahat ve kontrollü biçimde hareket edebilme kapasitesini anlatır. Sadece esneklik değil, hareketi yönetebilme becerisini de kapsar.</p><p>Esneklikten farkı</p>",
+        maddeler:["Esneklik daha çok bir kasın uzayabilme ölçüsüyle ilgilidir.",
+                  "Mobilite ise eklemin o hareket alanını aktif olarak kullanabilmesidir.",
+                  "Isınma ve günlük hareket rahatlığı bağlamında sık gündeme gelir."] },
+      { ico:"fa-solid fa-heart-pulse", baslik:"Kardiyo nedir?",
+        govde:"<p>Kardiyo, kalp ve solunumu bir süre boyunca temposunu koruyacak şekilde çalıştıran hareketler için kullanılan genel bir terimdir. Yürüyüş, koşu, bisiklet gibi süreklilik içeren aktiviteler bu başlığa girer.</p><p>Genel özellikleri</p>",
+        maddeler:["Belli bir süre boyunca ritmi koruyan, tekrar eden hareketlerden oluşur.",
+                  "Nefes ve nabzın bir miktar yükselmesi beklenen bir çalışma biçimidir.",
+                  "Tempo kişiye göre değişir; kendi rahat aralığında ilerlemek esastır."] },
+      { ico:"fa-solid fa-dumbbell", baslik:"Fonksiyonel antrenman nedir?",
+        govde:"<p>Fonksiyonel antrenman, günlük hayatta kullandığın hareket kalıplarına benzer çalışmaları öne çıkaran bir yaklaşımdır. Eğilme, itme, çekme, taşıma gibi doğal hareketler bu mantığın merkezindedir.</p><p>Odak noktası</p>",
+        maddeler:["Tek bir kastan çok, birlikte çalışan hareket bütününe bakar.",
+                  "Günlük yaşamdaki hareketleri rahatlatmayı hedefler.",
+                  "Denge ve gövde kontrolü çoğu zaman bu çalışmaların içine yedirilir."] },
+      { ico:"fa-solid fa-bed", baslik:"Toparlanma (recovery) nedir?",
+        govde:"<p>Toparlanma, antrenmandan sonra bedenin dinlenip kendini yenilediği süreçtir. İngilizce \"recovery\" kelimesiyle de sık kullanılır ve programın görünmeyen ama önemli bir parçasıdır.</p><p>Neleri kapsar</p>",
+        maddeler:["Uyku ve dinlenme, toparlanmanın en temel bileşenlerindendir.",
+                  "Hafif hareket ya da tam dinlenme günleri bu sürece dahil olabilir.",
+                  "Bedenin verdiği yorgunluk sinyallerini dinlemek bu kavramın kalbindedir."] }
+    ] }
+  ];
+
+  /* ---- ikon havuzu: uydurulmadı, kullanılanlardan doğuyor ---- */
+  var IKON = (function () {
+    var s = {};
+    REHBER.forEach(function (p) {
+      if (p.ikon) s[p.ikon] = 1;
+      p.bolumler.forEach(function (b) { if (b.ico) s[b.ico] = 1; });
+    });
+    return Object.keys(s).sort();
+  })();
+  function ikonSecenek(secili) {
+    return IKON.map(function (k) {
+      return '<option value="' + A.esc(k) + '"' + (k === secili ? ' selected' : '') + '>' +
+        A.esc(k.replace(/^fa-solid fa-/, '')) + '</option>';
+    }).join('');
+  }
+
+  /* ---- düzenleme mi yeni mi — create/edit tek dosya ---- */
+  var slug = new URLSearchParams(location.search).get('r') || '';
+  var kayit = REHBER.filter(function (p) { return p.slug === slug; })[0] || null;
+  var yeni = !kayit;
+
+  document.getElementById('rfBaslikH').textContent = yeni ? 'Yeni rehber sayfası' : kayit.baslik;
+  document.title = (yeni ? 'Yeni rehber sayfası' : kayit.baslik) + ' — DadaFit Yönetim';
+  if (!yeni) {
+    document.getElementById('rfAlt').textContent =
+      'Künye, giriş metni ve ' + kayit.bolumler.length + ' akordiyon bölümü tek formda. ' +
+      'Bu sayfa bugün ' + kayit.bolumler.reduce(function (a, b) { return a + b.maddeler.length; }, 0) +
+      ' madde taşıyor.';
+    document.getElementById('rfOnizle').href = kayit.slug + '.html';
+    document.getElementById('rfSil').setAttribute('data-yikici', kayit.baslik);
+    document.getElementById('rfBaglanti').textContent = REHBER.length - 1;
+  }
+
+  document.getElementById('rfKaynak').innerHTML = A.kaynak('ornek',
+    (yeni
+      ? '<b>Yeni kayıt</b> — alanlar boş açılıyor. '
+      : '<b>Alanlar gerçek metinle dolu:</b> başlık, üst etiket, özet, giriş ve ' +
+        kayit.bolumler.length + ' bölümün tamamı <code>' + A.esc(kayit.slug) + '.html</code> ' +
+        'dosyasından 2026-08-30\'da çıkarıldı. ') +
+    'İlişkili hareket kataloğu <b>' + HAREKET.length + ' hareketlik gerçek kayıttan</b> ' +
+    '(<code>fit-admin-veri.js</code>) okunuyor. ' +
+    '<b>Sürüm, yayın tarihi ve kapak görseli alanlarının bugün kaynağı yok</b> — boş duruyorlar. ' +
+    'Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  /* ---- form içi sekmeler ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- sayfa ikonu ---- */
+  var ikonSec = document.getElementById('rfIkon');
+  ikonSec.innerHTML = ikonSecenek(kayit ? kayit.ikon : 'fa-solid fa-book-open');
+  document.getElementById('rfIkonSay').textContent = IKON.length;
+  function ikonOnizle() {
+    document.getElementById('rfIkonOn').className = ikonSec.value + '';
+  }
+  ikonSec.addEventListener('change', ikonOnizle);
+
+  /* ---- görsel alanları ---- */
+  A.yukle('#rfKapak', { cok: false, not: 'Tek kapak görseli. Kütüphaneden seç ya da sürükle.' });
+  A.yukle('#rfOg', { cok: false, not: 'Paylaşım görseli — 1200×630 önerilir.',
+    degisti: function (d) { document.getElementById('rfOgAlan').value = d.length ? d[0].url : ''; } });
+
+  /* ---- ilişkili hareketler ---- */
+  document.getElementById('rfHarSay').textContent = HAREKET.length;
+  A.etiket('#rfHareket', {
+    katalog: HAREKET.map(function (h) { return { id: h.slug, ad: h.ad }; }),
+    ad: 'hareket[]', ico: 'fa-dumbbell', ipucu: 'Hareket ara…'
+  });
+
+  /* ---- BÖLÜM repeater'ı (dış) + MADDE repeater'ı (iç) ---- */
+  var bolumListe = document.getElementById('rfBolumler');
+  var bolumSablon = document.getElementById('rfBolumSablon');
+  var maddeSablon = document.getElementById('rfMaddeSablon');
+
+  function bolumSay() {
+    var n = bolumListe.querySelectorAll(':scope > .st-card').length;
+    document.getElementById('rfBolumSay').textContent = n + ' bölüm';
+  }
+
+  /* Yeni doğan bölüm kartını tamamla: ikon listesi, editör, madde repeater'ı.
+     `__kuruldu` mührü olmadan `degisti` her sıralama değişiminde yeniden
+     kurmaya kalkardı. */
+  function kartKur(kart) {
+    if (!kart || kart.__kuruldu) return;
+    kart.__kuruldu = true;
+
+    var sec = kart.querySelector('[data-field="ico"]');
+    sec.innerHTML = ikonSecenek('fa-solid fa-circle-question');
+    var on = kart.querySelector('[data-ico-on]');
+    sec.addEventListener('change', function () { on.className = sec.value; });
+
+    A.editor(kart.querySelector('[data-field="govde"]'), 'govde');
+
+    kart.__madde = A.tekrar({
+      liste: kart.querySelector('[data-madde-liste]'),
+      ekle: kart.querySelector('[data-madde-ekle]'),
+      sablon: maddeSablon,
+      oge: '.bd-row',
+      enAz: 0
+    });
+  }
+
+  var bolumler = A.tekrar({
+    liste: bolumListe, ekle: document.getElementById('rfBolumEkle'), sablon: bolumSablon,
+    oge: '.st-card', enAz: 0,
+    degisti: function () {
+      bolumListe.querySelectorAll(':scope > .st-card').forEach(kartKur);
+      bolumSay();
+    }
+  });
+
+  function bolumEkle(veri) {
+    var kart = bolumler.ekle();
+    kartKur(kart);
+    if (!veri) return kart;
+    kart.querySelector('[data-field="baslik"]').value = veri.baslik || '';
+    var sec = kart.querySelector('[data-field="ico"]');
+    if (veri.ico) {
+      if (!sec.querySelector('option[value="' + veri.ico + '"]')) {
+        sec.insertAdjacentHTML('afterbegin',
+          '<option value="' + A.esc(veri.ico) + '">' + A.esc(veri.ico.replace(/^fa-solid fa-/, '')) + '</option>');
+      }
+      sec.value = veri.ico;
+      kart.querySelector('[data-ico-on]').className = veri.ico;
+    }
+    /* Gövde: gizli textarea'ya yazılır, editör yüzü ondan doldurulur. */
+    var ta = kart.querySelector('[data-field="govde"]');
+    ta.value = veri.govde || '';
+    var yuz = kart.querySelector('.adm-ed-yuz');
+    if (yuz) yuz.innerHTML = veri.govde || '';
+    (veri.maddeler || []).forEach(function (m) {
+      var satir = kart.__madde.ekle();
+      satir.querySelector('[data-field="metin"]').value = m;
+    });
+    return kart;
+  }
+
+  /* ---- künye doldur ---- */
+  if (kayit) {
+    document.getElementById('rfBaslik').value = kayit.baslik || '';
+    document.getElementById('rfSlug').value = kayit.slug || '';
+    document.getElementById('rfUst').value = kayit.ust || '';
+    document.getElementById('rfOzet').value = kayit.ozet || '';
+    document.getElementById('rfGiris').value = kayit.giris || '';
+    document.getElementById('rfMetaT').value = kayit.baslik || '';
+  }
+
+  /* Giriş metni editörü künye doldurulduktan SONRA kurulur — editör
+     kurulurken textarea'nın değerini yüze taşıyor. */
+  A.editor('#rfGiris', 'govde');
+  ikonOnizle();
+
+  /* Bölümleri bas: düzenlemede gerçek bölümler, yeni kayıtta tek boş kart. */
+  if (kayit) kayit.bolumler.forEach(bolumEkle);
+  else bolumEkle(null);
+  bolumSay();
+
+  /* ---- karakter sayaçları ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* ---- SEO skoru — ölçütler kabukta, tek yerde ---- */
+  A.seo('#rfForm', '#rfSeo');
+
+  /* ---- kaydet ---- */
+  var form = document.getElementById('rfForm');
+  A.maketKaydet(document.getElementById('rfKaydet'), 'rehber sayfası', form);
+  A.maketKaydet(document.getElementById('rfTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

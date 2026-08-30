@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terim düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Form iskeleti, sekme, yan kart ve
+   etiket alanı fit-admin.css'te; burada tekrarlanmaz.
+
+   Sık aranan sorular önizlemesi: alanı olmayan, KALIPTAN TÜRETİLEN bir
+   liste. Yazılabilir görünmemesi gerektiği için form alanı değil,
+   `.fhint` ritmiyle okunan düz bir liste. Yeni renk üretilmedi. */
+.sz-ara-liste{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sz-ara-liste span{
+  font-size:12.5px;font-weight:600;color:var(--muted);background:var(--paper);
+  border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 12px;
+}
+</style>
+</head>
+<body class="adm-body" data-adm="sozluk">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-sozluk-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Spor Sözlüğü</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="sfBaslik">Yeni terim</h1>
+        <div class="ph-sub" id="sfAlt">Künye, tanım ve köprüler tek formda. Harf ve adres
+          terimden türetilir; köprüler yalnız gerçekten var olan hareket, kas ve terim
+          kayıtlarından seçilir.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="sfOnizle" href="sozluk-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="sfKaynak"></div>
+
+    <form id="sfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="c-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="iliskiler">İlişkiler</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="seo">SEO</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfTerim">Terim <span class="req">*</span></label>
+                  <input class="finput" id="sfTerim" name="terim" type="text" required maxlength="120"
+                         placeholder="Örn. Süperset" />
+                  <span class="fsay" data-say-for="sfTerim">0 / 120</span>
+                </div>
+                <div class="frow">
+                  <label for="sfSlug">Adres <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">sozluk-detay-v1.html?slug=</span>
+                    <input class="finput" id="sfSlug" name="slug" type="text" required
+                           pattern="[a-z0-9\-]+" placeholder="superset" />
+                  </div>
+                  <div class="fhint">Terimden otomatik türetilir (Türkçe harfler sadeleştirilir);
+                    istersen düzelt. Yalnız küçük harf, rakam ve tire. Yayımlanmış bir adres
+                    değişirse eski bağlantılar kırılır.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="sfKategori">Kategori <span class="req">*</span></label>
+                    <select class="fselect" id="sfKategori" name="kategori" required></select>
+                    <div class="fhint">Kategori listesi Spor Sözlüğü ekranının ikinci kartından
+                      yönetilir; buraya yeni kategori yazılmaz.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="sfHarf">Harf</label>
+                    <input class="finput" id="sfHarf" name="harf" type="text" maxlength="2"
+                           placeholder="S" />
+                    <div class="fhint">Terimin ilk harfi — Türkçe kuralına göre büyütülür
+                      (“ısınma” → I, “izometrik” → İ). Elle yazılmaz, terimden gelir.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="sfIngilizce" id="sfIngLabel">İngilizce karşılık</label>
+                  <input class="finput" id="sfIngilizce" name="ingilizce" type="text" maxlength="180"
+                         placeholder="Örn. Superset" />
+                  <div class="fhint" id="sfIngHint">Anatomi kategorisinde bu satır terim detayında
+                    “Anatomik ad” olarak basılır; öteki kategorilerde “İngilizce karşılık”.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="sfDil">Kaynak dil</label>
+                    <input class="finput" id="sfDil" name="kaynak_dil" type="text" maxlength="60"
+                           placeholder="Örn. İngilizce" />
+                    <div class="fhint">Boş bırakılırsa terim Türkçe sayılır — künye satırı da
+                      öyle basılır. Bilimsel adlar için tek etiket kullanılır.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="sfOkunus">Okunuş</label>
+                    <input class="finput" id="sfOkunus" name="okunus" type="text" maxlength="160"
+                           placeholder="Örn. ket-l-bel" />
+                    <div class="fhint">Yalnız yazılışından okunuşu çıkmayan terimlerde doldurulur;
+                      boşsa künyede satır hiç basılmaz.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Tanım</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfTanim">Tanım metni <span class="req">*</span></label>
+                  <textarea class="ftext" id="sfTanim" name="tanim"
+                            placeholder="Terimi iki-üç cümleyle, ansiklopedik bir tonda anlat."></textarea>
+                  <div class="fhint">Terim detay sayfasının ana metni. İki-üç cümle; ne olduğu,
+                    nerede geçtiği ve neden önemli olduğu.
+                    <!-- `required` BİLEREK YOK. Zengin metin editörü kurulunca kaynak
+                         textarea `display:none` oluyor (fit-admin.css:1175) ve tarayıcı
+                         odaklanamadığı zorunlu alan için KONSOLA HATA yazıp doğrulamayı
+                         düşürüyor. Aynı gerekçeyle `admin-program-form-v1.html:491` de
+                         editör alanını `required` yapmıyor. Zorunluluk kaybolmadı: aşağıda
+                         Kaydet'ten ÖNCE koşan kendi denetimi var. --></div>
+                </div>
+                <div class="frow">
+                  <label for="sfOrnek">Örnek kullanım <span class="opt">— tek cümle</span></label>
+                  <textarea class="ftext" id="sfOrnek" name="ornek" maxlength="400"
+                            placeholder="Terimi kullanan gerçek bir cümle."></textarea>
+                  <span class="fsay" data-say-for="sfOrnek">0 / 400</span>
+                  <div class="fhint">Detay sayfasında “Nerede kullanılır” bölümünde basılır.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- İLİŞKİLER ---- -->
+          <div class="sa-form-panel" data-form-panel="iliskiler" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Hareket köprüsü</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>İlişkili hareket <span class="opt">— tek kayıt</span></label>
+                  <div id="sfHareket"></div>
+                  <div class="fhint" id="sfHareketHint">Hareket kütüphanesindeki gerçek kayıtlardan
+                    seçilir; uydurma adres yazılamaz. Veri modelinde bu alan <b>tekildir</b> —
+                    terim başına en çok bir hareket.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-person" aria-hidden="true"></i> Kas köprüsü</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>İlişkili kas <span class="opt">— tek kayıt</span></label>
+                  <div id="sfKas"></div>
+                  <div class="fhint" id="sfKasHint">Anatomi haritasındaki kas kayıtlarından seçilir;
+                    listede yoksa önce Anatomi ekranından eklenmeli.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sözlük içi bağlar</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>İlişkili terimler <span class="opt">— aynı ailede birlikte okunanlar</span></label>
+                  <div id="sfTerimler"></div>
+                  <div class="fhint">Detay sayfası aynı kategoriden komşuları zaten kendiliğinden
+                    listeliyor; burası o listenin dışında elle bağlanan terimler içindir.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-code-compare" aria-hidden="true"></i> Sık karıştırılan terimler
+                <span class="fs-say" id="sfKarSay">0 kayıt</span>
+              </h3>
+              <div class="st-list" id="sfKaristirilan"></div>
+              <button class="add-row" type="button" id="sfKarEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Karıştırılan terim ekle</button>
+              <div class="fhint" style="margin-top:10px">Her satır bir terim ve <b>farkı bir
+                cümleyle</b> anlatan not taşır. Detay sayfasında bu not aynen basılır —
+                “bunlar farklı şeyler” demek yetmiyor, farkın ne olduğu yazılıyor.</div>
+            </div>
+          </div>
+
+          <!-- ---- SEO ---- -->
+          <div class="sa-form-panel" data-form-panel="seo" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Arama motoru</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfMetaT">Meta başlık</label>
+                  <input class="finput" id="sfMetaT" name="meta_title" type="text" maxlength="180"
+                         placeholder="Boş bırakılırsa terim adı kullanılır" />
+                  <span class="fsay" data-say-for="sfMetaT">0 / 60 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="sfMetaD">Meta açıklama</label>
+                  <textarea class="ftext" id="sfMetaD" name="meta_desc" maxlength="320"
+                            placeholder="Arama sonucunda görünen iki cümle."></textarea>
+                  <span class="fsay" data-say-for="sfMetaD">0 / 160 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="sfCanon">Canonical adres</label>
+                  <input class="finput" id="sfCanon" name="canonical" type="url"
+                         placeholder="https://dadafit.com/spor-sozlugu/…" />
+                </div>
+                <div class="frow">
+                  <label for="sfOdak">Odak anahtar sözcük</label>
+                  <input class="finput" id="sfOdak" name="focus" type="text"
+                         placeholder="süperset" />
+                </div>
+                <div class="frow">
+                  <label>Paylaşım görseli</label>
+                  <div id="sfOg"></div>
+                  <input type="hidden" name="og_image" id="sfOgAlan" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Sık aranan sorular</h3>
+              <div class="fhint">Bu liste <b>yazılmaz, türetilir</b>: kategori başına dört soru
+                kalıbı var ve terimin adıyla dolduruluyor (<code>sozluk-veri.js</code> →
+                <code>ARAMA_KALIP</code>). Detay sayfasında aynen basılır. Kategori ya da terim adı
+                değişince buradaki sorular da değişir.</div>
+              <div class="sz-ara-liste" id="sfAramalar"></div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-sozluk-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="sfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="sfKaydet">Terimi kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="c-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="sfDurum">Durum</label>
+                  <select class="fselect" id="sfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                  <div class="fhint">🔴 <code>sozluk-veri.js</code>te <b>durum alanı bugün yok</b>:
+                    dosyada duran her terim public tarafta yayında. Bu seçici, alanın backend turunda
+                    duracağı yeri gösteriyor.</div>
+                </div>
+                <div class="frow">
+                  <label for="sfTarih">Yayın tarihi</label>
+                  <input class="finput" id="sfTarih" name="yayin_tarihi" type="date" />
+                </div>
+                <div class="toggle-row">
+                  <span>Harf dizininde göster</span>
+                  <label class="toggle"><input type="checkbox" name="dizin" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>SEO skoru</h2></div>
+            <div class="c-body" id="sfSeo"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="c-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen terim, ona köprü kuran
+                <b id="sfKullanim">0</b> terimin “sık karıştırılan” kutusundan da düşer.</div>
+              <button class="btn btn-ghost" type="button" id="sfSil"
+                      data-yikici="Bu terim" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Terimi sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/sozluk-veri.js"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/anatomi-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   SÖZLÜK TERİM FORMU — K-FORM
+   ---------------------------------------------------------------------
+   Kalıp: `docs/gastro-olcum/form-kalibi.md` §2.3 (Gastro'nun Sözlük formu,
+   319 satır) TABAN; iskelet ise panelin referans form ekranı
+   `admin-hareket-form-v1.html`. Gastro'dan gelmeyen üç şey bilerek yok:
+   · Dil sekmesi — Fit tek dilli (brief §2).
+   · “Editoryal” sekmesi — Gastro'nun `sources` · `editor_note` ·
+     `last_checked_at` alanlarının Fit verisinde KARŞILIĞI YOK. Boş bir
+     sekme açıp üç alan uydurmak, olmayan bir sözleşmeyi varmış gibi
+     göstermek olurdu.
+   · “Arama niyeti” seçicisi — Fit'te karşılığı `ARAMA_KALIP`: kategoriye
+     bağlı, seçilmiyor, TÜRETİLİYOR. SEO sekmesinde salt okunur basıldı.
+
+   VERİ GERÇEK: terim kataloğu `window.SOZLUK` (254 terim — global adı
+   dosyadan okundu, `SOZLUK_VERI` DEĞİL), hareket kataloğu
+   `FIT_ADMIN_VERI.HAREKET` (25), kas kataloğu `ANATOMI_VERI.kaslar` (31),
+   medya `FIT_MEDYA_VERI`. Uydurulmuş seçenek yok.
+
+   ALAN ENVANTERİ — hangisi veride var, hangisi yok:
+     terim · ingilizce · kategori · tanim · ornek · hareket · kas ·
+     karistirilanlar   → ELLE YAZILAN 8 alan
+     harf · slug       → TÜRETİLEN 2 alan (terimden; formda düzeltilebilir)
+     kunye.dil · kunye.okunus → tablo aramasıyla türetilen 2 alan
+     durum · SEO alanları · og görseli → veride YOK; form yerini kuruyor,
+     yan kart ve kaynak şeridi bunu açıkça yazıyor.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, S = window.SOZLUK;
+  if (!A) return;
+  var esc = A.esc;
+
+  var HAREKET = (window.FIT_ADMIN_VERI && window.FIT_ADMIN_VERI.HAREKET) || [];
+  var KASLAR  = (window.ANATOMI_VERI && window.ANATOMI_VERI.kaslar) || {};
+
+  /* ---- sözlük modülü yoksa formu boş bir vaat hâlinde bırakma ---- */
+  if (!S || !S.TERIMLER) {
+    document.getElementById('sfKaynak').innerHTML = A.kaynak('ornek',
+      'Sözlük modülü (<code>assets/js/sozluk-veri.js</code> · <code>window.SOZLUK</code>) ' +
+      'bu sayfada yüklenemedi: kategori, harf ve köprü katalogları boş kalıyor.');
+  }
+  var T = (S && S.TERIMLER) || [];
+  var K = (S && S.KATEGORILER) || [];
+
+  /* ---- düzenleme mi yeni mi — create/edit tek dosya kalıbı ---- */
+  var slug = new URLSearchParams(location.search).get('t') || '';
+  var kayit = (S && S.bul) ? S.bul(slug) : null;
+  var yeni = !kayit;
+
+  document.getElementById('sfBaslik').textContent = yeni ? 'Yeni terim' : kayit.terim;
+  document.title = (yeni ? 'Yeni terim' : kayit.terim) + ' — DadaFit Yönetim';
+
+  /* Bu terime kaç terim köprü kuruyor — SAYILIR, ilan edilmez. */
+  var geriBag = kayit
+    ? T.filter(function (x) { return x.karistirilanlar && x.karistirilanlar.slug === kayit.slug; }).length
+    : 0;
+  document.getElementById('sfKullanim').textContent = geriBag;
+
+  if (!yeni) {
+    document.getElementById('sfOnizle').href = 'sozluk-detay-v1.html?slug=' + encodeURIComponent(kayit.slug);
+    document.getElementById('sfSil').setAttribute('data-yikici', kayit.terim);
+    var aile = S.aile(kayit, 999).length;
+    document.getElementById('sfAlt').textContent =
+      'Künye, tanım ve köprüler tek formda. Bu terim “' + S.kategori(kayit.kategori).ad +
+      '” ailesinde ' + aile + ' komşuyla birlikte okunuyor ve ' + geriBag +
+      ' terimin “sık karıştırılan” kutusunda geçiyor.';
+  }
+
+  /* ---- kaynak şeridi ---- */
+  document.getElementById('sfKaynak').innerHTML = A.kaynak(T.length ? 'canli' : 'ornek',
+    (yeni
+      ? '<b>Yeni kayıt.</b> Katalogların tamamı gerçek: '
+      : '<b>Kayıt gerçek.</b> Alanlar <code>assets/js/sozluk-veri.js</code>ten ' +
+        '(<code>window.SOZLUK</code>) okundu — public tarafın okuduğu diziyle aynısı. Kataloglar: ') +
+    '<b>' + T.length + ' terim</b>, <b>' + K.length + ' kategori</b>, ' +
+    '<b>' + HAREKET.length + ' hareket</b> (<code>fit-admin-veri.js</code>), ' +
+    '<b>' + Object.keys(KASLAR).length + ' kas</b> (<code>anatomi-veri.js</code>). ' +
+    '<b>Veride karşılığı olmayan alanlar:</b> durum, yayın tarihi ve SEO alanları bugün ' +
+    '<code>sozluk-veri.js</code>te <b>yok</b> — form onları taşıyacak yüzeyi kuruyor. ' +
+    '<b>Sunucu yok:</b> Kaydet formu doğrular, kaydetmez.');
+
+  /* ---- form içi sekmeler ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- kategori seçenekleri — veriden, uydurulmadan ---- */
+  var katSec = document.getElementById('sfKategori');
+  katSec.innerHTML = '<option value="">Seç…</option>' +
+    K.map(function (k) {
+      return '<option value="' + esc(k.id) + '">' + esc(k.ad) + ' (' + k.adet + ')</option>';
+    }).join('');
+
+  /* ---- köprü katalogları — hepsi GERÇEK kayıtlardan ------------------
+     `tekli:true`: veri modelinde hem `hareket` hem `kas` TEKİL alan
+     (ölçüldü — 254 terimin 52'sinde bir hareket, 98'inde bir kas slug'ı
+     var, hiçbirinde dizi yok). Çoklu seçim açmak, veri modelinin
+     vermediği bir söz vermek olurdu. */
+  A.etiket('#sfHareket', {
+    katalog: HAREKET.map(function (h) { return { id: h.slug, ad: h.ad }; }),
+    ad: 'hareket', ico: 'fa-dumbbell', tekli: true,
+    ipucu: 'Hareket ara…', secili: kayit && kayit.hareket ? [kayit.hareket] : []
+  });
+  A.etiket('#sfKas', {
+    katalog: Object.keys(KASLAR).map(function (s) { return { id: s, ad: KASLAR[s].ad }; }),
+    ad: 'kas', ico: 'fa-person', tekli: true,
+    ipucu: 'Kas ara…', secili: kayit && kayit.kas ? [kayit.kas] : []
+  });
+  A.etiket('#sfTerimler', {
+    katalog: T.filter(function (x) { return x.slug !== slug; })
+      .map(function (x) { return { id: x.slug, ad: x.terim }; }),
+    ad: 'iliskili[]', ico: 'fa-book',
+    ipucu: 'Terim ara…', secili: []
+  });
+
+  /* Katalog boşsa etiket alanı sessizce boş kalmasın — nedenini yaz. */
+  if (!HAREKET.length) document.getElementById('sfHareketHint').innerHTML =
+    'Hareket kataloğu (<code>fit-admin-veri.js</code>) bu sayfada yüklenemedi; seçenek listesi boş.';
+  if (!Object.keys(KASLAR).length) document.getElementById('sfKasHint').innerHTML =
+    'Anatomi kataloğu (<code>anatomi-veri.js</code>) bu sayfada yüklenemedi; seçenek listesi boş.';
+
+  /* ---- paylaşım görseli ---- */
+  A.yukle('#sfOg', { cok: false, not: 'Paylaşım görseli — 1200×630 önerilir.',
+    degisti: function (d) {
+      document.getElementById('sfOgAlan').value = d.length ? d[0].url : '';
+      document.getElementById('sfOgAlan').dispatchEvent(new Event('input', { bubbles: true }));
+    } });
+
+  /* ---- SIK KARIŞTIRILANLAR repeater --------------------------------
+     Veride `karistirilanlar` bugün TEK nesne ({slug, not}) ve 254 terimin
+     28'inde dolu. Repeater kurulmasının nedeni tek satırla yetinmemek
+     değil, satırın İKİ ALANLI olması: hangi terim + farkın ne olduğu.
+     Gastro'nun `_relation_row` deseninin Fit karşılığı. */
+  (function karistirilanKur() {
+    var liste = document.getElementById('sfKaristirilan');
+    var secenek = '<option value="">Terim seç…</option>' +
+      T.filter(function (x) { return x.slug !== slug; })
+       .map(function (x) { return '<option value="' + esc(x.slug) + '">' + esc(x.terim) + '</option>'; })
+       .join('');
+
+    var sablon = document.createElement('template');
+    sablon.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-code-compare" aria-hidden="true"></i> Karıştırılan terim</span>' +
+          '<select class="fselect" name="karistirilan_slug[]" data-field="slug" ' +
+            'aria-label="Karıştırılan terim">' + secenek + '</select>' +
+          '<input class="finput" type="text" name="karistirilan_not[]" data-field="not" ' +
+            'aria-label="Fark notu" placeholder="Farkı tek cümleyle: “X şunu, Y bunu anlatır.”">' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Satırı sil" aria-label="Satırı sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sablon);
+
+    function say() {
+      document.getElementById('sfKarSay').textContent =
+        liste.querySelectorAll('.st-card').length + ' kayıt';
+    }
+    var r = A.tekrar({
+      liste: liste, ekle: document.getElementById('sfKarEkle'), sablon: sablon,
+      enAz: 0, enCok: 6, degisti: say
+    });
+    if (kayit && kayit.karistirilanlar) {
+      var n = r.ekle();
+      n.querySelector('[data-field="slug"]').value = kayit.karistirilanlar.slug;
+      n.querySelector('[data-field="not"]').value = kayit.karistirilanlar.not;
+    }
+    say();
+  })();
+
+  /* ---- künye doldur ---- */
+  if (kayit) {
+    document.getElementById('sfTerim').value     = kayit.terim || '';
+    document.getElementById('sfSlug').value      = kayit.slug || '';
+    document.getElementById('sfHarf').value      = kayit.harf || '';
+    document.getElementById('sfKategori').value  = kayit.kategori || '';
+    document.getElementById('sfIngilizce').value = kayit.ingilizce || '';
+    document.getElementById('sfDil').value       = (kayit.kunye && kayit.kunye.dil) || '';
+    document.getElementById('sfOkunus').value    = (kayit.kunye && kayit.kunye.okunus) || '';
+    document.getElementById('sfTanim').value     = kayit.tanim || '';
+    document.getElementById('sfOrnek').value     = kayit.ornek || '';
+  }
+
+  /* ---- uzun metin editörü — kabuktan, brief §1 -----------------------
+     `A.editor` çağrısı DOLDURMADAN SONRA: editör kurulurken textarea'nın
+     o anki değerini yüzeyine kopyalıyor (fit-admin.js:1002). Önce
+     kurulsaydı düzenlenen terimin tanımı boş açılırdı. */
+  A.editor('#sfTanim', 'govde');
+
+  /* ---- anatomi kategorisinde etiket değişir --------------------------
+     `SOZLUK.kunyeSatirlari` anatomi kategorisinde `ingilizce` alanını
+     “Anatomik ad” diye basıyor (sozluk-veri.js:1529). Form da aynı şeyi
+     söylesin diye etiket kategoriye bağlı. */
+  function ingEtiket() {
+    var anatomi = katSec.value === 'anatomi';
+    document.getElementById('sfIngLabel').textContent =
+      anatomi ? 'Anatomik ad' : 'İngilizce karşılık';
+    document.getElementById('sfIngHint').textContent = anatomi
+      ? 'Bu kategoride künye satırı “Anatomik ad” olarak basılır — Latince/Yunanca bilimsel ad yazılır.'
+      : 'Künye satırı “İngilizce karşılık” olarak basılır. Anatomi kategorisinde etiket değişir.';
+  }
+  katSec.addEventListener('change', ingEtiket);
+  ingEtiket();
+
+  /* ---- harf + slug türetimi — veri dosyasının kendi fonksiyonlarıyla --
+     `SOZLUK.slugla` ve Türkçe büyük harf kuralı orada; burada ikinci bir
+     kopya yazılmadı. Kullanıcı alanı elle düzelttiyse üstüne yazılmaz. */
+  var BUYUK = { 'i': 'İ', 'ı': 'I', 'ğ': 'Ğ', 'ü': 'Ü', 'ş': 'Ş', 'ö': 'Ö', 'ç': 'Ç' };
+  var terimAlan = document.getElementById('sfTerim');
+  var slugAlan  = document.getElementById('sfSlug');
+  var harfAlan  = document.getElementById('sfHarf');
+  var slugElle = false, harfElle = false;
+  slugAlan.addEventListener('input', function () { slugElle = true; });
+  harfAlan.addEventListener('input', function () { harfElle = true; });
+  terimAlan.addEventListener('input', function () {
+    var v = terimAlan.value;
+    if (!slugElle && S && S.slugla) slugAlan.value = S.slugla(v);
+    if (!harfElle) {
+      var c = v.charAt(0);
+      harfAlan.value = c ? (BUYUK[c] || c.toUpperCase()) : '';
+    }
+    aramalarCiz();
+  });
+
+  /* ---- sık aranan sorular — TÜRETİLİR, yazılmaz ---- */
+  function aramalarCiz() {
+    var kutu = document.getElementById('sfAramalar');
+    var ad = terimAlan.value.trim();
+    var kat = katSec.value;
+    if (!ad || !kat || !S || !S.aramalar) {
+      kutu.innerHTML = '<span>Terim adı ve kategori seçilince dört soru burada belirir.</span>';
+      return;
+    }
+    kutu.innerHTML = S.aramalar({ terim: ad, kategori: kat })
+      .map(function (q) { return '<span>' + esc(q) + '</span>'; }).join('');
+  }
+  katSec.addEventListener('change', aramalarCiz);
+  aramalarCiz();
+
+  /* ---- karakter sayaçları ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* ---- SEO skoru — kabuktan, ölçütler tek yerde ---- */
+  A.seo('#sfForm', '#sfSeo');
+
+  /* ---- kaydet — form ÜÇÜNCÜ ARGÜMANLA veriliyor ----------------------
+     Tanım alanının zorunluluğu tarayıcıya bırakılamıyor (editör kaynak
+     textarea'yı gizliyor, gizli `required` alan konsola hata yazdırıyor).
+     Denetim bu yüzden burada ve `maketKaydet`ten ÖNCE kuruluyor: dinleyici
+     sırası ekleme sırasıdır, `stopImmediatePropagation` ondan sonrakini
+     susturur. Boş tanımla "form doğrulandı" demek bu depodaki en açık
+     yalan olurdu. */
+  var form = document.getElementById('sfForm');
+  var tanimAlan = document.getElementById('sfTanim');
+  [document.getElementById('sfKaydet'), document.getElementById('sfTaslak')].forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      var bos = !String(tanimAlan.value || '').replace(/<[^>]*>/g, '').trim();
+      if (!bos) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      A.flash('error', 'Tanım metni boş — terim detay sayfasının ana metni bu alandır.');
+      document.querySelector('.sa-form-tab[data-panel="kunye"]').click();
+      var ed = tanimAlan.parentNode.querySelector('.adm-ed-yuz');
+      if (ed) ed.focus();
+    });
+  });
+  A.maketKaydet(document.getElementById('sfKaydet'), 'terim', form);
+  A.maketKaydet(document.getElementById('sfTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

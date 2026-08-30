@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Üye detayı — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Kart, tablo, rozet, sticky yan
+   kolon ve alan primitifleri kabuktan gelir; burada yalnız kimlik başlığı,
+   etiket/değer listesi ve kademe merdiveni var. Yeni renk üretilmedi. */
+
+/* Kimlik başlığı — Gastro'nun detay ekranı kalıbı: büyük avatar + ad +
+   rozetler. Ad `<h1>`dir ve gövdedeki TEK h1'dir. */
+.ud-kim{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ud-kim .av{
+  width:56px;height:56px;flex:none;border-radius:var(--radius-circle);
+  background:var(--fit-tint);color:var(--fit-deep);
+  display:grid;place-items:center;font-size:18px;font-weight:800;
+}
+.ud-kim .who{min-width:0;flex:1}
+.ud-kim .rz{display:flex;gap:7px;flex-wrap:wrap}
+
+/* 🔴 DAR EKRAN TAŞMASI — ÖLÇÜLDÜ (390×900, Chromium): belge 525px
+   kayıyordu. Sebep kabuğun `.form-layout`u değil, CSS Grid'in kendi
+   varsayılanı: 1100px altında kolon `1fr` oluyor ve `1fr` = `minmax(auto,1fr)`
+   olduğu için kolonun ALT SINIRI içeriğin min-content'i kadar açılıyor.
+   Kabuğun masaüstü tanımı bunu `minmax(0,1fr)` ile zaten kesiyor; kırılım
+   noktasındaki tanımda kesilmiyor. Kural kabuğun kuralıdır ama
+   `fit-admin.css` bu ajana kapalı — bu yüzden yalnız bu ekranın gövdesine
+   özgüllükle bağlandı. Kabuğa taşınınca bu blok silinir. */
+.adm-body[data-adm="uyeler"] .form-layout>*{min-width:0}
+
+/* Etiket/değer listesi — Gastro'nun `<dl class="kv">` salt-okunur kartı. */
+.ud-dl{display:grid;grid-template-columns:190px minmax(0,1fr);gap:0;margin:0}
+.ud-dl dt,.ud-dl dd{margin:0;padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.55}
+.ud-dl dt{font-weight:700;color:var(--muted);font-size:12.5px}
+.ud-dl dd{font-weight:600;color:var(--slate);overflow-wrap:anywhere}
+.ud-dl dt:last-of-type,.ud-dl dd:last-of-type{border-bottom:0}
+/* Kaynağı olmayan değer — "—" ile birlikte NEDENİ de yazılır. */
+.ud-dl dd .yok{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:3px}
+.ud-dl dd .yok code{font-size:11px}
+@media (max-width:560px){
+  .ud-dl{grid-template-columns:minmax(0,1fr)}
+  .ud-dl dt{padding-bottom:0;border-bottom:0}
+}
+
+/* Yerleşim sınıfları — kural 5: satır içi stil yazılmaz. */
+.ud-rz{margin-top:12px}
+.ud-alt-blok{margin-top:18px}
+.ud-ust-not{margin:0 0 14px}
+.ud-yapisik{margin-top:-8px}     /* düğmenin hemen altına yapışan açıklama */
+
+/* Kademe merdiveni — GERÇEK veri (fit-rozet.js) */
+.ud-mer{display:flex;flex-direction:column;gap:8px}
+.ud-kad{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--paper)}
+.ud-kad .ico{width:36px;height:36px;flex:none;border-radius:var(--radius-md);background:var(--bg);color:var(--muted);display:grid;place-items:center;font-size:14px}
+.ud-kad .ad{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--slate)}
+.ud-kad .ad small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
+.ud-kad.is-now{border-color:var(--fit-line);background:var(--fit-tint)}
+.ud-kad.is-now .ico{background:var(--fit);color:#fff}
+.ud-kad.is-now .ad{color:var(--fit-ink)}
+.ud-kad.is-gecti .ico{background:var(--fit-tint);color:var(--fit-deep)}
+
+/* Yan kolondaki sayı özeti */
+.ud-ozet{display:flex;flex-direction:column;gap:0}
+.ud-ozet .s{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ud-ozet .s:last-child{border-bottom:0}
+.ud-ozet .s span{font-size:12.5px;font-weight:600;color:var(--muted)}
+.ud-ozet .s b{margin-left:auto;font-size:15px;font-weight:800;color:var(--slate);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="adm-body" data-adm="uyeler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-uyeler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Üyeler ve Yetki</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <div class="ud-kim">
+          <span class="av" id="udAv" aria-hidden="true">—</span>
+          <div class="who">
+            <h1 id="udAd">Üye</h1>
+            <div class="ph-sub" id="udAlt">—</div>
+          </div>
+        </div>
+        <div class="rz ud-rz" id="udRozet"></div>
+      </div>
+      <div class="h-acts" id="udEylem"></div>
+    </div>
+
+    <div id="udKaynak"></div>
+
+    <div class="form-layout">
+
+      <!-- ============ SOL: SALT-OKUNUR KART YIĞINI ============
+           Gastro'nun detay kalıbı sekmeli DEĞİL (ölçüldü, `abonelikler/show`
+           ve `faturalar/show`): üst başlık + sağda eylemler + kart yığını.
+           Sekme, kullanıcıyı aradığı alanın hangi sekmede olduğunu tahmin
+           etmeye zorlar; detay ekranında aranan şey genelde tek bir alandır
+           ve yığın onu Ctrl+F ile bir kerede bulunur kılar. -->
+      <div>
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-id-card"></i> Künye</h2></div>
+          <div class="c-body"><dl class="ud-dl" id="udKunye"></dl></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head">
+            <h2><i class="fa-solid fa-basket-shopping"></i> Abonelik ve ödeme</h2>
+            <div class="c-acts"><a class="btn btn-ghost" href="admin-odemeler-v1.html"><i class="fa-solid fa-money-bill-transfer"></i> Ödemeler</a></div>
+          </div>
+          <div class="c-body">
+            <dl class="ud-dl" id="udAbonelik"></dl>
+            <div class="ud-alt-blok">
+              <div class="adm-tw">
+                <table class="adm-table" id="udAlimTablo">
+                  <thead><tr><th>Tarih</th><th>Antrenör</th><th>Hizmet</th><th class="num">Tutar</th><th>Durum</th></tr></thead>
+                  <tbody id="udAlim"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-chart-simple"></i> İçerik ve etkinlik</h2></div>
+          <div class="c-body"><dl class="ud-dl" id="udEtkinlik"></dl></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head">
+            <h2><i class="fa-solid fa-medal"></i> Rozet ve kademe</h2>
+            <div class="c-acts"><a class="btn btn-ghost" href="admin-rozetler-v1.html"><i class="fa-solid fa-list-ol"></i> Merdiveni yönet</a></div>
+          </div>
+          <div class="c-body">
+            <div class="fhint ud-ust-not">Merdivenin kendisi <b>gerçek</b>: kademeler, puan ve
+              aktif gün eşikleriyle <code>fit-rozet.js</code>ten okunuyor. Üyenin puanı ve aktif günü
+              <b>örnek</b>; kademe o iki sayıdan motorun kuralıyla <b>türetiliyor</b> — bir satıra elle
+              "Usta" yazılsaydı merdiven değişince ekran yalan söylerdi.</div>
+            <div class="ud-mer" id="udMerdiven"></div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head">
+            <h2><i class="fa-solid fa-life-ring"></i> Destek geçmişi</h2>
+            <div class="c-acts"><a class="btn btn-ghost" href="admin-destek-v1.html"><i class="fa-solid fa-inbox"></i> Destek kuyruğu</a></div>
+          </div>
+          <div class="c-body" id="udDestek"></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-clock-rotate-left"></i> İşlem geçmişi</h2></div>
+          <div class="c-body flush">
+            <div class="adm-tw">
+              <table class="adm-table" id="udGecmisTablo">
+                <thead><tr><th>Tarih</th><th>İşlem</th><th>Yapan</th></tr></thead>
+                <tbody id="udGecmis"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SAĞ: EYLEM KARTLARI (sticky) ============ -->
+      <aside class="side-card">
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-chart-pie"></i> Özet</h2></div>
+          <div class="c-body"><div class="ud-ozet" id="udOzet"></div></div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-user-shield"></i> Yetki ve güvenlik</h2></div>
+          <form id="udYetkiF">
+            <div class="c-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="udRol">Rol <span class="req">*</span></label>
+                  <select class="fselect" id="udRol" name="rol" required></select>
+                  <div class="fhint">Rol, üyenin panelde ve sitede neyi görebildiğini belirler.
+                    Antrenör rolü yalnız başvurusu onaylanmış üyeye verilir
+                    (<a href="admin-antrenorler-v1.html">Antrenör Başvuruları</a>).</div>
+                </div>
+                <div class="frow">
+                  <label for="udDurum">Hesap durumu <span class="req">*</span></label>
+                  <select class="fselect" id="udDurum" name="durum" required>
+                    <option value="aktif">Aktif</option>
+                    <option value="askida">Askıda</option>
+                    <option value="kapali">Kapatılmış</option>
+                  </select>
+                  <div class="fhint">Askıya alınan üye giriş yapar ama içerik üretemez; kapatılan üye giremez.
+                    Hiçbiri kaydı silmez.</div>
+                </div>
+              </div>
+            </div>
+            <div class="c-foot">
+              <div class="form-actions">
+                <button class="btn btn-primary" type="button" id="udKaydet"><i class="fa-solid fa-check"></i> Yetkiyi kaydet</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-bolt"></i> Hesap işlemleri</h2></div>
+          <div class="c-body">
+            <div class="form-grid">
+              <button class="btn btn-ghost" type="button" id="udSifre">
+                <i class="fa-solid fa-key" aria-hidden="true"></i> Şifre sıfırlama bağlantısı gönder</button>
+              <div class="fhint ud-yapisik">Bağlantı üyenin kayıtlı e-posta adresine gider ve
+                30 dakika geçerlidir. Yönetici şifreyi <b>göremez ve belirleyemez</b>.</div>
+
+              <a class="btn btn-ghost" id="udDestekAc" href="admin-destek-v1.html">
+                <i class="fa-solid fa-life-ring" aria-hidden="true"></i> Üye adına destek talebi aç</a>
+              <div class="fhint ud-yapisik">Telefonla ya da başka bir kanaldan gelen istek için.
+                Talep üyenin adına açılır ve yazışma üyeye de görünür — gizli bir not değildir.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-triangle-exclamation"></i> Tehlikeli bölge</h2></div>
+          <div class="c-body">
+            <div class="fhint ud-ust-not">Askıya alma <b>geri alınabilir</b> ve kaydı silmez;
+              üyenin ürettiği içerik yerinde kalır. 🔴 <b>Üye silme yolu bilerek yoktur:</b> bir üyeyi silmek
+              onun rozetlerini, satın alımlarını ve destek yazışmalarını da silerdi — hesap
+              <b>kapatılır</b>, silinmez.</div>
+            <button class="btn btn-ghost" type="button" id="udAskiya"
+                    data-yikici="Üye" data-fiil="arsiv"
+                    style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+              <i class="fa-solid fa-pause" aria-hidden="true"></i> Hesabı askıya al</button>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-admin-uye-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ÜYE DETAYI   (R19)   — D/8'in karşılığı
+   ---------------------------------------------------------------------
+   ÖLÇÜLEN EKSİK (`fit-yonetilmeyenler.md` D/8): `admin-uyeler` satıra
+   tıklayınca gömülü bir kart açıyordu ve o kartta **iki** düzenlenebilir
+   alan vardı (Rol, Hesap durumu). Gastro'nun karşılığı
+   `uyeler/show.blade.php` **500 satır**. Bu ekran o farkı kapatıyor.
+
+   KALIP — Gastro'nun DETAY kalıbı, ölçülerek alındı
+   (`para-abonelik-menu-ayarlar.md` §1.5.2 · §1.6.2): sekme YOK; üst
+   başlık + sağda eylemler + salt-okunur kart yığını, eylem kartları
+   sağ sticky kolonda ve her biri kendi küçük formuyla.
+
+   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-uye-veri.js`. Liste ekranı da
+   aynı dosyayı okur — kayıt iki yerde yaşamaz.
+
+   🔴 UYDURULMAYAN ALANLAR "—" KALIR VE NEDENİ YAZILIR. `dm_user` şeması
+   `{auth, roles[], verified, level}`; üyelik tarihi, paket, son giriş ve
+   doğum tarihi orada YOK. Boş bırakmak yetmez, nedenini söylemek gerekir:
+   yoksa okuyan "veri gelmemiş" sanır, oysa alan hiç yok.
+
+   🔴 YAZMA YÜZEYİ MAKET. Rol değişmez, şifre bağlantısı gitmez, hesap
+   askıya alınmaz. Askıya alma düğmesi kabuğun yıkıcı onay modalını
+   açar (`data-yikici` + `data-fiil="arsiv"`) — native `confirm()` yasak.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, U = window.FIT_ADMIN_UYE, R = window.FIT_ROZET;
+  if (!A) return;
+  var esc = A.esc, n = A.n, tl = A.tl, tarih = A.tarih;
+
+  var kap = document.querySelector('.form-layout');
+
+  if (!U) {
+    document.getElementById('udKaynak').innerHTML = A.kaynak('ornek', 'Üye verisi yüklenemedi.');
+    kap.innerHTML = A.bos('fa-user-slash', 'Üye verisi yüklenmedi',
+      'Kayıtlar assets/js/fit-admin-uye-veri.js dosyasından okunur; bu sayfada yüklenemedi.',
+      '<a class="btn btn-primary" href="admin-uyeler-v1.html"><i class="fa-solid fa-arrow-left"></i> Üye listesine dön</a>');
+    return;
+  }
+
+  var id = new URLSearchParams(location.search).get('uye') || '';
+  var u = U.bul(id);
+
+  /* Adres bir üyeye çözülmüyorsa DÜRÜSTÇE söylenir; boş bir detay
+     ekranı basmak, olmayan bir kaydı varmış gibi göstermek olurdu. */
+  if (!u) {
+    document.getElementById('udAd').textContent = 'Üye bulunamadı';
+    document.getElementById('udAlt').textContent =
+      id ? ('“' + id + '” numaralı üye kaydı yok.') : 'Adreste üye numarası yok.';
+    document.getElementById('udKaynak').innerHTML = A.kaynak('ornek',
+      'Bu ekran <code>?uye=&lt;üye no&gt;</code> parametresiyle açılır ve kaydı ' +
+      '<code>fit-admin-uye-veri.js</code>ten okur. Numara eşleşmedi.');
+    kap.innerHTML = A.bos('fa-user-slash', 'Bu numarayla üye yok',
+      'Adresteki üye numarası kayıtlarla eşleşmiyor. Listeye dönüp bir üye seç; ' +
+      'satıra basmak seni buraya, doğru numarayla getirir.',
+      '<a class="btn btn-primary" href="admin-uyeler-v1.html"><i class="fa-solid fa-users"></i> Üye listesine dön</a>');
+    document.getElementById('udEylem').innerHTML = '';
+    return;
+  }
+
+  var rol = U.ROL[u.rol], durum = U.DURUM[u.durum];
+  var kademe = U.kademeBul(u.puan, u.gun);
+
+  document.title = u.ad + ' — DadaFit Yönetim';
+
+  /* ---------- kimlik başlığı ---------- */
+  document.getElementById('udAv').textContent = U.basHarf(u.ad);
+  document.getElementById('udAd').textContent = u.ad;
+  document.getElementById('udAlt').innerHTML =
+    esc(u.mail) + ' · ' + esc(u.kul) + ' · <b>' + esc(u.id) + '</b>';
+  document.getElementById('udRozet').innerHTML =
+    A.rozet('off', rol.ad, rol.ico) +
+    A.rozet(durum.rz, durum.ad, durum.ico) +
+    (kademe ? A.rozet('ok', kademe.ad, kademe.ico.replace('fa-solid ', '')) : '');
+
+  document.getElementById('udEylem').innerHTML =
+    '<a class="btn btn-ghost" href="profil-v1.html" target="_blank" rel="noopener">' +
+      '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>' +
+    '<a class="btn btn-ghost" href="mailto:' + esc(u.mail) + '">' +
+      '<i class="fa-solid fa-envelope" aria-hidden="true"></i> E-posta yaz</a>';
+
+  document.getElementById('udKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Üye kaydı örnektir.</b> Bu prototipte sunucu ve üye veritabanı yok; kayıtlar ' +
+    '<code>fit-admin-uye-veri.js</code>ten okunuyor ve liste ekranı da aynı dosyayı okur. ' +
+    '<b>Kademe verisi gerçektir:</b> merdiven ve eşikler <code>fit-rozet.js</code>ten geliyor, ' +
+    'üyenin kademesi puan ve aktif günden motorun kuralıyla türetiliyor. ' +
+    '<b>Üyelik tarihi, paket, son giriş ve doğum tarihi "—" kalır</b> — <code>dm_user</code> ' +
+    'şemasında bu alanlar yok (ölçüldü), örnek bir değer yazmak olmayan bir alanı varmış gibi ' +
+    'göstermek olurdu. <b>Yazma yüzeyi maket:</b> rol değişmez, bağlantı gitmez, hesap askıya alınmaz.');
+
+  /* ---------- etiket/değer yardımcısı ----------
+     `deger` yoksa "—" basılır VE nedeni altına yazılır. */
+  function dl(hedef, satirlar){
+    document.getElementById(hedef).innerHTML = satirlar.map(function (s) {
+      var v = s[1];
+      var govde = (v === null || v === undefined || v === '')
+        ? '—' + (s[2] ? '<span class="yok"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' + s[2] + '</span>' : '')
+        : esc(v);
+      return '<dt>' + esc(s[0]) + '</dt><dd>' + govde + '</dd>';
+    }).join('');
+  }
+  var Y = U.KAYNAKSIZ;
+
+  dl('udKunye', [
+    ['Üye no',         u.id],
+    ['Ad Soyad',       u.ad],
+    ['Kullanıcı adı',  u.kul],
+    ['E-posta',        u.mail],
+    ['Telefon',        u.tel],
+    ['Şehir',          u.sehir],
+    ['Üyelik tarihi',  '', Y.uyelikTarihi],
+    ['Son giriş',      '', Y.sonGiris],
+    ['Doğum tarihi',   '', Y.dogumTarihi]
+  ]);
+
+  /* ---------- abonelik ve ödeme ----------
+     K6: Fit'te abonelik VARDIR ve hizmet satışıyla BİR ARADA yaşar.
+     Abonelik platformun kendi ürünü, hizmet ise K4 gereği üyenin
+     üreticiden satın aldığı şey — ayrı akış, ayrı satır. */
+  var harcama = u.alim.reduce(function (t, s) { return t + (s[4] === 'iade' ? 0 : s[3]); }, 0);
+  var iade = u.alim.filter(function (s) { return s[4] === 'iade'; }).length;
+  dl('udAbonelik', [
+    ['Abonelik paketi',  '', Y.paket],
+    ['Abonelik durumu',  '', Y.paket],
+    ['Hizmet satın alımı', n(u.alim.length) + ' kayıt'],
+    ['Toplam harcama',   harcama ? tl(harcama) : '0,00 ₺'],
+    ['İade edilen',      iade ? (n(iade) + ' satın alım') : 'Yok']
+  ]);
+
+  var alim = document.getElementById('udAlim');
+  if (!u.alim.length) {
+    alim.innerHTML = '<tr><td colspan="5">' +
+      A.bos('fa-basket-shopping', 'Henüz hizmet satın almamış',
+            'Bu üye bir antrenörden hizmet paketi almadığı için burada gösterilecek kayıt yok. ' +
+            'Aldığı ilk pakette satır kendiliğinden düşer.') + '</td></tr>';
+  } else {
+    alim.innerHTML = u.alim.map(function (s) {
+      var dz = s[4] === 'iade' ? A.rozet('stop', 'İade edildi', 'fa-rotate-left')
+                               : A.rozet('ok', 'Tamamlandı', 'fa-circle-check');
+      return '<tr><td>' + tarih(s[0]) + '</td><td>' + esc(s[1]) + '</td><td><b>' + esc(s[2]) + '</b></td>' +
+        '<td class="num">' + (s[3] ? tl(s[3]) : 'Ücretsiz') + '</td><td>' + dz + '</td></tr>';
+    }).join('');
+  }
+
+  /* ---------- içerik ve etkinlik ----------
+     Üyenin ürettiği içerik sayısı bu depoda hiçbir yerde tutulmuyor;
+     sayı uydurmak yerine alan açık bırakıldı. */
+  dl('udEtkinlik', [
+    ['Toplam puan',        n(u.puan) + ' (örnek)'],
+    ['Aktif gün',          n(u.gun) + ' (örnek)'],
+    ['Yayımladığı program','', 'Üyenin ürettiği içerik hiçbir şemada sayılmıyor; K12 eşikleri de bu yüzden tanımsız (Ayarlar → Üretici Eşikleri).'],
+    ['Yazdığı ipucu',      '', 'Aynı sebep: içerik üreticiliği basamağı Fit\'te henüz kurulmadı.'],
+    ['Takipçi',            '', 'Takip ilişkisi bu depoda tutulmuyor.'],
+    ['Tamamlanan challenge','', 'Challenge katılımı <code>fit-challenge.js</code>te üyenin KENDİ tarayıcısında yaşar; panel onu göremez.']
+  ]);
+
+  /* ---------- kademe merdiveni: GERÇEK ---------- */
+  var mer = document.getElementById('udMerdiven');
+  if (!R || !R.KADEMELER || !kademe) {
+    mer.innerHTML = A.bos('fa-medal', 'Kademe motoru yüklenmedi',
+      'Merdiven fit-rozet.js dosyasından okunur; bu sayfada yüklenemedi. ' +
+      'Kademe uydurulmadı — motor konuşmadan kademe yazılmaz.');
+  } else {
+    mer.innerHTML = R.KADEMELER.map(function (k, i) {
+      var simdi = (k.key === kademe.key);
+      var gecti = (u.puan >= k.minPuan && u.gun >= k.minGun);
+      return '<div class="ud-kad' + (simdi ? ' is-now' : (gecti ? ' is-gecti' : '')) + '">' +
+        '<span class="ico"><i class="' + k.ico + '" aria-hidden="true"></i></span>' +
+        '<span class="ad">' + (i + 1) + ' · ' + esc(k.ad) +
+          '<small>' + n(k.minPuan) + ' puan · ' + n(k.minGun) + ' aktif gün</small></span>' +
+        (simdi ? A.rozet('ok', 'Şu an burada', 'fa-location-dot')
+               : (gecti ? A.rozet('off', 'Geçildi', 'fa-check') : A.rozet('off', 'Eşik açık', 'fa-lock'))) +
+        '</div>';
+    }).join('');
+  }
+
+  /* ---------- destek geçmişi: gerçekten boş ----------
+     Destek kuyruğu (`admin-destek-v1.html`) talepleri ÜYE ADIYLA tutuyor,
+     üye NUMARASIYLA değil; iki kayıt birbirine bağlanamıyor. Ada göre
+     eşleştirmek, adaşları aynı kişi saymak olurdu. */
+  document.getElementById('udDestek').innerHTML = A.bos(
+    'fa-life-ring',
+    'Bu üyenin destek geçmişi bağlanamadı',
+    'Destek kuyruğundaki talepler üye numarası taşımıyor, yalnız ad taşıyor; ada göre ' +
+    'eşleştirmek adaşları aynı kişi saymak olurdu. Talepler üye kimliğine bağlandığında ' +
+    'bu kart üyenin bütün yazışmalarını listeler.',
+    '<a class="btn btn-ghost" href="admin-destek-v1.html"><i class="fa-solid fa-inbox"></i> Destek kuyruğunu aç</a>');
+
+  /* ---------- işlem geçmişi ---------- */
+  document.getElementById('udGecmis').innerHTML = u.gecmis.map(function (g) {
+    return '<tr><td>' + tarih(g[0]) + '</td><td><b>' + esc(g[1]) + '</b></td><td>' + esc(g[2]) + '</td></tr>';
+  }).join('');
+
+  /* ---------- yan kolon özeti ---------- */
+  document.getElementById('udOzet').innerHTML = [
+    ['Kademe',              kademe ? kademe.ad : '—'],
+    ['Toplam puan',         n(u.puan)],
+    ['Aktif gün',           n(u.gun)],
+    ['Satın alım',          n(u.alim.length)],
+    ['Toplam harcama',      harcama ? tl(harcama) : '—'],
+    ['Açık destek talebi',  '—']
+  ].map(function (o) {
+    return '<div class="s"><span>' + esc(o[0]) + '</span><b>' + esc(o[1]) + '</b></div>';
+  }).join('');
+
+  /* ---------- yetki formu ---------- */
+  document.getElementById('udRol').innerHTML = Object.keys(U.ROL).map(function (r) {
+    return '<option value="' + r + '"' + (r === u.rol ? ' selected' : '') + '>' + esc(U.ROL[r].ad) + '</option>';
+  }).join('');
+  document.getElementById('udDurum').value = u.durum;
+
+  /* ---------- eylemler ---------- */
+  document.getElementById('udAskiya').setAttribute('data-yikici', u.ad);
+  document.getElementById('udDestekAc').href = 'admin-destek-v1.html?tab=acik';
+
+  /* Şifre sıfırlama — maket olduğu SÖYLENİR. Sessizce toast basıp
+     "gönderildi" demek, gitmeyen bir postayı gitmiş göstermek olurdu. */
+  document.getElementById('udSifre').addEventListener('click', function () {
+    A.toast('Sıfırlama bağlantısı GÖNDERİLMEDİ — bu prototipte sunucu ve e-posta yok.', { tip:'info', ms:3200 });
+  });
+
+  document.getElementById('udAskiya').addEventListener('click', function () {
+    A.toast('Hesap ASKIYA ALINMADI — bu prototipte sunucu yok, durum kaydı değişmez.', { tip:'danger', ms:3200 });
+  });
+
+  A.maketKaydet(document.getElementById('udKaydet'), 'rol ve hesap durumu', document.getElementById('udYetkiF'));
+})();
+</script>
+</body>
+</html>

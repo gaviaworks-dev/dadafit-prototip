@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Program düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="programlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-programlar-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Programlar</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="pfBaslik">Yeni program</h1>
+        <div class="ph-sub" id="pfAlt">Programın künyesi: katalog kartında ve detay sayfasının
+          başında görünen her şey. Hafta&nbsp;→&nbsp;gün&nbsp;→&nbsp;hareket kurgusu ayrı ekranda.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="pfOnizle" href="program-liste-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+        <a class="btn btn-primary" id="pfKurgu" href="admin-program-kurgu-v1.html">
+          <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Kurguyu düzenle</a>
+      </div>
+    </div>
+
+    <div id="pfKaynak"></div>
+    <div id="pfUyari"></div>
+
+    <form id="pfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="anlatim">Açıklama</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="seo">SEO</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-image" aria-hidden="true"></i> Kapak görseli</h3>
+              <div id="pfKapak"></div>
+              <div class="fhint" style="margin-top:10px">Katalog kartının ve detay sayfası
+                başlığının arkasındaki görsel. Bugün katalog kartlarının görseli
+                <code>program-liste-v1.html</code> içine gömülü — bu alan onu taşıyacak yüzeydir.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="pfAd">Program adı <span class="req">*</span></label>
+                  <input class="finput" id="pfAd" name="ad" type="text" required maxlength="80"
+                         placeholder="Örn. 8 Haftalık Güç Temeli" />
+                  <span class="fsay" data-say-for="pfAd">0 / 80</span>
+                </div>
+                <div class="frow">
+                  <label for="pfSlug">Detay adresi <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">program-detay-v1.html?slug=</span>
+                    <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
+                         derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
+                         geçersiz; `reportValidity()` istisna atıyor. Ölçüm ve gerekçe
+                         `admin-programlar-v1.html:126`da. -->
+                    <input class="finput" id="pfSlug" name="slug" type="text" required
+                           maxlength="60" pattern="[a-z0-9\-]+" placeholder="8-hafta-guc-temeli" />
+                  </div>
+                  <div class="fhint" id="pfSlugNot">Yalnız küçük harf, rakam ve tire.</div>
+                </div>
+                <div class="frow">
+                  <label for="pfOzet">Kart özeti <span class="req">*</span>
+                    <span class="opt">— katalog kartında görünen tek cümle</span></label>
+                  <textarea class="ftext" id="pfOzet" name="ozet" required maxlength="180"
+                            placeholder="Bir cümleyle: bu program kime ne veriyor?"></textarea>
+                  <span class="fsay" data-say-for="pfOzet">0 / 180</span>
+                </div>
+                <div class="frow">
+                  <label>Hedef <span class="req">*</span></label>
+                  <div id="pfHedef"></div>
+                  <div class="fhint" id="pfHedefNot">&mdash;</div>
+                </div>
+                <div class="frow three">
+                  <div class="frow">
+                    <label for="pfSeviye">Seviye <span class="req">*</span></label>
+                    <select class="fselect" id="pfSeviye" name="seviye" required></select>
+                  </div>
+                  <div class="frow">
+                    <label for="pfHafta">Süre <span class="opt">— hafta</span> <span class="req">*</span></label>
+                    <input class="finput" id="pfHafta" name="hafta" type="number" min="1" max="52" required placeholder="8" />
+                  </div>
+                  <div class="frow">
+                    <label for="pfGun">Haftada kaç gün <span class="req">*</span></label>
+                    <input class="finput" id="pfGun" name="gun" type="number" min="1" max="7" required placeholder="3" />
+                  </div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="pfToplam">Toplam antrenman</label>
+                    <input class="finput" id="pfToplam" name="toplam" readonly aria-readonly="true" placeholder="—" />
+                    <div class="fhint">Hafta × haftada gün. Elle girilmez — kurgu ekranındaki
+                      gerçek gün sayısıyla tutmuyorsa orada görünür.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="pfEkipman">Ekipman <span class="req">*</span></label>
+                    <select class="fselect" id="pfEkipman" name="ekipman" required></select>
+                    <div class="fhint" id="pfEkipmanNot">&mdash;</div>
+                  </div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="pfKademe">Erişim kademesi <span class="req">*</span></label>
+                    <select class="fselect" id="pfKademe" name="kademe" required></select>
+                    <div class="fhint">Kademe listesi <code>fit-paket.js</code>ten okunur.
+                      Fiyat burada yazılmaz — para parametreleri Ayarlar ekranından gelir (K13).</div>
+                  </div>
+                  <div class="frow">
+                    <label for="pfPop">Popülerlik <span class="opt">— sıralama ağırlığı, 0–100</span></label>
+                    <input class="finput" id="pfPop" name="pop" type="number" min="0" max="100" value="60" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- AÇIKLAMA ---- -->
+          <div class="sa-form-panel" data-form-panel="anlatim" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Uzun açıklama</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="pfUzun">Detay sayfası gövdesi</label>
+                  <textarea class="ftext" id="pfUzun" name="govde"
+                            placeholder="Program neyi vaat ediyor, kime uygun, hangi tempoda ilerliyor?"></textarea>
+                  <div class="fhint">Bugün bu metin <code>program-detay-v1.html</code> içine gömülü
+                    ve tek tek okunamıyor; alan onu taşıyacak yüzeyi kuruyor.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-check" aria-hidden="true"></i> Kazanımlar
+                <span class="fs-say" id="pfKazanimSay">0 kazanım</span>
+              </h3>
+              <div class="st-list" id="pfKazanimlar"></div>
+              <button class="add-row" type="button" id="pfKazanimEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Kazanım ekle</button>
+              <div class="fhint" style="margin-top:10px">Detay sayfasının "Genel bakış" bloğunda
+                madde madde basılır. Tutamağı sürükleyerek ya da odaktayken ↑ / ↓ ile taşı.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-user-check" aria-hidden="true"></i> Kime uygun
+                <span class="fs-say" id="pfUygunSay">0 madde</span>
+              </h3>
+              <div class="st-list" id="pfUygun"></div>
+              <button class="add-row" type="button" id="pfUygunEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Madde ekle</button>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Program uyarısı</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="pfUyariM">Uyarı metni <span class="opt">— detay sayfasında bloğun altında basılır</span></label>
+                  <textarea class="ftext" id="pfUyariM" name="uyari"
+                            placeholder="Bu programa hangi durumda başlanmamalı?"></textarea>
+                  <div class="fhint">🔴 Sağlıkla ilgili metin. Genel sağlık uyarısı Ayarlar'da tek
+                    yerden yönetilir; buraya yalnız <b>bu programa özgü</b> olan yazılır.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- SEO ---- -->
+          <div class="sa-form-panel" data-form-panel="seo" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Arama motoru</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="pfMetaT">Meta başlık</label>
+                  <input class="finput" id="pfMetaT" name="meta_title" type="text" maxlength="180"
+                         placeholder="Boş bırakılırsa program adı kullanılır" />
+                  <span class="fsay" data-say-for="pfMetaT">0 / 60 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="pfMetaD">Meta açıklama</label>
+                  <textarea class="ftext" id="pfMetaD" name="meta_desc" maxlength="320"
+                            placeholder="Arama sonucunda görünen iki cümle."></textarea>
+                  <span class="fsay" data-say-for="pfMetaD">0 / 160 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="pfCanon">Canonical adres</label>
+                  <input class="finput" id="pfCanon" name="canonical" type="url"
+                         placeholder="https://dadafit.com/program/…" />
+                </div>
+                <div class="frow">
+                  <label for="pfOdak">Odak anahtar sözcük</label>
+                  <input class="finput" id="pfOdak" name="focus" type="text" placeholder="8 haftalık güç programı" />
+                </div>
+                <div class="frow">
+                  <label>Paylaşım görseli</label>
+                  <div id="pfOg"></div>
+                  <input type="hidden" name="og_image" id="pfOgAlan" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-programlar-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="pfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="pfKaydet">Programı kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="pfDurum">Durum</label>
+                  <select class="fselect" id="pfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                </div>
+                <div class="frow">
+                  <label for="pfTarih">Yayın tarihi</label>
+                  <input class="finput" id="pfTarih" name="yayin_tarihi" type="date" />
+                </div>
+                <div class="toggle-row">
+                  <span>Öne çıkar</span>
+                  <label class="toggle"><input type="checkbox" name="one_cikar" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Programını Bul sonuçlarında öner</span>
+                  <label class="toggle"><input type="checkbox" name="bul" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Kurgu</h2>
+              <div class="c-acts" id="pfKurguRozet"></div>
+            </div>
+            <div class="pc-body">
+              <div class="fhint" id="pfKurguNot" style="margin-bottom:12px">&mdash;</div>
+              <a class="btn btn-ghost" id="pfKurgu2" href="admin-program-kurgu-v1.html">
+                <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Kurguyu düzenle</a>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>SEO skoru</h2></div>
+            <div class="pc-body" id="pfSeo"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen program, onu öneren
+                <b id="pfBant">0</b> test bandından da düşer.</div>
+              <button class="btn btn-ghost" type="button" id="pfSil"
+                      data-yikici="Program" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Programı sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-paket.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   PROGRAM KÜNYE FORMU — C-2'nin künye yarısı
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html` (panelin referans form ekranı) ve
+   `docs/gastro-olcum/form-kalibi.md` §1. Create ve edit AYNI dosya:
+   `?p=<slug>` varsa düzenleme, yoksa yeni.
+
+   NE YÖNETİYOR: `docs/gastro-olcum/fit-yonetilmeyenler.md` C-2 —
+   `admin-programlar` 9 künye alanı yönetiyordu, hafta/gün kurgusundan
+   0 alan. Bu form künyeyi gömülü karttan çıkarıp forma alıyor; kurgu
+   ayrı ekranda (`admin-program-kurgu-v1.html`), çünkü hafta→gün→hareket
+   üç seviyeli bir liste ve künye alanlarının yanına sıkıştırılamaz.
+
+   🔴 ADRES ANAHTARI TEK BAŞINA YETMİYOR — ÖLÇÜLDÜ.
+   Katalogda 9 kart var ama yalnız 4 benzersiz slug kullanılıyor; beş kart
+   başka bir kartın slug'ını paylaşıyor. Yani `?p=<slug>` beş satır için
+   İKİ KAYDA birden işaret ediyor. Uydurulmuş bir anahtar üretmek yerine
+   sözleşmedeki `?p=` korundu ve yanına kart sırası (`&k=`) eklendi;
+   slug paylaşımlıysa ekran bunu `.sa-flash is-warn` ile SÖYLER ve
+   hangi kartta olduğunu seçtirir. Kusuru gizleyen bir form, kusuru
+   düzeltmez.
+
+   VERİ GERÇEK: katalog `FIT_ADMIN_VERI.PROGRAM` (9 kart), hedef sözlüğü
+   `FIT_ADMIN_VERI.HEDEF`, seviye/ekipman `FIT_ADMIN_VERI.SOZLUK`,
+   kademe `FIT_PAKET.kademeler`, medya `FIT_MEDYA_VERI`. Kaynağı olmayan
+   alan boş kalır ve niye boş olduğunu yazar.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI || {}, P = window.FIT_PAKET;
+  if (!A) return;
+  var esc = A.esc;
+  var PR = V.PROGRAM || [], PD = V.PROGRAM_DETAY || [], HEDEF = V.HEDEF || [];
+  var SOZ = V.SOZLUK || {}, TEST = V.TEST || [];
+
+  /* ---- düzenleme mi yeni mi ---------------------------------------- */
+  var q = new URLSearchParams(location.search);
+  var slug = q.get('p') || '';
+  var kIx = parseInt(q.get('k'), 10);
+  var ayniSlug = PR.filter(function (p) { return p.slug === slug; });
+  var kayit = null;
+  if (slug) {
+    kayit = (!isNaN(kIx) && PR[kIx] && PR[kIx].slug === slug) ? PR[kIx] : (ayniSlug[0] || null);
+  }
+  var yeni = !kayit;
+  var kayitIx = kayit ? PR.indexOf(kayit) : -1;
+
+  document.getElementById('pfBaslik').textContent = yeni ? 'Yeni program' : kayit.ad;
+  document.title = (yeni ? 'Yeni program' : kayit.ad) + ' — DadaFit Yönetim';
+
+  /* ---- kaynak şeridi ------------------------------------------------ */
+  document.getElementById('pfKaynak').innerHTML = A.kaynak('ornek',
+    'Künye alanları <b>' + PR.length + ' kartlık gerçek katalogdan</b> okunuyor ' +
+    '(<code>fit-admin-veri.js</code>, <code>program-liste-v1.html</code>den üreteçle çıkarıldı); ' +
+    'hedef sözlüğü <b>' + HEDEF.length + ' ilan</b>, ekipman sözlüğü <b>' +
+    (SOZ.ekipman || []).length + ' terim</b>, kademeler <code>fit-paket.js</code>ten canlı. ' +
+    '<b>Kapak görseli, uzun açıklama, kazanımlar, "kime uygun" ve uyarı metni bugün ' +
+    'public sayfaların içine gömülü</b> ve tek tek okunamıyor — form onları taşıyacak ' +
+    'yüzeyi kuruyor, boş bırakıyor. Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  /* ---- paylaşımlı slug uyarısı — ölçülen kusur, saklanmıyor -------- */
+  if (!yeni && ayniSlug.length > 1) {
+    var kap = document.getElementById('pfUyari');
+    A.flash('warn',
+      'Bu adres ' + ayniSlug.length + ' katalog kartı tarafından paylaşılıyor (' +
+      ayniSlug.map(function (p) { return p.ad; }).join(' · ') +
+      '). Şu an düzenlenen kart: “' + kayit.ad + '”. Adres tek bir programı işaret etmiyorsa ' +
+      'kartlardan biri her zaman başkasının sayfasını açar.', kap);
+  }
+  if (!yeni) {
+    var d = V.programDetay ? V.programDetay(kayit.slug) : null;
+    document.getElementById('pfAlt').textContent =
+      'Bu kartın adresi ' + (d
+        ? 'detay sayfasında “' + d.ad + '” kaydını açıyor.'
+        : 'detay sayfasında karşılık bulmuyor.') +
+      ' Hafta → gün → hareket kurgusu ayrı ekranda düzenlenir.';
+    document.getElementById('pfSil').setAttribute('data-yikici', kayit.ad);
+    document.getElementById('pfOnizle').href =
+      'program-detay-v1.html?slug=' + encodeURIComponent(kayit.slug);
+    var kurguHref = 'admin-program-kurgu-v1.html?p=' + encodeURIComponent(kayit.slug) +
+                    '&k=' + kayitIx;
+    document.getElementById('pfKurgu').href = kurguHref;
+    document.getElementById('pfKurgu2').href = kurguHref;
+  } else {
+    /* Yeni programın henüz adresi yok — kurgu ekranının açacağı bir kayıt da yok.
+       Kit §14/1: hedefi olmayan şey bağlantı değil, devre dışı metindir. */
+    ['pfKurgu', 'pfKurgu2'].forEach(function (id) {
+      var a = document.getElementById(id);
+      var s = document.createElement('span');
+      s.className = a.className;
+      s.id = id;
+      s.setAttribute('aria-disabled', 'true');
+      s.innerHTML = a.innerHTML;
+      s.title = 'Kurgu ekranı, program kaydedilip bir adres aldıktan sonra açılır.';
+      a.parentNode.replaceChild(s, a);
+    });
+  }
+
+  /* ---- form içi sekmeler ------------------------------------------- */
+  var sek = document.querySelectorAll('.sa-form-tab');
+  sek.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sek.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+      zorunluTazele();
+    });
+  });
+
+  /* ---- seviye · ekipman · kademe — hepsi sözlükten ----------------- */
+  document.getElementById('pfSeviye').innerHTML = '<option value="">Seç…</option>' +
+    (SOZ.seviye || []).map(function (o) {
+      return '<option value="' + esc(o.kod) + '">' + esc(o.ad) + '</option>';
+    }).join('');
+
+  /* Ekipman: katalog sözlükten gelir. ÖLÇÜLDÜ — katalogdaki üç ekipman
+     kodundan ikisi (`vucut`, `bant`) ekipman sözlüğünde YOK ve 9 kartın
+     6'sını etkiliyor. Kartın kendi kodu sessizce düşürülmez; listeye
+     "sözlükte yok" damgasıyla eklenir ve alt satır bunu söyler. */
+  (function ekipmanKur() {
+    var kat = SOZ.ekipman || [];
+    var kodlar = kat.map(function (o) { return o.kod; });
+    var eksik = [];
+    PR.forEach(function (p) {
+      if (p.ekipmanKod && kodlar.indexOf(p.ekipmanKod) < 0 && eksik.indexOf(p.ekipmanKod) < 0) {
+        eksik.push(p.ekipmanKod);
+      }
+    });
+    document.getElementById('pfEkipman').innerHTML = '<option value="">Seç…</option>' +
+      kat.map(function (o) {
+        return '<option value="' + esc(o.kod) + '">' + esc(o.ad) + '</option>';
+      }).join('') +
+      eksik.map(function (k) {
+        return '<option value="' + esc(k) + '">' + esc(k) + ' — sözlükte yok</option>';
+      }).join('');
+    var etkilenen = PR.filter(function (p) { return eksik.indexOf(p.ekipmanKod) >= 0; }).length;
+    document.getElementById('pfEkipmanNot').innerHTML = eksik.length
+      ? 'Sözlük ' + kat.length + ' ekipman tanımlıyor, katalog ' + eksik.length +
+        ' kodu daha kullanıyor (<code>' + eksik.map(esc).join('</code>, <code>') +
+        '</code>) — ' + etkilenen + ' kartı etkiliyor. Bu kodlar Taksonomi ekranından ' +
+        'sözlüğe eklenmeli ya da karttaki değer düzeltilmeli.'
+      : 'Ekipman sözlüğü ' + kat.length + ' terim tanımlıyor; katalogda karşılıksız kod yok.';
+  })();
+
+  var KADEME = (P && P.kademeler) ? P.kademeler : [];
+  document.getElementById('pfKademe').innerHTML =
+    (KADEME.length ? KADEME : [{ key: 'ucretsiz', ad: 'Ücretsiz' }]).map(function (k) {
+      return '<option value="' + esc(k.key) + '">' + esc(k.ad) + '</option>';
+    }).join('');
+
+  /* ---- hedef — tek seçim, katalog HEDEF'ten ------------------------
+     HEDEF iki ayrı public sayfadan okunmuş; aynı kod iki kez ilan
+     edilebiliyor. Kod bazında teklenir, kaç ilandan geldiği yazılır. */
+  (function hedefKur() {
+    var gor = {}, sira = [];
+    HEDEF.forEach(function (h) {
+      if (!gor[h.kod]) { gor[h.kod] = { kod: h.kod, ad: h.ad, kaynak: [] }; sira.push(gor[h.kod]); }
+      if (gor[h.kod].kaynak.indexOf(h.kaynak) < 0) gor[h.kod].kaynak.push(h.kaynak);
+    });
+    A.etiket('#pfHedef', {
+      katalog: sira.map(function (h) { return { id: h.kod, ad: h.ad, ico: 'fa-bullseye' }; }),
+      ad: 'hedef[]', ico: 'fa-bullseye', tekli: true, ipucu: 'Hedef ara ya da seç…',
+      secili: kayit && kayit.hedefKod ? [kayit.hedefKod] : []
+    });
+    var cift = sira.filter(function (h) { return h.kaynak.length > 1; }).length;
+    document.getElementById('pfHedefNot').innerHTML =
+      HEDEF.length + ' hedef ilanı iki public sayfadan okundu, ' + sira.length +
+      ' benzersiz koda düşüyor' + (cift ? ' (' + cift + ' kod iki sayfada birden ilan ediliyor)' : '') +
+      '. Programın kartında ve süzgeçte bu ad görünür.';
+  })();
+
+  /* ---- görsel alanları --------------------------------------------- */
+  A.yukle('#pfKapak', { cok: false, not: 'Tek kapak görseli. Kütüphaneden seç ya da sürükle.' });
+  A.yukle('#pfOg', { cok: false, not: 'Paylaşım görseli — 1200×630 önerilir.',
+    degisti: function (dd) { document.getElementById('pfOgAlan').value = dd.length ? dd[0].url : ''; } });
+
+  /* ---- zengin metin editörü ---------------------------------------- */
+  A.editor('#pfUzun', 'varsayilan');
+
+  /* ---- KAZANIM ve KİME UYGUN repeater'ları ------------------------- */
+  function repeater(kap, ekleBtn, sayEl, ad, ikon, tur, birim, yerTutucu) {
+    var liste = document.getElementById(kap);
+    var sablon = document.createElement('template');
+    sablon.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid ' + ikon + '" aria-hidden="true"></i> ' + tur + '</span>' +
+          '<input class="finput" type="text" name="' + ad + '[]" data-field="metin" placeholder="' + yerTutucu + '">' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Satırı sil" aria-label="Satırı sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sablon);
+    function say() {
+      var n = liste.querySelectorAll('.st-card').length;
+      document.getElementById(sayEl).textContent = n + ' ' + birim;
+    }
+    var r = A.tekrar({
+      liste: liste, ekle: document.getElementById(ekleBtn), sablon: sablon,
+      enAz: 1, enCok: 10, degisti: say
+    });
+    return { ekle: r.ekle, say: say };
+  }
+  var rKaz = repeater('pfKazanimlar', 'pfKazanimEkle', 'pfKazanimSay', 'kazanim',
+    'fa-check', 'Kazanım', 'kazanım', 'Örn. Temel hareketlerde güvenli ve doğru form.');
+  var rUyg = repeater('pfUygun', 'pfUygunEkle', 'pfUygunSay', 'uygun',
+    'fa-user-check', 'Madde', 'madde', 'Örn. Uzun süredir düzenli hareket etmeyenler.');
+  rKaz.ekle(); rKaz.say();
+  rUyg.ekle(); rUyg.say();
+
+  /* ---- toplam antrenman — hesaplanır ------------------------------- */
+  function toplamHesap() {
+    var h = Number(document.getElementById('pfHafta').value || 0);
+    var g = Number(document.getElementById('pfGun').value || 0);
+    document.getElementById('pfToplam').value = (h && g) ? (h * g) + ' antrenman' : '';
+  }
+  document.getElementById('pfHafta').addEventListener('input', toplamHesap);
+  document.getElementById('pfGun').addEventListener('input', toplamHesap);
+
+  /* ---- slug notu — detay sayfası bu adresi tanıyor mu -------------- */
+  function slugNot() {
+    var s = document.getElementById('pfSlug').value.trim();
+    var d = s && V.programDetay ? V.programDetay(s) : null;
+    var paylasan = PR.filter(function (p) { return p.slug === s; }).length;
+    var el = document.getElementById('pfSlugNot');
+    if (!s) { el.innerHTML = 'Yalnız küçük harf, rakam ve tire.'; return; }
+    el.innerHTML = (d
+        ? 'Detay sayfası bu adresi tanıyor: <b>' + esc(d.ad) + '</b>.'
+        : 'Detay sayfası bu adresi <b>tanımıyor</b> — bugün açılırsa sessizce ilk programa düşer.') +
+      (paylasan > 1 ? ' Adresi <b>' + paylasan + ' katalog kartı</b> paylaşıyor.' : '');
+  }
+  document.getElementById('pfSlug').addEventListener('input', slugNot);
+
+  /* ---- kurgu yan kartı — 🔴 KURGU KAYDI HİÇBİR YERDE YOK ----------
+     Ölçüldü: `program-detay-v1.html` haftalık planı SABİT HTML
+     (4 hafta sekmesi · 12 gün kartı · 32 hareket satırı) ve dört detay
+     slug'ının dördü de aynı markup'ı görüyor. Yani kurgu programa bağlı
+     bir kayıt değil; tek bir sabit plan. Bu kart onu söyler. */
+  (function kurguKart() {
+    document.getElementById('pfKurguRozet').innerHTML =
+      A.rozet('stop', 'Kurgu kaydı yok', 'fa-triangle-exclamation');
+    document.getElementById('pfKurguNot').innerHTML =
+      'Bu programın hafta → gün → hareket kurgusu <b>hiçbir yerde kayıtlı değil</b>. ' +
+      'Depodaki tek haftalık plan <code>program-detay-v1.html</code> içinde sabit HTML ' +
+      'olarak duruyor ve <b>dört detay adresinin dördü de aynı planı</b> gösteriyor — ' +
+      'yani plan programa ait değil, sayfaya ait. Kurgu ekranı boş açılır; künyedeki ' +
+      'hafta ve gün sayısından iskelet kurabilirsin.';
+  })();
+
+  /* ---- karakter sayaçları ------------------------------------------ */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* ---- künye doldur ------------------------------------------------ */
+  if (kayit) {
+    document.getElementById('pfAd').value = kayit.ad || '';
+    document.getElementById('pfSlug').value = kayit.slug || '';
+    document.getElementById('pfOzet').value = kayit.ozet || '';
+    document.getElementById('pfSeviye').value = String(kayit.lv || '');
+    document.getElementById('pfHafta').value = kayit.hafta || '';
+    var m = (kayit.plan || '').match(/haftada (\d+) gün/);
+    document.getElementById('pfGun').value = m ? m[1] : '';
+    document.getElementById('pfEkipman').value = kayit.ekipmanKod || '';
+    document.getElementById('pfKademe').value = kayit.pro ? 'pro' : 'ucretsiz';
+    document.getElementById('pfPop').value = kayit.pop || 60;
+    document.getElementById('pfBant').textContent = TEST.reduce(function (a, t) {
+      return a + (t.bant || []).filter(function (b) { return b.prog === kayit.slug; }).length;
+    }, 0);
+  }
+  toplamHesap(); slugNot();
+
+  /* ---- SEO skoru — kabuktan ---------------------------------------- */
+  A.seo('#pfForm', '#pfSeo');
+
+
+  /* ---- ZORUNLULUK YALNIZ AÇIK SEKMEDE ------------------------------
+     🔴 Ölçülmüş tuzak: `required` bir alan gizli bir sekmede kalırsa
+     `reportValidity()` ona odaklanamaz — tarayıcı her biri için
+     "An invalid form control … is not focusable" hatası basar ve
+     doğrulama yarıda kalır. (Yeni test formunda 6 hata olarak ölçüldü.)
+     Zorunluluk KALDIRILMADI, taşındı: `data-zorunlu` işareti kalıcı,
+     `required` özniteliği yalnız açık sekmedeki alanlarda durur; kapalı
+     sekmeler `eksigeGit` ile tek tek denetlenir, hiçbiri kaçmaz. */
+  function panelAd(pn) {
+    var id = pn && pn.getAttribute('data-form-panel');
+    var t = id && document.querySelector('.sa-form-tab[data-panel="' + id + '"]');
+    return t ? t.textContent.trim() : 'Form';
+  }
+  function zorunluTazele() {
+    /* Sonradan eklenen tekrar satırları da şablonlarında `required` taşır;
+       işaret her tazelemede yeniden konur, yoksa gizli sekmeye eklenen yeni
+       satır aynı tuzağa geri düşerdi. */
+    document.querySelectorAll('.sa-form-panel [required]').forEach(function (n) {
+      n.setAttribute('data-zorunlu', '1');
+    });
+    document.querySelectorAll('.sa-form-panel [data-zorunlu]').forEach(function (n) {
+      var pn = n.closest('.sa-form-panel');
+      n.required = !!pn && !pn.hidden;
+    });
+  }
+  var hataSerit = null;
+  function eksigeGit(e) {
+    if (hataSerit && hataSerit.parentNode) { hataSerit.parentNode.removeChild(hataSerit); hataSerit = null; }
+    var eksik = Array.prototype.slice.call(
+      document.querySelectorAll('.sa-form-panel [data-zorunlu]')).filter(function (n) {
+        return !n.disabled && !String(n.value || '').trim();
+      });
+    if (!eksik.length) return;                    /* her sekme tam — bileşene geç */
+    var adlar = [];
+    eksik.forEach(function (n) {
+      var a = panelAd(n.closest('.sa-form-panel'));
+      if (adlar.indexOf(a) < 0) adlar.push(a);
+    });
+    var ilkPanel = eksik[0].closest('.sa-form-panel');
+    if (ilkPanel && ilkPanel.hidden) {
+      var t = document.querySelector('.sa-form-tab[data-panel="' +
+        ilkPanel.getAttribute('data-form-panel') + '"]');
+      if (t) t.click();
+    }
+    hataSerit = A.flash('error',
+      eksik.length + ' zorunlu alan boş (' + adlar.join(' · ') + '). ' +
+      'İlk eksik alanın sekmesi açıldı.', document.getElementById('pfUyari'));
+    document.getElementById('pfForm').reportValidity();
+    e.stopImmediatePropagation();                 /* "doğrulandı" notu BASILMAZ */
+  }
+  zorunluTazele();
+
+  /* ---- kaydet ------------------------------------------------------ */
+  var form = document.getElementById('pfForm');
+  document.getElementById('pfKaydet').addEventListener('click', eksigeGit);
+  A.maketKaydet(document.getElementById('pfKaydet'), 'program', form);
+  document.getElementById('pfTaslak').addEventListener('click', eksigeGit);
+  A.maketKaydet(document.getElementById('pfTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

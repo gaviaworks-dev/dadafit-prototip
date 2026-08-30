@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Program kurgusu — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Yeni renk / yarıçap / gölge / ölçü
+   ÜRETİLMEDİ: hepsi kitin kendi değişkenleri ve mevcut bileşen ölçüleri.
+
+   İç içe iki `.st-card` listesi var (gün → hareket). İçteki liste dıştakinin
+   gövdesinde durduğu için yalnız iki şey ayarlanıyor: iç kartın zemini
+   dışarıdan ayrılsın (aksi hâlde iki kart aynı yüzeyde kaybolur) ve hafta
+   şeridi çok haftada taşmasın. */
+.hf-strip{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* Hafta şeridi sarmaz, KAYAR: 52 haftaya kadar çıkabilen bir şerit sarınca
+   sayfanın başı yedi satır büyüyor. Kitin geniş içerik deseni `.adm-tw` ile
+   aynı — yatay kaydırma kabın içinde kalır, gövde kaymaz. */
+.hf-strip .sa-form-tabs{flex:1 1 320px;min-width:0;margin-bottom:0;border-bottom:0;
+  flex-wrap:nowrap;overflow-x:auto}
+.hf-strip .sa-form-tab{flex:none;white-space:nowrap}
+.hf-arac{display:flex;align-items:center;gap:6px;flex:none}
+.gun-card > .st-body{gap:14px}
+.hr-row{background:var(--paper)}
+.gun-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gun-foot .fselect{flex:0 1 220px}
+.gun-card.is-dinlenme .hr-kutu{display:none}
+.sa-form-tab .fs-say{margin-left:6px;font-size:11.5px;font-weight:500;color:var(--muted)}
+</style>
+</head>
+<body class="adm-body" data-adm="programlar">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-programlar-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Programlar</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="kgBaslik">Program kurgusu</h1>
+        <div class="ph-sub" id="kgAlt">Hafta → gün → hareket. Her seviye kendi içinde eklenir,
+          silinir ve sıralanır; üstteki özet ilan edilmez, buradaki satırlardan sayılır.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="kgKunye" href="admin-program-form-v1.html">
+          <i class="fa-solid fa-id-card" aria-hidden="true"></i> Künyeye dön</a>
+        <a class="btn btn-ghost" id="kgOnizle" href="program-liste-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="kgKaynak"></div>
+    <div id="kgUyari"></div>
+
+    <div class="adm-kpi" id="kgKpi"></div>
+
+    <form id="kgForm" novalidate>
+      <div class="form-layout">
+
+      <!-- ================= SOL KOLON ================= -->
+      <div class="adm-card">
+        <div class="c-head">
+          <h2><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Hafta planı</h2>
+          <div class="c-acts"><span class="fp-badge off" id="kgHaftaSay">—</span></div>
+        </div>
+
+        <div class="pc-body" style="padding-bottom:0">
+          <div class="hf-strip">
+            <div class="sa-form-tabs" role="tablist" aria-label="Hafta seç" id="kgHaftalar"></div>
+            <div class="hf-arac">
+              <button class="adm-ico-btn" type="button" id="kgSola" aria-label="Seçili haftayı sola taşı" title="Seçili haftayı sola taşı">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
+              <button class="adm-ico-btn" type="button" id="kgSaga" aria-label="Seçili haftayı sağa taşı" title="Seçili haftayı sağa taşı">
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+              <button class="adm-ico-btn" type="button" id="kgHaftaSil" aria-label="Seçili haftayı sil"
+                      title="Seçili haftayı sil" data-yikici="Seçili hafta" data-fiil="sil">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+              <button class="btn btn-ghost" type="button" id="kgHaftaEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Hafta ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="kgPaneller"></div>
+        <div id="kgBos"></div>
+
+        <div class="form-actions c-foot">
+          <a class="btn btn-ghost" href="admin-programlar-v1.html">İptal</a>
+          <button class="btn btn-ghost" type="button" id="kgTaslak">Taslak kaydet</button>
+          <button class="btn btn-primary" type="button" id="kgKaydet">Kurguyu kaydet</button>
+        </div>
+      </div>
+
+      <!-- ================= SAĞ KOLON =================
+           Yayın kartı BURADA YOK — bilerek. Bir programın durumu, yayın
+           tarihi ve erişim kademesi künye formunun yan kartında duruyor;
+           aynı alanı iki ekranda göstermek "aynı soruya iki cevap" olurdu.
+           Bu kolon kurgunun KENDİ üç işini taşır: bölümün public metni,
+           künye ile tutarlılık ölçümü, ve kurguyu sıfırlama. -->
+      <aside class="side-card">
+        <div class="adm-card">
+          <div class="c-head"><h2>Bölüm metni</h2></div>
+          <div class="form-sec" style="border-bottom:0">
+            <div class="form-grid">
+              <div class="frow">
+                <label for="kgBolumBaslik">Bölüm başlığı</label>
+                <input class="finput" id="kgBolumBaslik" name="bolum_baslik" type="text" maxlength="60"
+                       placeholder="Örn. Hafta hafta, gün gün" />
+              </div>
+              <div class="frow">
+                <label for="kgBolumMetin">Bölüm açıklaması</label>
+                <textarea class="ftext" id="kgBolumMetin" name="bolum_metin" maxlength="240"
+                          placeholder="Haftalık planın üstünde okunan iki cümle."></textarea>
+                <div class="fhint">Bu iki metin bugün <code>program-detay-v1.html</code>in
+                  <code>#hafta-plani</code> bölümünde <b>sabit yazılı</b> ve hiçbir ekranda
+                  yönetilmiyor. Alan onları taşıyacak yüzeyi kuruyor; bugünkü değerleri
+                  uydurulmuş metinle doldurulmadı.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="adm-card" style="margin-top:16px">
+          <div class="c-head"><h2>Künye ile tutarlılık</h2>
+            <div class="c-acts" id="kgTutRozet"></div>
+          </div>
+          <div class="pc-body" id="kgTut"></div>
+        </div>
+
+        <div class="adm-card" style="margin-top:16px">
+          <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+          <div class="pc-body">
+            <div class="fhint" style="margin-bottom:12px">Sıfırlama bütün haftaları,
+              günleri ve hareket satırlarını kaldırır; ekran boş durumuna döner.</div>
+            <button class="btn btn-ghost" type="button" id="kgSifirla"
+                    data-yikici="Bu programın kurgusu" data-fiil="sil"
+                    style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kurguyu sıfırla</button>
+          </div>
+        </div>
+      </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   PROGRAM KURGUSU — hafta → gün → hareket   (C-2'nin asıl yarısı)
+   ---------------------------------------------------------------------
+   🔴 TASARIM KARARI (brief iki seçenek verdi, (a) seçildi ve nedeni):
+
+   (a) HAFTA SEKMELERİ → GÜN KARTLARI → HAREKET SATIRLARI seçildi.
+   (b) sol kolonda hafta/gün ağacı + sağda seçili günün listesi ELENDİ.
+
+   Üç ölçülmüş gerekçe:
+   1. (a) üye yüzeyinin BİREBİR aynı şeklidir. `program-detay-v1.html`
+      ölçüldü: 4 hafta sekmesi (`.pd-wtab`) → 12 gün kartı (`.pd-day`,
+      4'ü dinlenme) → 32 hareket satırı (`.pd-ex`). Yöneticinin düzenlediği
+      şekil, üyenin okuduğu şekille aynı olunca "kaydettiğim şey nasıl
+      görünecek" sorusu ortadan kalkar. (b) yönetimde üçüncü bir gezinme
+      modeli icat ederdi.
+   2. (a) TAMAMEN mevcut kitten kurulur: hafta şeridi `.sa-form-tabs`,
+      gün ve hareket listeleri `FIT_ADMIN.tekrar` + `.st-card`. (b) bir
+      ağaç bileşeni ister — kitte yok, brief §0/3 ve §0/4 yeni bileşen ve
+      yeni form dili üretmeyi yasaklıyor.
+   3. (b) iki ayrı seçim durumu taşır (ağaçta seçili düğüm + sağdaki
+      düzenlenen kayıt); bu ekranda gün sayısı 7'yi geçmiyor, o karmaşıklığın
+      karşılığı yok.
+
+   🔴 SIRALAMA — üç seviyenin ikisi bileşenden, biri düğmeden:
+   Gün ve hareket seviyeleri `FIT_ADMIN.sirala` kullanır (sürükle + tutamak
+   odaktayken ↑/↓). Hafta seviyesi düğmeyle taşınır (← / →), çünkü hafta
+   sekmesi bir `<button role="tab">`tır ve içine ikinci bir `<button>`
+   (sürükleme tutamağı) konamaz — iç içe etkileşimli öğe hem geçersiz HTML
+   hem klavyede erişilmez olurdu. İki düğme de gerçek `<button>`, 44px ve
+   klavyeyle çalışır.
+
+   🔴 İÇ İÇE REPEATER YALITIMI — ölçülmüş tuzak:
+   `FIT_ADMIN.tekrar` içindeki `sirala` çağrısı tutamak seçicisini
+   geçirmiyor (`fit-admin.js:899`), yani iç ve dış liste aynı `.ie-drag` /
+   `.ie-del` seçicisini dinliyor. Yalıtılmazsa bir hareketin sil düğmesine
+   basmak GÜNÜ siler, bir hareketi sürüklemek GÜNÜ sürükler. Çözüm bileşeni
+   yeniden yazmak değil: iç liste kurulduktan SONRA aynı düğüme bir
+   "durdurucu" bağlanıyor (`yalit`). Aynı düğümdeki dinleyiciler kayıt
+   sırasıyla çalıştığı için bileşenin kendi işi önce biter, sonra olay
+   dışarı çıkmadan durur.
+
+   🔴 VERİ: KURGU KAYDI HİÇBİR YERDE YOK — ölçüldü, uydurulmadı.
+   `program-detay-v1.html`deki haftalık plan sabit HTML ve dört detay
+   adresinin dördü de aynı planı gösteriyor; yani plan programa ait bir
+   kayıt değil, sayfaya ait bir markup. Bu yüzden ekran BOŞ açılır.
+   "İskeleti kur" düğmesi hafta ve gün sayısını künyeden (gerçek katalog
+   değerleri) türetir; hareket satırlarını doldurmaz. Hareket kataloğu
+   gerçektir: `FIT_ADMIN_VERI.HAREKET`, 25 kayıt.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI || {};
+  if (!A) return;
+  var esc = A.esc;
+  var PR = V.PROGRAM || [], HAREKET = V.HAREKET || [];
+
+  /* ---- hangi program ------------------------------------------------ */
+  var q = new URLSearchParams(location.search);
+  var slug = q.get('p') || '';
+  var kIx = parseInt(q.get('k'), 10);
+  var ayniSlug = PR.filter(function (p) { return p.slug === slug; });
+  var prog = slug
+    ? ((!isNaN(kIx) && PR[kIx] && PR[kIx].slug === slug) ? PR[kIx] : (ayniSlug[0] || null))
+    : null;
+  var progIx = prog ? PR.indexOf(prog) : -1;
+
+  document.getElementById('kgBaslik').textContent =
+    prog ? (prog.ad + ' — kurgu') : 'Program kurgusu';
+  document.title = (prog ? prog.ad + ' kurgusu' : 'Program kurgusu') + ' — DadaFit Yönetim';
+  if (prog) {
+    document.getElementById('kgKunye').href =
+      'admin-program-form-v1.html?p=' + encodeURIComponent(prog.slug) + '&k=' + progIx;
+    document.getElementById('kgOnizle').href =
+      'program-detay-v1.html?slug=' + encodeURIComponent(prog.slug);
+    document.getElementById('kgAlt').textContent =
+      'Hafta → gün → hareket. Künye ' + prog.hafta + ' hafta ilan ediyor (' +
+      prog.plan + '); aşağıdaki sayılar ilandan değil, kurulan satırlardan gelir.';
+  }
+
+  /* ---- kaynak şeridi ------------------------------------------------ */
+  document.getElementById('kgKaynak').innerHTML = A.kaynak('ornek',
+    'Hareket kataloğu <b>gerçek</b>: ' + HAREKET.length + ' kayıt, <code>fit-admin-veri.js</code> ' +
+    '(<code>egzersiz-detay-v1.html</code>den üreteçle çıkarıldı). ' +
+    '<b>Kurgunun kendisi gerçek değil, çünkü hiçbir yerde kayıtlı değil:</b> ' +
+    'depodaki tek haftalık plan <code>program-detay-v1.html</code> içinde sabit HTML ' +
+    '(4 hafta sekmesi · 12 gün kartı · 32 hareket satırı) ve dört detay adresinin dördü de ' +
+    'aynı planı gösteriyor. Bu ekran o planın taşınacağı yüzeyi kuruyor. ' +
+    'Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  /* ---- ölçülen kusur, görünür — sessizce doldurulmuyor -------------- */
+  A.flash('warn',
+    (prog ? '“' + prog.ad + '” programının' : 'Hiçbir programın') +
+    ' hafta → gün → hareket kurgusu kayıtlı değil. Katalogdaki ' + PR.length +
+    ' kartın ' + PR.length + '\'i de kurgusuz: detay sayfası ' +
+    (V.PROGRAM_DETAY || []).length + ' adres tanıyor ve dördü de aynı sabit planı basıyor. ' +
+    'Aşağıdaki iskelet künyedeki hafta ve gün sayısından türetilir; hareket satırları boş gelir.',
+    document.getElementById('kgUyari'));
+
+  /* =====================================================================
+     DURUM — tek kaynak. Ekran bu diziden çizilir.
+     hafta: [{ id, gunler:[gunEl] }] — gün ve hareket DOM'da yaşar,
+     hafta yalnız panel kimliğini taşır.
+     ===================================================================== */
+  var haftalar = [];      /* [{id, ad}] */
+  var haftaNo = 0;
+  var aktif = null;       /* aktif hafta id */
+
+  var seritEl = document.getElementById('kgHaftalar');
+  var panelEl = document.getElementById('kgPaneller');
+  var bosEl   = document.getElementById('kgBos');
+
+  /* ---- iç içe liste yalıtımı (bkz. başlık yorumu) ------------------- */
+  function yalit(el) {
+    ['pointerdown', 'dragstart', 'dragover', 'dragend', 'drop', 'click', 'keydown']
+      .forEach(function (t) {
+        el.addEventListener(t, function (e) {
+          var d = e.target.closest && e.target.closest('.ie-drag, .ie-del');
+          if (d) e.stopPropagation();
+        });
+      });
+  }
+
+  /* ---- hareket seçeneği — katalogdan, uydurulmadan ------------------ */
+  var HR_SEC = '<option value="">Hareket seç…</option>' + HAREKET.map(function (h) {
+    return '<option value="' + esc(h.slug) + '">' + esc(h.ad) + ' — ' + esc(h.bolge) + '</option>';
+  }).join('');
+
+  /* ---- HAREKET SATIRI şablonu --------------------------------------- */
+  function hareketSablon(haftaId, gunNo) {
+    var t = document.createElement('template');
+    var ad = 'kurgu[' + haftaId + '][' + gunNo + ']';
+    t.innerHTML =
+      '<div class="st-card hr-row">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<div class="frow">' +
+            '<label class="sr-only">Hareket</label>' +
+            '<select class="fselect" name="' + ad + '[hareket][]" data-field="hareket" data-zorunlu="1">' + HR_SEC + '</select>' +
+          '</div>' +
+          '<div class="frow three">' +
+            '<div class="frow">' +
+              '<label>Set <span class="req">*</span></label>' +
+              '<input class="finput" type="number" min="1" max="12" name="' + ad + '[set][]" data-field="set" placeholder="3" data-zorunlu="1">' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label>Tekrar <span class="req">*</span></label>' +
+              '<input class="finput" type="text" maxlength="20" name="' + ad + '[tekrar][]" data-field="tekrar" placeholder="12 ya da 30 sn" data-zorunlu="1">' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label>Dinlenme <span class="req">*</span></label>' +
+              '<input class="finput" type="text" maxlength="20" name="' + ad + '[dinlenme][]" data-field="dinlenme" placeholder="60 sn" data-zorunlu="1">' +
+            '</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label>Not <span class="opt">— hareket satırının altında basılır</span></label>' +
+            '<input class="finput" type="text" maxlength="120" name="' + ad + '[not][]" data-field="not" placeholder="Örn. Son sette tempoyu düşür.">' +
+          '</div>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Hareketi sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Hareketi çıkar" aria-label="Hareketi çıkar">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    return t;
+  }
+
+  /* ---- GÜN KARTI şablonu -------------------------------------------- */
+  function gunSablon(haftaId) {
+    var t = document.createElement('template');
+    var ad = 'gun[' + haftaId + ']';
+    t.innerHTML =
+      '<div class="st-card gun-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Gün</span>' +
+          '<div class="frow three">' +
+            '<div class="frow">' +
+              '<label>Gün başlığı <span class="req">*</span></label>' +
+              '<input class="finput" type="text" maxlength="60" name="' + ad + '[baslik][]" data-field="baslik" placeholder="Örn. Alt Vücut Temeli" data-zorunlu="1">' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label>Gün tipi <span class="req">*</span></label>' +
+              '<select class="fselect" name="' + ad + '[tip][]" data-field="tip">' +
+                '<option value="antrenman">Antrenman</option>' +
+                '<option value="dinlenme">Dinlenme</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label>Tahmini süre <span class="opt">— dk</span></label>' +
+              '<input class="finput" type="number" min="0" max="240" name="' + ad + '[sure][]" data-field="sure" placeholder="25">' +
+            '</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label>Gün açıklaması</label>' +
+            '<input class="finput" type="text" maxlength="120" name="' + ad + '[ozet][]" data-field="ozet" placeholder="Örn. Bacak ve kalça · dört hareket">' +
+          '</div>' +
+          '<div class="hr-kutu">' +
+            '<h3 class="form-sec-tt"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Hareketler' +
+              '<span class="fs-say" data-hr-say>0 hareket</span></h3>' +
+            '<div class="st-list" data-hr-liste></div>' +
+            '<button class="add-row" type="button" data-hr-ekle style="margin-top:10px">' +
+              '<i class="fa-solid fa-plus" aria-hidden="true"></i> Hareket ekle</button>' +
+          '</div>' +
+          '<div class="gun-foot">' +
+            '<label class="sr-only">Kopyalanacak hafta</label>' +
+            '<select class="fselect" data-kopya-hedef aria-label="Bu günün kopyalanacağı hafta"></select>' +
+            '<button class="btn btn-ghost" type="button" data-kopya>' +
+              '<i class="fa-solid fa-copy" aria-hidden="true"></i> Günü kopyala</button>' +
+          '</div>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Günü sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Günü sil" aria-label="Günü sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    return t;
+  }
+
+  /* ---- bir gün kartını canlandır ------------------------------------ */
+  function gunuKur(gun, haftaId) {
+    if (gun.__kuruldu) return;
+    gun.__kuruldu = true;
+    var liste = gun.querySelector('[data-hr-liste]');
+    var ekle  = gun.querySelector('[data-hr-ekle]');
+    var say   = gun.querySelector('[data-hr-say]');
+    var sablon = hareketSablon(haftaId, 0);
+    document.body.appendChild(sablon);
+    var r = A.tekrar({
+      liste: liste, ekle: ekle, sablon: sablon, oge: '.hr-row',
+      enAz: 0, enCok: 20,
+      degisti: function () {
+        say.textContent = liste.querySelectorAll('.hr-row').length + ' hareket';
+        if (gun.__dinlenme) gun.__dinlenme();
+        ozet();
+      }
+    });
+    yalit(liste);
+    gun.__hrEkle = r.ekle;
+
+    /* Dinlenme günü hareket taşımaz — kutu gizlenir, satırlar SİLİNMEZ
+       (tipi geri çevirince geri gelsinler). 🔴 Gizlemek yetmez: gizli ama
+       `required` bir alan `reportValidity()`yi kilitler ve tarayıcı
+       "not focusable" hatası basar — bu depoda bir kez ölçülmüş tuzak
+       (`admin-testler-v1.html:401`). Gizlenen alanlar `disabled` yapılır;
+       devre dışı alan ne doğrulanır ne gönderilir. */
+    var tip = gun.querySelector('[data-field="tip"]');
+    var kutu = gun.querySelector('.hr-kutu');
+    function dinlenmeUygula() {
+      var d = (tip.value === 'dinlenme');
+      gun.classList.toggle('is-dinlenme', d);
+      kutu.querySelectorAll('input,select,textarea,button').forEach(function (n) { n.disabled = d; });
+    }
+    gun.__dinlenme = dinlenmeUygula;
+    tip.addEventListener('change', function () { dinlenmeUygula(); ozet(); });
+
+    /* süre değişince özet tazelenir */
+    gun.querySelector('[data-field="sure"]').addEventListener('input', ozet);
+  }
+
+  /* ---- HAFTA ---------------------------------------------------------- */
+  function haftaEkle(sessiz) {
+    haftaNo++;
+    var h = { id: 'h' + haftaNo, ad: 'Hafta ' + (haftalar.length + 1) };
+    haftalar.push(h);
+
+    var panel = document.createElement('div');
+    panel.className = 'sa-form-panel';
+    panel.setAttribute('data-form-panel', h.id);
+    panel.innerHTML =
+      '<div class="form-sec">' +
+        '<h3 class="form-sec-tt"><i class="fa-solid fa-calendar-week" aria-hidden="true"></i> ' +
+          'Günler<span class="fs-say" data-gun-say>0 gün</span></h3>' +
+        '<div class="st-list" data-gun-liste></div>' +
+        '<button class="add-row" type="button" data-gun-ekle style="margin-top:10px">' +
+          '<i class="fa-solid fa-plus" aria-hidden="true"></i> Gün ekle</button>' +
+        '<div class="fhint" style="margin-top:10px">Tutamağı sürükleyerek ya da odaktayken ' +
+          '↑ / ↓ ile taşı. Dinlenme gününe hareket eklenmez.</div>' +
+      '</div>';
+    panelEl.appendChild(panel);
+
+    var liste = panel.querySelector('[data-gun-liste]');
+    var sablon = gunSablon(h.id);
+    document.body.appendChild(sablon);
+    var r = A.tekrar({
+      liste: liste, ekle: panel.querySelector('[data-gun-ekle]'), sablon: sablon,
+      oge: '.gun-card', enAz: 0, enCok: 7,
+      degisti: function (ogeler) {
+        panel.querySelector('[data-gun-say]').textContent = ogeler.length + ' gün';
+        ogeler.forEach(function (g) { gunuKur(g, h.id); });
+        kopyaHedefTazele();
+        ozet();
+      }
+    });
+    h.ekleGun = r.ekle;
+    h.panel = panel;
+    h.liste = liste;
+
+    serit();
+    if (!sessiz) { sec(h.id); ozet(); }
+    return h;
+  }
+
+  function serit() {
+    seritEl.innerHTML = haftalar.map(function (h, i) {
+      var n = h.liste ? h.liste.querySelectorAll('.gun-card').length : 0;
+      return '<button class="sa-form-tab' + (h.id === aktif ? ' is-on' : '') + '" type="button" ' +
+        'role="tab" aria-selected="' + (h.id === aktif ? 'true' : 'false') + '" ' +
+        'data-hafta="' + h.id + '">Hafta ' + (i + 1) +
+        ' <span class="fs-say">' + n + ' gün</span></button>';
+    }).join('');
+    document.getElementById('kgHaftaSay').textContent = haftalar.length + ' hafta';
+    var yok = haftalar.length === 0;
+    document.getElementById('kgSola').disabled = yok || sIx() <= 0;
+    document.getElementById('kgSaga').disabled = yok || sIx() < 0 || sIx() >= haftalar.length - 1;
+    var sil = document.getElementById('kgHaftaSil');
+    sil.disabled = yok;
+    /* Onay modalı kaydın ADINI okur; "Seçili hafta" değil, gerçekten
+       silinecek hafta yazmalı. */
+    sil.setAttribute('data-yikici', sIx() >= 0 ? 'Hafta ' + (sIx() + 1) : 'Hafta');
+    document.getElementById('kgHaftaEkle').disabled = haftalar.length >= 52;
+  }
+
+  function sIx() {
+    for (var i = 0; i < haftalar.length; i++) if (haftalar[i].id === aktif) return i;
+    return -1;
+  }
+
+  function sec(id) {
+    aktif = id;
+    haftalar.forEach(function (h) { h.panel.hidden = (h.id !== id); });
+    zorunluTazele();
+    tutarlilik();
+    serit();
+  }
+
+  /* 🔴 ZORUNLULUK YALNIZ GÖRÜNEN HAFTADA — ölçülmüş tuzağın çözümü.
+     `required` alan gizli bir panelde kalırsa `reportValidity()` ona
+     odaklanamaz: tarayıcı her biri için "An invalid form control … is not
+     focusable" hatası basar (ilk ölçümde 18 tane) ve doğrulama yarıda
+     kalır. Zorunluluk kaldırılmadı — TAŞINDI: `data-zorunlu` işareti
+     kalıcı, `required` özniteliği yalnız açık haftanın alanlarında durur.
+     Öteki haftalar `eksigeGit` ile tek tek denetlenir; hiçbir hafta
+     doğrulamadan kaçmaz. */
+  function zorunluTazele() {
+    document.querySelectorAll('#kgPaneller [data-zorunlu]').forEach(function (n) {
+      var pn = n.closest('.sa-form-panel');
+      n.required = !!pn && !pn.hidden;
+    });
+  }
+
+  seritEl.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-hafta]');
+    if (b) sec(b.getAttribute('data-hafta'));
+  });
+
+  document.getElementById('kgHaftaEkle').addEventListener('click', function () {
+    var h = haftaEkle(false);
+    h.ekleGun();
+    bosTazele();
+  });
+
+  function haftaTasi(yon) {
+    var i = sIx(), j = i + yon;
+    if (i < 0 || j < 0 || j >= haftalar.length) return;
+    var t = haftalar[i]; haftalar[i] = haftalar[j]; haftalar[j] = t;
+    haftalar.forEach(function (h) { panelEl.appendChild(h.panel); });
+    serit();
+    A.toast('Hafta taşındı — ' + (i + 1) + '. sıradan ' + (j + 1) + '. sıraya', { tip: 'info', ms: 1400 });
+    kopyaHedefTazele();
+  }
+  document.getElementById('kgSola').addEventListener('click', function () { haftaTasi(-1); });
+  document.getElementById('kgSaga').addEventListener('click', function () { haftaTasi(1); });
+
+  /* Yıkıcı eylem: kabuk onay modalı `data-yikici` ile kendiliğinden açılır;
+     native confirm() yasak (brief §2/K-LİSTE). Onay sonrası bu dinleyici
+     çalışır — kabuk modalı düğmenin kendi click'ini tekrar tetikler. */
+  document.getElementById('kgHaftaSil').addEventListener('click', function () {
+    var i = sIx(); if (i < 0) return;
+    var h = haftalar[i];
+    if (h.panel.parentNode) h.panel.parentNode.removeChild(h.panel);
+    haftalar.splice(i, 1);
+    aktif = haftalar.length ? haftalar[Math.min(i, haftalar.length - 1)].id : null;
+    if (aktif) sec(aktif); else serit();
+    kopyaHedefTazele(); ozet(); bosTazele();
+  });
+
+  /* ---- GÜN KOPYALAMA — "2. günü 4. haftaya kopyala" ------------------ */
+  function kopyaHedefTazele() {
+    document.querySelectorAll('[data-kopya-hedef]').forEach(function (s) {
+      var eski = s.value;
+      s.innerHTML = haftalar.map(function (h, i) {
+        return '<option value="' + h.id + '">Hafta ' + (i + 1) + '\'e kopyala</option>';
+      }).join('');
+      if (eski) s.value = eski;
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-kopya]');
+    if (!b) return;
+    e.preventDefault();
+    var gun = b.closest('.gun-card');
+    var hedefId = gun.querySelector('[data-kopya-hedef]').value;
+    var hedef = haftalar.filter(function (h) { return h.id === hedefId; })[0];
+    if (!hedef || !gun) return;
+    if (hedef.liste.querySelectorAll('.gun-card').length >= 7) {
+      A.toast('Hafta en çok 7 gün taşır — hedef hafta dolu.', { tip: 'danger' });
+      return;
+    }
+    var yeniGun = hedef.ekleGun();
+    /* alan alan kopyala — innerHTML kopyası bileşen dinleyicilerini taşımaz */
+    ['baslik', 'tip', 'sure', 'ozet'].forEach(function (f) {
+      var k = gun.querySelector('[data-field="' + f + '"]');
+      var y = yeniGun.querySelector('[data-field="' + f + '"]');
+      if (k && y) y.value = k.value;
+    });
+    if (yeniGun.__dinlenme) yeniGun.__dinlenme();
+    gun.querySelectorAll('.hr-row').forEach(function (hr) {
+      var yr = yeniGun.__hrEkle();
+      ['hareket', 'set', 'tekrar', 'dinlenme', 'not'].forEach(function (f) {
+        var k = hr.querySelector('[data-field="' + f + '"]');
+        var y = yr.querySelector('[data-field="' + f + '"]');
+        if (k && y) y.value = k.value;
+      });
+    });
+    var hi = haftalar.indexOf(hedef);
+    A.toast('Gün Hafta ' + (hi + 1) + '\'e kopyalandı.', { tip: 'ok' });
+    ozet();
+  });
+
+  /* ---- ÖZET — İLAN EDİLMEZ, SAYILIR --------------------------------- */
+  function ozet() {
+    var gunler = document.querySelectorAll('#kgPaneller .gun-card');
+    var antrenman = 0, dinlenme = 0, dk = 0;
+    gunler.forEach(function (g) {
+      var t = g.querySelector('[data-field="tip"]');
+      if (t && t.value === 'dinlenme') dinlenme++; else antrenman++;
+      var s = g.querySelector('[data-field="sure"]');
+      dk += Number((s && s.value) || 0);
+    });
+    var hareket = document.querySelectorAll('#kgPaneller .hr-row').length;
+    var saat = Math.floor(dk / 60), kalan = dk % 60;
+    var sureMetin = dk ? (saat ? saat + ' sa ' + kalan + ' dk' : dk + ' dk') : '—';
+
+    var kut = [
+      ['fa-calendar-week', haftalar.length, 'hafta',
+       haftalar.length ? 'Şeritteki hafta sayısı.' : 'Henüz hafta kurulmadı.'],
+      ['fa-calendar-day', gunler.length, 'gün',
+       antrenman + ' antrenman · ' + dinlenme + ' dinlenme günü.'],
+      ['fa-dumbbell', hareket, 'hareket satırı',
+       hareket ? 'Katalogdaki ' + HAREKET.length + ' hareketten seçiliyor.'
+               : 'Hiçbir güne hareket eklenmedi.'],
+      ['fa-clock', sureMetin, 'toplam süre',
+       dk ? 'Gün sürelerinin toplamı.' : 'Gün süreleri boş — toplanacak değer yok.']
+    ];
+    document.getElementById('kgKpi').innerHTML = kut.map(function (k) {
+      return '<div class="k"><span class="ico"><i class="fa-solid ' + k[0] + '"></i></span>' +
+        '<div><b>' + esc(String(k[1])) + '</b><span>' + esc(k[2]) + '</span>' +
+        '<span class="kpi-delta flat"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+        esc(k[3]) + '</span></div></div>';
+    }).join('');
+    zorunluTazele();
+    tutarlilik();
+    serit();
+  }
+
+  /* ---- KÜNYE İLE TUTARLILIK — ölçülür, ilan edilmez ------------------
+     Künye "8 hafta · haftada 3 gün · 24 antrenman" diyor; kurgu başka bir
+     şey diyorsa üye ikisini de görür ve biri yalan olur. Kart farkı sayıyla
+     söyler; "tamam/eksik" değil, kaç fark var. */
+  function tutarlilik() {
+    var kart = document.getElementById('kgTut');
+    var rozet = document.getElementById('kgTutRozet');
+    if (!kart) return;
+    var ilanHafta = prog ? Number(prog.hafta) || 0 : 0;
+    var ilanGun = gunSayisi();
+    var m = prog && prog.plan ? prog.plan.match(/(\d+) antrenman/) : null;
+    var ilanAntrenman = m ? Number(m[1]) : 0;
+
+    var gunSayilari = haftalar.map(function (h) {
+      return h.liste ? h.liste.querySelectorAll('.gun-card').length : 0;
+    });
+    var antrenmanGun = 0;
+    document.querySelectorAll('#kgPaneller .gun-card').forEach(function (g) {
+      var t = g.querySelector('[data-field="tip"]');
+      if (!t || t.value !== 'dinlenme') antrenmanGun++;
+    });
+    var esitGun = gunSayilari.length
+      ? gunSayilari.every(function (x) { return x === gunSayilari[0]; }) : false;
+    var bosGun = 0;
+    document.querySelectorAll('#kgPaneller .gun-card').forEach(function (g) {
+      var t = g.querySelector('[data-field="tip"]');
+      if (t && t.value === 'dinlenme') return;
+      if (!g.querySelectorAll('.hr-row').length) bosGun++;
+    });
+
+    var sat = [
+      [haftalar.length === ilanHafta,
+       'Hafta sayısı künyeyle aynı — künye ' + ilanHafta + ', kurgu ' + haftalar.length],
+      [esitGun && gunSayilari[0] === ilanGun,
+       'Her hafta ' + ilanGun + ' gün taşıyor — kurguda ' +
+         (gunSayilari.length ? (esitGun ? gunSayilari[0] + ' gün' : 'haftadan haftaya değişiyor') : 'hafta yok')],
+      [antrenmanGun === ilanAntrenman,
+       'Antrenman günü sayısı künyeyle aynı — künye ' + ilanAntrenman + ', kurgu ' + antrenmanGun],
+      [antrenmanGun > 0 && bosGun === 0,
+       bosGun ? bosGun + ' antrenman gününde hiç hareket yok'
+              : (antrenmanGun ? 'Her antrenman gününde en az bir hareket var'
+                              : 'Henüz antrenman günü kurulmadı')]
+    ];
+    var kusur = sat.filter(function (x) { return !x[0]; }).length;
+    rozet.innerHTML = kusur ? A.rozet('wait', kusur + ' fark', 'fa-circle-exclamation')
+                            : A.rozet('ok', 'Tutuyor', 'fa-check');
+    kart.innerHTML = '<div class="seo-checks">' + sat.map(function (x) {
+      return '<div class="seo-chk ' + (x[0] ? 'pass' : 'fail') + '">' +
+        '<i class="fa-solid ' + (x[0] ? 'fa-circle-check' : 'fa-circle') + '" aria-hidden="true"></i>' +
+        esc(x[1]) + '</div>';
+    }).join('') + '</div>' +
+    '<div class="fhint" style="margin-top:12px">Künye değerleri ' +
+    (prog ? '<b>' + esc(prog.plan) + '</b> cümlesinden' : 'okunamadı — program seçilmedi') +
+    ' geliyor; kurgu değerleri aşağıdaki satırlardan sayılıyor.</div>';
+  }
+
+  /* Kurguyu sıfırla — kabuk onay modalı `data-yikici` ile açılır. */
+  document.getElementById('kgSifirla').addEventListener('click', function () {
+    haftalar.slice().forEach(function (h) {
+      if (h.panel.parentNode) h.panel.parentNode.removeChild(h.panel);
+    });
+    haftalar.length = 0; aktif = null;
+    serit(); ozet(); bosTazele();
+    A.toast('Kurgu sıfırlandı — ekran boş durumuna döndü.', { tip: 'info' });
+  });
+
+  /* ---- BOŞ DURUM — dört parça, kit §9 -------------------------------- */
+  function bosTazele() {
+    if (haftalar.length) { bosEl.innerHTML = ''; return; }
+    bosEl.innerHTML = '<div class="form-sec">' + A.bos('fa-diagram-project',
+      'Bu programın kurgusu yok',
+      'Hafta → gün → hareket planı hiçbir yerde kayıtlı değil. Künye ' +
+        (prog ? prog.hafta + ' hafta ve ' + (gunSayisi() || '—') + ' gün ilan ediyor'
+              : 'okunamadı') +
+        '; iskeleti o sayılardan kurabilir ya da haftaları tek tek ekleyebilirsin.',
+      '<button class="btn btn-primary" type="button" id="kgIskelet">' +
+        '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> İskeleti kur</button>' +
+      ' <button class="btn btn-ghost" type="button" id="kgTekHafta">Boş hafta ekle</button>') +
+      '</div>';
+  }
+
+  function gunSayisi() {
+    var m = prog && prog.plan ? prog.plan.match(/haftada (\d+) gün/) : null;
+    return m ? Number(m[1]) : 0;
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#kgIskelet')) { iskelet(); }
+    if (e.target.closest && e.target.closest('#kgTekHafta')) {
+      var h = haftaEkle(false); h.ekleGun(); bosTazele();
+    }
+  });
+
+  function iskelet() {
+    var hf = prog ? Math.min(Number(prog.hafta) || 1, 52) : 4;
+    var gn = Math.min(gunSayisi() || 3, 7);
+    for (var i = 0; i < hf; i++) {
+      var h = haftaEkle(true);
+      for (var j = 0; j < gn; j++) h.ekleGun();
+    }
+    sec(haftalar[0].id);
+    bosTazele(); ozet();
+    A.toast(hf + ' hafta × ' + gn + ' gün iskeleti kuruldu — hareket satırları boş.', { tip: 'ok' });
+  }
+
+  /* ---- kaydet --------------------------------------------------------
+     🔴 GİZLİ PANELDE ZORUNLU ALAN — ölçülmüş ve düzeltilmiş tuzak.
+     Aynı anda yalnız bir hafta paneli görünür; öteki haftaların zorunlu
+     alanları `hidden` bir kabın içinde kalıyor ve `reportValidity()`
+     onlara odaklanamıyor: tarayıcı "An invalid form control … is not
+     focusable" hatası basıyor, doğrulama yarıda kalıyor ve ekran hiçbir
+     şey söylemiyor. İlk ölçümde 18 konsol hatası olarak çıktı.
+
+     Çözüm zorunluluğu kaldırmak DEĞİL — o, doğrulamayı yalana çevirirdi.
+     Kaydet düğmesine `maketKaydet`ten ÖNCE bir dinleyici bağlanıyor: eksik
+     alanın haftasını açar, sonra olay bileşene geçer ve `reportValidity()`
+     artık görünür bir alanı işaret eder. */
+  var form = document.getElementById('kgForm');
+  var hataSerit = null;
+  function eksigeGit(e) {
+    if (hataSerit && hataSerit.parentNode) { hataSerit.parentNode.removeChild(hataSerit); hataSerit = null; }
+    var eksikler = Array.prototype.slice.call(
+      document.querySelectorAll('#kgPaneller [data-zorunlu]')).filter(function (n) {
+        return !n.disabled && !String(n.value || '').trim();
+      });
+    if (!eksikler.length) return;                 /* her hafta tam — bileşene geç */
+
+    /* Hangi haftalarda eksik var — sayıyla söylenir, "bir yerde hata var" değil. */
+    var haftaAd = [];
+    eksikler.forEach(function (n) {
+      var pn = n.closest('.sa-form-panel');
+      var h = haftalar.filter(function (x) { return x.panel === pn; })[0];
+      if (h) { var ad = 'Hafta ' + (haftalar.indexOf(h) + 1); if (haftaAd.indexOf(ad) < 0) haftaAd.push(ad); }
+    });
+    var ilk = eksikler[0].closest('.sa-form-panel');
+    var hi = haftalar.filter(function (x) { return x.panel === ilk; })[0];
+    if (hi && ilk.hidden) sec(hi.id);
+    hataSerit = A.flash('error',
+      eksikler.length + ' zorunlu alan boş (' + haftaAd.join(' · ') + '). ' +
+      'İlk eksik alanın haftası açıldı.', document.getElementById('kgUyari'));
+    form.reportValidity();
+    e.stopImmediatePropagation();                 /* "doğrulandı" notu BASILMAZ */
+  }
+  document.getElementById('kgKaydet').addEventListener('click', eksigeGit);
+  document.getElementById('kgTaslak').addEventListener('click', eksigeGit);
+  A.maketKaydet(document.getElementById('kgKaydet'), 'kurgu', form);
+  A.maketKaydet(document.getElementById('kgTaslak'), 'taslak kurgu', form);
+
+  serit(); ozet(); bosTazele();
+})();
+</script>
+</body>
+</html>

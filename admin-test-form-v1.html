@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fit testi düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın işi. Yeni renk / yarıçap / gölge / ölçü
+   üretilmedi; sonuç bandının seviye damgası kitin `.st-num` deseninin
+   kendisidir, yalnız numarası yerine seviyeyi taşır. */
+.bant-lv{display:flex;align-items:center;gap:9px}
+.bant-lv .fselect{flex:1;min-width:0}
+</style>
+</head>
+<body class="adm-body" data-adm="testler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-testler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Fit Testleri</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="tfBaslik">Yeni fit testi</h1>
+        <div class="ph-sub" id="tfAlt">Künye, uygulama adımları ve sonuç bantları tek formda.
+          Bandın işaret ettiği program yoksa üye boşluğa gider; form bunu söyler.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="tfOnizle" href="fit-testleri-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="tfKaynak"></div>
+    <div id="tfUyari"></div>
+
+    <form id="tfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="uygulama">Uygulama</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="sonuc">Sonuç bantları</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="seo">SEO</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-image" aria-hidden="true"></i> Kapak görseli</h3>
+              <div id="tfKapak"></div>
+              <div class="fhint" style="margin-top:10px">Test kartında ve detay sayfasının
+                başında görünür. Bugün <code>fit-testi-detay-v1.html</code> içindeki
+                <code>img</code> alanı bir Unsplash kimliği taşıyor — yönetilebilir değil.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="tfAd">Test adı <span class="req">*</span></label>
+                  <input class="finput" id="tfAd" name="ad" type="text" required maxlength="80"
+                         placeholder="Örn. Denge Değerlendirmesi" />
+                  <span class="fsay" data-say-for="tfAd">0 / 80</span>
+                </div>
+                <div class="frow">
+                  <label for="tfSlug">Adres <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">fit-testi-detay-v1.html?test=</span>
+                    <!-- 🔴 TİRE KAÇIRILIYOR — gerekçe `admin-testler-v1.html:127`de. -->
+                    <input class="finput" id="tfSlug" name="slug" type="text" required
+                           maxlength="60" pattern="[a-z0-9\-]+" placeholder="denge" />
+                  </div>
+                  <div class="fhint">Yalnız küçük harf, rakam ve tire.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="tfKategori">Kategori <span class="req">*</span></label>
+                    <input class="finput" id="tfKategori" name="kategori" type="text" required
+                           maxlength="60" placeholder="Denge ve kontrol" />
+                    <div class="fhint" id="tfKatNot">&mdash;</div>
+                  </div>
+                  <div class="frow">
+                    <label for="tfSure">Süre <span class="req">*</span></label>
+                    <input class="finput" id="tfSure" name="sure" type="text" required
+                           maxlength="30" placeholder="5–7 dakika" />
+                    <div class="fhint">Isınma ve soğuma dahil, aralık olarak yazılır.</div>
+                  </div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="tfSureKisa">Kısa süre <span class="opt">— kartta ve listede</span></label>
+                    <input class="finput" id="tfSureKisa" name="sure_kisa" type="text" maxlength="20"
+                           placeholder="~7 dk" />
+                  </div>
+                  <div class="frow">
+                    <label for="tfSureNot">Süre notu</label>
+                    <input class="finput" id="tfSureNot" name="sure_not" type="text" maxlength="120"
+                           placeholder="Örn. İki taraf için ayrı ayrı." />
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="tfOzet">Kısa özet <span class="req">*</span>
+                    <span class="opt">— test kartında ve arama sonucunda görünür</span></label>
+                  <textarea class="ftext" id="tfOzet" name="ozet" required maxlength="220"
+                            placeholder="Bir cümleyle: bu test neyi gösteriyor?"></textarea>
+                  <span class="fsay" data-say-for="tfOzet">0 / 220</span>
+                </div>
+                <div class="frow">
+                  <label for="tfAmac">Amaç metni</label>
+                  <textarea class="ftext" id="tfAmac" name="amac"
+                            placeholder="Testin neyi ölçtüğü ve neyi ölçmediği."></textarea>
+                  <div class="fhint">Detay sayfasının "Amaç" bloğunda paragraf olarak basılır.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-list-check" aria-hidden="true"></i> Amaç maddeleri
+                <span class="fs-say" id="tfAmacSay">0 madde</span>
+              </h3>
+              <div class="st-list" id="tfAmacList"></div>
+              <button class="add-row" type="button" id="tfAmacEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Madde ekle</button>
+              <div class="fhint" style="margin-top:10px">Amaç paragrafının altında madde madde
+                basılır. Tutamağı sürükleyerek ya da odaktayken ↑ / ↓ ile taşı.</div>
+            </div>
+          </div>
+
+          <!-- ---- UYGULAMA ---- -->
+          <div class="sa-form-panel" data-form-panel="uygulama" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-toolbox" aria-hidden="true"></i> Gerekli ekipman
+                <span class="fs-say" id="tfEkipmanSay">0 kalem</span>
+              </h3>
+              <div class="st-list" id="tfEkipman"></div>
+              <button class="add-row" type="button" id="tfEkipmanEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Ekipman ekle</button>
+              <div class="fhint" style="margin-top:10px">Liste, adımlarda gerçekten kullanılanı
+                saymalı — adımda geçmeyen ekipman üyeye gereksiz bir engel koyar.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-shoe-prints" aria-hidden="true"></i> Adım adım uygulama
+                <span class="fs-say" id="tfAdimSay">0 adım</span>
+              </h3>
+              <div class="st-list" id="tfAdimlar"></div>
+              <button class="add-row" type="button" id="tfAdimEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Adım ekle</button>
+              <div class="fhint" style="margin-top:10px">Her adımın <b>başlığı</b> ve
+                <b>anlatımı</b> ayrı alanlardır; detay sayfası ikisini de basar.
+                Sıra public tarafta aynen görünür.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-user-check" aria-hidden="true"></i> Kimlere uygun
+                <span class="fs-say" id="tfUygunSay">0 madde</span>
+              </h3>
+              <div class="st-list" id="tfUygun"></div>
+              <button class="add-row" type="button" id="tfUygunEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Madde ekle</button>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-user-xmark" aria-hidden="true"></i> Kimlere uygun değil
+                <span class="fs-say" id="tfUygunDegilSay">0 madde</span>
+              </h3>
+              <div class="st-list" id="tfUygunDegil"></div>
+              <button class="add-row" type="button" id="tfUygunDegilEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Madde ekle</button>
+              <div class="fhint" style="margin-top:10px">🔴 Bu liste testin uygunluk taramasını
+                besler: eşleşen bir madde varsa test <b>başlamaz</b>.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Ek güvenlik notu
+                <span class="fs-say" id="tfGuvenlikSay">0 not</span>
+              </h3>
+              <div class="st-list" id="tfGuvenlik"></div>
+              <button class="add-row" type="button" id="tfGuvenlikEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Not ekle</button>
+              <div class="fhint" style="margin-top:10px">🔴 <b>Sağlık metni — taşınır, yeniden
+                yazılmaz.</b> Bu testin bugünkü güvenlik notları
+                <code>fit-testi-detay-v1.html</code> içindeki <code>guvenlikEk</code> dizisinde
+                duruyor; buraya <b>o metinlerin kendisi</b> aktarılır. Genel sağlık uyarısı
+                Ayarlar'da tek yerden yönetilir, buraya kopyalanmaz.</div>
+            </div>
+          </div>
+
+          <!-- ---- SONUÇ BANTLARI ---- -->
+          <div class="sa-form-panel" data-form-panel="sonuc" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Ölçüm soruları
+                <span class="fs-say" id="tfSoruSay">0 soru</span>
+              </h3>
+              <div class="st-list" id="tfSorular"></div>
+              <button class="add-row" type="button" id="tfSoruEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Soru ekle</button>
+              <div class="fhint" style="margin-top:10px">🔴 <b>YAPI KARARI — lead'e sorulacak.</b>
+                Bugün her test <b>tek soruludur</b>: veride <code>olcumSoru</code> tek bir metin ve
+                sonucu üç bant seçiyor. Bu alan çoklu soru setine <b>hazır</b> kuruldu (tekrarlayan
+                satır), ama <b>tek soruyla dolduruldu</b> ve public taraf değişmedi. Soru sayısı
+                birden çok olursa <code>fit-testi-detay-v1.html</code>in 644 satırlık akışı ve
+                bantların hangi soruya bakacağı yeniden tasarlanmalı — bu bir maket kararı değil,
+                <b>veri yapısı kararıdır</b>.</div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sonuç bantları
+                <span class="fs-say" id="tfBantSay">0 bant</span>
+              </h3>
+              <div class="st-list" id="tfBantlar"></div>
+              <button class="add-row" type="button" id="tfBantEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Bant ekle</button>
+              <div class="fhint" style="margin-top:10px">Bantlar birlikte tüm sonuç uzayını
+                kaplamalı: boşluk kalırsa bazı yanıtlar hiçbir banda düşmez, çakışma olursa
+                aynı yanıt iki sonuç üretir. Önerilen program listesi detay sayfasının
+                gerçekten tanıdığı adreslerden gelir.</div>
+            </div>
+          </div>
+
+          <!-- ---- SEO ---- -->
+          <div class="sa-form-panel" data-form-panel="seo" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Arama motoru</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="tfMetaT">Meta başlık</label>
+                  <input class="finput" id="tfMetaT" name="meta_title" type="text" maxlength="180"
+                         placeholder="Boş bırakılırsa test adı kullanılır" />
+                  <span class="fsay" data-say-for="tfMetaT">0 / 60 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="tfMetaD">Meta açıklama</label>
+                  <textarea class="ftext" id="tfMetaD" name="meta_desc" maxlength="320"
+                            placeholder="Arama sonucunda görünen iki cümle."></textarea>
+                  <span class="fsay" data-say-for="tfMetaD">0 / 160 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="tfCanon">Canonical adres</label>
+                  <input class="finput" id="tfCanon" name="canonical" type="url"
+                         placeholder="https://dadafit.com/fit-testi/…" />
+                </div>
+                <div class="frow">
+                  <label for="tfOdak">Odak anahtar sözcük</label>
+                  <input class="finput" id="tfOdak" name="focus" type="text" placeholder="denge testi" />
+                </div>
+                <div class="frow">
+                  <label>Paylaşım görseli</label>
+                  <div id="tfOg"></div>
+                  <input type="hidden" name="og_image" id="tfOgAlan" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-testler-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="tfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="tfKaydet">Testi kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="tfDurum">Durum</label>
+                  <select class="fselect" id="tfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                </div>
+                <div class="frow">
+                  <label for="tfTarih">Yayın tarihi</label>
+                  <input class="finput" id="tfTarih" name="yayin_tarihi" type="date" />
+                </div>
+                <div class="toggle-row">
+                  <span>Testler sayfasında öne çıkar</span>
+                  <label class="toggle"><input type="checkbox" name="one_cikar" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Uygunluk taraması zorunlu</span>
+                  <label class="toggle"><input type="checkbox" name="tarama" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Bant sağlığı</h2>
+              <div class="c-acts" id="tfSaglikRozet"></div>
+            </div>
+            <div class="pc-body" id="tfSaglik"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>SEO skoru</h2></div>
+            <div class="pc-body" id="tfSeo"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen test, Fit Testleri
+                sayfasındaki <b id="tfKart">0</b> karttan da düşer.</div>
+              <button class="btn btn-ghost" type="button" id="tfSil"
+                      data-yikici="Fit testi" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Testi sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   FİT TESTİ FORMU — C-9'un karşılığı
+   ---------------------------------------------------------------------
+   Kalıp: `admin-hareket-form-v1.html` (referans form ekranı) ve
+   `docs/gastro-olcum/form-kalibi.md` §1. Create ve edit AYNI dosya:
+   `?t=<slug>` varsa düzenleme, yoksa yeni.
+
+   NE YÖNETİYOR — `fit-yonetilmeyenler.md` C-9. Eski `admin-testler`
+   formu 14 girdi taşıyordu; ölçülen 11 alan hiçbir ekranda yoktu:
+   `img` · `ozet` · `amac` · `amacList` · `uygun` · `uygunDegil` ·
+   `sureKisa` · `sureNot` · `ekipman` · `guvenlikEk` · `adimlar` ve
+   bant `ozet` metinleri. Depodan sayıldı (7 test):
+   35 adım (her adım BAŞLIK + ANLATIM = 70 metin) · 23 ekipman kalemi ·
+   21 "kime uygun" · 20 "kime uygun değil" · 21 bant.
+   Bu form onların hepsini alıyor.
+
+   🔴 YAPI KARARI — ÇOKLU SORU SETİ. Bugün her test tek soruludur
+   (`olcumSoru` bir string). Form çoklu soruya HAZIR kuruldu (soru
+   tekrarlayan satır) ama TEK soruyla dolduruldu; public taraf
+   (`fit-testi-detay-v1.html`, 644 satır JS) değiştirilmedi. Soru sayısı
+   birden çok olursa bantların hangi soruya bakacağı yeniden tasarlanmalı.
+   Bu bir maket tercihi değil, veri yapısı kararıdır — ekranın kendi
+   `.fhint`i de bunu yazıyor.
+
+   🔴 SAĞLIK METNİ — TAŞINIR, YENİDEN YAZILMAZ. `guvenlikEk` alanları
+   BOŞ kuruldu. Bugünkü metinler public sayfanın içinde ve bu ekranın
+   okuyabildiği veri tablosunda yok; ekran onların yerine yeni bir sağlık
+   uyarısı ÜRETMEZ (brief §4 🔴). Alan taşıyıcıdır, yazar değil.
+
+   VERİ GERÇEK: `FIT_ADMIN_VERI.TEST` (7 kayıt, `fit-testi-detay-v1.html`
+   `VERI` tablosundan üreteçle okundu), önerilen program listesi
+   `FIT_ADMIN_VERI.PROGRAM_DETAY` (detay sayfasının GERÇEKTEN tanıdığı
+   4 adres), medya `FIT_MEDYA_VERI`. Metni okunamayan her alan boş kalır
+   ve neden boş olduğunu yazar.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, V = window.FIT_ADMIN_VERI || {};
+  if (!A) return;
+  var esc = A.esc;
+  var TEST = V.TEST || [], PD = V.PROGRAM_DETAY || [], PR = V.PROGRAM || [];
+  var SEV = { 1: 'Başlangıç', 2: 'Orta', 3: 'İleri' };
+
+  /* ---- düzenleme mi yeni mi ---------------------------------------- */
+  var slug = new URLSearchParams(location.search).get('t') || '';
+  var kayit = TEST.filter(function (t) { return t.slug === slug; })[0] || null;
+  var yeni = !kayit;
+
+  document.getElementById('tfBaslik').textContent = yeni ? 'Yeni fit testi' : kayit.ad;
+  document.title = (yeni ? 'Yeni fit testi' : kayit.ad) + ' — DadaFit Yönetim';
+
+  /* ---- kaynak şeridi ------------------------------------------------ */
+  var adimT = TEST.reduce(function (a, t) { return a + t.adimSay; }, 0);
+  var ekipT = TEST.reduce(function (a, t) { return a + t.ekipmanSay; }, 0);
+  var uygT  = TEST.reduce(function (a, t) { return a + t.uygunSay; }, 0);
+  var uygDT = TEST.reduce(function (a, t) { return a + t.uygunDegilSay; }, 0);
+  var bantT = TEST.reduce(function (a, t) { return a + (t.bant || []).length; }, 0);
+
+  document.getElementById('tfKaynak').innerHTML = A.kaynak('ornek',
+    'Künye, süre, ölçüm sorusu ve ' + bantT + ' sonuç bandı <b>' + TEST.length +
+    ' testlik gerçek tanımdan</b> okunuyor (<code>fit-admin-veri.js</code>, ' +
+    '<code>fit-testi-detay-v1.html</code>dan üreteçle çıkarıldı). ' +
+    '<b>Adım · ekipman · amaç maddesi · uygunluk maddesi · güvenlik notu metinleri ' +
+    'bugün public sayfanın içine gömülü</b> ve tek tek okunamıyor — yalnız sayıları ' +
+    'ölçülebiliyor (' + adimT + ' adım · ' + ekipT + ' ekipman · ' + uygT + ' uygun · ' +
+    uygDT + ' uygun değil). Form o satırları <b>doğru sayıda ama boş</b> açar; ' +
+    'metinler public sayfadan elle taşınır. Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  if (!yeni) {
+    document.getElementById('tfOnizle').href =
+      'fit-testi-detay-v1.html?test=' + encodeURIComponent(kayit.slug);
+    document.getElementById('tfSil').setAttribute('data-yikici', kayit.ad);
+    document.getElementById('tfAlt').textContent =
+      'Künye, uygulama adımları ve ' + (kayit.bant || []).length +
+      ' sonuç bandı tek formda. Metni bu ekranda okunamayan alanlar boş açılır.';
+  }
+
+  /* ---- form içi sekmeler ------------------------------------------- */
+  var sek = document.querySelectorAll('.sa-form-tab');
+  sek.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sek.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+      zorunluTazele();
+    });
+  });
+
+  /* ---- kategori ipucu — katalogdaki gerçek kategoriler -------------- */
+  (function () {
+    var kat = [];
+    TEST.forEach(function (t) { if (kat.indexOf(t.kategori) < 0) kat.push(t.kategori); });
+    document.getElementById('tfKatNot').innerHTML =
+      'Bugün kullanılan ' + kat.length + ' kategori: ' + kat.map(esc).join(' · ') +
+      '. Yeni bir ad yazarsan Fit Testleri süzgecinde yeni bir çip doğar.';
+  })();
+
+  /* ---- görsel alanları --------------------------------------------- */
+  A.yukle('#tfKapak', { cok: false, not: 'Tek kapak görseli. Kütüphaneden seç ya da sürükle.' });
+  A.yukle('#tfOg', { cok: false, not: 'Paylaşım görseli — 1200×630 önerilir.',
+    degisti: function (d) { document.getElementById('tfOgAlan').value = d.length ? d[0].url : ''; } });
+
+  /* ---- tek alanlı repeater kurucusu -------------------------------- */
+  function tekAlan(kap, ekleBtn, sayEl, ad, ikon, tur, birim, yerTutucu, enCok) {
+    var liste = document.getElementById(kap);
+    var s = document.createElement('template');
+    s.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid ' + ikon + '" aria-hidden="true"></i> ' + tur + '</span>' +
+          '<input class="finput" type="text" name="' + ad + '[]" data-field="metin" placeholder="' + yerTutucu + '">' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Satırı sil" aria-label="Satırı sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(s);
+    function say() {
+      document.getElementById(sayEl).textContent =
+        liste.querySelectorAll('.st-card').length + ' ' + birim;
+    }
+    var r = A.tekrar({ liste: liste, ekle: document.getElementById(ekleBtn), sablon: s,
+                       enAz: 0, enCok: enCok || 10, degisti: say });
+    return { ekle: r.ekle, say: say };
+  }
+
+  var rAmac = tekAlan('tfAmacList', 'tfAmacEkle', 'tfAmacSay', 'amac_madde',
+    'fa-list-check', 'Madde', 'madde', 'Örn. Bugünkü hareket kapasiteni tek bir gözlemle görünür kılar.', 8);
+  var rEkip = tekAlan('tfEkipman', 'tfEkipmanEkle', 'tfEkipmanSay', 'ekipman',
+    'fa-toolbox', 'Ekipman', 'kalem', 'Örn. Kronometre veya telefon saati', 10);
+  var rUyg  = tekAlan('tfUygun', 'tfUygunEkle', 'tfUygunSay', 'uygun',
+    'fa-user-check', 'Uygun', 'madde', 'Örn. Ara verip yeniden başlamak isteyenler', 8);
+  var rUygD = tekAlan('tfUygunDegil', 'tfUygunDegilEkle', 'tfUygunDegilSay', 'uygun_degil',
+    'fa-user-xmark', 'Uygun değil', 'madde', 'Örn. Şu an ağrılı ya da yeni bir yaralanman varsa', 8);
+  var rGuv  = tekAlan('tfGuvenlik', 'tfGuvenlikEkle', 'tfGuvenlikSay', 'guvenlik',
+    'fa-triangle-exclamation', 'Güvenlik', 'not', 'Public sayfadaki güvenlik notunu buraya taşı — yeniden yazma.', 6);
+
+  /* ---- ADIM repeater'ı — iki alanlı (başlık + anlatım) ------------- */
+  var rAdim = (function () {
+    var liste = document.getElementById('tfAdimlar');
+    var s = document.createElement('template');
+    s.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-shoe-prints" aria-hidden="true"></i> Adım</span>' +
+          '<input class="finput" type="text" name="adim_baslik[]" data-field="baslik" maxlength="60" ' +
+            'placeholder="Adım başlığı — örn. Isın" aria-label="Adım başlığı">' +
+          '<textarea class="ftext" name="adim_metin[]" data-field="metin" ' +
+            'placeholder="Adımın anlatımı — ne yapılacak, neye dikkat edilecek?" aria-label="Adım anlatımı"></textarea>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Adımı sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Adımı sil" aria-label="Adımı sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(s);
+    function say() {
+      document.getElementById('tfAdimSay').textContent =
+        liste.querySelectorAll('.st-card').length + ' adım';
+    }
+    var r = A.tekrar({ liste: liste, ekle: document.getElementById('tfAdimEkle'), sablon: s,
+                       enAz: 0, enCok: 12, degisti: say });
+    return { ekle: r.ekle, say: say };
+  })();
+
+  /* ---- SORU repeater'ı — çoklu soruya hazır, tek soruyla dolu ------ */
+  var rSoru = (function () {
+    var liste = document.getElementById('tfSorular');
+    var s = document.createElement('template');
+    s.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Ölçüm sorusu</span>' +
+          '<textarea class="ftext" name="soru[]" data-field="soru" maxlength="200" ' +
+            'placeholder="Testin sonunda üyeye sorulan soru." aria-label="Ölçüm sorusu"></textarea>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Soruyu sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Soruyu sil" aria-label="Soruyu sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(s);
+    function say() {
+      var n = liste.querySelectorAll('.st-card').length;
+      document.getElementById('tfSoruSay').textContent =
+        n + ' soru' + (n > 1 ? ' — public taraf bugün yalnız ilkini soruyor' : '');
+    }
+    var r = A.tekrar({ liste: liste, ekle: document.getElementById('tfSoruEkle'), sablon: s,
+                       enAz: 1, enCok: 10, degisti: say });
+    return { ekle: r.ekle, say: say };
+  })();
+
+  /* ---- BANT repeater'ı — ölçüt · seviye · program · özet ----------- */
+  var PROG_SEC = '<option value="">Program seç…</option>' + PD.map(function (d) {
+    return '<option value="' + esc(d.slug) + '">' + esc(d.ad) + '</option>';
+  }).join('');
+
+  var rBant = (function () {
+    var liste = document.getElementById('tfBantlar');
+    var s = document.createElement('template');
+    s.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Sonuç bandı</span>' +
+          '<div class="frow two">' +
+            '<div class="frow">' +
+              '<label>Ölçüt <span class="req">*</span></label>' +
+              '<input class="finput" type="text" name="bant_olcut[]" data-field="olcut" maxlength="60" ' +
+                'placeholder="Örn. 0–7 tekrar" required>' +
+            '</div>' +
+            '<div class="frow">' +
+              '<label>Seviye <span class="req">*</span></label>' +
+              '<select class="fselect" name="bant_lv[]" data-field="lv" required>' +
+                '<option value="1">1 · Başlangıç</option>' +
+                '<option value="2">2 · Orta</option>' +
+                '<option value="3">3 · İleri</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label>Önerilen program <span class="req">*</span></label>' +
+            '<select class="fselect" name="bant_prog[]" data-field="prog" required>' + PROG_SEC + '</select>' +
+          '</div>' +
+          '<div class="frow">' +
+            '<label>Bant özeti <span class="opt">— sonuç sayfasında üyeye okunan metin</span></label>' +
+            '<textarea class="ftext" name="bant_ozet[]" data-field="ozet" ' +
+              'placeholder="Bu banda düşen üyeye ne söyleniyor?"></textarea>' +
+          '</div>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Bandı sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Bandı sil" aria-label="Bandı sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(s);
+    function say() {
+      document.getElementById('tfBantSay').textContent =
+        liste.querySelectorAll('.st-card').length + ' bant';
+      saglik();
+    }
+    var r = A.tekrar({ liste: liste, ekle: document.getElementById('tfBantEkle'), sablon: s,
+                       enAz: 1, enCok: 6, degisti: say });
+    liste.addEventListener('change', saglik);
+    return { ekle: r.ekle, say: say };
+  })();
+
+  /* ---- bant sağlığı yan kartı — ölçülür, ilan edilmez -------------- */
+  function saglik() {
+    var kart = document.getElementById('tfSaglik');
+    var rozet = document.getElementById('tfSaglikRozet');
+    var satir = Array.prototype.slice.call(
+      document.querySelectorAll('#tfBantlar .st-card'));
+    var lvler = [], oluProg = 0, bosOlcut = 0, bosProg = 0;
+    satir.forEach(function (n) {
+      var lv = n.querySelector('[data-field="lv"]').value;
+      if (lvler.indexOf(lv) < 0) lvler.push(lv);
+      if (!n.querySelector('[data-field="olcut"]').value.trim()) bosOlcut++;
+      var p = n.querySelector('[data-field="prog"]').value;
+      if (!p) bosProg++;
+      else if (!(V.programDetay && V.programDetay(p))) oluProg++;
+    });
+    var sorun = (satir.length !== 3) + (lvler.length !== satir.length ? 1 : 0) +
+                (bosOlcut ? 1 : 0) + (bosProg ? 1 : 0) + (oluProg ? 1 : 0);
+    rozet.innerHTML = sorun
+      ? A.rozet('wait', sorun + ' uyarı', 'fa-circle-exclamation')
+      : A.rozet('ok', 'Sağlıklı', 'fa-check');
+    var sat = [
+      [satir.length === 3, satir.length + ' bant tanımlı (bugün her test 3 bant taşıyor)'],
+      [lvler.length === satir.length, 'Her bant ayrı bir seviyeye düşüyor'],
+      [!bosOlcut, bosOlcut ? bosOlcut + ' bandın ölçütü boş' : 'Her bandın ölçütü yazılmış'],
+      [!bosProg, bosProg ? bosProg + ' bant program seçmemiş' : 'Her bant bir program öneriyor'],
+      [!oluProg, oluProg ? oluProg + ' bant detay sayfasının tanımadığı bir programa gönderiyor'
+                         : 'Önerilen programların hepsi detay sayfasında karşılık buluyor']
+    ];
+    kart.innerHTML = '<div class="seo-checks">' + sat.map(function (s) {
+      return '<div class="seo-chk ' + (s[0] ? 'pass' : 'fail') + '">' +
+        '<i class="fa-solid ' + (s[0] ? 'fa-circle-check' : 'fa-circle') + '" aria-hidden="true"></i>' +
+        esc(s[1]) + '</div>';
+    }).join('') + '</div>' +
+    '<div class="fhint" style="margin-top:12px">Program listesi detay sayfasının gerçekten ' +
+    'tanıdığı <b>' + PD.length + ' adresten</b> geliyor; katalog ise <b>' + PR.length +
+    ' kart</b> basıyor. Aradaki fark Programlar ekranında görünür.</div>';
+    /* Yeni bant satırı şablonundan `required` ile doğar; gizli sekmede
+       doğduysa işaret hemen taşınmalı (bkz. ZORUNLULUK bölümü). */
+    zorunluTazele();
+  }
+
+  /* ---- karakter sayaçları ------------------------------------------ */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* ---- doldur ------------------------------------------------------ */
+  function n(x) { return x || 0; }
+  if (kayit) {
+    document.getElementById('tfAd').value = kayit.ad || '';
+    document.getElementById('tfSlug').value = kayit.slug || '';
+    document.getElementById('tfKategori').value = kayit.kategori || '';
+    document.getElementById('tfSure').value = kayit.sure || '';
+    document.getElementById('tfSureKisa').value = kayit.sureKisa || '';
+    document.getElementById('tfKart').textContent = 1;
+
+    /* Satır SAYILARI gerçek — metinleri okunamıyor, o yüzden boş açılıyor. */
+    for (var i = 0; i < n(kayit.adimSay); i++) rAdim.ekle();
+    for (var j = 0; j < n(kayit.ekipmanSay); j++) rEkip.ekle();
+    for (var k = 0; k < n(kayit.uygunSay); k++) rUyg.ekle();
+    for (var l = 0; l < n(kayit.uygunDegilSay); l++) rUygD.ekle();
+    rAmac.ekle(); rGuv.ekle();
+
+    /* Soru: bugün TEK ve METNİ GERÇEK. */
+    var sr = rSoru.ekle();
+    sr.querySelector('[data-field="soru"]').value = kayit.soru || '';
+
+    /* Bantlar: ölçüt · seviye · program gerçek; bant ÖZETİ public sayfada
+       gömülü, okunamıyor — boş kalıyor. */
+    (kayit.bant || []).forEach(function (b) {
+      var el = rBant.ekle();
+      el.querySelector('[data-field="olcut"]').value = b.olcut || '';
+      el.querySelector('[data-field="lv"]').value = String(b.lv || 1);
+      el.querySelector('[data-field="prog"]').value = b.prog || '';
+    });
+  } else {
+    rAdim.ekle(); rEkip.ekle(); rUyg.ekle(); rUygD.ekle(); rAmac.ekle(); rGuv.ekle();
+    rSoru.ekle();
+    [1, 2, 3].forEach(function (lv) {
+      var el = rBant.ekle();
+      el.querySelector('[data-field="lv"]').value = String(lv);
+    });
+  }
+  rAdim.say(); rEkip.say(); rUyg.say(); rUygD.say(); rAmac.say(); rGuv.say();
+  rSoru.say(); rBant.say();
+
+  /* ---- boş açılan metin alanları için tek, dürüst uyarı ------------ */
+  if (!yeni) {
+    A.flash('note',
+      'Bu testin ' + n(kayit.adimSay) + ' adımı, ' + n(kayit.ekipmanSay) + ' ekipman kalemi, ' +
+      n(kayit.uygunSay) + ' “uygun” ve ' + n(kayit.uygunDegilSay) + ' “uygun değil” maddesi ' +
+      'doğru sayıda ama BOŞ açıldı: metinleri bugün fit-testi-detay-v1.html içinde gömülü ve ' +
+      'bu ekranın okuyabildiği veri tablosunda yok. Uydurulmuş metin yazılmadı.',
+      document.getElementById('tfUyari'));
+  }
+
+  /* ---- SEO skoru --------------------------------------------------- */
+  A.seo('#tfForm', '#tfSeo');
+
+
+  /* ---- ZORUNLULUK YALNIZ AÇIK SEKMEDE ------------------------------
+     🔴 Ölçülmüş tuzak: `required` bir alan gizli bir sekmede kalırsa
+     `reportValidity()` ona odaklanamaz — tarayıcı her biri için
+     "An invalid form control … is not focusable" hatası basar ve
+     doğrulama yarıda kalır. (Yeni test formunda 6 hata olarak ölçüldü.)
+     Zorunluluk KALDIRILMADI, taşındı: `data-zorunlu` işareti kalıcı,
+     `required` özniteliği yalnız açık sekmedeki alanlarda durur; kapalı
+     sekmeler `eksigeGit` ile tek tek denetlenir, hiçbiri kaçmaz. */
+  function panelAd(pn) {
+    var id = pn && pn.getAttribute('data-form-panel');
+    var t = id && document.querySelector('.sa-form-tab[data-panel="' + id + '"]');
+    return t ? t.textContent.trim() : 'Form';
+  }
+  function zorunluTazele() {
+    /* Sonradan eklenen tekrar satırları da şablonlarında `required` taşır;
+       işaret her tazelemede yeniden konur, yoksa gizli sekmeye eklenen yeni
+       satır aynı tuzağa geri düşerdi. */
+    document.querySelectorAll('.sa-form-panel [required]').forEach(function (n) {
+      n.setAttribute('data-zorunlu', '1');
+    });
+    document.querySelectorAll('.sa-form-panel [data-zorunlu]').forEach(function (n) {
+      var pn = n.closest('.sa-form-panel');
+      n.required = !!pn && !pn.hidden;
+    });
+  }
+  var hataSerit = null;
+  function eksigeGit(e) {
+    if (hataSerit && hataSerit.parentNode) { hataSerit.parentNode.removeChild(hataSerit); hataSerit = null; }
+    var eksik = Array.prototype.slice.call(
+      document.querySelectorAll('.sa-form-panel [data-zorunlu]')).filter(function (n) {
+        return !n.disabled && !String(n.value || '').trim();
+      });
+    if (!eksik.length) return;                    /* her sekme tam — bileşene geç */
+    var adlar = [];
+    eksik.forEach(function (n) {
+      var a = panelAd(n.closest('.sa-form-panel'));
+      if (adlar.indexOf(a) < 0) adlar.push(a);
+    });
+    var ilkPanel = eksik[0].closest('.sa-form-panel');
+    if (ilkPanel && ilkPanel.hidden) {
+      var t = document.querySelector('.sa-form-tab[data-panel="' +
+        ilkPanel.getAttribute('data-form-panel') + '"]');
+      if (t) t.click();
+    }
+    hataSerit = A.flash('error',
+      eksik.length + ' zorunlu alan boş (' + adlar.join(' · ') + '). ' +
+      'İlk eksik alanın sekmesi açıldı.', document.getElementById('tfUyari'));
+    document.getElementById('tfForm').reportValidity();
+    e.stopImmediatePropagation();                 /* "doğrulandı" notu BASILMAZ */
+  }
+  zorunluTazele();
+
+  /* ---- kaydet ------------------------------------------------------ */
+  var form = document.getElementById('tfForm');
+  document.getElementById('tfKaydet').addEventListener('click', eksigeGit);
+  A.maketKaydet(document.getElementById('tfKaydet'), 'fit testi', form);
+  document.getElementById('tfTaslak').addEventListener('click', eksigeGit);
+  A.maketKaydet(document.getElementById('tfTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

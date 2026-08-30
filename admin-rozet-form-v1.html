@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rozet düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / yarıçap / gölge
+   ÜRETİLMEDİ; hepsi kabuğun değişkenleri.
+
+   İKON SEÇİCİ. Gastro'nun rozet formunda `.ico-pick` + `.ico-opt` var
+   (`rozetler/form.blade.php:127-147`, ölçüm §3.2): önizleme karesi →
+   arama kutusu → kaydırılabilir kare ızgara, boş sonuçta "Eşleşen ikon
+   yok." Kit'te bu bileşenin karşılığı yok, o yüzden burada kuruldu —
+   ama ölçüleri kitin kendi değişkenlerinden alıyor ve kareler 46px, yani
+   44px dokunma tabanının üstünde. */
+.rf-ico-onizle{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.rf-ico-kare{
+  width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-ink);font-size:21px;
+}
+.rf-ico-ad{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+.rf-ico-izgara{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:8px;
+  max-height:220px;overflow-y:auto;margin-top:10px;padding:2px;
+}
+.rf-ico-opt{
+  width:100%;height:46px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  color:var(--slate-2);font-size:15px;cursor:pointer;transition:.16s var(--ease);
+}
+.rf-ico-opt:hover{border-color:var(--acc);color:var(--acc-deep);background:rgba(var(--acc-rgb),.07)}
+.rf-ico-opt.is-on{border-color:var(--acc);background:var(--acc);color:#fff}
+.rf-ico-opt:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+
+/* Üye kartı önizlemesi — Gastro kademe formunun `.tier-prev` deseni
+   (ölçüm §3.5): alan yazıldıkça güncellenen canlı kart. */
+.rf-onz{display:flex;gap:12px;align-items:flex-start}
+.rf-onz-ico{
+  width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-ink);font-size:19px;
+}
+.rf-onz-ad{font-size:15px;font-weight:800;color:var(--slate);line-height:1.3}
+.rf-onz-nasil{font-size:13px;color:var(--slate-2);line-height:1.6;margin:5px 0 8px}
+.rf-not{font-size:13px;color:var(--slate-2);line-height:1.65;margin:0}
+.rf-not b{color:var(--slate)}
+</style>
+</head>
+<body class="adm-body" data-adm="rozetler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-rozetler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Rozetler ve Kademeler</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="rfBaslik">Yeni rozet</h1>
+        <div class="ph-sub" id="rfAlt">Rozetin dokuz alanı tek formda: künye, ailesi, kademesi,
+          puanı ve kazanma koşulu. Koşul iki parçadır — motorun okuduğu ölçüt ve üyeye
+          gösterilen cümle.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="rfOnizle" href="rozetlerim-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="rfKaynak"></div>
+
+    <form id="rfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="kosul">Kazanma koşulu</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfAd">Rozet adı <span class="req">*</span></label>
+                  <input class="finput" id="rfAd" name="ad" type="text" required maxlength="40"
+                         placeholder="Örn. 30 Aktif Gün" />
+                  <span class="fsay" data-say-for="rfAd">0 / 40</span>
+                </div>
+                <div class="frow">
+                  <label for="rfSlug">Anahtar (slug) <span class="req">*</span></label>
+                  <input class="finput" id="rfSlug" name="slug" type="text" required
+                         pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="40" placeholder="aktif-30" />
+                  <div class="fhint">Addan otomatik üretilir; alana dokunulursa üretim durur.
+                    Yalnız küçük harf, rakam ve tire. 🔴 Bu anahtar mühür defterinin
+                    (<code>dm_fit_rozet_v1.kazanildi</code>) kaydıdır: yayımlanmış bir rozetin
+                    anahtarı değişirse o rozeti kazanmış üyelerin mührü boşa düşer.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="rfAile">Aile <span class="req">*</span></label>
+                    <select class="fselect" id="rfAile" name="aile" required></select>
+                    <div class="fhint" id="rfAileOlcu">—</div>
+                  </div>
+                  <div class="frow">
+                    <label for="rfKademe">Kademe <span class="req">*</span></label>
+                    <select class="fselect" id="rfKademe" name="basamak" required></select>
+                    <div class="fhint">Rozeti merdivenin hangi basamağına etiketler. Kademe
+                      eşiği değil — üyenin kademesi puan ve aktif günden hesaplanır, bu alan
+                      yalnız galeri süzgecini ve dağılım tablosunu besler.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="rfPuan">Puan <span class="req">*</span></label>
+                  <input class="finput" id="rfPuan" name="puan" type="number" min="0" step="5" value="25" required />
+                  <div class="fhint" id="rfPuanNot">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-icons" aria-hidden="true"></i> İkon
+                <span class="fs-say" id="rfIkonSay">—</span>
+              </h3>
+              <div class="rf-ico-onizle">
+                <span class="rf-ico-kare"><i id="rfIkonOnizle" class="fa-solid fa-medal" aria-hidden="true"></i></span>
+                <span class="rf-ico-ad" id="rfIkonAd">fa-solid fa-medal</span>
+              </div>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfIkonAra">İkon ara</label>
+                  <input class="finput" id="rfIkonAra" type="search" placeholder="Örn. fire, calendar, droplet…" />
+                  <div class="fhint">Havuz uydurulmadı: katalogda, ailelerde ve kademelerde
+                    <b>bugün kullanılan</b> ikonlardan sayıldı. Aranan metinde <code>fa-</code>
+                    öneki dikkate alınmaz.</div>
+                </div>
+              </div>
+              <div class="rf-ico-izgara" id="rfIkonIzgara" role="listbox" aria-label="İkon seçenekleri"></div>
+              <input type="hidden" name="ico" id="rfIkonAlan" value="fa-solid fa-medal" />
+            </div>
+          </div>
+
+          <!-- ---- KAZANMA KOŞULU ---- -->
+          <div class="sa-form-panel" data-form-panel="kosul" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-ruler" aria-hidden="true"></i> Ölçüt ve eşik</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="rfOlcut">Ölçüt <span class="req">*</span></label>
+                    <select class="fselect" id="rfOlcut" name="olcut" required></select>
+                    <div class="fhint">Motorun okuduğu ölçü anahtarı. Liste
+                      <code>fit-rozet.js</code>in <code>olcular()</code> çıktısından okundu —
+                      yeni bir anahtar yazılamaz, çünkü onu hesaplayan kod yoksa rozet hiç
+                      kazanılmaz.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="rfHedef">Hedef <span class="req">*</span></label>
+                    <input class="finput" id="rfHedef" name="hedef" type="number" min="1" step="1" value="1" required />
+                    <div class="fhint" id="rfHedefNot">Ölçü bu değere ulaştığında rozet mühürlenir.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="rfNasil">Nasıl kazanılır <span class="req">*</span></label>
+                  <textarea class="ftext" id="rfNasil" name="nasil" required maxlength="160"
+                            placeholder="Örn. Toplam 30 gün hareket et. Günlerin üst üste olması gerekmez."></textarea>
+                  <span class="fsay" data-say-for="rfNasil">0 / 160</span>
+                  <div class="fhint">Üyeye rozet kartında bu cümle gösterilir. Ölçütü değil,
+                    <b>yapılacak işi</b> anlatır.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ölçüsü olmayan rozetin üç ek alanı. Katalogda dört rozet
+                 bugün böyle (`olcut:null`); motorun kendi notu "yolda demek
+                 ilerlediğini ima ederdi" diyor. Alanlar yalnız o durumda
+                 açılır — Gastro'nun taksonomi modalındaki koşullu alan
+                 deseni (ölçüm §2.3, `#txParentField` ailesi). -->
+            <div class="form-sec" id="rfBeklerSec" hidden>
+              <h3 class="form-sec-tt"><i class="fa-solid fa-clock" aria-hidden="true"></i> Ölçü bekliyor — kaynak</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="rfKaynakEkran">Ölçüyü kaydetmesi gereken ekran</label>
+                  <select class="fselect" id="rfKaynakEkran" name="kaynakEkran"></select>
+                  <div class="fhint">Depodaki <b id="rfSayfaSay">0</b> public sayfa arasından seçilir;
+                    serbest adres yazılamaz — yazılabilseydi ölü bağlantı üretirdi.</div>
+                </div>
+                <div class="frow">
+                  <label for="rfKaynakAd">Ekranın görünen adı</label>
+                  <input class="finput" id="rfKaynakAd" name="kaynakEkranAd" type="text" maxlength="60"
+                         placeholder="Fit Testleri" />
+                </div>
+                <div class="frow">
+                  <label for="rfKaynakNot">Neden ölçülemiyor</label>
+                  <textarea class="ftext" id="rfKaynakNot" name="kaynakNot" maxlength="240"
+                            placeholder="Hangi kayıt bugün tutulmuyor? Ölçü açılınca rozet kendiliğinden çalışır."></textarea>
+                  <span class="fsay" data-say-for="rfKaynakNot">0 / 240</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-rozetler-v1.html">İptal</a>
+            <button class="btn btn-primary" type="button" id="rfKaydet">Rozeti kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Üye kartı önizlemesi</h2></div>
+            <div class="pc-body">
+              <div class="rf-onz">
+                <span class="rf-onz-ico"><i id="rfOnzIco" class="fa-solid fa-medal" aria-hidden="true"></i></span>
+                <div>
+                  <div class="rf-onz-ad" id="rfOnzAd">Yeni rozet</div>
+                  <p class="rf-onz-nasil" id="rfOnzNasil">Nasıl kazanılacağı henüz yazılmadı.</p>
+                  <span id="rfOnzRozet"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Katalogdaki yeri</h2></div>
+            <div class="pc-body">
+              <p class="rf-not" id="rfYer">—</p>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <p class="rf-not" id="rfSilNot" style="margin-bottom:12px">—</p>
+              <button class="btn btn-ghost" type="button" id="rfSil"
+                      data-yikici="Bu rozet" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Rozeti sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-rozet.js"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · ROZET FORMU   (R19)   — K-FORM
+   ---------------------------------------------------------------------
+   NEYİ KAPATIYOR — `docs/gastro-olcum/fit-yonetilmeyenler.md` C-8:
+   "`admin-rozetler-v1.html`de hiç `<form>` yok; 'Yeni rozet' düğmesi yok.
+   Düzenlenebilen tek şey satır içi input'lar: kademe eşikleri ve rozet
+   başına kademe + puan. **50 rozetin 9 alanından 2'si.**"
+   Bu form o dokuzun HEPSİNİ alıyor.
+
+   ALAN ADLARI OKUNDU, UYDURULMADI. `fit-rozet.js`in KATALOG kayıtlarında
+   geçen adlar (ölçüldü, 50 kaydın birleşimi):
+     slug · ad · aile · ico · basamak · puan · olcut · hedef · nasil
+   ve yalnız `olcut:null` taşıyan dört kayıtta ek üçlü:
+     kaynakEkran · kaynakEkranAd · kaynakNot
+   Onuncu bir alan icat edilmedi.
+
+   GASTRO TABANI (`liste-taksonomi-rozet.md` §3.2, `rozetler/form.blade.php`):
+   ad · kategori · tetik metni · eşik · seri anahtarı · seri kademesi ·
+   nadirlik · ikon · durum. Karşılıklar: kategori→aile, tetik metni→nasil,
+   eşik→hedef, seri kademesi→basamak, ikon→ico.
+
+   ÜÇ BİLİNÇLİ SAPMA — hepsi ölçüme dayanıyor:
+   1) Gastro'da `trigger_key` FORMDA YOK ("salt-okunur", `BadgeController.php:156`)
+      ve tetik tipleri kodda 24 sabit anahtar. Fit'te ÖLÇÜT ALANI VAR, çünkü
+      Fit'in ölçüleri tek yerde (`olcular()`) toplanıyor ve o çıktının
+      anahtarları okunabiliyor; alan serbest metin DEĞİL, o çıktıdan gelen
+      kapalı listedir — yani Gastro'nun "sabit havuzdan seçim" kuralının aynısı.
+   2) Gastro'da slug alanı YOK (sunucu `Str::slug` ile türetir). Fit'te sunucu
+      yok ve slug mühür defterinin anahtarı; türetme istemcide yapılıyor, alan
+      görünür duruyor ki anahtarın ne olduğu gizlenmesin.
+   3) `nadirlik` ve `seri anahtarı` alınmadı: Fit kataloğunda karşılıkları yok
+      (ölçüldü — 50 kaydın hiçbirinde `rarity`/`series` adlı alan geçmiyor).
+      Boş bir alan koymak, hiçbir yerin okumadığı bir alan üretirdi.
+
+   SEO kartı da YOK: rozetin public bir sayfası yok, olmayan sayfanın meta
+   başlığı ölçülemez. (Referans hareket formunda var, çünkü hareketin sayfası var.)
+
+   YAZMA YÜZEYİ MAKET: `maketKaydet` formu doğrular, kaydetmez.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, R = window.FIT_ROZET, V = window.FIT_ADMIN_VERI || {};
+  if (!A) return;
+  var esc = A.esc, n = A.n;
+  var $ = function (id) { return document.getElementById(id); };
+
+  if (!R) {
+    $('rfKaynak').innerHTML = A.kaynak('ornek',
+      'Rozet motoru yüklenemedi — form alanları <code>fit-rozet.js</code>ten okunur.');
+    return;
+  }
+
+  var KATALOG = R.KATALOG, AILELER = R.AILELER, KADEMELER = R.KADEMELER;
+  var SAYFA = V.SAYFA || [];
+
+  /* ---- düzenleme mi yeni mi — Gastro'nun create/edit tek dosya kalıbı ---- */
+  var slug = new URLSearchParams(location.search).get('rozet') || '';
+  var kayit = KATALOG.filter(function (r) { return r.slug === slug; })[0] || null;
+  var yeni = !kayit;
+
+  /* ---- ölçüt havuzu: motorun kendi çıktısının ANAHTARLARI ----------
+     `olcular()` bu tarayıcının üye verisini de hesaplar; buradan yalnız
+     ANAHTAR listesi alınıyor, hiçbir DEĞER ekrana basılmıyor — burası
+     katalog ekranı, üye ekranı değil. */
+  var olcutAnahtar = [];
+  try { olcutAnahtar = Object.keys(R.olcular() || {}); } catch (e) { olcutAnahtar = []; }
+  var olcutKullanim = {};
+  KATALOG.forEach(function (r) { if (r.olcut) olcutKullanim[r.olcut] = (olcutKullanim[r.olcut] || 0) + 1; });
+  /* Katalogda geçen ama `olcular()` çıktısında olmayan bir anahtar varsa
+     o da listeye girer — sessizce düşürmek, mevcut rozeti bozardı. */
+  Object.keys(olcutKullanim).forEach(function (k) {
+    if (olcutAnahtar.indexOf(k) < 0) olcutAnahtar.push(k);
+  });
+
+  /* ---- ikon havuzu: katalog + aile + kademe ikonlarının birleşimi ---- */
+  var ikonHavuz = (function () {
+    var s = {}, l = [];
+    KATALOG.forEach(function (r) { s[r.ico] = 1; });
+    AILELER.forEach(function (a) { s[a.ico] = 1; });
+    KADEMELER.forEach(function (k) { s[k.ico] = 1; });
+    for (var k2 in s) if (s.hasOwnProperty(k2)) l.push(k2);
+    return l.sort();
+  })();
+
+  var olcusuz = KATALOG.filter(function (r) { return !r.olcut; }).length;
+
+  $('rfKaynak').innerHTML = A.kaynak('canli',
+    '<b>Alanlar gerçek.</b> Dokuz alanın adı da <code>fit-rozet.js</code>in ' +
+    '<b>' + KATALOG.length + ' kayıtlık</b> kataloğundan okundu; aile listesi ' +
+    '<b>' + AILELER.length + '</b>, kademe listesi <b>' + KADEMELER.length + '</b>, ölçüt listesi ' +
+    'motorun <code>olcular()</code> çıktısının <b>' + olcutAnahtar.length + '</b> anahtarı, ikon havuzu ' +
+    'bugün kullanılan <b>' + ikonHavuz.length + '</b> ikon. Kaynak ekranı seçenekleri depodaki ' +
+    '<b>' + SAYFA.length + '</b> public sayfa. <b>Yazma yüzeyi maket:</b> Kaydet formu doğrular, ' +
+    'kaydetmez — bu prototipte sunucu yok.');
+
+  /* ---- form içi sekmeler ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (nd) {
+        nd.hidden = (nd.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- seçenekler ---- */
+  $('rfAile').innerHTML = AILELER.map(function (a) {
+    return '<option value="' + esc(a.key) + '">' + esc(a.ad) + '</option>';
+  }).join('');
+
+  $('rfKademe').innerHTML = KADEMELER.map(function (k) {
+    return '<option value="' + esc(k.key) + '">' + esc(k.ad) +
+           ' — ' + n(k.minPuan) + ' puan · ' + n(k.minGun) + ' gün</option>';
+  }).join('');
+
+  /* Ölçüt seçenekleri: anahtarın yanında KAÇ ROZETİN kullandığı yazıyor.
+     TR bir etiket uydurulmadı — anahtarın kendisi motorun sözleşmesi. */
+  $('rfOlcut').innerHTML =
+    '<option value="">— Ölçü bekliyor (bu rozeti bugün kimse ölçmüyor)</option>' +
+    olcutAnahtar.map(function (k) {
+      var c = olcutKullanim[k] || 0;
+      return '<option value="' + esc(k) + '">' + esc(k) + ' — ' +
+             (c ? c + ' rozet kullanıyor' : 'henüz hiçbir rozet kullanmıyor') + '</option>';
+    }).join('');
+
+  $('rfKaynakEkran').innerHTML = '<option value="">Seç…</option>' +
+    SAYFA.map(function (s) {
+      return '<option value="' + esc(s.dosya) + '">' + esc(s.dosya) + '</option>';
+    }).join('');
+  $('rfSayfaSay').textContent = SAYFA.length;
+
+  /* ---- ikon ızgarası ---- */
+  var secIkon = kayit ? kayit.ico : 'fa-solid fa-medal';
+  function ikonBas(sorgu) {
+    var q = (sorgu || '').toLocaleLowerCase('tr').replace(/^fa-/, '').trim();
+    var bul = ikonHavuz.filter(function (i) {
+      return !q || i.toLocaleLowerCase('tr').indexOf(q) >= 0;
+    });
+    $('rfIkonSay').textContent = bul.length + ' / ' + ikonHavuz.length + ' ikon';
+    if (!bul.length) {
+      $('rfIkonIzgara').innerHTML = '<p class="rf-not">Eşleşen ikon yok.</p>';
+      return;
+    }
+    $('rfIkonIzgara').innerHTML = bul.map(function (i) {
+      return '<button class="rf-ico-opt' + (i === secIkon ? ' is-on' : '') + '" type="button" ' +
+        'role="option" aria-selected="' + (i === secIkon ? 'true' : 'false') + '" ' +
+        'data-ico="' + esc(i) + '" title="' + esc(i) + '" aria-label="' + esc(i) + '">' +
+        '<i class="' + esc(i) + '" aria-hidden="true"></i></button>';
+    }).join('');
+  }
+  function ikonUygula(i) {
+    secIkon = i;
+    $('rfIkonAlan').value = i;
+    $('rfIkonOnizle').className = i;
+    $('rfOnzIco').className = i;
+    $('rfIkonAd').textContent = i;
+    $('rfIkonIzgara').querySelectorAll('.rf-ico-opt').forEach(function (b) {
+      var on = b.getAttribute('data-ico') === i;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+  $('rfIkonIzgara').addEventListener('click', function (e) {
+    var b = e.target.closest('.rf-ico-opt');
+    if (b) ikonUygula(b.getAttribute('data-ico'));
+  });
+  $('rfIkonAra').addEventListener('input', function () { ikonBas(this.value); });
+
+  /* ---- slug otomasyonu — Gastro'nun `slugTouched` deseni ---- */
+  var slugDokunuldu = !yeni;
+  $('rfSlug').addEventListener('input', function () { slugDokunuldu = true; });
+  function slugla(s) {
+    var tr = { 'ç':'c','ğ':'g','ı':'i','İ':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','Ö':'o','Ş':'s','Ü':'u' };
+    return String(s || '').replace(/[çğıİöşüÇĞÖŞÜ]/g, function (c) { return tr[c] || c; })
+      .toLocaleLowerCase('tr').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  /* ---- koşullu alanlar: ölçü bekleyen rozetin üçlüsü ---- */
+  function kosulTazele() {
+    var bos = !$('rfOlcut').value;
+    $('rfBeklerSec').hidden = !bos;
+    $('rfHedefNot').textContent = bos
+      ? 'Hedef yazılır ama bugün kimse ölçmediği için rozet ilerlemez; ölçü açıldığı gün kendiliğinden çalışır.'
+      : 'Ölçü bu değere ulaştığında rozet mühürlenir. Mühür geri alınmaz.';
+  }
+  $('rfOlcut').addEventListener('change', kosulTazele);
+
+  /* ---- katalogdaki yer — aile ⇄ kademe hücresi ---- */
+  function yerTazele() {
+    var a = $('rfAile').value, k = $('rfKademe').value;
+    var aile = AILELER.filter(function (x) { return x.key === a; })[0];
+    var kademe = KADEMELER.filter(function (x) { return x.key === k; })[0];
+    var hucre = KATALOG.filter(function (r) {
+      return r.aile === a && r.basamak === k && r.slug !== slug;
+    }).length;
+    var aileSay = KATALOG.filter(function (r) { return r.aile === a && r.slug !== slug; }).length;
+    $('rfAileOlcu').textContent = aile ? aile.olcu : '—';
+    $('rfYer').innerHTML =
+      '<b>' + esc(aile ? aile.ad : '—') + '</b> ailesinde bu rozet dışında <b>' + n(aileSay) +
+      '</b> rozet var. <b>' + esc(kademe ? kademe.ad : '—') + '</b> kademesiyle kesişimde <b>' +
+      n(hucre) + '</b> rozet duruyor. Katalog puan tavanı bugün <b>' +
+      n(KATALOG.reduce(function (t, r) { return t + r.puan; }, 0)) + '</b>; son kademenin eşiği <b>' +
+      n(KADEMELER[KADEMELER.length - 1].minPuan) + '</b> puan.';
+    var toplamPuan = KATALOG.reduce(function (t, r) { return t + (r.slug === slug ? 0 : r.puan); }, 0);
+    $('rfPuanNot').innerHTML = 'Katalogdaki öteki ' + n(KATALOG.length - (yeni ? 0 : 1)) +
+      ' rozet toplam <b>' + n(toplamPuan) + '</b> puan taşıyor. Rozet puanı kademeden bağımsız toplanır.';
+  }
+  $('rfAile').addEventListener('change', yerTazele);
+  $('rfKademe').addEventListener('change', yerTazele);
+
+  /* ---- canlı önizleme — Gastro kademe formunun `.tier-prev` deseni ---- */
+  function onizleTazele() {
+    $('rfOnzAd').textContent = $('rfAd').value || (yeni ? 'Yeni rozet' : (kayit ? kayit.ad : ''));
+    $('rfOnzNasil').textContent = $('rfNasil').value || 'Nasıl kazanılacağı henüz yazılmadı.';
+    var p = parseInt($('rfPuan').value, 10) || 0;
+    $('rfOnzRozet').innerHTML = A.rozet('off', n(p) + ' puan', 'fa-star') +
+      ($('rfOlcut').value ? A.rozet('ok', 'Ölçülü', 'fa-circle-check')
+                          : A.rozet('wait', 'Ölçü bekliyor', 'fa-clock'));
+  }
+  ['rfAd', 'rfNasil', 'rfPuan'].forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      if (id === 'rfAd' && !slugDokunuldu) $('rfSlug').value = slugla($('rfAd').value);
+      onizleTazele();
+    });
+  });
+  $('rfOlcut').addEventListener('change', onizleTazele);
+
+  /* ---- kaydı forma doldur ---- */
+  if (kayit) {
+    $('rfBaslik').textContent = kayit.ad;
+    document.title = kayit.ad + ' — DadaFit Yönetim';
+    $('rfAlt').textContent = 'Rozetin dokuz alanı tek formda. Bu rozet ' +
+      (kayit.olcut ? '“' + kayit.olcut + '” ölçüsüne bakıyor; aynı ölçüyü kullanan ' +
+        ((olcutKullanim[kayit.olcut] || 1) - 1) + ' rozet daha var.'
+                   : 'bugün hiçbir ölçüye bakmıyor — kaydeden ekran yok.');
+    $('rfAd').value = kayit.ad;
+    $('rfSlug').value = kayit.slug;
+    $('rfAile').value = kayit.aile;
+    $('rfKademe').value = kayit.basamak;
+    $('rfPuan').value = kayit.puan;
+    $('rfOlcut').value = kayit.olcut || '';
+    $('rfHedef').value = kayit.hedef;
+    $('rfNasil').value = kayit.nasil || '';
+    $('rfKaynakEkran').value = kayit.kaynakEkran || '';
+    $('rfKaynakAd').value = kayit.kaynakEkranAd || '';
+    $('rfKaynakNot').value = kayit.kaynakNot || '';
+    $('rfSil').setAttribute('data-yikici', kayit.ad);
+    $('rfSilNot').innerHTML = 'Silinen rozet katalogdan düşer ve galeride görünmez. ' +
+      '🔴 <b>Kazanılmış mühür silinmez:</b> üyenin defterinde <code>' + esc(kayit.slug) +
+      '</code> anahtarı durmaya devam eder ve karşılığı olmayan bir kayda dönüşür.';
+  } else {
+    $('rfSil').disabled = true;
+    $('rfSilNot').textContent = 'Henüz kaydedilmemiş bir rozet silinemez; önce kaydet.';
+  }
+
+  /* ---- karakter sayaçları — referans formdan birebir ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = $(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var c = el.value.length;
+      s.textContent = c + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && c > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  ikonBas('');
+  ikonUygula(secIkon);
+  kosulTazele();
+  yerTazele();
+  onizleTazele();
+
+  /* Onay kabuğun delegesinden gelir; bu dinleyici yalnız ONAYLANMIŞ
+     tıklamada koşar (delege capture fazında yayılımı durduruyor).
+     Onaydan sonra sessiz kalmak, silinmiş sanılmasına yol açardı. */
+  $('rfSil').addEventListener('click', function () {
+    A.toast('“' + $('rfSil').getAttribute('data-yikici') + '” silinmedi — sunucu yok. ' +
+            'Gerçek silmede katalogdan düşer, mühür defterindeki kayıt durur.',
+            { tip: 'info', ms: 4600 });
+  });
+
+  A.maketKaydet($('rfKaydet'), 'rozet', $('rfForm'));
+})();
+</script>
+</body>
+</html>

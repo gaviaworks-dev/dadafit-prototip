@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yasal belge düzenle — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi.
+   Sağlık uyarısının SALT OKUNUR önizlemesi: metin buraya taşındı,
+   yeniden yazılmadı. Kutu kabuğun uyarı tonlarını kullanır. */
+.yf-uyari{
+  display:flex;gap:12px;align-items:flex-start;padding:14px 16px;
+  background:var(--hs-warn-tint);border:1px solid var(--line);
+  border-radius:var(--radius-md);
+}
+.yf-uyari>i{flex:none;margin-top:2px;color:var(--hs-warn);font-size:14px}
+.yf-uyari p{margin:0;font-size:13px;line-height:1.65;color:var(--slate-2);font-weight:500}
+/* Bağlantı dökümü — yan karttaki küçük liste. */
+.yf-bag{display:flex;flex-direction:column;gap:8px}
+.yf-bag div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--slate-2)}
+.yf-bag b{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="adm-body" data-adm="yasal">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-yasal-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Yasal Belgeler</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="yfBaslikH">Yeni yasal belge</h1>
+        <div class="ph-sub" id="yfAlt">Künye, gövde ve yürürlük bilgisi tek formda.
+          Belge anahtarı bir sözleşmedir: kabuk ve sayfalar ona adla bağlanır.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="yfOnizle" href="yasal-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="yfKaynak"></div>
+    <div id="yfUyariSerit"></div>
+
+    <form id="yfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="govde">Gövde</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="yururluk">Yürürlük</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="yfBaslik">Belge adı <span class="req">*</span></label>
+                  <input class="finput" id="yfBaslik" name="baslik" type="text" required maxlength="90"
+                         placeholder="Örn. Kullanım Koşulları" />
+                  <span class="fsay" data-say-for="yfBaslik">0 / 90</span>
+                  <div class="fhint">Sayfanın başlığı, ekmek kırıntısı ve sekme adı bundan basılır.</div>
+                </div>
+                <div class="frow">
+                  <label for="yfKisa">Dizinde görünen kısa ad <span class="req">*</span></label>
+                  <input class="finput" id="yfKisa" name="kisa" type="text" required maxlength="40"
+                         placeholder="Örn. Kullanım Koşulları" />
+                  <div class="fhint">Sol dizinde ve Önceki / Sonraki gezinmesinde bu ad görünür;
+                    uzun belge adları oraya sığmadığı için ayrı tutuluyor.</div>
+                </div>
+                <div class="frow">
+                  <label for="yfSlug">Belge anahtarı <span class="req">*</span></label>
+                  <div class="slug-wrap">
+                    <span class="slug-pre">yasal-v1.html?metin=</span>
+                    <input class="finput" id="yfSlug" name="slug" type="text" required maxlength="40"
+                           pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="kullanim" />
+                  </div>
+                  <div class="fhint">🔴 <b>Anahtar bir sözleşmedir.</b> Kabuğun çerez bandı, footer,
+                    görüş modalı ve on dört sayfa bu adla bağlanıyor; değiştirildiğinde geçersiz
+                    anahtar dizinin ilk belgesine düşer ve <b>üye yanlış metni okur</b>.
+                    Bu belgeye bugün <b id="yfBagSay">0</b> yerden bağlanılıyor.</div>
+                </div>
+                <div class="frow">
+                  <label for="yfOzet">Özet <span class="req">*</span>
+                    <span class="opt">— banner altındaki tek paragraf</span></label>
+                  <textarea class="ftext" id="yfOzet" name="ozet" required maxlength="320"
+                            placeholder="Belgenin neyi düzenlediğini bir cümleyle söyle."></textarea>
+                  <span class="fsay" data-say-for="yfOzet">0 / 320</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- GÖVDE ---- -->
+          <div class="sa-form-panel" data-form-panel="govde" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-file-lines" aria-hidden="true"></i> Belge gövdesi
+                <span class="fs-say" id="yfGovdeSay">0 karakter</span>
+              </h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="yfGovde">Metin</label>
+                  <textarea class="ftext" id="yfGovde" name="govde"></textarea>
+                  <div class="fhint">Numaralı ara başlıklar (<code>Başlık 2</code>) belgenin
+                    maddeleridir; sağdaki içindekiler listesi onlardan üretilir.
+                    🔴 Bu alan hukuki metin taşır — düzenlemeden önce hukuk onayı alınmalıdır.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Sağlık uyarısı</h3>
+              <div class="form-grid">
+                <div class="toggle-row">
+                  <span>Bu belgede sağlık uyarısı kutusunu göster</span>
+                  <label class="toggle"><input type="checkbox" id="yfUyari" name="saglik_uyarisi" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="frow">
+                  <label>Gösterilecek metin <span class="opt">— salt okuma</span></label>
+                  <div class="yf-uyari" id="yfUyariMetin"></div>
+                  <div class="fhint">🔴 <b>Metin burada yazılmaz.</b> Tek bir sabitte duruyor ve
+                    bugün <b id="yfUyariSay">0</b> belgede aynı sözcüklerle basılıyor; kopyası yok.
+                    Uyarının kendisi <a class="pc-link" href="admin-ayarlar-v1.html">Ayarlar</a>
+                    ekranından tek yerden yönetilir. Buradaki anahtar yalnız
+                    <b>bu belgede görünsün mü</b> sorusunu yanıtlar.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- YÜRÜRLÜK ---- -->
+          <div class="sa-form-panel" data-form-panel="yururluk" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Sürüm ve yürürlük</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="yfSurum">Sürüm</label>
+                    <input class="finput" id="yfSurum" name="surum" type="text" maxlength="12"
+                           pattern="[0-9]+(\.[0-9]+)*" placeholder="1.0" />
+                    <div class="fhint">Nokta ile ayrılmış sayı. Metin değiştiğinde yükselir;
+                      üyeye "hangi sürümü kabul ettiği" bu alanla gösterilir.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="yfYururluk">Yürürlük tarihi</label>
+                    <input class="finput" id="yfYururluk" name="yururluk" type="date" />
+                    <div class="fhint">Belgenin geçerli olduğu ilk gün. Sayfa ayağında
+                      "… tarihinden itibaren geçerlidir" satırı bundan basılır.</div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="yfNot">Değişiklik notu <span class="opt">— sürüm günlüğüne düşer</span></label>
+                  <textarea class="ftext" id="yfNot" name="degisiklik_notu" maxlength="500"
+                            placeholder="Bu sürümde neyin değiştiğini tek cümleyle yaz."></textarea>
+                  <span class="fsay" data-say-for="yfNot">0 / 500</span>
+                </div>
+                <div class="toggle-row">
+                  <span>Değişiklik üyelere bildirimle duyurulsun</span>
+                  <label class="toggle"><input type="checkbox" name="duyur" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+              <div class="fhint" style="margin-top:12px">İkisi de <b>zorunlu işaretlenmedi</b> ve
+                bu bilinçli: alanlar bu sekmede duruyor, sekme ise varsayılan olarak
+                <code>hidden</code>. Görünmeyen bir zorunlu alan tarayıcıda odaklanamaz ve
+                <code>reportValidity()</code> konsola hata yazıp doğrulamayı yarıda bırakır
+                (ölçüldü) — yani "zorunlu" işareti, doğrulanmayan bir söz olurdu.
+                🔴 Ayrıca bu üç alanın bugün <b>kaynağı yok</b>:
+                yasal metinlerin hiçbirinde sürüm, yürürlük tarihi ya da değişiklik günlüğü
+                tanımlı değil. Alanlar boş açılıyor ve boş kalıyor — sahte bir sürüm numarası
+                yazmak, olmayan bir hukuki gerçeği ilan etmek olurdu.</div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-yasal-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="yfTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="yfKaydet">Belgeyi kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="yfDurum">Durum</label>
+                  <select class="fselect" id="yfDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                </div>
+                <div class="frow">
+                  <label for="yfDizin">Dizindeki sırası</label>
+                  <input class="finput" id="yfDizin" name="sira" type="number" min="1" max="99" value="1" />
+                  <div class="fhint">Sol dizinin ve Önceki / Sonraki gezinmesinin sırası.</div>
+                </div>
+                <div class="toggle-row">
+                  <span>Footer'ın yasal şeridinde göster</span>
+                  <label class="toggle"><input type="checkbox" name="footerda" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Nereden bağlanıyor</h2></div>
+            <div class="pc-body" id="yfBag"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Silinen belgenin anahtarına bağlı
+                <b id="yfBagSay2">0</b> bağlantı kırılmaz — <b>sessizce dizinin ilk belgesine
+                düşer</b> ve üye başka bir metni okur. Silmeden önce bu bağlantılar taşınmalı.</div>
+              <button class="btn btn-ghost" type="button" id="yfSil"
+                      data-yikici="Yasal belge" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Belgeyi sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   YASAL BELGE FORMU   (kalıp: K-FORM)
+   ---------------------------------------------------------------------
+   Ölçülen eksiğin karşılığı: `fit-yonetilmeyenler.md` C-4.
+   Referans ekran `admin-hareket-form-v1.html`; kabuk bileşenleri oradan.
+
+   🔴 HUKUKİ SINIR — BU DOSYADA TEK BİR HUKUKİ CÜMLE ÜRETİLMEDİ.
+   Aşağıdaki gövdeler `yasal-v1.html`in `L` nesnesinden 2026-08-30'da
+   OLDUĞU GİBİ alındı; tek bir sözcük eklenmedi, çıkarılmadı, yeniden
+   yazılmadı. Sağlık uyarısı da aynı: `WARN` sabiti taşındı, kopyası
+   üretilmedi ve form onu SALT OKUNUR gösteriyor.
+   Sürüm · yürürlük tarihi · değişiklik notu alanları BOŞ açılıyor —
+   kaynakta karşılıkları yok ve uydurulmuş bir yürürlük tarihi, olmayan
+   bir hukuki gerçeği ilan etmek olurdu.
+
+   ⚠ SÜRÜM PLACEHOLDER'I: gövde metnindeki `{{UYARI}}` işareti, sağlık
+   uyarısının belgenin İÇİNDE hangi noktada basıldığını gösterir. Metnin
+   kendisi tek sabitte durduğu için burada yerini tutuyor; editörde
+   görünür kalması bilinçli — kaldırılırsa uyarı sessizce kaybolurdu.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+
+  /* Sağlık uyarısı — `yasal-v1.html`in WARN sabitinden BİREBİR taşındı. */
+  var UYARI = "<div class=\"lg-warn\"><i class=\"fa-solid fa-circle-exclamation\"></i><p>DadaFit bir <strong>hareket ve alışkanlık takip platformudur</strong>; teşhis koymaz, tedavi ya da diyet reçetesi vermez. Platformdaki hareket, program ve enerji içerikleri genel bilgilendirme amaçlıdır ve <strong>tıbbi tavsiye yerine geçmez</strong>. Kronik hastalık, sakatlık, gebelik veya ilaç kullanımı gibi durumlarda egzersize başlamadan önce hekimine danış.</p></div>";
+
+  /* Dizin sırası — `yasal-v1.html` ORDER dizisi. */
+  var ORDER = ['kullanim','uyelik','mesafeli','iade','teslimat','kvkk',
+               'aydinlatma','cerez','veri-izin','bilgilendirme','sozlesme'];
+
+  /* Belgeler — `L` nesnesinden çıkarıldı (2026-08-30). */
+  var BELGE = [
+    { slug:"kullanim", karakter:3747, baslik:"Kullanım Koşulları", kisa:"Kullanım Koşulları",
+      uyari:true, h3:7,
+      ozet:"DadaFit'i kullanırken ikimizin de uyduğu temel kurallar: hesabın, paylaştığın içerik, hareket verinin sınırları ve sorumluluk paylaşımı.",
+      govde:"<h3 id=\"b1\">1. Taraflar ve Konu</h3><p>İşbu Kullanım Koşulları, <strong>DadaFit</strong> platformu (\"<strong>Platform</strong>\") ile Platform'u ziyaret eden veya üye olan kullanıcı (\"<strong>Kullanıcı</strong>\") arasındaki ilişkiyi düzenler. Platform, DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş. (\"<strong>Şirket</strong>\") tarafından işletilir. Platform'u kullanmaya devam ederek bu koşulları kabul etmiş sayılırsın.</p><h3 id=\"b2\">2. Hizmetin Kapsamı</h3><p>DadaFit; DadaFit Egzersizleri, hazır ve kişiselleştirilebilir hareket programları, Fit Testleri, challenge'lar, Enerji Defteri ile günlük aktivite takibi ve antrenör randevu modülünü bir arada sunar. Hizmetlerin bir bölümü ücretsizdir; <strong>DadaFit Pro</strong> paketi ek içerik ve özellik açar. <strong>Pro Max AI</strong> kademesi tanımlıdır ancak <strong>henüz satışa açılmamıştır</strong>. Kapsam ve fiyatlar <a class=\"inline\" href=\"pro-v1.html\">Pro sayfasında</a>, üyelik ve iptal kuralları ise <a class=\"inline\" href=\"yasal-v1.html?metin=uyelik\">Üyelik ve İptal Koşulları</a>'nda gösterilir.</p><h3 id=\"b3\">3. Kullanıcının Yükümlülükleri</h3><ul><li>Kayıt sırasında doğru ve güncel bilgi vermek; hesap ve şifre güvenliğini korumak.</li><li>Paylaştığın yorum, ilerleme notu ve fotoğrafların sana ait ya da kullanım hakkına sahip olduğun içerikler olması.</li><li>Üçüncü kişilerin telif, marka veya kişilik haklarını ihlal eden içerik yayımlamamak.</li><li><strong>Yanıltıcı sağlık iddiası</strong>, doğrulanmamış takviye/ilaç önerisi, aşırı kısıtlayıcı diyet teşviki ve beden utandırması içeren paylaşımlarda bulunmamak.</li><li>Antrenörlere, diğer üyelere ve destek ekibine saygılı davranmak.</li></ul><p>Bu kurallara aykırı içerikler moderasyon ekibi tarafından kaldırılır; tekrarlanan ihlallerde üyelik askıya alınabilir veya sonlandırılabilir.</p><h3 id=\"b4\">4. Sağlık ve Güvenlik Sorumluluğu</h3>{{UYARI}}<p>Hareketleri kendi fiziksel kapasitene uygun şekilde, doğru formla ve ağrı sınırını zorlamadan uygulamak Kullanıcı'nın sorumluluğundadır. Fit Testleri öncesinde sunulan <strong>fiziksel aktivite uygunluk taraması</strong> soruları dürüst yanıtlanmalıdır; riskli yanıt verildiğinde test durdurulur.</p><h3 id=\"b5\">5. Fikri Mülkiyet</h3><p>Platform'un tasarımı, yazılımı, markası, hareket videoları ve editoryal program içerikleri Şirket'e veya lisans verenlerine aittir; izinsiz çoğaltılamaz ve ticari amaçla kullanılamaz. Kullanıcı içeriklerinin mülkiyeti Kullanıcı'da kalır; Kullanıcı, içeriğin Platform'da yayımlanması için Şirket'e münhasır olmayan, telifsiz bir kullanım hakkı tanır.</p><h3 id=\"b6\">6. Sorumluluğun Sınırlandırılması</h3><p>Şirket, Platform'un kesintisiz ve hatasız çalışacağını garanti etmez; bakım, güncelleme ve teknik arıza kaynaklı geçici kesintiler olabilir. Aktivite ve enerji verileri <strong>yaklaşık değerlerdir</strong>; bağlı cihaz ve uygulamalardan gelen ölçümlerin doğruluğu ilgili cihaz üreticisinin sorumluluğundadır.</p><h3 id=\"b7\">7. Değişiklikler ve Yürürlük</h3><p>Şirket bu koşulları güncelleyebilir; güncel sürüm bu sayfada yayımlandığı anda yürürlüğe girer. Önemli değişiklikler üyelere e-posta ve uygulama içi bildirimle duyurulur. Sorularını <a class=\"inline\" href=\"iletisim-v1.html\">iletişim formundan</a> ya da <strong>destek@dadafit.com</strong> adresinden iletebilirsin.</p>" },
+    { slug:"uyelik", karakter:2956, baslik:"Üyelik ve İptal Koşulları", kisa:"Üyelik ve İptal",
+      uyari:false, h3:6,
+      ozet:"Üyeliğin nasıl kurulduğu, Ücretsiz ile Pro arasındaki fark, aboneliğin ve antrenör randevusunun nasıl iptal edildiği.",
+      govde:"<h3 id=\"b1\">1. Üyeliğin Kurulması</h3><p>Üyelik, kayıt formunun onaylanması ve e-posta doğrulaması ile kurulur. Üyelik kişiseldir; hesabın üçüncü kişilerce kullanılmasına izin verilemez. 18 yaşından küçükler ancak veli/vasi onayı ile üye olabilir.</p><h3 id=\"b2\">2. Ücretsiz, Pro ve Pro Max AI</h3><div class=\"lg-defs\"><div class=\"dr\"><span>Ücretsiz</span><div>DadaFit Egzersizleri, temel programlar, Enerji Defteri günlük kaydı ve challenge katılımı.</div></div><div class=\"dr\"><span>DadaFit Pro</span><div>Tüm programlar, video seansları, Fit Testleri sonuç raporu, ilerleme analizleri, antrenör görüşmesi avantajları ve kişiye göre uyarlanan program değerlendirmesi.</div></div><div class=\"dr\"><span>Pro Max AI</span><div>Pro içeriğinin tamamı + yapay zekâ katmanı. Kapsamı ve bedeli açıklanmamıştır; <strong>bu kademe şu an satın alınamaz</strong>.</div></div></div><p>Paketlerin güncel içeriği ve fiyatı <a class=\"inline\" href=\"pro-v1.html\">Pro sayfasında</a> karşılaştırma tablosuyla gösterilir. Abonelik, seçilen dönemin sonunda <strong>otomatik yenilenir</strong>; yenileme tarihinden önce e-posta ile hatırlatılır.</p><h3 id=\"b3\">3. Pro Aboneliğinin İptali</h3><p>Aboneliği <strong>Hesabım → Üyelik ve Paketim</strong> ekranından tek adımda iptal edebilirsin; iptal için destek ekibiyle görüşmek gerekmez. İptal sonrası:</p><ul><li>Ödemesi yapılmış dönemin <strong>sonuna kadar</strong> Pro içeriğine erişim sürer,</li><li>Dönem sonunda hesap otomatik olarak Ücretsiz pakete döner,</li><li>Kaydettiğin hareketler, ilerleme geçmişin ve Enerji Defteri kayıtların <strong>silinmez</strong>; Pro'ya özel içerikler kilitlenir.</li></ul><p>Kullanılmamış dönem bedelinin iadesi <a class=\"inline\" href=\"yasal-v1.html?metin=iade\">Cayma ve İade Koşulları</a>'na tabidir.</p><h3 id=\"b4\">4. Antrenör Randevusunun İptali</h3><p>Antrenör görüşmesi, randevu saatinden <strong>en az 12 saat önce</strong> ücretsiz iptal edilebilir veya ertelenebilir. Daha kısa sürede yapılan iptallerde seans kullanılmış sayılır. Antrenör kaynaklı iptallerde seans hakkı bir sonraki uygun tarihe aktarılır veya bedeli iade edilir. Randevularını <strong>Planım → Randevularım ve Mesajlar</strong> ekranından yönetebilirsin.</p><h3 id=\"b5\">5. Hesabın Dondurulması ve Kapatılması</h3><p>Hesabını geçici olarak <strong>dondurabilir</strong> (veriler saklanır, bildirimler durur) ya da kalıcı olarak <strong>kapatabilirsin</strong>. Hesap kapatıldığında kişisel veriler <a class=\"inline\" href=\"yasal-v1.html?metin=kvkk\">Gizlilik ve KVKK Politikası</a>'ndaki saklama süreleri saklı kalmak kaydıyla imha edilir; kapatmadan önce verilerini <a class=\"inline\" href=\"yasal-v1.html?metin=veri-izin\">Veri ve İzin Politikası</a>'nda anlatıldığı şekilde indirebilirsin.</p><h3 id=\"b6\">6. Uyuşmazlıkların Çözümü</h3><p>İşbu koşullardan doğan uyuşmazlıklarda Türk hukuku uygulanır; tüketici işlemlerinde tüketicinin yerleşim yerindeki tüketici hakem heyeti ve tüketici mahkemeleri yetkilidir.</p>" },
+    { slug:"mesafeli", karakter:1886, baslik:"Mesafeli Satış Sözleşmesi", kisa:"Mesafeli Satış",
+      uyari:false, h3:5,
+      ozet:"Pro dijital aboneliğinin uzaktan satışında tarafların hak ve yükümlülükleri.",
+      govde:"<h3 id=\"b1\">1. Taraflar</h3><div class=\"lg-defs\"><div class=\"dr\"><span>Hizmet Sağlayıcı</span><div>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş. — destek@dadafit.com</div></div><div class=\"dr\"><span>Alıcı</span><div>DadaFit üzerinden Pro aboneliği ya da antrenör hizmet paketi satın alan, ödeme ekranında bilgileri yer alan tüketici.</div></div></div><h3 id=\"b2\">2. Sözleşmenin Konusu</h3><p>İşbu sözleşme, Alıcı'nın elektronik ortamda satın aldığı <strong>dijital abonelik hizmetinin</strong> sunulmasına ilişkin olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca tarafların hak ve yükümlülüklerini düzenler. Sözleşme konusu <strong>fiziksel bir ürün değil</strong>, elektronik ortamda anında ifa edilen bir hizmettir; kargo ve teslimat söz konusu olmaz.</p><h3 id=\"b3\">3. Hizmet ve Ödeme Bilgileri</h3><p>Paketin adı, süresi, yenileme dönemi ve vergiler dâhil toplam bedeli ödeme özetinde gösterilir. Ödeme yöntemleri ve erişimin açılması <a class=\"inline\" href=\"yasal-v1.html?metin=teslimat\">Ödeme ve Erişim Koşulları</a>'nda ayrıntılandırılmıştır.</p><h3 id=\"b4\">4. Cayma Hakkı</h3><p>Alıcı, sözleşme tarihinden itibaren <strong>14 gün</strong> içinde gerekçe göstermeksizin cayma hakkına sahiptir. Ancak Mesafeli Sözleşmeler Yönetmeliği m.15/1-ğ uyarınca, <strong>Alıcı'nın onayıyla ifasına başlanan</strong> elektronik ortamda anında sunulan hizmetlerde cayma hakkı kullanılamaz. Bu nedenle ödeme ekranında, aboneliğin hemen başlatılmasını onayladığın ayrı bir kutu bulunur. Ayrıntılar için <a class=\"inline\" href=\"yasal-v1.html?metin=iade\">Cayma ve İade Koşulları</a>'na bakabilirsin.</p><h3 id=\"b5\">5. Yürürlük ve Uyuşmazlık</h3><p>Sözleşme, ödeme onayı ile yürürlüğe girer ve abonelik dönemi boyunca geçerlidir. Uyuşmazlıklarda tüketicinin yerleşim yerindeki tüketici hakem heyeti ve tüketici mahkemeleri yetkilidir.</p>" },
+    { slug:"iade", karakter:1969, baslik:"Cayma ve İade Koşulları", kisa:"Cayma ve İade",
+      uyari:false, h3:5,
+      ozet:"Aboneliği iptal etmek, cayma hakkını kullanmak ve kullanılmamış antrenör seansının bedelini geri almak.",
+      govde:"<h3 id=\"b1\">1. Abonelik İptali</h3><p><strong>Hesabım → Üyelik ve Paketim</strong> ekranından aboneliği tek adımda iptal edebilirsin. İptal, sonraki yenilemeyi durdurur; ödemesi yapılmış dönemin sonuna kadar erişim sürer. Ayrıntı: <a class=\"inline\" href=\"yasal-v1.html?metin=uyelik\">Üyelik ve İptal Koşulları</a>.</p><h3 id=\"b2\">2. Cayma Hakkı ve Süresi</h3><p>Aboneliğin başlatıldığı tarihten itibaren <strong>14 gün</strong> içinde cayma bildirimi yapılabilir. Bildirim, hesap panelindeki iptal akışından ya da <strong>destek@dadafit.com</strong> adresine yazarak iletilir. Cayma kabul edildiğinde bedel, aynı ödeme aracına <strong>en geç 14 gün</strong> içinde iade edilir.</p><h3 id=\"b3\">3. Cayma Hakkının Kullanılamadığı Hâl</h3><p>Onayınla ifasına başlanan dijital abonelikte, yani <strong>Pro içeriğini kullanmaya başladıysan</strong>, mevzuat gereği cayma hakkı sona erer. Bu durumda iptal ileriye dönük çalışır: yenileme durur, dönem sonuna kadar erişim korunur. Ödeme ekranında bu onay ayrı bir kutu olarak sunulur ve işaretlenmeden ödeme alınmaz.</p><h3 id=\"b4\">4. Antrenör Seansı İade ve Değişimi</h3><ul><li>Randevudan <strong>12 saatten fazla</strong> süre kalarak yapılan iptallerde seans bedeli tam iade edilir veya seans hakkı korunur.</li><li>12 saatten kısa sürede yapılan iptallerde seans kullanılmış sayılır.</li><li>Antrenör kaynaklı iptal, teknik arıza veya görüşmenin gerçekleşmemesi hâlinde bedel <strong>tam iade</strong> edilir.</li><li>Görüşmeden memnun kalmadıysan 7 gün içinde <a class=\"inline\" href=\"iletisim-v1.html\">destek kaydı</a> açabilirsin; haklı bulunan taleplerde seans hakkı yenilenir.</li></ul><h3 id=\"b5\">5. Bedel İadesi</h3><p>İade onayından sonra bedel; kredi kartına <strong>3–7 iş günü</strong>, banka havalesi ile yapılan ödemelerde <strong>7 iş günü</strong> içinde iade edilir. Bankanın hesaba yansıtma süresi değişiklik gösterebilir. İade işlemleri <strong>Hesabım → Ödeme Geçmişim</strong> ekranından izlenebilir.</p>" },
+    { slug:"teslimat", karakter:1556, baslik:"Ödeme ve Erişim Koşulları", kisa:"Ödeme ve Erişim",
+      uyari:false, h3:5,
+      ozet:"Ödeme yöntemleri, ödeme güvenliği, Pro erişiminin ne zaman açıldığı ve yenileme kuralları.",
+      govde:"<h3 id=\"b1\">1. Ödeme Seçenekleri</h3><ul><li><strong>Kredi / banka kartı</strong> — 3D Secure doğrulamalı tek çekim veya taksit,</li><li><strong>Havale / EFT</strong> — yıllık paketlerde geçerlidir; ödeme 24 saat içinde bekletilir, gelmezse sipariş otomatik iptal edilir,</li><li><strong>Mobil uygulama içi satın alma</strong> — App Store / Google Play üzerinden yapılan aboneliklerde iptal ve iade ilgili mağazanın kurallarına tabidir.</li></ul><h3 id=\"b2\">2. Ödeme Güvenliği</h3><p>Tüm ödeme işlemleri SSL şifrelemesi ile, BDDK lisanslı ödeme kuruluşunun altyapısında gerçekleşir. <strong>Kart bilgileri DadaFit sistemlerinde saklanmaz</strong>; yalnızca ödeme kuruluşunun ürettiği maskeli kart referansı tutulur.</p><h3 id=\"b3\">3. Erişimin Açılması</h3><p>Dijital abonelikte teslimat yerine <strong>erişim</strong> vardır: ödeme onayının ardından Pro içeriği hesabında <strong>anında</strong> açılır, ayrıca bir bekleme süresi yoktur. Erişimin açılmadığı durumlarda <strong>destek@dadafit.com</strong> adresine yazman yeterlidir.</p><h3 id=\"b4\">4. Yenileme ve Fiyat Değişikliği</h3><p>Abonelik dönem sonunda otomatik yenilenir; yenilemeden önce e-posta ile hatırlatma gönderilir. Fiyat değişiklikleri <strong>yalnızca sonraki dönem</strong> için geçerli olur ve en az 30 gün önce duyurulur; değişikliği kabul etmezsen yenileme tarihine kadar iptal edebilirsin.</p><h3 id=\"b5\">5. Fatura</h3><p>E-arşiv fatura, ödeme onayıyla eş zamanlı olarak hesabındaki e-posta adresine gönderilir ve <strong>Hesabım → Faturalarım</strong> ekranından indirilebilir.</p>" },
+    { slug:"kvkk", karakter:4824, baslik:"Gizlilik ve KVKK Politikası", kisa:"Gizlilik ve KVKK",
+      uyari:true, h3:7,
+      ozet:"Hangi verini neden işliyoruz, sağlık ve hareket verisini nasıl koruyoruz, hangi haklara sahipsin.",
+      govde:"<h3 id=\"b1\">1. Amaç ve Kapsam</h3><p>İşbu Gizlilik ve Kişisel Verilerin Korunması Politikası (\"<strong>Politika</strong>\"), <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> (\"<strong>Şirket</strong>\") tarafından 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"<strong>KVKK</strong>\") ve ilgili mevzuat uyarınca; kişisel verilerin işlenmesi, saklanması, aktarılması ve imhasına ilişkin usul ve esasları belirlemek amacıyla hazırlanmıştır.</p><p>Politika; üyelerimiz, ziyaretçilerimiz, antrenör başvuru sahipleri ve iş ortaklarımıza ait, otomatik ya da kısmen otomatik yollarla işlenen tüm kişisel verileri kapsar.</p><h3 id=\"b2\">2. Tanımlar</h3><div class=\"lg-defs\"><div class=\"dr\"><span>Kişisel Veri</span><div>Kimliği belirli veya belirlenebilir gerçek kişiye ilişkin her türlü bilgi (ad-soyad, e-posta, IP adresi vb.).</div></div><div class=\"dr\"><span>Özel Nitelikli Veri</span><div>Sağlık verisi dâhil, KVKK m.6'da sayılan ve daha yüksek koruma gerektiren veri türleri.</div></div><div class=\"dr\"><span>Veri Sorumlusu</span><div>İşleme amaçlarını ve vasıtalarını belirleyen DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</div></div><div class=\"dr\"><span>Açık Rıza</span><div>Belirli bir konuya ilişkin, bilgilendirilmeye dayanan ve özgür iradeyle açıklanan rıza.</div></div><div class=\"dr\"><span>İmha</span><div>Kişisel verilerin silinmesi, yok edilmesi veya anonim hâle getirilmesi.</div></div></div><h3 id=\"b3\">3. İşlenen Veri Kategorileri ve Amaçlar</h3><p>Şirket, aşağıdaki veri kategorilerini KVKK m.5 ve m.6'da öngörülen şartlara uygun olarak işler:</p><ul><li><strong>Kimlik ve iletişim verileri</strong> — üyelik oluşturma, hesabın yönetimi ve destek taleplerine dönüş amacıyla.</li><li><strong>Hareket ve antrenman verileri</strong> (tamamlanan seans, süre, set, tekrar, seri) — programın ilerlemesini göstermek ve öneri üretmek amacıyla.</li><li><strong>Aktivite verileri</strong> (adım, aktif süre, mesafe, yaklaşık enerji) — Enerji Defteri ve haftalık denge özetini oluşturmak amacıyla.</li><li><strong>Sağlık ve hareket profili verileri</strong> (boy, kilo, sakatlık/kısıt beyanı, uygunluk taraması yanıtları) — <strong>yalnızca açık rızaya dayalı olarak</strong>, güvenli program önerisi ve Fit Testi uygunluğu amacıyla.</li><li><strong>İşlem güvenliği verileri</strong> (IP, oturum kayıtları) — 5651 sayılı Kanun kapsamındaki yükümlülükler ve platform güvenliği amacıyla.</li><li><strong>Müşteri işlem verileri</strong> (abonelik, fatura) — Pro üyelik sözleşmesinin ifası amacıyla.</li></ul><h3 id=\"b4\">4. Sağlık Verisi ve Açık Rıza</h3>{{UYARI}}<p>Sağlık ve hareket profili verileri <strong>özel nitelikli kişisel veridir</strong>; yalnızca açık rızanla işlenir, ayrı bir güvenlik katmanında tutulur ve pazarlama amacıyla <strong>hiçbir koşulda</strong> kullanılmaz. Rızanı <strong>Planım → Veri ve İzinlerim</strong> ekranından dilediğin zaman geri alabilirsin; geri alma, o veriye dayanan önerilerin durdurulması sonucunu doğurur. Ayrıntı: <a class=\"inline\" href=\"yasal-v1.html?metin=veri-izin\">Veri ve İzin Politikası</a>.</p><h3 id=\"b5\">5. Verilerin Aktarılması</h3><p>Kişisel veriler; yasal yükümlülükler çerçevesinde yetkili kamu kurumlarına, hizmetin ifası için zorunlu olduğu ölçüde ödeme kuruluşu, e-posta gönderim ve barındırma hizmeti sağlayıcılarına KVKK m.8 ve m.9'a uygun şekilde aktarılabilir. <strong>Antrenörünle paylaşılan veriler</strong> yalnızca randevu ilişkisi kurduğun antrenöre, senin onayladığın kapsamda görünür. Yurt dışına aktarım yalnızca Kurul kararlarına uygun güvencelerle yapılır. Verilerin reklam amacıyla üçüncü kişilere satılmaz.</p><h3 id=\"b6\">6. Saklama ve İmha</h3><p>Kişisel veriler, işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen azami süreler boyunca saklanır; sürenin sonunda periyodik imha dönemlerinde silinir, yok edilir veya anonim hâle getirilir. Hesabını kapatırsan hareket ve aktivite geçmişin, yasal saklama yükümlülükleri saklı kalmak üzere imha edilir.</p><h3 id=\"b7\">7. İlgili Kişinin Hakları</h3><p>KVKK m.11 uyarınca; verinin işlenip işlenmediğini öğrenme, düzeltilmesini veya silinmesini isteme, işlemeye itiraz etme ve zararın giderilmesini talep etme haklarına sahipsin. Başvurularını <strong>kvkk@dadafit.com</strong> adresine ya da yönetim yeri adresimize yazılı olarak iletebilirsin. Başvurular en geç <strong>30 gün</strong> içinde ücretsiz sonuçlandırılır.</p>" },
+    { slug:"aydinlatma", karakter:1745, baslik:"Aydınlatma Metni", kisa:"Aydınlatma Metni",
+      uyari:false, h3:5,
+      ozet:"KVKK m.10 kapsamında kısa özet: veri sorumlusu kim, veriler hangi amaçla ve hangi hukuki sebeple işleniyor.",
+      govde:"<h3 id=\"b1\">1. Veri Sorumlusu</h3><p>Bu aydınlatma metni, 6698 sayılı KVKK m.10 uyarınca, veri sorumlusu sıfatıyla <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> tarafından hazırlanmıştır.</p><h3 id=\"b2\">2. İşleme Amaçları</h3><ul><li>Üyelik hesabının oluşturulması ve yönetilmesi,</li><li>Hareket programının, challenge katılımının ve ilerleme kayıtlarının sunulması,</li><li>Enerji Defteri ve bağlı uygulama/cihaz verilerinin günlük özete dönüştürülmesi,</li><li>Antrenör randevusu ve mesajlaşma hizmetinin sağlanması,</li><li>Pro aboneliğinin ve antrenör hizmet paketlerinin faturalandırılması, destek taleplerinin karşılanması,</li><li>Açık rızan olması hâlinde kampanya, bülten ve alışkanlık hatırlatmalarının gönderilmesi.</li></ul><h3 id=\"b3\">3. Hukuki Sebepler</h3><p>Verilerin; sözleşmenin kurulması ve ifası (KVKK m.5/2-c), hukuki yükümlülüğün yerine getirilmesi (m.5/2-ç), meşru menfaat (m.5/2-f) ve <strong>sağlık verileri bakımından açık rıza</strong> (m.6/2) hukuki sebeplerine dayanılarak işlenir.</p><h3 id=\"b4\">4. Toplama Yöntemi</h3><p>Kişisel verilerin; üyelik ve iletişim formları, sağlık ve hareket profili adımları, Fit Testi uygunluk taraması, Enerji Defteri girişleri, izin verdiğin bağlı uygulama ve cihazlar (ör. Apple Health, Health Connect, akıllı saat), çerezler ve mobil uygulama üzerinden elektronik ortamda toplanır.</p><h3 id=\"b5\">5. Haklarınız ve Başvuru</h3><p>KVKK m.11'deki haklarını kullanmak için taleplerini <strong>kvkk@dadafit.com</strong> adresine iletebilirsin. Ayrıntılı bilgi için <a class=\"inline\" href=\"yasal-v1.html?metin=kvkk\">Gizlilik ve KVKK Politikası</a>'nı ve <a class=\"inline\" href=\"yasal-v1.html?metin=veri-izin\">Veri ve İzin Politikası</a>'nı inceleyebilirsin.</p>" },
+    { slug:"cerez", karakter:1839, baslik:"Çerez Politikası", kisa:"Çerez Politikası",
+      uyari:false, h3:5,
+      ozet:"Hangi çerezleri ve tarayıcı depolamasını kullanıyoruz, tercihlerini nasıl değiştirirsin.",
+      govde:"<h3 id=\"b1\">1. Çerez Nedir?</h3><p>Çerezler, ziyaret ettiğin siteler tarafından tarayıcına kaydedilen küçük metin dosyalarıdır. Oturumunu açık tutmak, tercihlerini hatırlamak ve site performansını ölçmek için kullanılır. Bu politika, <a class=\"inline\" href=\"yasal-v1.html?metin=kvkk\">Gizlilik ve KVKK Politikası</a>'nın ayrılmaz parçasıdır.</p><h3 id=\"b2\">2. Kullandığımız Çerez Türleri</h3><div class=\"lg-defs\"><div class=\"dr\"><span>Zorunlu Çerezler</span><div>Oturum, güvenlik ve üyelik işlevleri için gereklidir; devre dışı bırakılamaz.</div></div><div class=\"dr\"><span>Tercih Çerezleri</span><div>Dil seçimi, kaydettiğin hareket ve programlar, ses/titreşim ve \"hareketi azalt\" tercihini hatırlar.</div></div><div class=\"dr\"><span>Analitik Çerezler</span><div>Sayfa performansını anonim ölçümlerle iyileştirmemizi sağlar.</div></div><div class=\"dr\"><span>Pazarlama Çerezleri</span><div>Yalnızca onay verirsen, ilgi alanına uygun içerik göstermek için kullanılır.</div></div></div><h3 id=\"b3\">3. Tarayıcı Depolaması</h3><p>Çerez dışında, tarayıcının <strong>yerel depolama</strong> alanı da kullanılır: oturum durumu, çerez onayın, aktif programın, Enerji Defteri taslak girişlerin ve erişilebilirlik tercihlerin cihazında tutulur. Bu kayıtlar cihazından ayrılmaz; tarayıcı verilerini temizlediğinde silinir.</p><h3 id=\"b4\">4. Çerez Yönetimi</h3><p>Çerez tercihlerini sayfa altındaki çerez bandından veya tarayıcı ayarlarından dilediğin zaman değiştirebilirsin. <strong>Zorunlu çerezler dışındaki tüm çerezler onayına bağlıdır</strong>; reddettiğinde analitik ve pazarlama çerezleri yüklenmez.</p><h3 id=\"b5\">5. Üçüncü Taraf Hizmetleri</h3><p>Platform'da ölçümleme, hareket videolarının oynatılması ve yazı tipi/ikon dağıtımı için üçüncü taraf hizmetler kullanılabilir; bu hizmetlerin çerez uygulamaları kendi politikalarına tabidir.</p>" },
+    { slug:"veri-izin", karakter:2836, baslik:"Veri ve İzin Politikası", kisa:"Veri ve İzin",
+      uyari:false, h3:5,
+      ozet:"Hangi veriyi kiminle, hangi amaçla paylaştığın ve izni tek adımda nasıl geri aldığın.",
+      govde:"<h3 id=\"b1\">1. Politikanın Amacı</h3><p>Bu politika, DadaFit'te <strong>her veri paylaşımının izne bağlı</strong> olduğunu ve iznin her zaman geri alınabildiğini açıklar. Ne paylaştığını, kiminle paylaştığını ve neden paylaştığını <strong>Planım → Veri ve İzinlerim</strong> ekranında tek listede görürsün; her satırın yanında geri alma düğmesi bulunur.</p><h3 id=\"b2\">2. İzne Bağlı Veri Türleri</h3><div class=\"lg-defs\"><div class=\"dr\"><span>Hareket verisi</span><div>Tamamlanan seans, süre, set/tekrar, seri. Program ilerlemesi ve öneri için kullanılır.</div></div><div class=\"dr\"><span>Aktivite verisi</span><div>Adım, aktif süre, mesafe, yaklaşık enerji. Enerji Defteri ve haftalık denge özeti için kullanılır.</div></div><div class=\"dr\"><span>Sağlık profili</span><div>Boy, kilo, kısıt ve sakatlık beyanı, uygunluk taraması yanıtları. <strong>Özel nitelikli veri</strong>; yalnızca açık rıza ile.</div></div><div class=\"dr\"><span>Antrenör paylaşımı</span><div>Randevu kurduğun antrenöre görünen alanları sen seçersin; varsayılan olarak yalnız hedefin ve program durumun paylaşılır.</div></div></div><h3 id=\"b3\">3. Bağlı Uygulamalar ve Cihazlar</h3><p>Apple Health, Health Connect, akıllı saat ve benzeri kaynaklardan veri aktarımı <strong>yalnızca sen bağladıysan</strong> başlar. Her bağlantı için ekranda şunlar gösterilir: bağlantı durumu, verilen izin kapsamı, son senkron zamanı, aktarılan veri türleri ve <strong>bağlantıyı kes</strong> düğmesi. Bağlantıyı kesmek yeni aktarımı durdurur; o güne kadar aktarılmış kayıtları ayrıca silmeyi seçebilirsin.</p><p>Kaynaklardan gelen ölçümler <strong>yaklaşık değerlerdir</strong> ve cihaz üreticisinin doğruluğuna bağlıdır; DadaFit bu değerleri tıbbi ölçüm olarak sunmaz.</p><h3 id=\"b4\">4. Ekosistem Paylaşımı</h3><p>DadaFit, kardeş ürünler <strong>DadaDiet</strong> ve <strong>DadaGastro</strong> ile veri paylaşabilir — ancak yalnızca sen onayladıysan ve yalnızca onayladığın alanlarda. Her paylaşım isteğinde şu dördü birlikte gösterilir:</p><ul><li><strong>Hangi veri</strong> paylaşılacak (ör. günlük yaklaşık enerji harcaması),</li><li><strong>Hangi sistemle</strong> paylaşılacak,</li><li><strong>Hangi amaçla</strong> paylaşılacak,</li><li><strong>Nasıl geri alınacağı</strong> ve geri alındığında ne olacağı.</li></ul><p>Onay vermezsen DadaFit'in kendi işlevleri tam çalışmaya devam eder; yalnızca ekosistem özetleri kapalı kalır.</p><h3 id=\"b5\">5. İzni Geri Alma, İndirme ve Silme</h3><ul><li><strong>İzni geri al</strong> — ilgili satırdaki düğmeyle anında; onay dışında ek adım istenmez.</li><li><strong>Verilerini indir</strong> — Hesabım → Verilerimi İndir ekranından makine-okunur dosya olarak.</li><li><strong>Sil</strong> — tek tek kayıt ya da hesabın tamamı; ayrıntı için <a class=\"inline\" href=\"yasal-v1.html?metin=kvkk\">Gizlilik ve KVKK Politikası</a>.</li></ul>" },
+    { slug:"bilgilendirme", karakter:3223, baslik:"Platform Bilgilendirme Metni", kisa:"Bilgilendirme Metni",
+      uyari:true, h3:6,
+      ozet:"DadaFit ne yapar, ne yapmaz: tıbbi tavsiye sınırı, egzersiz öncesi uygunluk, enerji değerlerinin anlamı ve antrenör doğrulaması.",
+      govde:"<h3 id=\"b1\">1. Platformun Niteliği</h3><p>DadaFit; DadaFit Egzersizleri, hareket programları, Fit Testleri, challenge'lar, Enerji Defteri ve antrenör randevu modülünü bir arada sunan bir <strong>hareket ve alışkanlık platformudur</strong>. İçerikler spor bilimleri kaynaklarına dayanarak hazırlanır ve editör ekibince denetlenir.</p><h3 id=\"b2\">2. Tıbbi Tavsiye Değildir</h3>{{UYARI}}<p>Bu sınırın günlük kullanımda ne anlama geldiği — hangi durumlarda uzmana danışmalısın, hareketi hemen bırakman gereken belirtiler neler — ayrı bir sayfada anlatılıyor: <a class=\"inline\" href=\"saglik-bilgilendirme-v1.html\">Sağlık Bilgilendirmesi</a>.</p><h3 id=\"b3\">3. Egzersiz Öncesi Uygunluk</h3><p>Fit Testleri ve yüksek yoğunluklu programlar öncesinde kısa bir <strong>fiziksel aktivite uygunluk taraması</strong> sunulur. Göğüs ağrısı, baş dönmesi, kontrolsüz tansiyon, yeni geçirilmiş ameliyat gibi yanıtlarda <strong>test durdurulur</strong> ve hekime yönlendirme yapılır. Bu tarama bir teşhis aracı değildir; amacı yalnızca riskli durumda seni durdurmaktır.</p><p>Antrenman sırasında ağrı, baş dönmesi, nefes darlığı veya bulantı olursa hareketi <strong>hemen bırak</strong> ve gerekiyorsa acil sağlık hizmetine başvur.</p><h3 id=\"b4\">4. Enerji ve Kalori Değerleri Hakkında</h3><p>Enerji Defteri'ndeki değerler <strong>yaklaşıktır</strong>; kişisel metabolizma, ölçüm cihazı ve hareket tekniğine göre değişir. DadaFit bu değerleri bir hedef ya da borç olarak sunmaz: \"yediğini yak\" gibi bir dil kullanılmaz, enerji dengesi <strong>bilgi</strong> olarak gösterilir. Kalori rakamlarını tamamen gizlemeyi seçebilir, ilerlemeni süre, aktif gün, kuvvet günü, çeşitlilik ve dinlenme gibi ölçülerle izleyebilirsin.</p><h3 id=\"b5\">5. Antrenör Hizmeti</h3><p>Platformda listelenen antrenörlerin diploma, sertifika ve unvanları yayın öncesi doğrulanır; <strong>DadaFit Onaylı</strong> işareti yalnızca doğrulanmış ve belgesi süresi geçerli olan antrenörlerde görünür. Danışmanlık ilişkisi antrenör ile üye arasında kurulur; Şirket aracı hizmet sağlayıcı konumundadır. Antrenörler <strong>teşhis koyamaz, tedavi ya da diyet reçetesi veremez</strong>; beslenme planı gerektiren durumlarda diyetisyene yönlendirme yapılır. Ayrıntı: <a class=\"inline\" href=\"yasal-v1.html?metin=sozlesme\">Antrenör Sözleşmesi</a>.</p><h3 id=\"b6\">6. İhlal Bildirimleri ve İletişim</h3><p>Yanıltıcı sağlık iddiası, telif veya kişilik hakkı ihlali içeren içerikleri sayfa kenarındaki <strong>Görüş Bildir</strong> penceresinden \"İhlal bildirimi\" konusuyla iletebilirsin. Bildirimler 48 saat içinde incelenir; haklı bulunan taleplerde içerik yayından kaldırılır. Diğer tüm soruların için <a class=\"inline\" href=\"iletisim-v1.html\">iletişim formunu</a> kullanabilir veya <strong>destek@dadafit.com</strong> adresine yazabilirsin.</p>" },
+    { slug:"sozlesme", karakter:2889, baslik:"Antrenör Sözleşmesi", kisa:"Antrenör Sözleşmesi",
+      uyari:true, h3:6,
+      ozet:"DadaFit'te antrenör olarak yer almanın koşulları: belge doğrulama, sağlık sınırları, randevu ve ücret.",
+      govde:"<h3 id=\"b1\">1. Taraflar ve Konu</h3><p>İşbu sözleşme, <strong>DadaFit Dijital Hareket ve Sağlık Teknolojileri A.Ş.</strong> (\"<strong>Şirket</strong>\") ile Platform üzerinde profil açarak hizmet sunan antrenör (\"<strong>Antrenör</strong>\") arasındaki ilişkiyi düzenler. Şirket <strong>aracı hizmet sağlayıcıdır</strong>; danışmanlık ilişkisi Antrenör ile üye arasında kurulur. Başvuru <a class=\"inline\" href=\"antrenor-ol-v1.html\">Antrenör Ol</a> formundan yapılır.</p><h3 id=\"b2\">2. Antrenörün Beyan ve Yükümlülükleri</h3><ul><li>Sunduğu diploma, sertifika ve unvan bilgilerinin doğru ve geçerli olduğunu beyan etmek,</li><li>Belgelerin süresi dolduğunda güncel olanı 30 gün içinde yüklemek,</li><li>Üyenin sağlık ve hareket profilindeki kısıtlara uygun program vermek,</li><li>Üye verilerini yalnızca randevu ilişkisinin gerektirdiği ölçüde kullanmak ve üçüncü kişiyle paylaşmamak,</li><li>Randevu saatlerine uymak, iptalleri en az 12 saat önce bildirmek.</li></ul><h3 id=\"b3\">3. Belge Doğrulama ve \"DadaFit Onaylı\"</h3><p>Profiller yayına alınmadan önce belge doğrulamasından geçer. <strong>DadaFit Onaylı</strong> işareti yalnızca doğrulanmış ve belgesi <strong>süresi geçerli</strong> olan antrenörlerde görünür; belge süresi dolduğunda işaret otomatik olarak kaldırılır. Gerçeğe aykırı beyan, profilin kalıcı kapatılması sonucunu doğurur.</p><h3 id=\"b4\">4. Sağlık Sınırları</h3>{{UYARI}}<p>Antrenör; <strong>teşhis koyamaz, tedavi uygulayamaz, ilaç veya takviye öneremez ve diyet reçetesi veremez.</strong> Beslenme planı gerektiren taleplerde üyeyi diyetisyene, tıbbi şüphe hâlinde hekime yönlendirir. Uygunluk taramasında riskli yanıt veren üyeye program verilmez.</p><h3 id=\"b5\">5. Randevu, Ücret ve İptal</h3><p>Randevu ücretleri Antrenör tarafından belirlenir, ödeme Platform üzerinden alınır ve Şirket komisyonu düşülerek Antrenör'e aktarılır. Üye kaynaklı iptaller <a class=\"inline\" href=\"yasal-v1.html?metin=uyelik\">Üyelik ve İptal Koşulları</a>'na, bedel iadeleri <a class=\"inline\" href=\"yasal-v1.html?metin=iade\">Cayma ve İade Koşulları</a>'na tabidir. Antrenör kaynaklı iptalde seans hakkı üyeye iade edilir.</p><h3 id=\"b6\">6. Sözleşmenin Sona Ermesi</h3><p>Taraflar sözleşmeyi 15 gün önceden bildirimle sona erdirebilir; açık randevular tamamlanır. Kural ihlali hâlinde Şirket profili derhal askıya alabilir. Antrenör verilerinin işlenmesi <a class=\"inline\" href=\"yasal-v1.html?metin=kvkk\">Gizlilik ve KVKK Politikası</a>'na tabidir.</p>" }
+  ];
+
+  /* Depodaki bağlantı sayısı — ölçüldü:
+       grep -ohE 'yasal-v1\.html\?metin=[a-z-]+' *.html assets/js/*.js
+         | sed 's/.*metin=//' | sort | uniq -c                          */
+  var BAG = { kvkk:23, uyelik:13, iade:12, aydinlatma:11, 'veri-izin':7,
+              kullanim:7, cerez:5, teslimat:4, mesafeli:4, sozlesme:3,
+              bilgilendirme:3 };
+
+  var slug = new URLSearchParams(location.search).get('belge') || '';
+  var kayit = BELGE.filter(function (b) { return b.slug === slug; })[0] || null;
+  var yeni = !kayit;
+  var uyariSay = BELGE.filter(function (b) { return b.uyari; }).length;
+
+  document.getElementById('yfBaslikH').textContent = yeni ? 'Yeni yasal belge' : kayit.baslik;
+  document.title = (yeni ? 'Yeni yasal belge' : kayit.baslik) + ' — DadaFit Yönetim';
+  document.getElementById('yfUyariSay').textContent = uyariSay;
+  document.getElementById('yfUyariMetin').innerHTML =
+    '<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>' + UYARI
+      .replace(/^<div class="lg-warn">[\s\S]*?<\/i>/, '')
+      .replace(/<\/div>$/, '');
+
+  var bagSay = kayit ? (BAG[kayit.slug] || 0) : 0;
+  document.getElementById('yfBagSay').textContent = bagSay;
+  document.getElementById('yfBagSay2').textContent = bagSay;
+
+  if (!yeni) {
+    document.getElementById('yfAlt').textContent =
+      'Künye, gövde ve yürürlük bilgisi tek formda. Bu belge ' + kayit.h3 +
+      ' maddeden oluşuyor ve depoda ' + bagSay + ' yerden bağlanıyor.';
+    document.getElementById('yfOnizle').href = 'yasal-v1.html?metin=' + encodeURIComponent(kayit.slug);
+    document.getElementById('yfSil').setAttribute('data-yikici', kayit.baslik);
+  }
+
+  document.getElementById('yfKaynak').innerHTML = A.kaynak('ornek',
+    (yeni
+      ? '<b>Yeni kayıt</b> — alanlar boş açılıyor. '
+      : '<b>Künye ve gövde gerçek:</b> <code>yasal-v1.html</code>in <code>L</code> nesnesinden ' +
+        '2026-08-30\'da olduğu gibi alındı (' + A.n(kayit.karakter) + ' karakter, ' +
+        kayit.h3 + ' madde) ve metne dokunulmadı — <b>bu sayı liste ekranındakiyle aynıdır</b>. ') +
+    '<b>Sürüm, yürürlük tarihi ve değişiklik notu boş</b> — bu üç alanın kaynakta karşılığı yok. ' +
+    'Sunucu yok: <b>Kaydet</b> formu doğrular, kaydetmez.');
+
+  /* Hukuki metin uyarısı — her açılışta, susmadan. */
+  A.flash('note', 'Bu ekran hukuki metin taşır. Panel metni okur ve saklar; ' +
+    'içeriğin doğruluğu ve yürürlüğü hukuk onayına bağlıdır — sürüm yükseltmeden önce onay alın.',
+    document.getElementById('yfUyariSerit'));
+
+  /* ---- form içi sekmeler ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- künye ve gövde doldur ---- */
+  if (kayit) {
+    document.getElementById('yfBaslik').value = kayit.baslik || '';
+    document.getElementById('yfKisa').value = kayit.kisa || '';
+    document.getElementById('yfSlug').value = kayit.slug || '';
+    document.getElementById('yfOzet').value = kayit.ozet || '';
+    document.getElementById('yfGovde').value = kayit.govde || '';
+    document.getElementById('yfUyari').checked = !!kayit.uyari;
+    document.getElementById('yfDizin').value = ORDER.indexOf(kayit.slug) + 1;
+  }
+
+  /* Editör künye doldurulduktan SONRA kurulur — kurulurken textarea'nın
+     değerini kendi yüzüne taşıyor. */
+  var ed = A.editor('#yfGovde', 'varsayilan');
+  var govdeAlan = document.getElementById('yfGovde');
+  function govdeSay() {
+    document.getElementById('yfGovdeSay').textContent =
+      A.n(govdeAlan.value.replace(/<[^>]*>/g, '').length) + ' karakter · etiketsiz metin';
+  }
+  govdeAlan.addEventListener('input', govdeSay);
+  var yuz = document.querySelector('.adm-ed-yuz');
+  if (yuz) yuz.addEventListener('input', govdeSay);
+  govdeSay();
+
+  /* ---- yan kart: bağlantı dökümü ---- */
+  (function bagKart() {
+    var top = 0, sat = ORDER.map(function (k) {
+      var n = BAG[k] || 0; top += n;
+      var bu = kayit && kayit.slug === k;
+      return '<div><span>' + (bu ? '<b>' + A.esc(k) + '</b>' : A.esc(k)) + '</span>' +
+             '<b>' + n + '</b></div>';
+    }).join('');
+    document.getElementById('yfBag').innerHTML =
+      '<div class="yf-bag">' + sat + '</div>' +
+      '<div class="fhint" style="margin-top:12px">Depoda toplam <b>' + top + '</b> bağlantı, ' +
+      '<b>17</b> dosyadan. Sayılar 2026-08-30\'da <code>grep</code> ile sayıldı; ' +
+      'anahtar değişirse bu bağlantıların hepsi yanlış belgeye düşer.</div>';
+  })();
+
+  /* ---- karakter sayaçları ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  /* ---- kaydet ---- */
+  var form = document.getElementById('yfForm');
+  A.maketKaydet(document.getElementById('yfKaydet'), 'yasal belge', form);
+  A.maketKaydet(document.getElementById('yfTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

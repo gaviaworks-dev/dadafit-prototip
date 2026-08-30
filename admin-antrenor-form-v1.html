@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antrenör profili — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+</head>
+<body class="adm-body" data-adm="antrenorler">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-antrenorler-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Antrenörler</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="anBaslik">Yeni antrenör profili</h1>
+        <div class="ph-sub">Başvuru kararı ayrı bir akıştır (Antrenörler kuyruğu); bu ekran
+          <b>onaylanmış antrenörün public profilini</b> yönetir.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" id="anOnizle" href="antrenorler-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="anKaynak"></div>
+    <div id="anUyari"></div>
+
+    <form id="anForm" novalidate>
+      <div class="form-layout">
+
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kimlik">Kimlik</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="uzmanlik">Uzmanlık</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="hizmet">Hizmet ve fiyat</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="belge">Belgeler</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="seo">SEO</button>
+            </div>
+          </div>
+
+          <div class="sa-form-panel" data-form-panel="kimlik">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-image-portrait" aria-hidden="true"></i> Profil fotoğrafı</h3>
+              <div id="anFoto"></div>
+            </div>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Kimlik</h3>
+              <div class="form-grid">
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="anAd">Ad soyad <span class="req">*</span></label>
+                    <input class="finput" id="anAd" name="ad" type="text" required maxlength="60" />
+                  </div>
+                  <div class="frow">
+                    <label for="anSlug">Adres <span class="req">*</span></label>
+                    <div class="slug-wrap">
+                      <span class="slug-pre">antrenor-detay-v1.html?a=</span>
+                      <input class="finput" id="anSlug" name="slug" type="text" required pattern="[a-z0-9\-]+" />
+                    </div>
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="anUnvan">Unvan <span class="req">*</span></label>
+                  <input class="finput" id="anUnvan" name="unvan" type="text" required maxlength="80"
+                         placeholder="Egzersiz ve spor bilimleri uzmanı" />
+                  <div class="fhint">Kartta ve profil başlığında görünür.</div>
+                </div>
+                <div class="frow three">
+                  <div class="frow">
+                    <label for="anSehir">Şehir</label>
+                    <select class="fselect" id="anSehir" name="sehir"></select>
+                  </div>
+                  <div class="frow">
+                    <label for="anIlce">İlçe</label>
+                    <input class="finput" id="anIlce" name="ilce" type="text" />
+                    <div class="fhint">İlçe listesi henüz veri olarak yok — serbest metin.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="anDeneyim">Deneyim <span class="opt">— yıl</span></label>
+                    <input class="finput" id="anDeneyim" name="deneyim" type="number" min="0" max="60" />
+                  </div>
+                </div>
+                <div class="frow">
+                  <label for="anOzet">Kısa tanıtım <span class="opt">— kartta görünür</span></label>
+                  <textarea class="ftext" id="anOzet" name="ozet" maxlength="180"></textarea>
+                  <span class="fsay" data-say-for="anOzet">0 / 180</span>
+                </div>
+                <div class="frow">
+                  <label for="anBio">Profil metni</label>
+                  <textarea id="anBio" name="bio" data-ed="govde"
+                            placeholder="Antrenörün kendi anlatımı — kimlerle çalışır, nasıl çalışır."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sa-form-panel" data-form-panel="uzmanlik" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Uzmanlık alanları</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Hedefler <span class="opt">— hangi hedeflerde çalışıyor</span></label>
+                  <div id="anHedef"></div>
+                </div>
+                <div class="frow">
+                  <label>Çalıştığı bölgeler / kas grupları</label>
+                  <div id="anBolge"></div>
+                </div>
+                <div class="frow">
+                  <label>Seviye</label>
+                  <div class="chip-grup" id="anSeviye"></div>
+                </div>
+                <div class="frow">
+                  <label>Kullandığı ekipman</label>
+                  <div id="anEkipman"></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-language" aria-hidden="true"></i> Diller ve çalışma biçimi</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label>Diller</label>
+                  <div id="anDil"></div>
+                </div>
+                <div class="frow">
+                  <label>Çalışma biçimi</label>
+                  <div class="chip-grup" id="anBicim"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sa-form-panel" data-form-panel="hizmet" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-tags" aria-hidden="true"></i> Hizmet paketleri
+                <span class="fs-say" id="anPaketSay">0 paket</span>
+              </h3>
+              <div class="st-list" id="anPaketler"></div>
+              <button class="add-row" type="button" id="anPaketEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Paket ekle</button>
+              <div class="sa-flash is-note" style="margin-top:14px">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <div><b>K4:</b> üye üreticiden hizmet satın alır — abonelikten ayrı akış.
+                  <b>K13:</b> komisyon oranı burada yazılmaz, <a href="admin-ayarlar-v1.html">Ayarlar</a>'dan
+                  okunur ve her satışa aynı oran uygulanır.</div>
+              </div>
+            </div>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-percent" aria-hidden="true"></i> Yürürlükteki para kuralları</h3>
+              <div class="form-grid" id="anPara"></div>
+            </div>
+          </div>
+
+          <div class="sa-form-panel" data-form-panel="belge" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-certificate" aria-hidden="true"></i> Sertifika ve belgeler
+                <span class="fs-say" id="anBelgeSay">0 belge</span>
+              </h3>
+              <div class="st-list" id="anBelgeler"></div>
+              <button class="add-row" type="button" id="anBelgeEkle">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Belge ekle</button>
+              <div class="sa-flash is-warn" style="margin-top:14px">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <div><b>K11:</b> belge doğrulaması bir üyelik basamağı değil, bir
+                  <b>doğrulama kaydıdır</b>. Doğrulanmamış belge public profilde
+                  "doğrulandı" olarak gösterilmez.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sa-form-panel" data-form-panel="seo" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Arama motoru</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="anMetaT">Meta başlık</label>
+                  <input class="finput" id="anMetaT" name="meta_title" type="text" maxlength="180" />
+                  <span class="fsay" data-say-for="anMetaT">0 / 60 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="anMetaD">Meta açıklama</label>
+                  <textarea class="ftext" id="anMetaD" name="meta_desc" maxlength="320"></textarea>
+                  <span class="fsay" data-say-for="anMetaD">0 / 160 önerilen</span>
+                </div>
+                <div class="frow">
+                  <label for="anCanon">Canonical adres</label>
+                  <input class="finput" id="anCanon" name="canonical" type="url" />
+                </div>
+                <div class="frow">
+                  <label for="anOdak">Odak anahtar sözcük</label>
+                  <input class="finput" id="anOdak" name="focus" type="text" />
+                </div>
+                <div class="frow">
+                  <label>Paylaşım görseli</label>
+                  <div id="anOg"></div>
+                  <input type="hidden" name="og_image" id="anOgAlan" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-antrenorler-v1.html">İptal</a>
+            <button class="btn btn-ghost" type="button" id="anTaslak">Taslak kaydet</button>
+            <button class="btn btn-primary" type="button" id="anKaydet">Profili kaydet</button>
+          </div>
+        </div>
+
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="anDurum">Durum</label>
+                  <select class="fselect" id="anDurum" name="durum">
+                    <option value="taslak">Taslak</option>
+                    <option value="yayin" selected>Yayında</option>
+                    <option value="askida">Askıda</option>
+                    <option value="arsiv">Arşiv</option>
+                  </select>
+                  <div class="fhint">Askıya alınan antrenör dizinde görünmez ama profili silinmez;
+                    aldığı randevular korunur.</div>
+                </div>
+                <div class="toggle-row">
+                  <span>Dizinde öne çıkar</span>
+                  <label class="toggle"><input type="checkbox" name="one_cikar" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Yeni randevu kabul ediyor</span>
+                  <label class="toggle"><input type="checkbox" name="randevu" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <span>Belge doğrulaması tamam</span>
+                  <label class="toggle"><input type="checkbox" name="dogrulandi" />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>SEO skoru</h2></div>
+            <div class="pc-body" id="anSeo"></div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint" style="margin-bottom:12px">Antrenör profilini silmek yerine
+                <b>askıya al</b>: silinen profil, geçmiş randevuların ve faturaların
+                sahibini de düşürür.</div>
+              <button class="btn btn-ghost" type="button" id="anSil"
+                      data-yikici="Bu antrenör profili" data-fiil="arsiv"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-box-archive" aria-hidden="true"></i> Profili arşivle</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-veri.js"></script>
+<script src="assets/js/fit-medya-veri.js"></script>
+<script src="assets/js/fit-il-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ANTRENÖR PROFİLİ FORMU
+   ---------------------------------------------------------------------
+   ÖLÇÜLEN EKSİK (`docs/gastro-olcum/fit-yonetilmeyenler.md` C-13):
+   `antrenorler-v1.html`de 8 antrenör kartı SABİT HTML;
+   `antrenor-detay-v1.html`de 12 antrenör × 3 alan (ad/unvan/fiyat) +
+   tek bir profilin 14 sabit bölümü. `admin-antrenorler` yalnız BAŞVURU
+   KARARINI yönetiyor (3 alan: inceleyen, karar, gerekçe). Antrenör
+   profili varlığı — foto, uzmanlık, sertifika, fiyat, takvim, konum —
+   HİÇBİR ekranda yok. Liste ile detayın kayıt sayısı da tutmuyor: 8 ≠ 12.
+
+   Bu form o varlığı kuruyor. Başvuru kararı AYRI kalır (K11: `ChefProfile`
+   bir üyelik basamağı değil, bir doğrulama kaydıdır).
+
+   🔴 TİCARİ SINIR: fiyat ve komisyon RAKAMI bu formda sabit metin olarak
+   yazılmaz (K13). Fiyat antrenörün kendi alanı; komisyon oranı Ayarlar'dan
+   OKUNUR ve burada salt okunur gösterilir.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN;
+  var V = window.FIT_ADMIN_VERI || {};
+  var SOZLUK = V.SOZLUK || {}, HEDEF = V.HEDEF || [];
+
+  var slug = new URLSearchParams(location.search).get('a') || '';
+  var yeni = !slug;
+  if (!yeni) {
+    document.getElementById('anBaslik').textContent = 'Antrenör profili';
+    document.getElementById('anOnizle').href = 'antrenor-detay-v1.html?a=' + encodeURIComponent(slug);
+  }
+
+  document.getElementById('anKaynak').innerHTML = A.kaynak('ornek',
+    'Uzmanlık, bölge, seviye ve ekipman katalogları <b>gerçek taksonomiden</b> okunuyor ' +
+    '(<code>fit-admin-veri.js</code>), il listesi <code>fit-il-veri.js</code>ten (81 il, depodan çıkarıldı). ' +
+    '<b>Antrenör profilinin kendisi bugün hiçbir veri modülünde yok</b> — dizin ve detay ' +
+    'sayfaları sabit HTML ve kayıt sayıları tutmuyor (dizinde 8, detayda 12). ' +
+    'Form o varlığı kuruyor; alanlar örnek değerle boş. Sunucu yok: <b>Kaydet</b> doğrular, kaydetmez.');
+
+  A.flash('warn',
+    'Ölçülmüş tutarsızlık: antrenör dizini 8 kart basıyor, detay sayfası 12 slug tanıyor. ' +
+    'Profil varlığı kurulunca tek kaynak bu form olur; o güne kadar iki taraf ayrı ayrı yaşıyor.',
+    document.getElementById('anUyari'));
+
+  /* ---- sekmeler ---- */
+  var sek = document.querySelectorAll('.sa-form-tab');
+  sek.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sek.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- il listesi — `fit-il-veri.js`ten, uydurulmadan ---------------
+     ⚠ Bu modül R19'da DOĞDU. 81 il o güne kadar hiçbir veri modülünde
+     değildi; `odemelerim-v1.html`in fatura adresi alanına `<option>`
+     olarak gömülüydü. Elle ikinci bir kopya yazmak yerine üreteçle
+     çıkarıldı (`tools/il-veri-uret.mjs`) — public sayfa değişmedi.
+     İLÇE listesi hâlâ yok (973 kayıt, kuyruk kalemi 2); alan serbest
+     metin kalıyor ve ekran bunu yazıyla söylüyor. */
+  (function () {
+    var s = document.getElementById('anSehir');
+    var il = window.FIT_IL_VERI || [];
+    if (!il.length) {
+      s.innerHTML = '<option value="">İl listesi okunamadı</option>';
+      s.disabled = true;
+      return;
+    }
+    s.innerHTML = '<option value="">Seç…</option>' + il.map(function (ad) {
+      return '<option value="' + A.esc(ad) + '">' + A.esc(ad) + '</option>';
+    }).join('');
+  })();
+
+  /* ---- taksonomi çoklu seçimleri — gerçek sözlüklerden ---- */
+  function kat(liste) {
+    return (liste || []).map(function (o) {
+      return { id: o.kod || o.slug || o.ad || o, ad: o.ad || o.baslik || o };
+    });
+  }
+  A.etiket('#anHedef',   { katalog: kat(HEDEF.length ? HEDEF : SOZLUK.hedef), ad: 'hedef[]',
+                           ico: 'fa-bullseye', ipucu: 'Hedef ara…' });
+  A.etiket('#anBolge',   { katalog: kat(SOZLUK.kas), ad: 'bolge[]',
+                           ico: 'fa-person', ipucu: 'Bölge ara…' });
+  A.etiket('#anEkipman', { katalog: kat(SOZLUK.ekipman), ad: 'ekipman[]',
+                           ico: 'fa-dumbbell', ipucu: 'Ekipman ara…' });
+  A.etiket('#anDil',     { katalog: [{id:'tr',ad:'Türkçe'},{id:'en',ad:'İngilizce'},
+                                     {id:'de',ad:'Almanca'},{id:'ar',ad:'Arapça'}],
+                           ad: 'dil[]', ico: 'fa-language', serbest: true, ipucu: 'Dil ara ya da yaz…' });
+
+  function cipGrup(id, ad, liste) {
+    var k = document.getElementById(id);
+    k.innerHTML = liste.map(function (o) {
+      return '<label class="chip-sec"><input type="checkbox" name="' + ad + '[]" value="' +
+        A.esc(o.id) + '"> ' + A.esc(o.ad) + '</label>';
+    }).join('');
+    k.addEventListener('change', function (e) {
+      var l = e.target.closest('.chip-sec');
+      if (l) l.classList.toggle('is-on', e.target.checked);
+    });
+  }
+  cipGrup('anSeviye', 'seviye', kat(SOZLUK.seviye).length ? kat(SOZLUK.seviye)
+    : [{id:'baslangic',ad:'Başlangıç'},{id:'orta',ad:'Orta'},{id:'ileri',ad:'İleri'}]);
+  cipGrup('anBicim', 'bicim', [
+    { id:'online',  ad:'Online' },
+    { id:'yuzyuze', ad:'Yüz yüze' },
+    { id:'hibrit',  ad:'Hibrit' },
+    { id:'grup',    ad:'Grup dersi' }
+  ]);
+
+  /* ---- görseller ---- */
+  A.yukle('#anFoto', { cok: false, not: 'Profil fotoğrafı — kare, en az 400×400.' });
+  A.yukle('#anOg', { cok: false, not: 'Paylaşım görseli — 1200×630 önerilir.',
+    degisti: function (d) { document.getElementById('anOgAlan').value = d.length ? d[0].url : ''; } });
+
+  /* ---- HİZMET PAKETİ repeater'ı --------------------------------------
+     🔴 Fiyat RAKAMI koda gömülmez (K13) — alan olarak durur, boş doğar. */
+  (function () {
+    var sablon = document.createElement('template');
+    sablon.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-tag" aria-hidden="true"></i> Paket</span>' +
+          '<div class="frow"><label>Paket adı</label>' +
+            '<input class="finput" type="text" name="paket_ad[]" data-field="ad" placeholder="Örn. Tek seans online"></div>' +
+          '<div class="frow three">' +
+            '<div class="frow"><label>Süre (dk)</label>' +
+              '<input class="finput" type="number" min="0" name="paket_sure[]"></div>' +
+            '<div class="frow"><label>Seans sayısı</label>' +
+              '<input class="finput" type="number" min="1" name="paket_seans[]"></div>' +
+            '<div class="frow"><label>Fiyat (₺)</label>' +
+              '<input class="finput" type="number" min="0" step="0.01" name="paket_fiyat[]"></div>' +
+          '</div>' +
+          '<div class="frow"><label>Ne içeriyor</label>' +
+            '<textarea class="ftext" name="paket_icerik[]" ' +
+              'placeholder="Üye satın almadan önce ne aldığını bilmeli."></textarea></div>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Paketi sil" aria-label="Paketi sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sablon);
+    function say() {
+      document.getElementById('anPaketSay').textContent =
+        document.querySelectorAll('#anPaketler .st-card').length + ' paket';
+    }
+    var r = A.tekrar({
+      liste: document.getElementById('anPaketler'),
+      ekle: document.getElementById('anPaketEkle'),
+      sablon: sablon, enAz: 1, enCok: 8, degisti: say
+    });
+    r.ekle(); say();
+  })();
+
+  /* ---- BELGE repeater'ı ---- */
+  (function () {
+    var sablon = document.createElement('template');
+    sablon.innerHTML =
+      '<div class="st-card">' +
+        '<span class="st-num">1</span>' +
+        '<div class="st-body">' +
+          '<span class="cb-kind"><i class="fa-solid fa-certificate" aria-hidden="true"></i> Belge</span>' +
+          '<div class="frow two">' +
+            '<div class="frow"><label>Belge adı</label>' +
+              '<input class="finput" type="text" name="belge_ad[]" data-field="ad"></div>' +
+            '<div class="frow"><label>Veren kurum</label>' +
+              '<input class="finput" type="text" name="belge_kurum[]"></div>' +
+          '</div>' +
+          '<div class="frow two">' +
+            '<div class="frow"><label>Veriliş tarihi</label>' +
+              '<input class="finput" type="date" name="belge_tarih[]"></div>' +
+            '<div class="frow"><label>Geçerlilik bitişi</label>' +
+              '<input class="finput" type="date" name="belge_bitis[]"></div>' +
+          '</div>' +
+          '<div class="toggle-row"><span>Yönetici doğruladı</span>' +
+            '<label class="toggle"><input type="checkbox" name="belge_dogru[]">' +
+            '<span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>' +
+          '<input type="hidden" data-field="position" value="0">' +
+        '</div>' +
+        '<div class="st-side">' +
+          '<button class="ie-drag" type="button" title="Sürükleyerek ya da ↑/↓ ile sırala" ' +
+            'aria-label="Sırala — yukarı ok ve aşağı ok tuşlarıyla taşınır">' +
+            '<i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>' +
+          '<button class="ie-del" type="button" title="Belgeyi sil" aria-label="Belgeyi sil">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sablon);
+    function say() {
+      document.getElementById('anBelgeSay').textContent =
+        document.querySelectorAll('#anBelgeler .st-card').length + ' belge';
+    }
+    var r = A.tekrar({
+      liste: document.getElementById('anBelgeler'),
+      ekle: document.getElementById('anBelgeEkle'),
+      sablon: sablon, enAz: 0, enCok: 10, degisti: say
+    });
+    r.ekle(); say();
+  })();
+
+  /* ---- para kuralları — K13: GÖSTERİLİR, burada DÜZENLENMEZ ---------
+     Gastro da aynısını yapıyor (`para-abonelik-menu-ayarlar.md` §2.2:
+     parametreler ekranda gösterilir, Ayarlar'da düzenlenir). Alan
+     `readonly` ve kilit ikonlu; yanında düzenleme yerine bağlantı var. */
+  document.getElementById('anPara').innerHTML = [
+    ['Hizmet komisyonu', 'komisyon', '%'],
+    ['Ödeme günü', 'odeme_gun', ''],
+    ['Ödeme alt sınırı', 'alt_sinir', '₺'],
+    ['Fatura eşiği', 'fatura_esik', '₺']
+  ].map(function (p) {
+    return '<div class="frow"><label for="anP-' + p[1] + '">' + A.esc(p[0]) +
+      (p[2] ? ' <span class="opt">— ' + p[2] + '</span>' : '') + '</label>' +
+      '<div class="fkilit"><i class="fa-solid fa-lock" aria-hidden="true"></i>' +
+      '<input class="finput" id="anP-' + p[1] + '" name="' + p[1] + '" type="text" value="—" ' +
+      'readonly aria-readonly="true"></div></div>';
+  }).join('') +
+  '<div class="fhint"><b>K13:</b> bu dört sayı koda gömülmez ve burada değiştirilmez — ' +
+  'tek yerden, <a href="admin-ayarlar-v1.html">Ayarlar → Para ve komisyon</a> ekranından okunur. ' +
+  'Değer "—" görünüyorsa arkasında henüz veri yok.</div>';
+
+  /* ---- zengin metin ---- */
+  A.editor('#anBio', 'govde');
+
+  /* ---- karakter sayaçları ---- */
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var el = document.getElementById(s.getAttribute('data-say-for'));
+    if (!el) return;
+    var sinir = parseInt((s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+    var son = s.textContent.replace(/^\d+/, '').trim();
+    function tazele() {
+      var n = el.value.length;
+      s.textContent = n + ' ' + son;
+      s.classList.toggle('is-over', sinir > 0 && n > sinir);
+    }
+    el.addEventListener('input', tazele); tazele();
+  });
+
+  A.seo('#anForm', '#anSeo');
+  var form = document.getElementById('anForm');
+  A.maketKaydet(document.getElementById('anKaydet'), 'antrenör profili', form);
+  A.maketKaydet(document.getElementById('anTaslak'), 'taslak', form);
+})();
+</script>
+</body>
+</html>

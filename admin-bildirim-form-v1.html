@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bildirim şablonu — DadaFit Yönetim</title>
+<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="assets/css/fit-shell.css" />
+<link rel="stylesheet" href="assets/css/fit-planim.css" />
+<link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* SAYFA CSS — yalnız bu ekranın kendi işi. Form kabuğu, sekme, alan
+   primitifleri ve editör kabuktan gelir. Yeni renk üretilmedi. */
+
+/* Değişken çipi bir DÜĞMEDİR: tıklayınca en son yazdığın alana, imlecin
+   olduğu yere eklenir. Kopyalanacak bir metni yalnız gösterip bırakmak,
+   işi kullanıcıya el yazısıyla devretmektir. Hedef kitin 44px eşiği. */
+.bf-degisken{display:flex;flex-wrap:wrap;gap:8px}
+.bf-dg{
+  min-height:44px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;font-weight:600;
+  color:var(--slate);cursor:pointer;transition:.18s var(--ease);
+}
+.bf-dg:hover{border-color:var(--fit);color:var(--fit-deep);background:var(--fit-tint)}
+.bf-dg:focus-visible{outline:3px solid var(--fit);outline-offset:2px}
+.bf-dg i{color:var(--muted);font-size:11px}
+.bf-dg:hover i{color:var(--fit-deep)}
+/* Metinde GERÇEKTEN geçen değişken — ilan edilen değil, sayılan. */
+.bf-dg.is-kullanilan{border-color:var(--fit);background:var(--fit-tint);color:var(--fit-ink)}
+.bf-dg.is-kullanilan i{color:var(--fit-deep)}
+
+/* Yerleşim sınıfları — kural 5: satır içi stil yazılmaz.
+   ⚠ Yan kolondaki `.adm-card{margin-top:16px}`, `.pc-body{padding-bottom:0}`
+   ve yıkıcı düğmenin renk satırı BİLEREK satır içi kaldı: üçü de referans
+   form ekranının (`admin-hareket-form-v1.html`) birebir deseni ve her form
+   sayfasında aynı yazılıyor — burada ayrışmak kalıbı bozardı. */
+.bf-ust-not{margin:0 0 12px}
+.bf-alt-not{margin-top:12px}
+
+/* Önizleme — yan kolondaki iki yüz */
+.bf-onizle{
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px 16px;font-size:13px;line-height:1.65;color:var(--slate-2);font-weight:500;
+}
+.bf-onizle+.bf-onizle{margin-top:12px}
+.bf-onizle b{color:var(--slate);display:block;margin-bottom:6px}
+.bf-onizle .bos{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body class="adm-body" data-adm="bildirim">
+
+<div id="fitAdminTop"></div>
+
+<main class="adm-main">
+  <div class="adm-page">
+
+    <a class="back-link" href="admin-bildirim-v1.html">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Bildirim Şablonları</a>
+
+    <div class="adm-head">
+      <div class="h-txt">
+        <h1 id="bfBaslik">Yeni şablon</h1>
+        <div class="ph-sub" id="bfAlt">Bir şablonun iki yüzü vardır — e-posta ve uygulama içi — ve
+          ikisi aynı olayı anlatır, aynı değişkenleri kullanır.</div>
+      </div>
+      <div class="h-acts">
+        <a class="btn btn-ghost" href="bildirimler-v1.html" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Üye yüzünü gör</a>
+      </div>
+    </div>
+
+    <div id="bfKaynak"></div>
+
+    <form id="bfForm" novalidate>
+      <div class="form-layout">
+
+        <!-- ================= SOL KOLON ================= -->
+        <div class="adm-card">
+          <div class="pc-body" style="padding-bottom:0">
+            <div class="sa-form-tabs" role="tablist" aria-label="Form bölümleri">
+              <button class="sa-form-tab is-on" type="button" role="tab" aria-selected="true"  data-panel="kunye">Künye</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="eposta">E-posta</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="uygulama">Uygulama içi</button>
+              <button class="sa-form-tab"       type="button" role="tab" aria-selected="false" data-panel="test">Test</button>
+            </div>
+          </div>
+
+          <!-- ---- KÜNYE ---- -->
+          <div class="sa-form-panel" data-form-panel="kunye">
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Künye</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="bfAd">Şablon adı <span class="req">*</span></label>
+                  <input class="finput" id="bfAd" name="ad" type="text" required maxlength="80"
+                         placeholder="Örn. Rozet kazanıldı" />
+                  <span class="fsay" data-say-for="bfAd">0 / 80</span>
+                  <div class="fhint">Yalnız panelde görünür; üye bu adı görmez.</div>
+                </div>
+                <div class="frow">
+                  <label for="bfAnahtar">Anahtar <span class="req">*</span></label>
+                  <input class="finput" id="bfAnahtar" name="anahtar" type="text" required
+                         pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="rozet-kazanildi" />
+                  <div class="fhint">Şablonun kod adı. Yalnız küçük harf, rakam ve tire.
+                    Bir kez kullanıldıktan sonra değiştirilirse şablonu çağıran kod onu bulamaz.</div>
+                </div>
+                <div class="frow">
+                  <label for="bfTetik">Tetikleyen olay <span class="req">*</span></label>
+                  <select class="fselect" id="bfTetik" name="tetik" required></select>
+                  <div class="fhint" id="bfTetikNot">Şablon bu olaya bağlıdır. Liste
+                    <b>bu depoda gerçekten çalışan motorların olaylarıdır</b>; olmayan bir olay seçilemez,
+                    çünkü onu tetikleyecek kod yok.</div>
+                </div>
+                <div class="frow two">
+                  <div class="frow">
+                    <label for="bfKanal">Kanal <span class="req">*</span></label>
+                    <select class="fselect" id="bfKanal" name="kanal" required>
+                      <option value="ikisi">E-posta ve uygulama içi</option>
+                      <option value="eposta">Yalnız e-posta</option>
+                      <option value="uygulama">Yalnız uygulama içi</option>
+                    </select>
+                    <div class="fhint">Kapalı kanalın metni silinmez, gönderilmez — kanal geri
+                      açıldığında metin yerinde durur.</div>
+                  </div>
+                  <div class="frow">
+                    <label for="bfOncelik">Gönderim önceliği</label>
+                    <select class="fselect" id="bfOncelik" name="oncelik">
+                      <option value="normal">Normal — sıraya girer</option>
+                      <option value="anlik">Anlık — kuyruğu atlar</option>
+                    </select>
+                    <div class="fhint">Şifre sıfırlama gibi kullanıcının beklediği bildirimler anlık gider.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-sec">
+              <h3 class="form-sec-tt">
+                <i class="fa-solid fa-code" aria-hidden="true"></i> Değişkenler
+                <span class="fs-say" id="bfDgSay">0 değişken kullanılıyor</span>
+              </h3>
+              <div class="fhint bf-ust-not">🔴 <b>Bu liste bir İLAN değil, bir SAYIMDIR.</b>
+                Vurgulu çipler bu şablonun metinlerinde <b>gerçekten geçen</b> değişkenlerdir; metni
+                değiştir, sayım değişsin. Bir şablonun "kullanabileceği" değişkenleri ayrıca ilan etseydik
+                ilan ile metin zamanla ayrışır ve ekran o an yalan söylerdi.
+                Çipe basmak, en son yazdığın alana imlecin olduğu yere değişkeni ekler.</div>
+              <div class="bf-degisken" id="bfDegiskenler"></div>
+              <div class="fhint bf-alt-not">Sözlükte olmayan bir değişken yazarsan gönderimde
+                <b>ham metin olarak</b> çıkar — <code>{{yok}}</code> aynen görünür.</div>
+            </div>
+          </div>
+
+          <!-- ---- E-POSTA ---- -->
+          <div class="sa-form-panel" data-form-panel="eposta" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-envelope" aria-hidden="true"></i> E-posta metni</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="bfKonu">Konu <span class="req">*</span></label>
+                  <input class="finput" id="bfKonu" name="konu" type="text" required maxlength="90" data-degisken />
+                  <span class="fsay" data-say-for="bfKonu">0 / 90</span>
+                  <div class="fhint">Gelen kutusunda görünen tek satır. 90 karakterden uzun konu çoğu
+                    istemcide kesilir.</div>
+                </div>
+                <div class="frow">
+                  <label for="bfGovde">Gövde</label>
+                  <textarea class="ftext" id="bfGovde" name="govde" data-degisken
+                            placeholder="Merhaba {{ad}}, …"></textarea>
+                  <div class="fhint">Zorunlu işaretlenmedi çünkü zengin metin editörü asıl alanı gizler;
+                    gizli bir zorunlu alan, tarayıcının odaklanamadığı bir hata üretir. Boş gövdeyi
+                    <b>önizleme</b> söyler.</div>
+                </div>
+                <div class="frow">
+                  <label for="bfAltMetin">Düz metin karşılığı <span class="opt">— HTML okumayan istemciler için</span></label>
+                  <textarea class="ftext" id="bfAltMetin" name="alt_metin" maxlength="1200" data-degisken></textarea>
+                  <div class="fhint">Boş bırakılırsa gövdenin etiketleri sökülerek üretilir.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- UYGULAMA İÇİ ---- -->
+          <div class="sa-form-panel" data-form-panel="uygulama" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Uygulama içi bildirim</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="bfInBaslik">Başlık <span class="req">*</span></label>
+                  <input class="finput" id="bfInBaslik" name="baslik" type="text" required maxlength="60" data-degisken />
+                  <span class="fsay" data-say-for="bfInBaslik">0 / 60</span>
+                </div>
+                <div class="frow">
+                  <label for="bfInMetin">Metin <span class="req">*</span></label>
+                  <textarea class="ftext" id="bfInMetin" name="metin" required maxlength="160" data-degisken></textarea>
+                  <span class="fsay" data-say-for="bfInMetin">0 / 160</span>
+                  <div class="fhint">Bildirim listesinde iki satır görünür; gerisi kesilir.</div>
+                </div>
+                <div class="frow">
+                  <label for="bfHedef">Bildirimin götürdüğü sayfa <span class="req">*</span></label>
+                  <input class="finput" id="bfHedef" name="hedef" type="text" required
+                         placeholder="rozetlerim-v1.html" />
+                  <div class="fhint">Üye bildirime dokununca açılan adres. Hedefi olmayan bir bildirim,
+                    okunup kapatılmaktan başka bir şey yapılamayan bir bildirimdir.</div>
+                </div>
+                <div class="frow">
+                  <label>İkon</label>
+                  <div class="chip-grup" id="bfIkon"></div>
+                  <div class="fhint">Bildirim listesindeki yuvarlak ikon. Seçenekler kitin kendi ikon
+                    ailesinden; yeni ikon üretilmez.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---- TEST ---- -->
+          <div class="sa-form-panel" data-form-panel="test" hidden>
+            <div class="form-sec">
+              <h3 class="form-sec-tt"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Test gönderimi</h3>
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="bfTestMail">Test adresi</label>
+                  <input class="finput" id="bfTestMail" name="test_eposta" type="email"
+                         placeholder="kendi@adresin.com" />
+                  <div class="fhint">🔴 <b>Bu prototipte e-posta gitmez.</b> Sunucu ve posta sağlayıcısı yok
+                    (<code>.env</code> de yok ve olmayacak). Düğme, şablonu değişkenlerle doldurup
+                    <b>aşağıda gösterir</b> — gönderildi demez. Sessizce "gönderildi" yazmak, bu ekranın
+                    söyleyebileceği en açık yalan olurdu.</div>
+                </div>
+                <div class="frow">
+                  <button class="btn btn-ghost" type="button" id="bfTestBtn">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Doldurulmuş hâlini göster</button>
+                </div>
+                <div class="frow">
+                  <label>Sonuç</label>
+                  <div class="bf-onizle" id="bfTestSonuc"><span class="bos">Henüz çalıştırılmadı.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions c-foot">
+            <a class="btn btn-ghost" href="admin-bildirim-v1.html">İptal</a>
+            <button class="btn btn-primary" type="button" id="bfKaydet">Şablonu kaydet</button>
+          </div>
+        </div>
+
+        <!-- ================= SAĞ KOLON ================= -->
+        <aside class="side-card">
+          <div class="adm-card">
+            <div class="c-head"><h2>Yayın</h2></div>
+            <div class="pc-body">
+              <div class="form-grid">
+                <div class="frow">
+                  <label for="bfDurum">Durum</label>
+                  <select class="fselect" id="bfDurum" name="durum">
+                    <option value="aktif">Aktif — olay olunca gönderilir</option>
+                    <option value="kapali">Kapalı — olay olur, bildirim gitmez</option>
+                  </select>
+                </div>
+                <div class="toggle-row">
+                  <span>Üye kapatabilsin</span>
+                  <label class="toggle"><input type="checkbox" name="uye_kapatabilir" checked />
+                    <span class="toggle-track"></span><span class="toggle-thumb"></span>
+                    <span class="sr-only">Üye bu bildirimi kapatabilsin</span></label>
+                </div>
+                <div class="fhint">Kapalıysa bildirim üyenin tercihlerinde görünmez ve her hâlükârda gider.
+                  Şifre sıfırlama gibi <b>hesap güvenliği</b> bildirimleri için.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Önizleme</h2></div>
+            <div class="pc-body">
+              <div class="bf-onizle" id="bfOnEposta"></div>
+              <div class="bf-onizle" id="bfOnUygulama"></div>
+              <div class="fhint bf-alt-not">Değişkenler örnek değerlerle dolduruldu;
+                gerçek gönderimde üyenin kendi verisi girer.</div>
+            </div>
+          </div>
+
+          <div class="adm-card" style="margin-top:16px">
+            <div class="c-head"><h2>Tehlikeli bölge</h2></div>
+            <div class="pc-body">
+              <div class="fhint bf-ust-not">Silinen şablonun olayı <b>tetiklenmeye devam eder</b>,
+                yalnız gönderilecek metin kalmaz. Bildirimi durdurmak istiyorsan silmek yerine
+                <b>Durum → Kapalı</b> yap.</div>
+              <button class="btn btn-ghost" type="button" id="bfSil"
+                      data-yikici="Bu şablon" data-fiil="sil"
+                      style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Şablonu sil</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
+<script src="assets/js/fit-admin-bildirim-veri.js"></script>
+<script src="assets/js/fit-admin.js"></script>
+<script>
+/* =====================================================================
+   ADMIN · BİLDİRİM ŞABLONU FORMU   (R19)   — D/18'in karşılığı
+   ---------------------------------------------------------------------
+   ÖLÇÜLEN EKSİK (`fit-yonetilmeyenler.md` D/18): `admin-bildirim`
+   şablonu DÜZENLEYEBİLİYOR ama EKLEYEMİYORDU; "Yeni şablon" düğmesi
+   yoktu ve silme yolu da yoktu. Bu form ikisini de getiriyor.
+
+   KALIP: `docs/gastro-olcum/form-kalibi.md` §1, referans uygulama
+   `admin-hareket-form-v1.html`. Create ve edit AYNI dosyadır:
+   `?sablon=<anahtar>` varsa düzenleme, yoksa yeni.
+
+   VERİ TEK KAYNAKTAN: `assets/js/fit-admin-bildirim-veri.js` — liste
+   ekranı da aynı dosyayı okur.
+
+   🔴 DEĞİŞKEN LİSTESİ İLAN EDİLMEZ, SAYILIR. Şablonun kullandığı
+   değişkenler dört metin alanından (konu · gövde · başlık · metin)
+   canlı olarak sayılır ve çip vurgulanır. Kaydın kendi `dg` alanı bir
+   İLANDIR ve metinle ayrışabiliyor — ölçüldü: "Hoş geldin" şablonu
+   `{{site_adi}}`yi ilan ediyor ama metninde kullanmıyor. İlan edilen
+   listeyi göstermek, o farkı gizlemek olurdu.
+
+   🔴 GÖVDE ALANI `required` DEĞİL. `FIT_ADMIN.editor` asıl `<textarea>`ı
+   `display:none` yapıyor; gizli ve boş bir `required` alan
+   `reportValidity()` çağrısında tarayıcının odaklanamadığı bir hataya
+   düşer ve konsola yazar. Zorunluluk yerine önizleme boşluğu söyler.
+
+   🔴 TEST GÖNDERİMİ MAKET VE BUNU YAZIYOR: e-posta gitmez, şablon
+   doldurulup ekranda gösterilir.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var A = window.FIT_ADMIN, B = window.FIT_ADMIN_BILDIRIM;
+  if (!A) return;
+  var esc = A.esc;
+
+  if (!B) {
+    document.getElementById('bfKaynak').innerHTML = A.kaynak('ornek',
+      'Şablon verisi yüklenemedi (<code>fit-admin-bildirim-veri.js</code>).');
+    return;
+  }
+
+  var anahtar = new URLSearchParams(location.search).get('sablon') || '';
+  var kayit = B.bul(anahtar);
+  var yeni = !kayit;
+
+  document.getElementById('bfBaslik').textContent = yeni ? 'Yeni şablon' : kayit.ad;
+  document.title = (yeni ? 'Yeni şablon' : kayit.ad) + ' — DadaFit Yönetim';
+  if (!yeni) {
+    document.getElementById('bfAlt').textContent =
+      'Bu şablon “' + kayit.tetik + '” olayına bağlı. Olay her gerçekleştiğinde ' +
+      'aşağıdaki metinler değişkenleriyle doldurulup gönderilir.';
+    document.getElementById('bfSil').setAttribute('data-yikici', kayit.ad);
+  }
+
+  document.getElementById('bfKaynak').innerHTML = A.kaynak('ornek',
+    '<b>Şablon metinleri örnektir.</b> Bu depoda bildirim metni tutan bir modül yok; ' +
+    'on bir şablon <code>fit-admin-bildirim-veri.js</code>e örnek olarak yazıldı ve liste ekranı ' +
+    'da aynı dosyayı okur. <b>Tetikleyiciler gerçek:</b> her biri <code>fit-rozet.js</code> · ' +
+    '<code>fit-challenge.js</code> · <code>fit-su.js</code> gibi çalışan bir motorun olayına ' +
+    'karşılık geliyor. <b>Kullanılan değişkenler ilan değil sayımdır</b> — metinden okunuyor. ' +
+    '<b>Yazma yüzeyi maket:</b> kaydet doğrular, kaydetmez; test gönderimi posta atmaz.');
+
+  /* ---- form içi sekmeler (referans formun deseni) ---- */
+  var sekmeler = document.querySelectorAll('.sa-form-tab');
+  sekmeler.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-panel');
+      sekmeler.forEach(function (x) {
+        var on = (x === b);
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.sa-form-panel').forEach(function (n) {
+        n.hidden = (n.getAttribute('data-form-panel') !== p);
+      });
+    });
+  });
+
+  /* ---- tetikleyici seçenekleri: var olan şablonların olaylarından
+     türetilir. Uydurulmuş bir olay adı, onu tetikleyecek kodu olmayan
+     bir şablon üretirdi. ---- */
+  (function tetikler(){
+    var liste = [];
+    B.SABLONLAR.forEach(function (s) { if (liste.indexOf(s.tetik) < 0) liste.push(s.tetik); });
+    liste.sort();
+    document.getElementById('bfTetik').innerHTML =
+      '<option value="">Seç…</option>' +
+      liste.map(function (t) { return '<option value="' + esc(t) + '">' + esc(t) + '</option>'; }).join('');
+  })();
+
+  /* ---- ikon çipleri: kitin kendi ikon ailesinden ---- */
+  var IKON = [
+    ['fa-medal', 'Rozet'], ['fa-fire', 'Challenge'], ['fa-dumbbell', 'Antrenman'],
+    ['fa-droplet', 'Su'], ['fa-calendar-check', 'Randevu'], ['fa-life-ring', 'Destek'],
+    ['fa-credit-card', 'Ödeme'], ['fa-user-plus', 'Hesap'], ['fa-key', 'Güvenlik']
+  ];
+  document.getElementById('bfIkon').innerHTML = IKON.map(function (i, x) {
+    return '<label class="chip-sec' + (x === 0 ? ' is-on' : '') + '">' +
+      '<input type="radio" name="ikon" value="' + i[0] + '"' + (x === 0 ? ' checked' : '') + '> ' +
+      '<i class="fa-solid ' + i[0] + '" aria-hidden="true"></i> ' + esc(i[1]) + '</label>';
+  }).join('');
+  document.getElementById('bfIkon').addEventListener('change', function (e) {
+    document.querySelectorAll('#bfIkon .chip-sec').forEach(function (l) {
+      l.classList.toggle('is-on', l.querySelector('input').checked);
+    });
+  });
+
+  /* ---- alanlar ---- */
+  function el(id){ return document.getElementById(id); }
+  var ALAN = ['bfAd','bfAnahtar','bfTetik','bfKanal','bfKonu','bfGovde','bfAltMetin',
+              'bfInBaslik','bfInMetin','bfHedef','bfDurum'];
+
+  if (kayit) {
+    el('bfAd').value       = kayit.ad;
+    el('bfAnahtar').value  = kayit.key;
+    el('bfTetik').value    = kayit.tetik;
+    el('bfKanal').value    = kayit.kanal;
+    el('bfKonu').value     = kayit.konu;
+    el('bfGovde').value    = kayit.govde;
+    el('bfInBaslik').value = kayit.baslik;
+    el('bfInMetin').value  = kayit.metin;
+    el('bfHedef').value    = kayit.hedef;
+    el('bfDurum').value    = kayit.durum;
+  }
+
+  /* ---- zengin metin editörü — kabuktan, yeniden yazılmadı ---- */
+  var ed = A.editor(el('bfGovde'), 'govde');
+
+  /* ---- değişken çipleri: SÖZLÜKTEN basılır, metinden SAYILARAK
+     vurgulanır ---- */
+  var sonAlan = el('bfKonu');
+  document.querySelectorAll('[data-degisken]').forEach(function (x) {
+    x.addEventListener('focus', function () { sonAlan = x; });
+    x.addEventListener('input', tazele);
+  });
+
+  el('bfDegiskenler').innerHTML = Object.keys(B.DEGISKEN).map(function (d) {
+    return '<button class="bf-dg" type="button" data-dg="' + esc(d) + '">' +
+      '<i class="fa-solid fa-plus" aria-hidden="true"></i>' + esc(d) + '</button>';
+  }).join('');
+
+  el('bfDegiskenler').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-dg]');
+    if (!b) return;
+    var d = b.getAttribute('data-dg');
+    /* Editör açıkken gövde alanı gizli; oraya yazmak yerine editörün
+       kendi yüzeyine eklenir, yoksa kullanıcı yazdığını göremezdi. */
+    if (sonAlan === el('bfGovde')) {
+      var yuz = document.querySelector('.adm-ed-yuz');
+      if (yuz) { yuz.focus(); document.execCommand('insertText', false, d); if (ed) ed.yaz(); tazele(); return; }
+    }
+    var a = sonAlan.selectionStart == null ? sonAlan.value.length : sonAlan.selectionStart;
+    var z = sonAlan.selectionEnd == null ? a : sonAlan.selectionEnd;
+    sonAlan.value = sonAlan.value.slice(0, a) + d + sonAlan.value.slice(z);
+    sonAlan.focus();
+    sonAlan.setSelectionRange(a + d.length, a + d.length);
+    tazele();
+  });
+
+  function suanki(){
+    return B.degiskenleriSay({
+      konu:   el('bfKonu').value,
+      govde:  el('bfGovde').value,
+      baslik: el('bfInBaslik').value,
+      metin:  el('bfInMetin').value
+    });
+  }
+
+  /* ---- karakter sayaçları (referans formun deseni) ---- */
+  function sayaclar(){
+    document.querySelectorAll('[data-say-for]').forEach(function (s) {
+      var a = el(s.getAttribute('data-say-for'));
+      if (!a) return;
+      var sinir = parseInt(s.getAttribute('data-sinir') || (s.textContent.match(/\/\s*(\d+)/) || [])[1], 10) || 0;
+      s.setAttribute('data-sinir', sinir);
+      s.textContent = a.value.length + ' / ' + sinir;
+      s.classList.toggle('is-over', sinir > 0 && a.value.length > sinir);
+    });
+  }
+  document.querySelectorAll('[data-say-for]').forEach(function (s) {
+    var a = el(s.getAttribute('data-say-for'));
+    if (a) a.addEventListener('input', sayaclar);
+  });
+
+  /* ---- önizleme: iki yüz, kanala göre ---- */
+  function onizle(){
+    var kanal = el('bfKanal').value;
+    var e1 = el('bfOnEposta'), e2 = el('bfOnUygulama');
+
+    if (kanal === 'uygulama') {
+      e1.innerHTML = '<b><i class="fa-solid fa-envelope" aria-hidden="true"></i> E-posta</b>' +
+        '<span class="bos">Bu şablon e-posta göndermiyor — kanal “yalnız uygulama içi”.</span>';
+    } else {
+      var konu = B.doldur(el('bfKonu').value);
+      var govde = B.doldur(el('bfGovde').value).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      e1.innerHTML = '<b><i class="fa-solid fa-envelope" aria-hidden="true"></i> ' +
+        (konu ? esc(konu) : '<span class="bos">Konu boş</span>') + '</b>' +
+        (govde ? esc(govde.slice(0, 260)) + (govde.length > 260 ? '…' : '')
+               : '<span class="bos">Gövde boş — bu şablon boş bir e-posta gönderir.</span>');
+    }
+
+    if (kanal === 'eposta') {
+      e2.innerHTML = '<b><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Uygulama içi</b>' +
+        '<span class="bos">Bu şablon uygulama içi bildirim basmıyor — kanal “yalnız e-posta”.</span>';
+    } else {
+      var bas = B.doldur(el('bfInBaslik').value), met = B.doldur(el('bfInMetin').value);
+      e2.innerHTML = '<b><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' +
+        (bas ? esc(bas) : '<span class="bos">Başlık boş</span>') + '</b>' +
+        (met ? esc(met) : '<span class="bos">Metin boş</span>');
+    }
+  }
+  el('bfKanal').addEventListener('change', onizle);
+
+  function tazele(){
+    sayaclar();
+    onizle();
+    var k = suanki();
+    document.getElementById('bfDgSay').textContent =
+      k.length + ' değişken kullanılıyor';
+    document.querySelectorAll('#bfDegiskenler .bf-dg').forEach(function (c) {
+      c.classList.toggle('is-kullanilan', k.indexOf(c.getAttribute('data-dg')) >= 0);
+    });
+  }
+
+  /* ---- test gönderimi: MAKET, ve bunu söylüyor ---- */
+  el('bfTestBtn').addEventListener('click', function () {
+    var adres = el('bfTestMail').value.trim();
+    var k = suanki();
+    el('bfTestSonuc').innerHTML =
+      '<b><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ' +
+      'E-POSTA GÖNDERİLMEDİ — bu prototipte sunucu ve posta sağlayıcısı yok.</b>' +
+      (adres ? 'Girilen adres (<code>' + esc(adres) + '</code>) hiçbir yere iletilmedi. ' : '') +
+      'Aşağısı şablonun örnek değerlerle doldurulmuş hâlidir:<br><br>' +
+      '<b>Konu:</b> ' + esc(B.doldur(el('bfKonu').value) || '—') + '<br>' +
+      '<b>Uygulama içi:</b> ' + esc(B.doldur(el('bfInBaslik').value) || '—') + ' · ' +
+      esc(B.doldur(el('bfInMetin').value) || '—') + '<br>' +
+      '<b>Doldurulan değişken:</b> ' + (k.length ? esc(k.join(' · ')) : 'yok');
+    A.toast('Test gönderilmedi — doldurulmuş hâli ekranda gösterildi.', { tip:'info', ms:3000 });
+  });
+
+  el('bfSil').addEventListener('click', function () {
+    A.toast('Şablon SİLİNMEDİ — bu prototipte sunucu yok.', { tip:'danger', ms:3000 });
+  });
+
+  A.maketKaydet(el('bfKaydet'), 'bildirim şablonu', document.getElementById('bfForm'));
+
+  tazele();
+})();
+</script>
+</body>
+</html>

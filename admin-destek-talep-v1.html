@@ -13,6 +13,78 @@
 <link rel="stylesheet" href="assets/css/fit-shell.css" />
 <link rel="stylesheet" href="assets/css/fit-planim.css" />
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
+<style>
+/* =====================================================================
+   SAYFA CSS — yalnız bu ekranın işi. YENİ RENK / RADIUS / GÖLGE YOK;
+   her değer kitin kendi tokeninden okunuyor.
+
+   🔴 SINIF ADLARI GASTRO'NUN KANONU (§13 "iki ad, tek kural"):
+   `.act-list` / `.act-row` / `.act-ico` / `.act-info` / `.act-time` ve
+   `.u-hero*` / `.meta-*` / `.detail-acts`. Ölçüm kaynakları:
+     · `public/reference/admin/sa-shell.css:376-385`        (act ailesi)
+     · `public/reference/admin-kullanicilar/
+        sa-kullanicilar-detay.css:25-42, 65, 77-78`         (u-hero · meta · detail-acts)
+   Değerler oradan alındı, göz kararı kopyalanmadı.
+
+   ⚠ `fit-admin.css` bu ajana KAPALI ve bu aile orada TANIMLI DEĞİL
+   (ölçüldü: sıfır eşleşme). Bu yüzden sayfa gövdesine yazıldı; kabuğa
+   taşınınca bu blok silinir — `admin-uye-detay-v1.html`in kendi
+   `.form-layout>*{min-width:0}` notuyla aynı gerekçe.
+   ===================================================================== */
+
+/* --- yazışma (Gastro sa-shell.css:376-385) --- */
+.act-list{display:flex;flex-direction:column}
+.act-row{display:flex;align-items:flex-start;gap:13px;padding:15px 22px;border-bottom:1px solid var(--line)}
+.act-row:last-child{border-bottom:none}
+.act-ico{
+  width:36px;height:36px;flex:none;border-radius:var(--radius-md);
+  display:grid;place-items:center;font-size:14px;
+}
+/* İki taraf, iki renk. Gastro `t-isletme` (üye) / `t-admin` (masa)
+   ayrımının Fit karşılığı: üye nötr, masa aksan. Yeni renk üretilmedi. */
+.act-ico.t-uye {background:var(--bg);color:var(--muted)}
+.act-ico.t-ekip{background:var(--fit-tint);color:var(--fit-deep)}
+.act-info{flex:1;min-width:0;line-height:1.35}
+.act-info b{display:block;font-size:13.5px;color:var(--slate);font-weight:700}
+/* 🔴 Gastro'nun `.act-info span`i `nowrap` + ellipsis taşır — dashboard
+   aktivite satırı için doğru, YAZIŞMA için yanlış: mesajın tamamı
+   görünmek zorunda. Gastro'nun kendi `talep.blade.php`si bunu satır içi
+   `white-space:normal` ile geri alıyor (:91). Burada baştan doğru
+   tanımlandı, satır içi düzeltmeye gerek kalmadı. */
+.act-info .govde{
+  display:block;margin-top:5px;font-size:13px;color:var(--slate-2);
+  line-height:1.62;white-space:pre-line;overflow-wrap:anywhere;
+}
+.act-time{flex:none;font-size:11.5px;color:var(--muted);text-align:right;padding-top:2px}
+
+/* --- üye künyesi (sa-kullanicilar-detay.css:25-35) --- */
+.u-hero{display:flex;align-items:center;gap:16px;padding:20px 22px}
+.u-hero-ava{
+  width:56px;height:56px;flex:none;border-radius:var(--radius-circle);
+  background:var(--fit-tint);color:var(--fit-deep);
+  display:grid;place-items:center;font-size:18px;font-weight:800;
+}
+.u-hero-info{min-width:0;line-height:1.3}
+.u-hero-name{font-size:17px;font-weight:700;color:var(--slate);overflow-wrap:anywhere}
+.u-hero-email{font-size:12.5px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+
+/* --- künye satırları (sa-kullanicilar-detay.css:38-42) --- */
+.meta-list{display:flex;flex-direction:column}
+.meta-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:13px 22px;border-bottom:1px solid var(--line)}
+.meta-row:last-child{border-bottom:none}
+.meta-lbl{font-size:12.5px;font-weight:700;color:var(--muted);flex:none;width:120px}
+.meta-val{font-size:13.5px;color:var(--slate);font-weight:500;text-align:right;min-width:0;overflow-wrap:anywhere}
+
+/* --- eylem sütunu (sa-kullanicilar-detay.css:65) --- */
+.detail-acts{display:flex;flex-direction:column;gap:8px;padding:18px 22px;border-top:1px solid var(--line)}
+.detail-acts .btn{justify-content:center;width:100%}
+
+@media (max-width:640px){
+  .act-row,.u-hero,.meta-row,.detail-acts{padding-left:16px;padding-right:16px}
+  .meta-row{flex-direction:column;gap:4px}
+  .meta-val{text-align:left}
+}
+</style>
 </head>
 <body class="adm-body" data-adm="destek">
 
@@ -29,52 +101,82 @@
         <h1 id="dkBaslik">Talep</h1>
         <div class="ph-sub" id="dkAlt">—</div>
       </div>
+      <div class="h-acts" id="dkRozet"></div>
     </div>
 
     <div id="dkKaynak"></div>
 
-    <div class="adm-card">
-      <div class="c-head"><h3><i class="fa-solid fa-comments"></i> Künye</h3></div>
-      <form id="dkF">
-      <div class="c-body">
-        <div class="fp-list" id="dkKunye"></div>
-        <div style="margin-top:20px">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="dfAtanan">Atanan temsilci <span class="req">*</span></label>
-              <select class="fk-select" id="dfAtanan" name="atanan" required></select>
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Atanmamış talep kuyrukta kalır; ilk yanıtı yazan temsilci sorumluluğu devralır.</span>
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="dfDurum">Durum <span class="req">*</span></label>
-              <select class="fk-select" id="dfDurum" name="durum" required></select>
-              <span class="fk-help" id="dfDurumNot"><i class="fa-solid fa-circle-info"></i> —</span>
-            </div>
-          </div>
-          <div class="fk-field">
-            <label class="fk-label" for="dfYanit">Yanıt <span class="req">*</span>
-              <span class="fk-count" id="dfSay">0 / 2000</span></label>
-            <textarea class="fk-textarea" id="dfYanit" name="yanit" rows="6" required maxlength="2000"
-                      placeholder="Üyeye gidecek yanıt. Ne olduğunu ve ne yapılacağını yaz."></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Destek ekibi tıbbi teşhis ve tedavi önerisi vermez; sağlık sorusu gelen talepte üye bir sağlık uzmanına yönlendirilir.</span>
-          </div>
+    <!-- ============================================================
+         İKİ KOLON — Gastro `destek/talep.blade.php:64` `.detail-layout`
+         + `.detail-side`. Fit'teki karşılığı kabuğun `.form-layout` +
+         `.side-card` ikilisidir ve `admin-uye-detay-v1.html` zaten onu
+         kullanıyor: aynı iş için ikinci bir yerleşim kurulmadı.
+         ============================================================ -->
+    <div class="form-layout">
+
+      <div>
+        <!-- SOL 1 · YAZIŞMA (Gastro talep.blade.php:69-106) -->
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-comments"></i> Yazışma</h2></div>
+          <div class="act-list" id="dkYazisma"></div>
+        </div>
+
+        <!-- SOL 2 · YANIT YAZ (Gastro talep.blade.php:113-161).
+             Kapatılan talepte form HİÇ BASILMAZ, yerine boş durum gelir —
+             Gastro'nun `acceptsReply()` kuralının aynısı (:117, :154-159):
+             basılıp reddedilecek bir düğme göstermek yerine yüzey susar. -->
+        <div class="adm-card" id="dkYanitKart" style="margin-top:16px">
+          <div class="c-head"><h2><i class="fa-solid fa-reply"></i> Yanıt yaz</h2></div>
+          <div id="dkYanitGovde"></div>
         </div>
       </div>
-      <!-- Kaydet düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
-           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
-           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
-           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
-           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu. -->
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <!-- Kaydet çubuğu SAĞDA. ÖLÇÜLDÜ (Gastro admin form CSS,
-     dokuz ayrı sayfada birebir): `.form-actions{justify-content:flex-end}`,
-     birincil eylem en sağda. -->
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="dkGonder"><i class="fa-solid fa-paper-plane"></i> Yanıtı gönder</button>
+
+      <!-- SAĞ · Gastro talep.blade.php:164-274 -->
+      <aside class="side-card">
+
+        <!-- SAĞ 1 · ÜYE (:167-189) — Gastro'da bu kartın tek eylemi
+             "Üye Detayına Git"tir (:180). Fit'te o ekran var
+             (`admin-uye-detay-v1.html`) ama bu ekrandan ona çıkış YOKTU. -->
+        <div class="adm-card">
+          <div class="c-head"><h2><i class="fa-solid fa-user"></i> Üye</h2></div>
+          <div id="dkUye"></div>
         </div>
-      </div>
-      </form>
+
+        <!-- SAĞ 2 · TALEP BİLGİLERİ (:192-252) -->
+        <div class="adm-card" style="margin-top:16px">
+          <div class="c-head"><h2><i class="fa-solid fa-circle-info"></i> Talep bilgileri</h2></div>
+          <div class="meta-list" id="dkKunye"></div>
+        </div>
+
+        <!-- SAĞ 3 · DURUM (:254-273) — geçiş listesi BOŞSA kart hiç
+             basılmaz ("Yakında" yok, boş kart yok). -->
+        <div id="dkDurumKart"></div>
+
+        <!-- SAĞ 4 · ATAMA — Gastro'da karşılığı YOK (ölçüldü: talep
+             ekranında atama alanı, `assigned_*` kolonu ya da temsilci
+             seçimi geçmiyor). Fit'in kendi alanı: kuyruk ekranı
+             `admin-destek-v1.html` her satırda "Atanan" gösteriyor ve
+             veri `fit-admin-destek-veri.js`te duruyor. Kaldırmak
+             kuyruktaki sütunu kaynaksız bırakırdı; en yakın Gastro
+             desenine — sağ kolonun kendi kartına — bağlandı. -->
+        <div class="adm-card" style="margin-top:16px">
+          <div class="c-head"><h2><i class="fa-solid fa-user-pen"></i> Atama</h2></div>
+          <form id="dkAtaF">
+            <div class="c-body">
+              <div class="fk-field">
+                <label class="fk-label" for="dfAtanan">Atanan temsilci <span class="req">*</span></label>
+                <select class="fk-select" id="dfAtanan" name="atanan" required></select>
+                <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
+                  Atanmamış talep kuyrukta kalır; ilk yanıtı yazan temsilci sorumluluğu devralır.</span>
+              </div>
+            </div>
+            <div class="detail-acts">
+              <button class="btn btn-ghost" type="button" id="dkAtaKaydet">
+                <i class="fa-solid fa-user-check"></i> Atamayı kaydet</button>
+            </div>
+          </form>
+        </div>
+      </aside>
     </div>
 
   </div>
@@ -85,15 +187,32 @@
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · DESTEK TALEBİ DETAYI   (R20)
+   ADMIN · DESTEK TALEBİ DETAYI   (R20 · B2'de Gastro'ya hizalandı)
    ---------------------------------------------------------------------
    NEDEN VAR — ÖLÇÜLEN KUSUR (Beyar, R20): `admin-destek-v1.html`deki
    "Aç" aynı sayfada gizli bir kartı açıyordu (`#dkDetay hidden` +
    `scrollIntoView`). Gastro'da bu eylemin karşılığı ölçüldü:
    `admin.destek.talep` — AYRI sayfa, AYRI rota
-   (`resources/views/admin/destek/talep.blade.php`), yazışma + yanıt formu
-   + durum değişikliği o sayfada. Bu ekran o kalıba çekildi; içerik
-   birebir taşındı, icat edilmedi.
+   (`resources/views/admin/destek/talep.blade.php`).
+
+   🔴 B2 TURUNDA KAPATILAN ÜÇ YAPI FARKI (hepsi Gastro'dan ölçüldü):
+
+   1 · YAZIŞMA YOKTU. Gastro'nun sol kolonunun TAMAMI yazışmadır
+       (talep.blade.php:69-106). Fit'te künye satırı "yazışma gövdesi bu
+       makette yok" diyordu, ama aynı kayıt `mesaj:3` ile üç mesaj
+       olduğunu iddia ediyordu — arkasında hiçbir şey olmayan bir sayı.
+       Yazışma verisi eklendi, `mesaj` artık dizinin uzunluğundan türer.
+
+   2 · TEK KOLONDU. Gastro iki kolon (`.detail-layout` + `.detail-side`,
+       :64 ve :164); künye · üye · durum sağda yaşar. Fit'te hepsi tek
+       sütunda, yanıt formunun üstünde duruyordu.
+
+   3 · DURUM AÇILIR MENÜSÜ DÖRT DURUMU DA SUNUYORDU. Gastro'nun matrisi
+       ölçüldü (`SupportStatus::destekGecisleri()`, :81-95): masanın tek
+       fiili "Çözülen"dir; "Kapatılan" ÜYENİN sözüdür ve masa onu geri
+       alamaz. Menü, matristen basılan düğmelere çevrildi — geçiş yoksa
+       kart hiç basılmaz. K8 kanonu (dört durum) değişmedi; değişen,
+       masanın hangisine BASABİLDİĞİ.
 
    VERİ AYNI KAYNAK: `fit-admin-destek-veri.js` — kuyruk ekranı da bunu
    okur, ikinci bir kopya yok. Adres `?talep=<no>` parametresiyle açılır.
@@ -106,10 +225,16 @@
 
   var kap = document.querySelector('.adm-page');
 
+  function kartlariSil(){
+    var y = document.querySelector('.form-layout');
+    if (y && y.parentNode) y.parentNode.removeChild(y);
+  }
+
   if (!D) {
     document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
       'Destek verisi (<code>fit-admin-destek-veri.js</code>) yüklenemedi.');
     document.getElementById('dkBaslik').textContent = 'Destek verisi yüklenmedi';
+    kartlariSil();
     return;
   }
 
@@ -123,7 +248,7 @@
     document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
       'Bu ekran <code>?talep=&lt;talep no&gt;</code> parametresiyle açılır ve kaydı ' +
       '<code>fit-admin-destek-veri.js</code>ten okur. Numara eşleşmedi.');
-    document.querySelectorAll('.adm-card').forEach(function (c) { c.remove(); });
+    kartlariSil();
     kap.insertAdjacentHTML('beforeend', A.bos('fa-life-ring', 'Bu numarayla talep yok',
       'Adresteki talep numarası kuyrukla eşleşmiyor. Listeye dönüp bir talep seç; ' +
       '"Aç" demek seni buraya, doğru numarayla getirir.',
@@ -134,48 +259,143 @@
   document.title = t.no + ' — DadaFit Yönetim';
   var d = D.durumBul(t.durum);
 
-  document.getElementById('dkBaslik').textContent = t.no + ' · ' + t.baslik;
-  document.getElementById('dkAlt').innerHTML = A.rozet(d.rozet, d.ad, d.ico);
+  document.getElementById('dkBaslik').textContent = t.baslik;
+  document.getElementById('dkAlt').textContent =
+    t.no + ' · ' + t.konu + ' · açıldı ' + A.tarih(t.yazisma[0][1]);
+  document.getElementById('dkRozet').innerHTML = A.rozet(d.rozet, d.ad, d.ico);
 
   document.getElementById('dkKaynak').innerHTML = A.kaynak('ornek',
     '<b>Talep verisi örnektir.</b> Numara, başlık, konu, durum ve son hareket tarihi ' +
-    '<code>destek-v1.html</code>in maket listesinden birebir alındı. Üye adı, atanan ' +
-    'temsilci ve mesaj sayısı — ve <b>e-posta adresi</b> — bu ekranın kendi örnek ' +
-    'alanlarıdır. <b>Yazma yüzeyi maket:</b> atama değişmez, yanıt gönderilmez, durum ' +
-    'geçmez — bu prototipte sunucu yok.');
+    '<code>destek-v1.html</code>in maket listesinden birebir alındı. Üye adı, e-posta, ' +
+    'atanan temsilci ve <b>yazışma gövdeleri</b> bu prototipin kendi örnek alanlarıdır. ' +
+    'Durum geçişleri uydurulmadı: Gastro\'nun <code>SupportStatus::destekGecisleri()</code> ' +
+    'matrisinden ölçülüp alındı. <b>Yazma yüzeyi maket:</b> atama değişmez, yanıt ' +
+    'gönderilmez, durum geçmez — bu prototipte sunucu yok.');
 
-  document.getElementById('dkKunye').innerHTML = [
-    ['fa-user',          'Üye',            t.uye + ' · ' + t.mail],
-    ['fa-tag',           'Konu',           t.konu],
-    ['fa-circle-half-stroke','Durum',      d.ad + ' — ' + d.yon],
-    ['fa-clock',         'Son hareket',    A.tarih(t.son) + ' · ' + D.gunFarki(t.son) + ' gün önce'],
-    ['fa-comment-dots',  'Yazışma',        t.mesaj + ' mesaj · yazışma gövdesi bu makette yok, üye yüzeyinde okunur']
-  ].map(function (x) {
-    return '<div class="fp-row"><span class="ico"><i class="fa-solid ' + x[0] + '" aria-hidden="true"></i></span>' +
-      '<span class="txt"><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span></div>';
+  /* ---- yazışma ----------------------------------------------------- */
+  document.getElementById('dkYazisma').innerHTML = t.yazisma.map(function (m) {
+    var uye = m[0] === 'uye';
+    return '<div class="act-row">' +
+      '<div class="act-ico ' + (uye ? 't-uye' : 't-ekip') + '">' +
+        '<i class="fa-solid ' + (uye ? 'fa-user' : 'fa-headset') + '" aria-hidden="true"></i></div>' +
+      '<div class="act-info">' +
+        '<b>' + esc(uye ? t.uye : ('Destek ekibi — ' + t.atanan)) + '</b>' +
+        '<span class="govde">' + esc(m[2]) + '</span>' +
+      '</div>' +
+      '<span class="act-time">' + esc(A.tarih(m[1])) + '</span>' +
+    '</div>';
   }).join('');
 
-  document.getElementById('dfAtanan').innerHTML =
-    D.TEMSILCI.map(function (k) { return '<option' + (k === t.atanan ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('');
-
-  var durumSec = document.getElementById('dfDurum');
-  durumSec.innerHTML = D.DURUM.map(function (dd) {
-    return '<option value="' + dd.id + '">' + esc(dd.ad) + '</option>';
-  }).join('');
-  durumSec.value = t.durum;
-  function durumNotu(){
-    document.getElementById('dfDurumNot').innerHTML =
-      '<i class="fa-solid fa-circle-info"></i> ' + esc(D.durumBul(durumSec.value).yon);
+  /* ---- yanıt yüzeyi ------------------------------------------------ */
+  var yanitGovde = document.getElementById('dkYanitGovde');
+  if (d.yanit) {
+    yanitGovde.innerHTML =
+      '<form id="dkF">' +
+        '<div class="c-body">' +
+          '<div class="fk-field">' +
+            '<label class="fk-label" for="dfYanit">Üyeye gidecek yanıt <span class="req">*</span>' +
+              '<span class="fk-count" id="dfSay">0 / 2000</span></label>' +
+            '<textarea class="fk-textarea" id="dfYanit" name="yanit" rows="6" required maxlength="2000" ' +
+              'placeholder="Ne olduğunu ve ne yapılacağını yaz."></textarea>' +
+            '<span class="fk-help"><i class="fa-solid fa-circle-info"></i> ' +
+              'Yanıt gönderildiğinde talep <b>Yanıt bekleyen</b> durumuna geçer — sıra üyeye döner.</span>' +
+          '</div>' +
+          '<p class="fk-help"><i class="fa-solid fa-triangle-exclamation"></i> ' +
+            'Destek ekibi tıbbi teşhis ve tedavi önerisi vermez; sağlık sorusu gelen ' +
+            'talepte üye bir sağlık uzmanına yönlendirilir.</p>' +
+        '</div>' +
+        /* Gönder düğmesi FORMUN İÇİNDEDİR. Dışarıda kalsaydı
+           `FIT_ADMIN.maketKaydet()`in `closest('form')`u boş dönerdi ve
+           ekran hiçbir şey doğrulamadan "Form doğrulandı" derdi — maket
+           yazma yüzeyinin söyleyebileceği en kötü yalan. Ölçüldü: düğme
+           dışarıdayken boş zorunlu alanla da "doğrulandı" basıyordu.
+           Kaydet çubuğu SAĞDA (§17 `.form-actions{flex-end}`). */
+        '<div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">' +
+          '<div class="c-acts">' +
+            '<button class="btn btn-primary" type="button" id="dkGonder">' +
+              '<i class="fa-solid fa-paper-plane"></i> Yanıtı gönder</button>' +
+          '</div>' +
+        '</div>' +
+      '</form>';
+    var yanit = document.getElementById('dfYanit');
+    yanit.addEventListener('input', function () {
+      document.getElementById('dfSay').textContent = yanit.value.length + ' / 2000';
+    });
+    A.maketKaydet(document.getElementById('dkGonder'), 'yanıt',
+      document.getElementById('dkF'));
+  } else {
+    yanitGovde.innerHTML = A.bos('fa-lock', 'Talep kapatıldı',
+      'Kapatılmış bir talebe mesaj yazılamaz. Kapatma üyenin sözüdür; ' +
+      'talebi yalnız üyesi yeniden açabilir.');
   }
-  durumSec.addEventListener('change', durumNotu);
-  durumNotu();
 
-  var yanit = document.getElementById('dfYanit');
-  yanit.addEventListener('input', function () {
-    document.getElementById('dfSay').textContent = yanit.value.length + ' / 2000';
-  });
+  /* ---- üye kartı --------------------------------------------------- */
+  document.getElementById('dkUye').innerHTML =
+    '<div class="u-hero">' +
+      '<span class="u-hero-ava" aria-hidden="true">' + esc(D.basHarf(t.uye)) + '</span>' +
+      '<div class="u-hero-info">' +
+        '<div class="u-hero-name">' + esc(t.uye) + '</div>' +
+        '<div class="u-hero-email">' + esc(t.mail) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-acts">' +
+      '<a class="btn btn-ghost" href="admin-uyeler-v1.html">' +
+        '<i class="fa-solid fa-arrow-up-right-from-square"></i> Üye listesinde bul</a>' +
+    '</div>';
 
-  A.maketKaydet(document.getElementById('dkGonder'), 'yanıt ve durum değişikliği', document.getElementById('dkF'));
+  /* ---- künye ------------------------------------------------------- */
+  document.getElementById('dkKunye').innerHTML = [
+    ['Talep numarası', t.no],
+    ['Konu',           t.konu],
+    ['Durum',          A.rozet(d.rozet, d.ad, d.ico), true],
+    ['Açıldı',         A.tarih(t.yazisma[0][1])],
+    ['Son mesaj',      A.tarih(t.son) + ' · ' + D.gunFarki(t.son) + ' gün önce'],
+    ['Mesaj sayısı',   t.mesaj + ' mesaj'],
+    ['Atanan',         t.atanan]
+  ].map(function (x) {
+    return '<div class="meta-row"><span class="meta-lbl">' + esc(x[0]) + '</span>' +
+      '<span class="meta-val">' + (x[2] ? x[1] : esc(x[1])) + '</span></div>';
+  }).join('');
+
+  /* ---- durum geçişleri --------------------------------------------
+     Liste VERİDEN gelir (`DURUM[].masa`), ekran kendi listesini yazmaz:
+     matris daralırsa düğme kendiliğinden kaybolur. Boşsa kart yok. */
+  if (d.masa.length) {
+    document.getElementById('dkDurumKart').innerHTML =
+      '<div class="adm-card" style="margin-top:16px">' +
+        '<div class="c-head"><h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Durum</h2></div>' +
+        '<form id="dkDurumF"><div class="detail-acts">' +
+          d.masa.map(function (id) {
+            var h = D.durumBul(id);
+            return '<button class="btn btn-ghost" type="button" data-durum="' + esc(id) + '">' +
+              '<i class="fa-solid ' + esc(h.ico) + '"></i> "' + esc(h.ad) + '" olarak işaretle</button>';
+          }).join('') +
+        '</div></form>' +
+      '</div>';
+    document.querySelectorAll('#dkDurumF [data-durum]').forEach(function (btn) {
+      A.maketKaydet(btn, 'durum değişikliği', document.getElementById('dkDurumF'));
+    });
+  } else {
+    /* Geçiş yoksa NEDEN olmadığı yazılır — boş bir yer sessiz kalırdı. */
+    document.getElementById('dkDurumKart').innerHTML =
+      '<div class="adm-card" style="margin-top:16px">' +
+        '<div class="c-head"><h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Durum</h2></div>' +
+        '<div class="c-body"><p class="fk-help" style="margin:0">' +
+          '<i class="fa-solid fa-circle-info"></i> ' +
+          (t.durum === 'kapatilan'
+            ? 'Kapatma üyenin sözüdür; destek masası kapalı bir talebi geri açamaz. Üye yazarsa talep kendiliğinden açığa döner.'
+            : 'Talep zaten çözülü. Tekrar işaretlemek çözüm tarihini sessizce tazelerdi; masanın burada bir durum fiili yok.') +
+        '</p></div>' +
+      '</div>';
+  }
+
+  /* ---- atama ------------------------------------------------------- */
+  document.getElementById('dfAtanan').innerHTML =
+    D.TEMSILCI.map(function (k) {
+      return '<option' + (k === t.atanan ? ' selected' : '') + '>' + esc(k) + '</option>';
+    }).join('');
+  A.maketKaydet(document.getElementById('dkAtaKaydet'), 'atama',
+    document.getElementById('dkAtaF'));
 })();
 </script>
 </body>

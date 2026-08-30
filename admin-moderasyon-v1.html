@@ -83,10 +83,14 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Moderasyon</h1>
+        <!-- Kayıt sayacı `.ph-sub`ın SONUNDA. ÖLÇÜLDÜ — Gastro
+             `admin/moderasyon/yorumlar/index.blade.php:48`: açıklama cümlesi ·
+             <strong>N</strong> yorum. Sekme sayaçları durum başına sayar,
+             bu sayaç TOPLAMI verir — Gastro'da da ikisi bir arada. -->
         <div class="ph-sub">Üyelerin bildirdiği yorum ve mesajlar. Dört karar var: içeriği
            <b>onayla</b>, herkesten <b>gizle</b>, kalıcı olarak <b>sil</b>,
            ya da yazarı <b>uyar</b>. Sağlık riski bildirimleri kuyruğun
-           başına geçer.</div>
+           başına geçer. · <b id="mdBasSay">0</b> bildirim</div>
       </div>
     </div>
 
@@ -245,19 +249,33 @@
   ];
   function durumBul(id){ for (var i=0;i<DURUM.length;i++) if (DURUM[i].id===id) return DURUM[i]; return DURUM[0]; }
 
-  /* ---- sebepler: `agir` olan kuyruğun başına geçer ---------------- */
+  /* ---- sebepler: `agir` olan kuyruğun başına geçer ----------------
+     🔴 `sablon` ALANI SEBEBİN KENDİ ÜSTÜNDE DURUR (B2, kuyruk 27).
+     Eskiden uyarı modalı sebebi bir üçlü-koşul zincirine sokuyordu
+     (`agir ? 'saglik' : reklam ? … : 'spam'`) ve zincirin sonu 'spam'di:
+     sözlükte şablonu olmayan HER sebep sessizce "Yinelenen içerik"
+     uyarısına düşüyordu. ÖLÇÜLDÜ: altı sebebin ikisi — `yanlis-bilgi`
+     ve `belirtilmedi` — bu düşüşü yaşıyordu; üyeye gidecek metin
+     "aynı metnin kısa aralıklarla birden çok yere gönderildiğini
+     gördük" diyordu. Yanlış şablonla gönderilen uyarı, uyarının
+     kendisini yanlış yapar. Eşleşme artık burada, tek yerde: yeni bir
+     sebep eklendiğinde şablonu da yanında yazılır, yazılmazsa modal
+     boş şablonla açılır ve temsilciyi SEÇMEYE zorlar — sessizce
+     yanlış metin basmaz. */
   var SEBEP = {
-    'saglik-riski': { ad:'Sağlık riski', ico:'fa-heart-pulse',           rozet:'stop', agir:true },
-    'yanlis-bilgi': { ad:'Yanlış bilgi', ico:'fa-circle-exclamation',    rozet:'wait', agir:false },
-    'hakaret':      { ad:'Hakaret',      ico:'fa-face-angry',            rozet:'stop', agir:false },
-    'reklam':       { ad:'Reklam',       ico:'fa-bullhorn',              rozet:'off',  agir:false },
-    'spam':         { ad:'Spam',         ico:'fa-repeat',                rozet:'off',  agir:false },
+    'saglik-riski': { ad:'Sağlık riski', ico:'fa-heart-pulse',           rozet:'stop', agir:true,  sablon:'saglik' },
+    'yanlis-bilgi': { ad:'Yanlış bilgi', ico:'fa-circle-exclamation',    rozet:'wait', agir:false, sablon:'yanlis-bilgi' },
+    'hakaret':      { ad:'Hakaret',      ico:'fa-face-angry',            rozet:'stop', agir:false, sablon:'hakaret' },
+    'reklam':       { ad:'Reklam',       ico:'fa-bullhorn',              rozet:'off',  agir:false, sablon:'reklam' },
+    'spam':         { ad:'Spam',         ico:'fa-repeat',                rozet:'off',  agir:false, sablon:'spam' },
     /* R20 · Sebepsiz kayıt için GERÇEĞİN ADI. Yorum modülünün bildirim
        akışı sebep sormuyor (kuyruk 30); gelen kaydı rastgele bir sebebe
        (eskiden 'spam') düşürmek yanlış şablonla uyarı üretirdi. Ayrıca
        `SEBEP[null]` dört yerde `.agir` okunuyor — sözlükte karşılığı
-       olmayan bir sebep sayfayı çökertirdi. */
-    'belirtilmedi': { ad:'Sebep belirtilmedi', ico:'fa-circle-question', rozet:'wait', agir:false }
+       olmayan bir sebep sayfayı çökertirdi.
+       `sablon:''` bilerek boştur: sebebi bilinmeyen bir bildirim için
+       hazır metin YOKTUR, olanı uydurmak olurdu. */
+    'belirtilmedi': { ad:'Sebep belirtilmedi', ico:'fa-circle-question', rozet:'wait', agir:false, sablon:'' }
   };
 
   var TUR = {
@@ -487,6 +505,9 @@
     return a.tarih < b.tarih ? 1 : -1;
   }
 
+  /* Başlıktaki sayaç TOPLAMDIR — sekme sayaçları durum başına sayar. */
+  document.getElementById('mdBasSay').textContent = BILDIRIM.length;
+
   DURUM.forEach(function (d) {
     var liste = BILDIRIM.filter(function (b) { return b.durum === d.id; }).sort(sirala);
     var agir = liste.filter(function (b) { return SEBEP[b.sebep].agir; }).length;
@@ -606,6 +627,7 @@
   /* ---- uyarı formu ------------------------------------------------- */
   var SABLON = {
     'saglik':  ['Sağlık uyarısı', 'Merhaba, DadaFit\'te paylaşılan yorumlar tıbbi tavsiye yerine geçemez. Bildirilen yorumun, ağrı ya da sağlık durumu olan üyeleri riske sokabilecek bir öneri içerdiğini gördük. Kendi deneyimini anlatman değerli; ama "devam et", "doktora gerek yok" gibi yönlendirmeler için lütfen üyeleri bir sağlık uzmanına yönlendir.'],
+    'yanlis-bilgi': ['Yanlış bilgi', 'Merhaba, bildirilen içerikte doğrulanamayan bir bilgi olduğunu gördük — hareketin nasıl yapıldığı, bir besinin etkisi ya da bir sayı, kaynağıyla örtüşmüyor. Yanlış bilgi, onu okuyan üyenin çalışmasını da sakatlanma riskini de doğrudan etkiliyor. Anlattığın şey kendi deneyiminse bunu belirtmen, genel bir kural olarak yazmandan daha doğru olur; kaynağı varsa kaynağı da ekleyebilirsin.'],
     'reklam':  ['Reklam ve yönlendirme', 'Merhaba, bildirilen yorumun DadaFit dışına satış yönlendirmesi içerdiğini gördük. Platform içindeki yorum alanları deneyim paylaşımı içindir; ticari yönlendirme kaldırılır. Tekrarı hâlinde yorum yazma hakkın süreli olarak durdurulur.'],
     'hakaret': ['Üslup', 'Merhaba, bildirilen içeriğin bir üyeye ya da antrenöre yönelik aşağılayıcı ifade taşıdığını gördük. Eleştirini içeriğe yöneltebilirsin; kişiye yönelen ifadeler kaldırılır.'],
     'spam':    ['Yinelenen içerik', 'Merhaba, aynı metnin kısa aralıklarla birden çok yere gönderildiğini gördük. Bu, diğer üyelerin akışını okunmaz hâle getiriyor. Gönderilerini seyrelttiğinde uyarı düşer.']
@@ -641,8 +663,12 @@
   function uyarAc(b){
     uyarTetikleyen = document.activeElement;
     var gecmis = BILDIRIM.filter(function (x) { return x.yazar === b.yazar; }).length;
-    var ilkSablon = SEBEP[b.sebep].agir ? 'saglik'
-      : (b.sebep === 'reklam' ? 'reklam' : (b.sebep === 'hakaret' ? 'hakaret' : 'spam'));
+    /* Şablon SEBEBİN kendi alanından okunur (yukarıdaki SEBEP sözlüğü).
+       Sözlükte karşılığı olmayan / boş bırakılmış sebepte seçim BOŞ
+       açılır: temsilci şablonu elle seçer. Eski üçlü-koşul zinciri
+       burada duruyordu ve eşleşmeyen her sebebi 'spam'e düşürüyordu. */
+    var ilkSablon = SEBEP[b.sebep].sablon || '';
+    if (ilkSablon && !SABLON[ilkSablon]) ilkSablon = '';
 
     var ov = document.createElement('div');
     ov.className = 'sa-ov sa-modal-ov';
@@ -665,11 +691,19 @@
               '<div class="fk-field">' +
                 '<label class="fk-label" for="muSablon">Uyarı şablonu <span class="req">*</span></label>' +
                 '<select class="fk-select" id="muSablon" name="sablon" required>' +
+                  /* Boş seçenek YALNIZ eşleşen şablon yokken basılır —
+                     eşleşme varken listeye "seç" satırı koymak, doğru
+                     seçili olan şablonu kazara kaybettirirdi. */
+                  (ilkSablon ? '' : '<option value="" selected>— şablon seç —</option>') +
                   Object.keys(SABLON).map(function (k) {
                     return '<option value="' + k + '"' + (k === ilkSablon ? ' selected' : '') + '>' + esc(SABLON[k][0]) + '</option>';
                   }).join('') +
                 '</select>' +
-                '<span class="fk-help"><i class="fa-solid fa-circle-info"></i> Şablon metni aşağıya düşer; göndermeden önce olayı anlatacak şekilde düzenlenir.</span>' +
+                '<span class="fk-help"><i class="fa-solid fa-circle-info"></i> ' +
+                  (ilkSablon
+                    ? 'Şablon metni aşağıya düşer; göndermeden önce olayı anlatacak şekilde düzenlenir.'
+                    : 'Bildirimde sebep yok, bu yüzden şablon önceden seçilmedi. Olaya uyanı seç — metin aşağıya düşer ve düzenlenir.') +
+                '</span>' +
               '</div>' +
             '</div>' +
             '<div class="fk-field">' +
@@ -696,7 +730,10 @@
 
     var sablonSec = ov.querySelector('#muSablon'), metin = ov.querySelector('#muMetin');
     function sablonUygula(){
-      metin.value = SABLON[sablonSec.value][1];
+      /* Boş seçimde metin BOŞ kalır — `SABLON[''][1]` eskiden TypeError
+         atardı ve modal ölü açılırdı. Boş seçim geçerli bir hâldir. */
+      var s = SABLON[sablonSec.value];
+      metin.value = s ? s[1] : '';
       ov.querySelector('#muSay').textContent = metin.value.length + ' / 1200';
     }
     sablonUygula();

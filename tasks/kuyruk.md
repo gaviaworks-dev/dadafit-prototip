@@ -60,9 +60,39 @@ kaynak şeridi 21/21 · sidebar'da tek doğru aktif kalem 21/21 · boş durum ku
 **0**. Betik: `docs/qa/admin-denetim.mjs` (`PW_HOME=~/.pw node …`).
 Tüm site: **81 sayfa · konsol 0 · taşma 0 · 460 bağlantı · ölü 0**.
 
-**Bilinen sapma (sonraki tur):** toplu seçim çubuğu 12 ekranda; Gastro'da 47
-kalemden yalnız 1'inde var. Her biri tıklanınca "uygulanmadı, sunucu yok" diyor,
-yani dürüst — ama Gastro parity'si için gözden geçirilmeli.
+### Panelin AÇIK KALEMLERİ (sonraki tur)
+
+1. 🔴 **K6 · `fit-fatura.js` defterinde `tur:"uyelik"` satırları duruyor**
+   ("DadaFit Pro — Aylık · Platform paketi", 99,00 ₺ × 3). K6 "Fit'te abonelik
+   YOKTUR" diyor. Silinmedi ve hizmet cirosuna karıştırılmadı: raporların
+   finansal sekmesinde **ayrı kalem** olarak, uyarı şeridiyle duruyor.
+   Kalem kalkacaksa **defterin kendisi** düzeltilmeli. Aynı çelişki public
+   tarafta da var: `pro-v1.html` ve `pro-odeme-v1.html` yerinde duruyor.
+2. **K12 üretici eşikleri Fit'te tanımsız.** Gastro'da panelden ayarlanan dört
+   eşik var (50 tarif · 25 püf · 10 takip · 10 takipçi). Fit'te karşılığı
+   yok, Ayarlar'da o sekme **açılmadı** — arkasında veri olmayan sekme boş
+   ekran vaat etmek olurdu.
+3. **Toplu seçim 11 ekranda**, Gastro'da 47 kalemden 1'inde. Ödemelerden
+   kaldırıldı (K5'i çiğniyordu: ödeme listesi kuralla doğuyor, elle seçimle
+   değil). Kalanlar dürüst ("uygulanmadı, sunucu yok") ama parity için
+   gözden geçirilmeli.
+4. **Moderasyon rakamı iki dosyada** (`admin-moderasyon` + `admin-raporlar`
+   özeti). Gerçek kaynak doğunca ikisi de ondan okumalı; ortak bir
+   `fit-moderasyon-veri.js` gerekebilir.
+5. **Programlar: 9 kartın 9'u yanlış sayfayı açıyor.** `program-liste-v1.html`
+   9 kart taşıyor, `program-detay-v1.html` yalnız 4 slug tanıyor; kartlar o
+   dördünü döngüyle kullanıyor, eşleşen **0/9**. Hareket tarafında bir kez
+   temizlenen kusurun program eşi. `admin-programlar-v1.html`de "Açtığı sayfa"
+   kolonu olarak görünür durumda.
+6. **Hedef sözlüğü iki kez, farklı terimlerle ilan edilmiş** (`program-liste`
+   vs `programlar-merkezi`): 8 ilan, 6 benzersiz kod, ortak iki kodun etiketi
+   bile ayrışıyor. Hangisinin kanon olacağı ürün kararı, birleştirilmedi.
+7. **Taksonomi boşluğu:** ekipman **15 ilan / 5 kullanımda** (10 çip süzgeçte
+   0 sonuç veriyor), kas **10 / 9** (`onkol` boş).
+8. **SEO:** 60 public sayfanın 43'ünde meta description yok, 0'ında canonical,
+   16 başlık 60 karakteri aşıyor. (60/60 `noindex` kasıtlı, kusur değil.)
+9. **`hesabim-v1`de 10 ölü seçici** (`.sub-inv-*` · `.sub-free*` · `.hs-save`) —
+   form kiti taşımasından önce de ölüydü, dokunulmadı.
 
 🔴 **Panel yazma yüzeyi MAKET.** Formlar doğrulanır, kayıt gitmez; her ekran
 bunu yazıyor. Panel gerçek yazmayı getirdiğinde o şeritler kalkmalı — şerit

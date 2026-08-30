@@ -353,3 +353,72 @@ Bir ekranda ikisi bir aradaysa **ikisi de söylenir** — yarısı gerçek bir e
 dosyada gövde markup'ı elemek olurdu. Bunun yerine her kural **iki seçiciye
 birden** yazılı: `.adm-card, .pnl-card{…}`. Gastro'nun adı kanon, `.adm-*` onun
 eş anlamlısı; ikisi de aynı pikseli basar.
+
+---
+
+## 14 · Footer kiti — R18'de ölçüldü (2026-08-30)
+
+🔴 **Footer'ın tek kaynağı `assets/js/fit-shell.js`'tir.** Hiçbir HTML sayfası
+footer markup'ı yazmaz; `FOOTER_RAW` + `FOOTER_COLS` + `FOOTER_CORP` +
+`FOOTER_LEGAL` dizilerinden üretilir. Kalem eklemek/çıkarmak = **tek satır**.
+
+Beş alan: Marka (sol sabit) · üç orta menü (`FOOTER_COLS`) · Uygulama (sağ
+sabit) · kurumsal bant · **yasal bant (DOKUNULMAZ)**.
+
+### Ölçülen değerler
+
+| Kalem | Değer | Not |
+|---|---|---|
+| Kolon bağlantısı | `35.7px` | üç orta menü |
+| Kurumsal bant bağlantısı | `21.7px` görsel · **`24px` hedef** | `::before` |
+| Yasal bant bağlantısı | `21.7px` görsel · **`24px` hedef** | `::before` |
+| Alt satır bağlantısı | `21.1px` görsel · **`24px` hedef** | `::before` |
+| Sosyal kutu | `42×42px` | `<span class="fs-soc">` |
+| Mağaza kutusu | `.ap-store` | `<span aria-disabled="true">` |
+| Satır adımı @390 | `29px` | 44px hedef ÇAKIŞIRDI, 24 seçildi |
+
+### İki bağlayıcı kural
+
+1. **Hedefi olmayan kutu `<a href="#">` OLMAZ.** Adresi henüz olmayan bir şey
+   (sosyal hesap, mağaza) `<span aria-disabled="true" title="Yakında">`
+   olarak basılır: görünür kalır, durum bilgisi (`aria-label`) korunur, odak
+   sırasına girmez, ölü bağlantı üretmez. Adres gelince `<span>` → `<a href>`.
+   İşaret: `data-yer-tutucu`.
+2. **Metin bağlantı listesinde dokunma hedefi 24px'tir, 44 değil.** Kitin
+   44px hedefi düğme/çip/sekme içindir (§5 · §6 · §10). Bantlarda satır adımı
+   29px ölçüldü; 44px'lik kutular komşu satırla çakışır ve tıklama yanlış
+   kaleme düşer. Görünmez `::before` ile 24px (WCAG 2.5.8 AA) açılır —
+   görüntü hiç değişmez.
+
+### Nöbet
+
+`docs/qa/footer-denetim.mjs` — footer'ın **tamamını** çalışan kabuktan okur:
+her hedefi diskte doğrular, çapaları hedef sayfada arar, tekrar eden hedefi
+sayar, dokunma hedefini **hit test**le ölçer (kutu ölçüsüyle değil, çünkü
+`::before` kutunun dışındadır).
+
+⚠ Betik iki perdeyi ölçümden önce kaldırır, yoksa 29 kalemin 29'unu
+yanlışlıkla "düşük hedef" sayar (ölçüldü): footer **perde ile** açılır
+(içerik üstünde durur → sayfa dibine in) ve **çerez bandı** yasal bandın
+üstünü kapatır (→ kapat).
+
+---
+
+## 15 · `.fb-chiprow` — Görüş Bildir bölüm şeridi (R18)
+
+Şerit **TEK SATIR**, sığmazsa **yatay kaydırılır**. Desen `.fit-tabs`ın
+aynısıdır (`overflow-x:auto` + gizli çubuk); ayrı bir mekanizma yoktur.
+
+| Ölçü | Değer |
+|---|---|
+| Çip görsel yüksekliği | `35px` (= kit §5 `.df-fchip` görseli) |
+| Çip dokunma hedefi | `44px` — görünmez `::before` |
+| Kap dolgusu | `padding-block:5px` |
+| Kalemler arası | `8px` |
+
+⚠ `padding-block:5px` **şart**: `overflow-x` verilince dikey eksen de `auto`ya
+döner; 44px'lik görünmez hedef 35px'lik çipin 4.5px altına ve üstüne taştığı
+için dolgu olmadan kırpılır.
+
+**Kalemler kabuktan okunur, uydurulmaz** — `NAV`ın dört modülü + Enerji
+Defteri + Diğer. Nöbet: `docs/qa/gorus-cip-serit.mjs` (3 sayfa × 3 genişlik).

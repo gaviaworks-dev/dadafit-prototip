@@ -628,3 +628,63 @@ söyler; **yapı** ayrı bir sorudur ve ayrıca ölçülür.
 benziyor mu" diye sormuyordu. R17'de `admin-kalip-denetim.mjs` yazıldı — kabuk
 değerlerini 21 ekranda yan yana koyar ve tek değere inmiyorsa sapan ekranı
 adıyla söyler.
+
+---
+
+## §30 · Template literal'in içindeki ters tırnak kabuğu sessizce kırar — `node --check` yakalamaz
+
+**R18'de iki kez oldu, ikisi de aynı kök.** `fit-shell.js`in `FEEDBACK_HTML` ve
+`FOOTER_RAW` sabitleri **template literal**'dir (backtick ile açılır). Bu
+depoda yorumlar Markdown alışkanlığıyla yazılıyor — `` `.fb-chiprow` `` ,
+`` `<a href>` `` gibi. O yorum bir template literal'in **içine** düştüğünde
+ters tırnak dizgiyi erken kapatır ve gerisi JavaScript sanılır.
+
+```
+ÖLÇÜLEN SONUÇ (birinci sefer):  Uncaught ReferenceError: chiprow is not defined
+                                → footer HİÇ basılmadı, 78 sayfada birden
+İKİNCİ SEFER:                   SyntaxError: Unexpected identifier 'href'
+```
+
+🔴 **Birincisi `node --check`ten GEÇTİ.** Kırılan dizgi rastlantıyla geçerli
+JavaScript ürettiği için sözdizimi denetimi yeşil döndü; kusur ancak sayfa
+tarayıcıda açılınca ve `pageerror` dinlenince görüldü. İkincisi geçmedi —
+yani `node --check` bu sınıfın **bir kısmını** yakalar, güvenilmez.
+
+**Kural (bağlayıcı):**
+
+1. Template literal'in içine yorum yazarken **ters tırnak kullanma** — düz
+   tırnak (`"`) ya da tırnaksız yaz. Hangi sabitlerin literal olduğunu bil:
+   `FEEDBACK_HTML` · `FOOTER_RAW` · `COOKIE_HTML` · `LGGATE_HTML`.
+2. Kabuk dosyasına yazan her tur, `node --check`e ek olarak **tarayıcıda bir
+   sayfa açıp `pageerror` sayar**. Kapı: `docs/qa/kabuk-r18-nobet.mjs` — 78
+   sayfayı gezer, konsol hatası · yatay taşma · footer basıldı mı ölçer.
+   Kabuk TEK KAYNAK'tır: buradaki bir kusur tek sayfada değil hepsinde patlar.
+3. Denetim tek satır: `awk '/^var FOOTER_RAW = `/,/^function footerHtml/' \
+   assets/js/fit-shell.js | grep -n '`'` → açılış ve kapanış dışında **0**
+   eşleşme olmalı.
+
+---
+
+## §31 · Perde arkasında ölçüm yapma — `elementFromPoint` görünen katmanı okur
+
+**R18 · footer denetimi.** Dokunma hedefini "kutu kaç piksel" diye ölçmek bu
+depoda yanlıştır: kit §10/§13'ün deseni **görünmez `::before`** ile hedefi
+büyütür, `getBoundingClientRect()` onu görmez. Doğrusu **hit test**:
+kalemin merkezinden ±(N/2−1) px'te `elementFromPoint` hâlâ o kalemi mi veriyor?
+
+Ama hit test de körleşir — üstünde bir katman varsa. İki perde ölçüldü ve
+ikisi de **29 kalemin 29'unu** yanlışlıkla "düşük hedef" gösterdi:
+
+| Perde | Neden | Çözüm |
+|---|---|---|
+| **Footer reveal** | Footer perdeyle açılır; içerik onun ÜSTÜNDE durur | ölçümden önce sayfa dibine in |
+| **Çerez bandı** | `#cookieBanner` yasal bandın üstünü kapatır | ölçümden önce kapat |
+
+Ayrıca yatay kaydırılan bir şeritte (`.fb-chiprow`) görünür pencerenin
+dışındaki çipler de null döndürür → her kalem önce `scrollIntoView` ile
+pencereye alınır.
+
+**Kural:** bir sonda "hepsi düştü" diyorsa önce **sondadan** şüphelen. Gerçek
+bir kusur genelde bir kısmında görünür; **hepsi** düşüyorsa ölçüm körlüğüdür.
+Ekrana bak, katmanı bul, kaldır, yeniden ölç. (docs/lessons.md §2'nin footer
+tarafındaki tekrarı — sonda körlüğü bu depoda üçüncü kez çıktı.)

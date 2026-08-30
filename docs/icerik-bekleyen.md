@@ -55,7 +55,7 @@ etiketlerinin unutulup canlıya çıkmasını engellemek.
 | Ne | Ne zaman | Sonuç |
 |---|---|---|
 | Destek sayfası — avatar dropdown'ındaki "Destek" kalemi | 10. oturum (R8) | AJAN-F `destek-v1.html`'i üretti; dropdown kalemi gerçek bağlantıya bağlandı, `href="#"` yer tutucusu kalktı. `tests/kabuk-r8.mjs` hedefin h1'ini ("Destek") nöbette tutuyor |
-| `enerji-ihtiyaci-v1.html` — Günlük Enerji İhtiyacı hesaplayıcısı | 7. oturum | Sayfa üretildi ve birleştirildi; footer bağlantısı **HTTP 200** doğrulandı, `tests/footer-yapi.mjs`'teki "birleştirme sonrası doğrulanacak" istisnası kalktı |
+| `enerji-ihtiyaci-v1.html` — Günlük Enerji İhtiyacı hesaplayıcısı | 7. oturum · **kapatıldı 2026-08-30** | Sayfa 7. oturumda üretilmiş ve footer bağlantısı HTTP 200 doğrulanmıştı. **2026-08-30: sayfa KALDIRILDI** (Beyar kararı). Gerekçe ölçüldü: hiçbir HTML sayfasından bağlantı yoktu, yalnız footer'dan ulaşılıyordu. Birlikte silinenler: `tests/enerji-hesap.mjs` (yalnız o sayfayı ölçüyordu), footer kalemi, `admin-menu-v1.html` menü satırı, `assets/js/fit-admin-veri.js` SEO kaydı |
 
 ## Sosyal medya — kapsam kararı
 

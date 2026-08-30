@@ -264,15 +264,15 @@ nerede saklanıyor.*
 
 | # | Eksen | Rozette | Makette giriliyor mu | Giriş ekranı | Saklama |
 |---|---|---|---|---|---|
-| **E1** | **Aktif gün** (bir günde en az bir hareket) | 8 rozet + **tüm merdiven** | **EVET** | `aktivite-gunlugu-v1.html:630-680` kayıt formu · `fit-planim-programim-v1.html` gün tamamlama | `FIT_PLAN.gunDurum['g1'] = {durum:'tamamlandi', tarih, kayit}` (`fit-plan-kayit.js:38-40`) |
+| **E1** | **Aktif gün** (bir günde en az bir hareket) | 8 rozet + **tüm merdiven** | **EVET** | `egzersizlerim-v1.html#aktivite` kayıt formu (eski `aktivite-gunlugu-v1.html:630-680`; sayfa 2026-08-30'da modül sekmesine taşındı) · `fit-planim-programim-v1.html` gün tamamlama | `FIT_PLAN.gunDurum['g1'] = {durum:'tamamlandi', tarih, kayit}` (`fit-plan-kayit.js:38-40`) |
 | **E2** | **Seri** (üst üste gün) + telafi hakkı | 2 rozet | **EVET** — hesaplanıyor | `fit-planim-rozetler-v1.html:338-339` | türetilmiş; telafi tavanı JS'e gömülü (`2`) |
-| **E3** | **Hareket süresi** (dk) — tek seferlik · haftalık · toplam | 5 rozet | **EVET** | `aktivite-gunlugu-v1.html:657` `#agDk` (`number`, `min=1 max=600`) | kayıt satırı + `FIT_PLAN` |
-| **E4** | **Kuvvet günü** | 3 rozet | **KISMEN** — antrenman türü seçiliyor ama "kuvvet" ayrı bir tür değil | `aktivite-gunlugu-v1.html:638-643` — 4 tür: `yuruyus` · `kosu` · `bisiklet` · `antrenman` | kayıt satırı `data-tur` |
+| **E3** | **Hareket süresi** (dk) — tek seferlik · haftalık · toplam | 5 rozet | **EVET** | `egzersizlerim-v1.html#aktivite` `#agDk` (`number`, `min=1 max=600`) | kayıt satırı + `FIT_PLAN` |
+| **E4** | **Kuvvet günü** | 3 rozet | **KISMEN** — antrenman türü seçiliyor ama "kuvvet" ayrı bir tür değil | `egzersizlerim-v1.html#aktivite` — 4 tür: `yuruyus` · `kosu` · `bisiklet` · `antrenman` | kayıt satırı `data-tur` |
 | **E5** | **Set / tekrar / ağırlık gelişimi** | 2 rozet | **EVET** | Program günü işaretleme akışı | `FIT_PLAN.ilerleme['g1-h0'] = {yapildi, seviye, tarih, **agirlik**, **tekrarYapilan**, **efor**}` (`fit-plan-kayit.js:33-35`) |
 | **E6** | **Program günü / tamamlama oranı** | 3 rozet | **EVET** | `fit-planim-programim-v1.html` · `program-detay-v1.html` | `FIT_PLAN.gunDurum` + `FIT_PLAN.ozet()` |
-| **E7** | **Adım sayısı** | 4 rozet | **EVET, iki yoldan** | (a) elle: `aktivite-gunlugu-v1.html:668` `#agAdimIn` (`number`, `max=100000`) · (b) cihazdan: `bagli-uygulamalar-v1.html` "Adım sayısı ve mesafe" (`:241`) | kayıt satırı; cihaz yolu **SADECE ARAYÜZ** |
+| **E7** | **Adım sayısı** | 4 rozet | **EVET, iki yoldan** | (a) elle: `egzersizlerim-v1.html#aktivite` `#agAdimIn` (`number`, `max=100000`) · (b) cihazdan: `bagli-uygulamalar-v1.html` "Adım sayısı ve mesafe" (`:241`) | kayıt satırı; cihaz yolu **SADECE ARAYÜZ** |
 | **E8** | **Challenge ilerlemesi** | 3 rozet | **EVET** | `challenge-v1.html:676` 30 günlük takvim · veri `:1063` | `FIT_PLAN` üzerinden (`fit-planim-rozetler-v1.html:176`) |
-| **E9** | **Hareket çeşitliliği** (kaç farklı hareket / tür) | 2 rozet | **TÜRETİLEBİLİR** — ayrı giriş yok, kayıtlardan sayılır | `aktivite-gunlugu` tür alanı + `FIT_PLAN.gunler[].hareketler[].slug` | türetilmiş |
+| **E9** | **Hareket çeşitliliği** (kaç farklı hareket / tür) | 2 rozet | **TÜRETİLEBİLİR** — ayrı giriş yok, kayıtlardan sayılır | `egzersizlerim-v1.html#aktivite` tür alanı + `FIT_PLAN.gunler[].hareketler[].slug` | türetilmiş |
 | **E10** | **Planlı dinlenme günü** | 2 rozet | **EVET** | `fit-planim-programim-v1.html:896` "Dinlenme günü ekle → takvimde gün seç → `dinlenmeEkle`" · takvimde ayrı etiket `:1010` | plan içinde gün türü |
 | **E11** | **Isınma ve soğuma** | 1 rozet | **KISMEN** — plan şemasında `isinma` alanı var, soğuma alanı yok | plan verisi | `FIT_PLAN.gunler[].isinma` (`fit-plan-kayit.js:22`) |
 | **E12** | **Kişisel rekor** (öz-referanslı) | 1 rozet | **TÜRETİLEBİLİR** | E5'in `agirlik`/`tekrarYapilan` geçmişinden | türetilmiş |
@@ -286,7 +286,7 @@ girişi ya da türetim kaynağı makette vardır.
 
 ### 5.1 · Nabız ve mesafe — rozette YOK, veride VAR
 
-Ölçüm bütünlüğü için kayda geçer: `aktivite-gunlugu-v1.html` iki alan daha
+Ölçüm bütünlüğü için kayda geçer: Aktivite Günlüğü (`egzersizlerim-v1.html#aktivite`) iki alan daha
 topluyor ama **hiçbir rozet bunları kullanmıyor**:
 
 | Alan | Giriş | Kanıt |
@@ -308,14 +308,14 @@ eylemler:
 
 | Olay | Nerede | Bugün gerçekten oluyor mu |
 |---|---|---|
-| Aktivite kaydı ekleme | `aktivite-gunlugu-v1.html` kayıt formu | **EVET** (form doğrulamalı, listeye ekliyor) |
+| Aktivite kaydı ekleme | `egzersizlerim-v1.html#aktivite` kayıt formu | **EVET** (form doğrulamalı, listeye ekliyor) |
 | Program günü tamamlama | `fit-planim-programim-v1.html` | **EVET** (`FIT_PLAN.gunKayitIsaretle`) |
 | Hareket işaretleme (set/tekrar/ağırlık/efor) | program günü akışı | **EVET** (`FIT_PLAN.isaretle`) |
 | Plan oluşturma | `antrenman-olusturucu-v1.html` | **EVET** (`FIT_PLAN.kaydet`) |
 | Planı aktif yapma / arşivleme / yeniden başlama | Fit Planım | **EVET** (`aktifYap` · `planArsivIsaretle` · `yenidenBasla`) |
 | Dinlenme günü ekleme | `fit-planim-programim-v1.html:896` | **EVET** |
 | Challenge gününü tamamlama | `challenge-v1.html` | **EVET** |
-| Su kaydı | `enerji-defteri-su-v1.html` | **EVET** — ⚠ hiçbir rozet su eksenini kullanmıyor |
+| Su kaydı | `egzersizlerim-v1.html#defter-su` | **EVET** — ⚠ hiçbir rozet su eksenini kullanmıyor |
 | Öğün / enerji kaydı | `enerji-defteri-v1.html:539` | **EVET** — ⚠ rozete bağlı değil |
 | Fit Testi tamamlama | `fit-testi-detay-v1.html` · `fit-test-sonuclarim-v1.html` | **EVET** — ⚠ rozete bağlı değil, 7 test var (`fit-testleri-v1.html:291-411`) |
 | Hareket/program kaydetme (yer imi) | `fit-planim-kaydettiklerim-v1.html` | **EVET** — rozete bağlı değil |

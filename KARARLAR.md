@@ -2725,3 +2725,137 @@ kırık dosya hedefi **0** · kırık çapa **0** · `destek-akisi` · `destek-k
 > çelişkiyi **açık kalem** olarak kayda geçirdi (`deploy-oncesi §8.1`) ve
 > kendi başına karara bağlamadı — doğrusu budur; kararı geri alma yetkisi
 > Beyar'dadır.
+
+---
+
+## K71 · Enerji Defteri tekrar TEK ADRES oldu — dört alt sayfa sekmeye indi
+
+**Karar (Beyar, 2026-08-30 · R18/2).** `egzersizlerim-v1.html#defter`
+sekmesindeki kalemler ayrı sayfaya gidiyordu; artık gitmiyor. **Yediğini
+Dengele · Su Takibi · Haftalık Özet** Enerji Defteri sekmesinin **ALTINDA**,
+aynı adreste, alt sekme olarak açılıyor.
+
+Beyar'ın gerekçesi ölçülebilirdi ve ölçüldü: *"Ayrı sayfaya gidince kimlik
+kartındaki ad yerine sayfa başlığı geçiyor, profil yapısı bozuluyor."*
+Kök neden üç sayfanın da `#fitPlanTop` kabuğunu kullanmasıydı — o kabuk
+`<h1>`e **sayfa başlığını** basar (`fit-shell.js`, `data-plan-title`).
+Modül kabuğu (`#fitModulTop`) R16'da kimlik kartını sekmeden bağımsız
+kılmıştı; üç sayfa o kararın dışında kalmıştı.
+
+| Eski adres | Yeni adres |
+|---|---|
+| `enerji-defteri-dengele-v1.html` | `egzersizlerim-v1.html#defter-dengele` |
+| `enerji-defteri-su-v1.html` | `egzersizlerim-v1.html#defter-su` |
+| `enerji-defteri-haftalik-v1.html` | `egzersizlerim-v1.html#defter-haftalik` |
+
+**Yeni bileşen üretilmedi.** Alt şerit kabuğun kendi `[data-fit-tabs]` panel
+kipidir, `data-fit-tabs-scope` ile kapsamlanmış — emsali admin tarafında
+zaten çalışıyordu (`admin-antrenorler-v1.html` · `admin-hizmetler-v1.html`).
+Derin bağlantı için kabuğa **tek** ekleme yapıldı: hash bir modül anahtarı
+değilse, aynı anahtarlı `.fit-pane`i KAPSAYAN modül paneli açılır ve alt
+şerit markup'ta işaretlenir. Genel bir kural; `defter-*`e özel değil.
+
+**Düşen kabuk kalemleri:** `DEFTER_TABS` dizisi (R10 · K29) tamamen silindi —
+hizmet ettiği dört sayfanın dördü de yok. `PLAN_EXTRA`dan beş anahtar düştü.
+
+---
+
+## K72 · `dadafit-kopru-v1.html` ve `enerji-ihtiyaci-v1.html` kalktı
+
+**Karar (Beyar, 2026-08-30 · R18/3 ve R18/4).**
+
+**Enerji Köprüsü** — sayfa koşulsuz kalkıyor, footer'dan da kalkıyor.
+Kavramın mirasçısı Enerji Defteri'dir; anlamlı CTA'lar oraya yönlendirildi,
+salt gezinme kalemleri kaldırıldı.
+
+**Günlük Enerji İhtiyacı** — Beyar kuralı: *"footer bağlantısı kalkacak;
+sayfa başka yerden ulaşılıyorsa dursun, ulaşılmıyorsa kalksın."*
+**ÖLÇÜM:** 81 sayfanın hiçbirinde `enerji-ihtiyaci-v1.html` bağlantısı YOK —
+tek giriş footer kalemiydi (`grep -rn --include="*.html"`; kalan geçişler
+admin menü verisi, SEO kaydı ve kendi testiydi). Kural gereği sayfa kalktı;
+`tests/enerji-hesap.mjs` de onunla birlikte.
+
+> ⚠ **Kayıt:** sayfa çalışan bir Mifflin-St Jeor hesabı taşıyordu. Silinme
+> gerekçesi işlev değil **erişilemezlikti**. Hesap geri istenirse Enerji
+> Defteri'nin bir alt sekmesi olarak doğar — ayrı adres olarak değil, çünkü
+> ayrı adres onu tam da bu duruma düşürmüştü.
+
+---
+
+## K73 · Aktivite Günlüğü modül sekmesi oldu
+
+**Karar (Beyar, 2026-08-30 · R18/5).** `aktivite-gunlugu-v1.html` yalnız
+footer'dan ulaşılıyordu, yani kopuktu. Beyar seçimi ajana bıraktı:
+*"Egzersizlerim ya da Programlarım altında, hangisi mantıklıysa sen karar
+ver."*
+
+**Seçim: Egzersizlerim.** Gerekçe modüllerin kendi tanımından okundu
+(`PLAN_TABS`, `fit-shell.js`):
+
+- Egzersizlerim → *"Hareketlerin, antrenörün, enerji defterin"* — **yapılmış
+  olanın kaydı**
+- Programlarım → *"Programın, planın, testlerin, ilerlemen"* — **plan, yani
+  yapılacak olan**
+
+Aktivite Günlüğü adım, süre, mesafe ve yaklaşık enerjiyi kaydeder; geçmişi
+tutar, plan kurmaz. Yeni adres: `egzersizlerim-v1.html#aktivite`.
+Footer kalemi kalktı; erişim modül şeridinden ve Bağlı Uygulamalar
+sayfasından sürüyor.
+
+---
+
+## K74 · Footer denetimi — üç kalem düştü, iki kusur kapandı
+
+**Karar (Beyar, 2026-08-30 · R18/6):** *"Footer'daki tüm kalemleri ölç:
+hangisi yaşayan sayfa, hangisi kopuk, hangisi artık gereksiz."*
+
+Ölçüm betiği kalıcı: `docs/qa/footer-denetim.mjs` — footer'ın **tamamını**
+çalışan kabuktan okur, her hedefi diskte doğrular, çapaları hedef sayfada
+arar, dokunma hedefini **hit test** ile ölçer.
+
+**Kaldırılan üç kalem** (hepsi sayfasıyla birlikte): Enerji Köprüsü ·
+Günlük Enerji İhtiyacını Hesapla · Aktivite Günlüğü.
+**Adresi değişen iki kalem:** Su Takibi · Haftalık Özet → derin bağlantı.
+"Enerji ve Denge" kolonu **6 → 3 kalem**.
+
+**Kapanan iki kusur:**
+
+1. **Sosyal kutular ölü bağlantıydı** — Instagram ve YouTube `<a href="#">`
+   idi; tıklayınca hiçbir yere gitmiyor, sayfanın tepesine sıçrıyorlardı.
+   Gerçek hesap adresi yok (`docs/icerik-bekleyen.md`). Deponun **kendi**
+   kararı iki satır aşağıda duruyordu: mağaza kutuları bu yüzden `<a href>`
+   değil `<span aria-disabled="true" title="Yakında">`. Aynı desen sosyal
+   kutulara da uygulandı — **görüntü değişmedi**, ölü bağlantı bitti.
+2. **Kurumsal + yasal bant + alt satır 24px altındaydı** — 15 bağlantının
+   görünür yüksekliği 21.7 / 21.1px, WCAG 2.5.8 AA tabanının altında.
+   Görünmez `::before` ile hedef 24px'e açıldı (kit §10/§13'ün "görsel aynı,
+   hedef büyük" deseni). **Yasal bandın dokunulmazlığı korundu**: punto,
+   renk, sıra, hedef, satır yüksekliği hiçbiri değişmedi.
+   44 değil 24 seçildi çünkü 390px'te satır adımı **29px ölçüldü** — 44px'lik
+   kutular komşu satırla çakışır ve tıklama yanlış kaleme düşerdi.
+
+**Kapatan ölçüm:** `docs/qa/footer-denetim.mjs` @1440 · 1024 · 390 →
+kırık hedef **0** · kırık çapa **0** · tekrar eden hedef **0** ·
+24px altı **0** · konsol **0**.
+
+---
+
+## K75 · Görüş Bildir şeridi tek satır, "Uygulama" kalktı
+
+**Karar (Beyar, 2026-08-30 · R18/1).** Popup'taki bölüm şeridi çift satıra
+taşıyordu (ölçüldü: panel iç genişliği 372px, beş çip 452px). Şerit **tek
+satır** oldu ve sığmadığında **yatay kaydırılıyor** — kitin kendi
+`.fit-tabs` deseni (`overflow-x:auto` + gizli çubuk); yeni sınıf üretilmedi.
+
+**"Uygulama" kalemi kalktı** — mobil uygulamamız yok, olmayan bir yüzey için
+görüş toplamak yalandı. Aynı yalan "Teknik sorun" formundaki **"Mobil
+uygulama"** seçeneğinde de duruyordu, o da kalktı. Ölü ad **"Planım"**
+(modül R15/2'de "Egzersizlerim" oldu) gerçeğe çekildi.
+
+**Kalan kalemler uydurulmadı, kabuktan ÖLÇÜLDÜ** — dördü üst menünün (`NAV`)
+dört modülü, beşincisi Egzersizlerim'in Enerji Defteri sekmesi:
+**Hareketler · Programlar · Challenge · Antrenörler · Enerji Defteri · Diğer**
+
+**Kapatan ölçüm:** `docs/qa/gorus-cip-serit.mjs` — 3 sayfa × 3 genişlik = 9
+ölçümün 9'u yeşil: satır **1** · kaydırma **çalışıyor** · dikey taşma **0** ·
+"Uygulama" çipi **0** · 44px altı hedef **0** · konsol **0**.

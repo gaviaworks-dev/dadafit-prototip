@@ -294,6 +294,68 @@ değer, alternatif adı `ED_VERI`den.
 
 ---
 
+## R19'DA KAPANANLAR (2026-08-30)
+
+| # | Kalem | Nasıl kapandı |
+|---|---|---|
+| 2 | İlçe listesi — 81 il tam, 973 ilçe serbest metin | **Yarı kapandı.** 81 il artık bir modülde: `assets/js/fit-il-veri.js`, üreteci `tools/il-veri-uret.mjs` — `odemelerim-v1.html`e gömülü `<option>` yığınından ÇIKARILDI, elle kopyalanmadı, public sayfa değişmedi. **973 ilçe hâlâ yok**; alan serbest metin ve ekran bunu söylüyor. |
+| 4 | Kademe alanı — `dm_user` şemasında `paket` yok | Üye detayında **"—" + gerekçesiyle** görünür oldu. |
+| 5 | Üyelik tarihi — hiçbir şemada kayıt tarihi yok | Aynı desen. Ayrıca üye listesinden **"Kayıt" kolonu kaldırıldı**: uydurulmuş tarih basıyordu (7 → 6 kolon). |
+| 10 | `admin-destek-v1`de kimlik hücresi yok | Kuyruk kartına kimlik hücresi eklendi; kart tabloya çevrilmedi. |
+
+## R19'DA AÇILAN YENİ KALEMLER
+
+11. 🔴 **`.cmp-table` iki public sayfada İKİ KOPYA ve ölçüldü ki ZATEN AYRIŞMIŞLAR.**
+   `pro-v1.html` (31 `.cmp-*` kuralı) ile `paketlerim-v1.html` (25 kural)
+   aynı bileşeni ayrı ayrı tanımlıyor ve değerleri **artık aynı değil**:
+
+   | Ölçü | `pro-v1` | `paketlerim-v1` |
+   |---|---|---|
+   | `.cmp-table` `min-width` | `660px` | `640px` |
+   | hücre dolgusu | `13px 18px` | `12px 16px` |
+   | `thead th` rengi | `--muted` + `uppercase` + `sticky` | `--slate-2`, ikisi de yok |
+   | `.cmp-hint` | `display:none` | `display:flex` |
+
+   Yani kullanıcı iki sayfada **farklı bir tablo** görüyor. Yönetim paneli
+   karşılaştırma tablosunun önizlemesini gösterecekse **üçüncü kopyayı
+   yazmak** gerekirdi; B1 ajanı doğru davrandı ve yazmadı.
+   **Yapılacak:** `.cmp-*` kabuğa (`fit-shell.css`) taşınır, iki sayfa da
+   oradan okur. Hangi değerlerin kanon olacağı bir karar — iki sayfa iki
+   farklı şey ölçmüş. **İki public sayfayı ilgilendirdiği için R19'da
+   yapılmadı.**
+
+12. **Reklam envanteri: 8 satılan format ↔ 10 yönetilen alan, eski kesişim 0.**
+   R19'da envanter tek kaynağa alındı (`assets/js/fit-reklam-veri.js`, iki
+   taraf da depodan okundu) ve eşleşme ekranda **görünür** kılındı: birebir
+   oturan **1**, kısmi **3**, karşılıksız kalanlar satırda yazılı.
+   **Yapılacak:** eşleşmeyenler bir ÜRÜN kararı — hangi format hangi alana
+   düşecek, ya da hangisi kalkacak.
+
+13. **`FIT_SU`nun `EK_ADIM_ML` sabiti dışa verilmiyor.** Ayarlar'ın
+   "Sağlık ve ölçüm sabitleri" sekmesi üç sabiti modülden okuyor (10 ml/dk ·
+   1,5 ml/kcal · 1500 ml tavan); dördüncüsü `fit-su.js` içinde var ama
+   `FIT_SU`dan verilmiyor, ekranda **"—"** kalıyor. Sayı uydurulmadı.
+   Aynısı `KCAL_DK`/`ADIM_DK` katsayıları için: paylaşılan modülde değil,
+   `egzersizlerim-v1.html`in içinde. K13 "koda gömülmez" diyor.
+
+14. **8 destek konusunun 3'ünün hızlı çözüm yönergesi yok** —
+   *Üyelik ve fatura · Antrenör ve randevu · Uygulama hatası*. Bu üçünü
+   seçen üye, öncesinde okuyacağı bir şey bulamıyor. Ters yön temiz (5
+   yönergenin 5'i de formda karşılık buluyor). İçerik kararı.
+
+15. **`docs/fit-spec-kopukluklari.md` — public yüzeyde 22 mantık kopukluğu.**
+   Bu tur yalnız ÖLÇÜLDÜ, hiçbiri düzeltilmedi (kapsam yönetim paneliydi).
+   En ağırı: `dm_fit.bugun`da tarih alanı yok ve gün dönümünde sıfırlayan
+   kod yok — 9 gün önceki 40 dk ekranda **"90 dk bugün"** olarak görünüyor.
+   `fit-su.js` bunu doğru yapıyor (`gunler:{'YYYY-MM-DD'}`); geride kalan
+   tek yer kabuk.
+
+16. **Ajanların ortak scratchpad'i çakışıyor.** B5, sondasının başka bir
+   ajan tarafından ezildiğini bildirdi (`olc.mjs`). Ajan brifingine
+   "geçici dosya adına kendi ön ekini koy" kuralı eklenmeli.
+
+---
+
 ## SONRAKİ OTURUM: ADMİN PANEL
 `fit-paket.js` (kademe⇄özellik matrisi) ve `fit-challenge.js` (challenge
 kataloğu) bugün okunabilir veri; panel yazma ucunu ekleyecek. Ayrıntı devir

@@ -647,6 +647,25 @@
 }
 .pnl-empty h4{font-size:16px;font-weight:700;color:var(--slate);margin-bottom:6px}
 .pnl-empty p{font-size:13px;color:var(--muted);max-width:340px;margin:0 auto 8px}
+/* 🔴 R21 · BOŞ DURUMUN DÖRDÜNCÜ PARÇASI. Ölçüldü (B1): Gastro'nun boş
+   durumu DÖRT parça — ikon · başlık · metin · `.pe-tag` **eylemi**
+   (`tarifler/index.blade.php:99-104`: "Filtreyi Temizle"). Fit'te dördüncü
+   parça 8/9 ekranda yoktu: kullanıcı "kayıt bulunamadı" görüyor ama süzgeci
+   sıfırlayacak bir yol bulamıyordu. `API.bos()` dördüncü parametreyi zaten
+   alıyordu — geçen yoktu ve CSS'i de yazılmamıştı.
+   Değerler `public/reference/admin/sa-shell.css:408`den birebir; tek fark
+   dokunma hedefi: Gastro'nun 5px 12px dolgusu 44px'in altında kalıyor,
+   kutu min-height ile 44'e çıkarıldı (kit §5, "görsel Gastro'nunki, kutu 44"). */
+.pnl-empty .pe-tag,.fpx-bos .pe-tag{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:44px;padding:5px 12px;margin-top:10px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--acc-deep);background:rgba(var(--acc-rgb),.12);
+  border:0;border-radius:var(--radius-pill);cursor:pointer;font-family:inherit;
+  text-decoration:none;transition:background .18s var(--ease);
+}
+.pnl-empty .pe-tag:hover,.fpx-bos .pe-tag:hover{background:rgba(var(--acc-rgb),.2)}
+.pnl-empty .pe-tag:focus-visible,.fpx-bos .pe-tag:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .adm-card .fpx-bos,.pnl-card .fpx-bos{box-shadow:none;border:0;background:transparent}
 
 /* =====================================================================
@@ -1308,12 +1327,30 @@ body.nav-open .pnl-overlay,.adm-scrim.is-on{opacity:1;pointer-events:auto}
 .back-link:hover{color:var(--acc)}
 
 /* P1 · İki kolon — ölçüldü: `minmax(0,1fr) minmax(280px,360px)`, gap 24 */
+/* 🔴 R21 · EKRAN SORGUSU → KAP SORGUSU. Ölçüldü (B5, 21 sayfa × 4 genişlik ×
+   rail açık/katlı = 168 ölçüm): kusur **21/21 form sayfasında** vardı ve
+   sayfaya özel değildi — bu iki kabuk kuralının sınıfıydı.
+   SEBEP: `@media` EKRAN genişliğini görür; rail açık/kapalı İÇERİK
+   genişliğini **264px** değiştirir. Aynı 1440px ekranda içerik rail açıkken
+   1044px, katlıyken 1189px. Ekran sorgusu bunu göremez, o yüzden 1100px
+   eşiği rail açıkken hiç tetiklenmiyor ve iki kolon dar alanda zorlanıyordu:
+   yan kolon `minmax(280px,360px)` içinde hep 360'ı alıyor, hiç esnemiyor;
+   daralan tek şey sol kolon. 1120px ekranda rail açıkken sol kolon **340px**e,
+   alanlar **28px**e düşüyordu. Yatay taşma üretmiyordu — alanları eziyordu,
+   o yüzden taşma kapısı bunu yakalayamadı.
+   EŞİK 868px: Gastro `sa-icerik-form.css:189` `@media(max-width:900px)`,
+   eksi `.pnl-main` dolgusu 32px. Aynı yöntem B1'in iki ekranında da
+   kullanıldı (`admin-program-kurgu-v1` zaten 869 `min-width` hâliyle
+   düzeltilmişti) — tek yöntem, tek sayı.
+   Aynı 1120px ekranda sol kolon artık 340 yerine tam genişlik: alan 89px. */
+.adm-page{container-type:inline-size}
 .form-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:24px;align-items:start}
-@media (max-width:1100px){ .form-layout{grid-template-columns:1fr} }
+@container (max-width:868px){ .form-layout{grid-template-columns:1fr} }
 
-/* P2 · Sticky yan kart — 900px altında akışa döner (Gastro sa-ui.css:153) */
+/* P2 · Sticky yan kart — Gastro sa-ui.css:153 900px'te akışa döndürüyor;
+   aynı düzeltme: 900 − 32px dolgu = 868, ve ölçü ekranın değil kabın. */
 .side-card{position:sticky;top:calc(var(--pnl-top-h) + 28px)}
-@media (max-width:900px){ .side-card{position:static} }
+@container (max-width:868px){ .side-card{position:static} }
 
 /* Bölüm bloğu — kartın içinde, aralarında çizgi; sonuncuda çizgi yok */
 .form-sec{padding:18px 22px;border-bottom:1px solid var(--line)}
@@ -1333,7 +1370,19 @@ body.nav-open .pnl-overlay,.adm-scrim.is-on{opacity:1;pointer-events:auto}
 .frow>label .opt{font-weight:500;color:var(--muted);font-size:11.5px}
 .frow.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .frow.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media (max-width:640px){ .frow.two,.frow.three{grid-template-columns:1fr} }
+/* 🔴 R21 · İKİNCİ EŞİK, FARKLI KAP. `.frow`un kabı sayfa DEĞİL, formun sol
+   kolonudur — o yüzden 868 burada yanlış olurdu ve `.form-layout` düzelse
+   bile alanlar dar kalırdı. Ölçülen sayı 565px: Gastro'nun kendi kırılım
+   kenarında (901px ekran) sol kolonu 901 − 32(dolgu) − 24(gap) − 280(yan
+   min) = 565px ve `.frow.two` orada HÂLÂ iki kolonlu. Gastro `.frow.three`ü
+   de aynı 900px'te doğrudan tek kolona düşürüyor (`sa-tarifler-form.css:189`),
+   ikiye değil — tek eşik ikisine de yetiyor.
+   Ölçüm: 1280px ekran, rail açık, sol kolon 500 < 565 → tek kolon, alan
+   142px yerine **500px**. Düzeltme sonrası en dar alan 89px (1120 açık,
+   `antrenor-form` `.frow.three`), öncesi **28px**ti; Gastro'nun kendi
+   tabanı `.frow.two` 275px · `.frow.three` 179px. */
+.form-sec{container-type:inline-size}
+@container (max-width:565px){ .frow.two,.frow.three{grid-template-columns:1fr} }
 .finput,.fselect,.ftext{
   width:100%;height:44px;padding:0 14px;font-family:inherit;font-size:13.5px;font-weight:500;
   color:var(--slate);background:var(--paper);

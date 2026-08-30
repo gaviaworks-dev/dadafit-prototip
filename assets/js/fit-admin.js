@@ -664,15 +664,29 @@
         if (n === 0){
           if (!bosSatir){
             bosSatir = document.createElement('tr');
+            /* R21 · DÖRDÜNCÜ PARÇA. Gastro'nun boş durumu süzgeci sıfırlayan
+               bir eylem taşıyor (`tarifler:103`, "Filtreyi Temizle"); burada
+               metin kullanıcıya "arama kutusunu boşalt" diyordu ama boşaltacak
+               düğmeyi vermiyordu. `API.bos` dördüncü parametreyi zaten alıyordu. */
             bosSatir.innerHTML = '<td colspan="' + tablo.querySelectorAll('thead th').length + '">' +
               API.bos('fa-magnifying-glass', 'Bu aramayla kayıt bulunamadı',
-                      'Arama kutusunu boşalt ya da başka bir sözcük dene.') + '</td>';
+                      'Başka bir sözcük dene ya da aramayı temizle.',
+                      '<button class="pe-tag" type="button" data-adm-ara-temizle>' +
+                      '<i class="fa-solid fa-filter" aria-hidden="true"></i> Aramayı temizle</button>') + '</td>';
             govde.appendChild(bosSatir);
           }
           bosSatir.hidden = false;
         } else if (bosSatir) bosSatir.hidden = true;
       }
       girdi.addEventListener('input', uygula);
+      /* Boş durumdaki "Aramayı temizle" düğmesi satır her basıldığında yeniden
+         doğuyor, o yüzden dinleyici tabloya delege edilir. Sessiz düğme
+         bırakmak bu depoda yasak (kit §14/1). */
+      govde.addEventListener('click', function (e) {
+        var d = e.target.closest ? e.target.closest('[data-adm-ara-temizle]') : null;
+        if (!d) return;
+        girdi.value = ''; uygula(); girdi.focus();
+      });
       uygula();
     },
 

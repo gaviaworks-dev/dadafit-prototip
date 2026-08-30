@@ -107,7 +107,15 @@
             </div>
             <div class="fk-field">
               <label class="fk-label" for="cfSlug">Slug <span class="req">*</span></label>
-              <input class="fk-input" id="cfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="hareket-aliskanligi" />
+              <!-- 🔴 TİRE KAÇIŞLI OLMAK ZORUNDA: `[a-z0-9-]` Chromium'un
+                   `pattern` derleyicisinde İSTİSNA ATIYOR. Tarayıcı kalıbı
+                   `v` bayrağıyla derliyor ve orada karakter sınıfının sonundaki
+                   çıplak `-` geçersiz. Ölçüldü: `new RegExp('[a-z0-9-]+','v')`
+                   → "Invalid character class"; kaçışlısı geçerli.
+                   Sonucu sessiz ve tam da bu turda kovaladığımız yalandı:
+                   `reportValidity()` patlıyor, form DOĞRULANMIYOR, ama maket
+                   notu yine de "Form doğrulandı" diye basılıyordu. -->
+              <input class="fk-input" id="cfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="hareket-aliskanligi" />
               <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız küçük harf, rakam ve tire. Adres bundan üretilir.</span>
             </div>
           </div>

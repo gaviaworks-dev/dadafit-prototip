@@ -186,7 +186,7 @@ var BOTTOM = [
   /* R15/1 · Beyar kararı — kalem ad ve hedef olarak Programlarım'a döndü.
      `match` listesi modül sayfalarını ve Planım kabuğunu hâlâ kullanan
      sayfaları birlikte sayar; hiçbiri kalemsiz kalmaz. */
-  {label:'Programlarım', cls:'bn-plan', href:'programlarim-v1.html',      icon:'fa-solid fa-dumbbell',        match:['programlarim-v1','egzersizlerim-v1','challengelarim-v1','rozetlerim-v1','enerji-defteri-dengele-v1','enerji-defteri-su-v1','enerji-defteri-haftalik-v1','dadafit-kopru-v1','aktivite-gunlugu-v1','bagli-uygulamalar-v1','fit-planim-veri-izin-v1']},
+  {label:'Programlarım', cls:'bn-plan', href:'programlarim-v1.html',      icon:'fa-solid fa-dumbbell',        match:['programlarim-v1','egzersizlerim-v1','challengelarim-v1','rozetlerim-v1','bagli-uygulamalar-v1','fit-planim-veri-izin-v1']},
   /* §1 — belge alt bar son kalemini "Profil" diye adlandırıyor. */
   {label:'Profil',     href:'giris-v1.html',              icon:'fa-solid fa-user', id:'bnAccount'}
 ];
@@ -206,9 +206,11 @@ var BOTTOM = [
  · "Planım" kalemi footer'dan KALDIRILDI. Doküman: "Planım ve
    İlerlemem footer'a eklenmeyecek, header'da kalacak."
  · Enerji Defteri günlük kayıt ekranını, Haftalık Özet son yedi günün
-   özetini açar — iki AYRI sayfa, işlevleri aynı değil (doküman şartı).
- · `enerji-ihtiyaci-v1.html` paralel bir dalda üretiliyor; bu dalda
-   henüz yok, birleştirmeden sonra 200 dönecek. Bağlantı bilerek yazıldı.
+   özetini açar — işlevleri hâlâ ayrı, ama R18'den beri AYRI SAYFA değil,
+   aynı modülün iki alt sekmesi (`#defter` · `#defter-haftalik`).
+ · `enerji-ihtiyaci-v1.html` kalemi R18'de KALKTI; sayfa da silindi.
+   Ölçüm: 81 sayfanın hiçbirinden bağlantısı yoktu, tek girişi bu kalemdi
+   — Beyar'ın kuralı gereği (ulaşılmıyorsa kalksın) ikisi birden gitti.
  ============================================================ */
 var FOOTER_COLS = [
   { key:'hareket', title:'Hareket ve Öğren', links:[
@@ -227,13 +229,30 @@ var FOOTER_COLS = [
       {label:'Antrenörler',    href:'antrenorler-v1.html'},
       {label:'Antrenör Ol',    href:'antrenor-ol-v1.html'}
   ]},
+  /* ============================================================
+     R18 · "ENERJİ VE DENGE" KOLONU ALTIDAN ÜÇE İNDİ — Beyar, 2026-08-30
+     ------------------------------------------------------------
+     ÜÇ KALEM KALKTI, ÜÇÜ DE ÖLÇÜLEREK:
+       · Enerji Köprüsü  → `dadafit-kopru-v1.html` SİLİNDİ (Beyar kararı,
+         madde 3). Kavramın mirasçısı Enerji Defteri'dir; ayrı bir kalem
+         tutmuyoruz, çünkü kolonun ilk kalemi zaten oraya iniyor.
+       · Günlük Enerji İhtiyacını Hesapla → `enerji-ihtiyaci-v1.html` SİLİNDİ
+         (madde 4). Beyar kuralı: "başka yerden ulaşılıyorsa dursun,
+         ulaşılmıyorsa kalksın." ÖLÇÜM: 81 sayfanın hiçbirinden bağlantı
+         YOK — tek giriş bu footer kalemiydi. Kural gereği sayfa kalktı.
+       · Aktivite Günlüğü → sayfa SİLİNDİ, içeriği Egzersizlerim modülünün
+         dördüncü sekmesi oldu (`egzersizlerim-v1.html#aktivite`, madde 5).
+         Beyar: "Footer bağlantısı kalkacak." Erişim kaybı yok: modül
+         şeridinden, hesap menüsünden ve Bağlı Uygulamalar sayfasından
+         geçiliyor.
+     İKİ KALEM ADRES DEĞİŞTİRDİ (sayfa değil, sekme oldular — madde 2):
+       Su Takibi · Haftalık Özet → `egzersizlerim-v1.html#defter-su` ·
+       `#defter-haftalik`. Etiket ve sıra aynı; yalnız hedef derin bağlantı.
+     ============================================================ */
   { key:'enerji', title:'Enerji ve Denge', links:[
-      {label:'Enerji Defteri',                   href:'egzersizlerim-v1.html#defter'},
-      {label:'Enerji Köprüsü',                   href:'dadafit-kopru-v1.html'},
-      {label:'Günlük Enerji İhtiyacını Hesapla', href:'enerji-ihtiyaci-v1.html'},
-      {label:'Aktivite Günlüğü',                 href:'aktivite-gunlugu-v1.html'},
-      {label:'Su Takibi',                        href:'enerji-defteri-su-v1.html'},
-      {label:'Haftalık Özet',                    href:'enerji-defteri-haftalik-v1.html'}
+      {label:'Enerji Defteri', href:'egzersizlerim-v1.html#defter'},
+      {label:'Su Takibi',      href:'egzersizlerim-v1.html#defter-su'},
+      {label:'Haftalık Özet',  href:'egzersizlerim-v1.html#defter-haftalik'}
   ]}
 ];
 
@@ -390,47 +409,44 @@ var PLAN_EXTRA = [
   /* §Ö · destek ekranları da modül kabuğunu kullanır (§Ö2); anahtarları
      burada durur ki banner/breadcrumb çözümü onları da tanısın. */
   {key:'destek-detay',     label:'Destek Talebi',      href:'destek-talebi-detay-v1.html',   icon:'fa-solid fa-comments', desc:'Talep yazışması'},
-  /* G2 — Enerji Defteri dört ayrı sayfaya bölündü; üçü ray dışı alt sayfa.
-     Ray'da yalnız 'Enerji Defteri' (bugun) kalemi görünür, alt sekmeler
-     sayfanın kendi .fit-tabs şeridinden gezinilir. */
-  {key:'defter-dengele',  label:'Dengele',        href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced', desc:'Yediğini hareketle dengele'},
-  {key:'defter-su',       label:'Su Takibi',      href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet',        desc:'Günlük su hedefin'},
-  {key:'defter-haftalik', label:'Haftalık Özet',  href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week',  desc:'Haftanın hareket ve enerji tablosu'},
-  /* R9 · K66 — raydan inip menüye geçen dört sayfa. Ray'da GÖRÜNMEZLER,
-     kabuğu (banner + breadcrumb) kullanmaya devam ederler. */
-  {key:'aktivite',  label:'Aktivite Günlüğü',           href:'aktivite-gunlugu-v1.html',         icon:'fa-solid fa-shoe-prints',            desc:'Adım, süre, mesafe, yaklaşık enerji'},
+  /* 🔴 R18 (2026-08-30) — BEŞ ANAHTAR BURADAN DÜŞTÜ, ÇÜNKÜ SAYFALARI YOK.
+     G2'de Enerji Defteri dört ayrı SAYFAYA bölünmüştü; Beyar bu turda geri
+     aldı (madde 2): üç alt sayfa Egzersizlerim modülünün Enerji Defteri
+     sekmesinin ALTINDA alt sekme oldu, dosyaları silindi.
+       defter-dengele → egzersizlerim-v1.html#defter-dengele
+       defter-su      → egzersizlerim-v1.html#defter-su
+       defter-haftalik→ egzersizlerim-v1.html#defter-haftalik
+     Kusurun kökü de buydu: ayrı sayfa `#fitPlanTop` kullanıyordu ve o kabuk
+     `<h1>`e SAYFA BAŞLIĞINI basıyor; kimlik kartındaki ad yerine "Su Takibi"
+     geçiyor, profil yapısı bozuluyordu (Beyar'ın ölçtüğü kusur). Modül
+     kabuğunda (`#fitModulTop`) kart sekmeden bağımsız, sorun kökten kalktı.
+     Ayrıca `aktivite` (→ #aktivite sekmesi) ve `kopru` (sayfa tamamen
+     silindi, madde 3) düştü. */
   {key:'cihazlar',  label:'Bağlı Uygulamalar',          href:'bagli-uygulamalar-v1.html',        icon:'fa-solid fa-plug-circle-check',      desc:'Apple Health · Health Connect · saat'},
-  {key:'kopru',     label:'Enerji Köprüsü',             href:'dadafit-kopru-v1.html',            icon:'fa-solid fa-arrow-right-arrow-left', desc:'Beslenme ile hareketin buluştuğu yer'},
   {key:'veri',      label:'Veri ve İzinlerim',          href:'fit-planim-veri-izin-v1.html',     icon:'fa-solid fa-shield-halved',          desc:'Neyi kiminle paylaştığın · uygulama tercihleri'}
 ];
 /* ------------------------------------------------------------------
- R10 · K29 — ENERJİ DEFTERİ RAYI (bölüm rayı, ikinci ray DEĞİL)
+ 🔴 R18 (2026-08-30) — `DEFTER_TABS` SİLİNDİ, ÇÜNKÜ HİÇBİR SAYFA KALMADI
  ------------------------------------------------------------------
- Ölçülen kusur: dört defter sayfasının hepsinde üstteki profil rayında
- HİÇBİR kalem aktif değildi (K66'da ray üçe inince 'defter' anahtarı
- raydan düşmüştü, aşağıdaki RAY_UST eşlemesi ölü kaldı), üstelik üçünde
- profil rayının ~271px altında İKİNCİ bir .fit-tabs şeridi vardı. İki
- rayda da "Bugün" kalemi geçiyordu ama hedefleri farklıydı
- (fit-planim-v1 vs enerji-defteri-v1) — kullanıcı arafta kalıyordu.
+ R10 · K29'da Enerji Defteri'nin DÖRT AYRI SAYFASI vardı ve her birinde
+ üstteki profil rayı yanlış kalemi işaretliyordu; çözüm "ray bölüme göre
+ değişir" olmuştu: Planım sayfalarında PLAN_TABS, defter sayfalarında
+ DEFTER_TABS.
 
- R12 · G7 bu ikinci rayı ZATEN kaldırmıştı, ama yalnız enerji-defteri-v1
- sayfasında; üç kardeşi elde kaldı (docs/lessons.md §15 — dar kapsam).
+ Beyar bu turda bölünmeyi geri aldı (madde 2): üç alt sayfa
+ (`enerji-defteri-dengele-v1` · `enerji-defteri-su-v1` ·
+ `enerji-defteri-haftalik-v1`) SİLİNDİ, içerikleri `egzersizlerim-v1.html`in
+ Enerji Defteri sekmesinin ALTINA alt sekme olarak girdi. Yani bu rayın
+ hizmet ettiği dört sayfanın dördü de artık YOK — dizi ölü kaldı ve
+ silindi. Yerini alan yapı yeni bir bileşen DEĞİL: kabuğun kendi
+ `[data-fit-tabs]` panel kipi, `data-fit-tabs-scope` ile kapsamlanmış
+ (emsal: `admin-antrenorler-v1.html` · `admin-hizmetler-v1.html`).
 
- Çözüm (Beyar kararı, R10): ray BÖLÜME GÖRE değişir, sayfa başına bir
- tane. Planım sayfalarında PLAN_TABS (K66 · üç kalem, dokunulmadı),
- Enerji Defteri sayfalarında DEFTER_TABS. Böylece aktif kalem 4/4
- defter sayfasında doğru ve "Bugün" tekrarı ortadan kalkar — buradaki
- "Bugün" defterin kendi anasayfasıdır.
-
- Anahtarlar PLAN_EXTRA'da DURMAYA DEVAM EDER: banner başlığı ve
- breadcrumb çözümü PLAN_PAGES üzerinden yürüyor.
+ Kazanç ölçüldü: ayrı sayfa `#fitPlanTop` kullanıyordu, o kabuk `<h1>`e
+ SAYFA BAŞLIĞINI basar — Beyar'ın gördüğü "kimlik kartındaki ad yerine
+ sayfa başlığı geçiyor" kusuru buradan geliyordu. Modül kabuğunda kart
+ sekmeden bağımsızdır, kusur kökten kalktı.
  ------------------------------------------------------------------ */
-var DEFTER_TABS = [
-  {key:'defter',          label:'Bugün',         href:'egzersizlerim-v1.html#defter',          icon:'fa-solid fa-sun'},
-  {key:'defter-dengele',  label:'Dengele',       href:'enerji-defteri-dengele-v1.html',  icon:'fa-solid fa-scale-balanced'},
-  {key:'defter-su',       label:'Su Takibi',     href:'enerji-defteri-su-v1.html',       icon:'fa-solid fa-droplet'},
-  {key:'defter-haftalik', label:'Haftalık Özet', href:'enerji-defteri-haftalik-v1.html', icon:'fa-solid fa-calendar-week'}
-];
 
 /* §Ö3 (Dalga 4, 2026-08-29) — DESTEK MERKEZİ BÖLÜM ŞERİDİ, ÜÇ KALEM:
    Destek Taleplerim · Yeni Destek Talebi · Çözüm Merkezi.
@@ -985,11 +1001,25 @@ var FEEDBACK_HTML = `<span class="fb-rail" aria-hidden="true"></span>
         </div>
 
         <div class="fb-fields active" data-for="oneri">
+          <!-- 🔴 R18 (2026-08-30) — ŞERİT GÜNCEL MODÜLLERLE EŞLENDİ.
+               "Uygulama" kalemi KALKTI: mobil uygulamamız yok, olmayan bir
+               yüzey için görüş toplamak yalandı (Beyar, madde 1).
+               Kalan kalemler uydurulmadı, ÖLÇÜLDÜ — dördü üst menünün
+               (NAV) dört modülünün ta kendisi, beşincisi Egzersizlerim
+               modülünün Enerji Defteri sekmesi:
+                 NAV → Hareket · Programlar · Challenge · Antrenörler
+                 modül sekmesi → egzersizlerim-v1.html#defter
+               "Hareketler" çoğul kalıyor: alt bardaki (BOTTOM) ve
+               footer'daki kalem de böyle yazıyor, kullanıcı bu adı görüyor.
+               Şerit TEK SATIR ve sığmazsa yatay kaydırılır — biçimi
+               fit-shell.css .fb-chiprow kuralında, kitin .fit-tabs
+               deseniyle (ters tırnak YOK: bu blok bir template literal). -->
           <div class="fb-chiprow" role="group" aria-label="İlgili alan">
             <button class="chip active" type="button">Hareketler</button>
             <button class="chip" type="button">Programlar</button>
+            <button class="chip" type="button">Challenge</button>
+            <button class="chip" type="button">Antrenörler</button>
             <button class="chip" type="button">Enerji Defteri</button>
-            <button class="chip" type="button">Uygulama</button>
             <button class="chip" type="button">Diğer</button>
           </div>
           <div class="fb-field"><textarea required placeholder="Önerini anlat *"></textarea></div>
@@ -1019,8 +1049,11 @@ var FEEDBACK_HTML = `<span class="fb-rail" aria-hidden="true"></span>
               <option>Hareket / Egzersiz sayfası</option>
               <option>Arama</option>
               <option>Üyelik & Giriş</option>
-              <option>Planım / Enerji Defteri</option>
-              <option>Mobil uygulama</option>
+              <!-- R18 · "Mobil uygulama" SİLİNDİ — çip şeridindeki
+                   "Uygulama" ile aynı yalan; olmayan bir yüzey.
+                   "Planım" da ölü ad: modül R15/2'de "Egzersizlerim" oldu. -->
+              <option>Egzersizlerim / Enerji Defteri</option>
+              <option>Programlarım / Challenge</option>
             </select>
           </div>
           <div class="fb-field"><textarea required placeholder="Sorunu kısaca anlat — ne yaptın, ne oldu? *"></textarea></div>
@@ -1140,11 +1173,21 @@ var FOOTER_RAW = `<footer class="footer orange">
         <p class="foot-tag">Bilimsel temelli hareket içerikleri, uygulanabilir programlar ve ölçülebilir takip araçlarıyla aktif yaşamı herkes için erişilebilir kılıyoruz.</p>
         <!-- SOSYAL — Beyar kararı: YALNIZ Instagram ve YouTube.
              X · Facebook · LinkedIn footer'dan kaldırıldı, geri eklenmez. -->
+        <!-- 🔴 R18 · SOSYAL KUTULAR ARTIK BAĞLANTI DEĞİL (Beyar, madde 6)
+             ÖLÇÜLEN KUSUR: ikisi de "<a href="#">" idi — footer denetiminde
+             "boş hedef" olarak düştüler; tıklayınca hiçbir yere gitmiyor,
+             yalnız sayfanın tepesine sıçrıyorlardı. Gerçek hesap adresi
+             henüz yok (docs/icerik-bekleyen.md).
+             ÇÖZÜM UYDURULMADI: deponun kendi kararı zaten iki satır aşağıda
+             duruyor — mağaza kutuları da bu yüzden "<a href>" DEĞİL,
+             "<span aria-disabled="true" title="Yakında">". Aynı desen
+             buraya da uygulandı: kutu görünür, durum bilgisi (aria-label +
+             title) korunur, odak sırasına girmez, ölü bağlantı bitti.
+             Adres gelince "<span>" → "<a href>" olur; "data-yer-tutucu"
+             işareti tam bunun için duruyor. -->
         <div class="foot-soc">
-          <!-- YER TUTUCU — gerçek hesap adresi gelince değişecek · docs/icerik-bekleyen.md -->
-          <a href="#" data-yer-tutucu="instagram" aria-label="Instagram — hesap adresi henüz yok, yakında"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
-          <!-- YER TUTUCU — gerçek hesap adresi gelince değişecek · docs/icerik-bekleyen.md -->
-          <a href="#" data-yer-tutucu="youtube" aria-label="YouTube — hesap adresi henüz yok, yakında"><i class="fa-brands fa-youtube" aria-hidden="true"></i></a>
+          <span class="fs-soc" role="img" data-yer-tutucu="instagram" aria-disabled="true" title="Yakında" aria-label="Instagram — hesap adresi henüz yok, yakında"><i class="fa-brands fa-instagram" aria-hidden="true"></i></span>
+          <span class="fs-soc" role="img" data-yer-tutucu="youtube" aria-disabled="true" title="Yakında" aria-label="YouTube — hesap adresi henüz yok, yakında"><i class="fa-brands fa-youtube" aria-hidden="true"></i></span>
         </div>
       </div>
       <!-- 2·3·4 · HAREKET VE ÖĞREN / PROGRAMLAR VE UZMAN DESTEĞİ / ENERJİ VE DENGE -->
@@ -1300,12 +1343,11 @@ if(_plan){
      K66'dan beri 'defter' PLAN_TABS'te yok — hiçbir kalem aktif olmuyordu. */
   /* §Ö2/§Ö3 — üçüncü ray kiti: destek modülü. Desen DEFTER_TABS'inkiyle
      aynı, yeni mekanizma kurulmadı. */
+  /* R18 — üçüncü kit (DEFTER_TABS) düştü; iki kit kaldı: destek ve Planım. */
   var destekAnahtar = ['destek-talepleri','destek','destek-detay'];
-  var rayKit    = DEFTER_TABS.some(function(it){ return it.key===pk; }) ? DEFTER_TABS
-                : (destekAnahtar.indexOf(pk)>-1 ? DESTEK_TABS : PLAN_TABS);
-  var rayAdi    = (rayKit===DEFTER_TABS) ? 'defter' : (rayKit===DESTEK_TABS ? 'destek' : 'planim');
-  var rayEtiket = (rayKit===DEFTER_TABS) ? 'Enerji Defteri bölümleri'
-                : (rayKit===DESTEK_TABS ? 'Destek merkezi bölümleri' : 'Fit Planım bölümleri');
+  var rayKit    = (destekAnahtar.indexOf(pk)>-1) ? DESTEK_TABS : PLAN_TABS;
+  var rayAdi    = (rayKit===DESTEK_TABS) ? 'destek' : 'planim';
+  var rayEtiket = (rayKit===DESTEK_TABS) ? 'Destek merkezi bölümleri' : 'Fit Planım bölümleri';
   /* §Ö3 · aktif kalem TEK olmalı (`[aria-current=page]` sayısı === 1).
      Talep detayı şeridin kendi kalemi DEĞİLDİR; atası "Destek Taleplerim"
      aktif görünür — yoksa detay ekranında hiçbir kalem işaretlenmezdi. */
@@ -1462,6 +1504,54 @@ if(_modul){
      tarayıcının normal çapa davranışı sürer. */
   var mhash = (location.hash || '').replace('#','');
   if(mhash && mtabs.some(function(t){ return t.key===mhash; })) maktif = mhash;
+  /* 🔴 R18 · ALT SEKME VE ÇAPA DERİN BAĞLANTISI (2026-08-30, madde 2)
+     Enerji Defteri'nin üç alt sayfası bu turda silinip modülün İÇİNDE alt
+     sekme oldu (`#defter-su` · `#defter-dengele` · `#defter-haftalik`).
+     Footer, admin menü verisi ve dışarıdan gelen eski bağlantılar bu
+     adreslere iniyor — hash bir MODÜL sekmesi değil.
+
+     Kural GENEL yazıldı, `defter-*`e özel değil: hash neyi işaret ediyorsa
+     (bir alt panel ya da bir BÖLÜM ÇAPASI, ör. `#yediklerim`), onu taşıyan
+     panel zinciri açılır. Ölçülen kusur buydu — `#yediklerim` defterin
+     içindeki bir bölümdü ama sayfa "Egzersizlerim" sekmesiyle açılıyor,
+     çapa gizli panelde kalıyordu.
+
+     Sekme bileşeni ([data-fit-tabs]) açılış durumunu MARKUP'tan okuduğu için
+     burada işaretlemek yetiyor; bileşene özel kanal açılmadı. Bu blok
+     bileşenden ÖNCE koşar, yani bileşen doğru başlangıcı görür. */
+  else if(mhash && /^[\w-]+$/.test(mhash)){
+    var _hedef = document.querySelector('.fit-pane[data-pane="' + mhash + '"]')
+              || document.getElementById(mhash);
+    var _ic  = _hedef ? _hedef.closest('.fit-pane[data-pane]') : null;   /* hedefi taşıyan en iç panel */
+    var _mod = _ic;
+    while(_mod && !mtabs.some(function(t){ return t.key === _mod.getAttribute('data-pane'); })){
+      _mod = _mod.parentElement ? _mod.parentElement.closest('.fit-pane[data-pane]') : null;
+    }
+    if(_mod){
+      maktif = _mod.getAttribute('data-pane');
+      if(_ic && _ic !== _mod){
+        var _ikey = _ic.getAttribute('data-pane');
+        var _kap  = _ic.closest('[data-fit-tabs-scope]') || _mod;
+        Array.prototype.forEach.call(_kap.querySelectorAll('[data-fit-tabs] .fit-tab'), function(t){
+          var on = t.getAttribute('data-tab') === _ikey;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        Array.prototype.forEach.call(_kap.querySelectorAll('.fit-pane[data-pane]'), function(pn){
+          if((pn.closest('[data-fit-tabs-scope]') || _kap) !== _kap) return;   /* daha derin kapsam bizim işimiz değil */
+          pn.hidden = pn.getAttribute('data-pane') !== _ikey;
+        });
+      }
+      /* Hedef bir PANEL değil bir çapaysa, tarayıcının çapa sıçraması
+         panel gizliyken kaçmış olur — panel açıldıktan sonra bir kez
+         hizalanır. Sekme DEĞİŞİMİNDE scroll YOK (kit §6); bu yalnız
+         açılışta ve yalnız açık bir çapa isteği varken koşar. */
+      if(_hedef && _hedef !== _ic){
+        var _capa = _hedef;
+        setTimeout(function(){ try{ _capa.scrollIntoView({block:'start'}); }catch(e){} }, 0);
+      }
+    }
+  }
 
   var mtabHtml = mtabs.length
     ? '<div class="pf-tabbar fp-tabbar">\n  <div class="wrap">\n' +

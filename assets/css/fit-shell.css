@@ -703,8 +703,14 @@ html.reduce-motion .row-track{scroll-behavior:auto}
 .foot-col a{white-space:normal}
 .foot-brand img{height:42px;width:auto;margin-bottom:22px}
 .foot-soc{display:flex;gap:11px}
-.foot-soc a{width:42px;height:42px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);display:grid;place-items:center;color:#cdd8e0;font-size:16px;transition:.2s var(--ease)}
+/* 🔴 R18 · İKİ SEÇİCİ, TEK KUTU. Sosyal kutular `<a href="#">` iken footer
+   denetimi ikisini de "boş hedef" saydı; hesap adresi gelene kadar mağaza
+   kutularının kalıbına (`<span aria-disabled>`) çekildiler. Kutunun görüntüsü
+   DEĞİŞMEDİ — aynı 42px, aynı yarıçap, aynı zemin. Değişen tek şey: span'de
+   hover yükselmesi ve imleç yok, çünkü tıklanacak bir şey yok. */
+.foot-soc a,.foot-soc .fs-soc{width:42px;height:42px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);display:grid;place-items:center;color:#cdd8e0;font-size:16px;transition:.2s var(--ease)}
 .foot-soc a:hover{background:var(--fit);color:#fff;transform:translateY(-3px)}
+.foot-soc .fs-soc{cursor:default}
 .foot-col h5{color:#fff;font-size:15px;font-weight:700;margin-bottom:18px}
 .foot-col a{display:block;font-size:14px;font-weight:500;color:#9fb0bc;padding:7px 0;transition:.2s}
 .foot-col a:hover{color:var(--fit);padding-left:5px}
@@ -758,6 +764,29 @@ html.reduce-motion .row-track{scroll-behavior:auto}
   padding:22px 0;border-bottom:1px solid rgba(255,255,255,.2)}
 .foot-corp a{font-size:14px;font-weight:500;color:rgba(255,255,255,.92);white-space:nowrap;transition:.2s}
 .foot-corp a:hover{color:#fff}
+/* =====================================================================
+   🔴 R18 · KURUMSAL/YASAL/ALT BANT — DOKUNMA HEDEFİ 24px (WCAG 2.5.8 AA)
+   ---------------------------------------------------------------------
+   Footer denetimi (docs/qa/footer-denetim.mjs) ölçtü: bu üç banttaki 15
+   bağlantının görünür yüksekliği 21.7px / 21.1px — WCAG 2.5.8'in AA
+   tabanı olan 24px'in ALTINDA. Kolonlardaki kalemler 35.7px, onlar geçiyor.
+
+   GÖRÜNTÜ DEĞİŞMİYOR. Yasal bant belgede DOKUNULMAZ ("metinleri,
+   sıralaması, yönlendirmeleri, renkleri ve görsel yapısı mevcut haliyle
+   korunacaktır") — bu kural o şartın hiçbirine dokunmaz: punto, renk,
+   sıra, hedef, satır yüksekliği aynı kalır; yalnız görünmez bir `::before`
+   tıklama alanını 24px'e açar. Deponun kendi deseni (kit §10 `.kyt-btn`,
+   §13 `.adm-ico-btn`, `.fb-chiprow .chip`): "görsel aynı, hedef büyük".
+
+   NEDEN 24 VE 44 DEĞİL: kitin 44px hedefi düğme/çip/sekme içindir. Bu
+   bantlar metin bağlantı listesi ve 390px'te satır adımı ÖLÇÜLDÜ — 29px.
+   44px'lik kutular komşu satırla çakışır ve tıklama yanlış kaleme
+   düşerdi; 24px çakışmıyor (29 > 24, ölçüldü).
+   ===================================================================== */
+.foot-corp a,.foot-lawband a,.foot-bottom a{position:relative}
+.foot-corp a::before,.foot-lawband a::before,.foot-bottom a::before{
+  content:"";position:absolute;left:0;right:0;top:50%;height:24px;transform:translateY(-50%)
+}
 .foot-corp .sep{width:1px;height:12px;background:rgba(255,255,255,.28);flex:none}
 
 /* ---- 7 · YASAL BANT — DOKUNULMAZ ------------------------------
@@ -780,7 +809,7 @@ html.reduce-motion .row-track{scroll-behavior:auto}
 .gw-code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-weight:700;letter-spacing:-.04em;margin-right:2px}
 .footer.orange{background:var(--fit-deep);color:rgba(255,255,255,.88)}
 .footer.orange .foot-grid{border-bottom-color:rgba(255,255,255,.2)}
-.footer.orange .foot-soc a{background:rgba(255,255,255,.15);color:#fff}
+.footer.orange .foot-soc a,.footer.orange .foot-soc .fs-soc{background:rgba(255,255,255,.15);color:#fff}
 .footer.orange .foot-soc a:hover{background:#fff;color:var(--fit-deep);transform:translateY(-3px)}
 .footer.orange .foot-col h5{color:#fff}
 .footer.orange .foot-col a{color:rgba(255,255,255,.92)}
@@ -1060,10 +1089,25 @@ body.is-auth .bn-item.bn-plan{visibility:visible;pointer-events:auto}
 .fb-select:focus{border-color:var(--fit)}
 .fb-select:invalid{color:#a7a7a7}
 /* Çip görünür yüksekliği kit §5 değeridir (`.df-fchip` 35px) — büyütülmedi.
-   WCAG 2.5.5'in 44px dokunma hedefi görünmez `::before` ile açılır;
-   sıra 44 yüksekliğinde kalsın diye satır aralığı 9px'e çıktı. */
-.fb-chiprow{display:flex;flex-wrap:wrap;gap:9px 8px;margin-bottom:13px}
-.fb-chiprow .chip{position:relative;min-height:35px}
+   WCAG 2.5.5'in 44px dokunma hedefi görünmez `::before` ile açılır.
+
+   🔴 R18 (2026-08-30) — ŞERİT TEK SATIRA İNDİ. Beyar: "bölüm şeridi çift
+   satıra taşıyor; TEK SATIR olacak, sığmazsa yatay kaydırılabilir."
+   ÖLÇÜLDÜ (öncesi, 1440px): `.fb-panel` iç genişliği 372px, beş çipin
+   toplam genişliği 452px → şerit iki satıra kırılıyordu.
+   Çözüm kitin kendi deseni: `.fit-tabs` de tam bunu yapıyor
+   (`overflow-x:auto` + gizli çubuk, fit-shell.css §SEKME BİLEŞENİ).
+   Yeni sınıf ve yeni ölçü üretilmedi.
+   ⚠ `padding-block:5px` şart: dokunma hedefi `::before` çipin 4.5px altına
+   ve üstüne taşıyor; `overflow-x` verilince dikey eksen de `auto`ya döner
+   ve hedef kırpılırdı. Dolgu 44px hedefi kabın içinde tutar. */
+.fb-chiprow{
+  display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:13px;
+  padding-block:5px;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch
+}
+.fb-chiprow::-webkit-scrollbar{display:none}
+.fb-chiprow .chip{position:relative;min-height:35px;flex:0 0 auto;white-space:nowrap}
 .fb-chiprow .chip::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
 /* aynı ölçüm (3.18:1) ve aynı çözüm — kit §5 `.df-fchip` aktif çipi de
    dolu yeşil zemin üstünde beyaz metindir. */

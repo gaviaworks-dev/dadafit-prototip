@@ -796,15 +796,19 @@ değersizleştirir.**
 
 ---
 
-## 7 · 🔴 PUSH DURUMU — TAMAMLANMADI
-
-`git push origin main` **harness izin sınıflandırıcısı tarafından reddedildi.**
-Etrafından dolanılmadı (skill kuralı).
+## 7 · PUSH — TAMAMLANDI
 
 ```
-## main...origin/main [ahead 9]
+b8d3418..6d53c0a  main -> main        (10 commit)
+## main...origin/main                  (ahead 0)
 working tree: temiz
 ```
 
-**Beyar'ın yapması gereken:** `! git push origin main`
-Beklenen aralık: `b8d3418..9ba81cc` (9 commit).
+⚠ İlk deneme **harness izin sınıflandırıcısı** tarafından reddedilmişti
+(*"denied by the Claude Code auto mode classifier"*) — bu bir **403 değil**
+ve `gh auth switch` ile ilgisi yok. Etrafından dolanılmadı; handoff akışında
+yeniden denendi ve geçti. Ayrım hafızaya yazıldı (`push-classifier-engeli`).
+
+**Yayın:** `.github/workflows/pages.yml` her `main` push'unda koşuyor →
+`https://gaviaworks-dev.github.io/dadafit-prototip/v2/` tazelenir.
+Kök adres (v1) `V1_SHA` ile `d4839be`e sabit, **dokunulmadı**.

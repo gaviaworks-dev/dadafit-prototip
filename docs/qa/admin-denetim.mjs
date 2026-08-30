@@ -60,6 +60,16 @@ for (const e of EKRAN) {
         window.scrollTo(x, window.scrollY);
         return kaydi;
       })(),
+      /* 🔴 İKİNCİ KAPI — belge düzeyi ölçüm TEK BAŞINA YETMİYOR.
+         Kabuk `html,body{overflow-x:clip}` yazıyor (bilinçli bir karar:
+         kırpar ama kaydırma konteyneri yaratmaz). Sonuç: bir kaydırma kabının
+         içeriği belgeye sızsa bile kayma KIRPILIYOR ve yukarıdaki dürüst
+         görünen kapı 0 dönüyor. Ajan I ölçtü: matris ekranlarında sızıntı
+         gerçekti (133 · 122 · 68 px) ama bu kapı yeşil yanıyordu.
+         Bu yüzden kapların KENDİ ekseni ayrıca sınanır: her `.adm-tw`
+         `contain:paint` taşımak zorunda, yoksa kırpılmış bir kusur taşıyor. */
+      kapsamsizKap: [...document.querySelectorAll('.adm-tw')]
+        .filter(e => getComputedStyle(e).contain.indexOf('paint') < 0).length,
       aktif: document.querySelectorAll('.adm-item.is-on').length,
       aktifAd: (document.querySelector('.adm-item.is-on') || {}).textContent || '',
       src: document.querySelectorAll('.adm-src').length,
@@ -77,7 +87,7 @@ for (const e of EKRAN) {
       })),
       link: [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href'))
     }));
-    if (m.tasma) tasmaGen.push(w);
+    if (m.tasma || m.kapsamsizKap) tasmaGen.push(w);
     if (w === 1440) olcum = m;
     m.link.forEach(x => { if (x && !/^(#|https?:|mailto:|tel:|javascript:)/.test(x)) linkler.add(x.split('#')[0]); });
   }
@@ -93,6 +103,7 @@ for (const e of EKRAN) {
   const bayrak = (tasmaGen.length || hata.length || !olcum.src || olcum.kucuk || !aktifOk || bosKusur) ? '⚠' : '✅';
   console.log(bayrak, e.href.padEnd(30),
     'taşma:', tasmaGen.length ? tasmaGen.join(',') : '0',
+    '| kapsamsız kap:', olcum.kapsamsizKap,
     '| konsol:', hata.length,
     '| kaynak şeridi:', olcum.src,
     '| 44px altı:', olcum.kucuk, '(kabuk:', olcum.kabukKucuk + ')',

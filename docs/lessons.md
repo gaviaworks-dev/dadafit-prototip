@@ -532,3 +532,27 @@ ben ikisini tek kural sandım.
 "Dörtte aynı" ifadesi neyin dördünde aynı olduğunu söylemiyorsa, uygulamadan
 önce hedef yüzeyde ölçülür. Ölçmeden taşınan bir kural, doğru olduğu yerden
 alınıp yanlış olduğu yere konur.
+
+---
+
+## 28 · Kırpılmış taşma, ölçülmeyen taşmadır
+
+**Ne oldu (R16/2, yönetim paneli).** Denetim kapısı yatay taşmayı **dürüst**
+yoldan ölçüyordu — `body.scrollWidth` değil, sayfanın gerçekten kayıp
+kaymadığı (`scrollTo(9999,0)` sonrası `scrollX`). 21 ekranda **0** döndü.
+Ama bir ajan aynı ekranlarda **133 · 122 · 68 px gerçek kayma** ölçmüştü.
+
+İkisi de doğruydu. Kabuk `html,body{overflow-x:clip}` yazıyor — bilinçli ve
+gerekçeli bir karar (kırpar ama kaydırma konteyneri yaratmaz, böylece odak
+alan bir öğe sayfayı yana kaydıramaz). O kural, geniş bir tablo kabının
+(`overflow-x:auto`) içeriğinin belgeye sızmasını **kırpıyor**; kayma gerçekten
+oluyor, kapı onu göremiyor. Kusur giderilmemişti, görünmez olmuştu.
+
+Çözen tek şey `contain:paint` oldu; `min-width:0` · `max-width:100%` ·
+`contain:inline-size` ve `overflow-x:clip` denendi, dördü de kesmedi.
+
+**Kural.** Sayfada taşmayı **kırpan** bir kural varsa (`overflow-x` `clip` ya
+da `hidden`), belge düzeyinde ölçen hiçbir kapı yeterli değildir; kırpma o
+kapıyı kalıcı olarak yeşile boyar. Kaydırma kaplarının **kendi ekseni** ayrıca
+sınanır. Daha genel hâli: bir kapının yeşil yanması, kusurun yokluğunu değil,
+**o kapının kusuru görebildiğini** varsayar — ve bu varsayım da ölçülmelidir.

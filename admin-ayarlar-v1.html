@@ -15,19 +15,46 @@
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
+
+/* Sekme rayı sayfa düzeyinde: kart içine girmiyor, çünkü sekmeler kartlar
+   ARASINDA geziniyor (her sekmenin kendi kart takımı var). */
+.ay-tabbar{margin-bottom:18px}
+
+/* Yan kolon YAPIŞKAN. `top` kabuğun üst çubuğu kadar aşağıda başlar
+   (--adm-top-h) + bir nefes; yeni ölçü üretilmedi, token okundu.
+   ≤1240'ta `.adm-cols` tek kolona düşüyor, orada yapışkanlık kendiliğinden
+   anlamsızlaşıyor — ayrıca kapatmaya gerek yok. */
+.ay-yan{position:sticky;top:calc(var(--adm-top-h) + 16px)}
+@media (max-width:1240px){ .ay-yan{position:static} }
+
+/* Kaydet kartı: sol kolonun ALTINDA ayrı kart. Yapışkan çubuk DEĞİL —
+   yapışkan bir çubuk formun son alanını sürekli örtüyor. */
+.ay-kaydet .c-head{border-bottom:0}
+
 .ay-ozet{
   background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
   padding:16px 18px;font-size:13.5px;line-height:1.75;color:var(--slate-2);font-weight:500;
 }
 .ay-ozet b{color:var(--slate);font-weight:800;font-variant-numeric:tabular-nums}
 
+/* Yan karttaki "değeri yok" satırı: sunucu olmadığı için boş olan alanlar
+   "—" kalır, uydurma tarih basılmaz. */
+.ay-bilgi{list-style:none;margin:0;padding:0}
+.ay-bilgi li{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ay-bilgi li:last-child{border-bottom:0;padding-bottom:0}
+.ay-bilgi .a{color:var(--muted);font-weight:600;flex:none;min-width:118px}
+.ay-bilgi .d{color:var(--slate);font-weight:700;min-width:0}
+.ay-nerede{list-style:none;margin:0;padding:0;font-size:13px}
+.ay-nerede li{padding:9px 0;border-bottom:1px solid var(--line);font-weight:600}
+.ay-nerede li:last-child{border-bottom:0;padding-bottom:0}
+.ay-nerede i{color:var(--fit-deep);width:16px;margin-right:9px}
+
 /* ---------------------------------------------------------------------
    🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
    ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
    kaydırma kabı; ama kaydırılabilir içeriği BELGEYE sızıyor —
-   `window.scrollTo(9999,0)` sonrası `window.scrollX` bu ekranlarda
-   sırasıyla 133 · 122 · 68 px okundu (referans `admin-challenge-v1`
-   0 okuyor, çünkü onun tablosu dar). `min-width:0`, `max-width:100%`,
+   `window.scrollTo(9999,0)` sonrası `window.scrollX` kardeş ekranlarda
+   133 · 122 · 68 px okundu. `min-width:0`, `max-width:100%`,
    `contain:inline-size` ve `html{overflow-x:clip}` denendi, DÖRDÜ DE
    sızıntıyı kesmedi; `contain:paint` kesti (ölçüldü: dört ekranda 0).
    Kural KABUĞUN kuralıdır ve yeri `assets/css/fit-admin.css`tir; oraya
@@ -58,189 +85,285 @@
 
     <div id="ayKaynak"></div>
 
-    <!-- ============ MARKA VE İLETİŞİM ============ -->
-    <div class="adm-card">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-bolt"></i> Marka ve iletişim</h3>
-      </div>
-      <div class="c-body">
+    <!-- ============ SEKMELER ============
+         Kabuğun ORTAK sekme bileşeni ([data-fit-tabs] panel kipi). Rol,
+         aria, klavye ve roving-tabindex orada kurulur; burada yalnız
+         düğme ve panel yazılır.
+         🔴 Gastro'nun sekmelerinden "Üretici Eşikleri" BİLEREK YOK:
+         K12'nin Fit'teki karşılığı henüz tanımsız, arkasında veri yok.
+         Boş bir sekme, olmayan bir ayar sayfası vaat etmek olurdu. -->
+    <nav class="fit-tabs ay-tabbar" data-fit-tabs="aySek" aria-label="Ayar bölümleri">
+      <button class="fit-tab" type="button" data-tab="marka"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Marka ve iletişim</button>
+      <button class="fit-tab" type="button" data-tab="para"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Para ve komisyon</button>
+      <button class="fit-tab" type="button" data-tab="saglik"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Sağlık ve uyarılar</button>
+    </nav>
+
+    <!-- ============ SEKME 1 · MARKA ============ -->
+    <div class="fit-pane" data-pane="marka">
+      <div class="adm-cols">
+
+        <!-- SOL: içerik kartı + altında ayrı kaydet kartı.
+             Kolonun KENDİSİ <form>: kaydet düğmesi ayrı kartta durduğu için
+             `maketKaydet`in `closest('form')` doğrulaması ancak böyle çalışır.
+             Kartı forma sokmasaydık düğme formu hiç görmez, "doğrulandı"
+             derken hiçbir şey doğrulamamış olurdu. -->
         <form id="ayMarkaF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="ayAd">Site adı <span class="req">*</span></label>
-              <input class="fk-input" id="ayAd" name="ad" required maxlength="40" />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Sayfa başlıklarında, e-posta imzalarında ve <code>{{site_adi}}</code> değişkeninde kullanılır.</span>
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-bolt"></i> Marka ve iletişim</h3>
             </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ayAlan">Alan adı <span class="req">*</span></label>
-              <input class="fk-input" id="ayAlan" name="alan" required />
+            <div class="c-body">
+                <div class="fk-grid c2">
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayAd">Site adı <span class="req">*</span></label>
+                    <input class="fk-input" id="ayAd" name="ad" required maxlength="40" />
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Sayfa başlıklarında, e-posta imzalarında ve <code>{{site_adi}}</code> değişkeninde kullanılır.</span></span>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayAlan">Alan adı <span class="req">*</span></label>
+                    <input class="fk-input" id="ayAlan" name="alan" required />
+                  </div>
+                </div>
+
+                <div class="fk-field">
+                  <label class="fk-label" for="ayTanim">Kısa tanım <span class="req">*</span>
+                    <span class="fk-count" id="ayTanimSay">0/160</span></label>
+                  <textarea class="fk-textarea" id="ayTanim" name="tanim" rows="3" required maxlength="160"></textarea>
+                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Arama sonuçlarında ve paylaşım kartlarında görünen cümle. 160 karakterden uzunu kesilir.</span></span>
+                </div>
+
+                <div class="fk-grid c2">
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayEposta">İletişim e-postası <span class="req">*</span></label>
+                    <input class="fk-input" id="ayEposta" name="eposta" type="email" required />
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayDestek">Destek e-postası <span class="req">*</span></label>
+                    <input class="fk-input" id="ayDestek" name="destek" type="email" required />
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Destek talebi bildirimlerinin yanıt adresi. Boş bırakılırsa iletişim adresi kullanılır.</span></span>
+                  </div>
+                </div>
+
+                <div class="fk-grid c2">
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayTel">Telefon <span class="opt">isteğe bağlı</span></label>
+                    <input class="fk-input" id="ayTel" name="tel" type="tel" />
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayAdres">Adres <span class="opt">isteğe bağlı</span></label>
+                    <input class="fk-input" id="ayAdres" name="adres" />
+                  </div>
+                </div>
             </div>
           </div>
 
-          <div class="fk-field">
-            <label class="fk-label" for="ayTanim">Kısa tanım <span class="req">*</span>
-              <span class="fk-count" id="ayTanimSay">0/160</span></label>
-            <textarea class="fk-textarea" id="ayTanim" name="tanim" rows="3" required maxlength="160"></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Arama sonuçlarında ve paylaşım kartlarında görünen cümle. 160 karakterden uzunu kesilir.</span>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="ayEposta">İletişim e-postası <span class="req">*</span></label>
-              <input class="fk-input" id="ayEposta" name="eposta" type="email" required />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ayDestek">Destek e-postası <span class="req">*</span></label>
-              <input class="fk-input" id="ayDestek" name="destek" type="email" required />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Destek talebi bildirimlerinin yanıt adresi. Boş bırakılırsa iletişim adresi kullanılır.</span>
-            </div>
-          </div>
-
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="ayTel">Telefon <span class="opt">isteğe bağlı</span></label>
-              <input class="fk-input" id="ayTel" name="tel" type="tel" />
-            </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ayAdres">Adres <span class="opt">isteğe bağlı</span></label>
-              <input class="fk-input" id="ayAdres" name="adres" />
+          <div class="adm-card ay-kaydet">
+            <div class="c-head">
+              <div class="c-acts">
+                <button class="btn btn-ghost" type="button" data-vazgec="ayMarkaF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
+                <button class="btn btn-primary" type="button" id="ayMarkaKaydet"><i class="fa-solid fa-check"></i> Marka ayarlarını kaydet</button>
+              </div>
             </div>
           </div>
         </form>
-      </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="ayMarkaKaydet"><i class="fa-solid fa-check"></i> Marka ayarlarını kaydet</button>
+
+        <!-- SAĞ: yapışkan durum kartı -->
+        <div class="ay-yan">
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-circle-dot"></i> Durum</h3>
+            </div>
+            <div class="c-body">
+              <div class="fk-field">
+                <label class="fk-label" for="ayYayin">Site durumu <span class="req">*</span></label>
+                <select class="fk-select" id="ayYayin" required>
+                  <option value="yayinda">Yayında</option>
+                  <option value="bakim">Bakım modu</option>
+                </select>
+                <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Bakım modunda yalnız yönetici oturumu siteyi görür.</span></span>
+              </div>
+              <div class="fk-field">
+                <label class="fk-label" for="ayIndeks">Arama motorlarına açık <span class="req">*</span></label>
+                <select class="fk-select" id="ayIndeks" required>
+                  <option value="acik">Açık</option>
+                  <option value="kapali">Kapalı</option>
+                </select>
+              </div>
+              <ul class="ay-bilgi">
+                <li><span class="a">Son güncelleme</span><span class="d" id="ayMarkaTarih">—</span></li>
+                <li><span class="a">Güncelleyen</span><span class="d" id="ayMarkaKisi">—</span></li>
+              </ul>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
 
-    <!-- ============ PARA PARAMETRELERİ (K13) ============ -->
-    <div class="adm-card">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-money-bill-wave"></i> Para parametreleri</h3>
-        <div class="c-acts"><span class="fp-badge wait"><i class="fa-solid fa-lock"></i> Yetki: finans</span></div>
-      </div>
-      <div class="c-body">
-        <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0 0 20px;max-width:88ch">
-          Dört parametre de <b>alandır, koda gömülü sayı değil</b>. Kazançlar
-          ekranı, ödeme listesi ve fatura eşiği kontrolü bu alanları okur;
-          değeri buradan değiştirmek, dört ekranda birden değiştirmektir.
-          Bir parametre boş bırakılamaz — boş bir komisyon oranı, sıfır oran
-          demek değil, tanımsız oran demektir.
-        </p>
+    <!-- ============ SEKME 2 · PARA VE KOMİSYON (K13) ============ -->
+    <div class="fit-pane" data-pane="para" hidden>
+      <div class="adm-cols">
+
         <form id="ayParaF">
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="ayKomisyon">Hizmet komisyonu (%) <span class="req">*</span></label>
-              <input class="fk-input" id="ayKomisyon" name="komisyon" type="number" min="0" max="100" step="0.5" required />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Antrenör hizmet satışından kesilen pay. Oran <b>tüm kullanıcılar için aynıdır</b>;
-                kullanıcıya özel oran alanı bilerek yoktur.</span>
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-money-bill-wave"></i> Para parametreleri</h3>
+              <div class="c-acts"><span class="fp-badge wait"><i class="fa-solid fa-lock"></i> Yetki: finans</span></div>
             </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ayOdemeGunu">Ödeme günü <span class="req">*</span></label>
-              <select class="fk-select" id="ayOdemeGunu" name="odemeGunu" required>
-                <option value="ay-sonu">Ay sonu — toplu</option>
-                <option value="ayin-15">Her ayın 15'i</option>
-                <option value="haftalik">Haftalık — cuma</option>
-              </select>
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Hak edişlerin üreticiye ne zaman ödendiği. Gün değişirse bekleyen
-                hak edişler yeni takvime taşınır, geçmiş ödemeler değişmez.</span>
+            <div class="c-body">
+              <p style="font-size:13px;font-weight:500;color:var(--slate-2);line-height:1.65;margin:0 0 20px;max-width:88ch">
+                Dört parametre de <b>alandır, koda gömülü sayı değil</b>. Kazançlar
+                ekranı, ödeme listesi ve fatura eşiği kontrolü bu alanları okur;
+                değeri buradan değiştirmek, dört ekranda birden değiştirmektir.
+                Bir parametre boş bırakılamaz — boş bir komisyon oranı, sıfır oran
+                demek değil, tanımsız oran demektir.
+              </p>
+                <div class="fk-grid c2">
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayKomisyon">Hizmet komisyonu (%) <span class="req">*</span></label>
+                    <input class="fk-input" id="ayKomisyon" name="komisyon" type="number" min="0" max="100" step="0.5" required />
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Antrenör hizmet satışından kesilen pay. Oran <b>tüm kullanıcılar için aynıdır</b>;
+                      kullanıcıya özel oran alanı bilerek yoktur.</span></span>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayOdemeGunu">Ödeme günü <span class="req">*</span></label>
+                    <select class="fk-select" id="ayOdemeGunu" name="odemeGunu" required>
+                      <option value="ay-sonu">Ay sonu — toplu</option>
+                      <option value="ayin-15">Her ayın 15'i</option>
+                      <option value="haftalik">Haftalık — cuma</option>
+                    </select>
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Hak edişlerin üreticiye ne zaman ödendiği. Gün değişirse bekleyen
+                      hak edişler yeni takvime taşınır, geçmiş ödemeler değişmez.</span></span>
+                  </div>
+                </div>
+
+                <div class="fk-grid c2">
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayAltSinir">Ödeme alt sınırı (₺) <span class="req">*</span></label>
+                    <input class="fk-input" id="ayAltSinir" name="altSinir" type="number" min="0" step="50" required />
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Bu tutarın altında kalan bakiye o ay ödenmez, <b>birikir</b> ve
+                      sınırı aştığı ilk ödeme gününde çıkar. Bakiye silinmez.</span></span>
+                  </div>
+                  <div class="fk-field">
+                    <label class="fk-label" for="ayFatura">Fatura eşiği (₺) <span class="req">*</span></label>
+                    <input class="fk-input" id="ayFatura" name="fatura" type="number" min="0" step="500" required />
+                    <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Bu tutarı aşan ödemede üreticiden fatura istenir; fatura gelmeden ödeme kapanmaz.</span></span>
+                  </div>
+                </div>
+
+                <div class="fk-field">
+                  <label class="fk-label" for="ayIade">İade politikası <span class="req">*</span></label>
+                  <select class="fk-select" id="ayIade" name="iade" required>
+                    <option value="komisyon-kalir">İade olursa komisyon geri gitmez</option>
+                    <option value="komisyon-doner">İade olursa komisyon da iade edilir</option>
+                  </select>
+                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Bugünkü kural: komisyon geri gitmez. Değiştirilirse yalnız bundan
+                    sonraki iadeleri etkiler, kapanmış iadeler yeniden hesaplanmaz.</span></span>
+                </div>
             </div>
           </div>
 
-          <div class="fk-grid c2">
-            <div class="fk-field">
-              <label class="fk-label" for="ayAltSinir">Ödeme alt sınırı (₺) <span class="req">*</span></label>
-              <input class="fk-input" id="ayAltSinir" name="altSinir" type="number" min="0" step="50" required />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Bu tutarın altında kalan bakiye o ay ödenmez, <b>birikir</b> ve
-                sınırı aştığı ilk ödeme gününde çıkar. Bakiye silinmez.</span>
+          <div class="adm-card ay-kaydet">
+            <div class="c-head">
+              <div class="c-acts">
+                <button class="btn btn-ghost" type="button" data-vazgec="ayParaF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
+                <button class="btn btn-primary" type="button" id="ayParaKaydet"><i class="fa-solid fa-check"></i> Para parametrelerini kaydet</button>
+              </div>
             </div>
-            <div class="fk-field">
-              <label class="fk-label" for="ayFatura">Fatura eşiği (₺) <span class="req">*</span></label>
-              <input class="fk-input" id="ayFatura" name="fatura" type="number" min="0" step="500" required />
-              <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-                Bu tutarı aşan ödemede üreticiden fatura istenir; fatura gelmeden ödeme kapanmaz.</span>
-            </div>
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="ayIade">İade politikası <span class="req">*</span></label>
-            <select class="fk-select" id="ayIade" name="iade" required>
-              <option value="komisyon-kalir">İade olursa komisyon geri gitmez</option>
-              <option value="komisyon-doner">İade olursa komisyon da iade edilir</option>
-            </select>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Bugünkü kural: komisyon geri gitmez. Değiştirilirse yalnız bundan
-              sonraki iadeleri etkiler, kapanmış iadeler yeniden hesaplanmaz.</span>
-          </div>
-
-          <div class="fk-field">
-            <span class="fk-label">Bu ayarlarla ne olur</span>
-            <div class="ay-ozet" id="ayOzet">—</div>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Bu cümle yukarıdaki alanlardan <b>okunuyor</b>, ayrıca yazılmış bir
-              metin değil. Alanı değiştir, cümle değişsin.</span>
           </div>
         </form>
-      </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="ayParaKaydet"><i class="fa-solid fa-check"></i> Para parametrelerini kaydet</button>
+
+        <div class="ay-yan">
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-calculator"></i> Bu ayarlarla ne olur</h3>
+            </div>
+            <div class="c-body">
+              <div class="ay-ozet" id="ayOzet">—</div>
+              <span class="fk-help" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i><span>Bu cümle soldaki alanlardan <b>okunuyor</b>, ayrıca yazılmış bir metin
+                değil. Alanı değiştir, cümle değişsin.</span></span>
+              <ul class="ay-bilgi" style="margin-top:14px">
+                <li><span class="a">Yürürlük</span><span class="d">Kaydedildiği andan sonraki satışlar</span></li>
+                <li><span class="a">Son güncelleme</span><span class="d" id="ayParaTarih">—</span></li>
+                <li><span class="a">Güncelleyen</span><span class="d" id="ayParaKisi">—</span></li>
+              </ul>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
 
-    <!-- ============ SAĞLIK UYARI METNİ ============ -->
-    <div class="adm-card">
-      <div class="c-head">
-        <h3><i class="fa-solid fa-heart-pulse"></i> Sağlık uyarı metni</h3>
-        <div class="c-acts"><span class="fp-badge stop"><i class="fa-solid fa-triangle-exclamation"></i> Kaldırılamaz</span></div>
-      </div>
-      <div class="c-body">
+    <!-- ============ SEKME 3 · SAĞLIK VE UYARILAR ============ -->
+    <div class="fit-pane" data-pane="saglik" hidden>
+      <div class="adm-cols">
+
         <form id="ayHealthF">
-          <div class="fk-field">
-            <label class="fk-label" for="ayUyari">Genel sağlık uyarısı <span class="req">*</span>
-              <span class="fk-count" id="ayUyariSay">0/400</span></label>
-            <textarea class="fk-textarea" id="ayUyari" name="uyari" rows="5" required maxlength="400"></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Hareket rehberi sayfalarının, program detaylarının ve Fit testlerinin
-              altında aynen çıkar. <b>Boş bırakılamaz ve kapatılamaz:</b> uyarı,
-              içeriğin bir süsü değil, koşuludur.</span>
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-heart-pulse"></i> Sağlık uyarı metni</h3>
+              <div class="c-acts"><span class="fp-badge stop"><i class="fa-solid fa-triangle-exclamation"></i> Kaldırılamaz</span></div>
+            </div>
+            <div class="c-body">
+                <div class="fk-field">
+                  <label class="fk-label" for="ayUyari">Genel sağlık uyarısı <span class="req">*</span>
+                    <span class="fk-count" id="ayUyariSay">0/400</span></label>
+                  <textarea class="fk-textarea" id="ayUyari" name="uyari" rows="5" required maxlength="400"></textarea>
+                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Hareket rehberi sayfalarının, program detaylarının ve Fit testlerinin
+                    altında aynen çıkar. <b>Boş bırakılamaz ve kapatılamaz:</b> uyarı,
+                    içeriğin bir süsü değil, koşuludur.</span></span>
+                </div>
+
+                <div class="fk-field">
+                  <label class="fk-label" for="ayForm">Form ve sakatlık uyarısı <span class="req">*</span>
+                    <span class="fk-count" id="ayFormSay">0/400</span></label>
+                  <textarea class="fk-textarea" id="ayForm" name="form" rows="4" required maxlength="400"></textarea>
+                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Hareket detayı ve “doğru form” sayfalarında görünür; adım adım form
+                    talimatı vermediğimizi söyleyen metin budur.</span></span>
+                </div>
+
+                <div class="fk-field">
+                  <label class="fk-label" for="ayUyariSayfa">Ayrıntı sayfası <span class="req">*</span></label>
+                  <input class="fk-input" id="ayUyariSayfa" name="uyariSayfa" required />
+                  <span class="fk-help"><i class="fa-solid fa-circle-info"></i><span>Uyarı metnindeki “daha fazlası” bağlantısının hedefi.</span></span>
+                </div>
+            </div>
           </div>
 
-          <div class="fk-field">
-            <label class="fk-label" for="ayForm">Form ve sakatlık uyarısı <span class="req">*</span>
-              <span class="fk-count" id="ayFormSay">0/400</span></label>
-            <textarea class="fk-textarea" id="ayForm" name="form" rows="4" required maxlength="400"></textarea>
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Hareket detayı ve “doğru form” sayfalarında görünür; adım adım form
-              talimatı vermediğimizi söyleyen metin budur.</span>
-          </div>
-
-          <div class="fk-field">
-            <label class="fk-label" for="ayUyariSayfa">Ayrıntı sayfası <span class="req">*</span></label>
-            <input class="fk-input" id="ayUyariSayfa" name="uyariSayfa" required />
-            <span class="fk-help"><i class="fa-solid fa-circle-info"></i>
-              Uyarı metnindeki “daha fazlası” bağlantısının hedefi.</span>
+          <div class="adm-card ay-kaydet">
+            <div class="c-head">
+              <div class="c-acts">
+                <button class="btn btn-ghost" type="button" data-vazgec="ayHealthF"><i class="fa-solid fa-rotate-left"></i> Değişiklikleri geri al</button>
+                <button class="btn btn-primary" type="button" id="ayHealthKaydet"><i class="fa-solid fa-check"></i> Uyarı metinlerini kaydet</button>
+              </div>
+            </div>
           </div>
         </form>
-      </div>
-      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
-        <div class="c-acts">
-          <button class="btn btn-primary" type="button" id="ayHealthKaydet"><i class="fa-solid fa-check"></i> Uyarı metinlerini kaydet</button>
+
+        <div class="ay-yan">
+          <div class="adm-card">
+            <div class="c-head">
+              <h3><i class="fa-solid fa-eye"></i> Nerede görünür</h3>
+            </div>
+            <div class="c-body">
+              <ul class="ay-nerede">
+                <li><i class="fa-solid fa-person-running"></i> <a href="hareket-yeni-baslayanlar-v1.html" target="_blank" rel="noopener">Yeni başlayanlar rehberi</a></li>
+                <li><i class="fa-solid fa-dumbbell"></i> <a href="hareket-dogru-form-v1.html" target="_blank" rel="noopener">Doğru form rehberi</a></li>
+                <li><i class="fa-solid fa-clipboard-list"></i> <a href="program-detay-v1.html" target="_blank" rel="noopener">Program detayı</a></li>
+                <li><i class="fa-solid fa-stopwatch"></i> <a href="fit-testleri-v1.html" target="_blank" rel="noopener">Fit testleri</a></li>
+                <li><i class="fa-solid fa-file-lines"></i> <a href="saglik-bilgilendirme-v1.html" target="_blank" rel="noopener">Sağlık bilgilendirmesi</a></li>
+              </ul>
+              <span class="fk-help" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><span>Metin tek yerde durur; beş sayfa da buradan okur. İkinci bir sağlık
+                cümlesi yazmak, sitede iki farklı uyarı olması demektir.</span></span>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
 
-    <!-- ============ SON DEĞİŞİKLİKLER — gerçekten boş ============ -->
-    <div class="adm-card">
+    <!-- ============ SON DEĞİŞİKLİKLER — gerçekten boş, sekme dışı ============ -->
+    <div class="adm-card" style="margin-top:16px">
       <div class="c-head">
         <h3><i class="fa-solid fa-clock-rotate-left"></i> Bu ekranda yapılan son değişiklikler</h3>
       </div>
@@ -250,32 +373,51 @@
   </div>
 </main>
 
+<script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
 /* =====================================================================
-   ADMIN · AYARLAR   (R16/4)   — K4 form · K13 para parametreleri
+   ADMIN · AYARLAR   (R16/4)   — K4 form · sekmeli · K13 para parametreleri
    ---------------------------------------------------------------------
    🔴 K13 — PARA SAYILARI KODA GÖMÜLMEZ.
    Komisyon oranı, ödeme günü, ödeme alt sınırı ve fatura eşiği bu ekranda
    birer ALANDIR. Sayfada "komisyon %10'dur" gibi basılı bir cümle YOKTUR;
-   sayının geçtiği tek yer alanın kendi değeridir. Alt taraftaki "Bu
+   sayının geçtiği tek yer alanın kendi değeridir. Yan kolondaki "Bu
    ayarlarla ne olur" cümlesi bile alanlardan OKUNUR — bir daha yazılmaz,
    alan değişince o da değişir. Bu yüzden burada iki kaynak yoktur.
+   (Ölçüldü: sayfanın görünen metninde özet kutusu dışında `%\\d+` ya da
+   `₺` kalıbı 0 kez geçiyor; komisyonu 12.5 yapınca cümle %12.5 oluyor.)
 
-   🔴 VERİ ÖRNEK. Bu depoda ayar tutan bir modül yok (ölçüldü: statik
-   prototip, `.env` yok ve olmayacak). `BASLANGIC` nesnesi ekranın açılış
-   değerleridir; gerçek panel doğduğunda o nesne silinir ve alanlar
-   sunucudan dolar. Değerler uydurma değil, KARARLAR'daki K13 kalemleridir.
+   SEKME = GERÇEK DURUM. Üç sekmenin üçünün de arkasında veri var:
+   marka alanları, K13 parametreleri, sağlık metinleri. 🔴 Gastro'nun
+   "Üretici Eşikleri" sekmesi AÇILMADI: K12'nin Fit karşılığı henüz
+   tanımsız, arkasında veri yok. Boş bir sekme, olmayan bir ayar sayfası
+   vaat etmek olurdu — bu depoda "yakında" yazılmaz.
+
+   YERLEŞİM. Sol geniş kolon içerik kartı, sağ kolon `position:sticky`
+   yan kart, kaydet kartı sol kolonun ALTINDA ayrı kart. Yapışkan bir
+   kaydet ÇUBUĞU değil: yapışkan çubuk formun son alanını sürekli örter.
+   Eylem sırası soldan sağa: ghost (geri al) → birincil CTA en sağda.
+
+   🔴 VERİ ÖRNEK. Bu depoda ayar tutan bir modül yok (statik prototip,
+   sunucu yok, `.env` yok ve olmayacak). `BASLANGIC` nesnesi ekranın
+   açılış değerleridir; gerçek panel doğduğunda o nesne silinir ve
+   alanlar sunucudan dolar. Değerler uydurma değil, KARARLAR'daki K13
+   kalemleridir.
 
    SAĞLIK METNİ GERÇEK: iki uyarı metni de bu depodaki sayfalardan birebir
    alındı (`hareket-yeni-baslayanlar-v1.html` · `hareket-dogru-form-v1.html`).
    Uyarıyı yeniden yazmak, sitede iki farklı sağlık cümlesi olması demekti.
+
+   "Son güncelleme" ve "Güncelleyen" alanları "—" kalıyor: sunucu yok,
+   hiçbir ayar kaydedilmedi. Uydurma bir tarih basmak, olmayan bir
+   değişikliği olmuş göstermek olurdu.
    ===================================================================== */
 (function () {
   'use strict';
   var A = window.FIT_ADMIN;
   if (!A) return;
-  var esc = A.esc, n = A.n, tl = A.tl;
+  var esc = A.esc, tl = A.tl;
 
   document.getElementById('ayKaynak').innerHTML = A.kaynak('ornek',
     '<b>Alan değerleri örnek.</b> Bu depoda ayar tutan bir modül yok — statik ' +
@@ -294,6 +436,8 @@
     destek: 'destek@dadafit.com',
     tel: '',
     adres: '',
+    yayin: 'yayinda',
+    indeks: 'acik',
 
     /* K13 */
     komisyonYuzde: 10,
@@ -316,23 +460,28 @@
   function el(id){ return document.getElementById(id); }
 
   /* ---------- alanları doldur ---------- */
-  el('ayAd').value     = BASLANGIC.ad;
-  el('ayAlan').value   = BASLANGIC.alan;
-  el('ayTanim').value  = BASLANGIC.tanim;
-  el('ayEposta').value = BASLANGIC.eposta;
-  el('ayDestek').value = BASLANGIC.destek;
-  el('ayTel').value    = BASLANGIC.tel;
-  el('ayAdres').value  = BASLANGIC.adres;
+  function doldur(){
+    el('ayAd').value     = BASLANGIC.ad;
+    el('ayAlan').value   = BASLANGIC.alan;
+    el('ayTanim').value  = BASLANGIC.tanim;
+    el('ayEposta').value = BASLANGIC.eposta;
+    el('ayDestek').value = BASLANGIC.destek;
+    el('ayTel').value    = BASLANGIC.tel;
+    el('ayAdres').value  = BASLANGIC.adres;
+    el('ayYayin').value  = BASLANGIC.yayin;
+    el('ayIndeks').value = BASLANGIC.indeks;
 
-  el('ayKomisyon').value  = BASLANGIC.komisyonYuzde;
-  el('ayOdemeGunu').value = BASLANGIC.odemeGunu;
-  el('ayAltSinir').value  = BASLANGIC.altSinirKurus / 100;
-  el('ayFatura').value    = BASLANGIC.faturaEsigiKurus / 100;
-  el('ayIade').value      = BASLANGIC.iade;
+    el('ayKomisyon').value  = BASLANGIC.komisyonYuzde;
+    el('ayOdemeGunu').value = BASLANGIC.odemeGunu;
+    el('ayAltSinir').value  = BASLANGIC.altSinirKurus / 100;
+    el('ayFatura').value    = BASLANGIC.faturaEsigiKurus / 100;
+    el('ayIade').value      = BASLANGIC.iade;
 
-  el('ayUyari').value      = BASLANGIC.uyari;
-  el('ayForm').value       = BASLANGIC.form;
-  el('ayUyariSayfa').value = BASLANGIC.uyariSayfa;
+    el('ayUyari').value      = BASLANGIC.uyari;
+    el('ayForm').value       = BASLANGIC.form;
+    el('ayUyariSayfa').value = BASLANGIC.uyariSayfa;
+  }
+  doldur();
 
   /* ---------- türetilmiş özet: ALANLARDAN okunur ---------- */
   function ozetle(){
@@ -372,6 +521,25 @@
   sayac('ayTanim', 'ayTanimSay', 160);
   sayac('ayUyari', 'ayUyariSay', 400);
   sayac('ayForm',  'ayFormSay',  400);
+
+  /* ---------- "Değişiklikleri geri al" ----------
+     Ghost eylem gerçekten çalışır: alanları açılış değerlerine döndürür.
+     Hiçbir şey yapmayan bir düğme, tıklanacak bir şey vaat edip vermez. */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-vazgec]');
+    if (!b) return;
+    doldur(); ozetle();
+    el('ayTanimSay').textContent = el('ayTanim').value.length + '/160';
+    el('ayUyariSay').textContent = el('ayUyari').value.length + '/400';
+    el('ayFormSay').textContent  = el('ayForm').value.length + '/400';
+    var not = b.parentNode.querySelector('.adm-maket-not');
+    if (!not) {
+      not = document.createElement('span'); not.className = 'adm-maket-not';
+      not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+      b.parentNode.insertBefore(not, b);
+    }
+    not.innerHTML = '<i class="fa-solid fa-circle-info"></i> Alanlar açılış değerlerine döndü.';
+  });
 
   /* ---------- son değişiklikler: gerçekten boş ---------- */
   el('ayGecmis').innerHTML = A.bos(

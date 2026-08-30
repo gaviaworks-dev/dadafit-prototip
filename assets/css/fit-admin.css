@@ -161,7 +161,21 @@
 .adm-card .c-body{padding:20px}
 .adm-card .c-body.flush{padding:0}
 
-.adm-tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* 🔴 `contain:paint` ŞART — `overflow-x:auto` TEK BAŞINA YETMİYOR.
+   ÖLÇÜLDÜ (Ajan I, 390×800): geniş matris tablolarında kabın kaydırılabilir
+   içeriği BELGEYE sızıyor ve sayfa gerçekten yana kayıyor —
+   `window.scrollTo(9999,0)` sonrası `scrollX` rozetler **133px** · paketler
+   **122px** · menü **68px** okuyor. (Dar tablolu ekranlar 0 okuyor, o yüzden
+   kusur ilk turda görünmedi.)
+   ⚠ Bu sızıntı belge düzeyinde ölçen bir sondadan GİZLENİR: kabuğun
+   `html,body{overflow-x:clip}` kuralı kaymayı kırpıyor ve
+   `body.scrollWidth` 390 dönüyor. Yani "sayfa gerçekten kayıyor mu"
+   sorusunu soran kapı bile yeşil yanıyordu; kusur ancak kabın kendi
+   ekseninde ölçülünce görünüyor.
+   Denenip YETMEYENLER (ölçüldü, dördü de sızıntıyı kesmedi): `min-width:0` ·
+   `max-width:100%` · `contain:inline-size` · `html{overflow-x:clip}`.
+   KESEN: `contain:paint` — kabı kendi boyama sınırına hapsediyor. */
+.adm-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;contain:paint}
 .adm-table{width:100%;border-collapse:collapse;font-size:13.5px}
 .adm-table th{
   text-align:left;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;

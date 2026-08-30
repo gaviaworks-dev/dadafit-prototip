@@ -4359,7 +4359,23 @@ body[data-fit-hero-kind] .wrap > .lib-row > .lib-stats{
    G7/G9 bu sınıfı ilgili sayfalara EKLEYECEK — burada hiçbir sayfaya
    uygulanmadı.
    ===================================================================== */
-.fit-tabs.is-center{justify-content:center}
+/* 🔴 R18 · `.is-center` GERÇEKTEN ORTALIYOR — eskiden HİÇBİR ŞEY YAPMIYORDU.
+   ÖLÇÜLEN KUSUR: kural yalnız `justify-content:center` idi, ama `.fit-tabs`
+   `display:inline-flex` (yukarıda, §SEKME BİLEŞENİ) — kutu zaten içeriği
+   kadar geniş, `justify-content` ortalayacak boş alan bulamıyor. Yani
+   R12'de "opt-in ortalama varyantı" diye eklenen sınıf, eklendiği günden
+   beri ölüydü; modül rayının ortalı GÖRÜNMESİ bu sınıftan değil,
+   `.pf-tabbar.fp-tabbar .fit-tabs` kuralından (nav width:100%) geliyordu.
+   Kusur R18'de Enerji Defteri alt şeridi `.pf-tabbar` DIŞINDA kurulunca
+   ortaya çıktı: sınıf yazılıydı, ray sola yaslıydı.
+   ÇÖZÜM hapı bozmadan: kutu `width:fit-content` ile içeriği kadar kalır
+   (zemin/kenarlık/yarıçap aynı), `margin-inline:auto` ile kabında ortalanır.
+   `justify-content` da duruyor — kutu tam genişliğe zorlandığı bir bağlamda
+   (mobil) kalemleri ortalamaya devam etsin diye. */
+.fit-tabs.is-center{display:flex;width:fit-content;max-width:100%;margin-inline:auto;justify-content:center}
+/* Mobilde şerit zaten tam genişlik ve yatay kaydırmalı (bkz. §SEKME
+   BİLEŞENİ @640) — orada `fit-content` kaydırmayı kırardı. */
+@media (max-width:640px){ .fit-tabs.is-center{width:100%} }
 
 /* =====================================================================
    .pf-tabs — OPT-IN ORTALAMA VARYANTI  (R11 · K30)

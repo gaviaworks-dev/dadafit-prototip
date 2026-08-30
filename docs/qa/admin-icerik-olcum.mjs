@@ -48,27 +48,38 @@ const KABUK_SECICI = ['.sa-mlink', '.sa-rail-ico', '.sa-divider', '.pnl-me',
    sırayla doğuyor). Bunlar sayfanın ölü bağlantısı değil, kabuğun kuyruğudur. */
 const KABUK_BAGLANTI = /^admin-/;
 
-/* dosya → [data-adm, tablo gövdesi seçici, en az satır, form kartı,
-            kaydet düğmesi, "düzenle" düğmesi, "yeni" düğmesi ya da null] */
+/* 🔴 R19 · BU KAPININ FORM BÖLÜMÜ SÖKÜLDÜ — model değişti, kapı bayatladı.
+   Kapı "gömülü form kartı" modeline göre yazılmıştı: liste ekranında gizli
+   bir `#hkForm` kartı durur, `#hkYeni` onu açar, `#hkKaydet` kaydeder.
+   R19'da o model kalktı — create ve edit Gastro'nun kanonuna göre AYRI
+   dosyaya taşındı (`form.blade.php` deseni, plan §11/D6). Kapı artık
+   var olmayan bir düğmeye tıklayıp `Timeout 30000ms` ile ÇÖKÜYORDU.
+
+   ⚠ Çöken bir kapı, kırmızı bir kapıdan kötüdür: hiçbir şey ölçmez ve
+   ölçmediğini de söylemez. (lessons §3'ün aynısı.)
+
+   Form kalıbının ölçümü DÜŞMEDİ, YER DEĞİŞTİRDİ ve genişledi:
+     · `docs/qa/admin-form-kalibi.mjs`   → 16 form sayfası × yedi parça
+     · `docs/qa/admin-yazma-kapisi.mjs`  → boş formda not basılmıyor mu
+     · `docs/qa/admin-ekleme-kapisi.mjs` → "Yeni …" düğmesinin arkasında
+                                            gerçek yüzey var mı
+   Bu kapı bundan sonra LİSTE ekranını ölçer: satır sayısı · sidebar aktif
+   kalemi · kaynak şeridi · boş durumun dört parçası · taşma · dokunma
+   hedefi · ölü bağlantı · "yakında" yasağı.
+
+   dosya → [data-adm, tablo gövdesi seçici, en az satır] */
 const EKRAN = [
-  ['admin-hareketler-v1.html', 'hareketler', '#hkGovde tr[data-slug]',  25,
-   '#hkForm', '#hkKaydet', '#hkGovde tr[data-slug] [data-duzenle]', '#hkYeni'],
-  ['admin-programlar-v1.html', 'programlar', '#pgGovde tr[data-slug]',   9,
-   '#pgForm', '#pgKaydet', '#pgGovde tr[data-slug] [data-duzenle]', '#pgYeni'],
-  ['admin-testler-v1.html',    'testler',    '#tsGovde tr[data-slug]',   7,
-   '#tsForm', '#tsKaydet', '#tsGovde tr[data-slug] [data-duzenle]', '#tsYeni'],
-  ['admin-taksonomi-v1.html',  'taksonomi',  '.tx-govde tr[data-kod]',  33,
-   '#txForm', '#txKaydet', '#tx-kas-govde tr[data-kod] [data-duzenle]', '#txYeni'],
-  ['admin-sayfalar-v1.html',   'sayfalar',   '#syGovde tr[data-dosya]', 60,
-   '#syForm', '#syKaydet', '#syGovde tr[data-dosya] [data-duzenle]', null],
-  ['admin-challenge-v1.html',  'challenge',  '#chGovde tr[data-slug]',   3,
-   '#chForm', '#chKaydet', '#chGovde tr[data-slug] [data-duzenle]', '#chYeni']
+  ['admin-hareketler-v1.html', 'hareketler', '#hkGovde tr[data-slug]',  25],
+  ['admin-programlar-v1.html', 'programlar', '#pgGovde tr[data-slug]',   9],
+  ['admin-testler-v1.html',    'testler',    '#tsGovde tr[data-slug]',   7],
+  ['admin-sayfalar-v1.html',   'sayfalar',   '#syGovde tr[data-dosya]', 54],
+  ['admin-challenge-v1.html',  'challenge',  '#chGovde tr[data-slug]',   3]
 ];
 
 const b = await chromium.launch();
 let kirik = 0;
 
-for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of EKRAN) {
+for (const [dosya, admId, satirSec, enAz] of EKRAN) {
   const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   const pg = await ctx.newPage();
   const hata = [];
@@ -114,6 +125,24 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
            dolu — ilk koşuda üç sayfada birden yanlış alarm verdi. */
         if (!e.checkVisibility({ visibilityProperty: true, opacityProperty: true })) return;
         if (e.type === 'checkbox' || e.type === 'radio') return;   /* kit: 18px kutu */
+        /* 🔴 CÜMLE İÇİ BAĞLANTI MUAF — WCAG 2.5.8 "Target Size (Minimum)"un
+           kendi istisnası: *"Inline: The target is in a sentence or its size
+           is otherwise constrained by the line-height of non-target text."*
+           Kabuğun kaynak şeridi (`.adm-src`) ve `.fhint` yardım metinleri
+           düz cümle içinde bağlantı taşır; onları 44px'e çıkarmak satır
+           ritmini bozar ve komşu satırla çakıştırır — kit §14/2 aynı kararı
+           footer bantları için zaten vermişti.
+           ÖLÇÜM: bağlantının ANA ÖĞESİ başka metin de taşıyorsa (boşluk
+           dışı text node) bağlantı bir cümlenin içindedir.
+           Bu istisna yazılmadan kapı `admin-hareketler`de dürüst bir cümleyi
+           kusur sayıyordu — yanlış kırmızı, kırmızıyı değersizleştirir. */
+        if (e.tagName === 'A' && e.parentElement) {
+          let komsuMetin = false;
+          e.parentElement.childNodes.forEach((n) => {
+            if (n !== e && n.nodeType === 3 && n.nodeValue.trim()) komsuMetin = true;
+          });
+          if (komsuMetin) return;
+        }
         const r = e.getBoundingClientRect();
         if (r.width === 0 && r.height === 0) return;
         if (r.height >= 44 && r.width >= 44) return;
@@ -173,38 +202,7 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
     await pg.waitForTimeout(120);
   }
 
-  /* --- K4 form: açılış · doğrulama · dürüstlük notu · kaydet çubuğu sağda --- */
-  let form = { acildi: false, bosEngel: null, doluNot: false, cubukSag: null };
-  const hataFormOncesi = hata.length;
-  if (yeniSec) {
-    await pg.click(yeniSec);
-    await pg.waitForTimeout(250);
-    await pg.click(kaySec);
-    await pg.waitForTimeout(250);
-    /* Boş formda zorunlu alan var → not BASILMAMALI. */
-    form.bosEngel = !(await pg.$(formSec + ' .adm-maket-not'));
-  }
-  await pg.click(duzSec);
-  await pg.waitForTimeout(300);
-  form.acildi = await pg.evaluate((f) => !document.querySelector(f).hidden, formSec);
-  /* Kaydet çubuğu SAĞDA: `.c-acts` sağ kenarı kartın sağ kenarına `.c-head`
-     dolgusu kadar (20px + 1px kenarlık) uzakta olmalı. Ölçüm KAYDETMEDEN
-     ÖNCE alınır — sonrasında notun kendisi çubuğu genişletiyor. */
-  /* 🔴 R17 · çubuğun kabı `.form-actions` oldu (Gastro'nun adı); altı form
-     ekranı da tek ada çekildi. `.c-acts` yedekte kalıyor çünkü kart
-     BAŞLIĞINDAKİ eylem şeridi hâlâ o adı taşıyor. Beklenen mesafe 21 → 23:
-     ayak satırının dolgusu Gastro'nun ölçüsüyle 20 → 22px oldu (+1px kenarlık). */
-  form.cubukSag = await pg.evaluate(([f, k]) => {
-    const kart = document.querySelector(f).getBoundingClientRect();
-    const dugme = document.querySelector(k);
-    const kap = dugme.closest('.form-actions, .c-acts, .c-foot');
-    if (!kap) return -1;
-    return Math.round(kart.right - kap.getBoundingClientRect().right);
-  }, [formSec, kaySec]);
-  await pg.click(kaySec);
-  await pg.waitForTimeout(250);
-  form.doluNot = !!(await pg.$(formSec + ' .adm-maket-not'));
-  const formHatasi = hata.length - hataFormOncesi;
+  /* K4 form bölümü R19'da söküldü — gerekçe EKRAN tablosunun üstünde. */
 
   /* --- rapor --- */
   const bosTam = bosOlcum.tam;
@@ -213,9 +211,7 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
   const dokunOk = olcu.every(([, r]) => r.kucuk.length === 0);
   const aktifOk = y.aktif.length === 1 && y.ariaCurrent === 1;
   const bosOk = bosOlcum.blok > 0 && bosOlcum.tam === bosOlcum.blok;
-  const formOk = form.acildi && form.doluNot && form.cubukSag === 23 &&
-                 (form.bosEngel === null || form.bosEngel === true);
-  const gecti = satirOk && tasmaOk && dokunOk && aktifOk && bosOk && formOk &&
+  const gecti = satirOk && tasmaOk && dokunOk && aktifOk && bosOk &&
                 hata.length === 0 && olu.length === 0 && y.kaynak === 1 && y.yakinda === 0;
   if (!gecti) kirik++;
 
@@ -229,11 +225,7 @@ for (const [dosya, admId, satirSec, enAz, formSec, kaySec, duzSec, yeniSec] of E
   console.log('  boş durum        : ' + bosOlcum.blok + ' blok görünür · dört parça tam: ' + bosTam +
               (bosOk ? '' : ' 🔴'));
   console.log('  "yakında"        : ' + y.yakinda + (y.yakinda ? ' 🔴' : ''));
-  console.log('  K4 form          : ' + (form.acildi ? 'açıldı' : '🔴 AÇILMADI') +
-              ' · boş formda doğrulama ' + (form.bosEngel === null ? '(yeni yok)' : form.bosEngel ? 'engelledi' : '🔴 GEÇTİ') +
-              ' · dolu formda not ' + (form.doluNot ? 'basıldı' : '🔴 YOK') +
-              ' · kaydet çubuğu kart sağına ' + form.cubukSag + 'px' + (form.cubukSag === 23 ? '' : ' 🔴'));
-  console.log('  konsol hatası    : ' + hata.length + ' (formu sürerken ' + formHatasi + ')' +
+  console.log('  konsol hatası    : ' + hata.length +
               (hata.length ? ' 🔴 ' + hata.slice(0, 3).join(' | ') : ''));
   console.log('  ölü bağlantı     : ' + olu.length + '/' + hrefler.length + (olu.length ? ' 🔴 ' + olu.join(', ') : ''));
   if (oluKabuk.length) console.log('  ⚠ kabuk menüsü   : ' + oluKabuk.join(', ') + ' (sidebar kalemi, sayfa değil)');

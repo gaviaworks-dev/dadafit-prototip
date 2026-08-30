@@ -19,18 +19,40 @@ for(const s of S){
   if(await ac.count()) { try{ await ac.click({timeout:2000}); await pg.waitForTimeout(400);}catch(e){} }
   const r=await pg.evaluate(()=>{
     const notOnce=document.querySelectorAll('.adm-maket-not').length;
-    // görünür, zorunlu alanı olan formun kaydet düğmesine bas
-    const f=[...document.querySelectorAll('form')].find(x=>x.getClientRects().length && x.querySelector('[required]'));
-    if(!f) return {atlandi:true};
-    f.querySelectorAll('[required]').forEach(e=>{ if(e.type!=='checkbox') e.value=''; });
-    const d=[...document.querySelectorAll('button')].filter(x=>/kaydet|onayla|gönder|başlat|uygula/i.test(x.textContent) && x.getClientRects().length)[0];
-    if(!d) return {atlandi:true};
-    d.click();
-    return {notOnce, notSonra:document.querySelectorAll('.adm-maket-not').length};
+    /* 🔴 R19 · KAPININ KENDİ KUSURU DÜZELTİLDİ.
+       ÖNCEKİ HÂL: boşaltılan form ile tıklanan düğme AYRI olabiliyordu.
+       `admin-paketler-v1.html`de yedi form var; kapı `pkGrupF`in yedi
+       zorunlu alanını boşaltıp `pkFiyatF`in ("Tutarları kaydet", 0 zorunlu
+       alan) düğmesine basıyor ve dürüst basılmış bir notu YALAN sayıyordu.
+       Yanlış kırmızı, kırmızıyı değersizleştirir (bkz. lessons §3).
+       DOĞRUSU: düğme, boşaltılan formun KENDİ düğmesi olmalı.
+       Kaydet düğmesi formun DIŞINDA da olabildiği için (kart ayak çubuğu)
+       ikinci yol da denenir: düğmenin bulunduğu kartın içindeki form. */
+    const formlar=[...document.querySelectorAll('form')]
+      .filter(x=>x.getClientRects().length && x.querySelector('[required]'));
+    if(!formlar.length) return {atlandi:true};
+
+    const dugmeler=[...document.querySelectorAll('button')]
+      .filter(x=>/kaydet|onayla|gönder|başlat|uygula/i.test(x.textContent) && x.getClientRects().length);
+
+    for(const f of formlar){
+      const d = dugmeler.find(x =>
+        f.contains(x) ||
+        (x.form === f) ||
+        (x.closest('.adm-card,.pnl-card,.fp-card') || {}).contains?.(f)
+      );
+      if(!d) continue;
+      f.querySelectorAll('[required]').forEach(e=>{ if(e.type!=='checkbox') e.value=''; });
+      d.click();
+      return {notOnce, form:f.id||'(idsiz)', dugme:d.textContent.trim().slice(0,24),
+              notSonra:document.querySelectorAll('.adm-maket-not').length};
+    }
+    return {atlandi:true};
   });
   await pg.waitForTimeout(300);
   const notSonra=await pg.locator('.adm-maket-not').count();
-  if(!r.atlandi && notSonra>(r.notOnce||0)){ console.log('⚠ YALAN', s, 'boş formda not basıldı'); kusur++; }
+  if(!r.atlandi && notSonra>(r.notOnce||0)){
+    console.log('⚠ YALAN', s, '— boş formda not basıldı ·', r.form, '→', '"'+r.dugme+'"'); kusur++; }
   if(hata.length){ console.log('⚠ KONSOL', s, hata[0]); kusur++; }
   pg.off('console',h);
 }

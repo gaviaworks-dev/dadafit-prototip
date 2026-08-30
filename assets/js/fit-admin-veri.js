@@ -142,7 +142,6 @@ window.FIT_ADMIN_VERI = (function () {
   ];
 
   var SAYFA = [
-    {"dosya":"aktivite-gunlugu-v1.html","baslik":"Aktivite Günlüğü — günlük adım, süre ve hareket kayıtların | DadaFit","aciklama":"DadaFit Aktivite Günlüğü: günlük adım, aktif süre, yürüyüş, koşu, bisiklet, mesafe ve yaklaşık enerji kullanımın tek yerde. Aktiviteni elle ekle, düzenle, sil; kaynağını ve son senkronizasyon zamanını gör.","robots":"noindex, nofollow","canonical":false},
     {"dosya":"anatomi-v1.html","baslik":"Anatomi Haritası — DadaFit · Hangi hareket hangi kası çalıştırıyor","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"antrenman-olusturucu-v1.html","baslik":"Antrenman Oluşturucu — DadaFit · Birkaç seçimle gün gün antrenman planı","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"antrenor-detay-v1.html","baslik":"Selin Aksoy — DadaFit Onaylı Antrenör | DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
@@ -156,16 +155,11 @@ window.FIT_ADMIN_VERI = (function () {
     {"dosya":"challenge-v1.html","baslik":"Challenge — DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"challengelarim-v1.html","baslik":"Challenge'larım — DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"dadafit-hub-v1.html","baslik":"DadaFit — Ana Sayfa · Beslenme ve Hareket Köprüsü","aciklama":"","robots":"noindex, nofollow","canonical":false},
-    {"dosya":"dadafit-kopru-v1.html","baslik":"DadaFit — Enerji Köprüsü · Antrenmanını ekle, bütçeni aç","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"destek-talebi-detay-v1.html","baslik":"Destek Talebi Detayı — Yazışma ve Talep Durumu | DadaFit","aciklama":"Açtığın DadaFit destek talebinin numarası, durumu, açılış tarihi ve destek ekibiyle yazışmanın tamamı. Yanıt yazabilir, işin bittiyse talebi kapatabilirsin.","robots":"noindex, nofollow","canonical":false},
     {"dosya":"destek-v1.html","baslik":"Destek Merkezi — DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"egzersiz-detay-v1.html","baslik":"Goblet Squat — Egzersiz Detayı · Set Takibi | DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"egzersiz-kutuphane-v1.html","baslik":"DadaFit Egzersizleri — DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"egzersizlerim-v1.html","baslik":"Egzersizlerim — DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
-    {"dosya":"enerji-defteri-dengele-v1.html","baslik":"Dengele — Enerji Defteri | DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
-    {"dosya":"enerji-defteri-haftalik-v1.html","baslik":"Haftalık Özet — Enerji Defteri | DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
-    {"dosya":"enerji-defteri-su-v1.html","baslik":"Su Takibi — Enerji Defteri | DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
-    {"dosya":"enerji-ihtiyaci-v1.html","baslik":"Günlük Enerji İhtiyacı — DadaFit · Mifflin-St Jeor ile BMR ve TDEE tahmini","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"fit-planim-veri-izin-v1.html","baslik":"Veri ve İzinlerim — Fit Planım · DadaFit","aciklama":"","robots":"noindex, nofollow","canonical":false},
     {"dosya":"fit-testi-detay-v1.html","baslik":"Fit Testi Detayı — uygunluk taraması ve adım adım uygulama | DadaFit","aciklama":"Seçtiğin Fit Testinin amacı, kimler için uygun olduğu, süresi, ekipmanı ve adım adım uygulaması. Test öncesi fiziksel aktivite uygunluk taraması zorunludur; riskli yanıtta test başlamaz.","robots":"noindex, nofollow","canonical":false},
     {"dosya":"fit-testi-sonuc-v1.html","baslik":"Fit Testi Sonucun — başlangıç seviyen ve önerilen program | DadaFit","aciklama":"Tamamladığın Fit Testinin sonuç özeti, sana uygun başlangıç seviyesi, önerilen program ve antrenöre danışma yönlendirmesi. Karşılaştırma başkasıyla değil, kendi başlangıç noktanla.","robots":"noindex, nofollow","canonical":false},

@@ -162,7 +162,10 @@
     document.getElementById('pgGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-clipboard-list', 'Program kataloğu yüklenmedi',
             'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
-            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.',
+            '<a class="pe-tag" href="program-liste-v1.html" target="_blank" rel="noopener">' +
+            '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> ' +
+            'Üye tarafındaki program listesini aç</a>') + '</td></tr>';
     return;
   }
 
@@ -273,7 +276,7 @@
         suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
           'Bu süzgeçle program kalmadı',
           'Seçili hedef, seviye ve erişim birleşimine düşen program yok. Bir çipi kaldır ya da süzgeci sıfırla.',
-          '<button class="btn btn-primary" type="button" id="pgSifirla">Süzgeci sıfırla</button>') + '</td>';
+          '<button class="pe-tag" type="button" id="pgSifirla"><i class="fa-solid fa-filter" aria-hidden="true"></i> Süzgeci sıfırla</button>') + '</td>';
         govde.appendChild(suzBos);
       }
       suzBos.hidden = false;
@@ -363,6 +366,20 @@
   suzgecKur();
   listeBas();
   detayBas();
+
+  /* ---------------------------------------------------------------
+     KAYIT SAYACI — Gastro kanonu. ÖLÇÜLDÜ: yedi liste ekranının
+     yedisinde de sayı `.ph-sub`ın SONUNDA, `· <strong>N</strong> birim`
+     şeklinde duruyor (tarifler/index.blade.php:51 · sozluk:45 ·
+     sayfalar:47 · malzemeler:57 · puf-noktalari:44 · mutfaga-giris:94 ·
+     video-serileri:33). Sayı ELLE YAZILMAZ — basılan satırdan okunur.
+     --------------------------------------------------------------- */
+  (function phSay(){
+    var alt = document.querySelector('.adm-head .ph-sub');
+    var say = document.getElementById('pgSay');
+    if (!alt || !say) return;
+    alt.insertAdjacentHTML('beforeend', ' · <strong>' + say.textContent + '</strong> program');
+  })();
 })();
 </script>
 </body>

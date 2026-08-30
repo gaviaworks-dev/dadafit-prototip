@@ -35,6 +35,43 @@
 .gun-foot .fselect{flex:0 1 220px}
 .gun-card.is-dinlenme .hr-kutu{display:none}
 .sa-form-tab .fs-say{margin-left:6px;font-size:11.5px;font-weight:500;color:var(--muted)}
+
+/* =====================================================================
+   🔴 KIRILIM ÖLÇÜMÜ — EKRAN SORGUSU YERİNE KAP SORGUSU
+   ---------------------------------------------------------------------
+   ÖLÇÜLDÜ (bu ekran, 8 kombinasyon): kabuk `.form-layout`u
+   `@media (max-width:1100px)` ile tek kolona indiriyor (fit-admin.css:1312).
+   Ama `@media` EKRANI ölçer, kolonun içinde yaşadığı GENİŞLİĞİ değil;
+   sidebar açıkken içerik 264px daralıyor ve ekran sorgusu bunu GÖREMİYOR:
+
+     ekran 1101 · rail açık  → içerik 761 → sol kolon 321px · sağ kolon 360px
+     ekran 1100 · rail açık  → içerik 1068 → tek kolon 1068px
+
+   Yani bir piksel geniş ekranda ana kolon kendi yardımcı kolonundan DAR
+   kalıyor (321 < 360) ve hafta→gün→hareket kurgusu 321px'e sıkışıyor.
+
+   EŞİK NEREDEN: Gastro ölçüldü — `sa-tarifler-form.css:162` ve
+   `sa-icerik-form.css:188` `.form-layout`u `@media(max-width:900px)`te tek
+   kolona indiriyor; o genişlikte Gastro'nun sidebar'ı zaten
+   off-canvas (`sa-shell.css:414`, ≤980) ve `.pnl-main` dolgusu 16px
+   (`sa-shell.css:424`) → GERÇEK İÇERİK EŞİĞİ 900−32 = 868px.
+   Kap sorgusu bu 868'i doğrudan yazıyor; artık rail durumundan
+   bağımsız olarak DOĞRU anda kırılıyor.
+
+   Kabuk DEĞİŞTİRİLMEDİ: kap yalnız bu ekranın `#kgForm`u,
+   kurallar özgüllükle onun içine bağlanıyor. `<form>`un yatay dolgusu
+   yok, bu yüzden kabın içerik kutusu `.form-layout`un genişliğine EŞİT.
+   ===================================================================== */
+#kgForm{container-type:inline-size}
+/* Taban tek kolon; iki kolon YALNIZ kap yeterince genişse. Kural id
+   özgüllüğüyle yazıldığı için kabuğun 1100/900px ekran sorgularını iki
+   yönde de geçersiz kılar — kırılımın tek ölçütü artık kabın genişliği. */
+#kgForm .form-layout{grid-template-columns:minmax(0,1fr)}
+#kgForm .side-card{position:static}
+@container (min-width:869px){
+  #kgForm .form-layout{grid-template-columns:minmax(0,1fr) minmax(280px,360px)}
+  #kgForm .side-card{position:sticky}
+}
 </style>
 </head>
 <body class="adm-body" data-adm="programlar">
@@ -146,7 +183,7 @@
               günleri ve hareket satırlarını kaldırır; ekran boş durumuna döner.</div>
             <button class="btn btn-ghost" type="button" id="kgSifirla"
                     data-yikici="Bu programın kurgusu" data-fiil="sil"
-                    style="color:var(--hs-danger);border-color:var(--hs-danger-line)">
+                    style="width:100%;color:var(--hs-danger);border-color:var(--hs-danger-line)">
               <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Kurguyu sıfırla</button>
           </div>
         </div>
@@ -710,9 +747,10 @@
         (prog ? prog.hafta + ' hafta ve ' + (gunSayisi() || '—') + ' gün ilan ediyor'
               : 'okunamadı') +
         '; iskeleti o sayılardan kurabilir ya da haftaları tek tek ekleyebilirsin.',
-      '<button class="btn btn-primary" type="button" id="kgIskelet">' +
+      '<button class="pe-tag" type="button" id="kgIskelet">' +
         '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> İskeleti kur</button>' +
-      ' <button class="btn btn-ghost" type="button" id="kgTekHafta">Boş hafta ekle</button>') +
+      ' <button class="pe-tag" type="button" id="kgTekHafta">' +
+        '<i class="fa-solid fa-plus" aria-hidden="true"></i> Boş hafta ekle</button>') +
       '</div>';
   }
 

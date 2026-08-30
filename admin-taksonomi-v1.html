@@ -91,9 +91,31 @@
 .tx-ico-opt:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .tx-not{font-size:13px;color:var(--slate-2);line-height:1.65;margin:0}
 
-@media (max-width:900px){
-  .tx-split{grid-template-columns:minmax(0,1fr)}
-  .tx-groups{border-right:0;border-bottom:1px solid var(--line);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+/* =====================================================================
+   🔴 KIRILIM — EKRAN SORGUSU DEĞİL KAP SORGUSU
+   ---------------------------------------------------------------------
+   Burada eskiden `@media (max-width:900px)` vardı. `@media` EKRANI ölçer;
+   `.tx-split`in içinde yaşadığı genişliği DEĞİL. Sidebar açıkken içerik
+   264px daralıyor ve ekran sorgusu bunu göremiyor — ölçüldü (8 kombinasyon):
+
+     ekran 1101 · rail açık → içerik 761 → 256px + panel 447px
+     ekran 1100 · rail açık → içerik 1100 → 256px + panel 810px
+
+   Yani bir piksel geniş ekranda panel 810'dan 447'ye düşüyor, üstelik grup
+   kolonu içeriğin %36'sını yiyor. Ekran sorgusuyla erişilemeyen bir bant.
+
+   EŞİK NEREDEN: Gastro ölçüldü — `sa-taksonomi.css:124` `.tx-split`i
+   `@media(max-width:860px)`ta tek kolona indiriyor; o genişlikte Gastro'nun
+   sidebar'ı zaten off-canvas (`sa-shell.css:414`, ≤980) ve `.pnl-main`
+   dolgusu 16px (`sa-shell.css:424`) → kartın gerçek içerik genişliği
+   860−32−2(kenarlık) = 826px. Kap sorgusu bu değeri doğrudan yazıyor.
+
+   Kabuk DEĞİŞTİRİLMEDİ: kap yalnız bu ekranın `#txKart`ı.
+   ===================================================================== */
+#txKart{container-type:inline-size}
+@container (max-width:826px){
+  #txKart .tx-split{grid-template-columns:minmax(0,1fr)}
+  #txKart .tx-groups{border-right:0;border-bottom:1px solid var(--line);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
 }
 
 /* ---------------------------------------------------------------------
@@ -131,7 +153,7 @@
     <div class="adm-kpi" id="txKpi"></div>
 
     <!-- ============ İKİ KOLON — Gastro `.tx-split` ============ -->
-    <div class="adm-card">
+    <div class="adm-card" id="txKart">
       <div class="tx-split">
 
         <nav class="tx-groups" id="txGruplar" role="tablist" aria-label="Sözlükler"></nav>
@@ -242,7 +264,10 @@
     $('txGovde').innerHTML = '<tr><td colspan="5">' +
       A.bos('fa-tags', 'Sözlükler yüklenmedi',
             'Taksonomi fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
-            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.',
+            '<a class="pe-tag" href="egzersiz-kutuphane-v1.html" target="_blank" rel="noopener">' +
+            '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> ' +
+            'Üye tarafındaki kütüphaneyi aç</a>') + '</td></tr>';
     return;
   }
 
@@ -697,6 +722,21 @@
   });
 
   panelBas();
+
+  /* ---------------------------------------------------------------
+     KAYIT SAYACI — Gastro'nun KENDİ taksonomi ekranından ölçüldü:
+     `admin/taksonomi/index.blade.php:127` ph-sub'ı
+     `… · <strong>N</strong> grup · <strong>N</strong> değer` basıyor.
+     Aynı iki sayı burada da veriden okunuyor, elle yazılmıyor.
+     --------------------------------------------------------------- */
+  (function phSay(){
+    var alt = document.querySelector('.adm-head .ph-sub');
+    if (!alt) return;
+    var anahtar = Object.keys(SOZLUKLER), deger = 0;
+    anahtar.forEach(function (k) { deger += SOZLUKLER[k].terim.length; });
+    alt.insertAdjacentHTML('beforeend', ' · <strong>' + anahtar.length +
+      '</strong> grup · <strong>' + deger + '</strong> değer');
+  })();
 })();
 </script>
 </body>

@@ -34,7 +34,7 @@
     <div class="adm-head">
       <div class="h-txt">
         <h1>Hareket Kütüphanesi</h1>
-        <div class="ph-sub">Sitedeki 25 hareketin tamamı. Her satır iki kaynağın birleşimidir:
+        <div class="ph-sub">Sitedeki hareketlerin tamamı. Her satır iki kaynağın birleşimidir:
            kütüphane kartı taksonomi kodunu verir, detay sayfası anlatımı ve
            alternatifleri. İkisi ayrışırsa hareket yanlış süzgeçte görünür.</div>
       </div>
@@ -149,7 +149,10 @@
     document.getElementById('hkGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-dumbbell', 'Hareket kataloğu yüklenmedi',
             'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
-            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
+            'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.',
+            '<a class="pe-tag" href="egzersiz-kutuphane-v1.html" target="_blank" rel="noopener">' +
+            '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> ' +
+            'Üye tarafındaki kütüphaneyi aç</a>') + '</td></tr>';
     return;
   }
 
@@ -287,7 +290,7 @@
         suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
           'Bu süzgeçle hareket kalmadı',
           'Seçili bölge, ekipman ve seviye birleşimine düşen hareket yok. Bir çipi kaldır ya da süzgeci sıfırla.',
-          '<button class="btn btn-primary" type="button" id="hkSifirla">Süzgeci sıfırla</button>') + '</td>';
+          '<button class="pe-tag" type="button" id="hkSifirla"><i class="fa-solid fa-filter" aria-hidden="true"></i> Süzgeci sıfırla</button>') + '</td>';
         govde.appendChild(suzBos);
       }
       suzBos.hidden = false;
@@ -345,6 +348,20 @@
   kpi();
   suzgecKur();
   listeBas();
+
+  /* ---------------------------------------------------------------
+     KAYIT SAYACI — Gastro kanonu. ÖLÇÜLDÜ: yedi liste ekranının
+     yedisinde de sayı `.ph-sub`ın SONUNDA, `· <strong>N</strong> birim`
+     şeklinde duruyor (tarifler/index.blade.php:51 · sozluk:45 ·
+     sayfalar:47 · malzemeler:57 · puf-noktalari:44 · mutfaga-giris:94 ·
+     video-serileri:33). Sayı ELLE YAZILMAZ — basılan satırdan okunur.
+     --------------------------------------------------------------- */
+  (function phSay(){
+    var alt = document.querySelector('.adm-head .ph-sub');
+    var say = document.getElementById('hkSay');
+    if (!alt || !say) return;
+    alt.insertAdjacentHTML('beforeend', ' · <strong>' + say.textContent + '</strong> hareket');
+  })();
 })();
 </script>
 </body>

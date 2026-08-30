@@ -110,11 +110,21 @@
   text-align:center;border-radius:var(--radius-pill);padding:0 4px;
 }
 .sa-rail-foot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
-.sa-sig{
+/* ⚠ ÖZGÜLLÜK — `.sa-rail-foot .sa-sig` yazmak ZORUNDA, kısası yetmiyor.
+   ÖLÇÜLDÜ: `fit-shell.css:1531` zaten `.sa-rail-foot a,.sa-rail-foot span`
+   kuralını taşıyor (0-2-1) ve `38×38` basıyor; çıplak `.sa-sig` (0-1-0)
+   ona yeniliyor, dokunma hedefi 44'ün altına düşüyordu.
+   NEDEN İKİ TANIM VAR: 2026-08-29 dalgası rail'i public operasyon paneli
+   için `fit-shell.css` §N'ye kurmuş (`body[data-fit-rail="1"]`) — o zaman
+   yönetim paneli henüz yoktu. Değerleri Gastro'dan bağımsız ölçülmüş ve
+   BENİMKİYLE AYNI çıkmış (76px · #19160F) — iki ayrı ölçüm, tek sonuç.
+   Ama iki tanım tek bileşen için fazladır; birleştirme ayrı bir iştir ve
+   60 public sayfayı ilgilendirdiği için bu turda yapılmadı (devir notunda). */
+.sa-rail-foot .sa-sig,.sa-sig{
   width:44px;height:44px;display:grid;place-items:center;border-radius:9px;
   color:var(--on-dark-mut);font-size:15px;opacity:.75;transition:.2s var(--ease);
 }
-.sa-sig:hover{opacity:1;background:rgba(255,255,255,.06);color:#fff}
+.sa-rail-foot .sa-sig:hover,.sa-sig:hover{opacity:1;background:rgba(255,255,255,.06);color:#fff}
 
 /* rail ikon ipucu — sağa açılır, native title yerine anında */
 .sa-rail [data-tip]{position:relative}
@@ -185,12 +195,17 @@
    (uydurulmuştu); söküldü.
    ===================================================================== */
 .sa-divider{
-  position:fixed;top:0;bottom:0;left:var(--sa-side-w);width:26px;transform:translateX(-13px);
+  position:fixed;top:0;bottom:0;left:var(--sa-side-w);width:44px;transform:translateX(-22px);
   z-index:84;cursor:ew-resize;border:0;padding:0;background:transparent;
   transition:left .26s var(--ease);
 }
+/* Gastro'nun isabet şeridi 26px; Fit'in kapısı 44 istiyor (WCAG 2.5.8,
+   `admin-icerik-olcum.mjs` genişliği de ölçüyor). Şerit 44'e açıldı ve
+   `translateX` yarısı kadar (-22px) geri alındı — GÖRÜNEN tutamak 22×54
+   olarak Gastro'daki yerinde kalıyor: eski sol kenar 340−13=327, tutamak
+   330'daydı; yeni sol kenar 340−22=318, `left:12px` ile tutamak yine 330. */
 .sa-grip{
-  position:absolute;top:50%;left:3px;transform:translateY(-50%);
+  position:absolute;top:50%;left:12px;transform:translateY(-50%);
   width:22px;height:54px;border-radius:0 10px 10px 0;
   display:flex;align-items:center;justify-content:center;padding-left:7px;
   background:var(--menu-bg);border:1px solid var(--hair);border-left:none;
@@ -330,6 +345,16 @@
 .pc-link{font-size:13px;font-weight:700;color:var(--acc-deep);display:inline-flex;align-items:center;gap:7px;min-height:44px;transition:.2s}
 .pc-link i{font-size:11.5px;transition:.25s var(--ease)}
 .pc-link:hover i{transform:translateX(3px)}
+/* Kart AYAK satırı — başlığın aynası: aynı dolgu, kenarlık ÜSTTE.
+   Altı form ekranı bunu `<div class="c-head" style="border-top:…;
+   border-bottom:0">` diye yazıyordu; aynı satır içi stil altı dosyada
+   tekrarlanıyordu, yani kabukta eksik olan bir kalemdi. */
+.adm-card .c-foot,.pnl-card .pc-foot{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:18px 22px;border-top:1px solid var(--line);
+}
+.adm-card .c-foot .form-actions,.pnl-card .pc-foot .form-actions,
+.adm-card .c-head .form-actions{margin-left:auto}
 .adm-card .c-body,.pnl-card .pc-body{padding:22px}
 .adm-card .c-body.flush,.pnl-card .pc-body.flush{padding:0}
 
@@ -356,13 +381,26 @@
 }
 .adm-kpi .k b small{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:0}
 .adm-kpi .k span,.kpi-lbl{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
-.adm-kpi .k .note,.kpi-delta{
-  display:inline-flex;align-items:center;gap:5px;
+.adm-kpi .k .note,.adm-kpi .k .kpi-delta,.kpi-delta{
+  display:inline-flex;align-items:flex-start;gap:5px;
   font-size:11.5px;font-weight:700;margin-top:6px;line-height:1.4;color:var(--muted);
 }
-.kpi-delta.up{color:var(--acc-deep)}
-.kpi-delta.down{color:var(--hs-danger)}
-.kpi-delta.flat{color:var(--muted)}
+/* Gastro'nun trend satırı tek satırdır ve `align-items:center` orada doğru.
+   Fit'in notları iki-üç satır (dürüstlük şeridinin kendi dili: "örnek veri —
+   sunucu yok" gibi) ve ortalanan ikon üç satırın ORTASINA düşüyordu — ikon
+   ilk satırın hizasında durmalı. ÖLÇÜLDÜ: admin-bildirim'de üç satırlık not,
+   ikon 2. satırın hizasındaydı. */
+.adm-kpi .k .note>i,.adm-kpi .k .kpi-delta>i,.kpi-delta>i{flex:none;margin-top:2px}
+/* 🔴 ÖZGÜLLÜK — bu üç satır `.adm-kpi .k` ile başlamak ZORUNDA.
+   ÖLÇÜLDÜ (Ajan 2, raporlar ekranı): kısa hâlleri (`.kpi-delta.up`, 0-2-0)
+   bir üstteki `.adm-kpi .k span` kuralına (0-2-1, iki sınıf + öğe seçici)
+   yeniliyordu; `up`/`down` sınıfı DOM'da eşleşiyor ama kazanmıyordu ve
+   trend metni hep muted gri kalıyordu (`getComputedStyle` → rgb(113,113,113)).
+   Kusur yalnız `flat` kullanan ekranlarda görünmüyordu, çünkü `flat` zaten
+   muted. Sayfa özgüllüğüyle yamamak 21 ekranda 21 yama demek olurdu. */
+.adm-kpi .k .kpi-delta.up,.kpi-delta.up{color:var(--acc-deep)}
+.adm-kpi .k .kpi-delta.down,.kpi-delta.down{color:var(--hs-danger)}
+.adm-kpi .k .kpi-delta.flat,.kpi-delta.flat{color:var(--muted)}
 /* İkon renk varyantları — kit tokenlerinden, yeni hue yok */
 .adm-kpi .k.warm .ico,.kpi-card.warm .kpi-ico{background:var(--hs-danger-tint);color:var(--hs-danger)}
 .adm-kpi .k.sun .ico,.kpi-card.sun .kpi-ico{background:var(--hs-warn-tint);color:var(--hs-warn)}
@@ -408,6 +446,39 @@
 }
 .filter-bar select:focus-visible,.adm-filter select:focus-visible,.fb-sel select:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 .fb-count{font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+/* Fit'in ortak süzgeç bileşeni (`.ff`, `FIT_SHELL.filtreKur`) da bu şeride
+   girer ve SAĞA yaslanır. Gastro'da filtre şeridi TEK satırdır: solda arama,
+   sağında süzgeçler. Ajan 1 haklı olarak kabuğa yazmayıp bildirdi — süzgeci
+   ayrı bir `.c-body` satırına koymak iki şeritli bir kalıp üretiyordu ve o
+   kalıp Gastro'da yok. Bileşenin KENDİSİ değişmiyor (public yüzeyle aynı
+   kalır, plan §10/M2); yalnız durduğu yer şeridin içine alınıyor. */
+.filter-bar .ff,.adm-filter .ff,
+.filter-bar .fb-sel .ff,.adm-filter .fb-sel .ff{margin-left:auto;flex:0 1 auto;min-width:0}
+.filter-bar .ff .ff-row,.adm-filter .ff .ff-row{justify-content:flex-end}
+/* 🔴 Bileşen public sayfa için ayarlı iki değer taşıyor ve panelde ikisi de
+   yanlış. ÖLÇÜLDÜ (Ajan 5, üç ekranda):
+     · `margin-bottom:22px` — public'te süzgeçle listeyi ayırır; şeridin
+       içinde şeridi şişiriyor.
+     · `.ff-bar{position:sticky;top:112px}` — public header'ın yüksekliğine
+       göre ayarlı; panelde header 64px ve kart kaydırılınca kutu kartın
+       ORTASINDA asılı kalıyor.
+   Ajan 5 üç dosyanın kendi `<style>` bloğuna yamamıştı; yama kabuğa alındı,
+   çünkü süzgeci olan HER ekranda doğacak bir kusur. `fit-shell.css`e
+   dokunulmuyor — bileşen public yüzeyde aynen kalır, yalnız panelde
+   kapsayıcısına uyar. */
+.filter-bar .ff,.adm-filter .ff{margin-bottom:0}
+.filter-bar .ff-bar,.adm-filter .ff-bar{position:static;top:auto}
+/* 🔴 Üçüncü düzeltme — süzgeç açılır kutusu. ÖLÇÜLDÜ (1440, hareketler):
+   şeritte süzgeç SAĞA yaslanınca en sağdaki facet'in paneli
+   (`.ff-pop`, `left:0` · `min-width:252px`) ekranın 91px dışına düşüyor ve
+   `body.scrollWidth` 1531 okuyor — `admin-denetim.mjs`in taşma kapısı bunu
+   kırmızı yakıyor (13 ekranda).
+   ⚠ Bileşenin KENDİ çözümü var (`.ff-facet.flip .ff-pop{left:auto;right:0}`,
+   JS açılışta ölçüp sınıfı veriyor) ama o yalnız AÇILDIĞINDA koşuyor; kapalı
+   panel `visibility:hidden` hâlde bile yerini tutuyor ve taşmayı üretiyor.
+   Panelde şerit zaten sağa yaslı olduğu için doğru varsayılan sağa hizadır —
+   `flip` de aynı şeyi yazar, çakışmaz. `fit-shell.css`e dokunulmuyor. */
+.filter-bar .ff-pop,.adm-filter .ff-pop{left:auto;right:0}
 
 /* =====================================================================
    9 · VERİ TABLOSU — Gastro `.ptable`
@@ -440,6 +511,14 @@
 .adm-table tbody tr:hover td,.ptable tr:hover td{background:var(--bg)}
 .adm-table td b,.ptable td b{color:var(--slate);font-weight:700}
 .adm-table td small,.ptable td small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+/* Kod görünümlü hücre — slug · tetik anahtarı · şablon değişkeni. Ölçü
+   satır-altı metniyle aynı (12px), yazı tipi tek yerde tanımlı; sayfada
+   `style="font-size:12px"` yazılmasın diye kabuğa alındı (ölçüldü:
+   admin-bildirim 11 kez yazıyordu). */
+.adm-table code,.ptable code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+  background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+}
 .adm-table .num,.ptable .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .adm-table .act,.ptable .act{text-align:right;white-space:nowrap}
 .adm-table .sel,.ptable .sel{width:44px}
@@ -682,14 +761,20 @@ body.nav-open .pnl-overlay,.adm-scrim.is-on{opacity:1;pointer-events:auto}
 .u-mini .um-ava{width:32px;height:32px;flex:none;border-radius:var(--radius-circle);display:grid;place-items:center;font-size:11px;font-weight:700;background:rgba(var(--acc-rgb),.12);color:var(--acc-deep)}
 .u-mini b{font-size:13.5px;font-weight:700;color:var(--slate)}
 
-/* Rol / grup etiketi — Gastro `.role-pill`. Yeni hue YOK: aksan, uyarı,
-   tehlike ve nötr — dördü de kitin kendi tokenleri. */
+/* Rol etiketi — Gastro `.role-pill`.
+   🔴 Varyantlar Fit'in KENDİ rol sözlüğüdür, Gastro'nunki değil. İlk yazdığım
+   set (`admin` · `askida` · `kapali`) yanlıştı ve Ajan 3 ölçüp durdurdu: Fit'te
+   dört rol var (`admin-uyeler-v1.html`in `ROL` tablosu) ve `askida`/`kapali`
+   ROL DEĞİL DURUMDUR — durumun kendi bileşeni var (`.pstat` / `.fp-badge`) ve
+   tabloda ayrı bir kolonda duruyor. İki sözlüğü tek bileşene doldurmak, bu
+   depoda üç kez temizlenen "aynı soruya iki cevap" kusuru olurdu.
+   Yeni hue YOK: aksan tonu ve nötr, ikisi de kitin kendi tokeni. */
 .role-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap}
-.role-pill.admin{background:rgba(var(--acc-rgb),.12);color:var(--acc-deep)}
+.role-pill i{font-size:11px}
+.role-pill.yonetici{background:rgba(var(--acc-rgb),.14);color:var(--acc-deep)}
 .role-pill.antrenor{background:var(--fit-tint);color:var(--fit-ink)}
+.role-pill.aday{background:var(--bg);color:var(--slate-2);border:1px dashed var(--line)}
 .role-pill.uye{background:var(--bg);color:var(--slate-2);border:1px solid var(--line)}
-.role-pill.askida{background:var(--hs-warn-tint);color:var(--hs-warn)}
-.role-pill.kapali{background:var(--hs-danger-tint);color:var(--hs-danger)}
 
 /* =====================================================================
    20 · SÜZGEÇ ÇİPİ — Gastro `.chips` / `.chip`

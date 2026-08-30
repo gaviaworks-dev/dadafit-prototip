@@ -1,288 +1,648 @@
 /* =====================================================================
-   DadaFit · YÖNETİM PANELİ KABUĞU   (R16/2)
+   DadaFit · YÖNETİM PANELİ KABUĞU   (R17 — GÖRÜNÜM GASTRO'YA ÇEKİLDİ)
    ---------------------------------------------------------------------
-   Bu dosya `assets/css/fit-shell.css`in ÜSTÜNE biner; onun tokenlerini
-   ve bileşenlerini kullanır, hiçbirini yeniden tanımlamaz.
+   🔴 BU DOSYA R16/2'de UYDURULMUŞTU, R17'de ÖLÇÜLEREK YENİDEN YAZILDI.
 
-   YENİ RENK · YENİ ÖLÇÜ ÜRETİLMEDİ. Buradaki her değer ya kitin bir
-   tokeni (`--fit`, `--line`, `--radius-md` …) ya da kitin ölçülmüş bir
-   sayısıdır (44px dokunma hedefi, 14px alan yazısı). İki sayı yenidir ve
-   ikisi de admin'e özgüdür — public yüzeyde karşılığı yok:
-     --adm-side-w : 276px  (gerekçesi docs/fit-admin-plan.md §7/1)
-     --adm-top-h  : 64px   (üst çubuk; 44px hedef + 2×10px nefes)
+   KAYNAK — birebir okundu, salt okuma, kod değil YAPI alındı:
+     ~/Developer/Backend Projects/dadagastro-profil/
+       public/reference/admin/sa-shell.css        (436 satır · kabuk kanonu)
+       public/reference/admin/sa-rail.css         ( 90 satır · ikon rail)
+       public/reference/admin/sa-ui.css           (290 satır · ortak primitif)
+       public/reference/admin-kullanicilar/sa-kullanicilar.css (liste kalıbı)
+       public/reference/admin-dashboard/sa-dashboard.css       (KPI + hızlı aksiyon)
+       resources/views/admin/layout.blade.php     (508 satır · kabuk markup'ı)
 
-   NEDEN AYRI DOSYA
-   Admin, public yüzeyin bileşenlerini paylaşır ama YERLEŞİMİNİ
-   paylaşmaz: orada bir sayfa okunur, burada bir tablo taranır. Kuralları
-   `fit-shell.css`e karıştırmak, 60 public sayfanın hiç kullanmayacağı
-   ~400 satırı her ziyarette indirtirdi. Admin sayfaları bu dosyayı
-   kabuktan SONRA yükler.
+   DEĞİŞEN TEK ŞEY RENK. Gastro'nun aksanı domates (#E14827); Fit'in aksanı
+   kurumsal yeşil. Bu bir çeviri bile değil — Gastro'nun KENDİ sa-shell.css'i
+   satır 74'te zaten şunu yazıyor:
+       body[data-sec="dadafit"]{--acc:#009d4f;--acc-deep:#007a3d;--acc-rgb:0,157,79}
+   Yani aşağıdaki üç değer Gastro'nun kendi dosyasından, Fit için ayrılmış
+   satırdan alındı. Yeni renk üretilmedi.
+
+   GASTRO'DAN SAPILAN TEK EKSEN: DOKUNMA HEDEFİ 44px.
+   Gastro `.ia-btn` 32px · `.pg-btn` 34px · `.btn-sm` ~40px basıyor. Fit'in
+   kendi ölçüm kapısı (`docs/qa/admin-denetim.mjs:82`) `.adm-item .adm-ico-btn
+   .adm-pg .adm-daralt .adm-burger .btn` için `height >= 44` istiyor (WCAG
+   2.5.8) ve kit §5/§6/§10 bu kararı üç kez vermiş. Çözüm Gastro'yu bozmadan:
+   **GÖRSEL GASTRO'NUNKİ, HEDEF 44px** — kutu 32/34px çizilir (`::before`),
+   tıklanabilir alan 44px kalır. Bu tam olarak kitin `.kyt-btn` deseni
+   (kit §10: "hedef 44, göz 26"). Ölçülen görüntü Gastro ile aynı, kapı yeşil.
+
+   SINIF ADI SÖZLEŞMESİ — İKİ AD, TEK KURAL
+   21 ekran `.adm-*` adlarıyla yazılmış ve işlevleri doğru; adları değiştirmek
+   21 dosyada gövde markup'ı elemek olurdu ("işlevlere dokunma" ihlali).
+   Bunun yerine her kural **iki seçiciye birden** yazıldı:
+       .adm-card, .pnl-card { … }      .adm-table, .ptable { … }
+   Gastro'nun adı kanon, `.adm-*` onun eş anlamlısı. Yeni ekran ikisinden
+   birini kullanabilir; ikisi de aynı pikseli basar.
    ===================================================================== */
 
+/* =====================================================================
+   0 · TOKENLER
+   Üstteki üç aksan Gastro'nun kendi dadafit satırından. Koyu katman
+   tonları Gastro'nun iki-katman hiyerarşisinden: rail EN koyu, menü bir
+   tık açık (elevated). `--menu-bg` zaten kitte var: `--fit-dark:#211E16`
+   ile BİREBİR aynı literal. `--rail-bg` kitte karşılığı olmayan tek
+   değerdir ve uydurulmadı — Gastro'nun sa-shell.css:70'inden alındı.
+   ===================================================================== */
 :root{
-  --adm-side-w:276px;
-  --adm-top-h:64px;
+  --acc:#009d4f; --acc-deep:#007a3d; --acc-rgb:0,157,79;
+
+  --sa-rail-w:76px;
+  --sa-menu-w:264px;
+  --sa-side-w:340px;          /* rail + menü — Gastro sa-shell.css:52 */
+  --pnl-top-h:64px;
+
+  --on-dark:rgba(233,226,214,.78);
+  --on-dark-mut:rgba(233,226,214,.5);
+  --on-dark-faint:rgba(233,226,214,.42);
+  --hair:rgba(233,226,214,.1);
+
+  --rail-bg:#19160F;          /* Gastro sa-shell.css:70 — EN koyu katman */
+  --menu-bg:#211E16;          /* = --fit-dark, kit §1 · elevated katman  */
+  --radius-pill:999px;
+  --radius-circle:50%;
+  --sh-md:0 6px 22px rgba(33,30,22,.09);
 }
 
-/* ---------------------------------------------------------------------
-   1 · İSKELET
-   Sidebar sabit (`position:fixed`), gövde onun genişliği kadar içeri
-   itilir. Gastro'nun deseni; orada 340px, burada 276 — Fit'in admin
-   ekranlarının çoğu tablo ve 340 kolonları sıkıştırıyordu (plan §7/1).
-   --------------------------------------------------------------------- */
 .adm-body{background:var(--bg);min-height:100vh}
-.adm-main{margin-left:var(--adm-side-w);min-height:100vh;display:flex;flex-direction:column}
+/* Kabuk kabı yalnız `position:fixed` çocuk taşır (rail · menü · üst bar ·
+   tutamak · perde). Gastro'da `.sa-app` gövdeyi de sarar ve `min-height`
+   alır; burada gövde KARDEŞTİR (`#fitAdminTop` + `<main class="adm-main">`),
+   yani kaba yükseklik vermek gövdeyi bir ekran boyu aşağı iterdi.
+   ÖLÇÜLDÜ: `min-height:100vh` ile `.adm-main` y=1100 okuyordu. */
+.sa-app{height:0}
 
-/* ---- sidebar ---- */
-.adm-side{
-  position:fixed;top:0;left:0;bottom:0;width:var(--adm-side-w);z-index:60;
-  background:var(--paper);border-right:1px solid var(--line);
+/* =====================================================================
+   1 · İKON RAIL — 76px, EN koyu, ikonlar üstten
+   Gastro sa-rail.css birebir. Fit'te rail'in taşıdığı şey "dünya" değil
+   **bölüm**: Genel Bakış · Ana içerik · Operasyon · Yapılandırma. Gastro'da
+   rail dünya seçicisidir çünkü orada beş marka var; Fit tek markadır ama
+   menüsü aynı dört bölüme ayrılır (plan §1, kanon). Rail o dört bölümü
+   seçer, menü seçilenin kalemlerini gösterir — iki katmanın hiyerarşisi
+   birebir korunur, uydurulmuş "yakında" dünyası eklenmez (kit §6:
+   "yakında yazılmaz", depoda bugün 0 tane var).
+   ===================================================================== */
+.sa-rail{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sa-rail-w);z-index:85;
+  background:var(--rail-bg);display:flex;flex-direction:column;align-items:center;
+  padding:18px 0;gap:7px;border-right:1px solid rgba(0,0,0,.32);
+  background-image:radial-gradient(260px 240px at 50% -8%, rgba(var(--acc-rgb),.16), transparent 62%);
+}
+.sa-rail-logo{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;margin-bottom:8px;color:#fff;font-size:20px;transition:.2s var(--ease)}
+.sa-rail-logo:hover{background:rgba(255,255,255,.06)}
+.sa-rail-div{width:30px;height:1px;background:var(--hair);margin:6px 0}
+.sa-rail-ico{
+  position:relative;width:48px;height:48px;border-radius:14px;border:0;padding:0;
+  display:grid;place-items:center;color:var(--on-dark-mut);font-size:18px;
+  background:transparent;font-family:inherit;cursor:pointer;transition:.2s var(--ease);
+}
+.sa-rail-ico:hover{background:rgba(255,255,255,.07);color:#fff}
+.sa-rail-ico.is-active{background:rgba(var(--acc-rgb),.2);color:var(--acc)}
+.sa-rail-ico.is-active::before{
+  content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;
+  background:var(--acc);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+}
+.sa-rail-ico:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.sa-rail-ico .pl-cnt{
+  position:absolute;top:4px;right:4px;font-size:10px;font-weight:700;
+  background:var(--acc);color:#fff;min-width:16px;height:16px;line-height:16px;
+  text-align:center;border-radius:var(--radius-pill);padding:0 4px;
+}
+.sa-rail-foot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sa-sig{
+  width:44px;height:44px;display:grid;place-items:center;border-radius:9px;
+  color:var(--on-dark-mut);font-size:15px;opacity:.75;transition:.2s var(--ease);
+}
+.sa-sig:hover{opacity:1;background:rgba(255,255,255,.06);color:#fff}
+
+/* rail ikon ipucu — sağa açılır, native title yerine anında */
+.sa-rail [data-tip]{position:relative}
+.sa-rail [data-tip]::after{
+  content:attr(data-tip);position:absolute;left:calc(100% + 12px);top:50%;
+  transform:translateY(-50%) translateX(-4px);
+  background:#2b2820;color:var(--on-dark);font-size:11.5px;font-weight:600;white-space:nowrap;
+  padding:6px 11px;border-radius:8px;border:1px solid var(--hair);box-shadow:var(--sh-md);
+  opacity:0;pointer-events:none;transition:opacity .15s var(--ease),transform .15s var(--ease);z-index:90;
+}
+.sa-rail [data-tip]:hover::after,.sa-rail [data-tip]:focus-visible::after{opacity:1;transform:translateY(-50%) translateX(0)}
+
+/* =====================================================================
+   2 · BÖLÜM MENÜSÜ — 264px, KOYU (elevated), rail'den bir tık açık
+   Gastro sa-shell.css "2) BÖLÜM MENÜSÜ" bloğu birebir.
+   ===================================================================== */
+.sa-menu{
+  position:fixed;top:0;left:var(--sa-rail-w);bottom:0;width:var(--sa-menu-w);z-index:80;
+  background:var(--menu-bg);border-right:1px solid rgba(0,0,0,.3);
   display:flex;flex-direction:column;overflow:hidden;
+  background-image:radial-gradient(360px 260px at -10% -6%, rgba(var(--acc-rgb),.16), transparent 60%);
+  transition:width .26s var(--ease), opacity .2s var(--ease);
 }
-.adm-brand{
-  display:flex;align-items:center;gap:11px;height:var(--adm-top-h);flex:none;
-  padding:0 20px;border-bottom:1px solid var(--line);color:var(--slate);
+.sa-menu-head{
+  padding:0 20px;height:var(--pnl-top-h);flex:none;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  border-bottom:1px solid var(--hair);white-space:nowrap;
 }
-.adm-brand .mark{
-  width:34px;height:34px;flex:none;border-radius:var(--radius-md);
-  background:var(--fit);color:#fff;display:grid;place-items:center;font-size:16px;
+.smh-eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+.smh-title{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.sa-mnav{flex:1;overflow-y:auto;padding:18px 14px;display:flex;flex-direction:column;gap:3px}
+/* Bölüm başlığı AYRAÇ DEĞİLDİR — ölçüldü (devir §10):
+   "Gastro bölümleri başlık ile ayırıyor, ayrı bir çizgi öğesi yok." */
+.sa-msec,.adm-sec{
+  font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--on-dark-faint);padding:16px 12px 7px;white-space:nowrap;
 }
-.adm-brand b{font-size:16px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
-.adm-brand small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
-
-.adm-nav{flex:1;overflow-y:auto;padding:14px 12px 24px}
-/* Bölüm başlığı AYRAÇ DEĞİL. Ölçüldü (devir §10): "Gastro bölümleri başlık
-   ile ayırıyor, ayrı bir çizgi öğesi yok." Fit de öyle. */
-.adm-sec{
-  font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted);padding:18px 10px 7px;
-}
-.adm-nav>.adm-sec:first-child{padding-top:4px}
-.adm-item{
-  display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 10px;
-  border-radius:var(--radius-md);font-size:13.5px;font-weight:600;color:var(--slate-2);
+.sa-mlink,.adm-item{
+  position:relative;display:flex;align-items:center;gap:12px;
+  padding:11px 12px;min-height:44px;border-radius:var(--radius-md);white-space:nowrap;
+  font-size:14px;font-weight:500;color:var(--on-dark);cursor:pointer;
   transition:background .18s var(--ease),color .18s var(--ease);
 }
-.adm-item i{width:17px;text-align:center;font-size:14px;color:var(--muted);flex:none;transition:color .18s var(--ease)}
-.adm-item:hover{background:var(--bg);color:var(--slate)}
-.adm-item:hover i{color:var(--fit-deep)}
-.adm-item.is-on{background:var(--fit-tint);color:var(--fit-deep);font-weight:800}
-.adm-item.is-on i{color:var(--fit-deep)}
-.adm-item:focus-visible{outline:3px solid var(--fit);outline-offset:-2px}
-/* Kuyruk sayacı — sıfırsa BASILMAZ. "0 bekleyen" bir bilgi değil gürültüdür. */
-.adm-item .cnt{
-  margin-left:auto;flex:none;min-width:22px;height:20px;padding:0 6px;border-radius:var(--radius-pill);
-  background:var(--fit);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;
+.sa-mlink i,.adm-item i{width:20px;text-align:center;font-size:15px;color:var(--on-dark-mut);transition:color .18s var(--ease);flex:none}
+.sa-mlink:hover,.adm-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.sa-mlink:hover i,.adm-item:hover i{color:var(--acc)}
+.sa-mlink.is-active,.adm-item.is-on{background:rgba(var(--acc-rgb),.16);color:#fff;font-weight:700}
+.sa-mlink.is-active i,.adm-item.is-on i{color:var(--acc)}
+.sa-mlink.is-active::before,.adm-item.is-on::before{
+  content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;
+  background:var(--acc);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
 }
-.adm-item.is-on .cnt{background:var(--fit-deep)}
+.sa-mlink:focus-visible,.adm-item:focus-visible{outline:3px solid var(--acc);outline-offset:-2px}
+/* Kuyruk sayacı — SIFIRSA BASILMAZ. "0 bekleyen" bilgi değil gürültüdür. */
+.sa-mlink .pl-cnt,.adm-item .cnt{
+  margin-left:auto;flex:none;font-size:11px;font-weight:700;
+  background:var(--acc);color:#fff;min-width:20px;height:20px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0 6px;border-radius:7px;
+}
+.sa-menu-foot{padding:14px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:3px}
+.sa-menu-foot .sa-mlink{font-size:13px}
 
-/* ---- üst çubuk ---- */
-.adm-top{
-  position:sticky;top:0;z-index:50;flex:none;
-  height:var(--adm-top-h);display:flex;align-items:center;gap:16px;padding:0 26px;
+/* =====================================================================
+   3 · DIVIDER TUTAMAĞI — menünün DIŞ kenarında yüzen, dikey ortada
+   Gastro sa-shell.css "DIVIDER TAB" bloğu birebir. Açık: ‹ · Katlı: ›
+   R16/2'de bunun yerine sidebar'ın ALTINDA tam genişlik bir düğme vardı
+   (uydurulmuştu); söküldü.
+   ===================================================================== */
+.sa-divider{
+  position:fixed;top:0;bottom:0;left:var(--sa-side-w);width:26px;transform:translateX(-13px);
+  z-index:84;cursor:ew-resize;border:0;padding:0;background:transparent;
+  transition:left .26s var(--ease);
+}
+.sa-grip{
+  position:absolute;top:50%;left:3px;transform:translateY(-50%);
+  width:22px;height:54px;border-radius:0 10px 10px 0;
+  display:flex;align-items:center;justify-content:center;padding-left:7px;
+  background:var(--menu-bg);border:1px solid var(--hair);border-left:none;
+  color:var(--on-dark);box-shadow:6px 0 16px rgba(0,0,0,.26);
+  transition:border-color .18s var(--ease),color .18s var(--ease),box-shadow .18s var(--ease);
+}
+.sa-grip::after{
+  font-family:"Font Awesome 6 Free";font-weight:900;font-size:15px;line-height:1;
+  content:"\f104";                                   /* ‹ — AÇIK = daralt */
+}
+.sa-divider:hover .sa-grip,.sa-divider:focus-visible .sa-grip{
+  color:var(--acc);border-color:rgba(var(--acc-rgb),.6);box-shadow:6px 0 20px rgba(0,0,0,.34);
+}
+@media(min-width:1101px){
+  body.sa-collapsed .sa-menu{width:0;opacity:0;pointer-events:none;border-right-color:transparent}
+  body.sa-collapsed .pnl-top{left:var(--sa-rail-w)}
+  body.sa-collapsed .adm-main,body.sa-collapsed .pnl-main{margin-left:var(--sa-rail-w)}
+  body.sa-collapsed .sa-divider{left:var(--sa-rail-w);z-index:86}
+  body.sa-collapsed .sa-grip{background:var(--rail-bg)}
+  body.sa-collapsed .sa-grip::after{content:"\f105"}  /* › — KATLI = genişlet */
+  body.sa-collapsed .sa-rail:hover ~ .sa-divider .sa-grip{color:var(--acc);border-color:rgba(var(--acc-rgb),.6)}
+}
+
+/* =====================================================================
+   4 · ÜST İNCE BAR — 64px, AÇIK zemin, arama SOLDA ve GENİŞ
+   Gastro sa-shell.css "3) ÜST İNCE BAR". R16/2'de arama ortada ve 320px'ti;
+   Gastro'da sidebar'ın hemen sağında, `flex:1` ve `max-width:420px`.
+   🔴 SAYFA BAŞLIĞI BURADA DEĞİLDİR — gövdededir (`.pnl-page-head`).
+   ===================================================================== */
+.pnl-top,.adm-top{
+  position:fixed;top:0;left:var(--sa-side-w);right:0;z-index:70;height:var(--pnl-top-h);
   background:var(--paper);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:16px;padding:0 28px;
+  transition:left .26s var(--ease);
 }
-.adm-top .t-crumb{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
-.adm-top .t-crumb a{color:var(--muted)}
-.adm-top .t-crumb a:hover{color:var(--fit-deep)}
-.adm-top h1{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--slate);margin:0;line-height:1.2}
-.adm-top .t-acts{margin-left:auto;display:flex;align-items:center;gap:10px}
-.adm-top .t-who{display:flex;align-items:center;gap:9px;padding-left:14px;border-left:1px solid var(--line);min-height:44px}
-.adm-top .t-who span{width:32px;height:32px;border-radius:50%;background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:12px;font-weight:800}
-.adm-top .t-who b{font-size:12.5px;font-weight:700;color:var(--slate)}
-.adm-top .t-who small{display:block;font-size:11px;color:var(--muted);font-weight:600}
-
-/* mobil menü düğmesi — ≥1101'de gizli */
-/* `flex:none` ŞART — üst çubuk bir flex kabı ve dar ekranda başlık uzunsa
-   düğmeyi 44'ün altına eziyordu (ölçüldü: 390px'te 39×44 ve 32×44). */
-.adm-burger{display:none;flex:none;width:44px;height:44px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);color:var(--slate);cursor:pointer;place-items:center;font-size:15px}
-
-/* ---- sayfa gövdesi ---- */
-.adm-page{padding:26px;flex:1}
-.adm-head{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:20px}
-.adm-head .h-txt{min-width:0;flex:1}
-.adm-head h2{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--slate);margin:0 0 6px}
-.adm-head p{font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.6;max-width:78ch;margin:0}
-.adm-head .h-acts{display:flex;gap:10px;flex-wrap:wrap;flex:none}
-/* 🔴 R16/2 · 390px'te taşma. ÖLÇÜLDÜ (Ajan G): başlıkta iki düğme olan
-   ekranda `.h-acts` 399px istiyor, gövdede 358px var → `body.scrollWidth`
-   415'e çıkıyordu. `flex:none` dar ekranda düğmeleri küçültmeyi de sarmayı
-   da engelliyordu. Kırılımda tam satıra iner. */
-@media (max-width:640px){
-  .adm-head .h-acts{flex:1 1 100%}
-  .adm-head .h-acts .btn{flex:1 1 auto;justify-content:center}
+.pnl-burger,.adm-burger{
+  display:none;width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--paper);cursor:pointer;font-size:16px;color:var(--slate);
+  align-items:center;justify-content:center;
 }
+.pnl-search{flex:1;max-width:420px;position:relative}
+.pnl-search>i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13.5px;color:var(--muted);pointer-events:none}
+.pnl-search input{
+  width:100%;height:44px;padding:0 14px 0 38px;      /* Gastro 40px; kit §7 alan yüksekliği 44 */
+  font-family:inherit;font-size:13.5px;font-weight:500;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);
+  outline:none;transition:.2s var(--ease);
+}
+.pnl-search input::placeholder{color:var(--muted)}
+.pnl-search input:focus{border-color:var(--acc);background:var(--paper);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.12)}
+.pnl-top-tools{margin-left:auto;display:flex;align-items:center;gap:10px}
+.pnl-bell{
+  position:relative;width:44px;height:44px;border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--paper);cursor:pointer;font-size:15px;color:var(--slate);
+  display:inline-flex;align-items:center;justify-content:center;transition:.2s var(--ease);
+}
+.pnl-bell:hover{border-color:var(--acc);color:var(--acc-deep)}
+.pnl-top-tools [data-tip]{position:relative}
+.pnl-top-tools [data-tip]::after{
+  content:attr(data-tip);position:absolute;top:calc(100% + 9px);left:50%;
+  transform:translateX(-50%) translateY(-3px);
+  background:var(--slate);color:#fff;font-size:11.5px;font-weight:600;white-space:nowrap;
+  padding:6px 10px;border-radius:8px;box-shadow:var(--sh-md);
+  opacity:0;pointer-events:none;transition:opacity .15s var(--ease),transform .15s var(--ease);z-index:130;
+}
+.pnl-top-tools [data-tip]:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ---------------------------------------------------------------------
-   2 · KAYNAK ŞERİDİ — `.adm-src`
-   Bu prototipin en dürüst parçası. Her admin ekranı, gösterdiği verinin
-   NEREDEN geldiğini yazar:
-     .is-canli → tarayıcıda gerçekten çalışan bir sözleşme modülünden
-                 okunuyor (fit-challenge · fit-rozet · fit-paket · fit-su)
-     .is-ornek → örnek veri; sunucu yok, yazma yüzeyi maket
-   Böylece "hangisi gerçek" sorusu ekranın kendisinde cevaplanır ve
-   "maket olanı gerçekmiş gibi gösterme" kuralı tek bir bileşene iner.
-   --------------------------------------------------------------------- */
+/* hesap çipi + açılır menü — Gastro `.pnl-me` / `.pnl-menu` */
+.pnl-me{
+  position:relative;display:flex;align-items:center;gap:11px;cursor:pointer;
+  min-height:44px;padding:6px 8px 6px 6px;border:0;background:transparent;font-family:inherit;
+  border-radius:var(--radius-md);transition:.2s var(--ease);
+}
+.pnl-me:hover,.pnl-me[aria-expanded="true"]{background:var(--bg)}
+.pnl-me[aria-expanded="true"]>i{transform:rotate(180deg)}
+.pnl-me .pm-ava{
+  width:36px;height:36px;border-radius:var(--radius-circle);flex:none;
+  display:grid;place-items:center;font-size:13px;font-weight:700;
+  background:rgba(var(--acc-rgb),.14);color:var(--acc-deep);
+  box-shadow:0 0 0 2px var(--paper), 0 0 0 4px var(--acc);
+}
+.pnl-me .pm-id{line-height:1.25;text-align:left}
+.pnl-me .pm-name{font-size:13.5px;font-weight:700;color:var(--slate);display:block}
+.pnl-me .pm-role{font-size:11.5px;color:var(--muted);display:block}
+.pnl-me>i{font-size:11px;color:var(--muted);transition:transform .18s var(--ease)}
+.pnl-menu{
+  position:absolute;top:calc(100% + 10px);right:0;min-width:236px;z-index:120;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--sh-lg);
+  padding:7px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:.16s var(--ease);
+}
+.pnl-menu.open{opacity:1;transform:none;pointer-events:auto}
+.pnl-menu .pmenu-head{padding:8px 12px 11px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.pnl-menu .pmenu-head b{display:block;font-size:13.5px;color:var(--slate);font-weight:700}
+.pnl-menu .pmenu-head span{font-size:11.5px;color:var(--muted)}
+.pnl-menu a{display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;color:var(--slate-2);transition:.15s var(--ease)}
+.pnl-menu a i{width:16px;text-align:center;font-size:14px;color:var(--muted);transition:.15s var(--ease)}
+.pnl-menu a:hover{background:var(--bg);color:var(--slate)}
+.pnl-menu a:hover i{color:var(--acc)}
+.pnl-menu .pmenu-div{height:1px;background:var(--line);margin:6px 4px}
+
+/* =====================================================================
+   5 · İÇERİK ALANI + SAYFA BAŞLIĞI BLOĞU
+   Gastro: `.pnl-main{margin-left:340;padding:calc(64+28) 28 48}` ve sayfa
+   başlığı GÖVDENİN İÇİNDE, kartların üstünde.
+   ===================================================================== */
+.adm-main,.pnl-main{margin-left:var(--sa-side-w);min-height:100vh;transition:margin-left .26s var(--ease)}
+.adm-page{padding:calc(var(--pnl-top-h) + 28px) 28px 48px}
+
+.adm-head,.pnl-page-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:18px;
+  margin-bottom:24px;flex-wrap:wrap;
+}
+.adm-head .h-txt,.pnl-page-head>div:first-child{min-width:0}
+.adm-head h1,.adm-head h2,.pnl-page-head h1{
+  font-size:24px;font-weight:700;line-height:1.12;letter-spacing:-.02em;color:var(--slate);margin:0;
+}
+.adm-head p,.adm-head .ph-sub,.pnl-page-head .ph-sub{
+  margin:5px 0 0;font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.5;max-width:78ch;
+}
+.adm-head .h-acts,.pnl-page-head .ph-actions{display:flex;gap:10px;flex:none;flex-wrap:wrap;max-width:100%}
+
+/* =====================================================================
+   6 · PANEL KARTI — Gastro `.pnl-card` / `.pc-head` / `.pc-body`
+   ===================================================================== */
+.adm-card,.pnl-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm)}
+.adm-card+.adm-card,.pnl-card+.pnl-card{margin-top:16px}
+.adm-card .c-head,.pnl-card .pc-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;
+}
+.adm-card .c-head h3,.pnl-card .pc-title{
+  font-size:16px;font-weight:700;color:var(--slate);margin:0;
+  display:flex;align-items:center;gap:10px;
+}
+.adm-card .c-head h3 i,.pnl-card .pc-title i{color:var(--acc);font-size:15px}
+.adm-card .c-head .c-acts{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pc-link{font-size:13px;font-weight:700;color:var(--acc-deep);display:inline-flex;align-items:center;gap:7px;min-height:44px;transition:.2s}
+.pc-link i{font-size:11.5px;transition:.25s var(--ease)}
+.pc-link:hover i{transform:translateX(3px)}
+.adm-card .c-body,.pnl-card .pc-body{padding:22px}
+.adm-card .c-body.flush,.pnl-card .pc-body.flush{padding:0}
+
+/* =====================================================================
+   7 · KPI KARTLARI — Gastro `.kpi-grid` / `.kpi-card`
+   İkon SOLDA (44×44 renkli yuvarlak-kare), sağında dikey yığın:
+   büyük sayı → etiket → TREND SATIRI. Trend satırı R16/2'de yoktu.
+   ===================================================================== */
+.adm-kpi,.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.adm-kpi .k,.kpi-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--sh-sm);padding:20px;display:flex;align-items:flex-start;gap:14px;
+  transition:.25s var(--ease);
+}
+.adm-kpi .k:hover,.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
+.adm-kpi .k .ico,.kpi-ico{
+  width:44px;height:44px;flex:none;border-radius:var(--radius-md);
+  background:rgba(var(--acc-rgb),.12);color:var(--acc-deep);
+  display:inline-flex;align-items:center;justify-content:center;font-size:17px;
+}
+.adm-kpi .k b,.kpi-num{
+  display:block;font-size:26px;font-weight:700;color:var(--slate);
+  line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+}
+.adm-kpi .k b small{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:0}
+.adm-kpi .k span,.kpi-lbl{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
+.adm-kpi .k .note,.kpi-delta{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11.5px;font-weight:700;margin-top:6px;line-height:1.4;color:var(--muted);
+}
+.kpi-delta.up{color:var(--acc-deep)}
+.kpi-delta.down{color:var(--hs-danger)}
+.kpi-delta.flat{color:var(--muted)}
+/* İkon renk varyantları — kit tokenlerinden, yeni hue yok */
+.adm-kpi .k.warm .ico,.kpi-card.warm .kpi-ico{background:var(--hs-danger-tint);color:var(--hs-danger)}
+.adm-kpi .k.sun .ico,.kpi-card.sun .kpi-ico{background:var(--hs-warn-tint);color:var(--hs-warn)}
+
+/* =====================================================================
+   8 · FİLTRE ŞERİDİ — kartın İLK satırı, arama SOLDA (Gastro kanonu)
+   Ölçüldü (plan §10/4): ".filter-bar kartın ilk satırı: solda arama
+   (max 320px), sağında süzgeçler." R16/2'de arama kart başlığının
+   sağındaydı — devir notu §5/9'un açık kalemi, bu turda kapandı.
+   ===================================================================== */
+.filter-bar,.adm-filter{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:16px 22px;border-bottom:1px solid var(--line);
+}
+.filter-bar .fb-search,.adm-filter .fb-search{flex:1;min-width:200px;max-width:320px;position:relative}
+.filter-bar .fb-search>i,.adm-filter .fb-search>i{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:13px;color:var(--muted);pointer-events:none;
+}
+.filter-bar .fb-search input,.adm-filter .fb-search input{
+  width:100%;height:44px;padding:0 12px 0 34px;      /* Gastro 38px; kit §7 = 44 */
+  font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+  outline:none;transition:.2s var(--ease);
+}
+.filter-bar .fb-search input::placeholder{color:var(--muted)}
+.filter-bar .fb-search input:focus,.adm-filter .fb-search input:focus{
+  border-color:var(--acc);background:var(--paper);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.11);
+}
+/* Süzgeç seçicileri — Gastro'da çip, Fit'te AÇILIR MENÜ.
+   🔴 Bilerek ayrıldık (plan §10/M2, Beyar direktifi): panelin süzgeci public
+   yüzeyin egzersiz kütüphanesindeki dropdown'ı örnek alır. Panelin public'e
+   benzemesi Gastro'ya benzemesinden önce gelir. Şeridin YERİ ve GEOMETRİSİ
+   Gastro'nunkidir; içindeki kalem Fit'in kendi bileşenidir. */
+.fb-sel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.fb-sel label{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.fb-sel select,.filter-bar select,.adm-filter select{
+  height:44px;padding:0 34px 0 12px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--paper);color:var(--slate);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23717171' d='M4.5 6.5 8 10l3.5-3.5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;
+}
+.filter-bar select:focus-visible,.adm-filter select:focus-visible,.fb-sel select:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.fb-count{font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+
+/* =====================================================================
+   9 · VERİ TABLOSU — Gastro `.ptable`
+   Başlık 11.5px/700 .06em uppercase, ZEMİNSİZ (R16/2 gri zemin basıyordu,
+   Gastro'da yok). İlk hücre 22px sol dolgu, son hücre sağa yaslı.
+   ===================================================================== */
+.adm-tw,.ptable-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;contain:paint}
+/* 🔴 `contain:paint` ŞART — `overflow-x:auto` TEK BAŞINA YETMİYOR.
+   ÖLÇÜLDÜ (R16/2, 390×800): geniş matris tablolarında kabın kaydırılabilir
+   içeriği BELGEYE sızıyor; `window.scrollTo(9999,0)` sonrası `scrollX`
+   rozetler 133px · paketler 122px · menü 68px okuyor. Kabuğun
+   `overflow-x:clip` kuralı kaymayı KIRPTIĞI için belge düzeyinde ölçen kapı
+   yeşil yanıyordu. Denenip yetmeyenler: min-width:0 · max-width:100% ·
+   contain:inline-size · html{overflow-x:clip}. */
+.adm-table,.ptable{width:100%;border-collapse:collapse}
+.adm-table th,.ptable th{
+  font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--line);
+  text-align:left;white-space:nowrap;background:transparent;
+}
+.adm-table th:first-child,.ptable th:first-child{padding-left:22px}
+.adm-table th:last-child,.ptable th:last-child{padding-right:22px;text-align:right}
+.adm-table td,.ptable td{
+  padding:13px 16px;border-bottom:1px solid var(--line);
+  font-size:13.5px;font-weight:500;color:var(--slate-2);vertical-align:middle;
+}
+.adm-table td:first-child,.ptable td:first-child{padding-left:22px}
+.adm-table td:last-child,.ptable td:last-child{padding-right:22px;text-align:right}
+.adm-table tbody tr:last-child td,.ptable tr:last-child td{border-bottom:none}
+.adm-table tbody tr:hover td,.ptable tr:hover td{background:var(--bg)}
+.adm-table td b,.ptable td b{color:var(--slate);font-weight:700}
+.adm-table td small,.ptable td small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+.adm-table .num,.ptable .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.adm-table .act,.ptable .act{text-align:right;white-space:nowrap}
+.adm-table .sel,.ptable .sel{width:44px}
+/* Onay kutusu: görsel 18px, DOKUNMA HEDEFİ hücrenin tamamı (WCAG 2.5.8).
+   ⚠ `transform:scale()` denendi ve ÇALIŞMADI: dönüşüm çizimle birlikte
+   isabet sınamasını da ölçekliyor, hedef de küçülüyor (ölçüldü, R16/2). */
+.adm-table td.sel,.adm-table th.sel{padding:0;cursor:pointer}
+.adm-table td.sel label,.adm-table th.sel label,.adm-table .sel-hit{
+  display:grid;place-items:center;width:44px;height:44px;cursor:pointer;margin:0 auto;
+}
+.adm-table input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc);cursor:pointer}
+.adm-table td.sel:hover input[type=checkbox]{accent-color:var(--acc-deep)}
+
+/* Satır eylemi — GÖRSEL Gastro'nun 32px `.ia-btn`i, HEDEF 44px (kapı §82). */
+.adm-table .act .row-acts,.row-acts{display:flex;align-items:center;justify-content:flex-end;gap:2px}
+.adm-ico-btn,.ia-btn{
+  position:relative;width:44px;height:44px;flex:none;border:0;padding:0;background:transparent;
+  color:var(--muted);font-size:13px;cursor:pointer;
+  display:inline-grid;place-items:center;transition:color .18s var(--ease);
+}
+.adm-ico-btn::before,.ia-btn::before{
+  content:"";position:absolute;top:6px;right:6px;bottom:6px;left:6px;   /* görsel 32×32 */
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  transition:border-color .18s var(--ease),background .18s var(--ease);
+}
+.adm-ico-btn>*,.ia-btn>*{position:relative;z-index:1}
+.adm-ico-btn:hover,.ia-btn:hover{color:var(--acc-deep)}
+.adm-ico-btn:hover::before,.ia-btn:hover::before{border-color:var(--acc);background:rgba(var(--acc-rgb),.07)}
+.adm-ico-btn.danger:hover,.ia-btn.danger:hover{color:var(--hs-danger)}
+.adm-ico-btn.danger:hover::before,.ia-btn.danger:hover::before{border-color:var(--hs-danger);background:var(--hs-danger-tint)}
+.adm-ico-btn:focus-visible,.ia-btn:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
+
+/* =====================================================================
+   10 · SAYFALAMA — kartın İÇİNDE, en ayağında (Gastro `.pager`)
+   Solda "X sonuçtan a–b gösteriliyor", sağda ◂ · numaralar · ▸
+   GÖRSEL 34px (Gastro `.pg-btn`), HEDEF 44px.
+   ===================================================================== */
+.adm-pager,.pager{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 22px;border-top:1px solid var(--line);flex-wrap:wrap;
+}
+.adm-pager .p-info,.pager-info{font-size:12.5px;color:var(--muted)}
+.adm-pager .p-btns,.pager-btns{margin-left:auto;display:flex;gap:6px}
+.adm-pg,.pg-btn{
+  position:relative;min-width:44px;height:44px;padding:0 10px;border:0;background:transparent;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--slate-2);
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  transition:color .18s var(--ease);
+}
+.adm-pg::before,.pg-btn::before{
+  content:"";position:absolute;top:5px;right:0;bottom:5px;left:0;   /* görsel 34px yükseklik */
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);
+  transition:border-color .18s var(--ease),background .18s var(--ease);
+}
+.adm-pg>*,.pg-btn>*{position:relative;z-index:1}
+.adm-pg:hover:not([disabled]):not(.is-on),.pg-btn:hover:not([disabled]):not(.is-on){color:var(--acc-deep)}
+.adm-pg:hover:not([disabled]):not(.is-on)::before,.pg-btn:hover:not([disabled]):not(.is-on)::before{border-color:var(--acc)}
+.adm-pg.is-on,.pg-btn.is-on{color:#fff}
+.adm-pg.is-on::before,.pg-btn.is-on::before{border-color:var(--acc);background:var(--acc)}
+.adm-pg[disabled],.pg-btn[disabled]{opacity:.4;pointer-events:none}
+.adm-pg:focus-visible,.pg-btn:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
+
+/* =====================================================================
+   11 · TOPLU EYLEM ÇUBUĞU — seçim yokken YOK
+   ===================================================================== */
+.adm-bulk{
+  display:flex;align-items:center;gap:12px;padding:12px 22px;flex-wrap:wrap;
+  background:rgba(var(--acc-rgb),.08);border-bottom:1px solid rgba(var(--acc-rgb),.22);
+}
+.adm-bulk b{font-size:13px;font-weight:700;color:var(--acc-deep)}
+.adm-bulk .b-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.adm-bulk[hidden]{display:none}
+
+/* =====================================================================
+   12 · BOŞ DURUM — Gastro `.pnl-empty`; kitin `.fpx-bos`u ile aynı dört parça
+   ===================================================================== */
+.pnl-empty{padding:54px 24px;text-align:center}
+.pnl-empty .pe-ico{
+  width:60px;height:60px;margin:0 auto 16px;border-radius:var(--radius-md);
+  background:rgba(var(--acc-rgb),.12);color:var(--acc-deep);
+  display:flex;align-items:center;justify-content:center;font-size:23px;
+}
+.pnl-empty h4{font-size:16px;font-weight:700;color:var(--slate);margin-bottom:6px}
+.pnl-empty p{font-size:13px;color:var(--muted);max-width:340px;margin:0 auto 8px}
+.adm-card .fpx-bos,.pnl-card .fpx-bos{box-shadow:none;border:0;background:transparent}
+
+/* =====================================================================
+   13 · DURUM ROZETİ — Gastro `.pstat`; kitin `.fp-badge`i ile ortak
+   ===================================================================== */
+.pstat{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.pstat::before{content:"";width:6px;height:6px;border-radius:var(--radius-circle);background:currentColor}
+.pstat.ok{background:var(--fit-tint);color:var(--acc-deep)}
+.pstat.wait{background:var(--hs-warn-tint);color:var(--hs-warn)}
+.pstat.off{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.pstat.stop{background:var(--hs-danger-tint);color:var(--hs-danger)}
+
+/* =====================================================================
+   14 · KAYNAK ŞERİDİ — `.adm-src` (KORUNDU, panelin en dürüst parçası)
+   Her admin ekranı gösterdiği verinin NEREDEN geldiğini yazar.
+   ===================================================================== */
 .adm-src{
-  display:flex;align-items:flex-start;gap:11px;margin-bottom:18px;padding:12px 16px;
+  display:flex;align-items:flex-start;gap:11px;margin-bottom:20px;padding:13px 18px;
   border-radius:var(--radius-md);font-size:12.5px;font-weight:600;line-height:1.55;
 }
 .adm-src i{flex:none;margin-top:2px;font-size:13px}
-.adm-src b{font-weight:800}
-.adm-src.is-canli{background:var(--fit-tint);border:1px solid var(--fit-line);color:var(--fit-ink)}
-.adm-src.is-canli i{color:var(--fit-deep)}
+.adm-src b{font-weight:700}
+.adm-src.is-canli{background:rgba(var(--acc-rgb),.09);border:1px solid rgba(var(--acc-rgb),.24);color:var(--fit-ink)}
+.adm-src.is-canli i{color:var(--acc-deep)}
 .adm-src.is-ornek{background:var(--hs-warn-tint);border:1px solid var(--hs-warn-line);color:var(--hs-warn)}
 .adm-src.is-ornek i{color:var(--hs-warn)}
 .adm-src code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;background:rgba(255,255,255,.6);padding:1px 5px;border-radius:5px}
 
-/* ---------------------------------------------------------------------
-   3 · SAYAÇ KARTLARI — `.adm-kpi`
-   Devir belgesi §1: dört markada da 4 kutu, aynı yerde. Ölçüler oradan.
-   --------------------------------------------------------------------- */
-.adm-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
-.adm-kpi .k{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);padding:20px;display:flex;gap:14px;align-items:flex-start}
-.adm-kpi .k .ico{width:44px;height:44px;flex:none;border-radius:var(--radius-md);background:var(--fit-tint);color:var(--fit-deep);display:grid;place-items:center;font-size:16px}
-.adm-kpi .k b{display:block;font-size:26px;font-weight:800;line-height:1.05;letter-spacing:-.02em;color:var(--slate);font-variant-numeric:tabular-nums}
-.adm-kpi .k b small{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:0}
-.adm-kpi .k span{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:4px}
-.adm-kpi .k .note{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:7px;line-height:1.45}
+/* =====================================================================
+   15 · İKİ KOLON — Gastro `.dash-2col` (1.6fr / 1fr)
+   ===================================================================== */
+.adm-cols,.dash-2col{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+.dash-2col>.pnl-card+.pnl-card{margin-top:0}
+.adm-cols>div>.adm-card:first-child{margin-top:0}
 
-/* ---------------------------------------------------------------------
-   4 · VERİ TABLOSU — `.adm-table`
-   Yatay kaydırma KABIN işi (`.adm-tw`), tablonun değil; hücreler
-   kırpılmaz. Sayısal kolonlar `tabular-nums`.
-   --------------------------------------------------------------------- */
-.adm-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
-.adm-card+.adm-card{margin-top:16px}
-.adm-card .c-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.adm-card .c-head h3{font-size:15px;font-weight:800;color:var(--slate);margin:0;display:flex;align-items:center;gap:9px}
-.adm-card .c-head h3 i{color:var(--fit-deep);font-size:14px}
-.adm-card .c-head .c-acts{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
-.adm-card .c-body{padding:20px}
-.adm-card .c-body.flush{padding:0}
+/* Hızlı aksiyon listesi — Gastro sa-dashboard.css `.qa-*` */
+.qa-list{display:flex;flex-direction:column;gap:2px;padding:14px 12px}
+.qa-item{display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 10px;border-radius:var(--radius-md);transition:.18s var(--ease);cursor:pointer}
+.qa-item:hover{background:var(--bg)}
+.qa-ico{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:14px;background:rgba(var(--acc-rgb),.12);color:var(--acc-deep)}
+.qa-info{flex:1;min-width:0;line-height:1.3}
+.qa-info b{font-size:13.5px;font-weight:700;color:var(--slate);display:block}
+.qa-info span{font-size:12px;color:var(--muted)}
+.qa-arrow{font-size:11px;color:var(--muted)}
 
-/* 🔴 `contain:paint` ŞART — `overflow-x:auto` TEK BAŞINA YETMİYOR.
-   ÖLÇÜLDÜ (Ajan I, 390×800): geniş matris tablolarında kabın kaydırılabilir
-   içeriği BELGEYE sızıyor ve sayfa gerçekten yana kayıyor —
-   `window.scrollTo(9999,0)` sonrası `scrollX` rozetler **133px** · paketler
-   **122px** · menü **68px** okuyor. (Dar tablolu ekranlar 0 okuyor, o yüzden
-   kusur ilk turda görünmedi.)
-   ⚠ Bu sızıntı belge düzeyinde ölçen bir sondadan GİZLENİR: kabuğun
-   `html,body{overflow-x:clip}` kuralı kaymayı kırpıyor ve
-   `body.scrollWidth` 390 dönüyor. Yani "sayfa gerçekten kayıyor mu"
-   sorusunu soran kapı bile yeşil yanıyordu; kusur ancak kabın kendi
-   ekseninde ölçülünce görünüyor.
-   Denenip YETMEYENLER (ölçüldü, dördü de sızıntıyı kesmedi): `min-width:0` ·
-   `max-width:100%` · `contain:inline-size` · `html{overflow-x:clip}`.
-   KESEN: `contain:paint` — kabı kendi boyama sınırına hapsediyor. */
-.adm-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;contain:paint}
-.adm-table{width:100%;border-collapse:collapse;font-size:13.5px}
-.adm-table th{
-  text-align:left;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--muted);padding:11px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--bg);
+/* =====================================================================
+   16 · DÜĞME — kitin `.btn` ailesi + Gastro'nun `.btn-acc` eş adı
+   Gastro `.btn-sm` 40px basıyor; Fit'in kapısı 44 istiyor (kapı §82).
+   Dolgu Gastro'nunki, yükseklik tabanı 44.
+   ===================================================================== */
+.adm-page .btn,.adm-top .btn{min-height:44px}
+/* Sayfa başlığı bloğundaki düğmeler Gastro'da `.btn-sm` ölçüsündedir
+   (dolgu 10/16, yazı 13, yarıçap 8) — ölçüldü, dashboard.blade.php:288.
+   Kabukta veriliyor ki 21 ekran birden aynı ölçüyü alsın; sayfaların
+   markup'ına `btn-sm` serpiştirmek 21 dosyada 40+ düzenleme olurdu ve
+   biri unutulduğunda kimse fark etmezdi. */
+.adm-head .btn,.pnl-page-head .btn,.adm-card .c-head .btn,.pnl-card .pc-head .btn,
+.filter-bar .btn,.adm-filter .btn,.adm-bulk .btn{
+  padding:10px 16px;font-size:13px;border-radius:var(--radius-sm);min-height:44px;
 }
-.adm-table td{padding:13px 16px;border-bottom:1px solid var(--line);color:var(--slate-2);font-weight:500;vertical-align:middle}
-.adm-table tbody tr:last-child td{border-bottom:0}
-.adm-table tbody tr:hover td{background:var(--bg)}
-.adm-table td b{color:var(--slate);font-weight:700}
-.adm-table td small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
-.adm-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.adm-table .act{text-align:right;white-space:nowrap}
-.adm-table .sel{width:44px}
-/* Onay kutusu: görsel 18px, DOKUNMA HEDEFİ 44px (WCAG 2.5.8).
-   `.kyt-btn` deseni — kutu büyümez, tıklanabilir alan büyür. Hücrenin
-   kendisi hedef olur, böylece satırın soluna dokunmak seçer. */
-.adm-table td.sel,.adm-table th.sel{padding:0}
-.adm-table td.sel label,.adm-table th.sel label,
-.adm-table .sel-hit{display:grid;place-items:center;width:44px;height:44px;cursor:pointer;margin:0 auto}
-.adm-table input[type=checkbox]{width:18px;height:18px;accent-color:var(--fit);cursor:pointer}
-/* ⚠ `transform:scale()` DENENDİ VE ÇALIŞMADI. Kutuyu 44px yapıp `scale(.41)`
-   ile geri küçültmek görseli korur ama **hedefi de küçültür** — dönüşüm
-   hem çizimi hem isabet sınamasını ölçekler, `getBoundingClientRect` de 18
-   döner. Ölçüm bunu gösterdi; kayda geçiriyorum ki bir daha denenmesin.
-   ÇALIŞAN ÇÖZÜM: kutu 18px kalır, HÜCRE hedef olur — 44px'in üstünde bir
-   alan ve görsel değişiklik yok. Tıklamayı `FIT_ADMIN.secimKur` bağlar. */
-.adm-table td.sel{cursor:pointer}
-.adm-table td.sel:hover input[type=checkbox]{accent-color:var(--fit-deep)}
-/* Satır eylemi 44px dokunma hedefi (WCAG 2.5.8) — görsel 32px, kalanı şeffaf. */
-.adm-ico-btn{
-  width:44px;height:44px;border:0;background:transparent;color:var(--muted);cursor:pointer;
-  display:inline-grid;place-items:center;border-radius:var(--radius-md);font-size:14px;
-  transition:color .18s var(--ease),background .18s var(--ease);
+.btn-acc{background:var(--acc);color:#fff;border:0}
+.btn-acc:hover{background:var(--acc-deep);transform:translateY(-2px)}
+.btn-sm{padding:10px 16px;font-size:13px;border-radius:var(--radius-sm);min-height:44px}
+
+/* =====================================================================
+   17 · KIRILIM NOKTALARI
+   ≤1100 → rail + menü TEK birim olarak çekmeceye döner (Gastro'da 980;
+           Fit'in menüsü 21 kalemli ve gövdesi tablo, 1100 ölçüldü)
+   ≤ 640 → yoğunluk
+   ===================================================================== */
+.pnl-overlay,.adm-scrim{
+  position:fixed;inset:0;background:rgba(33,30,22,.5);z-index:79;
+  opacity:0;pointer-events:none;transition:.25s var(--ease);
 }
-.adm-ico-btn:hover{color:var(--fit-deep);background:var(--fit-tint)}
-.adm-ico-btn:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
+body.nav-open .pnl-overlay,.adm-scrim.is-on{opacity:1;pointer-events:auto}
 
-/* ---- sayfalama ---- */
-.adm-pager{display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap}
-.adm-pager .p-info{font-size:12.5px;font-weight:600;color:var(--muted)}
-.adm-pager .p-btns{margin-left:auto;display:flex;gap:6px}
-.adm-pg{min-width:44px;height:44px;padding:0 12px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-md);font-size:13px;font-weight:700;color:var(--slate-2);cursor:pointer}
-.adm-pg:hover:not([disabled]):not(.is-on){border-color:var(--fit);color:var(--fit-deep)}
-.adm-pg.is-on{background:var(--fit);border-color:var(--fit);color:#fff}
-.adm-pg[disabled]{opacity:.4;pointer-events:none}
-
-/* ---- toplu eylem çubuğu — seçim yokken YOK ---- */
-.adm-bulk{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--fit-tint);border-bottom:1px solid var(--fit-line);flex-wrap:wrap}
-.adm-bulk b{font-size:13px;font-weight:800;color:var(--fit-ink)}
-.adm-bulk .b-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-.adm-bulk[hidden]{display:none}
-
-/* ---------------------------------------------------------------------
-   5 · İKİ KOLON — liste + yan panel
-   --------------------------------------------------------------------- */
-.adm-cols{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;align-items:start}
-
-/* ---------------------------------------------------------------------
-   6 · KIRILIM NOKTALARI
-   1100 → sidebar çekmeceye döner (gövde tam genişlik)
-    640 → sayaç ızgarası ikiye, tablo kabı kaydırır
-   --------------------------------------------------------------------- */
-@media (max-width:1240px){
-  .adm-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .adm-cols{grid-template-columns:minmax(0,1fr)}
+@media(max-width:1240px){
+  .adm-kpi,.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .adm-cols,.dash-2col{grid-template-columns:minmax(0,1fr)}
 }
-@media (max-width:1100px){
-  .adm-main{margin-left:0}
-  .adm-side{transform:translateX(-100%);transition:transform .24s var(--ease);box-shadow:var(--sh-lg)}
-  .adm-side.is-open{transform:none}
-  .adm-burger{display:grid}
-  .adm-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,18,12,.42);opacity:0;visibility:hidden;transition:opacity .2s var(--ease),visibility .2s var(--ease)}
-  .adm-scrim.is-on{opacity:1;visibility:visible}
+@media(max-width:1100px){
+  .sa-rail{transform:translateX(-100%);transition:transform .28s var(--ease)}
+  .sa-menu{transform:translateX(calc(-100% - var(--sa-rail-w)));transition:transform .28s var(--ease)}
+  body.nav-open .sa-rail,body.nav-open .sa-menu{transform:translateX(0)}
+  .pnl-top,.adm-top{left:0}
+  .pnl-burger,.adm-burger{display:inline-flex}
+  .sa-divider{display:none}
+  .adm-main,.pnl-main{margin-left:0}
+  .adm-page{padding:calc(var(--pnl-top-h) + 20px) 16px 40px}
+  .pnl-me .pm-id,.pnl-me>i{display:none}
 }
-@media (max-width:640px){
-  .adm-page{padding:16px}
-  .adm-top{padding:0 14px;gap:10px}
-  .adm-top h1{font-size:15px}
-  .adm-top .t-who b,.adm-top .t-who small{display:none}
-  .adm-top .t-who{padding-left:10px}
-  .adm-kpi{grid-template-columns:minmax(0,1fr);gap:12px}
-  .adm-head h2{font-size:19px}
-  .adm-card .c-head{padding:14px}
-  .adm-card .c-body{padding:14px}
-  .adm-table th,.adm-table td{padding:11px 12px}
+@media(max-width:900px){
+  .pnl-search{display:none}
+}
+@media(max-width:640px){
+  .adm-kpi,.kpi-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .adm-kpi .k b,.kpi-num{font-size:21px}
+  .adm-head h1,.adm-head h2,.pnl-page-head h1{font-size:20px}
+  .adm-card .c-head,.pnl-card .pc-head,
+  .adm-card .c-body,.pnl-card .pc-body,
+  .filter-bar,.adm-filter,.adm-pager,.pager,.adm-bulk{padding-left:16px;padding-right:16px}
+  .adm-table th:first-child,.ptable th:first-child,
+  .adm-table td:first-child,.ptable td:first-child{padding-left:16px}
+  .adm-table th:last-child,.ptable th:last-child,
+  .adm-table td:last-child,.ptable td:last-child{padding-right:16px}
+  .adm-table th,.ptable th,.adm-table td,.ptable td{padding-top:11px;padding-bottom:11px}
+  .adm-head .h-acts,.pnl-page-head .ph-actions{flex:1 1 100%}
+  .adm-head .h-acts .btn,.pnl-page-head .ph-actions .btn{flex:1 1 auto;justify-content:center}
 }
 
-/* ---------------------------------------------------------------------
-   7 · YÖNETİMDE ARAMA — `.t-ara`
-   Gastro'da ölçüldü ("Kullanıcı, içerik ara…"). Burada ekran araması:
-   sunucu olmadığı için içerik aranamaz, ama yirmi bir kalemli bir menüde
-   asıl işe yarayan şey zaten ekranı bulmaktır. Yer tutucu ne vaat
-   ediyorsa onu veriyor — "içerik ara" yazıp ekran bulmak yalan olurdu.
-   --------------------------------------------------------------------- */
-.adm-top .t-ttl{min-width:0}
-.adm-top .t-ara{position:relative;margin-left:22px;flex:0 1 320px;min-width:0}
-.adm-top .t-ara>i{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);pointer-events:none}
-.adm-top .t-ara input{
-  width:100%;height:44px;padding:0 14px 0 36px;
-  border:1px solid var(--line);border-radius:var(--radius-md);background:var(--bg);
-  font-family:inherit;font-size:13.5px;font-weight:500;color:var(--slate);outline:none;
-  transition:border-color .18s var(--ease),background .18s var(--ease);
-}
-.adm-top .t-ara input::placeholder{color:#6f6f6f}
-.adm-top .t-ara input:focus{border-color:var(--fit);background:var(--paper);box-shadow:0 0 0 3px rgba(0,157,79,.12)}
+/* =====================================================================
+   18 · ARAMA AÇILIR LİSTESİ — `.t-ara-pop`
+   Üst bardaki arama gerçekten çalışır ve DÜRÜST bir şey arar: 21 ekranın
+   kendisi. Sunucu olmadığı için içerik araması yapılamaz; yer tutucu ne
+   vaat ediyorsa onu veriyor ("Ekran ara…"). Klavye: ↑↓ gezinir, Enter
+   açar, Esc kapatır.
+   ===================================================================== */
 .t-ara-pop{
-  position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:70;
+  position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:120;
   background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
   box-shadow:var(--sh-lg);padding:6px;max-height:min(60vh,420px);overflow-y:auto;
 }
@@ -294,50 +654,121 @@
 .t-ara-sat i{width:16px;text-align:center;font-size:13px;color:var(--muted);flex:none}
 .t-ara-sat b{font-weight:700;color:var(--slate)}
 .t-ara-sat small{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.t-ara-sat:hover,.t-ara-sat.is-on{background:var(--fit-tint)}
-.t-ara-sat:hover b,.t-ara-sat.is-on b{color:var(--fit-deep)}
+.t-ara-sat:hover,.t-ara-sat.is-on{background:rgba(var(--acc-rgb),.10)}
+.t-ara-sat:hover b,.t-ara-sat.is-on b{color:var(--acc-deep)}
 .t-ara-bos{padding:14px 12px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.55}
 
-/* ---------------------------------------------------------------------
-   8 · MENÜYÜ DARALT — `.adm-dar`
-   Gastro'da ölçüldü ("Menüyü daralt/genişlet"). Daraltılmış hâlde kalem
-   yalnız ikon; ADI KAYBOLMAZ — `title` ve `aria-label` olarak durur, yani
-   ekran okuyucu ve ipucu için menü tam kalır.
-   --------------------------------------------------------------------- */
-.adm-daralt{
-  flex:none;display:flex;align-items:center;gap:10px;width:100%;min-height:44px;
-  padding:0 22px;border:0;border-top:1px solid var(--line);background:var(--paper);
-  color:var(--muted);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
-  transition:color .18s var(--ease),background .18s var(--ease);
+/* =====================================================================
+   19 · KULLANICI HÜCRESİ — Gastro `.u-cell` (tablo içinde kimlik)
+   Ölçüldü: sa-kullanicilar.css:76 — 38px yuvarlak avatar + ad/e-posta iki
+   satır. Fit'in üye · antrenör · destek · log tablolarının hepsinde aynı
+   soru soruluyor ("bu satır kimin"), dört ayrı cevap yazılmasın diye
+   kabuğa alındı.
+   ===================================================================== */
+.u-cell{display:flex;align-items:center;gap:12px;text-align:left}
+.u-ava{
+  width:38px;height:38px;flex:none;border-radius:var(--radius-circle);
+  background-size:cover;background-position:center;border:2px solid var(--line);
 }
-.adm-daralt:hover{color:var(--fit-deep);background:var(--bg)}
-.adm-daralt i{font-size:12px}
-.adm-daralt:focus-visible{outline:3px solid var(--fit);outline-offset:-3px}
-
-body.adm-dar{--adm-side-w:74px}
-body.adm-dar .adm-brand{padding:0 20px}
-body.adm-dar .adm-brand span:last-child,
-body.adm-dar .adm-sec,
-body.adm-dar .adm-item .cnt,
-body.adm-dar .adm-daralt span{display:none}
-body.adm-dar .adm-item{justify-content:center;padding:9px 0;gap:0}
-body.adm-dar .adm-item i{width:auto}
-/* Daraltılmışken bölüm başlığı gizlendiği için gruplar arası ritim
-   ince bir çizgiyle korunur — yoksa yirmi bir ikon tek blok olurdu. */
-body.adm-dar .adm-nav>.adm-sec+.adm-item{margin-top:10px;border-top:1px solid var(--line);padding-top:14px}
-body.adm-dar .adm-daralt{justify-content:center;padding:0}
-
-@media (max-width:1100px){
-  /* Çekmece kipinde daraltma anlamsız — çekmece zaten tam menüyü açar. */
-  body.adm-dar{--adm-side-w:276px}
-  body.adm-dar .adm-brand span:last-child,
-  body.adm-dar .adm-sec,
-  body.adm-dar .adm-item .cnt,
-  body.adm-dar .adm-daralt span{display:revert}
-  body.adm-dar .adm-item{justify-content:flex-start;padding:9px 10px;gap:11px}
-  .adm-daralt{display:none}
+.u-ava.initials{
+  display:grid;place-items:center;font-size:13px;font-weight:700;
+  background:rgba(var(--acc-rgb),.12);color:var(--acc-deep);border-color:transparent;
 }
-@media (max-width:900px){
-  .adm-top .t-ara{display:none}
-}
+.u-info{min-width:0;line-height:1.3}
+.u-name{font-size:13.5px;font-weight:700;color:var(--slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.u-email{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* küçük kip — dashboard satırları (Gastro `.u-mini`) */
+.u-mini{display:flex;align-items:center;gap:10px}
+.u-mini .um-ava{width:32px;height:32px;flex:none;border-radius:var(--radius-circle);display:grid;place-items:center;font-size:11px;font-weight:700;background:rgba(var(--acc-rgb),.12);color:var(--acc-deep)}
+.u-mini b{font-size:13.5px;font-weight:700;color:var(--slate)}
 
+/* Rol / grup etiketi — Gastro `.role-pill`. Yeni hue YOK: aksan, uyarı,
+   tehlike ve nötr — dördü de kitin kendi tokenleri. */
+.role-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap}
+.role-pill.admin{background:rgba(var(--acc-rgb),.12);color:var(--acc-deep)}
+.role-pill.antrenor{background:var(--fit-tint);color:var(--fit-ink)}
+.role-pill.uye{background:var(--bg);color:var(--slate-2);border:1px solid var(--line)}
+.role-pill.askida{background:var(--hs-warn-tint);color:var(--hs-warn)}
+.role-pill.kapali{background:var(--hs-danger-tint);color:var(--hs-danger)}
+
+/* =====================================================================
+   20 · SÜZGEÇ ÇİPİ — Gastro `.chips` / `.chip`
+   ⚠ Liste süzgeci Fit'te AÇILIR MENÜdür (plan §10/M2, Beyar direktifi).
+   Bu çip ondan başka bir iştir: DURUM SEKMESİ (kuyruk ekranlarının
+   "açık · yanıt bekleyen · çözülen · kapatılan" şeridi). Gastro'da sayaç
+   rozetli `<a>`; burada da öyle, sayaç sıfırsa rozet basılmaz.
+   ===================================================================== */
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;
+  font-size:12.5px;font-weight:500;color:var(--slate-2);
+  background:var(--paper);border:1px solid var(--line);
+  padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;
+  font-family:inherit;transition:.18s var(--ease);
+}
+.chip:hover{border-color:var(--acc);color:var(--acc-deep)}
+.chip.is-on{border-color:var(--acc);color:var(--acc-deep);background:rgba(var(--acc-rgb),.10);font-weight:700}
+.chip .ch-cnt{
+  white-space:nowrap;font-size:10.5px;font-weight:700;
+  background:rgba(var(--acc-rgb),.15);color:var(--acc-deep);
+  min-width:18px;height:17px;display:inline-flex;align-items:center;justify-content:center;
+  padding:0 5px;border-radius:var(--radius-sm);
+}
+.chip.is-on .ch-cnt{background:rgba(var(--acc-rgb),.22)}
+.chip:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+
+/* =====================================================================
+   21 · FORM KİTİ — Gastro `sa-ui.css` "ORTAK FORM BİLEŞENLERİ"
+   Fit'in kendi `.fk-*` alanları kabukta (`fit-shell.css`) yaşıyor ve
+   dokunulmuyor; buradakiler o kitte karşılığı OLMAYAN üç kalem:
+   yardım metni · yayın yan kartı · SEO ölçütü.
+   ===================================================================== */
+.fhint{font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.5}
+
+/* Kaydet çubuğu — 🔴 SAĞDA. Ölçüldü (plan §10): Gastro'nun dokuz ayrı
+   sayfa CSS'inde `justify-content:flex-end`, sıra İptal · Taslak · CTA.
+   ⚠ "Kaydet solda" kuralı HESAP ekranlarınındır, admin formunun değil —
+   iki ayrı yüzey, iki ayrı kural (ders §27). */
+.form-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Yayın yan kartı — sağ sticky kolon (Gastro `.side-card`) */
+.side-card{position:sticky;top:calc(var(--pnl-top-h) + 28px);display:flex;flex-direction:column;gap:16px}
+.sc-stack{display:flex;flex-direction:column;gap:14px}
+.sc-field{display:flex;flex-direction:column;gap:7px}
+.sc-field label{font-size:12.5px;font-weight:700;color:var(--slate-2)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.toggle-row span{font-size:13.5px;color:var(--slate)}
+.status-dot{width:10px;height:10px;border-radius:var(--radius-circle);flex:none;background:var(--acc-deep);box-shadow:0 0 0 4px rgba(var(--acc-rgb),.14)}
+.status-dot[data-state="draft"],.status-dot[data-state="hidden"]{background:var(--muted);box-shadow:0 0 0 4px rgba(113,113,113,.14)}
+.status-dot[data-state="review"]{background:var(--hs-warn);box-shadow:0 0 0 4px rgba(138,75,0,.16)}
+@media(max-width:900px){.side-card{position:static}}
+
+/* SEO skoru + ölçüt listesi — Gastro `.seo-score` / `.seo-checks` */
+.seo-score{display:flex;align-items:center;gap:16px}
+.score-ring{
+  width:60px;height:60px;flex:none;border-radius:var(--radius-circle);
+  display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--acc) calc(var(--p,0)*1%),var(--bg) 0);
+}
+.score-ring::after{content:"";position:absolute;inset:6px;border-radius:var(--radius-circle);background:var(--paper)}
+.score-num{position:relative;z-index:1;font-size:18px;font-weight:700;color:var(--slate);line-height:1;font-variant-numeric:tabular-nums}
+.score-meta b{display:block;font-size:13.5px;font-weight:700;color:var(--slate)}
+.score-meta span{font-size:11.5px;color:var(--muted)}
+.seo-checks{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.seo-chk{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.4;color:var(--slate-2)}
+.seo-chk i{font-size:13px;margin-top:1px;flex:none}
+.seo-chk.pass i{color:var(--acc-deep)}
+.seo-chk.fail i{color:var(--muted)}
+
+/* Form içi sekmeler — Gastro `.sa-form-tabs`. ⚠ Sayfa-geçişi sekmeleri
+   kitin `.fit-tabs`ıdır ve kabuktan gelir; bu, bir FORMUN içindeki
+   İçerik/SEO ayrımı içindir. İkisi karıştırılmaz. */
+.sa-form-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:18px}
+.sa-form-tab{
+  border:0;background:none;padding:9px 14px;min-height:44px;
+  font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);
+  border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;
+}
+.sa-form-tab:hover{color:var(--slate)}
+.sa-form-tab.is-on{color:var(--acc);border-bottom-color:var(--acc)}
+.sa-form-panel[hidden]{display:none}

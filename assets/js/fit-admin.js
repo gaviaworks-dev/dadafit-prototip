@@ -1,30 +1,44 @@
 /* =====================================================================
-   DadaFit · YÖNETİM PANELİ KABUĞU — TEK KAYNAK   (R16/2)
+   DadaFit · YÖNETİM PANELİ KABUĞU — TEK KAYNAK   (R17)
    ---------------------------------------------------------------------
-   Sayfa sözleşmesi tek satırdır:
+   Sayfa sözleşmesi tek satırdır ve DEĞİŞMEDİ:
 
      <body class="adm-body" data-adm="challenge">
        <div id="fitAdminTop"></div>
-       <main class="adm-main"> … sayfanın kendi içeriği … </main>
+       <main class="adm-main"> <div class="adm-page"> … sayfanın içeriği …
 
-   `data-adm` sidebar'da hangi kalemin aktif olduğunu söyler; başka hiçbir
-   şey yazılmaz. Sidebar, üst çubuk, mobil çekmece ve aktif işaretleme
-   buradan basılır — 21 ekranın hiçbiri menüyü kendi yazmaz.
+   `data-adm` sidebar'da hangi kalemin aktif olduğunu söyler. İkon rail,
+   bölüm menüsü, üst çubuk, daralt tutamağı, mobil çekmece ve aktif
+   işaretleme buradan basılır — 21 ekranın hiçbiri menüyü kendi yazmaz.
 
-   NEDEN: R15'te public tarafta ölçülen kusurun aynısı burada 21 kez
-   doğardı. Menü sayfaya yazılsaydı bir kalem eklendiğinde 21 dosya
-   değişirdi ve biri unutulduğunda kimse fark etmezdi.
+   🔴 R17 · KABUK GASTRO'YA ÇEKİLDİ. R16/2'de basılan kabuk ölçülerek
+   değil UYDURULARAK kurulmuştu: tek katmanlı BEYAZ sidebar, ortada dar
+   arama, üst barda sayfa başlığı, sidebar'ın altında tam genişlik daralt
+   düğmesi. Gastro'nun kendi kaynağı okundu
+   (`dadagastro-profil/resources/views/admin/layout.blade.php` +
+   `public/reference/admin/sa-shell.css` · salt okuma, kod alınmadı) ve
+   basılan yapı onunkine çekildi:
 
-   ⚠ BU DOSYA `fit-shell.js`in YERİNE GEÇMEZ, ONUNLA ÇALIŞMAZ.
-   Admin sayfaları public kabuğu (header/footer/çekmece) YÜKLEMEZ; iki
-   kabuk aynı sayfada iki `position:fixed` üst çubuk demek olurdu. Admin
-   yalnız `fit-shell.css`i (tokenler + bileşenler) ve bu dosyayı yükler.
+     · İKON RAIL (76px, en koyu #19160F) — Fit'te menünün DÖRT BÖLÜMÜNÜ
+       seçer. Gastro'da rail dünya seçicisidir çünkü orada beş marka var;
+       Fit tek markadır ama menüsü aynı dört bölüme ayrılır (plan §1).
+       Uydurulmuş "yakında" dünyası eklenmedi.
+     · BÖLÜM MENÜSÜ (264px, koyu #211E16 = kitin --fit-dark'ı) — üstünde
+       küçük yeşil YÖNETİM üst etiketi + büyük DadaFit.
+     · ÜST BAR (64px, açık) — arama SOLDA ve GENİŞ (max 420px), sağda
+       site bağlantısı + yuvarlak harf avatarı + ad/rol + açılır ok.
+     · SAYFA BAŞLIĞI ÜST BARDA DEĞİL, GÖVDEDE (`.adm-head`).
+     · DARALT TUTAMAĞI menünün DIŞ kenarında yüzer (`.sa-divider`),
+       dikey ortada; eski tam genişlik düğme söküldü.
+
+   ⚠ BU DOSYA `fit-shell.js`in YERİNE GEÇMEZ. Admin sayfaları public
+   kabuğu (header/footer) YÜKLEMEZ; iki kabuk aynı sayfada iki sabit üst
+   şerit demek olurdu.
 
    MENÜ HARİTASI — TEK VERİ DİZİSİ
    Bölümler ve kalemler aşağıdaki `MENU`dedir. Sıra ve bölümleme
-   `docs/fit-admin-plan.md` §1–§3'ten gelir; oradaki kanon "Genel Bakış +
-   ANA İÇERİK · OPERASYON · YAPILANDIRMA"dır ve dört markada aynıdır.
-   Yeni ekran eklemek buraya bir satır yazmaktır.
+   `docs/fit-admin-plan.md` §1–§3'ten gelir. Yeni ekran eklemek buraya bir
+   satır yazmaktır.
    ===================================================================== */
 (function (kok) {
   'use strict';
@@ -56,10 +70,10 @@
      Faturalar · Kuponlar) Fit'e GELMEZ — K6: Fit'te abonelik yoktur, üye
      üreticiden hizmet satın alır. Karşılığı "Hizmetler ve Satışlar"dır. */
   var MENU = [
-    { kalem: [
+    { ico:'fa-solid fa-gauge-high', kalem: [
       { id:'genel', ad:'Genel Bakış', ico:'fa-solid fa-gauge-high', href:'admin-v1.html' }
     ]},
-    { bolum:'Ana içerik', kalem: [
+    { bolum:'Ana içerik', ico:'fa-solid fa-dumbbell', kalem: [
       { id:'hareketler', ad:'Hareket Kütüphanesi', ico:'fa-solid fa-dumbbell',      href:'admin-hareketler-v1.html' },
       { id:'programlar', ad:'Programlar',          ico:'fa-solid fa-clipboard-list',href:'admin-programlar-v1.html' },
       { id:'challenge',  ad:"Challenge'lar",       ico:'fa-solid fa-trophy',        href:'admin-challenge-v1.html' },
@@ -67,7 +81,7 @@
       { id:'taksonomi',  ad:'Taksonomi',           ico:'fa-solid fa-tags',          href:'admin-taksonomi-v1.html' },
       { id:'sayfalar',   ad:'Sayfalar ve SEO',     ico:'fa-solid fa-file-lines',    href:'admin-sayfalar-v1.html' }
     ]},
-    { bolum:'Operasyon', kalem: [
+    { bolum:'Operasyon', ico:'fa-solid fa-headset', kalem: [
       { id:'uyeler',      ad:'Üyeler ve Yetki',        ico:'fa-solid fa-users',          href:'admin-uyeler-v1.html' },
       { id:'antrenorler', ad:'Antrenörler',            ico:'fa-solid fa-user-check',     href:'admin-antrenorler-v1.html' },
       { id:'moderasyon',  ad:'Moderasyon',             ico:'fa-solid fa-shield-halved',  href:'admin-moderasyon-v1.html' },
@@ -77,7 +91,7 @@
       { id:'rozetler',    ad:'Rozetler ve Kademeler',  ico:'fa-solid fa-medal',          href:'admin-rozetler-v1.html' },
       { id:'log',         ad:'Log Yönetimi',           ico:'fa-solid fa-list-check',     href:'admin-log-v1.html' }
     ]},
-    { bolum:'Yapılandırma', kalem: [
+    { bolum:'Yapılandırma', ico:'fa-solid fa-sliders', kalem: [
       { id:'menu',      ad:'Menü ve Navigasyon',     ico:'fa-solid fa-bars',        href:'admin-menu-v1.html' },
       { id:'reklam',    ad:'Sponsorluk ve Reklam',   ico:'fa-solid fa-bullhorn',    href:'admin-reklam-v1.html' },
       { id:'paketler',  ad:'Paketler ve Özellikler', ico:'fa-solid fa-layer-group', href:'admin-paketler-v1.html' },
@@ -114,57 +128,109 @@
     return null;
   }
 
-  function sidebarHtml(aktif){
-    var out = '<aside class="adm-side" id="admSide" aria-label="Yönetim menüsü">' +
-      '<a class="adm-brand" href="admin-v1.html">' +
-        '<span class="mark"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>' +
-        '<span><b>DadaFit</b><small>Yönetim</small></span>' +
-      '</a>' +
-      '<nav class="adm-nav" aria-label="Bölümler">';
-    MENU.forEach(function (g) {
-      if (g.bolum) out += '<div class="adm-sec">' + esc(g.bolum) + '</div>';
+  /* Aktif kalemin hangi bölümde olduğunu bul — ikon rail o bölümü işaretler. */
+  function bolumIx(aktif){
+    for (var i = 0; i < MENU.length; i++) {
+      var k = MENU[i].kalem;
+      for (var j = 0; j < k.length; j++) if (k[j].id === aktif) return i;
+    }
+    return 0;
+  }
+
+  /* ---- 1) İKON RAIL — 76px, en koyu katman ----------------------------
+     Gastro'da rail dünya seçicisidir (beş marka). Fit tek markadır, ama
+     menüsü aynı dört bölüme ayrılır — rail o dört bölümü seçer ve tıklama
+     menüyü ilgili bölüm başlığına kaydırır. Ölü bağlantı ya da "yakında"
+     kutusu YOK: rail'deki her ikonun arkasında gerçekten var olan bir
+     bölüm duruyor. */
+  function railHtml(bIx){
+    var out = '<aside class="sa-rail" id="saRail" aria-label="Bölümler">' +
+      '<a class="sa-rail-logo" href="admin-v1.html" data-tip="DadaFit Yönetim" aria-label="DadaFit Yönetim">' +
+        '<i class="fa-solid fa-bolt" aria-hidden="true"></i></a>' +
+      '<div class="sa-rail-div"></div>';
+    MENU.forEach(function (g, i) {
+      var ad = g.bolum || 'Genel Bakış';
+      var n = 0;
+      g.kalem.forEach(function (k) { n += (SAYAC[k.id] || 0); });
+      out += '<button class="sa-rail-ico' + (i === bIx ? ' is-active' : '') + '" type="button"' +
+        ' data-rail="' + i + '" data-tip="' + esc(ad) + '" aria-label="' + esc(ad) + '">' +
+        '<i class="' + g.ico + '" aria-hidden="true"></i>' +
+        (n ? '<span class="pl-cnt">' + n + '</span>' : '') + '</button>';
+    });
+    out += '<div class="sa-rail-foot">' +
+      '<a class="sa-sig" href="https://gaviaworks.com" target="_blank" rel="noopener" ' +
+      'data-tip="Gaviaworks" aria-label="Gaviaworks — gaviaworks.com">' +
+      '<i class="fa-solid fa-g" aria-hidden="true"></i></a></div>';
+    return out + '</aside>';
+  }
+
+  /* ---- 2) BÖLÜM MENÜSÜ — 264px, koyu (elevated) ---------------------- */
+  function menuHtml(aktif){
+    var out = '<nav class="sa-menu" id="saMenu" aria-label="Yönetim menüsü">' +
+      '<div class="sa-menu-head">' +
+        '<span class="smh-eyebrow">Yönetim</span>' +
+        '<span class="smh-title">DadaFit</span>' +
+      '</div><div class="sa-mnav" id="saMnav">';
+    MENU.forEach(function (g, i) {
+      if (g.bolum) out += '<div class="sa-msec" id="saSec' + i + '">' + esc(g.bolum) + '</div>';
+      else out += '<div id="saSec' + i + '" hidden></div>';
       g.kalem.forEach(function (k) {
         var on = (k.id === aktif);
         var n = SAYAC[k.id] || 0;
-        out += '<a class="adm-item' + (on ? ' is-on' : '') + '" href="' + esc(k.href) + '"' +
+        out += '<a class="sa-mlink adm-item' + (on ? ' is-active is-on' : '') + '" href="' + esc(k.href) + '"' +
                ' title="' + esc(k.ad) + '"' + (on ? ' aria-current="page"' : '') + '>' +
                '<i class="' + k.ico + '" aria-hidden="true"></i>' + esc(k.ad) +
-               (n ? '<span class="cnt" aria-label="' + n + ' bekleyen">' + n + '</span>' : '') +
+               (n ? '<span class="pl-cnt cnt" aria-label="' + n + ' bekleyen">' + n + '</span>' : '') +
                '</a>';
       });
     });
-    /* MENÜYÜ DARALT — Gastro'da ölçüldü ("Menüyü daralt/genişlet").
-       Daraltılmış hâlde kalemler yalnız ikon; ad `title` ve `aria-label`
-       olarak kalır, yani bilgi kaybolmaz. Tercih localStorage'da durur. */
-    out += '</nav>' +
-      '<button class="adm-daralt" type="button" id="admDaralt" aria-label="Menüyü daralt">' +
-        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Menüyü daralt</span>' +
-      '</button>';
-    return out + '</aside><div class="adm-scrim" id="admScrim" hidden></div>';
+    out += '</div><div class="sa-menu-foot">' +
+      '<a class="sa-mlink" href="dadafit-hub-v1.html" target="_blank" rel="noopener">' +
+        '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Siteyi gör</a>' +
+      '</div></nav>';
+    /* DIVIDER TUTAMAĞI — menünün DIŞ kenarında yüzen, dikey ortada sekme.
+       Gastro'da ayrı bir toggle düğmesi YOK; katla/aç bu tutamaktadır. */
+    out += '<button class="sa-divider" id="saDivider" type="button" ' +
+      'aria-label="Menüyü daralt" aria-expanded="true" aria-controls="saMenu">' +
+      '<span class="sa-grip"></span></button>';
+    return out;
   }
 
-  function topHtml(k){
-    var ad = k ? k.ad : 'Yönetim';
-    return '<header class="adm-top">' +
-      '<button class="adm-burger" type="button" id="admBurger" aria-label="Menüyü aç" aria-expanded="false">' +
+  /* ---- 3) ÜST İNCE BAR — arama SOLDA ve GENİŞ ------------------------
+     🔴 SAYFA BAŞLIĞI BURADA DEĞİL. Gastro'da başlık gövdenin içinde,
+     kartların üstünde (`.pnl-page-head`); üst bar yalnız arama + araçlar
+     taşır. R16/2'de başlık üst bardaydı ve gövdede hiç tekrar etmiyordu. */
+  function topHtml(){
+    return '<header class="pnl-top adm-top" id="admTop">' +
+      '<button class="pnl-burger adm-burger" type="button" id="admBurger" ' +
+        'aria-label="Menüyü aç" aria-expanded="false">' +
         '<i class="fa-solid fa-bars" aria-hidden="true"></i></button>' +
-      '<div class="t-ttl"><div class="t-crumb"><a href="admin-v1.html">Yönetim</a> · ' + esc(ad) + '</div>' +
-      '<h1>' + esc(ad) + '</h1></div>' +
-      /* YÖNETİMDE ARAMA — Gastro'da ölçüldü ("Kullanıcı, içerik ara…").
-         Burada GERÇEKTEN çalışıyor ve dürüst bir şey arıyor: 21 ekranın
-         kendisi. Sunucu olmadığı için içerik araması yapamayız; ekran
-         araması yapabiliriz ve yirmi bir kalemli bir menüde bu asıl işe
-         yarayan şey. Yer tutucu ne vaat ediyorsa onu veriyor. */
-      '<div class="t-ara">' +
+      /* YÖNETİMDE ARAMA — Gastro'da "Kullanıcı, içerik ara…". Burada
+         DÜRÜST karşılığı: 21 ekranın kendisi aranır. Sunucu olmadığı için
+         içerik araması yapılamaz; yer tutucu ne vaat ediyorsa onu veriyor. */
+      '<div class="pnl-search t-ara">' +
         '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
         '<input type="search" id="admAra" placeholder="Ekran ara…" autocomplete="off" ' +
         'role="combobox" aria-expanded="false" aria-controls="admAraPop" aria-label="Yönetimde ara" />' +
         '<div class="t-ara-pop" id="admAraPop" role="listbox" hidden></div>' +
       '</div>' +
-      '<div class="t-acts">' +
-        '<a class="btn btn-ghost" href="dadafit-hub-v1.html" target="_blank" rel="noopener">' +
-          '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Siteyi gör</a>' +
-        '<div class="t-who"><span>YY</span><div><b>Yasin Yavuz</b><small>Yönetici</small></div></div>' +
+      '<div class="pnl-top-tools t-acts">' +
+        '<a class="pnl-bell" href="dadafit-hub-v1.html" target="_blank" rel="noopener" ' +
+          'data-tip="Siteyi gör" aria-label="Siteyi gör">' +
+          '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>' +
+        '<button class="pnl-me" type="button" id="admMe" aria-expanded="false" aria-haspopup="true">' +
+          '<span class="pm-ava">YY</span>' +
+          '<span class="pm-id"><span class="pm-name">Yasin Yavuz</span>' +
+          '<span class="pm-role">Süper Admin</span></span>' +
+          '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>' +
+        '</button>' +
+        '<div class="pnl-menu" id="admMeMenu">' +
+          '<div class="pmenu-head"><b>Yasin Yavuz</b><span>Süper Admin</span></div>' +
+          '<a href="hesabim-v1.html"><i class="fa-solid fa-user" aria-hidden="true"></i> Hesabım</a>' +
+          '<a href="admin-ayarlar-v1.html"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Ayarlar</a>' +
+          '<div class="pmenu-div"></div>' +
+          '<a href="dadafit-hub-v1.html"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Siteyi gör</a>' +
+        '</div>' +
       '</div></header>';
   }
 
@@ -173,46 +239,73 @@
     if (!yuva) return;
     var id = aktifId();
     var k = kalemBul(id);
-    yuva.innerHTML = sidebarHtml(id);
+    var bIx = bolumIx(id);
 
-    var ana = document.querySelector('.adm-main');
-    if (ana) ana.insertAdjacentHTML('afterbegin', topHtml(k));
+    yuva.innerHTML = '<div class="sa-app">' + railHtml(bIx) + menuHtml(id) + topHtml() +
+                     '<div class="pnl-overlay adm-scrim" id="admScrim"></div></div>';
 
     if (k && !document.title) document.title = k.ad + ' — DadaFit Yönetim';
 
-    /* ---- mobil çekmece ---- */
-    var yan = document.getElementById('admSide');
+    /* ---- mobil çekmece — rail + menü TEK birim olarak açılır ---- */
     var perde = document.getElementById('admScrim');
     var dugme = document.getElementById('admBurger');
     function ac(a){
-      if (!yan) return;
-      yan.classList.toggle('is-open', a);
-      if (perde){ perde.hidden = !a; perde.classList.toggle('is-on', a); }
+      document.body.classList.toggle('nav-open', a);
       if (dugme) dugme.setAttribute('aria-expanded', a ? 'true' : 'false');
       document.body.style.overflow = a ? 'hidden' : '';
     }
-    if (dugme) dugme.addEventListener('click', function(){ ac(!yan.classList.contains('is-open')); });
+    if (dugme) dugme.addEventListener('click', function(){ ac(!document.body.classList.contains('nav-open')); });
     if (perde) perde.addEventListener('click', function(){ ac(false); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ac(false); });
 
-    /* ---- menüyü daralt ---- */
+    /* ---- rail: bölüm seçici ---- */
+    var mnav = document.getElementById('saMnav');
+    yuva.querySelectorAll('.sa-rail-ico[data-rail]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = b.getAttribute('data-rail');
+        var hedef = document.getElementById('saSec' + i);
+        yuva.querySelectorAll('.sa-rail-ico').forEach(function (x) { x.classList.remove('is-active'); });
+        b.classList.add('is-active');
+        if (document.body.classList.contains('sa-collapsed')) daraltUygula(false);
+        if (hedef && mnav) mnav.scrollTo({ top: Math.max(0, hedef.offsetTop - 18), behavior: 'smooth' });
+      });
+    });
+
+    /* ---- daralt tutamağı ---- */
     var DAR = 'dm_fit_admin_dar';
-    var darDugme = document.getElementById('admDaralt');
-    function darUygula(d){
-      document.body.classList.toggle('adm-dar', d);
-      if (darDugme){
-        darDugme.setAttribute('aria-label', d ? 'Menüyü genişlet' : 'Menüyü daralt');
-        darDugme.querySelector('span').textContent = d ? 'Genişlet' : 'Menüyü daralt';
-        darDugme.querySelector('i').className = 'fa-solid fa-chevron-' + (d ? 'right' : 'left');
+    var grip = document.getElementById('saDivider');
+    function daraltUygula(d){
+      document.body.classList.toggle('sa-collapsed', d);
+      if (grip){
+        grip.setAttribute('aria-label', d ? 'Menüyü genişlet' : 'Menüyü daralt');
+        grip.setAttribute('aria-expanded', d ? 'false' : 'true');
       }
+      try { localStorage.setItem(DAR, d ? '1' : '0'); } catch (e) {}
     }
     var dar = false;
     try { dar = localStorage.getItem(DAR) === '1'; } catch (e) {}
-    darUygula(dar);
-    if (darDugme) darDugme.addEventListener('click', function(){
-      dar = !dar; darUygula(dar);
-      try { localStorage.setItem(DAR, dar ? '1' : '0'); } catch (e) {}
+    if (dar) document.body.classList.add('sa-collapsed');
+    daraltUygula(dar);
+    if (grip) grip.addEventListener('click', function(){
+      daraltUygula(!document.body.classList.contains('sa-collapsed'));
     });
+
+    /* ---- hesap açılır menüsü ---- */
+    var me = document.getElementById('admMe');
+    var meMenu = document.getElementById('admMeMenu');
+    if (me && meMenu){
+      me.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var acik = meMenu.classList.toggle('open');
+        me.setAttribute('aria-expanded', acik ? 'true' : 'false');
+      });
+      document.addEventListener('click', function () {
+        meMenu.classList.remove('open'); me.setAttribute('aria-expanded','false');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape'){ meMenu.classList.remove('open'); me.setAttribute('aria-expanded','false'); }
+      });
+    }
 
     /* ---- yönetimde arama ---- */
     var ara = document.getElementById('admAra');
@@ -220,7 +313,7 @@
     if (ara && pop){
       var duz = [];
       MENU.forEach(function (g) {
-        g.kalem.forEach(function (x) { duz.push({ ad:x.ad, href:x.href, ico:x.ico, bolum:g.bolum || '' }); });
+        g.kalem.forEach(function (x) { duz.push({ ad:x.ad, href:x.href, ico:x.ico, bolum:g.bolum || 'Genel Bakış' }); });
       });
       var imlec = -1;
       function kapat(){ pop.hidden = true; ara.setAttribute('aria-expanded','false'); imlec = -1; }
@@ -238,7 +331,7 @@
           pop.innerHTML = bul.map(function (x, i) {
             return '<a class="t-ara-sat' + (i === imlec ? ' is-on' : '') + '" role="option" href="' + esc(x.href) + '">' +
               '<i class="' + x.ico + '" aria-hidden="true"></i><b>' + esc(x.ad) + '</b>' +
-              (x.bolum ? '<small>' + esc(x.bolum) + '</small>' : '') + '</a>';
+              '<small>' + esc(x.bolum) + '</small></a>';
           }).join('');
         }
         pop.hidden = false; ara.setAttribute('aria-expanded','true');
@@ -259,7 +352,7 @@
         } else if (e.key === 'Escape'){ ara.value = ''; kapat(); }
       });
       document.addEventListener('click', function (e) {
-        if (!e.target.closest || !e.target.closest('.t-ara')) kapat();
+        if (!e.target.closest || !e.target.closest('.pnl-search')) kapat();
       });
     }
   }

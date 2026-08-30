@@ -32,7 +32,10 @@ const BASE   = process.argv[2] || 'http://localhost:8811';
 const KOD    = 'kadin-kas-orta-salon-4-sirt-yok';   /* deterministik plan */
 const OLUSTUR= 'antrenman-olusturucu-v1.html';
 const PLANIM = 'programlarim-v1.html#programlarim';
-const SU     = 'enerji-defteri-su-v1.html';
+/* 2026-08-30 · SÖZLEŞME DEĞİŞTİ: Su Takibi kendi sayfası olmaktan çıktı,
+   Egzersizlerim'in Enerji Defteri sekmesinin altına alt sekme olarak girdi.
+   Nöbet gevşetilmedi — yalnız adres yenisine çekildi; hash sekmeyi açar. */
+const SU     = 'egzersizlerim-v1.html#defter-su';
 
 let fail = 0; const bad = [];
 const rec = (t, m) => { fail++; bad.push(`${t}\n      ${m}`); };

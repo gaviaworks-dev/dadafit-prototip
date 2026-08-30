@@ -53,7 +53,6 @@ const BANNER = [
   'antrenor-detay-v1.html',         // .cp-top
   'antrenor-ol-v1.html',            // .ol-top
   'arama-fit-v1.html',              // .fs-top
-  'dadafit-kopru-v1.html',          // .kp-top
   'challenge-v1.html',              // .chl-hero
   'program-detay-v1.html',          // .pd-hero
   /* 4. TUR (R2): egzersiz-detay PLAIN listesinden BANNER listesine TAŞINDI.

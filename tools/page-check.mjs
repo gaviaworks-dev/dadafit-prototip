@@ -153,7 +153,6 @@ const brandLeft = await page.evaluate(() => ({
      turuncuyu "besin/alınan enerji" için kullanıyor (Dada Gastro tarafı).
 
      Ölçülen örnekler (computed style, 1440px):
-       dadafit-kopru-v1  → span.kp-tpill.eat · metni birebir "Kırmızı: aldığın"
        dadafit-hub-v1    → a.btn-food "Bu Yakıma Uygun Tarifler"
        enerji-defteri-v1 → span.macro.kcal "420 kcal", fa-utensils ikonu
      Yani sayfa, alınan enerjiyi turuncu / harcanan enerjiyi yeşil göstererek

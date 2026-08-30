@@ -528,7 +528,9 @@ console.log('\n--- 20+28 · .ff-count::before dikey ayracı ---');
   /* Beyar: "7 sayfada da kalksın" — kural kabuktaydı, brief ayracı yalnız iki
      kalemde istiyordu. Yedincisi (sozluk-v1) B'nin yeniden kurduğu filtre
      satırını taşıyor: `.ff-bar` yok, sayaç `.sz-count`. İkisi de nöbette. */
-  const YEDI = ['aktivite-gunlugu-v1.html','challenge-merkezi-v1.html','egzersiz-kutuphane-v1.html',
+  /* 2026-08-30 · Aktivite Günlüğü kendi sayfası olmaktan çıktı; Egzersizlerim'in
+     dördüncü modül sekmesi oldu. Süzgeç satırı oraya taşındı, nöbet adresi izledi. */
+  const YEDI = ['egzersizlerim-v1.html#aktivite','challenge-merkezi-v1.html','egzersiz-kutuphane-v1.html',
                 'fit-testleri-v1.html','program-liste-v1.html','programlar-merkezi-v1.html','sozluk-v1.html'];
   for (const w of [1440, 390]) {
     const { ctx, page } = await ac(w);

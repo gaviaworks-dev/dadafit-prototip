@@ -62,11 +62,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SAYFALAR = readdirSync(ROOT).filter(f => f.endsWith('.html') && f !== 'index.html').sort();
 const ORNEK = 'hakkimizda-v1.html';          /* yapı ölçümlerinin sayfası */
 
-/* Paralel dalda üretilen sayfa — bu dalda 404 vermesi BEKLENEN. */
-/* 7. oturum: enerji-ihtiyaci-v1.html ÜRETİLDİ ve birleştirildi, artık
-   istisna değil — footer'ın TÜM hedefleri 200 dönmek zorunda.
-   Boş bırakmak istisnayı kapatır; yeni bir bekleyen hedef çıkarsa
-   buraya yazılır ve docs/icerik-bekleyen.md'ye de kalem düşülür. */
+/* Bekleyen (henüz üretilmemiş) footer hedefi — footer'ın TÜM hedefleri
+   200 dönmek zorunda. Boş bırakmak istisnayı kapatır; yeni bir bekleyen
+   hedef çıkarsa buraya yazılır ve docs/icerik-bekleyen.md'ye kalem düşülür.
+   2026-08-30: "Günlük Enerji İhtiyacını Hesapla" sayfası kaldırıldığı için
+   ona ait 7. oturum istisnası da tarihe karıştı. */
 const BEKLEYEN_HEDEF = null;
 
 /* --- dokümandan birebir: üç orta sütun ------------------------------- */
@@ -88,12 +88,16 @@ const SUTUNLAR = [
     ['Antrenör Ol',    'antrenor-ol-v1.html']
   ]},
   { anahtar:'enerji', baslik:'Enerji ve Denge', kalemler:[
-    ['Enerji Defteri',                   'egzersizlerim-v1.html#defter'],
-    ['Enerji Köprüsü',                   'dadafit-kopru-v1.html'],
-    ['Günlük Enerji İhtiyacını Hesapla', 'enerji-ihtiyaci-v1.html'],
-    ['Aktivite Günlüğü',                 'aktivite-gunlugu-v1.html'],
-    ['Su Takibi',                        'enerji-defteri-su-v1.html'],
-    ['Haftalık Özet',                    'enerji-defteri-haftalik-v1.html']
+    /* 2026-08-30 · R18 · Beyar: kolon ALTIDAN ÜÇE indi. Üç kalem kalktı —
+       "Enerji Köprüsü" ve "Günlük Enerji İhtiyacını Hesapla" sayfalarıyla
+       birlikte silindi; "Aktivite Günlüğü" sayfası da silindi ama footer
+       kalemi geri KONULMADI (Beyar: "footer bağlantısı kalkacak") — içeriği
+       Egzersizlerim'in dördüncü sekmesi oldu, kolonun ilk kalemi zaten o
+       modüle iniyor. Kalan üçünün hedefi sayfa değil, modül sekmesidir.
+       Gerekçe kaynağı: assets/js/fit-shell.js, "R18" başlıklı blok. */
+    ['Enerji Defteri', 'egzersizlerim-v1.html#defter'],
+    ['Su Takibi',      'egzersizlerim-v1.html#defter-su'],
+    ['Haftalık Özet',  'egzersizlerim-v1.html#defter-haftalik']
   ]}
 ];
 
@@ -191,9 +195,17 @@ console.log('--- 1·2·3·7 · beş alan · sütun listeleri · Planım · sosya
           .map(a => [a.textContent.trim(), a.getAttribute('href')])
       };
     };
-    const soc = [...document.querySelectorAll('.foot-soc a')].map(a => ({
+    /* 🔴 R18 · SOSYAL KUTULAR ARTIK BAĞLANTI DEĞİL. `<a href="#">` idiler ve
+       footer denetimi ikisini de "boş hedef" saydı — tıklayınca hiçbir yere
+       gitmiyor, sayfanın tepesine sıçrıyorlardı. Mağaza kutularının kalıbına
+       çekildiler (`<span aria-disabled="true">`), yani seçici de <a>'dan çıktı.
+       NÖBET ZAYIFLAMADI, SIKILAŞTI: aşağıda artık "kutu <a> OLMAMALI" ve
+       "aria-disabled=true" şartları da aranıyor. */
+    const soc = [...document.querySelectorAll('.foot-soc a, .foot-soc .fs-soc')].map(a => ({
+      etiketAdi: a.tagName.toLowerCase(),
       ikon: (a.querySelector('i')||{}).className || '',
       href: a.getAttribute('href'),
+      disabled: a.getAttribute('aria-disabled'),
       yerTutucu: a.getAttribute('data-yer-tutucu'),
       etiket: a.getAttribute('aria-label') || ''
     }));
@@ -251,7 +263,7 @@ console.log('--- 1·2·3·7 · beş alan · sütun listeleri · Planım · sosya
 
   /* 7 · sosyal */
   const yasakli = ['x-twitter','facebook','linkedin'].filter(k => y.socIkonlari.indexOf('fa-'+k) >= 0);
-  if (y.soc.length !== 2) rec('7 · sosyal', `${y.soc.length} bağlantı var, 2 olmalı`);
+  if (y.soc.length !== 2) rec('7 · sosyal', `${y.soc.length} kutu var, 2 olmalı`);
   else if (yasakli.length) rec('7 · sosyal', 'kaldırılması gereken ikon(lar) duruyor: ' + yasakli.join(', '));
   else {
     const ig = y.soc.find(s => /instagram/.test(s.ikon));
@@ -260,7 +272,12 @@ console.log('--- 1·2·3·7 · beş alan · sütun listeleri · Planım · sosya
     else if (!ig.yerTutucu || !yt.yerTutucu) rec('7 · sosyal', 'yer tutucu işareti (data-yer-tutucu) eksik');
     else if (!/yakında|henüz yok/i.test(ig.etiket) || !/yakında|henüz yok/i.test(yt.etiket))
       rec('7 · sosyal', 'aria-label yer tutucu olduğunu söylemiyor: ' + ig.etiket + ' | ' + yt.etiket);
-    else ok(`sosyal: yalnız Instagram + YouTube · X/Facebook/LinkedIn 0 · ikisi de yer tutucu işaretli (href="${ig.href}")`);
+    /* R18 · yeni şart — hedefi olmayan kutu BAĞLANTI OLAMAZ (kit §14/1) */
+    else if (ig.etiketAdi === 'a' || yt.etiketAdi === 'a')
+      rec('7 · sosyal', `hedefi olmayan kutu hâlâ <a>: ig=${ig.etiketAdi}(${ig.href}) yt=${yt.etiketAdi}(${yt.href})`);
+    else if (ig.disabled !== 'true' || yt.disabled !== 'true')
+      rec('7 · sosyal', 'aria-disabled="true" eksik — mağaza kutularının kalıbı bu');
+    else ok('sosyal: yalnız Instagram + YouTube · X/Facebook/LinkedIn 0 · ikisi de <span aria-disabled> yer tutucu · ölü bağlantı 0');
   }
 
   /* 4a · kurumsal bant sütunların İÇİNDE değil */
@@ -611,6 +628,13 @@ console.log('\n--- 11 · R11 perdesi · 12 · .fit-health yok nöbeti (tüm sayf
           saglikLink: ftr.querySelectorAll('a[href="saglik-bilgilendirme-v1.html"]').length
         };
       });
+      /* 🔴 R18 · YÖNETİM PANELİ PUBLIC FOOTER BASMAZ (kit §13 — kendi kabuğu
+         var; 60 public sayfanın kurallarını her ziyarette indirtmez). 21 admin
+         ekranı R17'de doğdu, bu nöbet ondan ÖNCE yazılmıştı ve hepsini kusur
+         sayıyordu (ölçüldü: 23 sorunun 21'i buydu, hepsi aynı satır).
+         Ekranlar kapsam DIŞINA alındı — nöbet zayıflamadı, kapsamı doğrulandı;
+         admin kabuğunun kendi kapısı `docs/qa/admin-denetim.mjs`tir. */
+      if (f.startsWith('admin-')) continue;
       if (r.yok) { rec(`11 · ${f}`, '#pageMain ya da footer yok'); continue; }
       n++;
       farkSet.set(r.fark, (farkSet.get(r.fark)||0) + 1);

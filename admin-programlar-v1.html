@@ -60,21 +60,12 @@
         <div class="ff" id="pgSuzgec" data-ff></div>
       </div>
 
-      <div class="adm-bulk" id="pgBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="kademe"><i class="fa-solid fa-layer-group"></i> Kademe ata</button>
-          <button class="btn btn-ghost" type="button" data-toplu="yayin"><i class="fa-solid fa-eye-slash"></i> Yayından kaldır</button>
-          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
-        </div>
-      </div>
 
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="pgTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Program</th><th>Hedef</th><th>Kurgu</th><th>Seviye</th>
                 <th>Erişim</th><th>Açtığı sayfa</th><th class="act">İşlem</th>
               </tr>
@@ -127,7 +118,13 @@
             </div>
             <div class="fk-field">
               <label class="fk-label" for="pfSlug">Detay slug'ı <span class="req">*</span></label>
-              <input class="fk-input" id="pfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="8-hafta-guc-temeli" />
+              <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
+                   derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
+                   geçersiz. `[a-z0-9-]+` yazıldığında `reportValidity()`
+                   İSTİSNA ATIYOR — form doğrulanmıyor, konsola hata düşüyor ve
+                   "doğrulandı" diyen dürüstlük notu güvenilmez oluyor.
+                   Ölçüldü: /^(?:[a-z0-9-]+)$/v → "Invalid character class". -->
+              <input class="fk-input" id="pfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="8-hafta-guc-temeli" />
               <span class="fk-help" id="pfSlugNot"><i class="fa-solid fa-circle-info"></i>
                 Kartın açtığı adres. Bugün detay sayfası yalnız tanıdığı slug'ları
                 açar; tanımadığını sessizce ilk programa düşürür.</span>
@@ -174,10 +171,18 @@
                       placeholder="Katalog kartında görünen tek cümle."></textarea>
           </div>
 
-          <div class="c-acts" style="margin-top:4px">
-            <button class="btn btn-primary" type="button" id="pgKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
         </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
+             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
+             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
+             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
+             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
+             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="pgKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
       </div>
     </div>
 
@@ -208,6 +213,12 @@
    Yönetim ekranının işi bunu göstermektir; "Açtığı sayfa" kolonu tam da
    bunun için var.
 
+   TOPLU SEÇİM ÇUBUĞU YOK — bilerek. Ölçüldü: Gastro'nun 47 admin kaleminden
+   yalnız BİRİ (yorum moderasyonu) toplu işlem taşıyor. Bu liste 9 satır;
+   bu ölçekte kayıtlar tek tek düzenlenir ve boş bir toplu iskelet, tıklanacak
+   bir şey vaat edip vermez. Satır seçim kutuları da bu yüzden kaldırıldı:
+   seçimin gideceği bir eylem yoksa kutu da yoktur.
+
    ERİŞİM KADEMESİ TÜRETİLİR, UYDURULMAZ. Kademe adları `fit-paket.js`ten
    canlı okunuyor; bir kartın Pro olup olmadığı katalogdaki `.pr-pro`
    rozetinden geliyor. Fiyat BASILMAZ (K13).
@@ -226,7 +237,7 @@
     'canlı geliyor. <b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez.');
 
   if (!V || !V.PROGRAM || !V.PROGRAM.length) {
-    document.getElementById('pgGovde').innerHTML = '<tr><td colspan="8">' +
+    document.getElementById('pgGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-clipboard-list', 'Program kataloğu yüklenmedi',
             'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
             'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
@@ -337,7 +348,7 @@
     if (say === 0) {
       if (!suzBos) {
         suzBos = document.createElement('tr');
-        suzBos.innerHTML = '<td colspan="8">' + A.bos('fa-filter-circle-xmark',
+        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
           'Bu süzgeçle program kalmadı',
           'Seçili hedef, seviye ve erişim birleşimine düşen program yok. Bir çipi kaldır ya da süzgeci sıfırla.',
           '<button class="btn btn-primary" type="button" id="pgSifirla">Süzgeci sıfırla</button>') + '</td>';
@@ -367,7 +378,6 @@
       var sev = p.lv === 1 ? A.rozet('ok', SEV[1]) : p.lv === 2 ? A.rozet('wait', SEV[2]) : A.rozet('off', SEV[3]);
       return '<tr data-slug="' + esc(p.slug) + '" data-hedef="' + esc(p.hedef) + '"' +
              ' data-lv="' + p.lv + '" data-pro="' + (p.pro ? 1 : 0) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(p.ad) + ' seç" /></td>' +
         '<td><b>' + esc(p.ad) + '</b><small>' + esc(p.ozet) + '</small></td>' +
         '<td>' + esc(p.hedef) + '</td>' +
         '<td>' + p.hafta + ' hafta' + omurga(p.hafta) +
@@ -384,7 +394,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('pgSay').textContent = PR.length;
-    A.secimKur(document.getElementById('pgListe'));
     A.aramaKur(document.getElementById('pgAra'), document.getElementById('pgTablo'), document.getElementById('pgSay'));
   }
 
@@ -452,21 +461,11 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-duzenle]');
     if (b) formAc(b.getAttribute('data-duzenle'));
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#pgGovde input[type=checkbox]:checked').length;
-      var kap = document.getElementById('pgBulk').querySelector('.b-acts');
-      var v = kap.querySelector('.adm-maket-not');
-      if (!v) {
-        v = document.createElement('span'); v.className = 'adm-maket-not';
-        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        kap.appendChild(v);
-      }
-      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-    }
   });
-  A.maketKaydet(document.getElementById('pgKaydet'), 'program');
+  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
+     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
+     doğrulama sessizce atlanırdı. */
+  A.maketKaydet(document.getElementById('pgKaydet'), 'program', document.getElementById('pgF'));
 
   kpi();
   suzgecKur();

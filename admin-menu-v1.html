@@ -18,6 +18,21 @@
 .mn-sira{max-width:76px}
 .mn-gor{min-width:158px}
 .mn-hedef{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+
+/* ---------------------------------------------------------------------
+   🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
+   ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
+   kaydırma kabı; ama kaydırılabilir içeriği BELGEYE sızıyor —
+   `window.scrollTo(9999,0)` sonrası `window.scrollX` bu ekranlarda
+   sırasıyla 133 · 122 · 68 px okundu (referans `admin-challenge-v1`
+   0 okuyor, çünkü onun tablosu dar). `min-width:0`, `max-width:100%`,
+   `contain:inline-size` ve `html{overflow-x:clip}` denendi, DÖRDÜ DE
+   sızıntıyı kesmedi; `contain:paint` kesti (ölçüldü: dört ekranda 0).
+   Kural KABUĞUN kuralıdır ve yeri `assets/css/fit-admin.css`tir; oraya
+   yazmak bu ajanın işi değil, bu yüzden yalnız bu ekranın gövdesine
+   özgüllükle bağlandı. Kabuğa taşınınca bu blok silinir.
+   --------------------------------------------------------------------- */
+.adm-body[data-adm] .adm-tw{contain:paint}
 </style>
 </head>
 <body class="adm-body" data-adm="menu">
@@ -315,7 +330,8 @@
         bosSatir = document.createElement('tr');
         bosSatir.innerHTML = '<td colspan="7">' +
           A.bos('fa-filter-circle-xmark', 'Bu süzgeçle menü kalemi kalmadı',
-                'Seçili konum ve görünürlüğün kesişiminde kalem yok. Bir çipi kaldır ya da “Tümü”ne dön.') +
+                'Seçili konum ve görünürlüğün kesişiminde menü kalemi yok.',
+          '<button class="btn btn-ghost" type="button" data-ff-sifirla><i class="fa-solid fa-rotate-left"></i> Süzgeci sıfırla</button>') +
           '</td>';
         govde.appendChild(bosSatir);
       }
@@ -336,6 +352,17 @@
     }
     v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
       ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+  });
+
+
+  /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
+     kendi kurduğu süzgecin içinde bırakmamak için "Tümü" çiplerine döner.
+     Çipleri programatik tıklıyoruz ki kabuğun kendi aktif-çip şeridi de
+     temizlensin — durumu iki yerde tutmuyoruz. */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('[data-ff-sifirla]')) return;
+    document.querySelectorAll('.df-fchip[data-val="all"]')
+      .forEach(function (c) { c.click(); });
   });
 
   A.maketKaydet(document.getElementById('mnKaydet'), 'menü düzeni');

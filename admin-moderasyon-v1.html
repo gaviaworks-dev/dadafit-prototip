@@ -45,6 +45,14 @@
 /* Dört eylem düğmesi dar ekranda satırın altına iner (kabuk `.set-row`
    zaten ≤640'ta sarıyor; burada yalnız hizalama söyleniyor). */
 .md-acts{display:flex;gap:2px;flex-wrap:wrap}
+
+/* Toplu seçim kutusu. Kutu 18×18 (fit-admin.css'teki `.adm-table` kutusuyla
+   aynı ölçü), DOKUNMA HEDEFİ saran etikettir: 44×44. Kutuyu büyütmek yerine
+   etiketi hedef yapmak kit §6'daki `.fit-tab` çözümünün aynısıdır. */
+.md-sel{display:grid;place-items:center;width:44px;min-height:44px;flex:none;cursor:pointer}
+.md-sel input{width:18px;height:18px;accent-color:var(--fit);cursor:pointer}
+/* Çubuk panelin içinde yaşıyor, kartın kenarına dayanmıyor. */
+.fit-pane .adm-bulk{border-radius:var(--radius-md);border-bottom:0;margin-bottom:12px}
 </style>
 </head>
 <body class="adm-body" data-adm="moderasyon">
@@ -73,9 +81,76 @@
     <!-- ============ KUYRUK (K2) ============ -->
     <div class="adm-card" id="mdKuyruk">
       <div class="md-tabwrap">
-        <nav class="fit-tabs" data-fit-tabs="md" aria-label="Bildirim durumu"></nav>
+        <!-- 🔴 ŞERİT VE PANELLER STATİK — destek ekranıyla aynı şerh.
+             Kabuğun `[data-fit-tabs]` bileşeni parse anında tek geçiş
+             yapıyor; JS ile sonradan basılan şerit ölü kalıyor. Ölçüldü:
+             `silinen`e tıklandığında görünür panel hâlâ `bekleyen`di. -->
+        <nav class="fit-tabs" data-fit-tabs="md" aria-label="Bildirim durumu">
+          <button class="fit-tab active" type="button" data-tab="bekleyen"><i class="fa-solid fa-flag" aria-hidden="true"></i> Bekleyen <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="onaylanan"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Onaylanan <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="gizlenen"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Gizlenen <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="silinen"><i class="fa-solid fa-trash" aria-hidden="true"></i> Silinen <span class="cnt">—</span></button>
+        </nav>
       </div>
-      <div class="c-body" id="mdPanel"></div>
+      <!-- TOPLU EYLEM ÇUBUĞU BURADA VAR, ödemelerde YOK. Gastro'da ölçüldü:
+           47 kalemden yalnız yorum moderasyonunda duruyor ve blade'in kendi
+           yorumu "bu ekrana özel" diyor. Sebep işin kendisinde: on beş spam
+           bildirimi tek tek gizlemek moderasyonun asıl darboğazıdır; ödeme
+           listesi ise kuralla doğar, elle seçimle değil. -->
+      <div class="c-body" id="mdPanel">
+        <div class="fit-pane" data-pane="bekleyen">
+          <div data-basik="bekleyen"></div>
+          <div class="adm-bulk" data-bulk="bekleyen" hidden>
+            <b>0 satır seçildi</b>
+            <div class="b-acts">
+              <button class="btn btn-ghost" type="button" data-toplu="onayla"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+              <button class="btn btn-ghost" type="button" data-toplu="gizle"><i class="fa-solid fa-eye-slash"></i> Gizle</button>
+              <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
+          </div>
+          <div class="set-list" data-liste="bekleyen"></div>
+          <div data-bos="bekleyen" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="onaylanan" hidden>
+          <div data-basik="onaylanan"></div>
+          <div class="adm-bulk" data-bulk="onaylanan" hidden>
+            <b>0 satır seçildi</b>
+            <div class="b-acts">
+              <button class="btn btn-ghost" type="button" data-toplu="onayla"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+              <button class="btn btn-ghost" type="button" data-toplu="gizle"><i class="fa-solid fa-eye-slash"></i> Gizle</button>
+              <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
+          </div>
+          <div class="set-list" data-liste="onaylanan"></div>
+          <div data-bos="onaylanan" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="gizlenen" hidden>
+          <div data-basik="gizlenen"></div>
+          <div class="adm-bulk" data-bulk="gizlenen" hidden>
+            <b>0 satır seçildi</b>
+            <div class="b-acts">
+              <button class="btn btn-ghost" type="button" data-toplu="onayla"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+              <button class="btn btn-ghost" type="button" data-toplu="gizle"><i class="fa-solid fa-eye-slash"></i> Gizle</button>
+              <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
+          </div>
+          <div class="set-list" data-liste="gizlenen"></div>
+          <div data-bos="gizlenen" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="silinen" hidden>
+          <div data-basik="silinen"></div>
+          <div class="adm-bulk" data-bulk="silinen" hidden>
+            <b>0 satır seçildi</b>
+            <div class="b-acts">
+              <button class="btn btn-ghost" type="button" data-toplu="onayla"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+              <button class="btn btn-ghost" type="button" data-toplu="gizle"><i class="fa-solid fa-eye-slash"></i> Gizle</button>
+              <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
+          </div>
+          <div class="set-list" data-liste="silinen"></div>
+          <div data-bos="silinen" hidden></div>
+        </div>
+      </div>
     </div>
 
     <!-- ============ KULLANICIYI UYAR (K4 ucu) ============ -->
@@ -127,6 +202,27 @@
   </div>
 </main>
 
+<script>
+/* ?tab= GERÇEK ROTA — kabuktan ÖNCE koşar (destek ekranındaki şerhin aynısı):
+   kabuk sekmeyi parse anında kurar ve açılışı markup'tan okur.
+   🔴 BEYAZ LİSTE: geçersiz `?tab=` sessizce ilk sekmeye düşer. */
+(function () {
+  var ray = document.querySelector('[data-fit-tabs="md"]'); if (!ray) return;
+  var v = new URLSearchParams(location.search).get('tab'); if (!v) return;
+  var hedef = null;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    if (t.getAttribute('data-tab') === v) hedef = t;
+  });
+  if (!hedef) return;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    t.classList.remove('active'); t.removeAttribute('aria-selected');
+  });
+  hedef.classList.add('active'); hedef.setAttribute('aria-selected', 'true');
+  document.querySelectorAll('.fit-pane[data-pane]').forEach(function (pn) {
+    pn.hidden = (pn.getAttribute('data-pane') !== v);
+  });
+})();
+</script>
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
@@ -228,12 +324,11 @@
     'metinler uydurmadır. <b>Yazma yüzeyi maket:</b> onayla · gizle · sil · uyar ' +
     'düğmelerinin hiçbiri içeriğe dokunmaz — bu prototipte sunucu yok.');
 
-  /* ---- sekmeler ---------------------------------------------------- */
-  document.querySelector('[data-fit-tabs="md"]').innerHTML = DURUM.map(function (d, i) {
-    return '<button class="fit-tab' + (i===0 ? ' active' : '') + '" type="button" data-tab="' + d.id + '">' +
-      '<i class="fa-solid ' + d.ico + '" aria-hidden="true"></i> ' + esc(d.ad) +
-      '<span class="cnt">' + sayi(d.id) + '</span></button>';
-  }).join('');
+  /* ---- sekme sayaçları — şerit markup'ta, burada yalnız sayı ------ */
+  function sayacYaz(id, n){
+    var c = document.querySelector('.fit-tab[data-tab="' + id + '"] .cnt');
+    if (c) c.textContent = n;
+  }
 
   var BOS = {
     'bekleyen':  ['fa-flag',         'Bekleyen bildirim yok',
@@ -258,6 +353,8 @@
     var t = TUR[b.tur], s = SEBEP[b.sebep];
     return '<div class="set-row' + (s.agir ? ' is-saglik' : '') + '" data-id="' + esc(b.id) + '" data-ara="' +
         esc((b.id + ' ' + b.yazar + ' ' + b.yer + ' ' + s.ad + ' ' + t.ad + ' ' + b.metin).toLocaleLowerCase('tr')) + '">' +
+      '<label class="md-sel"><input type="checkbox" data-sec="' + esc(b.durum) + '" ' +
+        'aria-label="' + esc(b.id + ' · ' + t.ad + ' seç') + '" /></label>' +
       '<span class="sr-ico"><i class="fa-solid ' + t.ico + '" aria-hidden="true"></i></span>' +
       '<span class="sr-txt">' +
         '<b>' + esc(t.ad) + ' · ' + esc(b.yer) + '</b>' +
@@ -286,19 +383,20 @@
     return a.tarih < b.tarih ? 1 : -1;
   }
 
-  document.getElementById('mdPanel').innerHTML = DURUM.map(function (d, i) {
+  DURUM.forEach(function (d) {
     var liste = BILDIRIM.filter(function (b) { return b.durum === d.id; }).sort(sirala);
     var agir = liste.filter(function (b) { return SEBEP[b.sebep].agir; }).length;
-    return '<div class="fit-pane" data-pane="' + d.id + '"' + (i===0 ? '' : ' hidden') + '>' +
+    sayacYaz(d.id, liste.length);
+    document.querySelector('[data-basik="' + d.id + '"]').innerHTML =
       '<div class="fp-row" style="border-bottom:1px solid var(--line);padding-top:0">' +
         '<span class="ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
         '<span class="txt"><b>' + esc(d.ad) + '</b><small>' + esc(d.yon) + '</small></span>' +
         '<span class="end">' + A.rozet(d.rozet, liste.length + ' bildirim', d.ico) +
-          (agir ? ' ' + A.rozet('stop', agir + ' sağlık riski', 'fa-heart-pulse') : '') + '</span></div>' +
-      '<div class="set-list" data-liste="' + d.id + '">' + liste.map(satir).join('') + '</div>' +
-      '<div data-bos="' + d.id + '" hidden>' + A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]) + '</div>' +
-      '</div>';
-  }).join('');
+          (agir ? ' ' + A.rozet('stop', agir + ' sağlık riski', 'fa-heart-pulse') : '') + '</span></div>';
+    document.querySelector('[data-liste="' + d.id + '"]').innerHTML = liste.map(satir).join('');
+    document.querySelector('[data-bos="' + d.id + '"]').innerHTML =
+      A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
+  });
 
   /* ---- arama: dört sekmede birden ---------------------------------- */
   var ara = document.getElementById('mdAra');
@@ -318,11 +416,49 @@
                   '"' + ara.value.trim() + '" için bu durumda bildirim yok. Aramayı boşalt ya da başka bir sekmeye bak.')
           : A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
       }
-      var c = document.querySelector('.fit-tab[data-tab="' + d.id + '"] .cnt');
-      if (c) c.textContent = n;
+      sayacYaz(d.id, n);
     });
   }
-  ara.addEventListener('input', suz);
+  ara.addEventListener('input', function () { suz(); DURUM.forEach(function (d) { secimTazele(d.id); }); });
+
+  /* ---- toplu seçim: kabuğun `secimKur`u TABLO bekler, bu kuyruk
+     `.set-row` listesidir; bu yüzden seçim burada kurulur. Gizlenmiş
+     (arama dışı) satırın seçimi sayılmaz — görünmeyen satırı toplu
+     işleme almak, kullanıcının görmediği bir şeye karar verdirmektir. */
+  function secimTazele(id){
+    var n = 0;
+    document.querySelectorAll('[data-liste="' + id + '"] input[data-sec]').forEach(function (k) {
+      if (k.checked && !k.closest('.set-row').hidden) n++;
+    });
+    var bar = document.querySelector('[data-bulk="' + id + '"]');
+    if (!bar) return;
+    bar.hidden = (n === 0);
+    bar.querySelector('b').textContent = n + ' satır seçildi';
+    var not = bar.querySelector('.adm-maket-not');
+    if (not) not.remove();
+  }
+  document.getElementById('mdPanel').addEventListener('change', function (e) {
+    var k = e.target.closest && e.target.closest('input[data-sec]');
+    if (k) secimTazele(k.getAttribute('data-sec'));
+  });
+  var TOPLU_AD = { onayla:'Onayla', gizle:'Gizle', sil:'Sil' };
+  document.getElementById('mdPanel').addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-toplu]');
+    if (!t) return;
+    var bar = t.closest('.adm-bulk');
+    var n = bar.querySelectorAll ? 0 : 0;
+    document.querySelectorAll('[data-liste="' + bar.getAttribute('data-bulk') + '"] input[data-sec]')
+      .forEach(function (k) { if (k.checked && !k.closest('.set-row').hidden) n++; });
+    var kap = bar.querySelector('.b-acts');
+    var not = kap.querySelector('.adm-maket-not');
+    if (!not) {
+      not = document.createElement('span'); not.className = 'adm-maket-not';
+      not.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
+      kap.appendChild(not);
+    }
+    not.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + n + ' satırda "' +
+      TOPLU_AD[t.getAttribute('data-toplu')] + '" seçildi ama UYGULANMADI — sunucu yok.';
+  });
 
   /* ---- uyarı formu ------------------------------------------------- */
   var SABLON = {
@@ -375,8 +511,29 @@
       'içerik yerinde duruyor, kayıt hâlâ "' + durumBul(kayit.durum).ad + '". Bu prototipte sunucu yok.';
   });
 
+  /* ---- ?tab= yazımı ve geri/ileri tuşu (destek ekranıyla aynı desen) */
+  var ray = document.querySelector('[data-fit-tabs="md"]');
+  var ILK = DURUM[0].id, sessiz = false;
+  ray.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('.fit-tab');
+    if (!t || sessiz) return;
+    var k = t.getAttribute('data-tab');
+    history.pushState({ tab:k }, '',
+      location.pathname + (k === ILK ? '' : '?tab=' + encodeURIComponent(k)) + location.hash);
+  });
+  window.addEventListener('popstate', function () {
+    var v = new URLSearchParams(location.search).get('tab') || ILK;
+    var t = null;
+    ray.querySelectorAll('.fit-tab').forEach(function (x) {
+      if (x.getAttribute('data-tab') === v) t = x;
+    });
+    if (!t) return;
+    sessiz = true; t.click(); sessiz = false;
+  });
+
   A.maketKaydet(document.getElementById('mdUyarGonder'), 'uyarı');
   suz();
+  DURUM.forEach(function (d) { secimTazele(d.id); });
 })();
 </script>
 </body>

@@ -79,6 +79,28 @@
   </div>
 </main>
 
+<script>
+/* ?tab= GERÇEK ROTA — kabuktan ÖNCE koşar: kabuk sekmeyi parse anında
+   kurar ve açılış durumunu markup'tan (`.active` / `aria-selected`) okur;
+   seçim sonradan yazılsaydı ilk sekme çoktan kurulmuş olurdu.
+   🔴 BEYAZ LİSTE: geçersiz `?tab=` sessizce ilk sekmeye düşer. */
+(function () {
+  var ray = document.querySelector('[data-fit-tabs="rp"]'); if (!ray) return;
+  var v = new URLSearchParams(location.search).get('tab'); if (!v) return;
+  var hedef = null;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    if (t.getAttribute('data-tab') === v) hedef = t;
+  });
+  if (!hedef) return;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    t.classList.remove('active'); t.removeAttribute('aria-selected');
+  });
+  hedef.classList.add('active'); hedef.setAttribute('aria-selected', 'true');
+  document.querySelectorAll('.fit-pane[data-pane]').forEach(function (pn) {
+    pn.hidden = (pn.getAttribute('data-pane') !== v);
+  });
+})();
+</script>
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-admin-veri.js"></script>
 <script src="assets/js/fit-challenge.js"></script>
@@ -422,7 +444,45 @@
     document.getElementById('rpFinansal').innerHTML   = finansalBas(d);
     document.getElementById('rpModerasyon').innerHTML = moderasyonBas(d);
   }
-  document.getElementById('rpDonem').addEventListener('change', ciz);
+  /* ---- adres: sekme VE dönem ---------------------------------------
+     Bir rapor paylaşılabilir olmalı. Sekme `?tab=`, dönem `?donem=`
+     yazılır; ikisi de adresten okunur. `sessiz` bayrağı popstate'in
+     tetiklediği tıklamanın yeni geçmiş kaydı açmasını engeller. */
+  var ray = document.querySelector('[data-fit-tabs="rp"]');
+  var donemSec = document.getElementById('rpDonem');
+  var ILK = 'genel', sessiz = false;
+
+  function adres(){
+    var q = [];
+    var t = ray.querySelector('.fit-tab[aria-selected="true"]') || ray.querySelector('.fit-tab.active');
+    var k = t ? t.getAttribute('data-tab') : ILK;
+    if (k !== ILK) q.push('tab=' + encodeURIComponent(k));
+    if (donemSec.value !== '30') q.push('donem=' + encodeURIComponent(donemSec.value));
+    return location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash;
+  }
+  function yaz(){ if (!sessiz) history.pushState({}, '', adres()); }
+
+  /* Açılıştaki dönem — BEYAZ LİSTE: geçersiz değer varsayılana düşer. */
+  (function () {
+    var d = new URLSearchParams(location.search).get('donem');
+    if (d && donemSec.querySelector('option[value="' + d + '"]')) donemSec.value = d;
+  })();
+
+  ray.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.fit-tab')) setTimeout(yaz, 0);
+  });
+  donemSec.addEventListener('change', function () { ciz(); yaz(); });
+  window.addEventListener('popstate', function () {
+    var q = new URLSearchParams(location.search);
+    var d = q.get('donem') || '30';
+    if (donemSec.querySelector('option[value="' + d + '"]')) { donemSec.value = d; ciz(); }
+    var v = q.get('tab') || ILK, t = null;
+    ray.querySelectorAll('.fit-tab').forEach(function (x) {
+      if (x.getAttribute('data-tab') === v) t = x;
+    });
+    if (t) { sessiz = true; t.click(); sessiz = false; }
+  });
+
   ciz();
 })();
 </script>

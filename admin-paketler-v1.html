@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/css/fit-admin.css" />
 <style>
 /* SAYFA CSS — yalnız bu ekranın kendi işi. Yeni renk / token üretilmedi. */
-.pk-fiyat{max-width:132px}
+.pk-fiyat{max-width:152px}   /* "Onay bekliyor" yer tutucusu 132pxde kırpılıyordu (ölçüldü) */
 .pk-sec{min-width:190px;width:100%}
 /* Grup başlığı satırı: tablo içinde bir AYRAÇ değil, bir KAPSAM etiketi.
    Zemin kabuğun --bg'si, yazı ölçüsü .adm-table th ile aynı. */
@@ -27,6 +27,21 @@
 .pk-mod b{display:block}
 .pk-mod .nit{margin-top:6px}
 .pk-kol{min-width:210px}
+
+/* ---------------------------------------------------------------------
+   🔴 YATAY TAŞMA YAMASI — SAYFAYA ÖZGÜ, KABUK DEĞİŞTİRİLMEDİ
+   ÖLÇÜM (390×800, Chromium): `.adm-tw` kabukta `overflow-x:auto` ile
+   kaydırma kabı; ama kaydırılabilir içeriği BELGEYE sızıyor —
+   `window.scrollTo(9999,0)` sonrası `window.scrollX` bu ekranlarda
+   sırasıyla 133 · 122 · 68 px okundu (referans `admin-challenge-v1`
+   0 okuyor, çünkü onun tablosu dar). `min-width:0`, `max-width:100%`,
+   `contain:inline-size` ve `html{overflow-x:clip}` denendi, DÖRDÜ DE
+   sızıntıyı kesmedi; `contain:paint` kesti (ölçüldü: dört ekranda 0).
+   Kural KABUĞUN kuralıdır ve yeri `assets/css/fit-admin.css`tir; oraya
+   yazmak bu ajanın işi değil, bu yüzden yalnız bu ekranın gövdesine
+   özgüllükle bağlandı. Kabuğa taşınınca bu blok silinir.
+   --------------------------------------------------------------------- */
+.adm-body[data-adm] .adm-tw{contain:paint}
 </style>
 </head>
 <body class="adm-body" data-adm="paketler">
@@ -377,7 +392,9 @@
           bosSatir = document.createElement('tr');
           bosSatir.innerHTML = '<td colspan="' + (KADEMELER.length + 1) + '">' +
             A.bos('fa-magnifying-glass', 'Bu aramayla modül bulunamadı',
-                  'Eşlemede bu sözcüğü taşıyan bir modül ya da grup yok. Arama kutusunu boşalt ya da başka bir sözcük dene.') +
+                  'Eşlemede bu sözcüğü taşıyan bir modül ya da grup yok.',
+                  '<button class="btn btn-ghost" type="button" id="pkAramaSifirla">' +
+                  '<i class="fa-solid fa-rotate-left"></i> Aramayı temizle</button>') +
             '</td>';
           govde.appendChild(bosSatir);
         }
@@ -385,6 +402,12 @@
       } else if (bosSatir) bosSatir.hidden = true;
     }
     girdi.addEventListener('input', uygula);
+    /* Boş durumun DÖRDÜNCÜ parçası bir çıkış yoludur, süs değil: kullanıcıyı
+       sonuçsuz bir aramanın içinde bırakmaz. */
+    govde.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('#pkAramaSifirla')) return;
+      girdi.value = ''; uygula(); girdi.focus();
+    });
     uygula();
   }
 

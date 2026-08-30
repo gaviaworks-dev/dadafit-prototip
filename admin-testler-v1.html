@@ -61,20 +61,12 @@
         <div class="ff" id="tsSuzgec" data-ff></div>
       </div>
 
-      <div class="adm-bulk" id="tsBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="yayin"><i class="fa-solid fa-eye-slash"></i> Yayından kaldır</button>
-          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
-        </div>
-      </div>
 
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="tsTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Test</th><th>Kategori</th><th class="num">Süre</th>
                 <th class="num">Adım</th><th>Ölçüt bantları</th><th class="act">İşlem</th>
               </tr>
@@ -127,7 +119,13 @@
             </div>
             <div class="fk-field">
               <label class="fk-label" for="tfSlug">Slug <span class="req">*</span></label>
-              <input class="fk-input" id="tfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="denge" />
+              <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
+                   derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
+                   geçersiz. `[a-z0-9-]+` yazıldığında `reportValidity()`
+                   İSTİSNA ATIYOR — form doğrulanmıyor, konsola hata düşüyor ve
+                   "doğrulandı" diyen dürüstlük notu güvenilmez oluyor.
+                   Ölçüldü: /^(?:[a-z0-9-]+)$/v → "Invalid character class". -->
+              <input class="fk-input" id="tfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="denge" />
             </div>
           </div>
 
@@ -162,10 +160,18 @@
               sonuçlar hiçbir banda düşmez.</span>
           </div>
 
-          <div class="c-acts" style="margin-top:4px">
-            <button class="btn btn-primary" type="button" id="tsKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
         </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
+             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
+             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
+             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
+             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
+             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="tsKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
       </div>
     </div>
 
@@ -182,6 +188,12 @@
    TANIMLAR GERÇEK. Yedi test ve yirmi bir ölçüt bandı
    `fit-testi-detay-v1.html`in `VERI` tablosundan makineyle okundu; örnek
    test uydurulmadı. Kaynak hâlâ o sayfada — burası ölçülmüş kopya.
+
+   TOPLU SEÇİM ÇUBUĞU YOK — bilerek. Ölçüldü: Gastro'nun 47 admin kaleminden
+   yalnız BİRİ (yorum moderasyonu) toplu işlem taşıyor. Bu liste 7 satır;
+   bu ölçekte kayıtlar tek tek düzenlenir ve boş bir toplu iskelet, tıklanacak
+   bir şey vaat edip vermez. Satır seçim kutuları da bu yüzden kaldırıldı:
+   seçimin gideceği bir eylem yoksa kutu da yoktur.
 
    BANT, TESTİN ASIL ÜRÜNÜDÜR. Bir fit testinin çıktısı bir puan değil bir
    YÖNLENDİRMEdir: ölçüt → seviye → program. Bu yüzden bantlar tabloya
@@ -204,7 +216,7 @@
     'kayıt gitmez — bu prototipte sunucu yok.');
 
   if (!V || !V.TEST || !V.TEST.length) {
-    document.getElementById('tsGovde').innerHTML = '<tr><td colspan="7">' +
+    document.getElementById('tsGovde').innerHTML = '<tr><td colspan="6">' +
       A.bos('fa-stopwatch', 'Test tanımları yüklenmedi',
             'Tanımlar fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
             'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
@@ -287,7 +299,7 @@
     if (say === 0) {
       if (!suzBos) {
         suzBos = document.createElement('tr');
-        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
+        suzBos.innerHTML = '<td colspan="6">' + A.bos('fa-filter-circle-xmark',
           'Bu kategoride test yok',
           'Seçili kategorilere düşen test tanımı bulunmuyor. Bir çipi kaldır ya da süzgeci sıfırla.',
           '<button class="btn btn-primary" type="button" id="tsSifirla">Süzgeci sıfırla</button>') + '</td>';
@@ -309,7 +321,6 @@
         return '<span class="b"><span class="lv">' + b.lv + '</span>' + esc(b.olcut) + '</span>';
       }).join('') + '</div>';
       return '<tr data-slug="' + esc(t.slug) + '" data-kategori="' + esc(t.kategori) + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(t.ad) + ' seç" /></td>' +
         '<td><b>' + esc(t.ad) + '</b><small>' + esc(t.slug) + '</small></td>' +
         '<td>' + esc(t.kategori) + '</td>' +
         '<td class="num">' + esc(t.sureKisa) + '<small>' + esc(t.sure) + '</small></td>' +
@@ -321,7 +332,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('tsSay').textContent = T.length;
-    A.secimKur(document.getElementById('tsListe'));
     A.aramaKur(document.getElementById('tsAra'), document.getElementById('tsTablo'), document.getElementById('tsSay'));
   }
 
@@ -390,21 +400,11 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-duzenle]');
     if (b) formAc(b.getAttribute('data-duzenle'));
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#tsGovde input[type=checkbox]:checked').length;
-      var kap = document.getElementById('tsBulk').querySelector('.b-acts');
-      var v = kap.querySelector('.adm-maket-not');
-      if (!v) {
-        v = document.createElement('span'); v.className = 'adm-maket-not';
-        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        kap.appendChild(v);
-      }
-      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-    }
   });
-  A.maketKaydet(document.getElementById('tsKaydet'), 'test');
+  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
+     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
+     doğrulama sessizce atlanırdı. */
+  A.maketKaydet(document.getElementById('tsKaydet'), 'test', document.getElementById('tsF'));
 
   kpi();
   suzgecKur();

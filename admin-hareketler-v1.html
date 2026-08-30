@@ -64,21 +64,12 @@
         <div class="ff" id="hkSuzgec" data-ff></div>
       </div>
 
-      <div class="adm-bulk" id="hkBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="seviye"><i class="fa-solid fa-signal"></i> Seviye ata</button>
-          <button class="btn btn-ghost" type="button" data-toplu="ekipman"><i class="fa-solid fa-dumbbell"></i> Ekipman ata</button>
-          <button class="btn btn-ghost" type="button" data-toplu="sil"><i class="fa-solid fa-trash"></i> Sil</button>
-        </div>
-      </div>
 
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="hkTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Hareket</th><th>Bölge</th><th>Ekipman</th><th>Seviye</th>
                 <th class="num">Süre</th><th class="num">Alternatif</th><th class="act">İşlem</th>
               </tr>
@@ -118,7 +109,13 @@
             </div>
             <div class="fk-field">
               <label class="fk-label" for="hfSlug">Slug <span class="req">*</span></label>
-              <input class="fk-input" id="hfSlug" name="slug" required maxlength="60" pattern="[a-z0-9-]+" placeholder="goblet-squat" />
+              <!-- 🔴 TİRE KAÇIRILIYOR: `pattern` Chromium'da `v` bayrağıyla
+                   derleniyor ve orada karakter sınıfının sonundaki çıplak `-`
+                   geçersiz. `[a-z0-9-]+` yazıldığında `reportValidity()`
+                   İSTİSNA ATIYOR — form doğrulanmıyor, konsola hata düşüyor ve
+                   "doğrulandı" diyen dürüstlük notu güvenilmez oluyor.
+                   Ölçüldü: /^(?:[a-z0-9-]+)$/v → "Invalid character class". -->
+              <input class="fk-input" id="hfSlug" name="slug" required maxlength="60" pattern="[a-z0-9\-]+" placeholder="goblet-squat" />
               <span class="fk-help"><i class="fa-solid fa-circle-info"></i> Yalnız küçük harf, rakam ve tire. Detay adresi bundan üretilir.</span>
             </div>
           </div>
@@ -179,10 +176,18 @@
             </div>
           </div>
 
-          <div class="c-acts" style="margin-top:4px">
-            <button class="btn btn-primary" type="button" id="hkKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
         </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
+             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
+             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
+             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
+             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
+             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="hkKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
       </div>
     </div>
 
@@ -205,6 +210,12 @@
    Kararın gerekçesi üretecin başlığında; ayrışma
    `docs/qa/hareket-katalog-esitlik.mjs` ile ölçülüyor.
 
+   TOPLU SEÇİM ÇUBUĞU YOK — bilerek. Ölçüldü: Gastro'nun 47 admin kaleminden
+   yalnız BİRİ (yorum moderasyonu) toplu işlem taşıyor. Bu liste 25 satır;
+   bu ölçekte kayıtlar tek tek düzenlenir ve boş bir toplu iskelet, tıklanacak
+   bir şey vaat edip vermez. Satır seçim kutuları da bu yüzden kaldırıldı:
+   seçimin gideceği bir eylem yoksa kutu da yoktur.
+
    İKİ TAKSONOMİ ALANI BİLEREK AYRI DURUYOR.
    `kas` kütüphane süzgecinin KODU (`bacak`), `bolge` detay sayfasının
    serbest METNİ ("Bacak & Kalça"). Tabloda ikisi de görünür çünkü sapma
@@ -226,7 +237,7 @@
     '<b>Yazma yüzeyi maket:</b> form doğrulanır, kayıt gitmez — bu prototipte sunucu yok.');
 
   if (!V || !V.HAREKET || !V.HAREKET.length) {
-    document.getElementById('hkGovde').innerHTML = '<tr><td colspan="8">' +
+    document.getElementById('hkGovde').innerHTML = '<tr><td colspan="7">' +
       A.bos('fa-dumbbell', 'Hareket kataloğu yüklenmedi',
             'Katalog fit-admin-veri.js dosyasından okunur; bu sayfada yüklenemedi. ' +
             'node tools/admin-veri-uret.mjs ile yeniden üretilebilir.') + '</td></tr>';
@@ -245,6 +256,16 @@
     for (var i = 0; i < S[grup].length; i++) if (S[grup][i].kod === kod) return S[grup][i].ikon;
     return '';
   }
+  /* İKİNCİ SATIR YALNIZ AYRIŞMA VARSA BASILIR.
+     Süzgeç kodunun adı ile detay sayfasının serbest metni çoğu satırda
+     aynı ("Omuz" / "Omuz"); yirmi beş satırda aynı sözcüğü iki kez yazmak
+     tabloyu okunmaz yapıyordu. Fark yoksa ikinci satır yok — böylece
+     görünen her ikinci satır GERÇEK bir ayrışmayı işaret eder. */
+  function ikinci(kodAd, metin, sinif) {
+    if (!metin || metin === kodAd) return '';
+    return '<small' + (sinif ? ' class="' + sinif + '"' : '') + '>' + esc(metin) + '</small>';
+  }
+
   function slugVar(s) {
     for (var i = 0; i < H.length; i++) if (H[i].slug === s) return true;
     return false;
@@ -346,7 +367,7 @@
     if (say === 0) {
       if (!suzBos) {
         suzBos = document.createElement('tr');
-        suzBos.innerHTML = '<td colspan="8">' + A.bos('fa-filter-circle-xmark',
+        suzBos.innerHTML = '<td colspan="7">' + A.bos('fa-filter-circle-xmark',
           'Bu süzgeçle hareket kalmadı',
           'Seçili bölge, ekipman ve seviye birleşimine düşen hareket yok. Bir çipi kaldır ya da süzgeci sıfırla.',
           '<button class="btn btn-primary" type="button" id="hkSifirla">Süzgeci sıfırla</button>') + '</td>';
@@ -371,11 +392,10 @@
                            : A.rozet('off', sevAd || h.seviye);
       return '<tr data-slug="' + esc(h.slug) + '" data-kas="' + esc(h.kas) + '"' +
              ' data-ekipman="' + esc(h.ekipmanKod) + '" data-lv="' + h.lv + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(h.ad) + ' seç" /></td>' +
         '<td><b>' + esc(h.ad) + '</b><small>' + esc(h.slug) + ' · ' + esc(h.kategori) + '</small></td>' +
-        '<td>' + esc(kasAd || h.kas) + '<small>' + esc(h.bolge) + '</small></td>' +
+        '<td>' + esc(kasAd || h.kas) + ikinci(kasAd, h.bolge) + '</td>' +
         '<td>' + (ikon('ekipman', h.ekipmanKod) ? '<i class="' + ikon('ekipman', h.ekipmanKod) + '" aria-hidden="true"></i> ' : '') +
-                 esc(ekiAd || h.ekipmanKod) + '<small class="hk-kod">' + esc(h.ekipman) + '</small></td>' +
+                 esc(ekiAd || h.ekipmanKod) + ikinci(ekiAd, h.ekipman, 'hk-kod') + '</td>' +
         '<td>' + sev + '</td>' +
         '<td class="num">' + esc(h.sure) + '</td>' +
         '<td class="num">' + h.alternatif.length +
@@ -386,7 +406,6 @@
         '</td></tr>';
     }).join('');
     document.getElementById('hkSay').textContent = H.length;
-    A.secimKur(document.getElementById('hkListe'));
     A.aramaKur(document.getElementById('hkAra'), document.getElementById('hkTablo'), document.getElementById('hkSay'));
   }
 
@@ -435,21 +454,11 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-duzenle]');
     if (b) formAc(b.getAttribute('data-duzenle'));
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (t) {
-      var s = document.querySelectorAll('#hkGovde input[type=checkbox]:checked').length;
-      var kap = document.getElementById('hkBulk').querySelector('.b-acts');
-      var v = kap.querySelector('.adm-maket-not');
-      if (!v) {
-        v = document.createElement('span'); v.className = 'adm-maket-not';
-        v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-        kap.appendChild(v);
-      }
-      v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-        ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
-    }
   });
-  A.maketKaydet(document.getElementById('hkKaydet'), 'hareket');
+  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
+     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
+     doğrulama sessizce atlanırdı. */
+  A.maketKaydet(document.getElementById('hkKaydet'), 'hareket', document.getElementById('hkF'));
 
   kpi();
   suzgecKur();

@@ -161,10 +161,18 @@
             </div>
           </div>
 
-          <div class="c-acts" style="margin-top:4px">
-            <button class="btn btn-primary" type="button" id="syKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
         </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
+             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
+             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
+             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
+             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
+             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="syKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
       </div>
     </div>
 
@@ -194,6 +202,12 @@
    Üçüncüsü KUSUR DEĞİL: yayına çıkmamış bir prototipin bilinçli kararı ve
    ekran bunu kusur rozetiyle işaretlemiyor. İlk ikisi ise gerçek eksik ve
    kuyruk olarak duruyor.
+
+   TOPLU SEÇİM ÇUBUĞU BURADA VAR, ÖTEKİ DÖRT EKRANDA YOK. Ölçüt: toplu
+   işlemin gerçekten bir kuyruğu olması. Bu listede 60 satır var ve ikisi de
+   gerçek bir toplu iş: 43 sayfada açıklama, 60 sayfada canonical eksik.
+   Hareketler (25) · Programlar (9) · Testler (7) bu eşiği geçmedi, oralarda
+   çubuk da satır seçim kutusu da yok.
 
    UZUNLUK SINIRLARI ÖLÇÜ, TERCİH DEĞİL. Başlık ~60, açıklama 120–160
    karakterde kırpılır; alanlar bunu sayarak söylüyor, "iyi/kötü" demeden.
@@ -422,7 +436,10 @@
         ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
     }
   });
-  A.maketKaydet(document.getElementById('syKaydet'), 'sayfa');
+  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
+     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
+     doğrulama sessizce atlanırdı. */
+  A.maketKaydet(document.getElementById('syKaydet'), 'sayfa', document.getElementById('syF'));
 
   kpi();
   suzgecKur();

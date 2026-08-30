@@ -73,7 +73,9 @@
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="tx-kas-tablo">
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <!-- "Not" kolonu YOK: bu iki sözlükte notu olan terim yok ve on
+                 satır boyunca boş bir kolon, kolon olmaya değmez. -->
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th class="act">İşlem</th></tr></thead>
             <tbody class="tx-govde" id="tx-kas-govde"></tbody>
           </table>
         </div>
@@ -92,7 +94,9 @@
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="tx-ekipman-tablo">
-            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th>Not</th><th class="act">İşlem</th></tr></thead>
+            <!-- "Not" kolonu YOK: bu iki sözlükte notu olan terim yok ve on
+                 satır boyunca boş bir kolon, kolon olmaya değmez. -->
+            <thead><tr><th>Terim</th><th>Nerede ilan ediliyor</th><th>Kullanım</th><th class="act">İşlem</th></tr></thead>
             <tbody class="tx-govde" id="tx-ekipman-govde"></tbody>
           </table>
         </div>
@@ -185,10 +189,18 @@
             <p id="xfKullanim" style="font-size:13.5px;color:var(--slate-2);font-weight:500;line-height:1.6;margin:0">—</p>
           </div>
 
-          <div class="c-acts" style="margin-top:4px">
-            <button class="btn btn-primary" type="button" id="txKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
-          </div>
         </form>
+      </div>
+      <div class="c-head" style="border-top:1px solid var(--line);border-bottom:0">
+        <!-- KAYDET ÇUBUĞU SAĞDA — kalıp referansıyla birebir.
+             `.c-acts`in kendi `margin-left:auto`su yalnız `.c-head` altında
+             çalışıyor; çubuk form gövdesinin içinde kalınca sola yaslanıyordu.
+             Gastro'nun admin form CSS'i dokuz sayfada `justify-content:flex-end`
+             ve birincil eylem en sağda. "Kaydet solda" kuralı HESAP ekranlarının
+             kuralı, admin formunun değil — iki ayrı yüzey, iki ayrı kural. -->
+        <div class="c-acts">
+          <button class="btn btn-primary" type="button" id="txKaydet"><i class="fa-solid fa-check"></i> Kaydet</button>
+        </div>
       </div>
     </div>
 
@@ -326,17 +338,20 @@
       var durum = t.kullanim
         ? A.rozet('ok', t.kullanim + ' ' + s.kayit, 'fa-check')
         : A.rozet('off', 'Kullanımda değil');
+      /* Not hücresi yalnız notu OLAN sözlüklerde basılır; başlık satırı da
+         o iki panelde yazılı (kas ve ekipman panelinde dört kolon var). */
       var not = anahtar === 'hedef'
-        ? (t.ortak ? A.rozet('ok', 'İki sayfada da', 'fa-code-branch')
-                   : A.rozet('wait', 'Tek sayfada', 'fa-code-branch'))
-        : (t.ek ? '<small>' + esc(t.ek) + '</small>' : '');
+        ? '<td>' + (t.ortak ? A.rozet('ok', 'İki sayfada da', 'fa-code-branch')
+                            : A.rozet('wait', 'Tek sayfada', 'fa-code-branch')) + '</td>'
+        : anahtar === 'seviye' ? '<td>' + (t.ek ? '<small>' + esc(t.ek) + '</small>' : '—') + '</td>'
+        : '';
       return '<tr data-kod="' + esc(t.kod) + '" data-sozluk="' + anahtar + '">' +
         '<td><b>' + (t.ikon ? '<i class="' + esc(t.ikon) + '" aria-hidden="true"></i> ' : '') + esc(t.ad) + '</b>' +
           '<small>' + esc(t.kod) + '</small></td>' +
         '<td>' + esc(t.kaynak) + '</td>' +
         '<td>' + durum +
           '<span class="tx-bar' + (t.kullanim ? '' : ' bos') + '"><i style="width:' + (t.kullanim ? oran : 100) + '%"></i></span></td>' +
-        '<td>' + not + '</td>' +
+        not +
         '<td class="act"><button class="adm-ico-btn" type="button" data-duzenle="' + anahtar + ':' + esc(t.kod) + '" aria-label="' + esc(t.ad) + ' terimini düzenle"><i class="fa-solid fa-pen"></i></button></td>' +
         '</tr>';
     }).join('');
@@ -394,7 +409,10 @@
     var b = e.target.closest && e.target.closest('[data-duzenle]');
     if (b) formAc(b.getAttribute('data-duzenle'));
   });
-  A.maketKaydet(document.getElementById('txKaydet'), 'terim');
+  /* Form ÜÇÜNCÜ ARGÜMANLA veriliyor: kaydet düğmesi artık kartın alt
+     çubuğunda, `<form>` ise gövdede — `closest('form')` null döner ve
+     doğrulama sessizce atlanırdı. */
+  A.maketKaydet(document.getElementById('txKaydet'), 'terim', document.getElementById('txF'));
 
   kpi();
   panelBas();

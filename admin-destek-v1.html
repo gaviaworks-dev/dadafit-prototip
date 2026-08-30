@@ -63,9 +63,43 @@
     <!-- ============ KUYRUK (K2) ============ -->
     <div class="adm-card" id="dkKuyruk">
       <div class="dk-tabwrap">
-        <nav class="fit-tabs" data-fit-tabs="dk" aria-label="Talep durumu"></nav>
+        <!-- 🔴 ŞERİT VE PANELLER STATİK MARKUP'TADIR, JS ile basılmaz.
+             ÖLÇÜLEN KUSUR: kabuğun `[data-fit-tabs]` bileşeni sayfayı PARSE
+             ANINDA bir kez tarıyor (fit-shell.js, tek geçiş). Sekmeleri
+             sonradan JS ile bastığımda bileşen onları hiç görmedi: şerit
+             ÖLÜ kaldı — `role` ve `aria-selected` null, panel değişmiyor.
+             Ölçüldü: `kapatilan`a tıklandığında görünür panel hâlâ `acik`ti.
+             Çözüm kabuğu değiştirmek değil, sözleşmesine uymaktı; şerit ve
+             paneller markup'ta durur, JS yalnız sayaç ve içerik doldurur. -->
+        <nav class="fit-tabs" data-fit-tabs="dk" aria-label="Talep durumu">
+          <button class="fit-tab active" type="button" data-tab="acik"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Açık talep <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="yanit-bekleyen"><i class="fa-solid fa-reply" aria-hidden="true"></i> Yanıt bekleyen <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="cozulen"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Çözülen <span class="cnt">—</span></button>
+          <button class="fit-tab" type="button" data-tab="kapatilan"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kapatılan <span class="cnt">—</span></button>
+        </nav>
       </div>
-      <div class="c-body" id="dkPanel"></div>
+      <div class="c-body" id="dkPanel">
+        <div class="fit-pane" data-pane="acik">
+          <div data-basik="acik"></div>
+          <div class="set-list" data-liste="acik"></div>
+          <div data-bos="acik" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="yanit-bekleyen" hidden>
+          <div data-basik="yanit-bekleyen"></div>
+          <div class="set-list" data-liste="yanit-bekleyen"></div>
+          <div data-bos="yanit-bekleyen" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="cozulen" hidden>
+          <div data-basik="cozulen"></div>
+          <div class="set-list" data-liste="cozulen"></div>
+          <div data-bos="cozulen" hidden></div>
+        </div>
+        <div class="fit-pane" data-pane="kapatilan" hidden>
+          <div data-basik="kapatilan"></div>
+          <div class="set-list" data-liste="kapatilan"></div>
+          <div data-bos="kapatilan" hidden></div>
+        </div>
+      </div>
     </div>
 
     <!-- ============ TALEP DETAYI + YANIT (K3 ucu) ============ -->
@@ -123,6 +157,32 @@
   </div>
 </main>
 
+<script>
+/* =====================================================================
+   ?tab= GERÇEK ROTADIR — ve bu betik kabuktan ÖNCE koşmak ZORUNDA.
+   Kabuk sekmeyi parse anında kuruyor ve açılış durumunu MARKUP'tan
+   okuyor (`aria-selected="true"` ya da `.active`). Seçim sonradan
+   yazılsaydı kabuk çoktan ilk sekmeyi kurmuş olurdu.
+   🔴 BEYAZ LİSTE: adresten gelen geçersiz `?tab=` sessizce ilk sekmeye
+   düşer (destek-v1.html'in `?durum=` kanonuyla aynı kural).
+   ===================================================================== */
+(function () {
+  var ray = document.querySelector('[data-fit-tabs="dk"]'); if (!ray) return;
+  var v = new URLSearchParams(location.search).get('tab'); if (!v) return;
+  var hedef = null;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    if (t.getAttribute('data-tab') === v) hedef = t;
+  });
+  if (!hedef) return;
+  ray.querySelectorAll('.fit-tab').forEach(function (t) {
+    t.classList.remove('active'); t.removeAttribute('aria-selected');
+  });
+  hedef.classList.add('active'); hedef.setAttribute('aria-selected', 'true');
+  document.querySelectorAll('.fit-pane[data-pane]').forEach(function (pn) {
+    pn.hidden = (pn.getAttribute('data-pane') !== v);
+  });
+})();
+</script>
 <script src="assets/js/fit-shell.js" data-adm-yalniz-filtre="1"></script>
 <script src="assets/js/fit-admin.js"></script>
 <script>
@@ -208,12 +268,12 @@
   function bul(no){ for (var i=0;i<TALEP.length;i++) if (TALEP[i].no===no) return TALEP[i]; return null; }
   function sayi(id){ return TALEP.filter(function(t){ return t.durum===id; }).length; }
 
-  /* ---- sekme şeridi: dört durum, sayaçlarıyla --------------------- */
-  document.querySelector('[data-fit-tabs="dk"]').innerHTML = DURUM.map(function (d, i) {
-    return '<button class="fit-tab' + (i===0 ? ' active' : '') + '" type="button" data-tab="' + d.id + '">' +
-      '<i class="fa-solid ' + d.ico + '" aria-hidden="true"></i> ' + esc(d.ad) +
-      '<span class="cnt">' + sayi(d.id) + '</span></button>';
-  }).join('');
+  /* ---- sekme sayaçları -------------------------------------------
+     Şerit markup'ta; burada yalnız sayaç doldurulur (bkz. markup şerhi). */
+  function sayacYaz(id, n){
+    var c = document.querySelector('.fit-tab[data-tab="' + id + '"] .cnt');
+    if (c) c.textContent = n;
+  }
 
   /* ---- dört panel, her biri KENDİ boş durumunu taşır --------------
      Boş durum sekme başına AYRIDIR: "açık talep yok" ile "kapatılan
@@ -258,19 +318,20 @@
       '</span></div>';
   }
 
-  document.getElementById('dkPanel').innerHTML = DURUM.map(function (d, i) {
+  DURUM.forEach(function (d) {
     var liste = TALEP.filter(function (t) { return t.durum === d.id; });
     var enEski = liste.reduce(function (m, t) { return Math.max(m, gunFarki(t.son)); }, 0);
-    return '<div class="fit-pane" data-pane="' + d.id + '"' + (i===0 ? '' : ' hidden') + '>' +
+    sayacYaz(d.id, liste.length);
+    document.querySelector('[data-basik="' + d.id + '"]').innerHTML =
       '<div class="fp-row" style="border-bottom:1px solid var(--line);padding-top:0">' +
         '<span class="ico"><i class="fa-solid ' + d.ico + '" aria-hidden="true"></i></span>' +
         '<span class="txt"><b>' + esc(d.ad) + '</b><small>' + esc(d.yon) + '</small></span>' +
         '<span class="end">' + A.rozet(d.rozet, liste.length + ' talep', d.ico) +
-          (enEski ? ' <span class="fp-badge off">en eski ' + enEski + ' gün</span>' : '') + '</span></div>' +
-      '<div class="set-list" data-liste="' + d.id + '">' + liste.map(satir).join('') + '</div>' +
-      '<div data-bos="' + d.id + '" hidden>' + A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]) + '</div>' +
-      '</div>';
-  }).join('');
+          (enEski ? ' <span class="fp-badge off">en eski ' + enEski + ' gün</span>' : '') + '</span></div>';
+    document.querySelector('[data-liste="' + d.id + '"]').innerHTML = liste.map(satir).join('');
+    document.querySelector('[data-bos="' + d.id + '"]').innerHTML =
+      A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
+  });
 
   /* ---- arama: dört sekmede birden süzer, boş kalan panel kendi
          boş durumunu basar ------------------------------------------ */
@@ -293,8 +354,7 @@
           bos.innerHTML = A.bos(BOS[d.id][0], BOS[d.id][1], BOS[d.id][2]);
         }
       }
-      var tab = document.querySelector('.fit-tab[data-tab="' + d.id + '"] .cnt');
-      if (tab) tab.textContent = n;
+      sayacYaz(d.id, n);
     });
   }
   ara.addEventListener('input', suz);
@@ -358,6 +418,29 @@
     if (b) ac(b.getAttribute('data-ac'));
   });
   document.getElementById('dkKapat').addEventListener('click', function () { detay.hidden = true; });
+
+  /* ---- ?tab= yazımı ve geri/ileri tuşu -----------------------------
+     Açılış seçimi kabuktan önce koşan betikte (sayfanın altında); burada
+     yalnız SEÇİM ADRESE YAZILIR. `sessiz` bayrağı olmasaydı popstate'in
+     tetiklediği tıklama yeni bir geçmiş kaydı açar ve geri tuşu kilitlenirdi. */
+  var ray = document.querySelector('[data-fit-tabs="dk"]');
+  var ILK = DURUM[0].id, sessiz = false;
+  ray.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('.fit-tab');
+    if (!t || sessiz) return;
+    var k = t.getAttribute('data-tab');
+    history.pushState({ tab:k }, '',
+      location.pathname + (k === ILK ? '' : '?tab=' + encodeURIComponent(k)) + location.hash);
+  });
+  window.addEventListener('popstate', function () {
+    var v = new URLSearchParams(location.search).get('tab') || ILK;
+    var t = null;
+    ray.querySelectorAll('.fit-tab').forEach(function (x) {
+      if (x.getAttribute('data-tab') === v) t = x;
+    });
+    if (!t) return;
+    sessiz = true; t.click(); sessiz = false;
+  });
 
   A.maketKaydet(document.getElementById('dkGonder'), 'yanıt ve durum değişikliği');
   suz();

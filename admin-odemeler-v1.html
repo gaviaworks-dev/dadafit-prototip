@@ -33,7 +33,10 @@
 .py-par .fk-input[readonly]:focus{border-color:var(--line);box-shadow:none}
 
 /* Ödeme koşulu satırı: onay kutusu + düğme aynı hizada. */
-.py-run{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+/* Eylem çubuğu SAĞA yaslı — Gastro admin form CSS'i ölçüldü:
+   `.form-actions{justify-content:flex-end}`, birincil eylem en sağda.
+   Onay kutusu bir eylem değil KOŞULdur, bu yüzden düğmenin solunda durur. */
+.py-run{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap}
 .py-onay{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--slate-2);min-height:44px;cursor:pointer}
 .py-onay input{width:18px;height:18px;accent-color:var(--fit);cursor:pointer;flex:none}
 </style>
@@ -92,20 +95,19 @@
         <div class="ff" id="pySuzgec" data-ff></div>
       </div>
 
-      <div class="adm-bulk" id="pyBulk" hidden>
-        <b>0 satır seçildi</b>
-        <div class="b-acts">
-          <button class="btn btn-ghost" type="button" data-toplu="ode"><i class="fa-solid fa-paper-plane"></i> Seçilenleri ödemeye al</button>
-          <button class="btn btn-ghost" type="button" data-toplu="beklet"><i class="fa-regular fa-clock"></i> Bir dönem beklet</button>
-        </div>
-      </div>
+      <!-- 🔴 TOPLU EYLEM ÇUBUĞU YOK — ve bu bir eksik değil, bir karar.
+           Gastro'da ölçüldü: 47 kalemden yalnız birinde (yorum moderasyonu)
+           var. Burada olsaydı K5'i çiğnerdi: ödeme listesi KURAL ile doğar
+           (alt sınırı geçen öder, geçmeyen devreder), elle seçimle değil.
+           "Seçilenleri ödemeye al" düğmesi, yöneticiye alt sınırı elle delme
+           yetkisi vermek olurdu — oysa K5 "oran tüm kullanıcılar için aynı"
+           diyor. Satır seçim kutuları da bu yüzden kalktı. -->
 
       <div class="c-body flush">
         <div class="adm-tw">
           <table class="adm-table" id="pyTablo">
             <thead>
               <tr>
-                <th class="sel"><input type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Antrenör</th>
                 <th class="num">Satış</th>
                 <th class="num">Brüt</th>
@@ -129,7 +131,9 @@
       </div>
 
       <div class="adm-pager">
-        <div class="p-info"><b id="pySay">0</b> antrenör · dönem tek sayfada</div>
+        <!-- Sayfalama Gastro kalıbı: SOLDA sayaç metni, SAĞDA düğmeler. Ölçüldü,
+             33 ekranda birebir. Sol blok atlanırsa kalıp eksik olur. -->
+        <div class="p-info"><b id="pySay">0</b> sonuçtan <b id="pyAralik">0</b> gösteriliyor</div>
         <div class="p-btns">
           <button class="adm-pg" type="button" disabled aria-label="Önceki sayfa"><i class="fa-solid fa-chevron-left"></i></button>
           <button class="adm-pg is-on" type="button" aria-current="page">1</button>
@@ -362,7 +366,18 @@
       var ok = !sec.odeme.size || sec.odeme.has(tr.getAttribute('data-odeme'));
       tr.hidden = !ok; if (ok) say++;
     });
-    document.getElementById('pySay').textContent = say;
+    sayacGuncelle();
+  }
+
+  /* Sayfalama sayacı İKİ BLOKLUdur (Gastro kalıbı): solda "toplamdan
+     kaçı gösteriliyor", sağda düğmeler. Tek sayı yazmak kalıbı yarım
+     bırakır — okur süzgecin kaç satırı sakladığını göremez. */
+  function sayacGuncelle(){
+    var satir = document.querySelectorAll('#pyGovde tr[data-ad]');
+    var gorunen = 0;
+    Array.prototype.forEach.call(satir, function (tr) { if (!tr.hidden) gorunen++; });
+    document.getElementById('pySay').textContent = satir.length;
+    document.getElementById('pyAralik').textContent = gorunen ? ('1–' + gorunen) : '0';
   }
 
   /* ---- ekranı bas -------------------------------------------------- */
@@ -400,7 +415,6 @@
         ? A.rozet('ok', 'Ödenecek', 'fa-paper-plane')
         : A.rozet('wait', 'Alt sınırın altında — devreder', 'fa-layer-group');
       return '<tr data-ad="' + esc(r.ad) + '" data-odeme="' + (r.ode ? 'ode' : 'birik') + '">' +
-        '<td class="sel"><input type="checkbox" aria-label="' + esc(r.ad) + ' seç"' + (r.ode ? ' checked' : '') + ' /></td>' +
         '<td><b>' + esc(r.ad) + '</b><small>Yıl brütü ' + esc(tl(r.kumul)) + ' · fatura eşiğinin ' +
           (esikGecti ? 'üstünde' : 'altında') + '</small></td>' +
         '<td class="num">' + r.adet + '</td>' +
@@ -411,7 +425,7 @@
         '<td class="num"><b>' + esc(tl(r.odenebilir)) + '</b></td>' +
         '<td>' + durum + '</td></tr>';
     }).join('');
-    document.getElementById('pySay').textContent = D.satir.length;
+    sayacGuncelle();
 
     /* --- grafik: kütüphane YOK, kabuğun kendi çubuğu --- */
     var enBuyuk = D.satir.reduce(function (m, r) { return Math.max(m, r.brut); }, 0) || 1;
@@ -455,30 +469,19 @@
       : A.bos('fa-circle-check', 'Bu dönemde iade yok',
               'Seçili dönemde iade sürecine giren hizmet satışı bulunmuyor. İade açıldığında satır burada belirir ve komisyonun ne olduğu yazılır.');
 
-    A.secimKur(document.getElementById('pyListe'));
     suz();
   }
 
-  A.aramaKur(document.getElementById('pyAra'), document.getElementById('pyTablo'), document.getElementById('pySay'));
+  /* `aramaKur` yalnız tek sayacı yazar; aralık metnini kendi dinleyicim
+     tazeler. Sırası önemli: aramaKur'un dinleyicisi ÖNCE eklendi, yani
+     önce o koşar, sonra bu üstüne yazar. */
+  var araKutu = document.getElementById('pyAra');
+  A.aramaKur(araKutu, document.getElementById('pyTablo'), document.getElementById('pySay'));
+  araKutu.addEventListener('input', sayacGuncelle);
   document.getElementById('pyDonem').addEventListener('change', function () {
     secili = this.value; bas();
-    A.aramaKur(document.getElementById('pyAra'), document.getElementById('pyTablo'), document.getElementById('pySay'));
-  });
-
-  /* --- toplu eylem: sessizce çalışmış gibi YAPMAZ --- */
-  document.getElementById('pyBulk').addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('[data-toplu]');
-    if (!t) return;
-    var s = document.querySelectorAll('#pyGovde input[type=checkbox]:checked').length;
-    var kap = this.querySelector('.b-acts');
-    var v = kap.querySelector('.adm-maket-not');
-    if (!v) {
-      v = document.createElement('span'); v.className = 'adm-maket-not';
-      v.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--hs-warn);display:inline-flex;align-items:center;gap:7px';
-      kap.appendChild(v);
-    }
-    v.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + s +
-      ' satır seçili — toplu işlem UYGULANMADI, sunucu yok.';
+    A.aramaKur(araKutu, document.getElementById('pyTablo'), document.getElementById('pySay'));
+    araKutu.addEventListener('input', sayacGuncelle);
   });
 
   A.maketKaydet(document.getElementById('pyBaslat'), 'ödeme dönemi');

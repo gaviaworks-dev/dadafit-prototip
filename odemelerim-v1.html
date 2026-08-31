@@ -517,7 +517,7 @@
           </div>
 
           <div class="od-in" style="padding-top:0">
-            <div class="ntf-foot" style="border-top:none;padding-top:0;margin-top:14px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span><b>İndirilebilir PDF üretilmez.</b> Prototipte belge sunucusu yok; "Detay" bağlantısı faturanın dökümünü, vergi ayrımını ve tahsilat bilgisini gösteren ekrana götürür ve oradan yazdırabilirsin. Faturalar aynı zamanda e-posta adresine gönderilir.</span></div>
+            <div class="ntf-foot" style="border-top:none;padding-top:0;margin-top:14px"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span><b>Belge indirilebilir, PDF üretilmez.</b> "Detay" faturanın dökümünü, vergi ayrımını ve tahsilat bilgisini gösterir; oradan belgeyi HTML dosyası olarak indirebilir ya da yazdırabilirsin. Dosyayı tarayıcı üretir — bu depoda PDF kütüphanesi ve derleme adımı yok, o yüzden PDF'i yazdırma penceresinden sen kaydedersin. Faturalar aynı zamanda e-posta adresine gönderilir.</span></div>
           </div>
         </div>
       </div>
@@ -777,7 +777,7 @@
       <div class="ft-foot">
         <p class="note">Fatura, tahsilat onaylandığında e-posta adresine de gönderilir. Kesilmiş belgeler geriye dönük düzenlenmez.</p>
         <button class="btn btn-ghost" type="button" id="fdYazdir"><i class="fa-solid fa-print" aria-hidden="true"></i> Yazdır</button>
-        <button class="btn btn-primary" type="button" id="fdIndir"><i class="fa-solid fa-download" aria-hidden="true"></i> PDF İndir</button>
+        <button class="btn btn-primary" type="button" id="fdIndir"><i class="fa-solid fa-download" aria-hidden="true"></i> Belgeyi İndir</button>
       </div>
 
       <p class="od-sonuc" id="fdSonuc" role="status">
@@ -1262,8 +1262,14 @@ window.__bottomStrips=window.__bottomStrips||[];
     }
     function ikon(d){ return d==='ok' ? 'circle-check' : (d==='wait' ? 'hourglass-half' : 'rotate-left'); }
 
+    /* İndirme açık belgeyi yeniden kurar; hangi faturanın çizili olduğu
+       burada tutulur (DOM'dan kazımak yerine kaynaktan yeniden üretmek
+       için — iki yol ayrışmasın). */
+    var acikFatura = null;
+
     function ciz(no){
       var f = F.bul(no); if(!f) return false;
+      acikFatura = no;
       var t = F.toplamlar(f), a = F.alici();
 
       $('fdModalTitle').textContent = f.no;
@@ -1323,10 +1329,95 @@ window.__bottomStrips=window.__bottomStrips||[];
     var yaz = $('fdYazdir');
     if(yaz) yaz.addEventListener('click', function(){ window.print(); });
 
+    /* ---------------------------------------------------------------
+       BELGE İNDİRME — GERÇEK, bağımlılıksız.
+       ---------------------------------------------------------------
+       ÖLÇÜLDÜ (2026-08-31): `Blob` + `URL.createObjectURL` + `a[download]`
+       bu ortamda dosyayı diske GERÇEKTEN indiriyor. Yeni kütüphane yok,
+       derleme adımı yok — buildless kararı korunuyor.
+
+       ⚠ PDF DEĞİL, HTML. Gerçek bir PDF üretmek jsPDF/pdfMake gibi bir
+       bağımlılık ister (ölçüldü: depoda üçü de yok, `undefined`) ve bu
+       depoya araç eklemek Beyar onayına bağlıdır. HTML dosyası tarayıcının
+       kendi yeteneğiyle üretiliyor, kendi başına açılıyor ve içinden
+       yazdırılıp PDF olarak kaydedilebiliyor — PDF yolu kapanmıyor,
+       sahibi tarayıcı oluyor.
+
+       Belge DOM'dan kazınmıyor: `fit-fatura.js`in aynı kaynağından
+       yeniden kuruluyor, böylece ekrandaki belge ile dosya ayrışamaz.
+       Stil dosyanın İÇİNE gömülü — indirilen dosya kendi başına, site
+       olmadan da doğru görünmeli. --------------------------------- */
+    function belgeHtml(no){
+      var f = F.bul(no); if(!f) return null;
+      var t = F.toplamlar(f), a = F.alici();
+      var kalem = f.kalem.map(function(k){
+        var tutar = k[2]*k[3];
+        var kdvPay = tutar - Math.round(tutar/(1+F.kdvOran/100));
+        return '<tr><td><b>'+esc(k[0])+'</b><br><small>'+esc(k[1])+'</small></td>'+
+               '<td class="s">'+k[2]+'</td><td class="s">'+F.tl(k[3])+'</td>'+
+               '<td class="s">%'+F.kdvOran+'<br><small>'+F.tl(kdvPay)+'</small></td>'+
+               '<td class="s"><b>'+F.tl(tutar)+'</b></td></tr>';
+      }).join('');
+      return '<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8">'+
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+        '<title>'+esc(f.no)+' — DadaFit fatura belgesi</title><style>'+
+        'body{font:14px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#211E16;background:#fff;margin:0;padding:32px}'+
+        '.k{max-width:760px;margin:0 auto}'+
+        'h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:28px 0 8px}'+
+        '.ust{border-bottom:2px solid #007a3d;padding-bottom:14px;margin-bottom:20px}'+
+        '.ust b{color:#007a3d}'+
+        '.iki{display:flex;gap:28px;flex-wrap:wrap}.iki>div{flex:1 1 240px}'+
+        'table{width:100%;border-collapse:collapse;margin-top:8px}'+
+        'th,td{border-bottom:1px solid #ECECEC;padding:9px 6px;text-align:left;vertical-align:top}'+
+        'th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#717171}'+
+        '.s{text-align:right;white-space:nowrap}'+
+        'small{color:#717171;font-size:12px}'+
+        '.top{margin-top:14px;margin-left:auto;width:min(300px,100%)}'+
+        '.top tr:last-child td{border-bottom:none;font-weight:700;font-size:16px}'+
+        '.not{margin-top:26px;padding:12px 14px;background:#f9f9f9;border:1px solid #ECECEC;border-radius:8px;font-size:12.5px;color:#56514a}'+
+        '@media print{body{padding:0}.not{break-inside:avoid}}'+
+        '</style></head><body><div class="k">'+
+        '<div class="ust"><h1>'+esc(f.no)+'</h1><div>'+esc(f.konu)+'</div>'+
+          '<div><small>Düzenleme tarihi '+esc(f.tarih)+' · '+esc(f.donem)+' · ETTN '+esc(f.ettn)+'</small></div>'+
+          '<div><b>'+esc(f.durumAd)+'</b></div></div>'+
+        '<div class="iki"><div><h2>Satıcı</h2><b>'+esc(F.satici.unvan)+'</b><br><small>'+esc(F.satici.kunyeYok)+'</small></div>'+
+        '<div><h2>Alıcı</h2><b>'+esc(a.ad)+'</b><br><small>'+esc(a.kimlikEtiket)+': '+esc(a.kimlik)+
+          (a.vergiDairesi ? '<br>Vergi dairesi: '+esc(a.vergiDairesi) : '')+
+          '<br>'+esc(a.adres)+'<br>'+esc(a.eposta)+'</small></div></div>'+
+        '<h2>Kalemler</h2><table><thead><tr><th>Açıklama</th><th class="s">Adet</th>'+
+          '<th class="s">Birim</th><th class="s">KDV</th><th class="s">Tutar</th></tr></thead>'+
+          '<tbody>'+kalem+'</tbody></table>'+
+        '<table class="top"><tr><td>Ara toplam</td><td class="s">'+F.tl(t.ara)+'</td></tr>'+
+          '<tr><td>KDV (%'+F.kdvOran+')</td><td class="s">'+F.tl(t.kdv)+'</td></tr>'+
+          '<tr><td>Genel toplam</td><td class="s">'+F.tl(t.genel)+'</td></tr></table>'+
+        '<h2>Tahsilat</h2><div>'+esc(f.kart)+' · '+esc(f.odemeAni)+'</div>'+
+        '<div class="not"><b>Bu belge bir prototip çıktısıdır.</b> DadaFit\u2019in ticari '+
+          'unvanı, vergi dairesi ve vergi numarası satışa açılmadan önce yazılacak; '+
+          'bu dosya yasal bir e-Arşiv faturası değildir. Tarayıcından yazdırıp PDF '+
+          'olarak kaydedebilirsin.</div>'+
+        '</div></body></html>';
+    }
+
     var indir = $('fdIndir');
     if(indir) indir.addEventListener('click', function(){
-      sonuc('fdSonuc', 'PDF üretilMEDİ. ',
-        'Prototipte belge sunucusu yok; indirilecek bir dosya oluşmuyor. "Yazdır" düğmesi tarayıcının kendi yazdırma penceresini açar ve oradan PDF olarak kaydedebilirsin — o yol gerçekten çalışıyor.');
+      var html = acikFatura && belgeHtml(acikFatura);
+      if(!html){
+        sonuc('fdSonuc', 'Belge üretilemedi. ', 'Açık bir fatura bulunamadı; pencereyi kapatıp listeden yeniden aç.');
+        return;
+      }
+      try{
+        var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href = url; a.download = acikFatura + '.html';
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 1000);
+        sonuc('fdSonuc', 'Belge indirildi: ' + acikFatura + '.html. ',
+          'Dosya kendi başına açılır ve içinden yazdırıp PDF olarak kaydedebilirsin. PDF doğrudan üretilmiyor: bu depoda derleme adımı ve PDF kütüphanesi yok, tarayıcının kendi yeteneği kullanıldı.');
+      }catch(e){
+        sonuc('fdSonuc', 'Belge indirilemedi. ',
+          'Tarayıcın dosya indirmeyi engelliyor görünüyor. "Yazdır" düğmesi çalışmaya devam ediyor; oradan PDF olarak kaydedebilirsin.');
+      }
     });
 
     var bag = $('fdAliciBag');

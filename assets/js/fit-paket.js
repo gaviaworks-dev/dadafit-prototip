@@ -183,6 +183,47 @@ window.FIT_PAKET = (function () {
     for (var i = 0; i < KADEMELER.length; i++) if (KADEMELER[i].key === key) return i;
     return -1;
   }
+
+  /* ---------------------------------------------------------------
+     AKTİF KADEME — kullanıcının GERÇEK paketi. TEK OKUYUCU.
+     ---------------------------------------------------------------
+     🔴 NEDEN BURADA: `paketlerim-v1.html` ve `odemelerim-v1.html`
+     kademeyi yalnız `?paket=` sorgu parametresinden okuyor ve parametre
+     yokken **'pro'** varsayıyordu. Ölçüldü: `dm_user.paket` boşken de,
+     `pro_max` iken de iki ekran "Pro" diyordu — ücretsiz üye kendini
+     Pro sanıyor, Pro Max üyeye Pro satılmaya çalışılıyordu. Kabuk
+     (`fit-shell.js`) ve `hesabim-v1.html` aynı anda doğru kaynaktan
+     okuyordu; ayrışan bu ikisiydi.
+
+     KAYNAK YENİ DEĞİL: doğru okuyan yüzeylerin zaten kullandığı
+     `localStorage.dm_user.paket`. Oraya yalnız `pro-odeme-v1.html`
+     yazar. Burada yeni bir depo AÇILMADI, yalnız o kaynağın okunması
+     tek yere alındı.
+
+     İKİ YAZIM VAR VE İKİSİ DE GERÇEK: depo anahtarı `pro_max` (alt
+     çizgili — `pro-odeme-v1.html:927` onu yazıyor, `fit-shell.js:1657`
+     ve `hesabim-v1.html:2192` onu okuyor), katalog anahtarı `promax`
+     (çizgisiz). Eşleme burada, tek yerde.
+
+     `?paket=` MAKET PERSONA anahtarıdır (`hesabim-v1.html`in deyimiyle
+     aynı): ekranın hangi kullanıcıyı çizdiği URL'de görünsün diye
+     GÖSTERİMİ değiştirir. Kaydı yazmaz, kalıcı değildir — parametre
+     düşünce ekran gerçek kademeye döner.
+
+     Paketsizin doğru kademesi **Ücretsiz**'dir; 'pro' varsaymak
+     kullanıcıya sahip olmadığı bir paketi göstermekti.
+     --------------------------------------------------------------- */
+  var DEPO_ESLEME = { ucretsiz: 'ucretsiz', pro: 'pro', pro_max: 'promax', promax: 'promax' };
+
+  function aktifKademe(gosterim) {
+    var g = DEPO_ESLEME[gosterim] || gosterim;
+    if (g && kademe(g)) return g;                    /* maket persona anahtarı */
+    var p = null;
+    try { p = (JSON.parse(localStorage.getItem('dm_user') || 'null') || {}).paket || null; }
+    catch (e) { p = null; }
+    var key = DEPO_ESLEME[p];
+    return (key && kademe(key)) ? key : 'ucretsiz';
+  }
   function tumModuller() {
     var out = [];
     GRUPLAR.forEach(function (g) { g.moduller.forEach(function (m) { out.push(m); }); });
@@ -343,6 +384,7 @@ window.FIT_PAKET = (function () {
     gruplar: GRUPLAR,
     ayriUcret: AYRI_UCRET,
     kademe: kademe,
+    aktifKademe: aktifKademe,
     sira: sira,
     ozellikler: ozellikler,
     yenilikler: yenilikler,

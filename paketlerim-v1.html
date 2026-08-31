@@ -401,7 +401,12 @@ window.__bottomStrips=window.__bottomStrips||[];
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   /* Maket persona. Tanınmayan değer sessizce Pro'ya düşer — kırık ekran yok. */
-  var AKTIF = P.kademe(qp('paket')) ? qp('paket') : 'pro';
+  /* Kullanıcının GERÇEK paketi — tek okuyucu `fit-paket.js:aktifKademe()`.
+     Eskiden bu satır YALNIZ `?paket=`e bakıyor ve parametre yokken 'pro'
+     varsayıyordu: ücretsiz üye bu ekranda kendini Pro görüyordu (ölçüldü).
+     `?paket=` maket persona anahtarı olarak yerinde kalıyor — gösterimi
+     değiştirir, kaydı değiştirmez. */
+  var AKTIF = P.aktifKademe(qp('paket'));
 
   /* Maket dönem tarihleri. Tek yerde durur ki üç sekmede üç farklı tarih
      çıkmasın; gerçek değil, örnek kayıt olduğu şeritte yazılı. */

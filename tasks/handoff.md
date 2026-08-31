@@ -941,3 +941,30 @@ rail iki kez tanımlı (kalem 9, 60 public sayfayı ilgilendiriyor) ·
    açık `data-yikici` sözleşmesi). Kanon seçilmeden dört depo ayrışmaya devam eder.
 7. **Sayfalama gerçek değil.** Bugün "tümü tek sayfada" örnek veri; sunucu gelince pencere
    mantığı (Gastro: ≤7 sayfa hepsi, üstünde `[1,2,son-1,son,aktif±1]` + `…`) kurulacak.
+
+---
+---
+
+# 2026-08-31 · FULL-STACK'E GEÇİŞ BAŞLADI — İŞ ARTIK BAŞKA DEPODA
+
+Bu depo **tasarımın kaynağı** olarak kalır ve statik prototip olmayı sürdürür.
+Laravel göçü ayrı bir depoda yürüyor:
+
+```
+/Users/gaviaworks/Developer/Backend Projects/dadafit      (Laravel 12.68, main, 6 commit)
+```
+
+**Devir notu orada:** `tasks/handoff.md` · **keşif ölçümü:** `docs/fullstack-kesif.md`
+· **proje beyni:** `CLAUDE.md` (bu depodakinin kopyası DEĞİL — buradaki bayat).
+
+## Bu depoyu ilgilendiren iki ölçüm
+
+1. **`CLAUDE.md` altı noktada bayat.** Ölçüldü: 67 sayfa → **110**;
+   `assets/css/` 3 dosya → **6**; `assets/js/` 6 dosya → **27**;
+   `fit-shell.css` `:root` 64 benzersiz token → **77** (dosya geneli 71 → **85**).
+   `fit-type.css` 1 ve `fit-planim.css` 0 iddiaları **doğru**.
+   Ağaç ayrıca `fit-admin.*` ailesinden ve 56 admin ekranından hiç söz etmiyor.
+2. **Prototipte İKİ antrenör paneli var** ve bu bir karar bekliyor:
+   `antrenor-panelim-v1.html` (bu depo, K13 uyumlu, 17 yer tutucu) ile
+   `dadamutfak/v7-6cu356/antrenor-panel-*` (8 ekran, ücretler sabit yazılmış).
+   Ayrıntı yeni deponun `docs/fullstack-kesif.md` §5.1'inde.

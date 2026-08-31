@@ -139,7 +139,12 @@
 .badge-card.locked:hover{border-color:#c9c9c9;transform:none;box-shadow:none}
 .badge-card.locked .badge-ico{background:var(--bg);color:#c2c2c2}
 .badge-card.locked b{color:var(--muted)}
-.badge-lock{position:absolute;top:12px;right:14px;font-size:10px;color:#c2c2c2}
+/* 🔴 `.badge-lock` SÖKÜLDÜ. Ayrı bir mutlak elemandı ve `.b-puan` ile
+   BİREBİR aynı koordinata (top:12px right:14px) sabitliydi; ölçüldüğünde
+   kilit ikonunun %100'ü puan etiketinin içine düşüyordu (kesişim
+   8.75 × 10 px = 87.5 px², 1440/768/390'da aynı) ve "+10" etiketi "+1"
+   olarak okunuyordu. Kilit artık `.b-puan`ın İÇİNDE bir çocuk — üst üste
+   binebilecek iki eleman kalmadığı için çakışma yapısal olarak imkânsız. */
 /* ölçü bekleyen rozet — nötr (kitin .off durumu), "yolda"dan AYRI okunur */
 .badge-card.olcusuz{border-style:dotted;border-color:#d6d6d6;background:var(--bg)}
 .badge-card.olcusuz:hover{transform:none;box-shadow:none;border-color:#c9c9c9}
@@ -149,9 +154,16 @@
 .badge-card.yeni{border-color:var(--fit);box-shadow:0 0 0 3px rgba(0,157,79,.14)}
 .b-yeni{position:absolute;top:-8px;left:20px;z-index:2;font-size:9px;line-height:1;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--fit);padding:4px 9px;border-radius:var(--radius-pill)}
 
-/* puan etiketi — kartın sağ üstü */
-.b-puan{position:absolute;top:12px;right:14px;font-size:10px;font-weight:800;color:var(--fit-deep);letter-spacing:.02em}
-.badge-card.locked .b-puan,.badge-card.olcusuz .b-puan{color:#bdbdbd}
+/* puan etiketi — kartın sağ üstü. Kilitli kartta kilit ikonunu da BU kutu
+   taşır (yukarıdaki `.badge-lock` şerhine bak). Dolgu/zemin BİLEREK yok:
+   etiketin altı 25px'te bitiyor, kart gövdesi 29.4px'te başlıyor (ölçüldü)
+   — dikey dolgu eklemek etiketi gövdenin üstüne bindirirdi. */
+.b-puan{position:absolute;top:12px;right:14px;display:inline-flex;align-items:center;gap:5px;font-size:10px;line-height:1.2;font-weight:800;color:var(--fit-deep);letter-spacing:.02em}
+.b-puan i{font-size:9px;flex:none}
+/* Eski `#bdbdbd` kart zeminiyle 1.78:1 veriyordu (WCAG 1.4.3 eşiği 4.5:1).
+   Kartın kendi başlık/alt metin rengi zaten `--muted` ve aynı zeminde
+   4.64:1 — yeni renk icat etmeden eşik geçiliyor. */
+.badge-card.locked .b-puan,.badge-card.olcusuz .b-puan{color:var(--muted)}
 
 /* kart altı durum notu */
 .b-note{flex-basis:100%;display:flex;align-items:center;gap:7px;margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.01em}
@@ -546,8 +558,14 @@
 
     return '<button type="button" class="' + cls + '" data-rozet="' + esc(x.slug) + '">' +
       (x.yeni ? '<span class="b-yeni">Yeni</span>' : '') +
-      '<span class="b-puan">+' + x.puan + '</span>' +
-      (x.durum === 'yolda' ? '<i class="fa-solid fa-lock badge-lock"></i>' : '') +
+      /* Kilit, puan etiketinin AYRISI değil ÇOCUĞU. İkisi ayrı mutlak
+         eleman olduğunda aynı köşede üst üste biniyorlardı. Kilit süs:
+         kartın kendi metni durumu zaten "Yolda" + ilerleme çubuğuyla
+         söylüyor, o yüzden `aria-hidden`. */
+      '<span class="b-puan">' +
+        (x.durum === 'yolda' ? '<i class="fa-solid fa-lock" aria-hidden="true"></i>' : '') +
+        '+' + x.puan +
+      '</span>' +
       '<span class="badge-ico"><i class="' + x.ico + '"></i></span>' +
       '<div><b>' + esc(x.ad) + '</b><span>' + esc(alt) + '</span></div>' + not +
       '<span class="badge-tip"><b>' + esc(x.ad) + ' · ' + x.puan + ' puan</b>' +

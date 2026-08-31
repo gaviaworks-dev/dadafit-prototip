@@ -63,8 +63,30 @@ jobs:
           rsync -a --exclude='.git' --exclude='.github' surum-v1/ _site/
           mkdir -p _site/v2
           rsync -a --exclude='.git' --exclude='.github' surum-v2/ _site/v2/
+
+          # ---- 404: KÖKE DE KOPYALANIR (yoksa hiç devreye girmez) --------
+          # GitHub Pages bulunamayan adreste YALNIZ sitenin KÖKÜNDEKİ
+          # `404.html`i servis eder. Bu dosya main'de yaşıyor, yani yukarıdaki
+          # rsync onu `_site/v2/404.html`e koyuyor — Pages'in baktığı yer
+          # orası DEĞİL. Kopya olmadan sayfa yazılmış ama ölü kalır.
+          #
+          # ÖLÇÜM (2026-08-31, kopyadan ÖNCEKİ canlı hâl):
+          #   /olmayan-sayfa-xyz.html     → HTTP 404 · 9379 B · GitHub jeneriği
+          #   /v2/olmayan-sayfa-xyz.html  → HTTP 404 · 9379 B · aynı jenerik
+          #   /404.html                   → HTTP 404 (dosya sitede yoktu)
+          #
+          # ⚠ KÖK V1_SHA'DAN KURULUYOR, bu iki dosya main'den geliyor —
+          # dondurulmuş sürüme bilerek eklenen TEK istisna. Gerekçe: 404 bir
+          # İÇERİK sayfası değil, sitenin hata karşılayıcısıdır; v1 ağacının
+          # 68 sayfası olduğu gibi kalır. `404.html` iki ağaçta da bulunan
+          # sayfalara köprü kurar (ölçüldü: 9 köprünün 9'u v1'de de var).
+          cp surum-v2/404.html          _site/404.html
+          mkdir -p _site/assets/css
+          cp surum-v2/assets/css/fit-durum.css _site/assets/css/fit-durum.css
+
           echo "kök  : $(find _site -maxdepth 1 -name '*.html' | wc -l) sayfa"
           echo "v2   : $(find _site/v2 -maxdepth 1 -name '*.html' | wc -l) sayfa"
+          echo "404  : kök $(test -f _site/404.html && echo VAR || echo YOK) · v2 $(test -f _site/v2/404.html && echo VAR || echo YOK) · stil $(test -f _site/assets/css/fit-durum.css && echo VAR || echo YOK)"
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -214,6 +214,17 @@
 .pay-success{display:none;padding:70px 0 78px;background:var(--bg-white)}
 body.pay-done .ck-wrap,body.pay-done .pay-manage{display:none}
 body.pay-done .pay-success{display:block}
+/* ---- TAHSİLAT REDDEDİLDİ DALI ----
+   Yeni ekran değil, aynı panelin ikinci hâli: kutu dili `.suc-*` kitinden,
+   yeni renk/ölçü yok. Tek fark uyarı tonu — `.agree-err`in kırmızısı
+   (#b3261e) zaten bu sayfada tanımlı, ikinci bir kırmızı icat edilmedi. */
+.pay-fail{display:none;padding:70px 0 78px;background:var(--bg-white)}
+body.pay-failed .ck-wrap,body.pay-failed .pay-manage{display:none}
+body.pay-failed .pay-fail{display:block}
+.pay-fail h2{font-size:28px;color:var(--slate);margin-bottom:12px}
+.pay-fail .suc-lead{font-size:15.5px;color:var(--slate-2);font-weight:500;margin:0 auto 26px;line-height:1.6}
+.pay-fail .suc-ico{color:#b3261e;border-color:#f0cfcc;background:#fdf3f2}
+.pay-fail .suc-tier{color:#b3261e;border-color:#f0cfcc;background:#fdf3f2}
 .suc-mid{max-width:640px;margin:0 auto;text-align:center}
 .suc-ico{width:84px;height:84px;border-radius:var(--radius-circle);background:var(--bg);border:1px solid var(--line);color:var(--slate-2);display:grid;place-items:center;font-size:34px;margin:0 auto 22px}
 .suc-tier{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--slate-2);background:var(--bg);border:1px solid var(--line);padding:7px 15px;border-radius:var(--radius-pill);margin-bottom:16px}
@@ -244,7 +255,7 @@ body.pay-done .pay-success{display:block}
   .sub-facts{grid-template-columns:1fr}
   .pm-grid{grid-template-columns:1fr}
   .cv-num{font-size:16px}
-  .pay-success h2{font-size:23px}
+  .pay-success h2,.pay-fail h2{font-size:23px}
   .pay-already{width:100%;justify-content:center}
   .suc-panel{padding:18px 16px}
   .suc-acts .btn{width:100%}
@@ -602,6 +613,75 @@ body.pay-done .pay-success{display:block}
   </div>
 </section>
 
+<!-- ===== TAHSİLAT REDDEDİLDİ (body.pay-failed) =====
+ 🔴 BU DAL PROTOTİPTE TETİKLENMİYOR — ve bilerek tetiklenmiyor.
+ Ödeme sağlayıcısı bağlı olmadığı için "tahsilat reddedildi" durumunu
+ üretecek gerçek bir olay YOK. Sahte bir tetikleyici (rastgele reddet,
+ belirli kart numarasında patlat) yazılmadı: o, olmayan bir yeteneği
+ varmış gibi göstermek olurdu. Ekranı görmek için `?durum=basarisiz`
+ ÖNİZLEME anahtarı var — `?ok=1` ve `?paket=` ile aynı deyim: ekranın
+ hangi hâli çizildiği URL'de görünür, hiçbir şey tahsil edilmez ve
+ hiçbir kayıt yazılmaz.
+
+ DURUM ADI UYDURULMADI. Yönetim tarafının kümesi ölçüldü
+ (`assets/js/fit-admin-abonelik-veri.js:18-23`):
+   aktif · donemsonu · iptal · basarisiz
+ Bu ekran onlardan `basarisiz`in karşılığıdır ve etiketi de oradan
+ alınmıştır: "Ödemesi başarısız".
+
+ ⚠ DENEME SAYISI VE ARALIĞI YAZILMAZ. `admin-abonelikler-v1.html:192`
+ şöyle diyor: "Yeniden deneme kuralı Ayarlar → Para ve komisyon
+ altındadır; koda gömülü değildir." Ölçüldü: `admin-ayarlar-v1.html`de
+ o alan HENÜZ YOK (sıfır eşleşme). Kural belirlenmeden bu ekran
+ "3 kez denenecek" gibi bir sayı basamaz — K13'ün aynı disiplini. -->
+<section class="pay-fail" aria-label="Tahsilat reddedildi">
+  <div class="wrap">
+    <div class="suc-mid">
+      <span class="suc-ico"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+      <span class="suc-tier"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Ödemesi başarısız</span>
+      <h2>Tahsilat reddedildi</h2>
+      <p class="suc-lead">Kartın çalıştı ama <b>bankan işlemi onaylamadı</b>. Aboneliğin başlamadı ve senden para çekilmedi. Reddin sebebini banka bildirir; en sık görülenler yetersiz bakiye, kartın süresinin dolmuş olması ve kartın internetten alışverişe kapalı olmasıdır.</p>
+    </div>
+
+    <div class="suc-panel">
+      <h3>Şimdi ne yapmalısın</h3>
+      <p>Sırayla dene; ilki çoğu durumda yeterlidir.</p>
+      <ul class="suc-liste">
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span><b>Başka bir kartla dene.</b> Kayıtlı kartların <a href="odemelerim-v1.html#kartlar">Ödemelerim &rsaquo; Kartlarım</a>'da; oradan yeni kart ekleyip varsayılanı değiştirebilirsin.</span></li>
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span><b>Kartının bilgilerini kontrol et.</b> Son kullanma tarihi geçmiş olabilir ya da kart internetten alışverişe kapalı olabilir — ikincisini bankan açar.</span></li>
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span><b>Bankanı ara.</b> Reddin gerçek sebebini yalnız banka söyleyebilir; DadaFit'e yalnız "onaylanmadı" bilgisi düşer.</span></li>
+        <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> <span><b>Sorun sürerse destek talebi aç.</b> <a href="destek-v1.html#taleplerim">Destek</a>'ten yazarsan tahsilat kaydına bakılır.</span></li>
+      </ul>
+    </div>
+
+    <div class="suc-panel">
+      <h3>Bu arada hesabına ne oluyor</h3>
+      <p>Reddedilen tahsilat hesabını kapatmaz.</p>
+      <ul class="suc-liste">
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Ücretsiz kademe açık kalır.</b> Kayıtların, geçmişin ve ilerleme verin yerinde durur — reddedilen bir tahsilat hiçbir şeyi silmez.</span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Senden para çekilmedi.</b> Kartında geçici bir provizyon görünürse bankan onu kendi süresi içinde çözer.</span></li>
+        <li><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span><b>Tahsilat yeniden denenir.</b> Kaç kez ve hangi aralıkla deneneceği platform ayarıdır ve <b>henüz belirlenmedi</b>; bu ekran sayı uydurmuyor. Aboneliğinin o anki hâlini <a href="odemelerim-v1.html#abonelik">Ödemelerim &rsaquo; Abonelik</a>'te görürsün.</span></li>
+      </ul>
+    </div>
+
+    <div class="suc-panel">
+      <h3>Bu ekran nasıl çalışıyor</h3>
+      <p>Prototipin dürüstlük şeridi — ne var, ne yok.</p>
+      <ul class="suc-liste">
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Gerçek bir tahsilat DENENMEDİ.</b> Ödeme sağlayıcısı bağlı değil; bu ekran bir önizlemedir ve <code>?durum=basarisiz</code> ile açıldı.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Başarısızlığı üreten bir tetikleyici YOK.</b> Backend geldiğinde bu dala ödeme sağlayıcısının red cevabı sokacak; prototipte o katman yazılmadı.</span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Durum adı yönetim tarafıyla aynı.</b> Panelde bu abonelikler <b>Ödemesi başarısız</b> etiketiyle listelenir; iki taraf aynı kümeden konuşur.</span></li>
+      </ul>
+    </div>
+
+    <div class="suc-acts">
+      <a class="btn btn-primary" href="odemelerim-v1.html#kartlar"><i class="fa-regular fa-credit-card"></i> Kartlarımı Aç</a>
+      <a class="btn btn-ghost" href="odemelerim-v1.html#abonelik"><i class="fa-solid fa-crown"></i> Aboneliğime Bak</a>
+      <a class="btn btn-ghost" href="destek-v1.html#taleplerim"><i class="fa-solid fa-headset"></i> Destek Talebi Aç</a>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- Fatura bilgileri formu (#ftModal) buraya basılır — Ödemelerim'deki
@@ -881,6 +961,18 @@ window.__bottomStrips=window.__bottomStrips||[];
     window.scrollTo(0,0);
   }
   if(qp('ok')==='1'){ durumGoster(); }
+
+  /* ---- TAHSİLAT REDDEDİLDİ DALI ----
+     ÖNİZLEME anahtarı, tetikleyici DEĞİL. `?durum=basarisiz` yalnız panelin
+     ikinci hâlini çizer: hiçbir tahsilat denenmez, hiçbir kayıt yazılmaz,
+     `dm_user` ve fatura defteri ellenmez. Değer yönetim tarafının durum
+     kümesinden (`fit-admin-abonelik-veri.js`) birebir alındı; başka bir
+     değer verilirse ekran açılmaz — uydurma durum adı kabul edilmiyor.
+     Backend geldiğinde bu dala ödeme sağlayıcısının red cevabı sokacak. */
+  if(qp('durum')==='basarisiz'){
+    document.body.classList.add('pay-failed');
+    window.scrollTo(0,0);
+  }
 
   var start=$('startSub'), card=$('agreeCard'), agree=$('agreePro');
   if(agree&&card){ agree.addEventListener('change',function(){ if(agree.checked)card.classList.remove('is-err'); }); }

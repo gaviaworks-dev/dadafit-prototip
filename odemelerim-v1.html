@@ -469,7 +469,12 @@
           <p class="lead">Abonelik ve antrenör tahsilatlarının tamamı tek defterde. Süzgeç listeyi yerinde daraltır, sayfa yenilenmez.</p>
         </div></div>
 
-        <div class="od-card">
+        <!-- `id="fatura-bilgilerim"` bir ÇAPADIR: kabuğun sekme
+             yönlendiricisi (fit-shell.js) hash'i taşıyan paneli açıyor, yani
+             `#fatura-bilgilerim` önce Faturalar sekmesine iniyor; aşağıdaki
+             betik de pencereyi açıyor. Ödeme akışındaki fatura adımı bu
+             adrese bağlanıyor. -->
+        <div class="od-card" id="fatura-bilgilerim">
           <div class="od-head">
             <div>
               <h3><i class="fa-solid fa-receipt" aria-hidden="true"></i> Fatura defteri</h3>
@@ -1339,7 +1344,21 @@ window.__bottomStrips=window.__bottomStrips||[];
      düğme yerinde durduğu için o yol değişmedi.
      =================================================================== */
   if (window.FIT_FATURA_FORM) {
-    FIT_FATURA_FORM.kur({ yuva: 'ftFormYuva', tetik: 'odFtBilgi' });
+    var ftKapi = FIT_FATURA_FORM.kur({ yuva: 'ftFormYuva', tetik: 'odFtBilgi' });
+
+    /* DERİN BAĞLANTI · `#fatura-bilgilerim` pencereyi doğrudan açar.
+       Çapa `.od-card`ta duruyor, o yüzden kabuğun yönlendiricisi Faturalar
+       sekmesini zaten açmış oluyor; buranın işi yalnız pencereyi açmak.
+       Ödeme akışındaki fatura adımı bu adrese bağlanıyor — akıştan gelen
+       kullanıcı iki tık uzakta değil, doğrudan formda. */
+    function ftCapaAc(){
+      if (location.hash !== '#fatura-bilgilerim' || !ftKapi) return;
+      var ac = $('odFtBilgi');
+      var s = $('ftSonuc'); if (s) s.classList.remove('show');
+      ftKapi.ac(ac || null);
+    }
+    window.addEventListener('hashchange', ftCapaAc);
+    ftCapaAc();
   }
 
   /* ================= 5 · İADE TALEPLERİ ========================= */

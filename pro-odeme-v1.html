@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DadaFit Pro ödeme — aboneliğini başlat</title>
-<meta name="description" content="DadaFit Pro aboneliğini başlat: paket özeti, dönem ve yenileme tarihleri, kart bilgileri ve onay adımı tek ekranda. Ödeme geçmişin ve faturaların hesabında tutulur." />
+<meta name="description" content="DadaFit Pro aboneliğini başlat: paket özeti, dönem ve yenileme tarihleri, fatura bilgileri, kart bilgileri ve onay adımı tek ekranda. Ödeme geçmişin ve faturaların hesabında tutulur." />
 <link rel="shortcut icon" type="image/x-icon"
       href="assets/img/favicon.ico" />
 <!-- DadaFit ortak kabuk (tek kaynak) -->
@@ -156,6 +156,13 @@
 .form-card.is-err .agree{border-color:#b3261e;background:#fdf3f2}
 .form-card.is-err .agree-err{display:flex}
 
+/* ---- fatura adımının eylem satırı: düğme + yan not ----
+   Kutu dili yeni değil; düğme `.btn`, not `.fk-help` (ikisi de kabukta).
+   Buradaki tek iş ikisini aynı satıra almak ve dar ekranda alt alta
+   düşürmek. `.sub-facts`/`.sub-note` ile arası kart ritmiyle aynı: 16px. */
+.ft-eylem{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}
+.ft-eylem .fk-help{flex:1 1 240px;min-width:0}
+
 /* ---- plan özet sidebar ---- */
 .plan-sum{position:sticky;top:128px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--sh-sm);overflow:hidden}
 .ps-head{padding:20px 22px;background:linear-gradient(135deg,#fff,#f4fbf7);border-bottom:1px solid var(--line)}
@@ -265,7 +272,7 @@ body.pay-done .pay-success{display:block}
     <div class="pay-eyebrow">
       <span class="eyebrow"><i class="fa-solid fa-crown"></i> Üyelik</span> </div>
     <h1 id="payBaslik">Aboneliğini başlat</h1>
-    <p class="lib-sub">Dört adım: planı onayla, ödeme yöntemini seç, kart bilgilerini gir, koşulları onayla. Üyeliğini istediğin an dondurabilir veya iptal edebilirsin.</p>
+    <p class="lib-sub">Beş adım: dönemi gör, fatura bilgilerini gir, ödeme yöntemini seç, kart bilgilerini gir, koşulları onayla. Üyeliğini istediğin an dondurabilir veya iptal edebilirsin.</p>
     <!-- çıkmaz sokak kırıcı: ödeme ekranından içeriğe sessiz yol -->
     <a class="pay-already" href="odemelerim-v1.html#abonelik"><i class="fa-solid fa-crown"></i> Zaten abone misin? Aboneliğini yönet <i class="fa-solid fa-arrow-right"></i></a>
   </div>
@@ -286,14 +293,97 @@ body.pay-done .pay-success{display:block}
           <p><b>Bu ekran maket: ödeme alınmaz, kart bilgisi hiçbir yere gönderilmez ve saklanmaz.</b> Form doğrulaması gerçekten çalışır — kart numarası Luhn kontrolünden geçer, tarih geçmiş olamaz. Akışın sonunda ekran neyin yapılmadığını açıkça yazar.</p>
         </div>
 
-        <!-- ===== ADIM 2 · ÖDEME YÖNTEMİ ===== -->
+        <!-- ===== ADIM 1 · ABONELİK DÖNEMİ (belge §15) ===== -->
+        <div class="form-card">
+          <div class="fc-head">
+            <div>
+              <h2><i class="fa-regular fa-calendar-check"></i> Abonelik Dönemin</h2>
+              <p>Ödeme alınsaydı hesabında oluşacak kayıt — tarihleri baştan gör.</p>
+            </div>
+            <span class="fc-step">Adım 1 / 5</span>
+          </div>
+          <div class="sub-facts">
+            <div class="sf-item">
+              <label><i class="fa-solid fa-crown"></i> Aktif paket</label>
+              <b id="sfPlan">DadaFit Pro</b>
+              <span>Aylık · site geneli tek üyelik</span>
+            </div>
+            <div class="sf-item">
+              <label><i class="fa-solid fa-play"></i> Başlangıç tarihi</label>
+              <b>17 Ağustos 2026</b>
+              <span>Erişimin ödeme onaylanır onaylanmaz açılır</span>
+            </div>
+            <div class="sf-item">
+              <label><i class="fa-solid fa-flag-checkered"></i> Dönem bitişi</label>
+              <b>16 Eylül 2026</b>
+              <span>Bu tarihe kadar tüm paket avantajların açık</span>
+            </div>
+            <div class="sf-item">
+              <label><i class="fa-solid fa-rotate"></i> Yenileme tarihi</label>
+              <b>17 Eylül 2026</b>
+              <span id="sfRenew">Otomatik yenileme · ₺99 tahsil edilir</span>
+            </div>
+          </div>
+          <div class="sub-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Otomatik yenilemeyi istediğin an kapatabilirsin; kapatırsan üyeliğin dönem bitişinde sona erer ve o güne kadar erişimin sürer. İptalde kayıtlarını ve ilerleme geçmişini kaybetmezsin — hesabın ücretsiz kademeye döner. Ayrıntılar <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a> ile <a href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>'nda.</p>
+          </div>
+        </div>
+
+        <!-- ===== ADIM 2 · FATURA BİLGİLERİ =====
+             🔴 NEDEN BU ADIM VAR: bu ekran akışın sonunda GERÇEK bir fatura
+             kaydı üretiyor (`FIT_FATURA.ekle`, aşağıda) ve yönetim tarafı o
+             kaydın alıcı adresini `fit-fatura.js:alici()` üzerinden basıyor
+             (`admin-fatura-detay-v1.html`). Adresi soracak tek yüzey ise
+             Ödemelerim'in içindeki bir pencereydi: akıştan bağlantısı yoktu,
+             URL çapası yoktu. Sonuç ölçüldü — akışı sonuna kadar götüren
+             kullanıcının faturasında alıcı adresi "Adres bilgisi girilmedi"
+             kalıyordu. Adım o boşluğu kapatıyor.
+
+             FORM BURADA YENİDEN YAZILMAZ. Tek kaynak
+             `assets/js/fit-fatura-form.js`; Ödemelerim'de açılan pencerenin
+             AYNISI açılır ve aynı `dm_fit_fatura_v1` kaydına yazar. Bu kart
+             yalnız o kaydın ÖZETİ: doluysa kimliği ve adresi okur, boşsa
+             uyarır. -->
+        <div class="form-card" id="faturaKart">
+          <div class="fc-head">
+            <div>
+              <h2><i class="fa-solid fa-building-columns"></i> Fatura Bilgileri</h2>
+              <p>Faturan kime, hangi kimlikle ve hangi adrese düzenlenecek. Bir kez kaydedilir, sonraki ödemelerde hazır gelir.</p>
+            </div>
+            <span class="fc-step">Adım 2 / 5</span>
+          </div>
+
+          <!-- DOLU HÂL — kayıttan okunur, elle yazılmaz -->
+          <div class="sub-facts" id="ftOzet" hidden></div>
+
+          <!-- BOŞ HÂL — henüz kayıt yok. Bu bir HATA değil, eksik bir adım;
+               kırmızı uyarı yalnız "Aboneliği Başlat"a basılınca çıkar. -->
+          <div class="sub-note" id="ftBos">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Fatura bilgilerin henüz kayıtlı değil. Faturanın kime ve hangi adrese düzenleneceğini girmeden abonelik başlatılamaz. Girdiğin bilgiler <b>bu tarayıcıda</b> saklanır, hiçbir sunucuya gönderilmez.</p>
+          </div>
+
+          <div class="ft-eylem">
+            <button class="btn btn-ghost" type="button" id="faturaAc">
+              <i class="fa-solid fa-building-columns" aria-hidden="true"></i> <span id="faturaAcTxt">Fatura Bilgilerini Gir</span>
+            </button>
+            <span class="fk-help"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Aynı bilgiler <a href="odemelerim-v1.html#fatura-bilgilerim" style="color:var(--fit-deep);font-weight:700">Ödemelerim &rsaquo; Fatura Bilgilerim</a> ekranından da düzenlenir.</span>
+          </div>
+
+          <!-- Onay kartının `.agree-err` deseninin aynısı: kartta `is-err`,
+               içeride kırmızı satır. Yeni desen icat edilmedi. -->
+          <p class="agree-err" id="faturaErr" role="status"><i class="fa-solid fa-circle-exclamation"></i> Devam etmek için fatura bilgilerini girmen gerekiyor.</p>
+        </div>
+
+        <!-- ===== ADIM 3 · ÖDEME YÖNTEMİ ===== -->
         <div class="form-card">
           <div class="fc-head">
             <div>
               <h2><i class="fa-solid fa-wallet"></i> Ödeme Yöntemi</h2>
               <p>Kayıtlı bir kartla devam et ya da yeni kart gir. Kayıtlı kartını seçersen aşağıdaki form kapanır.</p>
             </div>
-            <span class="fc-step">Adım 2 / 4</span>
+            <span class="fc-step">Adım 3 / 5</span>
           </div>
           <div class="pm-list" role="radiogroup" aria-label="Ödeme yöntemi">
             <label class="pm-opt" for="pmKayitli1">
@@ -319,14 +409,14 @@ body.pay-done .pay-success{display:block}
           <span class="fk-help"><i class="fa-solid fa-sliders"></i> Kayıtlı kartlarını <a href="odemelerim-v1.html#kartlar" style="color:var(--fit-deep);font-weight:700">Ödemelerim &rsaquo; Kartlarım</a> bölümünden yönetirsin.</span>
         </div>
 
-        <!-- ===== ADIM 3 · KART BİLGİLERİ ===== -->
+        <!-- ===== ADIM 4 · KART BİLGİLERİ ===== -->
         <div class="form-card" id="kartFormu" hidden>
           <div class="fc-head">
             <div>
               <h2><i class="fa-regular fa-credit-card"></i> Kart Bilgileri</h2>
               <p>Alan doğrulaması bu ekranda gerçekten çalışır; bilgiler hiçbir yere gönderilmez.</p>
             </div>
-            <span class="fc-step">Adım 3 / 4</span>
+            <span class="fc-step">Adım 4 / 5</span>
           </div>
 
           <div class="pay-grid">
@@ -367,52 +457,14 @@ body.pay-done .pay-success{display:block}
           </div>
         </div>
 
-        <!-- ===== DÖNEM ALANLARI (belge §15) ===== -->
-        <div class="form-card">
-          <div class="fc-head">
-            <div>
-              <h2><i class="fa-regular fa-calendar-check"></i> Abonelik Dönemin</h2>
-              <p>Ödeme alınsaydı hesabında oluşacak kayıt — tarihleri baştan gör.</p>
-            </div>
-            <span class="fc-step">Adım 1 / 4</span>
-          </div>
-          <div class="sub-facts">
-            <div class="sf-item">
-              <label><i class="fa-solid fa-crown"></i> Aktif paket</label>
-              <b id="sfPlan">DadaFit Pro</b>
-              <span>Aylık · site geneli tek üyelik</span>
-            </div>
-            <div class="sf-item">
-              <label><i class="fa-solid fa-play"></i> Başlangıç tarihi</label>
-              <b>17 Ağustos 2026</b>
-              <span>Erişimin ödeme onaylanır onaylanmaz açılır</span>
-            </div>
-            <div class="sf-item">
-              <label><i class="fa-solid fa-flag-checkered"></i> Dönem bitişi</label>
-              <b>16 Eylül 2026</b>
-              <span>Bu tarihe kadar tüm paket avantajların açık</span>
-            </div>
-            <div class="sf-item">
-              <label><i class="fa-solid fa-rotate"></i> Yenileme tarihi</label>
-              <b>17 Eylül 2026</b>
-              <span id="sfRenew">Otomatik yenileme · ₺99 tahsil edilir</span>
-            </div>
-          </div>
-          <div class="sub-note">
-            <i class="fa-solid fa-circle-info"></i>
-            <p>Otomatik yenilemeyi istediğin an kapatabilirsin; kapatırsan üyeliğin dönem bitişinde sona erer ve o güne kadar erişimin sürer. İptalde kayıtlarını ve ilerleme geçmişini kaybetmezsin — hesabın ücretsiz kademeye döner. Ayrıntılar <a href="yasal-v1.html?metin=uyelik">Üyelik ve İptal Koşulları</a> ile <a href="yasal-v1.html?metin=iade">Cayma ve İade Koşulları</a>'nda.</p>
-          </div>
-        </div>
-
-        <!-- ===== ONAY ===== -->
-        <!-- ===== ADIM 4 · ONAY ===== -->
+        <!-- ===== ADIM 5 · ONAY ===== -->
         <div class="form-card" id="agreeCard">
           <div class="fc-head">
             <div>
               <h2><i class="fa-solid fa-file-signature"></i> Onay</h2>
               <p>Koşulları onaylamadan abonelik düğmesi çalışmaz.</p>
             </div>
-            <span class="fc-step">Adım 4 / 4</span>
+            <span class="fc-step">Adım 5 / 5</span>
           </div>
           <label class="agree" for="agreePro">
             <input type="checkbox" id="agreePro" aria-describedby="agreeErr" />
@@ -540,6 +592,11 @@ body.pay-done .pay-success{display:block}
 
 </main>
 
+<!-- Fatura bilgileri formu (#ftModal) buraya basılır — Ödemelerim'deki
+     pencerenin AYNISI, aynı `dm_fit_fatura_v1` kaydına yazar.
+     Tek kaynak: assets/js/fit-fatura-form.js -->
+<div id="ftFormYuva"></div>
+
 <!-- KABUK: alt katman (giriş kapısı + footer + başa dön) -->
 <div id="fitShellBottom"></div>
 
@@ -547,8 +604,14 @@ body.pay-done .pay-success{display:block}
 <script src="assets/js/fit-shell.js"></script>
 <!-- Kademe–özellik eşlemesinin tek kaynağı -->
 <script src="assets/js/fit-paket.js"></script>
+<!-- Modal kabuğu (odak tuzağı · ESC · odak dönüşü) — tek kaynak -->
+<script src="assets/js/fit-modal.js"></script>
+<!-- Ülke kodu seçicisinin verisi ve davranışı — tek kaynak -->
+<script src="assets/js/fit-ulke.js"></script>
 <!-- Fatura defterinin tek kaynağı — K8: abonelik burada faturaya düşer -->
 <script src="assets/js/fit-fatura.js"></script>
+<!-- Fatura bilgileri formunun tek kaynağı — markup + doğrulama + kayıt -->
+<script src="assets/js/fit-fatura-form.js"></script>
 <script>
 /* ===== MOBİL ALT KATMAN YÖNETİCİSİ (revize2/mobil1 — kanonik) =====
  Kural: ekranda en fazla 1 sabit alt şerit. Çerez onayı (geçici, öncelikli)
@@ -655,7 +718,69 @@ window.__bottomStrips=window.__bottomStrips||[];
     set('psMore', kalan > 0 ? 've ' + kalan + ' özellik daha — tam döküm Paketlerim\u2019de.' : '');
   }
 
-  /* ---- 2 · ÖDEME YÖNTEMİ: kayıtlı kart seçilince form KAPANIR ---- */
+  /* ---- 2 · FATURA BİLGİLERİ (Adım 2) ------------------------------
+     Form burada YOK: `fit-fatura-form.js` markup'ı basar ve doğrulamayı
+     kendi yapar. Bu blok yalnız kaydı OKUR, özeti basar ve akışın
+     kapısını tutar. Kayıt anahtarı iki ekranda da `dm_fit_fatura_v1`;
+     Ödemelerim'de girilen bilgi burada hazır gelir, tersi de doğru. */
+  var FF = window.FIT_FATURA_FORM;
+  var faturaKart = $('faturaKart'), ftOzet = $('ftOzet'), ftBos = $('ftBos');
+
+  /* "Dolu" ne demek: faturanın kesilebilmesi için gereken asgari küme.
+     Doğrulamanın kendisi formun işi — burada yalnız VARLIK sorulur, kural
+     kopyalanmaz (kopyalansaydı iki yerde ayrışırdı). */
+  function faturaDolu(d){
+    if(!d) return false;
+    var kimlik = (d.tip === 'kurumsal' ? d.ftUnvan : d.ftAd) || '';
+    return !!(kimlik.trim() && (d.ftAdres||'').trim() &&
+              (d.ftIl||'').trim() && (d.ftEposta||'').trim());
+  }
+
+  function sfItem(ikon, etiket, kalin, alt){
+    var d = document.createElement('div'); d.className = 'sf-item';
+    var l = document.createElement('label');
+    l.innerHTML = '<i class="fa-solid ' + ikon + '"></i> ';
+    l.appendChild(document.createTextNode(etiket));
+    var b = document.createElement('b'); b.textContent = kalin;
+    var s = document.createElement('span'); s.textContent = alt;
+    d.appendChild(l); d.appendChild(b); d.appendChild(s);
+    return d;
+  }
+
+  function faturaOzetBas(){
+    var d = FF ? FF.oku() : null, dolu = faturaDolu(d);
+    var acTxt = $('faturaAcTxt');
+    if(ftBos)  ftBos.hidden  = dolu;
+    if(ftOzet) ftOzet.hidden = !dolu;
+    if(acTxt)  acTxt.textContent = dolu ? 'Fatura Bilgilerini Düzenle' : 'Fatura Bilgilerini Gir';
+    if(dolu && faturaKart) faturaKart.classList.remove('is-err');
+    if(!dolu || !ftOzet) return;
+
+    var kurumsal = d.tip === 'kurumsal';
+    var adresSatir = [d.ftAdres, [d.ftIlce, d.ftIl].filter(Boolean).join(' / '), d.ftPosta]
+      .filter(function(x){ return x && String(x).trim(); }).join(', ');
+
+    ftOzet.innerHTML = '';
+    ftOzet.appendChild(sfItem('fa-file-invoice', 'Fatura tipi',
+      kurumsal ? 'Kurumsal' : 'Bireysel',
+      kurumsal ? (d.efatura ? 'e-Fatura mükellefi' : 'e-Arşiv fatura') : 'Bireysel e-Arşiv fatura'));
+    ftOzet.appendChild(sfItem(kurumsal ? 'fa-building' : 'fa-user',
+      kurumsal ? 'Firma' : 'Ad soyad',
+      (kurumsal ? d.ftUnvan : d.ftAd) || '—',
+      kurumsal ? ('Vergi No (VKN): ' + (d.ftVkn || '—') + ' · ' + (d.ftDaire || '—'))
+               : ('T.C. Kimlik No: ' + (d.ftTckn || 'girilmedi'))));
+    ftOzet.appendChild(sfItem('fa-location-dot', 'Fatura adresi', adresSatir || '—',
+      'Kesilmiş fatura geriye dönük düzenlenmez.'));
+    ftOzet.appendChild(sfItem('fa-paper-plane', 'E-posta', d.ftEposta || '—',
+      'Fatura bu adrese gönderilir.'));
+  }
+
+  if(FF){
+    FF.kur({ yuva:'ftFormYuva', tetik:'faturaAc', kaydedildi: faturaOzetBas });
+    faturaOzetBas();
+  }
+
+  /* ---- 3 · ÖDEME YÖNTEMİ: kayıtlı kart seçilince form KAPANIR ---- */
   var kartFormu = $('kartFormu');
   var radyolar = document.querySelectorAll('input[name="odemeYontemi"]');
   function yontem(){
@@ -679,7 +804,7 @@ window.__bottomStrips=window.__bottomStrips||[];
   Array.prototype.forEach.call(radyolar, function(r){ r.addEventListener('change', formGorunur); });
   formGorunur();
 
-  /* ---- 3 · CANLI KART ÖNİZLEME + BİÇİMLEME ---- */
+  /* ---- 4 · CANLI KART ÖNİZLEME + BİÇİMLEME ---- */
   var num=$('ccNum'), name=$('ccName'), exp=$('ccExp'), cvv=$('ccCvv'),
       cvNum=$('cvNum'), cvName=$('cvName'), cvExp=$('cvExp'), cvBrand=$('cvBrand');
   if(num&&cvNum){
@@ -702,7 +827,7 @@ window.__bottomStrips=window.__bottomStrips||[];
   }
   if(cvv){ cvv.addEventListener('input',function(){ cvv.value=cvv.value.replace(/\D/g,'').slice(0,4); }); }
 
-  /* ---- 4 · DOĞRULAMA (gerçek yetenek: sunucu gerekmez) ---- */
+  /* ---- 5 · DOĞRULAMA (gerçek yetenek: sunucu gerekmez) ---- */
   function luhn(s){
     var d=String(s).replace(/\D/g,''); if(d.length!==16) return false;
     var t=0, ikile=false;
@@ -723,7 +848,7 @@ window.__bottomStrips=window.__bottomStrips||[];
     return gecerli;
   }
 
-  /* ---- 5 · DURUM EKRANI (SS paramı ?ok=1) ---- */
+  /* ---- 6 · DURUM EKRANI (SS paramı ?ok=1) ---- */
   function durumGoster(){
     set('dsYontem', yontemAdi());
     document.body.classList.add('pay-done');
@@ -736,7 +861,17 @@ window.__bottomStrips=window.__bottomStrips||[];
 
   if(start){
     start.addEventListener('click',function(){
-      /* a) yeni kart seçiliyse kart alanları — b) her hâlde onay kutusu */
+      /* Kapılar ADIM SIRASIYLA denetlenir: a) fatura bilgisi (Adım 2) —
+         b) yeni kart seçiliyse kart alanları (Adım 4) — c) onay (Adım 5).
+         Kullanıcı en erken eksik adıma gönderilir, en geç olana değil. */
+      if(!faturaDolu(FF ? FF.oku() : null)){
+        if(faturaKart){
+          faturaKart.classList.add('is-err');
+          faturaKart.scrollIntoView({behavior:'smooth',block:'center'});
+        }
+        var ac = $('faturaAc'); if(ac) ac.focus({preventScroll:true});
+        return;
+      }
       if(yontem()==='yeni'){
         var ok=true, ilk=null;
         if(!isaret(name,'ccNameHata',(name.value||'').trim().length>=3)) { ok=false; ilk=ilk||name; }

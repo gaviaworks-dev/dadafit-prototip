@@ -225,6 +225,8 @@ body.pay-done .pay-success{display:block}
 .suc-panel>p{font-size:13px;color:var(--slate-2);font-weight:500;line-height:1.55;margin-bottom:18px}
 .suc-liste{list-style:none;display:flex;flex-direction:column;gap:10px;margin:0}
 .suc-liste li{display:flex;gap:10px;font-size:13.5px;font-weight:500;color:var(--slate-2);line-height:1.5}
+/* `display:flex` [hidden]'ı ezer; akışta yazılMAYAN madde hiç basılmasın diye. */
+.suc-liste li[hidden]{display:none}
 .suc-liste li i{flex:none;margin-top:3px;font-size:11px;color:var(--slate-2)}
 .suc-liste li b{color:var(--slate);font-weight:700}
 .suc-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
@@ -547,16 +549,24 @@ body.pay-done .pay-success{display:block}
 <!-- ===== DURUM EKRANI (body.pay-done ile görünür · ?ok=1) =====
  🔴 Burada eskiden "Üyeliğin başladı" + yeşil onay + sahte fatura satırı
  vardı. Bu prototipte ödeme ALINMADIĞI için o ekran yalandı ve söküldü.
- Yerine akışın nerede durduğunu söyleyen nötr durum ekranı var: girdiğin
- bilgiler özetlenir (akışı sonuna kadar götürdüğünü görürsün) ama hiçbiri
- gönderilmedi ve ekran bunu açıkça yazar. -->
+ Yerine akışın nerede durduğunu söyleyen nötr durum ekranı var.
+
+ ⚠ LİSTE ÖLÇÜMLE YAZILDI, VARSAYIMLA DEĞİL. Eski hâli "abonelik başlaMADI —
+ kademen değişmedi" ve "fatura kesilMEDİ" diyordu; ikisi de yanlıştı.
+ Tarayıcıda ölçüldü (2026-08-31, `?plan=pro`): akış `dm_user.paket:"pro"` ve
+ `paketTarih` yazıyor, `dm_fit_fatura_kayit_v1`e bir satır düşüyor
+ (`Ödendi · ₺99,00`), ikisi de sayfa yenilendikten sonra DURUYOR ve satır
+ Ödemelerim'de "· senin kaydın" etiketiyle görünüyor. `?plan=promax`ta
+ defter satırı doğmuyor — fiyatı `null` ve K13 sayı uydurmayı yasaklıyor —
+ ama kademe yine yazılıyor. Ekran artık bunları OLDUĞU GİBİ söylüyor;
+ kesilMEYEN şey gerçek bir e-Arşiv belgesidir, defter satırı değil. -->
 <section class="pay-success" aria-label="Ödeme akışının durumu">
   <div class="wrap">
     <div class="suc-mid">
       <span class="suc-ico"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></span>
       <span class="suc-tier"><i class="fa-solid fa-plug-circle-xmark" aria-hidden="true"></i> Ödeme altyapısı bağlanmadı</span>
       <h2>Akışın sonuna geldin — ödeme alınmadı</h2>
-      <p class="suc-lead">Formu eksiksiz doldurdun ve koşulları onayladın. Bu noktada gerçek bir üründe banka doğrulaması başlardı; bu prototipte ödeme sağlayıcısı bağlı değil, o yüzden <b>tahsilat yapılmadı, abonelik başlamadı, fatura kesilmedi</b>.</p>
+      <p class="suc-lead">Formu eksiksiz doldurdun ve koşulları onayladın. Bu noktada gerçek bir üründe banka doğrulaması başlardı; bu prototipte ödeme sağlayıcısı bağlı değil, o yüzden <b>tahsilat yapılmadı ve gerçek bir fatura kesilmedi</b>. Buna karşılık akış maketin kendi kayıtlarında <b>bu tarayıcıda</b> iz bırakır; neyin yazıldığı ve neyin yazılmadığı aşağıda tek tek listeleniyor.</p>
     </div>
 
     <div class="suc-panel">
@@ -568,8 +578,10 @@ body.pay-done .pay-success{display:block}
         <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Form doğrulaması geçildi:</b> zorunlu alanlar dolu, kart numarası Luhn kontrolünden geçti, son kullanma tarihi geçerli.</span></li>
         <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Koşullar onaylandı:</b> üyelik, mesafeli satış ve ödeme koşulları.</span></li>
         <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Tahsilat yapılMADI</b> — ödeme sağlayıcısı bağlı değil.</span></li>
-        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Abonelik başlaMADI</b> — kademen değişmedi, hiçbir modül açılmadı.</span></li>
-        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Fatura kesilMEDİ</b> ve kart <b>kaydedilMEDİ</b> — girdiğin bilgiler yalnız bu sayfada durdu, sayfadan ayrılınca kayboldu.</span></li>
+        <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Paket kademen YAZILDI:</b> <span id="dsKademe">hesabın Pro oldu</span> — kayıt bu tarayıcıda tutulur ve sayfayı yenileyince durur. Kademeyi okuyan yüzeyler (Hesabım rozeti, kabuk) bunu görür.</span></li>
+        <li id="dsDefterMd"><i class="fa-solid fa-check" aria-hidden="true"></i> <span><b>Defterine bir satır düştü:</b> <a href="odemelerim-v1.html#faturalar">Ödemelerim &rsaquo; Faturalar</a>'da <b>&middot; senin kaydın</b> etiketiyle görünür ve örnek satırlardan böyle ayrılır.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Gerçek fatura KESİLMEDİ</b> — e-Arşiv belgesi üretilmedi, vergi dairesine gitmedi ve indirilemez. Defter kaydı maketin kendi listesidir, yasal bir belge değil.</span></li>
+        <li><i class="fa-solid fa-xmark" aria-hidden="true"></i> <span><b>Kart bilgisi kaydedilMEDİ</b> — girdiğin kart numarası, tarih ve CVV hiçbir yere yazılmadı, sayfadan ayrılınca kayboldu. (Fatura bilgilerin ayrı: onları sen kaydettin, formun kendisi bunu söylüyor.)</span></li>
       </ul>
     </div>
 
@@ -848,9 +860,23 @@ window.__bottomStrips=window.__bottomStrips||[];
     return gecerli;
   }
 
-  /* ---- 6 · DURUM EKRANI (SS paramı ?ok=1) ---- */
+  /* ---- 6 · DURUM EKRANI (SS paramı ?ok=1) ----
+     Liste NE OLDUĞUNU yazar, ne olmasını beklediğimizi değil: aşağıdaki iki
+     değişken yalnız yazma GERÇEKTEN olduğunda dolar. `?ok=1` ile doğrudan
+     gelindiğinde ikisi de boştur ve o maddeler hiç basılmaz — ekran görüntüsü
+     parametresi ekranı yalancı yapmasın. */
+  var yazilanKademe = null, yazilanSatir = null;
+
   function durumGoster(){
     set('dsYontem', yontemAdi());
+
+    var kd = $('dsKademe'), kdMd = kd ? kd.parentNode.parentNode : null;
+    if(kdMd) kdMd.hidden = !yazilanKademe;
+    if(kd && yazilanKademe) kd.textContent = 'hesabın ' + plan.ad + ' oldu';
+
+    var dfMd = $('dsDefterMd');
+    if(dfMd) dfMd.hidden = !yazilanSatir;
+
     document.body.classList.add('pay-done');
     window.scrollTo(0,0);
   }
@@ -901,6 +927,7 @@ window.__bottomStrips=window.__bottomStrips||[];
         u.paket = (key === 'promax') ? 'pro_max' : 'pro';
         u.paketTarih = new Date().toISOString();
         localStorage.setItem('dm_user', JSON.stringify(u));
+        yazilanKademe = u.paket;
       }catch(e){}
 
       /* K8 — abonelik faturaya düşer (fiyatı olmayan kademe için sayı
@@ -909,7 +936,7 @@ window.__bottomStrips=window.__bottomStrips||[];
         var ay=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
         var b=new Date(), bt=new Date(b); bt.setMonth(bt.getMonth()+1); bt.setDate(bt.getDate()-1);
         var donem = b.getDate()+' '+ay[b.getMonth()]+' – '+bt.getDate()+' '+ay[bt.getMonth()]+' '+bt.getFullYear();
-        FIT_FATURA.ekle({
+        yazilanSatir = FIT_FATURA.ekle({
           tur:'uyelik', donem:donem,
           konu:'DadaFit '+plan.ad+' — '+donem+' dönemi',
           kalem:[[ 'DadaFit '+plan.ad+' — Aylık','Platform paketi · '+donem+' dönemi',1,Math.round(plan.fiyat*100) ]]

@@ -23,6 +23,9 @@
         tarafından onaylanmadı"). K13 gereği sayı uydurulmadığı için
         promax'ta defter satırı HİÇ doğmaz; sonda ikisini de bekler.
      6. Ödemelerim'de `#fatura-bilgilerim` çapası pencereyi açıyor
+     7. Akış sonu listesi YAZILANI yazıyor: kademe maddesi yalnız kademe
+        gerçekten yazıldıysa, defter maddesi yalnız satır gerçekten
+        düştüyse basılıyor (`?ok=1` ile gelindiğinde ikisi de basılmaz)
 
    KULLANIM
      python3 -m http.server 8788 &
@@ -161,6 +164,31 @@ for (const W of [1440, 768, 390]) {
     bekle(son.alici && son.alici.kaynak === 'form',
       `@${W}/${plan} · alıcı hâlâ varsayılan personadan okunuyor`, son.alici ? son.alici.kaynak : 'null');
     console.log(`  ${plan.padEnd(6)} · akış sonu · defter ${son.faturaSayisi} satır · alıcı: ${son.alici ? son.alici.adres : 'null'}`);
+
+    /* Akış sonu listesi DAVRANIŞI anlatmalı. Eski hâli "abonelik başlaMADI —
+       kademen değişmedi" ve "fatura kesilMEDİ" diyordu; ikisi de yanlıştı. */
+    const liste = await pg.evaluate(() => {
+      const g = id => document.getElementById(id);
+      const gorunur = el => !!el && el.getClientRects().length > 0;
+      const metin = [...document.querySelectorAll('.suc-liste li')]
+        .filter(gorunur).map(e => e.textContent.replace(/\s+/g, ' ')).join(' ');
+      return {
+        kademeMd: gorunur(g('dsKademe') && g('dsKademe').closest('li')),
+        kademeMetni: g('dsKademe') ? g('dsKademe').textContent.trim() : null,
+        defterMd: gorunur(g('dsDefterMd')),
+        kademeDegismediDiyor: /kademen değişmedi/.test(metin),
+        faturaKesilmediDiyor: /Fatura kesilMEDİ/.test(metin)
+      };
+    });
+    bekle(liste.kademeMd, `@${W}/${plan} · kademe yazıldı ama liste bunu söylemiyor`);
+    bekle(liste.kademeMetni.indexOf(plan === 'pro' ? 'Pro' : 'Pro Max') >= 0,
+      `@${W}/${plan} · kademe maddesi yanlış kademeyi yazıyor`, liste.kademeMetni);
+    bekle(liste.defterMd === (beklenenFatura > 0),
+      `@${W}/${plan} · defter maddesi defterin gerçek hâliyle uyuşmuyor`,
+      `madde ${liste.defterMd} / satır ${son.faturaSayisi}`);
+    bekle(!liste.kademeDegismediDiyor, `@${W}/${plan} · liste hâlâ "kademen değişmedi" diyor`);
+    bekle(!liste.faturaKesilmediDiyor, `@${W}/${plan} · liste hâlâ "Fatura kesilMEDİ" diyor`);
+    console.log(`  ${plan.padEnd(6)} · liste · kademe md ${liste.kademeMd} ("${liste.kademeMetni}") · defter md ${liste.defterMd}  ✅`);
     await ctx.close();
   }
 

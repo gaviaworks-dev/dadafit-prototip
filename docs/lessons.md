@@ -958,3 +958,81 @@ karşılaştırması için `git stash`/`stash pop` çalıştırdı; o an **on aj
 açık işi (19 dosya) stash'e girdi. `pop` temiz döndü ve kayıp olmadı, ajan da
 dürüstçe bildirdi — ama kurtarılamayabilirdi. Ajanlar tek git index paylaşır:
 `add` · `commit` · `push` · `stash`, dördü de yasak.
+
+---
+
+## §38 · Yayın hattı iki kaynaktan kuruluyorsa, dosyayı yazmak yayınlamak değildir
+
+R22'de DadaFit'e altı durum ekranı istendi; ilki 404'tü ve *"gerçekten devreye
+girdiğini ölç — dosyanın açılması kanıt değil"* denmişti. Doğru soru buydu:
+sayfa yazılsaydı ve ölçülmeseydi, **yazılmış ama ölü** kalacaktı.
+
+### Kurgu
+
+`.github/workflows/pages.yml` siteyi **iki ayrı checkout'tan** kuruyor:
+
+```
+_site/        ← V1_SHA (d4839be, dondurulmuş — main'in onlarca commit gerisinde)
+_site/v2/     ← main
+```
+
+GitHub Pages ise bulunamayan adreste **yalnız yayınlanan sitenin KÖKÜNDEKİ**
+`404.html`i okur. main'e konan bir `404.html` rsync ile `_site/v2/404.html`e
+düşer — Pages'in baktığı yer orası değildir. Yani dosya depoda vardır,
+commit'tedir, push edilmiştir ve **hiçbir şey yapmaz**.
+
+### Nasıl yakalandı
+
+Kod okunarak değil, **canlıya istek atarak**. Turun başında ölçülen hâl:
+
+```
+/olmayan-sayfa-xyz.html      HTTP 404 · 9379 B · GitHub'ın jenerik sayfası
+/v2/olmayan-sayfa-xyz.html   HTTP 404 · 9379 B · aynı jenerik sayfa
+/404.html                    HTTP 404 — dosya sitede yok
+```
+
+İki adresin **aynı 9379 baytı** döndürmesi kurgunun kendisini ele veriyor:
+`/v2/` altında ayrı bir 404 karşılayıcısı yok, ikisi de aynı jeneriğe düşüyor.
+Yama sonrası aynı üç adres:
+
+```
+/olmayan-sayfa-xyz.html      HTTP 404 · 7544 B · "Sayfa bulunamadı — DadaFit"
+/v2/olmayan-sayfa-xyz.html   HTTP 404 · 7544 B · aynı sayfa
+/404.html                    HTTP 200 — dosya yerinde, doğrudan servis ediliyor
+```
+
+`/404.html`in **200** dönmesi kusur değil, doğru davranıştır: 404 statüsü
+dosyanın kendisinin değil, *bulunamayan adresin* özelliğidir.
+
+### İkinci tuzak — tek dosya iki ağaçta yaşar
+
+Kök 404, **v1 ağacından** servis edilen adreslerde de devreye girer. Yani
+sayfanın köprüleri **iki ağaçta da bulunmalıdır**. Ölçüldü (durum ekranları
+hariç): main'de olup v1'de olmayan **64** sayfa, v1'de olup main'de olmayan
+**21** sayfa var. İlk taslak `programlarim-v1.html`e bağlıydı —
+main'de var, v1'de yok (v1'in karşılığı `fit-planim-v1.html`), yani kökten
+açılan 404 kırık bağlantı gösterecekti. Aynı şey stil için de geçerli:
+sayfanın okuduğu `fit-durum.css` v1'de hiç yok, workflow onu da köke
+kopyalamak zorunda; v1'in kabuğunda eksik olan dört `--hs-*` tokeni ise
+404'ün kullanmadığı tokenlerdi (ölçüldü: 23'ün 19'u var, sayfa 4'ünü hiç
+kullanmıyor) — bu yüzden kökte de eksiksiz boyanıyor.
+
+### Kural
+
+**Bir dosyanın depoda olması, yayında olması demek değildir.** Yayın hattı
+tek `rsync`ten karmaşıksa — iki checkout, alt yol, dondurulmuş sürüm, ayrı
+artifact — "ekledim" ölçüm değildir. Kanıt, **yayınlanan adrese atılan
+istektir**: HTTP kodu · gövde boyutu · gövdenin kime ait olduğu.
+
+Yerelde kanıtlanabilen kısmı da yerelde kanıtlanır: workflow'un adımları
+birebir çalıştırılıp `_site` kurulur ve Pages'in kök-404 kuralını uygulayan
+bir sunucuyla servis edilir. Bu, sayfanın 404 olarak doğru çizildiğini
+kanıtlar; **Pages'in onu gerçekten aldığını kanıtlamaz** — o yalnız push
+sonrası ölçülür ve rapor bu ikisini ayırarak yazar.
+
+**Yan ders — konsoldaki 404 sayfanın kusuru değil, kanıtı olabilir.** Nöbet
+altı kırmızı verdi: *"Failed to load resource: 404"*. Sondayı sorgulayınca
+hatanın `location.url`i **belgenin kendisi** çıktı — Chromium ana çerçeve
+404'ünü konsola böyle yazar; alt kaynak 4xx'i 0'dı. Yani hata, tam olarak
+ölçmek istediğimiz şeyin gerçekleştiğinin kanıtıydı. Kasıtlı 404 ölçen her
+nöbet bu satırı elemeli, yoksa doğru davranışı kusur sayar.

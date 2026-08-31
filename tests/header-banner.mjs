@@ -81,7 +81,24 @@ const BANNER = [
      `.lib-top` söküldü, over-mode kendiliğinden düştü ve header katı
      kaldı — `hesabim-v1`/`profil-v1` ile aynı kalıp. Sayfa denetimsiz
      bırakılmadı: aşağıdaki PLAIN listesine, iki kardeşiyle birlikte geçti. */
-  'pro-v1.html'
+  'pro-v1.html',
+  /* DURUM EKRANLARI (2026-08-31) — altısı da `.lib-top` taşır, yani koyu
+     banner ailesindedir ve header üstlerinde ŞEFFAF başlamalıdır. Kapsam
+     boşluğu olarak doğmasınlar diye eklendiler: sayfalar yazıldığında bu
+     dosyanın iki listesinde de yoktular, yani denetimsizdiler — R12/Dalga 3'te
+     `hesabim-v1`/`destek-v1`/`pro-v1` ile aynı şekilde kaçan boşluk.
+     `404.html` ad kalıbının dışında; adı GitHub Pages'in sözleşmesi
+     (kökteki `404.html`), başka adla devreye girmiyor.
+     Ölçüldü (@1440/1024/640/390): altısında da `.lib-top` var, yükseklik
+     liste ailesinde (544/607/587), `body[data-fit-over="1"]` kuruluyor,
+     header scroll=0'da şeffaf. Fotoğrafsız düz koyu banner — `--lib-img:none`,
+     `destek-v1`/`pro-v1` ile aynı hâl. */
+  '404.html',
+  'hata-500-v1.html',
+  'hata-403-v1.html',
+  'bakim-v1.html',
+  'cevrimdisi-v1.html',
+  'oturum-suresi-doldu-v1.html'
 ];
 /* banner TAŞIMAYAN kabuk sayfaları — header katı kalmalı */
 const PLAIN = [
